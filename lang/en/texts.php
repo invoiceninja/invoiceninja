@@ -2197,6 +2197,8 @@ $lang = array(
     'encryption' => 'Encryption',
     'mailgun_domain' => 'Mailgun Domain',
     'mailgun_private_key' => 'Mailgun Private Key',
+    'brevo_domain' => 'Brevo Domain',
+    'brevo_private_key' => 'Brevo Private Key',
     'send_test_email' => 'Send test email',
     'select_label' => 'Select Label',
     'label' => 'Label',
@@ -4849,6 +4851,7 @@ $lang = array(
     'email_alignment' => 'Email Alignment',
     'pdf_preview_location' => 'PDF Preview Location',
     'mailgun' => 'Mailgun',
+    'brevo' => 'Brevo',
     'postmark' => 'Postmark',
     'microsoft' => 'Microsoft',
     'click_plus_to_create_record' => 'Click + to create a record',
@@ -5258,6 +5261,9 @@ $lang = array(
     'select_email_provider' => 'Set your email as the sending user',
     'purchase_order_items' => 'Purchase Order Items',
     'csv_rows_length' => 'No data found in this CSV file',
+    'accept_payments_online' => 'Accept Payments Online',
+    'all_payment_gateways' => 'View all payment gateways',    
+    'product_cost' => 'Product cost',
 );
 
 return $lang;

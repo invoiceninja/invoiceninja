@@ -213,7 +213,7 @@ class SettingsData
 
     public bool $show_accept_quote_terms = false;  //@TODO ben to confirm
 
-    public string $email_sending_method = 'default'; // enum 'default', 'gmail', 'office365', 'client_postmark', 'client_mailgun' //@implemented
+    public string $email_sending_method = 'default'; // enum 'default', 'gmail', 'office365', 'client_postmark', 'client_mailgun' , 'client_brevo' //@implemented
 
     public string $gmail_sending_user_id = '0'; //@implemented
 
@@ -433,6 +433,8 @@ class SettingsData
 
     public string $mailgun_endpoint = 'api.mailgun.net'; // api.eu.mailgun.net
 
+    public string $brevo_secret = '';
+
     public bool $auto_bill_standard_invoices = false;
 
     public string $email_alignment = 'center'; // center, left, right
@@ -469,8 +471,8 @@ class SettingsData
 
     public function cast(mixed $object)
     {
-        if(is_array($object)) {
-            $object = (object)$object;
+        if (is_array($object)) {
+            $object = (object) $object;
         }
 
         if (is_object($object)) {
@@ -478,9 +480,9 @@ class SettingsData
 
                 try {
                     settype($object->{$key}, gettype($this->{$key}));
-                } catch(\Exception | \Error | \Throwable $e) {
+                } catch (\Exception | \Error | \Throwable $e) {
 
-                    if(property_exists($this, $key)) {
+                    if (property_exists($this, $key)) {
                         $object->{$key} = $this->{$key};
                     } else {
                         unset($object->{$key});
@@ -506,11 +508,11 @@ class SettingsData
 
     public function toObject(): object
     {
-        return (object)$this->object;
+        return (object) $this->object;
     }
 
     public function toArray(): array
     {
-        return (array)$this->object;
+        return (array) $this->object;
     }
 }

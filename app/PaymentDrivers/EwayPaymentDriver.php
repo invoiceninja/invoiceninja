@@ -211,4 +211,24 @@ class EwayPaymentDriver extends BaseDriver
 
         return $fields;
     }
+
+    public function auth(): bool
+    {
+
+        $response =$this->init()->eway->queryTransaction('xx');
+
+        return (bool) count($response->getErrors()) == 0;
+
+    }
+    
+    /**
+     * importCustomers
+     *
+     * No support
+     * @return void
+     */
+    public function importCustomers()
+    {
+        return true;
+    }
 }

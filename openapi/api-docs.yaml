@@ -6,7 +6,7 @@ info:
         <br>
         <div style="color: white; background-color:SlateBlue; padding: 12px; border-radius:2px">
           The Invoice Ninja API is organized around REST and returns JSON-encoded responses, and uses standard HTTP response codes, authentication, and verbs.
-        </div>  
+        </div>
         <br>
 
   termsOfService: 'https://invoiceninja.github.io/docs/legal/terms_of_service/#page-content'
@@ -17,10 +17,9 @@ info:
     url: 'https://www.elastic.co/licensing/elastic-license'
   version: 5.8.34
 servers:
-  -
-    url: 'https://demo.invoiceninja.com'
-    description: |
-          ## Demo API Server InvoiceNinja. 
+    - url: "https://demo.invoiceninja.com"
+      description: |
+          ## Demo API Server InvoiceNinja.
           You can use the demo API key `TOKEN` to test the endpoints from within this API spec
 paths:
   /api/v1/activities:
@@ -49,10 +48,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Activity'
@@ -114,9 +113,9 @@ paths:
         - login
       summary: "Attempts authentication"
       description: |
-        After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company. 
+        After authenticating with the API, the returned object is a CompanyUser object which is a bridge linking the user to the company.
 
-        The company user object itself contains the users permissions (admin/owner or fine grained permissions) You will most likely want to 
+        The company user object itself contains the users permissions (admin/owner or fine grained permissions) You will most likely want to
         also include in the response of this object both the company and the user object, this can be done by using the include parameter.
 
         /api/v1/login?include=company,user
@@ -186,7 +185,7 @@ paths:
         - refresh
       summary: "Refresh data by timestamp"
       description: |
-        Refreshes the dataset.  
+        Refreshes the dataset.
 
         This endpoint can be used if you only need to access the most recent data from a certain point in time. For example, if you only want to retrieve The
         most recent data from the last time you accessed the system, you would pass the query parameter ?updated_at=1676173763. (unix timestamp)
@@ -299,10 +298,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/BankIntegration'
@@ -755,10 +754,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/BankTransaction'
@@ -1140,10 +1139,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/BankTransactionRule'
@@ -1516,10 +1515,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/ClientGatewayToken'
@@ -1809,10 +1808,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Company'
@@ -2208,10 +2207,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/CompanyGateway'
@@ -2530,10 +2529,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/CompanyLedger'
@@ -2617,7 +2616,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/designs:
     get:
       tags:
@@ -2642,10 +2641,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Design'
@@ -2958,10 +2957,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Document'
@@ -3059,10 +3058,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/ExpenseCategory'
@@ -3363,10 +3362,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Expense'
@@ -3756,10 +3755,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/GroupSetting'
@@ -4217,7 +4216,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/claim_license:
     get:
       tags:
@@ -4427,7 +4426,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/payment_terms:
     get:
       tags:
@@ -4452,10 +4451,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/PaymentTerm'
@@ -4894,10 +4893,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/RecurringExpense'
@@ -5237,7 +5236,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/recurring_quotes:
     get:
       tags:
@@ -5261,10 +5260,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/RecurringQuote'
@@ -6165,10 +6164,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Subscription'
@@ -6514,10 +6513,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/SystemLog'
@@ -6573,7 +6572,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/task_schedulers/:
     get:
       tags:
@@ -6827,10 +6826,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/TaskStatus'
@@ -7140,10 +7139,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/TaxRate'
@@ -7457,10 +7456,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/CompanyToken'
@@ -7765,10 +7764,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/User'
@@ -8169,7 +8168,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/webcron:
     get:
       tags:
@@ -8221,10 +8220,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Webhook'
@@ -8513,7 +8512,7 @@ paths:
         - products
       summary: "List products"
       description: |
-        Lists products, search and filters allow fine grained lists to be generated.    
+        Lists products, search and filters allow fine grained lists to be generated.
         Query parameters can be added to perform fine grained filtering of the products list, these are handled by the ProductFilters class
         which defines the methods available
       operationId: getProducts
@@ -8548,7 +8547,7 @@ paths:
           required: false
           schema:
             type: string
-          example: id|desc product_key|desc  
+          example: id|desc product_key|desc
       responses:
         200:
           description: "A list of products"
@@ -8561,10 +8560,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Product'
@@ -8974,10 +8973,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Task'
@@ -9410,10 +9409,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Project'
@@ -9796,31 +9795,31 @@ paths:
       summary: 'List clients'
       description: |
             When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
-              
+
             ```
             /api/v1/clients?balance=gt:1000
-            ``` 
-            
+            ```
+
             You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order:\
-            
+
             ```
             /api/v1/clients?sort=name|desc
             ```
 
             You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob":\
-            
+
             ```
             /api/v1/clients?balance=gt:1000&name=Bob*
             ```
 
             If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships:\
-            
+
             ```
             /api/v1/clients?include=activities,ledger,system_logs'
             ```
 
             The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page:\
-            
+
             ```
             /api/v1/clients?per_page=15&page=2
             ```
@@ -9894,7 +9893,7 @@ paths:
           required: false
           schema:
             type: string
-          example: id|desc name|desc balance|asc 
+          example: id|desc name|desc balance|asc
 
       responses:
         200:
@@ -9908,10 +9907,10 @@ paths:
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Client'
@@ -9938,7 +9937,7 @@ paths:
       summary: 'Create client'
       description: |
             Adds a client to a company
-              
+
             When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
 
       operationId: storeClient
@@ -10203,7 +10202,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/GenericBulkAction'
-              
+
       responses:
         200:
           description: 'The Client listresponse'
@@ -10338,7 +10337,7 @@ paths:
       description: |
             Handles merging 2 clients
 
-            The id parameter is the client that will be the primary client after the merge has completed. 
+            The id parameter is the client that will be the primary client after the merge has completed.
 
             The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
       operationId: mergeClient
@@ -10555,10 +10554,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Credit'
@@ -10614,7 +10613,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   "/api/v1/credits/{id}":
     get:
       tags:
@@ -11001,12 +11000,12 @@ paths:
         - name: filter
           in: query
           description: |
-            Searches across a range of columns including:  
-            - amount  
-            - date  
-            - custom_value1  
-            - custom_value2  
-            - custom_value3  
+            Searches across a range of columns including:
+            - amount
+            - date
+            - custom_value1
+            - custom_value2
+            - custom_value3
             - custom_value4
           required: false
           schema:
@@ -11015,7 +11014,7 @@ paths:
         - name: number
           in: query
           description: |
-            Search payments by payment number 
+            Search payments by payment number
           required: false
           schema:
             type: string
@@ -11026,7 +11025,7 @@ paths:
           required: false
           schema:
             type: string
-          example: id|desc number|desc balance|asc 
+          example: id|desc number|desc balance|asc
       responses:
         200:
           description: "A list of payments"
@@ -11039,10 +11038,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Payment'
@@ -11104,7 +11103,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   "/api/v1/payments/{id}":
     get:
       tags:
@@ -11462,7 +11461,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   "/api/v1/payments/{id}/upload":
     post:
       tags:
@@ -11531,8 +11530,8 @@ paths:
         - invoices
       summary: "List invoices"
       description: |
-        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
-        
+        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.
+
       operationId: getInvoices
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11548,11 +11547,11 @@ paths:
         - name: client_status
           in: query
           description: |
-            A comma separated list of invoice status strings. Valid options include:  
+            A comma separated list of invoice status strings. Valid options include:
             - all
-            - paid  
-            - unpaid  
-            - overdue   
+            - paid
+            - unpaid
+            - overdue
           required: false
           schema:
             type: string
@@ -11560,7 +11559,7 @@ paths:
         - name: number
           in: query
           description: |
-            Search invoices by invoice number 
+            Search invoices by invoice number
           required: false
           schema:
             type: string
@@ -11568,15 +11567,15 @@ paths:
         - name: filter
           in: query
           description: |
-            Searches across a range of columns including:  
-            - number  
-            - po_number  
-            - date  
-            - amount  
-            - balance  
-            - custom_value1  
-            - custom_value2  
-            - custom_value3  
+            Searches across a range of columns including:
+            - number
+            - po_number
+            - date
+            - amount
+            - balance
+            - custom_value1
+            - custom_value2
+            - custom_value3
             - custom_value4
           required: false
           schema:
@@ -11612,7 +11611,7 @@ paths:
           required: false
           schema:
             type: string
-          example: id|desc number|desc balance|asc 
+          example: id|desc number|desc balance|asc
         - name: private_notes
           in: query
           description: |
@@ -11633,10 +11632,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Invoice'
@@ -11659,10 +11658,10 @@ paths:
       tags:
         - invoices
       summary: "Create invoice"
-      description: | 
+      description: |
         Adds a invoice to a company
 
-        Triggered actions are available when updating or creating an invoice.  
+        Triggered actions are available when updating or creating an invoice.
         These are query parameters that can be chained in order to perform additional actions on the entity, these include:
 
           ```
@@ -11766,7 +11765,7 @@ paths:
       description: |
         Handles the updating of an invoice by id.
 
-        Triggered actions are available when updating or creating an invoice.  
+        Triggered actions are available when updating or creating an invoice.
         These are query parameters that can be chained in order to perform additional actions on the entity, these include:
 
           ```
@@ -11817,7 +11816,7 @@ paths:
         5XX:
           description: 'Server error'
         default:
-          $ref: "#/components/responses/default"  
+          $ref: "#/components/responses/default"
     delete:
       tags:
         - invoices
@@ -11948,7 +11947,7 @@ paths:
         - invoices
       summary: "Bulk invoice actions"
       description: |
-        There are multiple actions that are available including:  
+        There are multiple actions that are available including:
 
       operationId: bulkInvoices
       parameters:
@@ -11966,35 +11965,35 @@ paths:
                 action:
                   type: string
                   description: |
-                    The action to be performed, options include:  
-                    - `bulk_download`  
-                      Bulk download an array of invoice PDFs (These are sent to the admin via email.)  
-                    - `download`  
-                      Download a single PDF. (Returns a single PDF object)  
-                    - `bulk_print`  
-                      Merges an array of Invoice PDFs for easy one click printing.  
-                    - `auto_bill`  
-                      Attempts to automatically bill the invoices with the payment method on file.  
-                    - `clone_to_invoice`  
-                      Returns a clone of the invoice.  
-                    - `clone_to_quote`  
-                      Returns a quote cloned using the properties of the given invoice.  
-                    - `mark_paid`  
-                      Marks an array of invoices as paid.  
-                    - `mark_sent`  
-                      Marks an array of invoices as sent.  
-                    - `restore`  
-                      Restores an array of invoices  
-                    - `delete`  
-                      Deletes an array of invoices  
-                    - `archive`  
-                      Archives an array of invoices  
-                    - `cancel`  
-                      Cancels an array of invoices  
-                    - `email`  
-                      Emails an array of invoices  
-                    - `send_email`  
-                      Emails an array of invoices. Requires additional properties to be sent. `email_type`  
+                    The action to be performed, options include:
+                    - `bulk_download`
+                      Bulk download an array of invoice PDFs (These are sent to the admin via email.)
+                    - `download`
+                      Download a single PDF. (Returns a single PDF object)
+                    - `bulk_print`
+                      Merges an array of Invoice PDFs for easy one click printing.
+                    - `auto_bill`
+                      Attempts to automatically bill the invoices with the payment method on file.
+                    - `clone_to_invoice`
+                      Returns a clone of the invoice.
+                    - `clone_to_quote`
+                      Returns a quote cloned using the properties of the given invoice.
+                    - `mark_paid`
+                      Marks an array of invoices as paid.
+                    - `mark_sent`
+                      Marks an array of invoices as sent.
+                    - `restore`
+                      Restores an array of invoices
+                    - `delete`
+                      Deletes an array of invoices
+                    - `archive`
+                      Archives an array of invoices
+                    - `cancel`
+                      Cancels an array of invoices
+                    - `email`
+                      Emails an array of invoices
+                    - `send_email`
+                      Emails an array of invoices. Requires additional properties to be sent. `email_type`
                 ids:
                   type: array
                   items:
@@ -12003,7 +12002,7 @@ paths:
               example:
                 action: bulk_download
                 ids: "['D2J234DFA','D2J234DFA','D2J234DFA']"
-              
+
       responses:
         200:
           description: "The Bulk Action response"
@@ -12034,17 +12033,17 @@ paths:
         - invoices
       summary: "Custom invoice action"
       description: |
-        Performs a custom action on an invoice.  
-        The current range of actions are as follows  
-        - clone_to_invoice  
-        - clone_to_quote  
-        - history  
-        - delivery_note  
-        - mark_paid  
-        - download  
-        - archive  
-        - delete  
-        - email  
+        Performs a custom action on an invoice.
+        The current range of actions are as follows
+        - clone_to_invoice
+        - clone_to_quote
+        - history
+        - delivery_note
+        - mark_paid
+        - download
+        - archive
+        - delete
+        - email
       operationId: actionInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12242,7 +12241,7 @@ paths:
         - Recurring Invoices
       summary: "List recurring invoices"
       description: |
-        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
+        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.
 
       operationId: getRecurringInvoices
       parameters:
@@ -12258,10 +12257,10 @@ paths:
         - name: filter
           in: query
           description: |
-            Searches across a range of columns including:  
-            - custom_value1  
-            - custom_value2  
-            - custom_value3  
+            Searches across a range of columns including:
+            - custom_value1
+            - custom_value2
+            - custom_value3
             - custom_value4
           required: false
           schema:
@@ -12270,11 +12269,11 @@ paths:
         - name: client_status
           in: query
           description: |
-            A comma separated list of invoice status strings. Valid options include:  
+            A comma separated list of invoice status strings. Valid options include:
             - all
-            - active  
-            - paused  
-            - completed  
+            - active
+            - paused
+            - completed
           required: false
           schema:
             type: string
@@ -12285,7 +12284,7 @@ paths:
           required: false
           schema:
             type: string
-          example: id|desc number|desc balance|asc 
+          example: id|desc number|desc balance|asc
       responses:
         200:
           description: "A list of recurring_invoices"
@@ -12298,10 +12297,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/RecurringInvoice'
@@ -12356,7 +12355,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   "/api/v1/recurring_invoices/{id}":
     get:
       tags:
@@ -12531,7 +12530,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/recurring_invoices/create:
     get:
       tags:
@@ -12593,20 +12592,20 @@ paths:
                 action:
                   type: string
                   description: |
-                    The action to be performed, options include:  
-                    - `start`  
-                      Starts (or restarts) the recurring invoice. **note** if the recurring invoice has been stopped for a long time, it will attempt to catch back up firing a new Invoice every hour per interval that has been missed.  
+                    The action to be performed, options include:
+                    - `start`
+                      Starts (or restarts) the recurring invoice. **note** if the recurring invoice has been stopped for a long time, it will attempt to catch back up firing a new Invoice every hour per interval that has been missed.
                       If you do not wish to have the recurring invoice catch up, you should set the next_send_date to the correct date you wish the recurring invoice to commence from.
-                    - `stop`  
-                      Stops the recurring invoice. 
-                    - `send_now`  
-                      Force sends the recurring invoice - this option is only available when the recurring invoice is in a draft state.  
-                    - `restore`  
+                    - `stop`
+                      Stops the recurring invoice.
+                    - `send_now`
+                      Force sends the recurring invoice - this option is only available when the recurring invoice is in a draft state.
+                    - `restore`
                       Restores the recurring invoice from an archived or deleted state.
-                    - `archive`  
+                    - `archive`
                       Archives the recurring invoice. The recurring invoice will not fire in this state.
-                    - `delete`  
-                      Deletes a recurring invoice.  
+                    - `delete`
+                      Deletes a recurring invoice.
                 ids:
                   type: array
                   items:
@@ -12819,11 +12818,11 @@ paths:
         - name: filter
           in: query
           description: |
-            Searches across a range of columns including:  
-            - number  
-            - custom_value1  
-            - custom_value2  
-            - custom_value3  
+            Searches across a range of columns including:
+            - number
+            - custom_value1
+            - custom_value2
+            - custom_value3
             - custom_value4
           required: false
           schema:
@@ -12832,13 +12831,13 @@ paths:
         - name: client_status
           in: query
           description: |
-            A comma separated list of quote status strings. Valid options include:  
+            A comma separated list of quote status strings. Valid options include:
             - all
-            - draft  
-            - sent  
+            - draft
+            - sent
             - approved
             - expired
-            - upcoming   
+            - upcoming
           required: false
           schema:
             type: string
@@ -12846,7 +12845,7 @@ paths:
         - name: number
           in: query
           description: |
-            Search quote by quote number 
+            Search quote by quote number
           required: false
           schema:
             type: string
@@ -12857,7 +12856,7 @@ paths:
           required: false
           schema:
             type: string
-          example: id|desc number|desc balance|asc 
+          example: id|desc number|desc balance|asc
       responses:
         200:
           description: "A list of quotes"
@@ -12870,10 +12869,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Quote'
@@ -13367,10 +13366,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/PurchaseOrder'
@@ -13425,7 +13424,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   "/api/v1/purchase_orders/{id}":
     get:
       tags:
@@ -13601,7 +13600,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   /api/v1/purchase_orders/create:
     get:
       tags:
@@ -13864,10 +13863,10 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Vendor'
@@ -14258,10 +14257,10 @@ components:
       schema:
         type: integer
   securitySchemes:
-    ApiKeyAuth:        
+    ApiKeyAuth:
       type: apiKey
-      in: header       
-      name: X-API-TOKEN 
+      in: header
+      name: X-API-TOKEN
   #examples:
    # Client:
    #   $ref: '#/components/schemas/Client'
@@ -14362,13 +14361,13 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    400:      
+    400:
       description: 'Invalid user input'
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/InvalidInputError'
-    401:      
+    401:
       description: 'Authentication error'
       content:
         application/json:
@@ -14411,7 +14410,7 @@ components:
     bank_integration_include:
       name: include
       in: query
-      description: Include child relations of the BankIntegration object. Format is comma separated. 
+      description: Include child relations of the BankIntegration object. Format is comma separated.
       required: false
       schema:
         type: string
@@ -14476,7 +14475,7 @@ components:
           summary: include=payment will include the payment object in the response
         expense:
           value: expense
-          summary: include=expense will include the expense object in the response           
+          summary: include=expense will include the expense object in the response
         vendor_contact:
           value: vendor_contact
           summary: include=vendor_contact will include the vendor_contact object in the response
@@ -14488,7 +14487,7 @@ components:
           summary: include=purchase_order will include the purchase_order object in the response
         task:
           value: task
-          summary: include=task will include the task object in the response        
+          summary: include=task will include the task object in the response
     login_include:
       name: include
       in: query
@@ -14565,16 +14564,16 @@ components:
       schema:
         type: number
         example: user
-   
+
 ########################### Generic filters available across all filter ##################################
     status:
       name: status
       in: query
       description: |
-        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:  
+        Filter the entity based on their status. ie active / archived / deleted. Format is a comma separated string with any of the following options:
         - active
         - archived
-        - deleted  
+        - deleted
       required: false
       schema:
         type: string
@@ -14702,11 +14701,151 @@ components:
           type: string
           example: '2'
       type: object
-    
-    
 
 
 
+                422:
+                    $ref: "#/components/responses/422"
+                default:
+                    $ref: "#/components/responses/default"
+    "/api/v1/companies/{id}/edit":
+        get:
+            tags:
+                - companies
+            summary: "Shows an company for editting"
+            description: "Displays an company by id"
+            operationId: editCompany
+            parameters:
+                - $ref: "#/components/parameters/X-API-TOKEN"
+                - $ref: "#/components/parameters/X-Requested-With"
+                - $ref: "#/components/parameters/include"
+                - name: id
+                  in: path
+                  description: "The Company Hashed ID"
+                  required: true
+                  schema:
+                      type: string
+                      format: string
+                  example: D2J234DFA
+            responses:
+                200:
+                    description: "Returns the company object"
+                    headers:
+                        X-MINIMUM-CLIENT-VERSION:
+                            $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+                        X-RateLimit-Remaining:
+                            $ref: "#/components/headers/X-RateLimit-Remaining"
+                        X-RateLimit-Limit:
+                            $ref: "#/components/headers/X-RateLimit-Limit"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Company"
+                401:
+                    $ref: "#/components/responses/401"
+                403:
+                    $ref: "#/components/responses/403"
+
+                422:
+                    $ref: "#/components/responses/422"
+                default:
+                    $ref: "#/components/responses/default"
+    "/api/v1/companies/{id}/upload":
+        post:
+            tags:
+                - companies
+            summary: "Uploads a document to a company"
+            description: "Handles the uploading of a document to a company"
+            operationId: uploadCompanies
+            parameters:
+                - $ref: "#/components/parameters/X-API-TOKEN"
+                - $ref: "#/components/parameters/X-Requested-With"
+                - $ref: "#/components/parameters/include"
+                - name: id
+                  in: path
+                  description: "The Company Hashed ID"
+                  required: true
+                  schema:
+                      type: string
+                      format: string
+                  example: D2J234DFA
+            requestBody:
+                description: "File Upload Body"
+                required: true
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            properties:
+                                _method:
+                                    type: string
+                                    example: PUT
+                                documents:
+                                    type: array
+                                    items:
+                                        description: "Array of binary documents for upload"
+                                        type: string
+                                        format: binary
+            responses:
+                200:
+                    description: "Returns the client object"
+                    headers:
+                        X-MINIMUM-CLIENT-VERSION:
+                            $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+                        X-RateLimit-Remaining:
+                            $ref: "#/components/headers/X-RateLimit-Remaining"
+                        X-RateLimit-Limit:
+                            $ref: "#/components/headers/X-RateLimit-Limit"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Company"
+                401:
+                    $ref: "#/components/responses/401"
+                403:
+                    $ref: "#/components/responses/403"
+
+                422:
+                    $ref: "#/components/responses/422"
+                default:
+                    $ref: "#/components/responses/default"
+    "/api/v1/companies/{company}/default":
+        post:
+            tags:
+                - companies
+            summary: "Sets the company as the default company."
+            description: "Sets the company as the default company."
+            operationId: setDefaultCompany
+            parameters:
+                - $ref: "#/components/parameters/X-API-TOKEN"
+                - $ref: "#/components/parameters/X-Requested-With"
+                - $ref: "#/components/parameters/include"
+                - name: company
+                  in: path
+                  description: "The Company Hashed ID"
+                  required: true
+                  schema:
+                      type: string
+                      format: string
+                  example: D2J234DFA
+            responses:
+                200:
+                    description: "Returns the company object"
+                    headers:
+                        X-MINIMUM-CLIENT-VERSION:
+                            $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+                        X-RateLimit-Remaining:
+                            $ref: "#/components/headers/X-RateLimit-Remaining"
+                        X-RateLimit-Limit:
+                            $ref: "#/components/headers/X-RateLimit-Limit"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Company"
+                401:
+                    $ref: "#/components/responses/401"
+                403:
+                    $ref: "#/components/responses/403"
 
     TaskSchedulerSchema:
       properties:
@@ -14791,7 +14930,7 @@ components:
           type: string
           example: create_client_report
       type: object
-    
+
     TaskStatus:
       properties:
         id:
@@ -14862,9 +15001,9 @@ components:
           type: string
           example: '<HTML></HTML>'
       type: object
-    
+
     AuthenticationError:
-      type: object  
+      type: object
       properties:
         message:
           description: 'These credentials do not match our records / Invalid Token'
@@ -15088,7 +15227,7 @@ components:
                 The tax category id for this product.'
 
                 The following constants are available (default = '1')
-                
+
                 ```
                 PRODUCT_TYPE_PHYSICAL = '1'
                 PRODUCT_TYPE_SERVICE = '2'
@@ -15238,8 +15377,8 @@ components:
           type: integer
           format: int32
           description: |
-                The quantity of the product that is currently in stock. 
-                
+                The quantity of the product that is currently in stock.
+
                 **note** this field is not mutable without passing an extra query parameter which will allow modification of this value.
 
                 The query parameter ?update_in_stock_quantity=true **MUST** be passed if you wish to update this value manually.
@@ -15275,7 +15414,7 @@ components:
                 The tax category id for this product.'
 
                 The following constants are available (default = '1')
-                
+
                 ```
                 PRODUCT_TYPE_PHYSICAL = '1'
                 PRODUCT_TYPE_SERVICE = '2'
@@ -15463,7 +15602,7 @@ components:
           type: string
           example: PAY_101
       type: object
-    
+
     BankTransactionRule:
       properties:
         id:
@@ -15766,8 +15905,8 @@ components:
           items:
             $ref: '#/components/schemas/FeesAndLimits'
       type: object
-    
-    
+
+
     CompanySettings:
       required:
         - currency_id
@@ -16700,7 +16839,7 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        client_contact_id: 
+        client_contact_id:
           description: 'The client contact hashed id'
           type: string
           example: Opnel5aKBz
@@ -17033,7 +17172,7 @@ components:
       type: object
     InvoiceRequest:
       required:
-        - client_id        
+        - client_id
       properties:
         id:
           description: 'The invoice hashed id'
@@ -18710,7 +18849,7 @@ components:
                 self::ENTITY_RECURRING_TASK => 1024,
                 self::ENTITY_RECURRING_QUOTE => 2048,
                 ```
-                
+
                 The default per_page value is 20.
 
           example: 2048
@@ -18725,8 +18864,8 @@ components:
         first_month_of_year:
           description: "The first month for the company financial year"
           type: string
-          example: '1' 
-        enabled_item_tax_rates:  
+          example: '1'
+        enabled_item_tax_rates:
           description: "The number of tax rates used per item"
           type: integer
           example: 2
@@ -18741,7 +18880,7 @@ components:
                 A flag determining whether to auto-bill clients by default
 
                 values:
-                
+
                 - always - Always auto bill
                 - disabled - Never auto bill
                 - optin - Allow the client to select their auto bill status with the default being disabled
@@ -18910,12 +19049,12 @@ components:
         invoice_task_project_header:
           description: "A flag determining whether to include the project header on invoices by default"
           type: boolean
-          example: true 
+          example: true
         invoice_task_item_description:
           description: "A flag determining whether to include the item description on invoices by default"
           type: boolean
           example: true
-        
+
         settings:
           $ref: '#/components/schemas/CompanySettings'
       type: object
@@ -19141,7 +19280,7 @@ components:
           type: boolean
           example: true
       type: object
-      
+
     Quote:
       properties:
         id:
@@ -19593,7 +19732,7 @@ components:
           description: 'The subscription associated with this invoice'
           type: string
           example: Opnel5aKBz
-        
+
       type: object
     ClientRequest:
       required:
@@ -20996,7 +21135,7 @@ components:
         project_id:
           description: 'The associated project_id'
           type: string
-          example: 'Opnel5aKBz'  
+          example: 'Opnel5aKBz'
         client_id:
           description: 'The client hashed id'
           type: string
@@ -21156,7 +21295,7 @@ components:
           type: string
           example: Opnel5aKBz
           readOnly: true
-        client_contact_id: 
+        client_contact_id:
           description: 'The client contact hashed id'
           type: string
           example: Opnel5aKBz
@@ -21231,7 +21370,7 @@ components:
                 The tax rate id to set on the list of products
 
                 The following constants are available (default = '1')
-                
+
                 ```
                 PRODUCT_TYPE_PHYSICAL = '1'
                 PRODUCT_TYPE_SERVICE = '2'
@@ -21293,7 +21432,7 @@ components:
         language_id:
           description: 'The language id of the user'
           type: string
-          example: 1  
+          example: 1
         verified_phone_number:
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean
@@ -21631,7 +21770,7 @@ tags:
     description: |
       Endpoint definitions for interacting with reports.
 externalDocs:
-  description: "https://invoiceninja.github.io"
-  url: "https://invoiceninja.github.io"
+    description: "https://invoiceninja.github.io"
+    url: "https://invoiceninja.github.io"
 security:
-  - ApiKeyAuth: []
+    - ApiKeyAuth: []

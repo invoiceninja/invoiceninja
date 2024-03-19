@@ -990,4 +990,20 @@ class StripePaymentDriver extends BaseDriver
             return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UCS-2BE');
         }, $string);
     }
+
+    public function auth(): bool
+    {
+        $this->init();
+
+        try {
+            $this->verifyConnect();
+            return true;
+        }
+        catch(\Exception $e) {
+            
+        }
+
+        return false;
+
+    }
 }

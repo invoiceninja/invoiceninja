@@ -460,7 +460,7 @@ $lang = array(
     'edit_token' => 'Éditer le jeton',
     'delete_token' => 'Supprimer le jeton',
     'token' => 'Jeton',
-    'add_gateway' => 'Add Payment Gateway',
+    'add_gateway' => 'Ajouter une passerelle de paiement',
     'delete_gateway' => 'Supprimer la passerelle',
     'edit_gateway' => 'Éditer la passerelle',
     'updated_gateway' => 'La passerelle a été mise à jour',
@@ -5248,9 +5248,11 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_type_help' => 'Définit le <b>type de paiement manuel<b/> par défaut.',
     'quote_valid_until_help' => 'Le nombre de jours pour lesquels la soumission est valide',
     'expense_payment_type_help' => 'Le type de paiement de dépenses par défaut à utiliser',
-    'paylater' => 'Pay in 4',
-    'payment_provider' => 'Payment Provider',
-    
+    'paylater' => 'Payer en 4',
+    'payment_provider' => 'Fournisseur de paiement',
+    'select_email_provider' => 'Définir le courriel pour l\'envoi',
+    'purchase_order_items' => 'Articles du bon d\'achat',
+    'csv_rows_length' => 'Aucune donnée dans ce fichier CSV',
 );
 
 return $lang;

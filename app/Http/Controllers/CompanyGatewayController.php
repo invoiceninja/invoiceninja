@@ -11,26 +11,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
+use App\Libraries\MultiDB;
+use Illuminate\Http\Response;
+use App\Models\CompanyGateway;
+use App\Utils\Traits\MakesHash;
 use App\DataMapper\FeesAndLimits;
+use App\Jobs\Util\ApplePayDomain;
+use Illuminate\Support\Facades\Cache;
 use App\Factory\CompanyGatewayFactory;
 use App\Filters\CompanyGatewayFilters;
+use App\Repositories\CompanyRepository;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Transformers\CompanyGatewayTransformer;
+use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
+use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
 use App\Http\Requests\CompanyGateway\BulkCompanyGatewayRequest;
-use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
-use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
-use App\Jobs\Util\ApplePayDomain;
-use App\Models\Client;
-use App\Models\CompanyGateway;
-use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
-use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
-use App\Repositories\CompanyRepository;
-use App\Transformers\CompanyGatewayTransformer;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Response;
+use App\Http\Requests\CompanyGateway\DestroyCompanyGatewayRequest;
 
 /**
  * Class CompanyGatewayController.
@@ -51,6 +54,9 @@ class CompanyGatewayController extends BaseController
     private array $stripe_keys = ['d14dd26a47cecc30fdd65700bfb67b34', 'd14dd26a37cecc30fdd65700bfb55b23'];
 
     private string $checkout_key = '3758e7f7c6f4cecf0f4f348b9a00f456';
+
+    private string $forte_key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs';
+
 
     /**
      * CompanyGatewayController constructor.
@@ -225,6 +231,13 @@ class CompanyGatewayController extends BaseController
             StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
         } elseif($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+        } elseif($company_gateway->gateway_key == $this->forte_key) {
+             
+            dispatch(function () use ($company_gateway) {
+                MultiDB::setDb($company_gateway->company->db);
+                $company_gateway->driver()->updateFees();
+            })->afterResponse();
+
         }
 
         return $this->itemResponse($company_gateway);
@@ -407,6 +420,13 @@ class CompanyGatewayController extends BaseController
 
         if($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
+        }elseif($company_gateway->gateway_key == $this->forte_key){
+            
+            dispatch(function () use ($company_gateway) {
+                MultiDB::setDb($company_gateway->company->db);
+                $company_gateway->driver()->updateFees();
+            })->afterResponse();
+
         }
 
         return $this->itemResponse($company_gateway);
@@ -535,4 +555,28 @@ class CompanyGatewayController extends BaseController
 
         return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
     }
+
+    public function test(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    {
+
+        return response()->json(['message' => $company_gateway->driver()->auth() ? 'true' : 'false'], 200);
+
+    }
+
+    public function importCustomers(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    {
+        //Throttle here
+        // if (Cache::get("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}")) 
+            // return response()->json(['message' => ctrans('texts.import_started')], 200);
+
+        dispatch(function () use($company_gateway) {
+            MultiDB::setDb($company_gateway->company->db);
+            $company_gateway->driver()->importCustomers();
+        })->afterResponse();
+
+        Cache::put("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}", true, 300);
+
+        return response()->json(['message' => ctrans('texts.import_started')], 200);
+    }
+
 }

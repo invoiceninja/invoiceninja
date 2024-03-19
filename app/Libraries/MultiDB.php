@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
 use App\Models\CompanyToken;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
+use App\DataProviders\SMSNumbers;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -585,6 +586,10 @@ class MultiDB
         }
 
         $current_db = config('database.default');
+
+        if(SMSNumbers::hasNumber($phone)){
+            return true;
+        }
 
         foreach (self::$dbs as $db) {
             self::setDB($db);
