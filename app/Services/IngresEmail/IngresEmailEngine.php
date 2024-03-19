@@ -25,6 +25,7 @@ use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\MakesHash;
 use Cache;
 use Illuminate\Queue\SerializesModels;
+use Log;
 
 class IngresEmailEngine
 {
@@ -63,7 +64,7 @@ class IngresEmailEngine
     {
         // invalid email
         if (!filter_var($this->email->from, FILTER_VALIDATE_EMAIL)) {
-            nlog('[IngressMailEngine] E-Mail blocked, because from e-mail has the wrong format: ' . $this->email->from);
+            Log::info('[IngressMailEngine] E-Mail blocked, because from e-mail has the wrong format: ' . $this->email->from);
             return true;
         }
 
@@ -72,7 +73,7 @@ class IngresEmailEngine
 
         // global blacklist
         if (in_array($domain, $this->globalBlacklist)) {
-            nlog('[IngressMailEngine] E-Mail blocked, because the domain was found on globalBlocklist: ' . $this->email->from);
+            Log::info('[IngressMailEngine] E-Mail blocked, because the domain was found on globalBlocklist: ' . $this->email->from);
             return true;
         }
 
@@ -83,12 +84,12 @@ class IngresEmailEngine
         // sender occured in more than 500 emails in the last 12 hours
         $senderMailCountTotal = Cache::get('ingresEmailSender:' . $this->email->from, 0);
         if ($senderMailCountTotal >= 5000) {
-            nlog('[IngressMailEngine] E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
+            Log::info('[IngressMailEngine] E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
             $this->blockSender();
             return true;
         }
         if ($senderMailCountTotal >= 1000) {
-            nlog('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
+            Log::info('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
             $this->saveMeta();
             return true;
         }
@@ -96,7 +97,7 @@ class IngresEmailEngine
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
         $senderMailCountUnknownRecipent = Cache::get('ingresEmailSenderUnknownRecipent:' . $this->email->from, 0);
         if ($senderMailCountUnknownRecipent >= 50) {
-            nlog('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $this->email->from);
+            Log::info('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $this->email->from);
             $this->saveMeta();
             return true;
         }
@@ -104,7 +105,7 @@ class IngresEmailEngine
         // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
         $mailCountUnknownRecipent = Cache::get('ingresEmailUnknownRecipent:' . $this->email->to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
         if ($mailCountUnknownRecipent >= 100) {
-            nlog('[IngressMailEngine] E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
+            Log::info('[IngressMailEngine] E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
             $this->blockSender();
             return true;
         }
@@ -137,9 +138,10 @@ class IngresEmailEngine
     // MAIL-PARSING
     private function processHtmlBodyToDocument()
     {
-        if (!$this->email->body_document && property_exists($this->email, "body")) {
+
+        if ($this->email->body !== null)
             $this->email->body_document = TempFile::UploadedFileFromRaw($this->email->body, "E-Mail.html", "text/html");
-        }
+
     }
 
     // MAIN-PROCESSORS
@@ -147,15 +149,15 @@ class IngresEmailEngine
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
         if (!$this->validateExpenseShouldProcess()) {
-            nlog('email parsing not active for this company: ' . $this->company->id . ' from: ' . $this->email->from);
+            Log::info('email parsing not active for this company: ' . $this->company->id . ' from: ' . $this->email->from);
             return;
         }
         if (!$this->validateExpenseSender()) {
-            nlog('invalid sender of an ingest email to company: ' . $this->company->id . ' from: ' . $this->email->from);
+            Log::info('invalid sender of an ingest email to company: ' . $this->company->id . ' from: ' . $this->email->from);
             return;
         }
         if (sizeOf($this->email->documents) == 0) {
-            nlog('email does not contain any attachments and is likly not an expense. company: ' . $this->company->id . ' from: ' . $this->email->from);
+            Log::info('email does not contain any attachments and is likly not an expense. company: ' . $this->company->id . ' from: ' . $this->email->from);
             return;
         }
 
@@ -175,11 +177,14 @@ class IngresEmailEngine
         $this->processHtmlBodyToDocument();
         $documents = [];
         array_push($documents, ...$this->email->documents);
-        if ($this->email->body_document)
-            $documents[] = $this->email->body_document;
-        $this->saveDocuments($documents, $expense);
+        if ($this->email->body_document !== null)
+            array_push($documents, $this->email->body_document);
 
         $expense->saveQuietly();
+
+        Log::info(json_encode($documents));
+
+        $this->saveDocuments($documents, $expense);
 
         event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API-Controller
         event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API-Controller
@@ -210,9 +215,9 @@ class IngresEmailEngine
             return true;
 
         // from clients/vendors (if active)
-        if ($this->company->expense_mailbox_allow_vendors && $this->company->vendors()->where("invoicing_email", $this->email->from)->orWhere($this->email->from, 'LIKE', "CONCAT('%',invoicing_domain)")->exists())
+        if ($this->company->expense_mailbox_allow_vendors && $this->company->vendors()->where("invoicing_email", $this->email->from)->orWhere("invoicing_domain", $domain)->exists())
             return true;
-        if ($this->company->expense_mailbox_allow_vendors && $this->company->vendors()->contacts()->where("email", $this->email->from)->exists()) // TODO
+        if ($this->company->expense_mailbox_allow_vendors && $this->company->vendors()->contacts()->where("email", $this->email->from)->exists())
             return true;
 
         // denie
@@ -220,14 +225,16 @@ class IngresEmailEngine
     }
     private function getExpenseVendor()
     {
+        $parts = explode('@', $this->email->from);
+        $domain = array_pop($parts);
+
         $vendor = Vendor::where("company_id", $this->company->id)->where('invoicing_email', $this->email->from)->first();
         if ($vendor == null)
-            $vendor = Vendor::where("company_id", $this->company->id)->where($this->email->from, 'LIKE', "CONCAT('%',invoicing_domain)")->first();
+            $vendor = Vendor::where("company_id", $this->company->id)->where("invoicing_domain", $domain)->first();
         if ($vendor == null) {
             $vendorContact = VendorContact::where("company_id", $this->company->id)->where("email", $this->email->from)->first();
             $vendor = $vendorContact->vendor();
         }
-        // TODO: from contacts
 
         return $vendor;
     }

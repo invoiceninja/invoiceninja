@@ -21,11 +21,11 @@ class MailgunInboundWebhookTransformer
     {
         $ingresEmail = new IngresEmail();
 
-        $ingresEmail->from = $data["From"];
-        $ingresEmail->to = $data["To"];
+        $ingresEmail->from = $data["sender"]; // TODO: maybe a fallback have to be used to extract email from $data["From"]
+        $ingresEmail->to = $data["recipient"]; // TODO: maybe a fallback have to be used to extract email from $data["To"]
         $ingresEmail->subject = $data["Subject"];
-        $ingresEmail->plain_message = $data["body-plain"];
-        $ingresEmail->html_message = $data["body-html"];
+        $ingresEmail->body = $data["body-html"];
+        $ingresEmail->text_body = $data["body-plain"];
         $ingresEmail->date = Carbon::createFromTimestamp((int) $data["timestamp"]);
 
         // parse documents as UploadedFile from webhook-data
