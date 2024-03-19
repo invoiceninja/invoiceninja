@@ -182,8 +182,6 @@ class IngresEmailEngine
 
         $expense->saveQuietly();
 
-        Log::info(json_encode($documents));
-
         $this->saveDocuments($documents, $expense);
 
         event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API-Controller

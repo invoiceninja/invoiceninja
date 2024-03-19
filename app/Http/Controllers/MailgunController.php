@@ -115,19 +115,24 @@ class MailgunController extends BaseController
     {
         $input = $request->all();
 
+        if (!array_key_exists('recipient', $input) || !array_key_exists('message-url', $input)) {
+            Log::info('Failed: Message could not be parsed, because required parameters are missing. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation!');
+            return response()->json(['message' => 'Failed. Missing Parameters'], 400);
+        }
+
         if (!array_key_exists('attachments', $input) || count(json_decode($input['attachments'])) == 0) {
-            Log::info('Message ignored because of missing attachments. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation');
+            Log::info('Message ignored because of missing attachments. No Actions would have been taken...');
             return response()->json(['message' => 'Sucess. Soft Fail. Missing Attachments.'], 200);
         }
 
-        if (\abs(\time() - (int) $request['timestamp']) > 150) {
+        if (\abs(\time() - (int) $input['timestamp']) > 150) {
             Log::info('Message ignored because of request body is too old.');
             return response()->json(['message' => 'Success. Soft Fail. Message too old.'], 200);
         }
 
         // @turbo124 TODO: how to check for services.mailgun.webhook_signing_key on company level, when custom credentials are defined
         if (\hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature'])) {
-            ProcessMailgunInboundWebhook::dispatch($input)->delay(10);
+            ProcessMailgunInboundWebhook::dispatch($input["recipient"] . "|" . $input["message-url"])->delay(10);
 
             return response()->json(['message' => 'Success'], 201);
         }
