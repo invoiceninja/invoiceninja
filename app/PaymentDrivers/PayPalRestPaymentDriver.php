@@ -18,6 +18,7 @@ use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
+use Illuminate\Support\Str;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
@@ -211,7 +212,8 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
-
+        
+        nlog($response);
         //capture
         $orderID = $response['orderID'];
 
@@ -235,7 +237,33 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         }
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+        try{
+            $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+        }
+        catch(\Exception $e) {
+
+            //Rescue for duplicate invoice_id
+            if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false){
+
+
+                $_invoice = collect($this->payment_hash->data->invoices)->first();
+                $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+                $new_invoice_number = $invoice->number."_".Str::random(5);
+
+                $update_data =
+                        [[
+                            "op" => "replace",
+                            "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+                            "value" => $new_invoice_number,
+                        ]];
+
+                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
+
+                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+            }
+
+        }
 
         $response = $r;
 
