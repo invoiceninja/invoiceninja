@@ -40,21 +40,139 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
     /**
      * Execute the job.
      *
-     *
+     * Mail from Storage
+     * {
+     *   "Content-Type": "multipart/related; boundary=\"00000000000022bfbe0613e8b7f5\"",
+     *   "Date": "Mon, 18 Mar 2024 06:34:09 +0100",
+     *   "Dkim-Signature": "v=1; a=rsa-sha256; c=relaxed/relaxed; d=wer-ner.de; s=google; t=1710740086; x=1711344886; darn=domain.example; h=to:subject:message-id:date:from:in-reply-to:references:mime-version :from:to:cc:subject:date:message-id:reply-to; bh=tkxC+ZzDSJJXLVgjDyvQZyDt6wkWKFHS50z4ZWiWT9U=; b=P1Sz54Djj1LHtPF7+cAKGRaN4IRjUT3bOyYAD/kbC0Tx2yNejPrjCPy3+a6R6MShgJ odYhoLRqylPPs1DQolNO6xgamsoEiR8jnII4QjJUBut4VirMlSO+RLxzpO7pt/Hr6j93 z0G1Yffpbz44l5GhndgXsa4Hf30Q8yy0p7fqMNABB/smscj7DJDu1os2cB1JazKYsmAE X4HtU5IgCOS++xbQPqZSNwjrFWlbgal2t2yAeTKAMdGX/nNKtfgZ5imqNwJWerpAYwgk 3qvUcgTw2MpeghcPpTiflPGp4fT/f1kUjes0dcqrvkE+6oTPvo0pi76QNoVs7peWKr/c JvaA==",
+     *   "From": "Paul Werner <test@sender.example>",
+     *   "In-Reply-To": "<CADfEuNuk6m=RUmo+R4K65Rfskox_LOTT+pnBwTnmA_gPaf1eUQ@mail.gmail.com>",
+     *   "Message-Id": "<CADfEuNu6nBJYqNSJ-suey3a0FazJELYkNSO5JUGiiGs9hsFvGg@mail.gmail.com>",
+     *   "Mime-Version": "1.0",
+     *   "Received": "by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2d4a901e284so12524521fa.1 for <test@domain.example>; Sun, 17 Mar 2024 22:34:47 -0700 (PDT)",
+     *   "References": "<CADfEuNvN_DcTU99WY-7332iPmPuYW-CfvJfirQ6YY30e3y-XeA@mail.gmail.com> <CADfEuNupjxUivY++FnD7b1SHdNY6YZCA9b4iVW6xNbmic=B6Zw@mail.gmail.com> <CADfEuNuk6m=RUmo+R4K65Rfskox_LOTT+pnBwTnmA_gPaf1eUQ@mail.gmail.com>",
+     *   "Subject": "Fwd: TEST",
+     *   "To": "test@domain.example",
+     *   "X-Envelope-From": "test@sender.example",
+     *   "X-Gm-Message-State": "AOJu0Yy6rgBIPLGjnD293mVB5vBWQIraVAOnfa/GtyM6S/JIqe4rHbrx OqRe7oFFyCDyCjL/+2AFFkB9ljxgt7MWvpdec69dEn3BNQMlxuyGkpyxZUY8PDm4XRCyIy4vGxK 6Oddl7nWV5DM4zN4eLvZH+DPteyUq9A9ET9bowZnCrP8ZcQOP5js=",
+     *   "X-Google-Dkim-Signature": "v=1; a=rsa-sha256; c=relaxed/relaxed; d=1e100.net; s=20230601; t=1710740086; x=1711344886; h=to:subject:message-id:date:from:in-reply-to:references:mime-version :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to; bh=tkxC+ZzDSJJXLVgjDyvQZyDt6wkWKFHS50z4ZWiWT9U=; b=cyDJAeNEaU2CvWAX/d9E3LMDrceXyLe01lbsYvwY6ZNTchr/0vzrxQFTVxos2DQR7u jSKpaNqI958H1oZJY36XZV0+8MY2w6DjB1F3FUHbD1q5gxJUitXNuOvvpna/q0ZaqlQf 5n3kIkakV19uxu4pcrcLxO67744pBzEmVk+IJtI9FEoZy9253v09CfkzNZo68u2VxJVD TDFVVkZuIO5xi3flUVoD3CP0Bw/0BqpDuxVvOFy+qOaItTZ5Na+OPfUJcFG2j6T0rXFQ 1vXPxodqjllLwc/V+O1TmS46H/RhsHGAae5tWk+51KX8T2ZgTkfwKPV1YeSRl0QtDhYS gU0Q==",
+     *   "X-Google-Smtp-Source": "AGHT+IFspt+3tKf94kXs48nOb58GzuV+pJ8oE3ZNwEcx6PG53wJeW858lyh2PiYIzSEPQTY2ykatvu2fqs8Bj+9d5rw=",
+     *   "X-Mailgun-Incoming": "Yes",
+     *   "X-Received": "by 2002:a2e:9847:0:b0:2d4:7455:89f6 with SMTP id e7-20020a2e9847000000b002d4745589f6mr4283454ljj.40.1710740086045; Sun, 17 Mar 2024 22:34:46 -0700 (PDT)",
+     *   "sender": "test@sender.example",
+     *   "recipients": "test@domain.example",
+     *   "from": "Paul Werner <test@sender.example>",
+     *   "subject": "Fwd: TEST",
+     *   "body-html": "<div dir=\"ltr\">TESTAGAIN<img src=\"cid:ii_ltwigc770\" alt=\"Unbenannt.png\" width=\"562\" height=\"408\"><br><br><div class=\"gmail_quote\"><div dir=\"ltr\" class=\"gmail_attr\">---------- Forwarded message ---------<br>Von: <strong class=\"gmail_sendername\" dir=\"auto\">Paul Werner</strong> <span dir=\"auto\">&lt;<a href=\"mailto:test@sender.example\">test@sender.example</a>&gt;</span><br>Date: Mo., 18. März 2024 um 06:30 Uhr<br>Subject: Fwd: TEST<br>To:  &lt;<a href=\"mailto:test@domain.example\">test@domain.example</a>&gt;<br></div><br><br><div dir=\"ltr\">Hallöööö<br><br><div class=\"gmail_quote\"><div dir=\"ltr\" class=\"gmail_attr\">---------- Forwarded message ---------<br>Von: <strong class=\"gmail_sendername\" dir=\"auto\">Paul Werner</strong> <span dir=\"auto\">&lt;<a href=\"mailto:test@sender.example\" target=\"_blank\">test@sender.example</a>&gt;</span><br>Date: Mo., 18. März 2024 um 06:23 Uhr<br>Subject: Fwd: TEST<br>To:  &lt;<a href=\"mailto:test@domain.example\" target=\"_blank\">test@domain.example</a>&gt;<br></div><br><br><div dir=\"ltr\">asjkdahwdaiohdawdawdawwwww!!!<br><br><div class=\"gmail_quote\"><div dir=\"ltr\" class=\"gmail_attr\">---------- Forwarded message ---------<br>Von: <strong class=\"gmail_sendername\" dir=\"auto\">Paul Werner</strong> <span dir=\"auto\">&lt;<a href=\"mailto:test@sender.example\" target=\"_blank\">test@sender.example</a>&gt;</span><br>Date: Mo., 18. März 2024 um 06:22 Uhr<br>Subject: TEST<br>To:  &lt;<a href=\"mailto:test@domain.example\" target=\"_blank\">test@domain.example</a>&gt;<br></div><br><br><div dir=\"ltr\">TEST</div>\r\n</div></div>\r\n</div></div>\r\n</div></div>\r\n",
+     *   "body-plain": "TESTAGAIN[image: Unbenannt.png]\r\n\r\n---------- Forwarded message ---------\r\nVon: Paul Werner <test@sender.example>\r\nDate: Mo., 18. März 2024 um 06:30 Uhr\r\nSubject: Fwd: TEST\r\nTo: <test@domain.example>\r\n\r\n\r\nHallöööö\r\n\r\n---------- Forwarded message ---------\r\nVon: Paul Werner <test@sender.example>\r\nDate: Mo., 18. März 2024 um 06:23 Uhr\r\nSubject: Fwd: TEST\r\nTo: <test@domain.example>\r\n\r\n\r\nasjkdahwdaiohdawdawdawwwww!!!\r\n\r\n---------- Forwarded message ---------\r\nVon: Paul Werner <test@sender.example>\r\nDate: Mo., 18. März 2024 um 06:22 Uhr\r\nSubject: TEST\r\nTo: <test@domain.example>\r\n\r\n\r\nTEST\r\n",
+     *   "attachments": [
+     *       {
+     *           "name": "Unbenannt.png",
+     *           "content-type": "image/png",
+     *           "size": 197753,
+     *           "url": "https://storage-europe-west1.api.mailgun.net/v3/domains/domain.example/messages/BAAFAgVMamdcBboOIOtFyJ5B5NGEkkffYQ/attachments/0"
+     *       }
+     *   ],
+     *   "content-id-map": {
+     *       "<ii_ltwigc770>": {
+     *           "name": "Unbenannt.png",
+     *           "content-type": "image/png",
+     *           "size": 197753,
+     *           "url": "https://storage-europe-west1.api.mailgun.net/v3/domains/domain.example/messages/BAAFAgVMamdcBboOIOtFyJ5B5NGEkkffYQ/attachments/0"
+     *       }
+     *   },
+     *   "message-headers": [
+     *       [
+     *           "Received",
+     *           "from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175]) by 634f26f73cf3 with SMTP id <undefined> (version=TLS1.3, cipher=TLS_AES_128_GCM_SHA256); Mon, 18 Mar 2024 05:34:47 GMT"
+     *       ],
+     *       [
+     *           "Received",
+     *           "by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2d4a901e284so12524521fa.1 for <test@domain.example>; Sun, 17 Mar 2024 22:34:47 -0700 (PDT)"
+     *       ],
+     *       [
+     *           "X-Envelope-From",
+     *           "test@sender.example"
+     *       ],
+     *       [
+     *           "X-Mailgun-Incoming",
+     *           "Yes"
+     *       ],
+     *       [
+     *           "Dkim-Signature",
+     *           "v=1; a=rsa-sha256; c=relaxed/relaxed; d=wer-ner.de; s=google; t=1710740086; x=1711344886; darn=domain.example; h=to:subject:message-id:date:from:in-reply-to:references:mime-version :from:to:cc:subject:date:message-id:reply-to; bh=tkxC+ZzDSJJXLVgjDyvQZyDt6wkWKFHS50z4ZWiWT9U=; b=P1Sz54Djj1LHtPF7+cAKGRaN4IRjUT3bOyYAD/kbC0Tx2yNejPrjCPy3+a6R6MShgJ odYhoLRqylPPs1DQolNO6xgamsoEiR8jnII4QjJUBut4VirMlSO+RLxzpO7pt/Hr6j93 z0G1Yffpbz44l5GhndgXsa4Hf30Q8yy0p7fqMNABB/smscj7DJDu1os2cB1JazKYsmAE X4HtU5IgCOS++xbQPqZSNwjrFWlbgal2t2yAeTKAMdGX/nNKtfgZ5imqNwJWerpAYwgk 3qvUcgTw2MpeghcPpTiflPGp4fT/f1kUjes0dcqrvkE+6oTPvo0pi76QNoVs7peWKr/c JvaA=="
+     *       ],
+     *       [
+     *           "X-Google-Dkim-Signature",
+     *           "v=1; a=rsa-sha256; c=relaxed/relaxed; d=1e100.net; s=20230601; t=1710740086; x=1711344886; h=to:subject:message-id:date:from:in-reply-to:references:mime-version :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to; bh=tkxC+ZzDSJJXLVgjDyvQZyDt6wkWKFHS50z4ZWiWT9U=; b=cyDJAeNEaU2CvWAX/d9E3LMDrceXyLe01lbsYvwY6ZNTchr/0vzrxQFTVxos2DQR7u jSKpaNqI958H1oZJY36XZV0+8MY2w6DjB1F3FUHbD1q5gxJUitXNuOvvpna/q0ZaqlQf 5n3kIkakV19uxu4pcrcLxO67744pBzEmVk+IJtI9FEoZy9253v09CfkzNZo68u2VxJVD TDFVVkZuIO5xi3flUVoD3CP0Bw/0BqpDuxVvOFy+qOaItTZ5Na+OPfUJcFG2j6T0rXFQ 1vXPxodqjllLwc/V+O1TmS46H/RhsHGAae5tWk+51KX8T2ZgTkfwKPV1YeSRl0QtDhYS gU0Q=="
+     *       ],
+     *       [
+     *           "X-Gm-Message-State",
+     *           "AOJu0Yy6rgBIPLGjnD293mVB5vBWQIraVAOnfa/GtyM6S/JIqe4rHbrx OqRe7oFFyCDyCjL/+2AFFkB9ljxgt7MWvpdec69dEn3BNQMlxuyGkpyxZUY8PDm4XRCyIy4vGxK 6Oddl7nWV5DM4zN4eLvZH+DPteyUq9A9ET9bowZnCrP8ZcQOP5js="
+     *       ],
+     *       [
+     *           "X-Google-Smtp-Source",
+     *           "AGHT+IFspt+3tKf94kXs48nOb58GzuV+pJ8oE3ZNwEcx6PG53wJeW858lyh2PiYIzSEPQTY2ykatvu2fqs8Bj+9d5rw="
+     *       ],
+     *       [
+     *           "X-Received",
+     *           "by 2002:a2e:9847:0:b0:2d4:7455:89f6 with SMTP id e7-20020a2e9847000000b002d4745589f6mr4283454ljj.40.1710740086045; Sun, 17 Mar 2024 22:34:46 -0700 (PDT)"
+     *       ],
+     *       [
+     *           "Mime-Version",
+     *           "1.0"
+     *       ],
+     *       [
+     *           "References",
+     *           "<CADfEuNvN_DcTU99WY-7332iPmPuYW-CfvJfirQ6YY30e3y-XeA@mail.gmail.com> <CADfEuNupjxUivY++FnD7b1SHdNY6YZCA9b4iVW6xNbmic=B6Zw@mail.gmail.com> <CADfEuNuk6m=RUmo+R4K65Rfskox_LOTT+pnBwTnmA_gPaf1eUQ@mail.gmail.com>"
+     *       ],
+     *       [
+     *           "In-Reply-To",
+     *           "<CADfEuNuk6m=RUmo+R4K65Rfskox_LOTT+pnBwTnmA_gPaf1eUQ@mail.gmail.com>"
+     *       ],
+     *       [
+     *           "From",
+     *           "Paul Werner <test@sender.example>"
+     *       ],
+     *       [
+     *           "Date",
+     *           "Mon, 18 Mar 2024 06:34:09 +0100"
+     *       ],
+     *       [
+     *           "Message-Id",
+     *           "<CADfEuNu6nBJYqNSJ-suey3a0FazJELYkNSO5JUGiiGs9hsFvGg@mail.gmail.com>"
+     *       ],
+     *       [
+     *           "Subject",
+     *           "Fwd: TEST"
+     *       ],
+     *       [
+     *           "To",
+     *           "test@domain.example"
+     *       ],
+     *       [
+     *           "Content-Type",
+     *           "multipart/related; boundary=\"00000000000022bfbe0613e8b7f5\""
+     *       ]
+     *   ],
+     *   "stripped-html": "<html><head></head><body><div dir=\"ltr\">TESTAGAIN<img src=\"cid:ii_ltwigc770\" alt=\"Unbenannt.png\" width=\"562\" height=\"408\"><br><br></div>\n</body></html>",
+     *   "stripped-text": "TESTAGAIN[image: Unbenannt.png]\r\n\r\n---------- Forwarded message ---------\r\nVon: Paul Werner <test@sender.example>\r\nDate: Mo., 18. März 2024 um 06:30 Uhr\r\nSubject: Fwd: TEST\r\nTo: <test@domain.example>\r\n\r\n\r\nHallöööö\r\n\r\n---------- Forwarded message ---------\r\nVon: Paul Werner <test@sender.example>\r\nDate: Mo., 18. März 2024 um 06:23 Uhr\r\nSubject: Fwd: TEST\r\nTo: <test@domain.example>\r\n\r\n\r\nasjkdahwdaiohdawdawdawwwww!!!\r\n\r\n---------- Forwarded message ---------\r\nVon: Paul Werner <test@sender.example>\r\nDate: Mo., 18. März 2024 um 06:22 Uhr\r\nSubject: TEST\r\nTo: <test@domain.example>\r\n\r\n\r\nTEST",
+     *   "stripped-signature": ""
+     * }
      * @return void
      */
     public function handle()
     {
         $recipient = explode("|", $this->input)[0];
 
-        // match company
+        *match company
         $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
         if (!$company) {
             Log::info('unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $recipient);
             return;
         }
 
-        // fetch message from mailgun-api
+        *fetch message from mailgun-api
         $mailgun_domain = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_domain ? $company->settings?->mailgun_domain : config('services.mailgun.domain');
         $mailgun_secret = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_secret ? $company->settings?->mailgun_secret : config('services.mailgun.secret');
         $credentials = $mailgun_domain . ":" . $mailgun_secret . "@";
@@ -63,30 +181,30 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
         $mail = json_decode(file_get_contents($messageUrl));
 
-        // prepare data for ingresEngine
+        *prepare data for ingresEngine
         $ingresEmail = new IngresEmail();
 
         $ingresEmail->from = $mail->sender;
-        $ingresEmail->to = $recipient; // usage of data-input, because we need a single email here
+        $ingresEmail->to = $recipient; *usage of data-input, because we need a single email here
         $ingresEmail->subject = $mail->Subject;
         $ingresEmail->body = $mail->{"body-html"};
         $ingresEmail->text_body = $mail->{"body-plain"};
         $ingresEmail->date = Carbon::createFromTimeString($mail->Date);
 
-        // parse documents as UploadedFile from webhook-data
+        *parse documents as UploadedFile from webhook-data
         foreach ($mail->attachments as $attachment) {
 
-            // prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
+            *prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
             $url = $attachment->url;
             $url = str_replace("http://", "http://" . $credentials, $url);
             $url = str_replace("https://", "https://" . $credentials, $url);
 
-            // download file and save to tmp dir
+            *download file and save to tmp dir
             $ingresEmail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
 
         }
 
-        // perform
+        *perform
         (new IngresEmailEngine($ingresEmail))->handle();
     }
 }
