@@ -118,6 +118,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $expense_mailbox_allow_unknown
  * @property string|null $expense_mailbox_whitelist_domains
  * @property string|null $expense_mailbox_whitelist_emails
+ * @property string|null $expense_mailbox_blacklist_domains
+ * @property string|null $expense_mailbox_blacklist_emails
  * @property int $deleted_at
  * @property string $smtp_username
  * @property string $smtp_password
@@ -373,7 +375,8 @@ class Company extends BaseModel
         'expense_mailbox_allow_unknown',
         'expense_mailbox_whitelist_domains',
         'expense_mailbox_whitelist_emails',
-        'expense_mailbox_whitelist',
+        'expense_mailbox_blacklist_domains',
+        'expense_mailbox_blacklist_emails',
         'smtp_host',
         'smtp_port',
         'smtp_encryption',
@@ -727,7 +730,7 @@ class Company extends BaseModel
 
     public function getLocale()
     {
-        return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
+        return isset ($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
     public function getLogo(): ?string

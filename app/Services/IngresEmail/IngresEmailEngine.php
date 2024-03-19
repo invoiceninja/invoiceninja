@@ -207,6 +207,14 @@ class IngresEmailEngine
         $domain_whitelist = explode(",", $this->company->expense_mailbox_whitelist_domains);
         if (in_array($domain, $domain_whitelist))
             return true;
+        $email_blacklist = explode(",", $this->company->expense_mailbox_blacklist_emails);
+        if (in_array($this->email->from, $email_blacklist))
+            return false;
+        $domain_blacklist = explode(",", $this->company->expense_mailbox_blacklist_domains);
+        if (in_array($domain, $domain_blacklist))
+            return false;
+
+        // allow unknown
         if ($this->company->expense_mailbox_allow_unknown && sizeOf($email_whitelist) == 0 && sizeOf($domain_whitelist) == 0) // from unknown only, when no whitelists are defined
             return true;
 
