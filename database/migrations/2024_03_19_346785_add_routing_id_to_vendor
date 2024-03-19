@@ -16,6 +16,9 @@ return new class extends Migration {
         Schema::table('vendors', function (Blueprint $table) {
             $table->string('routing_id')->default(null)->nullable();
         });
+        Schema::table('companies', function (Blueprint $table) {
+            $table->string('e_quote_type')->default("OrderX_Comfort");
+        });
     }
 
     /**
