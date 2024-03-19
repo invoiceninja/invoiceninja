@@ -131,7 +131,7 @@ class ZugferdEDokument extends AbstractService
                     $this->xdocument->setDocumentPositionProductDetails("no product name defined");
                 }
             }
-            if (isset($item->task_id)) {
+            if ($item->type_id == 2) {
                 $this->xdocument->setDocumentPositionQuantity($item->quantity, "HUR");
             } else {
                 $this->xdocument->setDocumentPositionQuantity($item->quantity, "H87");
