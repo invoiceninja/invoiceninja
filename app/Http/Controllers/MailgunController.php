@@ -117,7 +117,7 @@ class MailgunController extends BaseController
 
         if (!array_key_exists('recipient', $input) || !array_key_exists('message-url', $input)) {
             Log::info('Failed: Message could not be parsed, because required parameters are missing. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation!');
-            return response()->json(['message' => 'Failed. Missing Parameters'], 400);
+            return response()->json(['message' => 'Failed. Missing Parameters. Use store and notify!'], 400);
         }
 
         if (!array_key_exists('attachments', $input) || count(json_decode($input['attachments'])) == 0) {
