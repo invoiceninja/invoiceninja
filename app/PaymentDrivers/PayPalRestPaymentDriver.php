@@ -213,7 +213,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
         
-        nlog($response);
+        // nlog($response);
         //capture
         $orderID = $response['orderID'];
 
