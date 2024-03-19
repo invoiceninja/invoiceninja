@@ -125,6 +125,7 @@ class MailgunController extends BaseController
             return response()->json(['message' => 'Success. Soft Fail. Message too old.'], 200);
         }
 
+        // @turbo124 TODO: how to check for services.mailgun.webhook_signing_key on company level, when custom credentials are defined
         if (\hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature'])) {
             ProcessMailgunInboundWebhook::dispatch($input)->delay(10);
 
