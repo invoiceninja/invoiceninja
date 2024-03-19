@@ -165,14 +165,14 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
     {
         $recipient = explode("|", $this->input)[0];
 
-        *match company
+        // match company
         $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
         if (!$company) {
             Log::info('unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $recipient);
             return;
         }
 
-        *fetch message from mailgun-api
+        // fetch message from mailgun-api
         $mailgun_domain = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_domain ? $company->settings?->mailgun_domain : config('services.mailgun.domain');
         $mailgun_secret = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_secret ? $company->settings?->mailgun_secret : config('services.mailgun.secret');
         $credentials = $mailgun_domain . ":" . $mailgun_secret . "@";
@@ -181,30 +181,30 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
         $mail = json_decode(file_get_contents($messageUrl));
 
-        *prepare data for ingresEngine
+        // prepare data for ingresEngine
         $ingresEmail = new IngresEmail();
 
         $ingresEmail->from = $mail->sender;
-        $ingresEmail->to = $recipient; *usage of data-input, because we need a single email here
+        $ingresEmail->to = $recipient; // usage of data-input, because we need a single email here
         $ingresEmail->subject = $mail->Subject;
         $ingresEmail->body = $mail->{"body-html"};
         $ingresEmail->text_body = $mail->{"body-plain"};
         $ingresEmail->date = Carbon::createFromTimeString($mail->Date);
 
-        *parse documents as UploadedFile from webhook-data
+        // parse documents as UploadedFile from webhook-data
         foreach ($mail->attachments as $attachment) {
 
-            *prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
+            // prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
             $url = $attachment->url;
             $url = str_replace("http://", "http://" . $credentials, $url);
             $url = str_replace("https://", "https://" . $credentials, $url);
 
-            *download file and save to tmp dir
+            // download file and save to tmp dir
             $ingresEmail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
 
         }
 
-        *perform
+        // perform
         (new IngresEmailEngine($ingresEmail))->handle();
     }
 }
