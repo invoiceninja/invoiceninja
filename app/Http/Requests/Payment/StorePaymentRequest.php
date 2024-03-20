@@ -78,7 +78,6 @@ class StorePaymentRequest extends Request
             foreach ($input['credits'] as $key => $value) {
                 if (array_key_exists('credit_id', $input['credits'][$key])) {
                     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
-
                     $credits_total += $value['amount'];
                 }
             }
