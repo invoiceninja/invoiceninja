@@ -57,9 +57,6 @@ class ValidRefundableRequest implements Rule
 
         if ($payment->invoices()->exists()) {
             $this->checkInvoice($payment->invoices, $request_invoices);
-            // foreach ($payment->invoices as $paymentable_invoice) {
-            //     $this->checkInvoice($paymentable_invoice, $request_invoices);
-            // }
         }
 
         foreach ($request_invoices as $request_invoice) {
