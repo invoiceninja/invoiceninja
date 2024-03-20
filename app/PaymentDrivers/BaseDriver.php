@@ -579,15 +579,18 @@ class BaseDriver extends AbstractPaymentDriver
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+        if($this->payment_hash)
+        {
+            $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-        $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-            if (! $invitation->contact->trashed()) {
-                $nmo->to_user = $invitation->contact;
-                NinjaMailerJob::dispatch($nmo);
-            }
-        });
-
+            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
+                if (! $invitation->contact->trashed()) {
+                    $nmo->to_user = $invitation->contact;
+                    NinjaMailerJob::dispatch($nmo);
+                }
+            });
+        }
+        
         $message = [
             'server_response' => $response,
             'data' => $this->payment_hash->data,
