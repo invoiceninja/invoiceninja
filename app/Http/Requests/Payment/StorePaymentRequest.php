@@ -50,7 +50,7 @@ class StorePaymentRequest extends Request
             'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
             'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
-            'invoices' => ['bail','sometimes','array', new ValidPayableInvoicesRule()],
+            'invoices' => ['bail','sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
             'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
         ];
