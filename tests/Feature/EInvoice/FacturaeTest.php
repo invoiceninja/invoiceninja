@@ -39,7 +39,7 @@ class FacturaeTest extends TestCase
     public function testInvoiceGeneration()
     {
 
-        $f = new \App\Services\EInvoicing\Standards\FacturaEInvoice($this->invoice, "3.2.2");
+        $f = new \App\Services\EDocument\Standards\FacturaEInvoice($this->invoice, "3.2.2");
         $path = $f->run();
 
         $this->assertNotNull($f->run());
