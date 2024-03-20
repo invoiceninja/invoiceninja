@@ -17,6 +17,7 @@ use Illuminate\Contracts\Validation\Rule;
 
 /**
  * Class ValidCreditsPresentRule.
+ * @deprecated 20-03-2024
  */
 class ValidCreditsPresentRule implements Rule
 {
@@ -50,11 +51,7 @@ class ValidCreditsPresentRule implements Rule
     private function validCreditsPresent(): bool
     {
         if (array_key_exists('credits', $this->input) && is_array($this->input['credits']) && count($this->input['credits']) > 0) {
-            $client_id = is_numeric(request()->input('client_id')) ?: $this->decodePrimaryKey(request()->input('client_id'));
-            // $credit_collection = Credit::query()->where('client_id', $client_id)->whereIn('id', array_column($this->input['credits'], 'credit_id'))->count();
-
             $credit_collection = Credit::query()->whereIn('id', array_column($this->input['credits'], 'credit_id'))->count();
-
             return $credit_collection == count($this->input['credits']);
         }
 

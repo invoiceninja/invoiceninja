@@ -16,7 +16,6 @@ use App\Http\ValidationRules\Credit\CreditsSumRule;
 use App\Http\ValidationRules\Credit\ValidCreditsRules;
 use App\Http\ValidationRules\Payment\ValidInvoicesRules;
 use App\Http\ValidationRules\PaymentAmountsBalanceRule;
-use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Http\ValidationRules\ValidPayableInvoicesRule;
 use App\Models\Payment;
 use App\Utils\Traits\MakesHash;
@@ -38,6 +37,41 @@ class StorePaymentRequest extends Request
 
         return $user->can('create', Payment::class);
     }
+
+    public function rules()
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $rules = [
+            'client_id' => ['bail','required',Rule::exists('clients','id')->where('company_id',$user->company()->id)->where('is_deleted', 0)],
+            'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule()],
+            'invoices.*.amount' => ['bail','required'],
+            'invoices.*.invoice_id' => ['bail','required','distinct',new ValidInvoicesRules($this->all()),Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', request()->input('client_id'))],
+            'credits.*.credit_id' => ['bail','required','distinct',new ValidCreditsRules($this->all()),Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', request()->input('client_id'))],
+            'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
+            'invoices' => ['bail','sometimes','array', new ValidPayableInvoicesRule()],
+            'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
+            'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
+        ];
+
+        if ($this->file('documents') && is_array($this->file('documents'))) {
+            $rules['documents.*'] = $this->fileValidation();
+        } elseif ($this->file('documents')) {
+            $rules['documents'] = $this->fileValidation();
+        }else {
+            $rules['documents'] = 'bail|sometimes|array';
+        }
+
+        if ($this->file('file') && is_array($this->file('file'))) {
+            $rules['file.*'] = $this->fileValidation();
+        } elseif ($this->file('file')) {
+            $rules['file'] = $this->fileValidation();
+        }
+
+        return $rules;
+    }
+
 
     public function prepareForValidation()
     {
@@ -102,39 +136,5 @@ class StorePaymentRequest extends Request
         $this->replace($input);
     }
 
-    public function rules()
-    {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
 
-        $rules = [
-            'amount' => ['numeric', 'bail', new PaymentAmountsBalanceRule(), new ValidCreditsPresentRule($this->all())],
-            'client_id' => 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0',
-            'invoices.*.invoice_id' => 'bail|required|distinct|exists:invoices,id',
-            'invoices.*.amount' => 'bail|required',
-            'invoices.*.invoice_id' => new ValidInvoicesRules($this->all()),
-            'credits.*.credit_id' => 'bail|required|exists:credits,id',
-            'credits.*.credit_id' => new ValidCreditsRules($this->all()),
-            'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
-            'invoices' => new ValidPayableInvoicesRule(),
-            'number' => ['nullable', 'bail', Rule::unique('payments')->where('company_id', $user->company()->id)],
-            'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
-        ];
-
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        }else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
-
-        return $rules;
-    }
 }

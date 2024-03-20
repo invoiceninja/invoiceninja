@@ -13,7 +13,6 @@ namespace App\Http\Requests\Payment;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\PaymentAppliedValidAmount;
-use App\Http\ValidationRules\ValidCreditsPresentRule;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
@@ -41,16 +40,16 @@ class UpdatePaymentRequest extends Request
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-
+        
         $rules = [
-            'invoices' => ['array', new PaymentAppliedValidAmount($this->all()), new ValidCreditsPresentRule($this->all())],
-            'invoices.*.invoice_id' => 'sometimes|distinct',
-            'invoices.*.amount' => 'sometimes|numeric|min:0',
+            'client_id' => ['sometimes', 'bail', Rule::in([$this->payment->client_id])],
+            'number' => ['sometimes', 'bail', Rule::unique('payments')->where('company_id', $user->company()->id)->ignore($this->payment->id)],
+            'invoices' => ['sometimes', 'bail', 'array', new PaymentAppliedValidAmount($this->all())],
+            'invoices.*.invoice_id' => ['sometimes','distinct',Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', request()->input('client_id'))],
+            'invoices.*.amount' => ['sometimes','numeric','min:0'],
+            'credits.*.credit_id' => ['sometimes','bail','distinct',Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', request()->input('client_id'))],
+            'credits.*.amount' => ['required', 'bail'],
         ];
-
-        if ($this->number) {
-            $rules['number'] = Rule::unique('payments')->where('company_id', $user->company()->id)->ignore($this->payment->id);
-        }
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->fileValidation();
@@ -74,10 +73,6 @@ class UpdatePaymentRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
-
-        if (isset($input['client_id'])) {
-            unset($input['client_id']);
-        }
 
         if (isset($input['amount'])) {
             unset($input['amount']);
