@@ -17,6 +17,8 @@ use App\Jobs\Invoice\CreateUbl;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\Task;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -318,7 +320,7 @@ class EmailDefaults
             }
         }
         /** E-Invoice xml file */
-        if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
+        if ($this->email->email_object->settings->enable_e_invoice && ! $this->email->email_object->entity instanceof PurchaseOrder) {
             $xml_string = $this->email->email_object->entity->service()->getEInvoice();
 
             if($xml_string) {

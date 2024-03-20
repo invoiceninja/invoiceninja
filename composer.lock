@@ -7,6 +7,46 @@
     "content-hash": "ef338cb66991ec0e28b96643ac5a5c6f",
     "packages": [
         {
+            "name": "adrienrn/php-mimetyper",
+            "version": "0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/adrienrn/php-mimetyper.git",
+                "reference": "702e00a604b4baed34d69730ce055e05c0f43932"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/adrienrn/php-mimetyper/zipball/702e00a604b4baed34d69730ce055e05c0f43932",
+                "reference": "702e00a604b4baed34d69730ce055e05c0f43932",
+                "shasum": ""
+            },
+            "require": {
+                "dflydev/apache-mime-types": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MimeTyper\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hussard",
+                    "email": "adrien.ricartnoblet@gmail.com"
+                }
+            ],
+            "description": "PHP mime type and extension mapping library: compatible with Symfony, powered by jshttp/mime-db",
+            "support": {
+                "issues": "https://github.com/adrienrn/php-mimetyper/issues",
+                "source": "https://github.com/adrienrn/php-mimetyper/tree/0.2.2"
+            },
+            "time": "2018-09-27T09:45:05+00:00"
+        },
+        {
             "name": "afosto/yaac",
             "version": "v1.5.2",
             "source": {
@@ -2018,6 +2058,65 @@
                 "source": "https://github.com/DaveRandom/LibDNS/tree/v2.0.3"
             },
             "time": "2022-09-20T18:15:38+00:00"
+        },
+        {
+            "name": "dflydev/apache-mime-types",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dflydev/dflydev-apache-mime-types.git",
+                "reference": "f30a57e59b7476e4c5270b6a0727d79c9c0eb861"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dflydev/dflydev-apache-mime-types/zipball/f30a57e59b7476e4c5270b6a0727d79c9c0eb861",
+                "reference": "f30a57e59b7476e4c5270b6a0727d79c9c0eb861",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "twig/twig": "1.*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Dflydev\\ApacheMimeTypes": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Dragonfly Development Inc.",
+                    "email": "info@dflydev.com",
+                    "homepage": "http://dflydev.com"
+                },
+                {
+                    "name": "Beau Simensen",
+                    "email": "beau@dflydev.com",
+                    "homepage": "http://beausimensen.com"
+                }
+            ],
+            "description": "Apache MIME Types",
+            "keywords": [
+                "apache",
+                "mime",
+                "mimetypes"
+            ],
+            "support": {
+                "issues": "https://github.com/dflydev/dflydev-apache-mime-types/issues",
+                "source": "https://github.com/dflydev/dflydev-apache-mime-types/tree/v1.0.1"
+            },
+            "time": "2013-05-14T02:02:01+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -4301,6 +4400,74 @@
                 "source": "https://github.com/horstoeko/mimedb/tree/v1.0.5"
             },
             "time": "2023-09-22T20:17:48+00:00"
+        },
+        {
+            "name": "horstoeko/orderx",
+            "version": "v1.0.18",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/horstoeko/orderx.git",
+                "reference": "0a8535c1cda5574d31e8002e7d03f8bbaafd30ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/horstoeko/orderx/zipball/0a8535c1cda5574d31e8002e7d03f8bbaafd30ed",
+                "reference": "0a8535c1cda5574d31e8002e7d03f8bbaafd30ed",
+                "shasum": ""
+            },
+            "require": {
+                "adrienrn/php-mimetyper": "^0.2",
+                "ext-simplexml": "*",
+                "goetas-webservices/xsd2php-runtime": "^0.2.13",
+                "horstoeko/stringmanagement": "^1",
+                "jms/serializer": "^3",
+                "php": "^7.3|^7.4|^8",
+                "setasign/fpdf": "^1",
+                "setasign/fpdi": "^2",
+                "smalot/pdfparser": "^0",
+                "symfony/validator": "^5|^6",
+                "symfony/yaml": "^5|^6"
+            },
+            "require-dev": {
+                "goetas-webservices/xsd2php": "^0",
+                "pdepend/pdepend": "^2",
+                "phploc/phploc": "^7",
+                "phpmd/phpmd": "^2",
+                "phpstan/phpstan": "^1.8",
+                "phpunit/phpunit": "^9",
+                "sebastian/phpcpd": "^6",
+                "squizlabs/php_codesniffer": "^3"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "horstoeko\\orderx\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel Erling",
+                    "email": "daniel@erling.com.de",
+                    "role": "lead"
+                }
+            ],
+            "description": "A library for creating and reading Order-X document",
+            "homepage": "https://github.com/horstoeko/orderx",
+            "keywords": [
+                "electronic",
+                "order",
+                "order-x",
+                "orderx"
+            ],
+            "support": {
+                "issues": "https://github.com/horstoeko/orderx/issues",
+                "source": "https://github.com/horstoeko/orderx/tree/v1.0.18"
+            },
+            "time": "2024-01-27T09:26:23+00:00"
         },
         {
             "name": "horstoeko/stringmanagement",
@@ -11444,23 +11611,26 @@
         },
         {
             "name": "smalot/pdfparser",
-            "version": "v2.9.0",
+            "version": "v0.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/smalot/pdfparser.git",
-                "reference": "6b53144fcb24af77093d4150dd7d0dd571f25761"
+                "reference": "1895c17417aefa4508e35836c46da61988d61f26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/6b53144fcb24af77093d4150dd7d0dd571f25761",
-                "reference": "6b53144fcb24af77093d4150dd7d0dd571f25761",
+                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/1895c17417aefa4508e35836c46da61988d61f26",
+                "reference": "1895c17417aefa4508e35836c46da61988d61f26",
                 "shasum": ""
             },
             "require": {
-                "ext-iconv": "*",
                 "ext-zlib": "*",
-                "php": ">=7.1",
+                "php": ">=5.6",
                 "symfony/polyfill-mbstring": "^1.18"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "symfony/phpunit-bridge": "^5.2"
             },
             "type": "library",
             "autoload": {
@@ -11489,9 +11659,9 @@
             ],
             "support": {
                 "issues": "https://github.com/smalot/pdfparser/issues",
-                "source": "https://github.com/smalot/pdfparser/tree/v2.9.0"
+                "source": "https://github.com/smalot/pdfparser/tree/v0.19.0"
             },
-            "time": "2024-03-01T09:51:10+00:00"
+            "time": "2021-04-13T08:27:56+00:00"
         },
         {
             "name": "socialiteproviders/apple",
@@ -19534,5 +19704,5 @@
     "platform-dev": {
         "php": "^8.1|^8.2"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
