@@ -59,8 +59,9 @@ class CreateEDocument implements ShouldQueue
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
 
-        $e_document_type = $settings_entity->getSetting('e_invoice_type') ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
-        $e_quote_type = $settings_entity->getSetting('e_quote_type') ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
+        $e_document_type = strlen($settings_entity->getSetting('e_invoice_type')) > 2 ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
+        $e_quote_type = strlen($settings_entity->getSetting('e_quote_type')) > 2 ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
+
         if ($this->document instanceof Invoice){
             switch ($e_document_type) {
                 case "EN16931":

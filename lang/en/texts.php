@@ -5264,6 +5264,8 @@ $lang = array(
     'accept_payments_online' => 'Accept Payments Online',
     'all_payment_gateways' => 'View all payment gateways',    
     'product_cost' => 'Product cost',
+    'enable_rappen_roudning' => 'Enable Rappen Rounding',
+    'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
 );
 
 return $lang;
