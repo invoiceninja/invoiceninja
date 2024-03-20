@@ -13,7 +13,6 @@ namespace Tests\Feature\EInvoice;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

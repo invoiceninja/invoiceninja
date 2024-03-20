@@ -133,12 +133,6 @@ class StorePaymentRequest extends Request
             $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}", 0, 64);
         }
 
-        nlog($input);
-        $i = \App\Models\Invoice::find($input['invoices'][0]['invoice_id']);
-        nlog($i->client_id);
-        nlog($i->id);
-        nlog($user->company()->id);
-        nlog($i->company_id);
         $this->replace($input);
     }
 

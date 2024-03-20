@@ -252,6 +252,30 @@ class PaytracePaymentDriver extends BaseDriver
         return false;
     }
 
+    public function getClientRequiredFields(): array
+    {
+        $fields = parent::getClientRequiredFields();
+
+        nlog("a");
+
+        nlog($fields);
+
+        $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+
+        
+nlog("b");
+
+nlog($fields);
+
+        return $fields;
+    }
+
+
+
+
     public function auth(): bool
     {
         try {
