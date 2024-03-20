@@ -109,14 +109,35 @@ class ACH
 
     public function verificationView(ClientGatewayToken $token)
     {
-        if (isset($token->meta->state) && $token->meta->state === 'authorized') {
-            return redirect()
-                ->route('client.payment_methods.show', $token->hashed_id)
-                ->with('message', __('texts.payment_method_verified'));
-        }
 
         //double check here if we need to show the verification view.
         $this->stripe->init();
+
+        if(substr($token->token,0,2) == 'pm'){
+            $pm = $this->stripe->getStripePaymentMethod($token->token);
+            
+            if(!$pm->customer){
+
+                $meta = $token->meta;
+                $meta->state = 'unauthorized';
+                $token->meta = $meta;
+                $token->save();
+
+                return redirect()
+                    ->route('client.payment_methods.show', $token->hashed_id);
+
+            }
+
+            if (isset($token->meta->state) && $token->meta->state === 'authorized') {
+                return redirect()
+                    ->route('client.payment_methods.show', $token->hashed_id)
+                    ->with('message', __('texts.payment_method_verified'));
+            }
+
+            if($token->meta->next_action)
+                return redirect($token->meta->next_action);
+
+        }
 
         $bank_account = Customer::retrieveSource($token->gateway_customer_reference, $token->token, [], $this->stripe->stripe_connect_auth);
 
@@ -319,6 +340,9 @@ class ACH
                     $data['message'] = 'Too many requests made to the API too quickly';
                     break;
                 case $e instanceof InvalidRequestException:
+                    
+                    return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
+
                     $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
                     break;
                 case $e instanceof AuthenticationException:

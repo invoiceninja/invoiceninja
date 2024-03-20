@@ -43,7 +43,7 @@ class ContactLoginController extends Controller
 
         if ($request->session()->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
-            $company = Company::where('company_key', $request->input('company_key'))->first();
+            $company = Company::where('company_key', $request->session()->get('company_key'))->first();
         } elseif ($request->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->input('company_key'));
             $company = Company::where('company_key', $request->input('company_key'))->first();
