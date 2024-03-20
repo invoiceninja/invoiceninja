@@ -47,8 +47,8 @@ class StorePaymentRequest extends Request
             'client_id' => ['bail','required',Rule::exists('clients','id')->where('company_id',$user->company()->id)->where('is_deleted', 0)],
             'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule()],
             'invoices.*.amount' => ['bail','required'],
-            'invoices.*.invoice_id' => ['bail','required','distinct',new ValidInvoicesRules($this->all()),Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', request()->input('client_id'))],
-            'credits.*.credit_id' => ['bail','required','distinct',new ValidCreditsRules($this->all()),Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', request()->input('client_id'))],
+            'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
+            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'invoices' => ['bail','sometimes','array', new ValidPayableInvoicesRule()],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
@@ -133,6 +133,12 @@ class StorePaymentRequest extends Request
             $input['idempotency_key'] = substr(sha1(json_encode($input)).time()."{$input['date']}{$input['amount']}{$user->id}", 0, 64);
         }
 
+        nlog($input);
+        $i = \App\Models\Invoice::find($input['invoices'][0]['invoice_id']);
+        nlog($i->client_id);
+        nlog($i->id);
+        nlog($user->company()->id);
+        nlog($i->company_id);
         $this->replace($input);
     }
 

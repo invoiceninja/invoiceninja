@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\EInvoicing\Standards;
+namespace App\Services\EDocument\Standards;
 
 use App\Models\Invoice;
 use App\Models\PaymentType;

@@ -11,22 +11,21 @@
 
 namespace App\Jobs\EDocument;
 
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Services\EInvoicing\Standards\FacturaEInvoice;
-use App\Services\EInvoicing\Standards\OrderXDocument;
-use App\Services\EInvoicing\Standards\ZugferdEDokument;
-use App\Utils\Ninja;
-use horstoeko\zugferd\ZugferdDocumentBuilder;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\App;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use function App\Jobs\Invoice\app;
+use horstoeko\zugferd\ZugferdDocumentBuilder;
+use App\Services\EDocument\Standards\OrderXDocument;
+use App\Services\EDocument\Standards\FacturaEInvoice;
+use App\Services\EDocument\Standards\ZugferdEDokument;
 
 class CreateEDocument implements ShouldQueue
 {
@@ -55,7 +54,7 @@ class CreateEDocument implements ShouldQueue
         $t = app('translator');
         /* Set the locale*/
         $settings_entity = ($this->document instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
-        App::setLocale($$settings_entity->locale());
+        App::setLocale($settings_entity->locale());
 
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
