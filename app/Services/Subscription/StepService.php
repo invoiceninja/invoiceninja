@@ -49,6 +49,15 @@ class StepService
             }
         }
 
+        $auth = collect($dependencies)
+            ->filter(fn ($dependency) => str_starts_with($dependency['id'], 'auth.'))
+            ->keys()
+            ->toArray();
+
+        if (count(array_intersect($auth, $steps)) === 0) {
+            $errors[] = ctrans('texts.step_authentication_fail');
+        }
+
         return $errors;
     }
 
