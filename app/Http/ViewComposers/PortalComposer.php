@@ -101,9 +101,7 @@ class PortalComposer
         $enabled_modules = auth()->guard('contact')->user()->company->enabled_modules;
         $data = [];
 
-        // TODO: Enable dashboard once it's completed.
-        // $this->settings->enable_client_portal_dashboard
-        // $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
 
         if (self::MODULE_INVOICES & $enabled_modules) {
             $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];
