@@ -5266,6 +5266,7 @@ $lang = array(
     'product_cost' => 'Product cost',
     'enable_rappen_roudning' => 'Enable Rappen Rounding',
     'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
+    'duration_words' => 'Duration in words',
 );
 
 return $lang;
