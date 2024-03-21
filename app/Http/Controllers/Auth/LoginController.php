@@ -390,6 +390,7 @@ class LoginController extends BaseController
         $truth->setUser($user);
         $truth->setCompany($set_company);
 
+        //21-03-2024
         $cu->each(function ($cu){
             if(CompanyToken::where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()){
                 (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle();
