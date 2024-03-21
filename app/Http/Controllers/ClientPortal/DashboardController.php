@@ -12,17 +12,11 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    /**
-     * @return Factory|View
-     */
-    public function index()
+    public function index(): \Illuminate\View\View
     {
-        return redirect()->route('client.invoices.index');
-        //return $this->render('dashboard.index');
+        return $this->render('dashboard.index');
     }
 }
