@@ -41,6 +41,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $phone
  * @property string|null $private_notes
  * @property string|null $website
+ * @property string|null $routing_id
  * @property bool $is_deleted
  * @property string|null $vat_number
  * @property string|null $transaction_name

@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -248,6 +249,7 @@ class Task extends BaseModel
             $duration += max($end_time - $start_time, 0);
         }
 
+        // return CarbonInterval::seconds(round($duration))->locale($this->company->locale())->cascade()->forHumans();
         return round($duration);
     }
 

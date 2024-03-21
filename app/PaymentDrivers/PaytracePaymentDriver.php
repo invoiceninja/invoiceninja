@@ -11,19 +11,24 @@
 
 namespace App\PaymentDrivers;
 
-use App\Exceptions\SystemError;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\CurlUtils;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
-use App\PaymentDrivers\PayTrace\CreditCard;
-use App\Utils\CurlUtils;
+use App\Factory\ClientFactory;
+use App\Exceptions\SystemError;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\Repositories\ClientRepository;
+use App\PaymentDrivers\PayTrace\CreditCard;
+use App\Repositories\ClientContactRepository;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Models\ClientContact;
+use App\PaymentDrivers\Factory\PaytraceCustomerFactory;
 
 class PaytracePaymentDriver extends BaseDriver
 {
@@ -245,5 +250,90 @@ class PaytracePaymentDriver extends BaseDriver
         }
 
         return false;
+    }
+
+    public function getClientRequiredFields(): array
+    {
+        $fields = parent::getClientRequiredFields();
+
+        $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+
+        return $fields;
+    }
+
+    public function auth(): bool
+    {
+        try {
+            $this->init()->generateAuthHeaders() && strlen($this->company_gateway->getConfigField('integratorId')) > 2;
+            return true;
+        }
+        catch(\Exception $e){
+
+        }
+
+        return false;
+
+    }
+
+    public function importCustomers()
+    {
+
+        $data = [
+            'integrator_id' =>  $this->company_gateway->getConfigField('integratorId'),
+        ];
+
+        $response = $this->gatewayRequest('/v1/customer/export', $data);
+
+        nlog($response);
+
+        if ($response && $response->success) {
+     
+            $client_repo = new ClientRepository(new ClientContactRepository());
+            $factory = new PaytraceCustomerFactory();
+
+            foreach($response->customers as $customer)
+            {
+                $data = $factory->convertToNinja($customer, $this->company_gateway->company);
+                
+                $client = false;
+
+                if(str_contains($data['contacts'][0]['email'], "@"))
+                {
+                    $client = ClientContact::query()
+                                    ->where('company_id', $this->company_gateway->company_id)
+                                    ->where('email', $data['contacts'][0]['email'])
+                                    ->first()->client ?? false;
+                }
+
+                if(!$client)
+                    $client = $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
+                
+                $this->client = $client;
+
+                if(ClientGatewayToken::query()->where('client_id', $client->id)->where('token',$data['card']['token'])->exists())
+                    continue;
+
+                $cgt = [];
+                $cgt['token'] = $data['card']['token'];
+                $cgt['payment_method_id'] = GatewayType::CREDIT_CARD;
+
+                $payment_meta = new \stdClass();
+                $payment_meta->exp_month = $data['card']['expiry_month'];
+                $payment_meta->exp_year = $data['card']['expiry_year'];
+                $payment_meta->brand = 'CC';
+                $payment_meta->last4 = $data['card']['last4'];
+                $payment_meta->type = GatewayType::CREDIT_CARD;
+
+                $cgt['payment_meta'] = $payment_meta;
+
+                $token = $this->storeGatewayToken($cgt, []);
+            
+            }
+        }
+
     }
 }

@@ -294,6 +294,7 @@ class BaseExport
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
         'tax_amount' => 'item.tax_amount',
+        'product_cost' => 'item.product_cost'
     ];
 
     protected array $quote_report_keys = [
@@ -426,8 +427,11 @@ class BaseExport
 
     protected array $task_report_keys = [
         'start_date' => 'task.start_date',
+        'start_time' => 'task.start_time',
         'end_date' => 'task.end_date',
+        'end_time' => 'task.end_time',
         'duration' => 'task.duration',
+        'duration_words' => 'task.duration_words',
         'rate' => 'task.rate',
         'number' => 'task.number',
         'description' => 'task.description',

@@ -46,8 +46,8 @@
 
             var errorDetail = Array.isArray(data.details) && data.details[0];
                 if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
-                return actions.restart();
-            }
+                    return actions.restart();
+                }
 
                 document.getElementById("gateway_response").value =JSON.stringify( data );
                 document.getElementById("server_response").submit();

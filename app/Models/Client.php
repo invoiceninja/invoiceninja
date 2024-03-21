@@ -485,7 +485,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         /*Company Settings*/
-        elseif ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
+        elseif ((property_exists($this->company->settings, $setting) !== false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
         } elseif (property_exists(CompanySettings::defaults(), $setting)) {
             return CompanySettings::defaults()->{$setting};
@@ -754,7 +754,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
-    public function e_invoice_filepath($invitation): string
+    public function e_document_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 

@@ -13,6 +13,7 @@
 use App\Http\Controllers\SubscriptionStepsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\BrevoController;
 use App\Http\Controllers\PingController;
 use App\Http\Controllers\SmtpController;
 use App\Http\Controllers\TaskController;
@@ -195,7 +196,10 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('company_ledger', [CompanyLedgerController::class, 'index'])->name('company_ledger.index');
 
     Route::resource('company_gateways', CompanyGatewayController::class);
+
     Route::post('company_gateways/bulk', [CompanyGatewayController::class, 'bulk'])->name('company_gateways.bulk');
+    Route::post('company_gateways/{company_gateway}/test', [CompanyGatewayController::class, 'test'])->name('company_gateways.test');
+    Route::post('company_gateways/{company_gateway}/import_customers', [CompanyGatewayController::class, 'importCustomers'])->name('company_gateways.import_customers');
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
     Route::put('company_users/{user}/preferences', [CompanyUserController::class, 'updatePreferences']);
@@ -205,6 +209,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('credits/{credit}/{action}', [CreditController::class, 'action'])->name('credits.action');
     Route::post('credits/bulk', [CreditController::class, 'bulk'])->name('credits.bulk');
     Route::get('credit/{invitation_key}/download', [CreditController::class, 'downloadPdf'])->name('credits.downloadPdf');
+    Route::get('credit/{invitation_key}/download_e_credit', [CreditController::class, 'downloadECredit'])->name('credits.downloadECredit');
+
 
     Route::resource('designs', DesignController::class); // name = (payments. index / create / show / update / destroy / edit
     Route::post('designs/bulk', [DesignController::class, 'bulk'])->name('designs.bulk');
@@ -282,12 +288,14 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::put('purchase_orders/{purchase_order}/upload', [PurchaseOrderController::class, 'upload']);
     Route::get('purchase_orders/{purchase_order}/{action}', [PurchaseOrderController::class, 'action'])->name('purchase_orders.action');
     Route::get('purchase_order/{invitation_key}/download', [PurchaseOrderController::class, 'downloadPdf'])->name('purchase_orders.downloadPdf');
+    Route::get('purchase_order/{invitation_key}/download_e_purchase_order', [PurchaseOrderController::class, 'downloadEPurchaseOrder'])->name('purchase_orders.downloadEPurchaseOrder');
 
     Route::resource('quotes', QuoteController::class); // name = (quotes. index / create / show / update / destroy / edit
     Route::get('quotes/{quote}/{action}', [QuoteController::class, 'action'])->name('quotes.action');
     Route::post('quotes/bulk', [QuoteController::class, 'bulk'])->name('quotes.bulk');
     Route::put('quotes/{quote}/upload', [QuoteController::class, 'upload']);
     Route::get('quote/{invitation_key}/download', [QuoteController::class, 'downloadPdf'])->name('quotes.downloadPdf');
+    Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, 'downloadEQuote'])->name('quotes.downloadEQuote');
 
     Route::resource('recurring_expenses', RecurringExpenseController::class);
     Route::post('recurring_expenses/bulk', [RecurringExpenseController::class, 'bulk'])->name('recurring_expenses.bulk');
@@ -429,6 +437,7 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
 
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/brevo_webhook', [BrevoController::class, 'webhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/mailgun_webhook', [MailgunWebhookController::class, 'webhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');

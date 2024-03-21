@@ -193,6 +193,18 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function import()
     {
+        $this->init();
+        
         return (new AuthorizeCustomer($this))->importCustomers();
+    }
+
+    public function importCustomers()
+    {
+        return $this->import();
+    }
+
+    public function auth(): bool
+    {
+        return $this->init()->getPublicClientKey() ?? false;
     }
 }

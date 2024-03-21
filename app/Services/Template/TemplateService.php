@@ -613,8 +613,6 @@ class TemplateService
 
         $this->payment = $payment;
 
-        $this->addGlobal(['currency_code' => $payment->currency->code ?? $this->company->currency()->code]);
-
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
                 'credit' => $credit->number,

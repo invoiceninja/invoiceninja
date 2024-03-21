@@ -11,22 +11,27 @@
 
 namespace App\PaymentDrivers;
 
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Models\SystemLog;
+use App\Models\ClientContact;
+use App\Factory\ClientFactory;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use Square\Utils\WebhooksHelper;
+use App\Models\ClientGatewayToken;
+use App\Repositories\ClientRepository;
+use Square\Models\WebhookSubscription;
 use App\PaymentDrivers\Square\CreditCard;
 use App\PaymentDrivers\Square\SquareWebhook;
-use App\Utils\Traits\MakesHash;
-use Square\Models\Builders\RefundPaymentRequestBuilder;
+use App\Repositories\ClientContactRepository;
 use Square\Models\CreateWebhookSubscriptionRequest;
-use Square\Models\WebhookSubscription;
-use Square\Utils\WebhooksHelper;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\PaymentDrivers\Factory\SquareCustomerFactory;
+use Square\Models\Builders\RefundPaymentRequestBuilder;
 
 class SquarePaymentDriver extends BaseDriver
 {
@@ -429,4 +434,205 @@ class SquarePaymentDriver extends BaseDriver
 
         return $amount;
     }
+
+    public function auth(): bool
+    {
+
+        $api_response = $this->init()
+                    ->square
+                    ->getCustomersApi()
+                    ->listCustomers();
+
+
+        return (bool) count($api_response->getErrors()) == 0;
+
+    }
+
+    public function importCustomers()
+    {
+        
+        $limit = 100;
+
+        $api_response = $this->init()
+                    ->square
+                    ->getCustomersApi()
+                    ->listCustomers(null,
+                        $limit,
+                        'DEFAULT',
+                        'DESC'
+                    );
+
+        if ($api_response->isSuccess()) {
+        
+         while ($api_response->getResult()->getCustomers()) {
+
+            $customers = $api_response->getResult()->getCustomers();
+
+            $client_repo = new ClientRepository(new ClientContactRepository());
+
+            foreach($customers as $customer)
+            {
+
+                $data = (new SquareCustomerFactory())->convertToNinja($customer, $this->company_gateway->company);
+                $client = ClientContact::where('company_id', $this->company_gateway->company_id)->where('email', $customer->getEmailAddress())->first()->client ?? false;
+
+                if(!$client)
+                    $client = $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
+
+                $this->client = $client;
+
+                foreach($data['cards'] as $card) {
+                 
+                    if(ClientGatewayToken::where('company_id', $this->company_gateway->company_id)->where('token', $card['token'])->exists())
+                        continue;
+
+                    $this->storeGatewayToken($card);
+
+                }
+            }
+        
+            $c = $api_response->getCursor();
+            if ($c) {
+
+                $api_response = $this->init()
+                    ->square
+                    ->getCustomersApi()
+                    ->listCustomers(
+                            $c,
+                            $limit,
+                            'DEFAULT',
+                            'DESC'
+                        );
+            } else {
+                break;
+            }
+
+
+        }
+
+        }
+    }
+
+    private function findClient($email = null)
+    {
+
+        $email_address_string = $email ?? $this->client->present()->email();
+
+        $email_address = new \Square\Models\CustomerTextFilter();
+        $email_address->setExact($email_address_string);
+
+        $filter = new \Square\Models\CustomerFilter();
+        $filter->setEmailAddress($email_address);
+
+        $query = new \Square\Models\CustomerQuery();
+        $query->setFilter($filter);
+
+        $body = new \Square\Models\SearchCustomersRequest();
+        $body->setQuery($query);
+
+        $api_response = $this->init()
+                            ->square
+                            ->getCustomersApi()
+                            ->searchCustomers($body);
+
+        $customers = false;
+
+        if ($api_response->isSuccess()) {
+            $customers = $api_response->getBody();
+            $customers = json_decode($customers);
+
+            if (count([$api_response->getBody(), 1]) == 0) {
+                $customers = false;
+            }
+        } else {
+            $errors = $api_response->getErrors();
+        }
+
+        if ($customers && property_exists($customers, 'customers')) {
+            return $customers->customers[0]->id;
+        }
+
+        return false;
+
+    }
+
+    public function findOrCreateClient()
+    {
+        if($customer_id = $this->findClient())
+            return $customer_id;
+
+        return $this->createClient();
+    }
+
+    private function createClient()
+    {
+        $country = $this->client->country ? $this->client->country->iso_3166_2 : $this->client->company->country()->iso_3166_2;
+
+        /* Step two - create the customer */
+        $billing_address = new \Square\Models\Address();
+        $billing_address->setAddressLine1($this->client->address1);
+        $billing_address->setAddressLine2($this->client->address2);
+        $billing_address->setLocality($this->client->city);
+        $billing_address->setAdministrativeDistrictLevel1($this->client->state);
+        $billing_address->setPostalCode($this->client->postal_code);
+        $billing_address->setCountry($country);
+
+        $body = new \Square\Models\CreateCustomerRequest();
+        $body->setGivenName($this->client->present()->name());
+        $body->setFamilyName('');
+        $body->setEmailAddress($this->client->present()->email());
+        $body->setAddress($billing_address);
+        $body->setReferenceId($this->client->number);
+        $body->setNote('Created by Invoice Ninja.');
+
+        $api_response = $this->init()
+                             ->square
+                             ->getCustomersApi()
+                             ->createCustomer($body);
+
+        if ($api_response->isSuccess()) {
+            $result = $api_response->getResult();
+
+            return $result->getCustomer()->getId();
+        } else {
+            $errors = $api_response->getErrors();
+            nlog($errors);
+
+            $error = end($errors);
+
+            $data = [
+                'response' => $error->getDetail(),
+                'error' => $error->getDetail(),
+                'error_code' => $error->getCode(),
+            ];
+
+            return $this->processUnsuccessfulTransaction($data);
+
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

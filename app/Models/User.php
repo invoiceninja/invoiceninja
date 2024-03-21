@@ -226,6 +226,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return $truth->getCompanyToken();
         }
 
+        // if (request()->header('X-API-TOKEN')) {
         if (request()->header('X-API-TOKEN')) {
             return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
         }

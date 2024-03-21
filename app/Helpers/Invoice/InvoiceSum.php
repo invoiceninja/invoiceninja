@@ -52,6 +52,7 @@ class InvoiceSum
 
     public InvoiceItemSum $invoice_items;
 
+    private $rappen_rounding = false;
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -63,8 +64,11 @@ class InvoiceSum
 
         if ($this->invoice->client) {
             $this->precision = $this->invoice->client->currency()->precision;
+            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
         } else {
             $this->precision = $this->invoice->vendor->currency()->precision;
+            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
+
         }
 
         $this->tax_map = new Collection();
@@ -242,8 +246,6 @@ class InvoiceSum
 
         if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
-                // $paid_to_date = $this->invoice->amount - $this->invoice->balance;
-
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
             } else {
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
@@ -252,9 +254,20 @@ class InvoiceSum
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
+        if($this->rappen_rounding){
+            $this->invoice->amount = $this->roundRappen($this->invoice->amount);
+            $this->invoice->balance = $this->roundRappen($this->invoice->balance);
+        }
+
         $this->invoice->total_taxes = $this->getTotalTaxes();
 
         return $this;
+    }
+
+
+    function roundRappen($value): float
+    {
+        return round($value / .05, 0) * .05;
     }
 
     public function getSubTotal()

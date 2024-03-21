@@ -55,7 +55,17 @@ class SmtpController extends BaseController
         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
 
         try {
-            Mail::mailer('smtp')->to($user->email, $user->present()->name())->send(new TestMailServer('Email Server Works!', strlen($company->settings->custom_sending_email) > 1 ? $company->settings->custom_sending_email : $user->email));
+
+            $sending_email = (isset($company->settings->custom_sending_email) && stripos($company->settings->custom_sending_email, "@")) ? $company->settings->custom_sending_email : $user->email;
+            $sending_user = (isset($company->settings->email_from_name) && strlen($company->settings->email_from_name) > 2) ? $company->settings->email_from_name : $user->name();
+
+            $mailable = new TestMailServer('Email Server Works!', $sending_email);
+            $mailable->from($sending_email,$sending_user);
+
+            Mail::mailer('smtp')
+                ->to($user->email, $user->present()->name())
+                ->send($mailable);
+
         } catch (\Exception $e) {
             app('mail.manager')->forgetMailers();
             return response()->json(['message' => $e->getMessage()], 400);        

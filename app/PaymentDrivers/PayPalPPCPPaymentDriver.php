@@ -292,7 +292,32 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         }
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+        try {
+            $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+        } catch(\Exception $e) {
+
+            //Rescue for duplicate invoice_id
+            if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false) {
+
+
+                $_invoice = collect($this->payment_hash->data->invoices)->first();
+                $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+                $new_invoice_number = $invoice->number."_".Str::random(5);
+
+                $update_data =
+                        [[
+                            "op" => "replace",
+                            "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+                            "value" => $new_invoice_number,
+                        ]];
+
+                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
+
+                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+            }
+
+        }
 
         $response = $r;
 
@@ -560,5 +585,28 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
     }
+    
+    public function auth(): bool
+    {
 
+        try {
+            $this->init()->getClientToken();
+            return true;
+        }
+        catch(\Exception $e) {
+
+        }
+
+        return false;
+    }
+
+    public function importCustomers()
+    {
+
+        // $response = $this->gatewayRequest('/v1/reporting/transactions', 'get', ['fields' => 'all','page_size' => 500,'start_date' => '2024-02-01T00:00:00-0000', 'end_date' => '2024-03-01T00:00:00-0000']);
+        
+        // nlog($response->json());
+
+        return true;
+    }   
 }

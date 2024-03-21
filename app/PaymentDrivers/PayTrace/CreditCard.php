@@ -59,6 +59,9 @@ class CreditCard
             'enc_key' => $data['enc_key'],
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
+            'email' => $this->paytrace->client->present()->email(),
+            'phone' => $this->paytrace->client->present()->phone(),
+
         ];
 
         $response = $this->paytrace->gatewayRequest('/v1/customer/pt_protect_create', $post_data);

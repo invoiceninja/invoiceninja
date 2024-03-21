@@ -47,6 +47,8 @@ class InvoiceSumInclusive
 
     private $precision;
 
+    private $rappen_rounding = false;
+
     public InvoiceItemSumInclusive $invoice_items;
     /**
      * Constructs the object with Invoice and Settings object.
@@ -59,8 +61,10 @@ class InvoiceSumInclusive
 
         if ($this->invoice->client) {
             $this->precision = $this->invoice->client->currency()->precision;
+            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
         } else {
             $this->precision = $this->invoice->vendor->currency()->precision;
+            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
         }
 
         $this->tax_map = new Collection();
@@ -270,9 +274,19 @@ class InvoiceSumInclusive
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
+        if($this->rappen_rounding) {
+            $this->invoice->amount = $this->roundRappen($this->invoice->amount);
+            $this->invoice->balance = $this->roundRappen($this->invoice->balance);
+        }
+
         $this->invoice->total_taxes = $this->getTotalTaxes();
 
         return $this;
+    }
+    
+    function roundRappen($value): float
+    {
+        return round($value / .05, 0) * .05;
     }
 
     public function getSubTotal()
