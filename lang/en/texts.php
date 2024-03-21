@@ -5250,6 +5250,7 @@ $lang = array(
     'add_step' => 'Add step',
     'steps' => 'Steps',
     'steps_order_help' =>  'The order of the steps is important. The first step should not depend on any other step. The second step should depend on the first step, and so on.',
+    'other_steps' => 'Other steps',
     'use_available_payments' => 'Use Available Payments',
     'test_email_sent' => 'Successfully sent email',
     'gateway_type' => 'Gateway Type',
