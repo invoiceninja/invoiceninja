@@ -5240,6 +5240,7 @@ $lang = array(
     'out_of_stock' => 'Out of stock',
     'step_dependency_fail' => 'Component ":step" requires at least one of it\'s dependencies (":dependencies") in the list.',
     'step_dependency_order_fail' => 'Component ":step" depends on ":dependency". Make component(s) order is correct.',
+    'step_authentication_fail' => 'You must include at least one of authentication methods.',
     'auth.login' => 'Login',
     'auth.login-or-register' => 'Login or Register',
     'auth.register' => 'Register',
