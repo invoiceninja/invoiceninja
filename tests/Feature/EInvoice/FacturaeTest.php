@@ -13,7 +13,6 @@ namespace Tests\Feature\EInvoice;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\Storage;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
@@ -39,7 +38,7 @@ class FacturaeTest extends TestCase
     public function testInvoiceGeneration()
     {
 
-        $f = new \App\Services\EInvoicing\Standards\FacturaEInvoice($this->invoice, "3.2.2");
+        $f = new \App\Services\EDocument\Standards\FacturaEInvoice($this->invoice, "3.2.2");
         $path = $f->run();
 
         $this->assertNotNull($f->run());

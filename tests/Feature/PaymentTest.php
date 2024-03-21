@@ -420,10 +420,9 @@ class PaymentTest extends TestCase
 
     public function testPaymentRESTEndPoints()
     {
-        Payment::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
-
-        $Payment = Payment::all()->last();
-
+        $Payment = Payment::factory()->create(['user_id' => $this->user->id, 'company_id' => $this->company->id, 'client_id' => $this->client->id]);
+        $Payment->name = \Illuminate\Support\Str::random(54);
+        
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -591,19 +590,13 @@ class PaymentTest extends TestCase
 
         $response = false;
 
-        // try {
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/payments?include=invoices', $data);
-        // } catch (ValidationException $e) {
-        // $message = json_decode($e->validator->getMessageBag(), 1);
-        // $this->assertNotNull($message);
-        // }
 
-        // if ($response) {
         $response->assertStatus(200);
-        // }
+        
     }
 
     public function testPartialPaymentAmount()

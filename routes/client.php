@@ -131,9 +131,9 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('invoice/{invitation_key}/download_pdf', [InvoiceController::class, 'downloadPdf'])->name('invoice.download_invitation_key')->middleware('token_auth');
     Route::get('invoice/{invitation_key}/download_e_invoice', [InvoiceController::class, 'downloadEInvoice'])->name('invoice.download_e_invoice')->middleware('token_auth');
     Route::get('quote/{invitation_key}/download_pdf', [QuoteController::class, 'downloadPdf'])->name('quote.download_invitation_key')->middleware('token_auth');
-    Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, "downloadEQuote"])->name()->name('invoice.download_e_quote')->middleware('token_auth');
+    Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, "downloadEQuote"])->name('invoice.download_e_quote')->middleware('token_auth');
     Route::get('credit/{invitation_key}/download_pdf', [CreditController::class, 'downloadPdf'])->name('credit.download_invitation_key')->middleware('token_auth');
-    Route::get('credit/{invitation_key}/download_e_credit', [CreditController::class, 'downloadECredit'])->name('credit.download_invitation_key')->middleware('token_auth');
+    Route::get('credit/{invitation_key}/download_e_credit', [CreditController::class, 'downloadECredit'])->name('credit.download_e_credit')->middleware('token_auth');
     Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload'])->middleware('token_auth');
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 

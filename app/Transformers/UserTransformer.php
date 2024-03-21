@@ -109,7 +109,10 @@ class UserTransformer extends EntityTransformer
 
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        $cu = $user->company_users()->whereCompanyId($user->company_id)->first();
+        $cu = $user->company_users()->where('company_id',$user->company_id)->first();
+
+        if(!$cu)
+            return null;
 
         return $this->includeItem($cu, $transformer, CompanyUser::class);
     }

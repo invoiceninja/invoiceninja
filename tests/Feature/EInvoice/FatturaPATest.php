@@ -11,7 +11,7 @@
 
 namespace Tests\Feature\EInvoice;
 
-use App\Services\EInvoicing\Standards\FatturaPA;
+use App\Services\EDocument\Standards\FatturaPA;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;

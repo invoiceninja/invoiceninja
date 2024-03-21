@@ -427,8 +427,11 @@ class BaseExport
 
     protected array $task_report_keys = [
         'start_date' => 'task.start_date',
+        'start_time' => 'task.start_time',
         'end_date' => 'task.end_date',
+        'end_time' => 'task.end_time',
         'duration' => 'task.duration',
+        'duration_words' => 'task.duration_words',
         'rate' => 'task.rate',
         'number' => 'task.number',
         'description' => 'task.description',
