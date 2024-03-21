@@ -698,7 +698,7 @@ class RecurringInvoice extends BaseModel
 
     public function subscription(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Subscription::class);
+        return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
     public function translate_entity()

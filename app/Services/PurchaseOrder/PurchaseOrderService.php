@@ -94,7 +94,7 @@ class PurchaseOrderService
 
                 // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
                 if (Ninja::isHosted()) {
-                    Storage::disk('public')->delete($this->purchase_order->->vendor->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                    Storage::disk('public')->delete($this->purchase_order->vendor->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());

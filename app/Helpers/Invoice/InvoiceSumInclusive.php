@@ -272,11 +272,11 @@ class InvoiceSumInclusive
         }
 
         /* Set new calculated total */
-        /** @todo - rappen rounding here */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
         if($this->rappen_rounding) {
             $this->invoice->amount = $this->roundRappen($this->invoice->amount);
+            $this->invoice->balance = $this->roundRappen($this->invoice->balance);
         }
 
         $this->invoice->total_taxes = $this->getTotalTaxes();

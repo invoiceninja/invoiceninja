@@ -2194,6 +2194,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'encryption' => 'Cryptage',
     'mailgun_domain' => 'Domaine Mailgun',
     'mailgun_private_key' => 'Clé privée Mailgun',
+    'brevo_domain' => 'Domaine Brevo',
+    'brevo_private_key' => 'Clé privée Brevo',
     'send_test_email' => 'Envoyer un courriel test',
     'select_label' => 'Sélectionnez le libellé',
     'label' => 'Libellé',
@@ -4844,6 +4846,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'email_alignment' => 'Justification du courriel',
     'pdf_preview_location' => 'Emplacement de prévisualisation du PDF',
     'mailgun' => 'Mailgun',
+    'brevo' => 'Brevo',
     'postmark' => 'Postmark',
     'microsoft' => 'Microsoft',
     'click_plus_to_create_record' => 'Cliquez sur + pour créer un enregistrement',
@@ -5096,6 +5099,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'drop_files_here' => 'Déposez les fichiers ici',
     'upload_files' => 'Téléverser les fichiers',
     'download_e_invoice' => 'Télécharger la facture électronique',
+    'download_e_credit' => 'Télécharger E-Credit',
+    'download_e_quote' => 'Télécharger E-Quote',
     'triangular_tax_info' => 'Transactions intra-communautaire triangulaire',
     'intracommunity_tax_info' => 'Livraison intra-communautaure sans taxe',
     'reverse_tax_info' => 'Veuillez noter que cette provision est sujette à une charge renversée',
@@ -5253,6 +5258,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'select_email_provider' => 'Définir le courriel pour l\'envoi',
     'purchase_order_items' => 'Articles du bon d\'achat',
     'csv_rows_length' => 'Aucune donnée dans ce fichier CSV',
+    'accept_payments_online' => 'Accepter les paiements en ligne',
+    'all_payment_gateways' => 'Voir toutes les passerelles de paiements',    
+    'product_cost' => 'Coût du produit',
 );
 
 return $lang;

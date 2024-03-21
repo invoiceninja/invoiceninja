@@ -479,6 +479,8 @@ class CompanySettings extends BaseSettings
 
     public $e_invoice_type = 'EN16931';
 
+    public $e_quote_type = 'OrderX_Comfort';
+
     public $default_expense_payment_type_id = '0';
 
     public $enable_e_invoice = false;
@@ -502,6 +504,7 @@ class CompanySettings extends BaseSettings
     public $enable_rappen_rounding = false;
 
     public static $casts = [
+        'e_quote_type'                       => 'string',
         'enable_rappen_rounding'             => 'bool',
         'use_unapplied_payment'              => 'string',
         'show_pdfhtml_on_mobile'             => 'bool',

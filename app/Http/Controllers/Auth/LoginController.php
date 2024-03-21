@@ -390,13 +390,20 @@ class LoginController extends BaseController
         $truth->setUser($user);
         $truth->setCompany($set_company);
 
-        $user->account->companies->each(function ($company) use ($user) {
-            if ($company->tokens()->where('is_system', true)->count() == 0) {
-                (new CreateCompanyToken($company, $user, request()->server('HTTP_USER_AGENT')))->handle();
+        //21-03-2024
+        $cu->each(function ($cu){
+            if(CompanyToken::where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()){
+                (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle();
             }
         });
 
-        $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->first());
+        // $user->account->companies->each(function ($company) use ($user) {
+        //     if ($company->tokens()->where('user_id',$user->id)->where('is_system', true)->count() == 0) {
+        //         (new CreateCompanyToken($company, $user, request()->server('HTTP_USER_AGENT')))->handle();
+        //     }
+        // });
+
+        $truth->setCompanyToken(CompanyToken::where('user_id', $user->id)->where('company_id', $set_company->id)->where('is_system', true)->first());
 
         return CompanyUser::query()->where('user_id', $user->id);
     }
