@@ -61,6 +61,8 @@ class InvoiceTest extends TestCase
             'settings' => $c_settings,
         ]);
         
+        $this->assertEquals(0, $c->balance);
+        
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 10.01;
@@ -87,6 +89,10 @@ class InvoiceTest extends TestCase
         $ii = $invoice_calc->build()->getInvoice();
 
         $this->assertEquals(10, $ii->amount);
+
+        $ii->service()->markSent()->save();
+
+        $this->assertEquals(10, $c->fresh()->balance);
 
     }
 
@@ -129,6 +135,26 @@ class InvoiceTest extends TestCase
 
         $this->assertEquals(10.10, round($ii->amount,2));
 
+        $ii->service()->markSent()->save();
+
+        $this->assertEquals(10.10, $c->fresh()->balance);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 2;
+        $item->cost = 10.09;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+
+        $i->line_items = [$item];
+
+        $invoice_calc = new InvoiceSum($i);
+        $ii = $invoice_calc->build()->getInvoice();
+
+        $ii->client->service()->calculateBalance($ii);
+
+        $this->assertEquals(20.20, round($ii->amount,2));
+        $this->assertEquals(20.20, round($ii->balance,2));
+        $this->assertEquals(20.20, round($c->fresh()->balance,2));
     }
 
     public function testPartialDueDateCast()

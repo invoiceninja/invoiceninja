@@ -461,8 +461,8 @@ $lang = array(
     'delete_token' => 'Delete Token',
     'token' => 'Token',
     'add_gateway' => 'Add Payment Gateway',
-    'delete_gateway' => 'Delete Gateway',
-    'edit_gateway' => 'Edit Gateway',
+    'delete_gateway' => 'Delete Payment Gateway',
+    'edit_gateway' => 'Edit Payment Gateway',
     'updated_gateway' => 'Successfully updated gateway',
     'created_gateway' => 'Successfully created gateway',
     'deleted_gateway' => 'Successfully deleted gateway',
@@ -5267,6 +5267,7 @@ $lang = array(
     'enable_rappen_roudning' => 'Enable Rappen Rounding',
     'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
     'duration_words' => 'Duration in words',
+    'upcoming_recurring_invoices' => 'Upcoming Recurring Invoices',
 );
 
 return $lang;
