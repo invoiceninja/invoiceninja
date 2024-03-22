@@ -77,9 +77,6 @@ class ProjectTransformer extends EntityTransformer
     {
         $transformer = new InvoiceTransformer($this->serializer);
 
-        if(!$project->invoices)
-            return null;
-
         return $this->includeCollection($project->invoices, $transformer, Invoice::class);
     }
 
@@ -87,10 +84,6 @@ class ProjectTransformer extends EntityTransformer
     {
         $transformer = new ExpenseTransformer($this->serializer);
                 
-        if(!$project->expenses) {
-            return null;
-        }
-
         return $this->includeCollection($project->expenses, $transformer, Expense::class);
     }
 
@@ -98,13 +91,8 @@ class ProjectTransformer extends EntityTransformer
     {
         $transformer = new QuoteTransformer($this->serializer);
         
-        if(!$project->quotes) {
-            return null;
-        }
-
         return $this->includeCollection($project->quotes, $transformer, Quote::class);
     }
-
 
     public function transform(Project $project)
     {

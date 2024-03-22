@@ -47,6 +47,24 @@ class ProjectApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testProjectIncludesZeroCount()
+    {
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/projects/{$this->project->hashed_id}?include=expenses,invoices,quotes");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(0, count($arr['data']['invoices']));
+        $this->assertEquals(0, count($arr['data']['expenses']));
+        $this->assertEquals(0, count($arr['data']['quotes']));
+
+    }
+
     public function testProjectIncludes()
     {
         $i = Invoice::factory()->create([
