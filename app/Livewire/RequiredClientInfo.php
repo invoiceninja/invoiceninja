@@ -186,6 +186,7 @@ class RequiredClientInfo extends Component
 
     public $company_gateway_id;
 
+    public bool $form_only = false;
     public $db;
 
     public function mount()
@@ -232,6 +233,15 @@ class RequiredClientInfo extends Component
         count($this->fields) > 0 || $this->show_terms
             ? $this->checkFields()
             : $this->show_form = false;
+
+        if (request()->query('source') === 'subscriptions') {
+            $this->show_form = false;
+
+            $this->dispatch(
+                'passed-required-fields-check',
+                client_postal_code: $this->contact->client->postal_code
+            );
+        }
     }
 
     #[Computed]
@@ -389,6 +399,17 @@ $_contact->push();
                     $this->fields[$index]['filled'] = true;
                 }
             }
+        }
+
+        $left = collect($this->fields)
+            ->filter(fn ($field) => !array_key_exists('filled', $field))
+            ->count();
+
+        if ($left === 0) {
+            $this->dispatch(
+                'passed-required-fields-check',
+                client_postal_code: $this->contact->client->postal_code
+            );
         }
     }
 

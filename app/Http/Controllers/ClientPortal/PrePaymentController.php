@@ -105,6 +105,13 @@ class PrePaymentController extends Controller
             return $invoice;
         });
 
+        
+        $variables = false;
+
+        if(($invitation = $invoices->first()->invitations()->first() ?? false) && $invoice->client->getSetting('show_accept_invoice_terms')) {
+            $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        }
+
         $data = [
             'settings' => auth()->guard('contact')->user()->client->getMergedSettings(),
             'invoices' => $invoices,

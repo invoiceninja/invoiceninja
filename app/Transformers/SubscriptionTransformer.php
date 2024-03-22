@@ -72,6 +72,7 @@ class SubscriptionTransformer extends EntityTransformer
             'optional_recurring_product_ids' => (string)$subscription->optional_recurring_product_ids,
             'optional_product_ids' => (string) $subscription->optional_product_ids,
             'registration_required' => (bool) $subscription->registration_required,
+            'steps' => $subscription->steps,
         ];
     }
 }

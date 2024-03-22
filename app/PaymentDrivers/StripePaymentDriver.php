@@ -332,14 +332,14 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_contact_name) {
+        // if ($this->company_gateway->require_contact_name) {
             $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
-        }
+        // }
 
-        if ($this->company_gateway->require_contact_email) {
+        // if ($this->company_gateway->require_contact_email) {
             $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
-        }
+        // }
 
         if ($this->company_gateway->require_client_phone) {
             $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
@@ -384,7 +384,6 @@ class StripePaymentDriver extends BaseDriver
         if ($this->company_gateway->require_custom_value4) {
             $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
         }
-
 
         return $fields;
     }
