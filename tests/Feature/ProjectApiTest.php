@@ -11,13 +11,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\Expense;
+use Tests\TestCase;
+use App\Models\Invoice;
+use App\Models\Quote;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -42,6 +45,47 @@ class ProjectApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testProjectIncludes()
+    {
+        $i = Invoice::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->project->client_id,
+            'project_id' => $this->project->id,
+        ]);
+
+        
+        $e = Expense::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->project->client_id,
+            'project_id' => $this->project->id,
+        ]);
+
+        
+        $q = Quote::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->project->client_id,
+            'project_id' => $this->project->id,
+        ]);
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/projects/{$this->project->hashed_id}?include=expenses,invoices,quotes");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(1, count($arr['data']['invoices']));
+        $this->assertEquals(1, count($arr['data']['expenses']));
+        $this->assertEquals(1, count($arr['data']['quotes']));
+
     }
 
     public function testProjectValidationForBudgetedHoursPut()
