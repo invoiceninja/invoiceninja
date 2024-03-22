@@ -21,7 +21,9 @@
             </div>
             <div class="md:text-center">
                 <p class="text-light-grey-text mb-2 text-xs md:text-sm">{{ ctrans('texts.total_invoices') }}</p>
-                <p class="text-2xl font-semibold text-[#212529] md:text-[32px]">$0</p>
+                <p class="text-2xl font-semibold text-[#212529] md:text-[32px]">
+                    {{ App\Utils\Number::formatMoney($total_invoices, $client) }}
+                </p>
             </div>
         </div>
 
