@@ -10,6 +10,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+use App\Livewire\BillingPortal\Purchase;
+use App\Services\Subscription\StepService;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,9 +23,9 @@ return new class extends Migration {
             $table->string('steps')->nullable();
         });
 
-        $steps = collect(\App\Livewire\BillingPortal\Purchase::$dependencies)
-            ->pluck('id')
-            ->implode(',');
+        $steps = collect(Purchase::defaultSteps())
+            ->map(fn ($step) => StepService::mapClassNameToString($step))
+            ->implode(','); 
 
        \App\Models\Subscription::query()
         ->withTrashed()
