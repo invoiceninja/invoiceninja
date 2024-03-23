@@ -5262,12 +5262,13 @@ $lang = array(
     'purchase_order_items' => 'Purchase Order Items',
     'csv_rows_length' => 'No data found in this CSV file',
     'accept_payments_online' => 'Accept Payments Online',
-    'all_payment_gateways' => 'View all payment gateways',    
+    'all_payment_gateways' => 'View all payment gateways',
     'product_cost' => 'Product cost',
     'enable_rappen_roudning' => 'Enable Rappen Rounding',
     'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
     'duration_words' => 'Duration in words',
     'upcoming_recurring_invoices' => 'Upcoming Recurring Invoices',
+    'total_invoices' => 'Total Invoices',
 );
 
 return $lang;
