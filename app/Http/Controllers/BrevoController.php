@@ -201,11 +201,6 @@ class BrevoController extends BaseController
                 return response()->json(['message' => 'Failed. Invalid Parameters. At least one item was invalid.'], 400);
             }
 
-            if (!array_key_exists('Attachments', $item) || count($item['Attachments']) == 0) {
-                Log::info('Brevo: InboundParsing: SoftFail: Message ignored because of missing attachments. No Actions would have been taken...');
-                continue;
-            }
-
             ProcessBrevoInboundWebhook::dispatch($item)->delay(10);
 
         }

@@ -120,16 +120,6 @@ class MailgunController extends BaseController
             return response()->json(['message' => 'Failed. Missing Parameters. Use store and notify!'], 400);
         }
 
-        if (!array_key_exists('attachments', $input) || count(json_decode($input['attachments'])) == 0) {
-            Log::info('Message ignored because of missing attachments. No Actions would have been taken...');
-            return response()->json(['message' => 'Sucess. Soft Fail. Missing Attachments.'], 200);
-        }
-
-        if (\abs(\time() - (int) $input['timestamp']) > 150) {
-            Log::info('Message ignored because of request body is too old.');
-            return response()->json(['message' => 'Success. Soft Fail. Message too old.'], 200);
-        }
-
         // @turbo124 TODO: how to check for services.mailgun.webhook_signing_key on company level, when custom credentials are defined
         // TODO: validation for client mail credentials by recipient
         if (\hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature'])) {
