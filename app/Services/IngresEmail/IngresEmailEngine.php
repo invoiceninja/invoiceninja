@@ -13,8 +13,10 @@ namespace App\Services\IngresEmail;
 
 use App\Events\Expense\ExpenseWasCreated;
 use App\Factory\ExpenseFactory;
+use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\Company;
+use App\Models\SystemLog;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Services\IngresEmail\IngresEmail;
@@ -65,7 +67,7 @@ class IngresEmailEngine
     {
         // invalid email
         if (!filter_var($this->email->from, FILTER_VALIDATE_EMAIL)) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because from e-mail has the wrong format: ' . $this->email->from);
+            $this->log('E-Mail blocked, because from e-mail has the wrong format: ' . $this->email->from);
             return true;
         }
 
@@ -74,11 +76,11 @@ class IngresEmailEngine
 
         // global blacklist
         if (in_array($domain, $this->globalBlacklistDomains)) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $this->email->from);
+            $this->log('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $this->email->from);
             return true;
         }
         if (in_array($this->email->from, $this->globalBlacklistEmails)) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $this->email->from);
+            $this->log('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $this->email->from);
             return true;
         }
 
@@ -89,12 +91,12 @@ class IngresEmailEngine
         // sender occured in more than 500 emails in the last 12 hours
         $senderMailCountTotal = Cache::get('ingresEmailSender:' . $this->email->from, 0);
         if ($senderMailCountTotal >= 5000) {
-            Log::info('[IngressMailEngine] E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
+            $this->log('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
             $this->blockSender();
             return true;
         }
         if ($senderMailCountTotal >= 1000) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
+            $this->log('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $this->email->from);
             $this->saveMeta();
             return true;
         }
@@ -102,7 +104,7 @@ class IngresEmailEngine
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
         $senderMailCountUnknownRecipent = Cache::get('ingresEmailSenderUnknownRecipent:' . $this->email->from, 0);
         if ($senderMailCountUnknownRecipent >= 50) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $this->email->from);
+            $this->log('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $this->email->from);
             $this->saveMeta();
             return true;
         }
@@ -110,7 +112,7 @@ class IngresEmailEngine
         // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
         $mailCountUnknownRecipent = Cache::get('ingresEmailUnknownRecipent:' . $this->email->to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
         if ($mailCountUnknownRecipent >= 100) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
+            $this->log('E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $this->email->from);
             $this->blockSender();
             return true;
         }
@@ -154,15 +156,15 @@ class IngresEmailEngine
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
         if (!$this->validateExpenseShouldProcess()) {
-            Log::info('email parsing not active for this company: ' . $this->company->id . ' from: ' . $this->email->from);
+            $this->log('email parsing not active for this company. from: ' . $this->email->from);
             return;
         }
         if (!$this->validateExpenseSender()) {
-            Log::info('invalid sender of an ingest email to company: ' . $this->company->id . ' from: ' . $this->email->from);
+            $this->log('invalid sender of an ingest email for this company. from: ' . $this->email->from);
             return;
         }
         if (sizeOf($this->email->documents) == 0) {
-            Log::info('email does not contain any attachments and is likly not an expense. company: ' . $this->company->id . ' from: ' . $this->email->from);
+            $this->log('email does not contain any attachments and is likly not an expense. from: ' . $this->email->from);
             return;
         }
 
@@ -218,7 +220,7 @@ class IngresEmailEngine
             return false;
 
         // allow unknown
-        if ($this->company->expense_mailbox_allow_unknown && sizeOf($email_whitelist) == 0 && sizeOf($domain_whitelist) == 0) // from unknown only, when no whitelists are defined
+        if ($this->company->expense_mailbox_allow_unknown)
             return true;
 
         // own users
@@ -248,5 +250,20 @@ class IngresEmailEngine
         }
 
         return $vendor;
+    }
+    private function log(string $data)
+    {
+        Log::info("[IngresEmailEngine][company:" . $this->company->id . "] " . $data);
+
+        (
+            new SystemLogger(
+                $data,
+                SystemLog::CATEGORY_MAIL,
+                SystemLog::EVENT_INGEST_EMAIL_FAILURE,
+                SystemLog::TYPE_CUSTOM,
+                null,
+                $this->company
+            )
+        )->handle();
     }
 }

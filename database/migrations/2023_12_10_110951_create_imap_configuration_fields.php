@@ -17,10 +17,10 @@ return new class extends Migration {
             $table->boolean("expense_mailbox_allow_company_users")->default(false);
             $table->boolean("expense_mailbox_allow_vendors")->default(false);
             $table->boolean("expense_mailbox_allow_unknown")->default(false);
-            $table->string("expense_mailbox_whitelist_domains")->nullable();
-            $table->string("expense_mailbox_whitelist_emails")->nullable();
-            $table->string("expense_mailbox_blacklist_domains")->nullable();
-            $table->string("expense_mailbox_blacklist_emails")->nullable();
+            $table->text("expense_mailbox_whitelist_domains")->nullable();
+            $table->text("expense_mailbox_whitelist_emails")->nullable();
+            $table->text("expense_mailbox_blacklist_domains")->nullable();
+            $table->text("expense_mailbox_blacklist_emails")->nullable();
         });
         Schema::table('vendors', function (Blueprint $table) {
             $table->string("invoicing_email")->nullable();
