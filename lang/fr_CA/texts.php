@@ -461,8 +461,8 @@ $lang = array(
     'delete_token' => 'Supprimer le jeton',
     'token' => 'Jeton',
     'add_gateway' => 'Ajouter une passerelle de paiement',
-    'delete_gateway' => 'Supprimer la passerelle',
-    'edit_gateway' => 'Éditer la passerelle',
+    'delete_gateway' => 'Supprimer la passerelle de paiement1',
+    'edit_gateway' => 'Éditer la passerelle de paiement',
     'updated_gateway' => 'La passerelle a été mise à jour',
     'created_gateway' => 'La passerelle a été créée',
     'deleted_gateway' => 'La passerelle a été supprimée',
@@ -5259,8 +5259,13 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'purchase_order_items' => 'Articles du bon d\'achat',
     'csv_rows_length' => 'Aucune donnée dans ce fichier CSV',
     'accept_payments_online' => 'Accepter les paiements en ligne',
-    'all_payment_gateways' => 'Voir toutes les passerelles de paiements',    
+    'all_payment_gateways' => 'Voir toutes les passerelles de paiements',
     'product_cost' => 'Coût du produit',
+    'enable_rappen_roudning' => 'Activer arrondir les cents',
+    'enable_rappen_rounding_help' => 'Arrondir les totaux au 5 le plus proche',
+    'duration_words' => 'Durée en mots',
+    'upcoming_recurring_invoices' => 'Factures récurrentes à venir',
+    'total_invoices' => 'Total factures',
 );
 
 return $lang;

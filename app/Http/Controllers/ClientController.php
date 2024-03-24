@@ -328,9 +328,12 @@ class ClientController extends BaseController
                             ->first();
 
         if (!$m_client) {
-            return response()->json(['message' => "Client not found"]);
+            return response()->json(['message' => "Client not found"], 400);
         }
 
+        if($m_client->id == $client->id) 
+            return response()->json(['message' => "Attempting to merge the same client is not possible."], 400);
+        
         $merged_client = $client->service()->merge($m_client)->save();
 
         return $this->itemResponse($merged_client);

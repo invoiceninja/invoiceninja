@@ -51,7 +51,8 @@ class PurchaseOrderFactory
         $purchase_order->recurring_id = null;
         $purchase_order->exchange_rate = 1;
         $purchase_order->total_taxes = 0;
-
+        $purchase_order->uses_inclusive_taxes = false;
+        
         return $purchase_order;
     }
 }

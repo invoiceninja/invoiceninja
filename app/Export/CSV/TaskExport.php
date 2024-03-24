@@ -197,7 +197,7 @@ class TaskExport extends BaseExport
             if (in_array('task.duration', $this->input['report_keys']) || in_array('duration', $this->input['report_keys'])) {
                 $seconds = $task->calcDuration();
                 $entity['task.duration'] = $seconds;
-                $entity['task.duration_words'] = CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans();
+                $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
             }
 
             $entity = $this->decorateAdvancedFields($task, $entity);

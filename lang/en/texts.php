@@ -5268,6 +5268,8 @@ $lang = array(
     'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
     'duration_words' => 'Duration in words',
     'upcoming_recurring_invoices' => 'Upcoming Recurring Invoices',
+    'show_table_footer' => 'Show table footer',
+    'show_table_footer_help' => 'Displays the totals in the footer of the table',
     'total_invoices' => 'Total Invoices',
 );
 
