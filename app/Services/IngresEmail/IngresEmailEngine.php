@@ -34,7 +34,8 @@ class IngresEmailEngine
 
     private ?Company $company;
     private ?bool $isUnknownRecipent = null;
-    private array $globalBlacklist = [];
+    private array $globalBlacklistDomains = [];
+    private array $globalBlacklistEmails = [];
     public function __construct(private IngresEmail $email)
     {
     }
@@ -72,8 +73,12 @@ class IngresEmailEngine
         $domain = array_pop($parts);
 
         // global blacklist
-        if (in_array($domain, $this->globalBlacklist)) {
-            Log::info('[IngressMailEngine] E-Mail blocked, because the domain was found on globalBlocklist: ' . $this->email->from);
+        if (in_array($domain, $this->globalBlacklistDomains)) {
+            Log::info('[IngressMailEngine] E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $this->email->from);
+            return true;
+        }
+        if (in_array($this->email->from, $this->globalBlacklistEmails)) {
+            Log::info('[IngressMailEngine] E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $this->email->from);
             return true;
         }
 
