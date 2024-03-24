@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -12,17 +13,20 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
+use App\Models\Invoice;
 
 class DashboardController extends Controller
 {
-    /**
-     * @return Factory|View
-     */
-    public function index()
+    public function index(): \Illuminate\View\View
     {
-        return redirect()->route('client.invoices.index');
-        //return $this->render('dashboard.index');
+        $total_invoices = Invoice::withTrashed()
+            ->where('client_id', auth()->guard('contact')->user()->client_id)
+            ->where('is_deleted', 0)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+            ->sum('amount');
+
+        return $this->render('dashboard.index', [
+            'total_invoices' => $total_invoices,
+        ]);
     }
 }

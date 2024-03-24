@@ -107,6 +107,7 @@ class VendorTransformer extends EntityTransformer
             'display_name' => (string) $vendor->present()->name(),
             'invoicing_email' => (string) $vendor->invoicing_email ?: '',
             'invoicing_domain' => (string) $vendor->invoicing_domain ?: '',
+            'routing_id' => (string) $vendor->routing_id ?: '',
         ];
     }
 }

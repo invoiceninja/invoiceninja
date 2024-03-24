@@ -200,14 +200,16 @@ class InvoiceFilters extends QueryFilters
      */
     public function payable(string $client_id = ''): Builder
     {
+
         if (strlen($client_id) == 0) {
             return $this->builder;
         }
 
-        return $this->builder->whereIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                             ->where('balance', '>', 0)
-                             ->where('is_deleted', 0)
-                             ->where('client_id', $this->decodePrimaryKey($client_id));
+        return $this->builder
+                    ->where('client_id', $this->decodePrimaryKey($client_id))
+                    ->whereIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_deleted', 0)
+                    ->where('balance', '>', 0);
     }
 
 
