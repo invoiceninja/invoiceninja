@@ -185,9 +185,9 @@ class BrevoController extends BaseController
     {
         $input = $request->all();
 
-        // TODO: validation for client credentials by recipient
-        // if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
-        // return response()->json(['message' => 'Unauthorized'], 403);
+        // TODO: validation for client mail credentials by recipient
+        if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
+            return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!array_key_exists('items', $input)) {
             Log::info('Failed: Message could not be parsed, because required parameters are missing.');

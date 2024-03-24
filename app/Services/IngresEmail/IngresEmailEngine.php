@@ -156,7 +156,7 @@ class IngresEmailEngine
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
         if (!$this->validateExpenseShouldProcess()) {
-            $this->log('email parsing not active for this company. from: ' . $this->email->from);
+            $this->log('mailbox not active for this company. from: ' . $this->email->from);
             return;
         }
         if (!$this->validateExpenseSender()) {

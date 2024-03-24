@@ -131,6 +131,7 @@ class MailgunController extends BaseController
         }
 
         // @turbo124 TODO: how to check for services.mailgun.webhook_signing_key on company level, when custom credentials are defined
+        // TODO: validation for client mail credentials by recipient
         if (\hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature'])) {
             ProcessMailgunInboundWebhook::dispatch($input["recipient"] . "|" . $input["message-url"])->delay(10);
 
