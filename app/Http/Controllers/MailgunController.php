@@ -78,7 +78,7 @@ class MailgunController extends BaseController
     }
 
     /**
-     * Process Mailgun Webhook.
+     * Process Mailgun Inbound Webhook.
      *
      *
      * @OA\Post(
