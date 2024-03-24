@@ -168,7 +168,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         // match company
         $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
         if (!$company) {
-            Log::info('unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $recipient);
+            Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $recipient);
             return;
         }
 
@@ -176,7 +176,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         $company_mailgun_domain = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_domain ? $company->settings?->mailgun_domain : null;
         $company_mailgun_secret = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_secret ? $company->settings?->mailgun_secret : null;
         if (!($company_mailgun_domain && $company_mailgun_secret) && !(config('services.mailgun.domain') && config('services.mailgun.secret')))
-            throw new \Error("no mailgun credenitals found, we cannot get the attachements and files");
+            throw new \Error("[ProcessMailgunInboundWebhook] no mailgun credenitals found, we cannot get the attachements and files");
 
         $mail = null;
         if ($company_mailgun_domain && $company_mailgun_secret) {
@@ -190,7 +190,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                 $mail = json_decode(file_get_contents($messageUrl));
             } catch (\Error $e) {
                 if (config('services.mailgun.secret')) {
-                    Log::info("Error while downloading with company credentials, we try to use defaul credentials now...");
+                    Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                     $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
                     $messageUrl = explode("|", $this->input)[1];
@@ -238,7 +238,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
                 } catch (\Error $e) {
                     if (config('services.mailgun.secret')) {
-                        Log::info("Error while downloading with company credentials, we try to use defaul credentials now...");
+                        Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                         $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
                         $url = $attachment->url;
