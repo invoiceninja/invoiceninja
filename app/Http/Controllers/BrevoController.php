@@ -192,8 +192,8 @@ class BrevoController extends BaseController
                 return response()->json(['message' => 'Unauthorized'], 403);
 
             $company = MultiDB::findAndSetDbByCompanyId($request->has('company'));
-            $company_brevo_secret = $company->settings?->email_sending_method === 'client_brevo' && $company->settings?->brevo_secret ? $company->settings?->brevo_secret : null;
-            if (!$company || $request->get('token') !== $company_brevo_secret)
+            $company_brevo_secret = $company?->settings?->email_sending_method === 'client_brevo' && $company?->settings?->brevo_secret ? $company->settings->brevo_secret : null;
+            if (!$company || !$company_brevo_secret || $request->get('token') !== $company_brevo_secret)
                 return response()->json(['message' => 'Unauthorized'], 403);
 
         } else if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
