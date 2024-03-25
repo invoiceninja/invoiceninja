@@ -118,7 +118,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
     public function handle()
     {
 
-        // brevo defines recipients as array to enable webhook processing as batches, we check all of them
+        // brevo defines recipients as array, we check all of them, to be sure
         foreach ($this->input["Recipients"] as $recipient) {
 
             // match company
