@@ -11,6 +11,7 @@
 
 namespace App\Http\Requests\Report;
 
+use App\Utils\Ninja;
 use App\Http\Requests\Request;
 use Illuminate\Auth\Access\AuthorizationException;
 
