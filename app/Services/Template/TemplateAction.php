@@ -108,8 +108,8 @@ class TemplateAction implements ShouldQueue
             ->where('company_id', $this->company->id)
             ->get();
 
+        /** Set a global currency_code */
         $first_entity = $result->first();
-
         if($first_entity->client)
             $currency_code = $first_entity->client->currency()->code;
         elseif($first_entity instanceof Client)

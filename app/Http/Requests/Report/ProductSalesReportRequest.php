@@ -18,6 +18,8 @@ class ProductSalesReportRequest extends Request
 {
     use MakesHash;
 
+    private string $error_message = '';
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,7 +27,7 @@ class ProductSalesReportRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin();
+        return $this->checkAuthority();
     }
 
     public function rules()
@@ -67,4 +69,26 @@ class ProductSalesReportRequest extends Request
 
         $this->replace($input);
     }
+
+    private function checkAuthority()
+    {
+        $this->error_message = ctrans('texts.authorization_failure');
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        if(Ninja::isHosted() && $user->account->isFreeHostedClient()){
+            $this->error_message = ctrans('texts.upgrade_to_view_reports');
+            return false;
+        }
+
+        return $user->isAdmin() || $user->hasPermission('view_reports');
+
+    }
+
+    protected function failedAuthorization()
+    {
+        throw new AuthorizationException($this->error_message);
+    }
+
 }
