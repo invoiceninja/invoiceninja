@@ -169,26 +169,21 @@ class CheckData extends Command
 
     private function checkCompanyTokens()
     {
-        // CompanyUser::whereDoesntHave('token', function ($query){
-        //   return $query->where('is_system', 1);
-        // })->cursor()->each(function ($cu){
-        //     if ($cu->user) {
-        //         $this->logMessage("Creating missing company token for user # {$cu->user->id} for company id # {$cu->company->id}");
-        //         (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-        //     } else {
-        //         $this->logMessage("Dangling User ID # {$cu->id}");
-        //     }
-        // });
-
         CompanyUser::query()->cursor()->each(function ($cu) {
+
             if (CompanyToken::where('user_id', $cu->user_id)->where('company_id', $cu->company_id)->where('is_system', 1)->doesntExist()) {
-                $this->logMessage("Creating missing company token for user # {$cu->user_id} for company id # {$cu->company_id}");
+                
 
                 if ($cu->company && $cu->user) {
+                    $this->logMessage("Creating missing company token for user # {$cu->user_id} for company id # {$cu->company_id}");
                     (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-                } else {
-                    // $cu->forceDelete();
+                } 
+                
+                if (!$cu->user) {
+                    $this->logMessage("No user found for company user - removing company user");
+                    $cu->forceDelete();
                 }
+                    
             }
         });
     }
@@ -482,6 +477,14 @@ class CheckData extends Command
                         }
                     } else {
                         $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
+                        
+                        try{
+                        $entity->service()->createInvitations()->save();
+                        }
+                        catch(\Exception $e){
+
+                        }
+                        
                     }
 
                     try {
