@@ -73,7 +73,7 @@ class MultiDB
         'socket',
     ];
 
-    private static $protected_expense_mailboxes = [];
+    private static $protected_inbound_mailboxes = [];
 
     /**
      * @return array
@@ -109,21 +109,21 @@ class MultiDB
         return true;
     }
 
-    public static function checkExpenseMailboxAvailable($expense_mailbox): bool
+    public static function checkInboundMailboxAvailable($inbound_mailbox): bool
     {
 
         if (!config('ninja.db.multi_db_enabled')) {
-            return Company::where("expense_mailbox", $expense_mailbox)->withTrashed()->exists();
+            return Company::where("inbound_mailbox", $inbound_mailbox)->withTrashed()->exists();
         }
 
-        if (in_array($expense_mailbox, self::$protected_expense_mailboxes)) {
+        if (in_array($inbound_mailbox, self::$protected_inbound_mailboxes)) {
             return false;
         }
 
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
-            if (Company::on($db)->where("expense_mailbox", $expense_mailbox)->withTrashed()->exists()) {
+            if (Company::on($db)->where("inbound_mailbox", $inbound_mailbox)->withTrashed()->exists()) {
                 self::setDb($current_db);
 
                 return false;
@@ -515,16 +515,16 @@ class MultiDB
         return false;
     }
 
-    public static function findAndSetDbByExpenseMailbox($expense_mailbox)
+    public static function findAndSetDbByInboundMailbox($inbound_mailbox)
     {
         if (!config('ninja.db.multi_db_enabled')) {
-            return Company::where("expense_mailbox", $expense_mailbox)->first();
+            return Company::where("inbound_mailbox", $inbound_mailbox)->first();
         }
 
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
-            if ($company = Company::on($db)->where("expense_mailbox", $expense_mailbox)->first()) {
+            if ($company = Company::on($db)->where("inbound_mailbox", $inbound_mailbox)->first()) {
                 self::setDb($db);
 
                 return $company;
@@ -587,7 +587,7 @@ class MultiDB
 
         $current_db = config('database.default');
 
-        if(SMSNumbers::hasNumber($phone)){
+        if (SMSNumbers::hasNumber($phone)) {
             return true;
         }
 
@@ -615,8 +615,26 @@ class MultiDB
             $string = '';
             $vowels = ['a', 'e', 'i', 'o', 'u', 'y'];
             $consonants = [
-                'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
-                'n', 'p', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z',
+                'b',
+                'c',
+                'd',
+                'f',
+                'g',
+                'h',
+                'j',
+                'k',
+                'l',
+                'm',
+                'n',
+                'p',
+                'r',
+                's',
+                't',
+                'v',
+                'w',
+                'x',
+                'y',
+                'z',
             ];
 
             $max = $length / 2;

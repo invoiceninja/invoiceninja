@@ -12,8 +12,8 @@
 namespace App\Jobs\Mailgun;
 
 use App\Libraries\MultiDB;
-use App\Services\IngresEmail\IngresEmail;
-use App\Services\IngresEmail\IngresEmailEngine;
+use App\Services\InboundMail\InboundMail;
+use App\Services\InboundMail\InboundMailEngine;
 use App\Utils\TempFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Bus\Queueable;
@@ -166,7 +166,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         $recipient = explode("|", $this->input)[0];
 
         // match company
-        $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
+        $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
         if (!$company) {
             Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $recipient);
             return;
@@ -213,14 +213,14 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         }
 
         // prepare data for ingresEngine
-        $ingresEmail = new IngresEmail();
+        $inboundMail = new InboundMail();
 
-        $ingresEmail->from = $mail->sender;
-        $ingresEmail->to = $recipient; // usage of data-input, because we need a single email here
-        $ingresEmail->subject = $mail->Subject;
-        $ingresEmail->body = $mail->{"body-html"};
-        $ingresEmail->text_body = $mail->{"body-plain"};
-        $ingresEmail->date = Carbon::createFromTimeString($mail->Date);
+        $inboundMail->from = $mail->sender;
+        $inboundMail->to = $recipient; // usage of data-input, because we need a single email here
+        $inboundMail->subject = $mail->Subject;
+        $inboundMail->body = $mail->{"body-html"};
+        $inboundMail->text_body = $mail->{"body-plain"};
+        $inboundMail->date = Carbon::createFromTimeString($mail->Date);
 
         // parse documents as UploadedFile from webhook-data
         foreach ($mail->attachments as $attachment) { // prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
@@ -234,7 +234,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                     $url = $attachment->url;
                     $url = str_replace("http://", "http://" . $credentials, $url);
                     $url = str_replace("https://", "https://" . $credentials, $url);
-                    $ingresEmail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                    $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
 
                 } catch (\Error $e) {
                     if (config('services.mailgun.secret')) {
@@ -244,7 +244,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                         $url = $attachment->url;
                         $url = str_replace("http://", "http://" . $credentials, $url);
                         $url = str_replace("https://", "https://" . $credentials, $url);
-                        $ingresEmail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                        $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
 
                     } else
                         throw $e;
@@ -256,13 +256,13 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                 $url = $attachment->url;
                 $url = str_replace("http://", "http://" . $credentials, $url);
                 $url = str_replace("https://", "https://" . $credentials, $url);
-                $ingresEmail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
 
             }
 
         }
 
         // perform
-        (new IngresEmailEngine($ingresEmail))->handle();
+        (new InboundMailEngine($inboundMail))->handle();
     }
 }

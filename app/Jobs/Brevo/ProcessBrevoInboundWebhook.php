@@ -12,8 +12,8 @@
 namespace App\Jobs\Brevo;
 
 use App\Libraries\MultiDB;
-use App\Services\IngresEmail\IngresEmail;
-use App\Services\IngresEmail\IngresEmailEngine;
+use App\Services\InboundMail\InboundMail;
+use App\Services\InboundMail\InboundMailEngine;
 use App\Utils\TempFile;
 use Brevo\Client\Api\InboundParsingApi;
 use Brevo\Client\Configuration;
@@ -118,11 +118,11 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
     public function handle()
     {
 
-        // brevo defines recipients as array, and we should check all of them, to be sure
+        // brevo defines recipients as array to enable webhook processing as batches, we check all of them
         foreach ($this->input["Recipients"] as $recipient) {
 
             // match company
-            $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
+            $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
             if (!$company) {
                 Log::info('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
                 continue;
@@ -133,14 +133,14 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
                 throw new \Error("[ProcessBrevoInboundWebhook] no brevo credenitals found, we cannot get the attachement");
 
             // prepare data for ingresEngine
-            $ingresEmail = new IngresEmail();
+            $inboundMail = new InboundMail();
 
-            $ingresEmail->from = $this->input["From"]["Address"];
-            $ingresEmail->to = $recipient;
-            $ingresEmail->subject = $this->input["Subject"];
-            $ingresEmail->body = $this->input["RawHtmlBody"];
-            $ingresEmail->text_body = $this->input["RawTextBody"];
-            $ingresEmail->date = Carbon::createFromTimeString($this->input["SentAtDate"]);
+            $inboundMail->from = $this->input["From"]["Address"];
+            $inboundMail->to = $recipient;
+            $inboundMail->subject = $this->input["Subject"];
+            $inboundMail->body = $this->input["RawHtmlBody"];
+            $inboundMail->text_body = $this->input["RawTextBody"];
+            $inboundMail->date = Carbon::createFromTimeString($this->input["SentAtDate"]);
 
             // parse documents as UploadedFile from webhook-data
             foreach ($this->input["Attachments"] as $attachment) {
@@ -164,18 +164,18 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
                         } else
                             throw $e;
                     }
-                    $ingresEmail->documents[] = TempFile::UploadedFileFromRaw($attachment, $attachment["Name"], $attachment["ContentType"]);
+                    $inboundMail->documents[] = TempFile::UploadedFileFromRaw($attachment, $attachment["Name"], $attachment["ContentType"]);
 
                 } else {
 
                     $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
-                    $ingresEmail->documents[] = TempFile::UploadedFileFromRaw($brevo->getInboundEmailAttachment($attachment["DownloadToken"]), $attachment["Name"], $attachment["ContentType"]);
+                    $inboundMail->documents[] = TempFile::UploadedFileFromRaw($brevo->getInboundEmailAttachment($attachment["DownloadToken"]), $attachment["Name"], $attachment["ContentType"]);
 
                 }
 
             }
 
-            (new IngresEmailEngine($ingresEmail))->handle();
+            (new InboundMailEngine($inboundMail))->handle();
 
         }
     }

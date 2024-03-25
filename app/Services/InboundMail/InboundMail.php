@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\IngresEmail;
+namespace App\Services\InboundMail;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -17,7 +17,7 @@ use Illuminate\Support\Carbon;
 /**
  * EmailObject.
  */
-class IngresEmail
+class InboundMail
 {
     public string $to;
 

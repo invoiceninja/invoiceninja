@@ -9,14 +9,14 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Jobs\Mail;
+namespace App\Jobs\Imap;
 
-use App\Helpers\IngresMail\Transformer\ImapMailTransformer;
+use App\Helpers\InboundMail\Transformer\ImapMailTransformer;
 use App\Helpers\Mail\Mailbox\Imap\ImapMailbox;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Repositories\ExpenseRepository;
-use App\Services\IngresEmail\IngresEmailEngine;
+use App\Services\InboundMail\InboundMailEngine;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\SavesDocuments;
 use Illuminate\Bus\Queueable;
@@ -27,7 +27,7 @@ use Illuminate\Queue\SerializesModels;
 
 /*Multi Mailer implemented*/
 
-class ExpenseMailboxJob implements ShouldQueue
+class ProcessImapMailboxJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, MakesHash, SavesDocuments;
 
@@ -74,14 +74,14 @@ class ExpenseMailboxJob implements ShouldQueue
 
     private function getImapCredentials()
     {
-        $servers = array_map('trim', explode(",", config('ninja.ingest_mail.imap.servers')));
-        $ports = array_map('trim', explode(",", config('ninja.ingest_mail.imap.ports')));
-        $users = array_map('trim', explode(",", config('ninja.ingest_mail.imap.users')));
-        $passwords = array_map('trim', explode(",", config('ninja.ingest_mail.imap.passwords')));
-        $companies = array_map('trim', explode(",", config('ninja.ingest_mail.imap.companies')));
+        $servers = array_map('trim', explode(",", config('ninja.inbound_mailbox.imap.servers')));
+        $ports = array_map('trim', explode(",", config('ninja.inbound_mailbox.imap.ports')));
+        $users = array_map('trim', explode(",", config('ninja.inbound_mailbox.imap.users')));
+        $passwords = array_map('trim', explode(",", config('ninja.inbound_mailbox.imap.passwords')));
+        $companies = array_map('trim', explode(",", config('ninja.inbound_mailbox.imap.companies')));
 
         if (sizeOf($servers) != sizeOf($ports) || sizeOf($servers) != sizeOf($users) || sizeOf($servers) != sizeOf($passwords) || sizeOf($servers) != sizeOf($companies))
-            throw new \Exception('invalid configuration ingest_mail.imap (wrong element-count)');
+            throw new \Exception('invalid configuration inbound_mailbox.imap (wrong element-count)');
 
         foreach ($companies as $index => $companyId) {
 
@@ -116,7 +116,7 @@ class ExpenseMailboxJob implements ShouldQueue
 
                 $email->markAsSeen();
 
-                IngresEmailEngine::dispatch($transformer->transform($email));
+                InboundMailEngine::dispatch($transformer->transform($email));
 
                 $imapMailbox->moveProcessed($email);
 

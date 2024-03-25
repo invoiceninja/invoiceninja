@@ -113,7 +113,7 @@ class SystemLog extends Model
 
     public const EVENT_USER = 61;
 
-    public const EVENT_INGEST_EMAIL_FAILURE = 62;
+    public const EVENT_INBOUND_MAIL_BLOCKED = 62;
 
     /*Type IDs*/
     public const TYPE_PAYPAL = 300;

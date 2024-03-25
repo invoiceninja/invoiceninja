@@ -84,11 +84,12 @@ return [
         'username' => 'user@example.com',
         'clientname' => 'client@example.com',
         'password' => 'password',
-        'gocardless' => env('GOCARDLESS_KEYS',''),
-        'square' => env('SQUARE_KEYS',''),
-        'eway' => env('EWAY_KEYS',''),
-        'mollie', env('MOLLIE_KEYS',''),
-        'paytrace' => env('PAYTRACE_KEYS',''),
+        'gocardless' => env('GOCARDLESS_KEYS', ''),
+        'square' => env('SQUARE_KEYS', ''),
+        'eway' => env('EWAY_KEYS', ''),
+        'mollie',
+        env('MOLLIE_KEYS', ''),
+        'paytrace' => env('PAYTRACE_KEYS', ''),
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
         'ppcp' => env('PPCP_KEYS', ''),
@@ -235,16 +236,16 @@ return [
         'client_id' => env('PAYPAL_CLIENT_ID', null),
         'webhook_id' => env('PAYPAL_WEBHOOK_ID', null),
     ],
-    'ingest_mail' => [
+    'inbound_mailbox' => [
         'imap' => [
-            'servers' => env('ingest_mail_IMAP_SERVERS', ''),
-            'ports' => env('ingest_mail_IMAP_PORTS', ''),
-            'users' => env('ingest_mail_IMAP_USERS', ''),
-            'passwords' => env('ingest_mail_IMAP_PASSWORDS', ''),
-            'companies' => env('ingest_mail_IMAP_COMPANIES', '1'),
+            'servers' => env('INBOUND_MAILBOX_IMAP_SERVERS', ''),
+            'ports' => env('INBOUND_MAILBOX_IMAP_PORTS', ''),
+            'users' => env('INBOUND_MAILBOX_IMAP_USERS', ''),
+            'passwords' => env('INBOUND_MAILBOX_IMAP_PASSWORDS', ''),
+            'companies' => env('INBOUND_MAILBOX_IMAP_COMPANIES', '1'),
         ],
-        'expense_mailbox_template' => env('ingest_mail_EXPENSE_MAILBOX_TEMPLATE', null),
-        'expense_mailbox_endings' => env('ingest_mail_EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
+        'inbound_mailbox_template' => env('INBOUND_MAILBOX_TEMPLATE', null),
+        'inbound_mailbox_endings' => env('INBOUND_MAILBOX_ENDINGS', '@expense.invoicing.co'),
     ],
     'cloudflare' => [
         'turnstile' => [
@@ -256,5 +257,4 @@ return [
         'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
     'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', false),
-    
 ];

@@ -17,7 +17,7 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Cron\UpdateCalculatedFields;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
-use App\Jobs\Mail\ExpenseMailboxJob;
+use App\Jobs\Imap\ProcessImapMailboxJob;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Ninja\CheckACHStatus;
@@ -98,9 +98,6 @@ class Kernel extends ConsoleKernel
         /* Fires webhooks for overdue Invoice */
         $schedule->job(new InvoiceCheckLateWebhook())->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-job')->onOneServer();
 
-        /* Check ExpenseMainboxes */
-        $schedule->job(new ExpenseMailboxJob)->everyThirtyMinutes()->withoutOverlapping()->name('expense-mailboxes-job')->onOneServer();
-
         /* Pulls in bank transactions from third party services */
         $schedule->job(new BankTransactionSync())->everyFourHours()->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
@@ -108,6 +105,9 @@ class Kernel extends ConsoleKernel
             $schedule->call(function () {
                 Account::query()->whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
+
+            /* Check ImapMailboxes */
+            $schedule->job(new ProcessImapMailboxJob)->everyFiveMinutes()->withoutOverlapping()->name('imap-mailbox-job')->onOneServer();
         }
 
         /* Run hosted specific jobs */

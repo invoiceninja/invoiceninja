@@ -111,15 +111,16 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $convert_expense_currency
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
- * @property string|null $expense_mailbox
- * @property boolean $expense_mailbox_active
- * @property bool $expense_mailbox_allow_company_users
- * @property bool $expense_mailbox_allow_vendors
- * @property bool $expense_mailbox_allow_unknown
- * @property string|null $expense_mailbox_whitelist_domains
- * @property string|null $expense_mailbox_whitelist_emails
- * @property string|null $expense_mailbox_blacklist_domains
- * @property string|null $expense_mailbox_blacklist_emails
+ * @property string|null $inbound_mailbox
+ * @property boolean $inbound_mailbox_active
+ * @property bool $inbound_mailbox_allow_company_users
+ * @property bool $inbound_mailbox_allow_vendors
+ * @property bool $inbound_mailbox_allow_clients
+ * @property bool $inbound_mailbox_allow_unknown
+ * @property string|null $inbound_mailbox_whitelist_domains
+ * @property string|null $inbound_mailbox_whitelist_senders
+ * @property string|null $inbound_mailbox_blacklist_domains
+ * @property string|null $inbound_mailbox_blacklist_senders
  * @property int $deleted_at
  * @property string $smtp_username
  * @property string $smtp_password
@@ -368,15 +369,16 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
-        'expense_mailbox_active',
-        'expense_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
-        'expense_mailbox_allow_company_users',
-        'expense_mailbox_allow_vendors',
-        'expense_mailbox_allow_unknown',
-        'expense_mailbox_whitelist_domains',
-        'expense_mailbox_whitelist_emails',
-        'expense_mailbox_blacklist_domains',
-        'expense_mailbox_blacklist_emails',
+        'inbound_mailbox_active',
+        'inbound_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
+        'inbound_mailbox_allow_company_users',
+        'inbound_mailbox_allow_vendors',
+        'inbound_mailbox_allow_clients',
+        'inbound_mailbox_allow_unknown',
+        'inbound_mailbox_whitelist_domains',
+        'inbound_mailbox_whitelist_senders',
+        'inbound_mailbox_blacklist_domains',
+        'inbound_mailbox_blacklist_senders',
         'smtp_host',
         'smtp_port',
         'smtp_encryption',
