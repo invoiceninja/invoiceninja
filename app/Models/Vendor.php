@@ -55,6 +55,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $id_number
  * @property string|null $language_id
  * @property int|null $last_login
+ * @property string|null $invoicing_email
+ * @property string|null $invoicing_domain
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
  * @property-read \App\Models\User|null $assigned_user
@@ -116,6 +118,8 @@ class Vendor extends BaseModel
         'number',
         'language_id',
         'classification',
+        'invoicing_email',
+        'invoicing_domain',
     ];
 
     protected $casts = [
@@ -170,11 +174,11 @@ class Vendor extends BaseModel
     {
         $currencies = Cache::get('currencies');
 
-        if (! $currencies) {
+        if (!$currencies) {
             $this->buildCache(true);
         }
 
-        if (! $this->currency_id) {
+        if (!$this->currency_id) {
             return $this->company->currency();
         }
 
@@ -210,14 +214,14 @@ class Vendor extends BaseModel
     {
         $defaults = [];
 
-        if (! (array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
-            $defaults['terms'] = $this->getSetting($entity_name.'_terms');
+        if (!(array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
+            $defaults['terms'] = $this->getSetting($entity_name . '_terms');
         } elseif (array_key_exists('terms', $data)) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if (! (array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
-            $defaults['footer'] = $this->getSetting($entity_name.'_footer');
+        if (!(array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
+            $defaults['footer'] = $this->getSetting($entity_name . '_footer');
         } elseif (array_key_exists('footer', $data)) {
             $defaults['footer'] = $data['footer'];
         }
@@ -255,7 +259,7 @@ class Vendor extends BaseModel
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
+        return $this->company->company_key . '/' . $this->vendor_hash . '/' . $contact_key . '/purchase_orders/';
     }
 
     public function locale(): string
@@ -280,7 +284,7 @@ class Vendor extends BaseModel
 
     public function backup_path(): string
     {
-        return $this->company->company_key.'/'.$this->vendor_hash.'/backups';
+        return $this->company->company_key . '/' . $this->vendor_hash . '/backups';
     }
 
     public function service()

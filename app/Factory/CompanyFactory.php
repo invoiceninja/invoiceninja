@@ -56,7 +56,7 @@ class CompanyFactory
         $company->smtp_port = '';
         $company->smtp_username = '';
         $company->smtp_verify_peer = true;
-        
+
         return $company;
     }
 }

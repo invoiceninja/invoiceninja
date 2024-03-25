@@ -111,6 +111,16 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $convert_expense_currency
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
+ * @property string|null $inbound_mailbox
+ * @property boolean $inbound_mailbox_active
+ * @property bool $inbound_mailbox_allow_company_users
+ * @property bool $inbound_mailbox_allow_vendors
+ * @property bool $inbound_mailbox_allow_clients
+ * @property bool $inbound_mailbox_allow_unknown
+ * @property string|null $inbound_mailbox_whitelist_domains
+ * @property string|null $inbound_mailbox_whitelist_senders
+ * @property string|null $inbound_mailbox_blacklist_domains
+ * @property string|null $inbound_mailbox_blacklist_senders
  * @property int $deleted_at
  * @property string $smtp_username
  * @property string $smtp_password
@@ -359,6 +369,16 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
+        'inbound_mailbox_active',
+        'inbound_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
+        'inbound_mailbox_allow_company_users',
+        'inbound_mailbox_allow_vendors',
+        'inbound_mailbox_allow_clients',
+        'inbound_mailbox_allow_unknown',
+        'inbound_mailbox_whitelist_domains',
+        'inbound_mailbox_whitelist_senders',
+        'inbound_mailbox_blacklist_domains',
+        'inbound_mailbox_blacklist_senders',
         'smtp_host',
         'smtp_port',
         'smtp_encryption',
@@ -636,7 +656,7 @@ class Company extends BaseModel
     {
         $companies = Cache::get('countries');
 
-        if (! $companies) {
+        if (!$companies) {
             $this->buildCache(true);
 
             $companies = Cache::get('countries');
@@ -659,7 +679,7 @@ class Company extends BaseModel
     {
         $timezones = Cache::get('timezones');
 
-        if (! $timezones) {
+        if (!$timezones) {
             $this->buildCache(true);
         }
 
@@ -695,7 +715,7 @@ class Company extends BaseModel
         $languages = Cache::get('languages');
 
         //build cache and reinit
-        if (! $languages) {
+        if (!$languages) {
             $this->buildCache(true);
             $languages = Cache::get('languages');
         }
@@ -712,7 +732,7 @@ class Company extends BaseModel
 
     public function getLocale()
     {
-        return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
+        return isset ($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
     public function getLogo(): ?string
@@ -842,25 +862,25 @@ class Company extends BaseModel
     public function credit_rules()
     {
         return BankTransactionRule::query()
-                                  ->where('company_id', $this->id)
-                                  ->where('applies_to', 'CREDIT')
-                                  ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'CREDIT')
+            ->get();
     }
 
     public function debit_rules()
     {
         return BankTransactionRule::query()
-                          ->where('company_id', $this->id)
-                          ->where('applies_to', 'DEBIT')
-                          ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'DEBIT')
+            ->get();
     }
 
 
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $this->decodePrimaryKey($value))
-                    ->where('account_id', auth()->user()->account_id)
-                    ->firstOrFail();
+            ->where('account_id', auth()->user()->account_id)
+            ->firstOrFail();
     }
 
     public function domain(): string
@@ -870,7 +890,7 @@ class Company extends BaseModel
                 return $this->portal_domain;
             }
 
-            return "https://{$this->subdomain}.".config('ninja.app_domain');
+            return "https://{$this->subdomain}." . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
@@ -888,7 +908,7 @@ class Company extends BaseModel
 
     public function file_path(): string
     {
-        return $this->company_key.'/';
+        return $this->company_key . '/';
     }
 
     public function rBits()
@@ -967,7 +987,7 @@ class Company extends BaseModel
     {
         $date_formats = Cache::get('date_formats');
 
-        if (! $date_formats) {
+        if (!$date_formats) {
             $this->buildCache(true);
         }
 
@@ -978,7 +998,7 @@ class Company extends BaseModel
 
     public function getInvoiceCert()
     {
-        if($this->e_invoice_certificate) {
+        if ($this->e_invoice_certificate) {
             return base64_decode($this->e_invoice_certificate);
         }
 

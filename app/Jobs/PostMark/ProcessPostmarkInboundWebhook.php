@@ -9,103 +9,38 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Controllers;
+namespace App\Jobs\Postmark;
 
-use App\Jobs\PostMark\ProcessPostmarkInboundWebhook;
-use App\Jobs\PostMark\ProcessPostmarkWebhook;
-use Illuminate\Http\Request;
+use App\Libraries\MultiDB;
+use App\Services\InboundMail\InboundMail;
+use App\Services\InboundMail\InboundMailEngine;
+use App\Utils\TempFile;
+use Illuminate\Support\Carbon;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Log;
 
-/**
- * Class PostMarkController.
- */
-class PostMarkController extends BaseController
+class ProcessPostmarkInboundWebhook implements ShouldQueue
 {
-    private $invitation;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct()
-    {
-    }
+    public $tries = 1;
 
     /**
-     * Process Postmark Webhook.
-     *
-     *
-     * @OA\Post(
-     *      path="/api/v1/postmark_webhook",
-     *      operationId="postmarkWebhook",
-     *      tags={"postmark"},
-     *      summary="Processing webhooks from PostMark",
-     *      description="Adds an credit to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved credit object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
+     * Create a new job instance.
+     * $input consists of 2 informations: recipient|messageId
      */
-    public function webhook(Request $request)
+    public function __construct(private string $input)
     {
-        if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')) {
-            ProcessPostmarkWebhook::dispatch($request->all())->delay(10);
-
-            return response()->json(['message' => 'Success'], 200);
-        }
-
-        return response()->json(['message' => 'Unauthorized'], 403);
     }
 
     /**
-     * Process Postmark Webhook.
+     * Execute the job.
      *
-     *
-     * @OA\Post(
-     *      path="/api/v1/postmark_inbound_webhook",
-     *      operationId="postmarkInboundWebhook",
-     *      tags={"postmark"},
-     *      summary="Processing inbound webhooks from PostMark",
-     *      description="Adds an credit to the system",
-     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
-     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
-     *      @OA\Parameter(ref="#/components/parameters/include"),
-     *      @OA\Response(
-     *          response=200,
-     *          description="Returns the saved credit object",
-     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
-     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
-     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
-     *          @OA\JsonContent(ref="#/components/schemas/Credit"),
-     *       ),
-     *       @OA\Response(
-     *          response=422,
-     *          description="Validation error",
-     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
-     *
-     *       ),
-     *       @OA\Response(
-     *           response="default",
-     *           description="Unexpected Error",
-     *           @OA\JsonContent(ref="#/components/schemas/Error"),
-     *       ),
-     *     )
-     *
+     * Mail from Storage
      * array (
      *   'FromName' => 'Max Mustermann',
      *   'MessageStream' => 'inbound',
@@ -256,25 +191,109 @@ class PostMarkController extends BaseController
      *   array (
      *   ),
      *  )
+     * @return void
      */
-    public function inboundWebhook(Request $request)
+    public function handle()
     {
+        $recipient = explode("|", $this->input)[0];
 
-        Log::info($request->all());
-
-        $input = $request->all();
-
-        if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] != "inbound") || !array_key_exists("To", $input) || !array_key_exists("MessageID", $input)) {
-            Log::info('Failed: Message could not be parsed, because required parameters are missing. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation!');
-            return response()->json(['message' => 'Failed. Missing/Invalid Parameters.'], 400);
+        // match company
+        $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
+        if (!$company) {
+            Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from postmark: ' . $recipient);
+            return;
         }
 
-        if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')) {
-            ProcessPostmarkInboundWebhook::dispatch($input["To"] . "|" . $input["MessageID"])->delay(10);
+        // fetch message from postmark-api
+        $company_postmark_secret = $company->settings?->email_sending_method === 'client_postmark' && $company->settings?->postmark_secret ? $company->settings?->postmark_secret : null;
+        if (!($company_postmark_secret) && !(config('services.postmark.domain') && config('services.postmark.secret')))
+            throw new \Error("[ProcessMailgunInboundWebhook] no postmark credenitals found, we cannot get the attachements and files");
 
-            return response()->json(['message' => 'Success'], 200);
+        $mail = null;
+        if ($company_postmark_secret) {
+
+            $credentials = $company_postmark_domain . ":" . $company_postmark_secret . "@";
+            $messageUrl = explode("|", $this->input)[1];
+            $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
+            $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
+
+            try {
+                $mail = json_decode(file_get_contents($messageUrl));
+            } catch (\Error $e) {
+                if (config('services.postmark.secret')) {
+                    Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+
+                    $credentials = config('services.postmark.domain') . ":" . config('services.postmark.secret') . "@";
+                    $messageUrl = explode("|", $this->input)[1];
+                    $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
+                    $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
+                    $mail = json_decode(file_get_contents($messageUrl));
+
+                } else
+                    throw $e;
+            }
+
+        } else {
+
+            $credentials = config('services.postmark.domain') . ":" . config('services.postmark.secret') . "@";
+            $messageUrl = explode("|", $this->input)[1];
+            $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
+            $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
+            $mail = json_decode(file_get_contents($messageUrl));
+
         }
 
-        return response()->json(['message' => 'Unauthorized'], 403);
+        // prepare data for ingresEngine
+        $inboundMail = new InboundMail();
+
+        $inboundMail->from = $mail->sender;
+        $inboundMail->to = $recipient; // usage of data-input, because we need a single email here
+        $inboundMail->subject = $mail->Subject;
+        $inboundMail->body = $mail->{"body-html"};
+        $inboundMail->text_body = $mail->{"body-plain"};
+        $inboundMail->date = Carbon::createFromTimeString($mail->Date);
+
+        // parse documents as UploadedFile from webhook-data
+        foreach ($mail->attachments as $attachment) { // prepare url with credentials before downloading :: https://github.com/postmark/postmark.js/issues/24
+
+            // download file and save to tmp dir
+            if ($company_postmark_domain && $company_postmark_secret) {
+
+                try {
+
+                    $credentials = $company_postmark_domain . ":" . $company_postmark_secret . "@";
+                    $url = $attachment->url;
+                    $url = str_replace("http://", "http://" . $credentials, $url);
+                    $url = str_replace("https://", "https://" . $credentials, $url);
+                    $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
+                } catch (\Error $e) {
+                    if (config('services.postmark.secret')) {
+                        Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+
+                        $credentials = config('services.postmark.domain') . ":" . config('services.postmark.secret') . "@";
+                        $url = $attachment->url;
+                        $url = str_replace("http://", "http://" . $credentials, $url);
+                        $url = str_replace("https://", "https://" . $credentials, $url);
+                        $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
+                    } else
+                        throw $e;
+                }
+
+            } else {
+
+                $credentials = config('services.postmark.domain') . ":" . config('services.postmark.secret') . "@";
+                $url = $attachment->url;
+                $url = str_replace("http://", "http://" . $credentials, $url);
+                $url = str_replace("https://", "https://" . $credentials, $url);
+                $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
+            }
+
+        }
+
+        // perform
+        (new InboundMailEngine($inboundMail))->handle();
     }
 }
