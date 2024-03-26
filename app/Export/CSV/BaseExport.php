@@ -867,15 +867,15 @@ class BaseExport
     protected function addClientFilter(Builder $query, $clients): Builder
     {
         if(is_string($clients)) {
-            $clients =  explode(',', $clients);
+            $clients = explode(',', $clients);
         }
 
         $transformed_clients = $this->transformKeys($clients);
 
-        nlog($clients);
         nlog($transformed_clients);
 
         if(count($transformed_clients) > 0) {
+            nlog("yus");
             $query->whereIn('client_id', $transformed_clients);
         }
 
@@ -1573,7 +1573,7 @@ class BaseExport
 
     public function queueDocuments(Builder $query)
     {
-        nlog("queue docs pls");
+        
         if($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
@@ -1583,8 +1583,6 @@ class BaseExport
                                })->flatten()
                                ->toArray();
         }
-
-        nlog($documents);
 
         if(count($documents) > 0) {
 
