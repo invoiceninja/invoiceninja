@@ -137,6 +137,7 @@ class ClientFilters extends QueryFilters
                               $query->where('first_name', 'like', '%'.$filter.'%');
                               $query->orWhere('last_name', 'like', '%'.$filter.'%');
                               $query->orWhere('email', 'like', '%'.$filter.'%');
+                              $query->orWhere('phone', 'like', '%'.$filter.'%');
                           })
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
