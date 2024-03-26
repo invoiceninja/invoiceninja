@@ -17,8 +17,12 @@ use App\Models\Invoice;
 
 class DashboardController extends Controller
 {
-    public function index(): \Illuminate\View\View
+    public function index(): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
     {
+        if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === false) {
+            return redirect()->route('client.invoices.index');
+        } 
+
         $total_invoices = Invoice::withTrashed()
             ->where('client_id', auth()->guard('contact')->user()->client_id)
             ->where('is_deleted', 0)
