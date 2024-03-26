@@ -1144,8 +1144,6 @@ class Import implements ShouldQueue
 
             $key = "invoices_{$resource['id']}";
 
-            nlog($invoice->id);
-
             $this->ids['invoices'][$key] = [
                 'old' => $resource['id'],
                 'new' => $invoice->id,
