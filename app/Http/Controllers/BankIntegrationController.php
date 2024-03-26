@@ -271,11 +271,14 @@ class BankIntegrationController extends BaseController
         $nordigen = new Nordigen();
 
         BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
+            $is_account_active = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
-            if (!$account) {
-                $bank_integration->disabled_upstream = true;
 
+            if (!$is_account_active || !$account) {
+                $bank_integration->disabled_upstream = true;
                 $bank_integration->save();
+
+                $nordigen->disabledAccountEmail($bank_integration);
                 return;
             }
 
@@ -304,10 +307,10 @@ class BankIntegrationController extends BaseController
         $account = $user->account;
 
         $bank_integration = BankIntegration::withTrashed()
-                                        ->where('bank_account_id', $acc_id)
-                                        ->orWhere('nordigen_account_id', $acc_id)
-                                        ->company()
-                                        ->firstOrFail();
+            ->where('bank_account_id', $acc_id)
+            ->orWhere('nordigen_account_id', $acc_id)
+            ->company()
+            ->firstOrFail();
 
         if ($bank_integration->integration_type == BankIntegration::INTEGRATION_TYPE_YODLEE) {
             $this->removeAccountYodlee($account, $bank_integration);
