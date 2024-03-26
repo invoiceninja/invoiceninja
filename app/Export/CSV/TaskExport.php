@@ -72,10 +72,16 @@ class TaskExport extends BaseExport
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
+        
+        $clients = &$this->input['client_id'];
 
-        if($this->input['document_email_attachment'] ?? false) {
+        if($clients)
+            $query = $this->addClientFilter($query, $clients);
+
+        $document_attachments = &$this->input['document_email_attachment'];
+
+        if($document_attachments) 
             $this->queueDocuments($query);
-        }
 
         return $query;
 
@@ -132,9 +138,9 @@ class TaskExport extends BaseExport
     {
         $entity = [];
         $transformed_entity = $this->entity_transformer->transform($task);
-
+nlog($this->input['report_keys']);
         foreach (array_values($this->input['report_keys']) as $key) {
-
+nlog($key);
             $parts = explode('.', $key);
 
             if (is_array($parts) && $parts[0] == 'task' && array_key_exists($parts[1], $transformed_entity)) {
