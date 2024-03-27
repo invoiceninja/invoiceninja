@@ -271,7 +271,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        // nlog($this->data);
+        // nlog(json_encode($this->data));
         return $this;
     }
 

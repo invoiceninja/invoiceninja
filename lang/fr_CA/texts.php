@@ -5265,6 +5265,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'enable_rappen_rounding_help' => 'Arrondir les totaux au 5 le plus proche',
     'duration_words' => 'Durée en mots',
     'upcoming_recurring_invoices' => 'Factures récurrentes à venir',
+    'show_table_footer' => 'Afficher le pied du tableau',
+    'show_table_footer_help' => 'Afficher les totaux dans le pied du tableau',
     'total_invoices' => 'Total factures',
 );
 
