@@ -14,12 +14,9 @@ namespace App\Livewire\BillingPortal\Authentication;
 
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
-use Illuminate\Support\Str;
 use App\Models\Subscription;
 use App\Models\ClientContact;
-use App\Factory\ClientFactory;
 use App\Jobs\Mail\NinjaMailerJob;
-use App\DataMapper\ClientSettings;
 use App\Mail\Subscription\OtpCode;
 use App\Jobs\Mail\NinjaMailerObject;
 use Illuminate\Support\Facades\Cache;
@@ -45,6 +42,7 @@ class RegisterOrLogin extends Component
     ];
 
     public array $registration_fields = [];
+    public array $fields = [];
 
     public function initial()
     {
@@ -200,6 +198,39 @@ class RegisterOrLogin extends Component
             return;
         }
 
+        $first_gateway = collect($this->subscription->company->company_gateways)
+            ->sortBy('sort_order')
+            ->first();
+
+        $gateway_fields = $first_gateway->driver()->getClientRequiredFields() ?? [];
+        $registration_fields = $this->subscription->company->client_registration_fields ?? [];
+
+        $mappings = [
+            'contact_first_name' => 'first_name',
+            'contact_last_name' => 'last_name',
+            'contact_email' => 'email',
+        ];
+
+        $gateway_fields_keys = collect($gateway_fields)->map(fn($field) => $field['name'])->toArray();
+        $registration_fields_keys = collect($registration_fields)->map(fn($field) => $field['key'])->toArray();
+
+        foreach ($gateway_fields_keys as $key) {
+            $mapping = $mappings[$key] ?? null;
+
+            if ($mapping === null) {
+                continue;
+            }
+
+            $field = collect($registration_fields)->first(fn($field) => $field['key'] === $mappings[$key]);
+
+            if (in_array($mappings[$key], $registration_fields_keys) && $field['required'] === true) {
+                unset($gateway_fields[array_search($key, $gateway_fields_keys)]);
+            }
+        }
+
+        $this->fields = $gateway_fields;
+        $this->registration_fields = $registration_fields;
+
         return $this->state['register_form'] = true;
     }
 
@@ -215,6 +246,10 @@ class RegisterOrLogin extends Component
 
     public function render()
     {
-        return view('billing-portal.v3.authentication.register-or-login');
+        $countries = Cache::get('countries');
+
+        return view('billing-portal.v3.authentication.register-or-login', [
+            'countries' => $countries,
+        ]);
     }
 }
