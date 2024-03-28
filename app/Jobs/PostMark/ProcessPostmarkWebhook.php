@@ -359,6 +359,20 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         $postmark = new PostmarkClient($postmark_secret);
         $messageDetail = $postmark->getOutboundMessageDetails($message_id);
+
+
+        try {
+            $messageDetail = $postmark->getOutboundMessageDetails($message_id);
+        } catch(\Exception $e) {
+
+            $postmark_secret = config('services.postmark-outlook.token');
+            $postmark = new PostmarkClient($postmark_secret);
+            $messageDetail = $postmark->getOutboundMessageDetails($message_id);
+
+        }
+
+
+
         return $messageDetail;
 
     }
@@ -391,7 +405,17 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $postmark_secret = !empty($this->company->settings->postmark_secret) ? $this->company->settings->postmark_secret : config('services.postmark.token');
 
             $postmark = new PostmarkClient($postmark_secret);
-            $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
+
+            try {
+                $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
+            }
+            catch(\Exception $e){
+
+                $postmark_secret = config('services.postmark-outlook.token');
+                $postmark = new PostmarkClient($postmark_secret);
+                $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
+
+            }
 
             $recipients = collect($messageDetail['recipients'])->flatten()->implode(',');
             $subject = $messageDetail->subject ?? '';
