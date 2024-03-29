@@ -360,7 +360,6 @@ class ProcessPostmarkWebhook implements ShouldQueue
         $postmark = new PostmarkClient($postmark_secret);
         $messageDetail = $postmark->getOutboundMessageDetails($message_id);
 
-
         try {
             $messageDetail = $postmark->getOutboundMessageDetails($message_id);
         } catch(\Exception $e) {
@@ -370,8 +369,6 @@ class ProcessPostmarkWebhook implements ShouldQueue
             $messageDetail = $postmark->getOutboundMessageDetails($message_id);
 
         }
-
-
 
         return $messageDetail;
 
