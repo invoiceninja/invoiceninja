@@ -94,8 +94,8 @@
         @csrf
 
         <div class="grid grid-cols-12 gap-4 mt-10">
-            @if($registration_fields)
-            @foreach($registration_fields as $field)
+            @if($fields)
+            @foreach($fields as $field)
                 @if($field['visible'])
                     <div class="col-span-12 md:col-span-6">
                         <section class="flex items-center">
@@ -104,6 +104,8 @@
                                 class="input-label">
                                 @if(in_array($field['key'], ['custom_value1','custom_value2','custom_value3','custom_value4']))
                                 {{ (new App\Utils\Helpers())->makeCustomField($subscription->company->custom_fields, str_replace("custom_value","client", $field['key']))}}
+                                @elseif(array_key_exists('label', $field))
+                                {{ ctrans("texts.{$field['label']}") }}
                                 @else
                                 {{ ctrans("texts.{$field['key']}") }}
                                 @endif
@@ -121,7 +123,7 @@
                                 type="email"
                                 name="{{ $field['key'] }}"
                                 value="{{ old($field['key'], $this->email ?? '') }}"
-                            />
+                                 />
                         @elseif($field['key'] === 'password')
                             <input
                                 id="{{ $field['key'] }}"
@@ -196,44 +198,6 @@
                 @endif
             @endforeach
             @endif
-        </div>
-
-        <div class="mt-6">
-            <h1 class="text-2xl font-medium">{{ ctrans('texts.details') }}</h1>
-        </div>
-
-        <div class="grid grid-cols-12 gap-4 mt-10">
-        @foreach($fields as $field)
-            @if(!array_key_exists('filled', $field))
-                <div class="col-span-12 md:col-span-6">
-                    <section class="flex items-center">
-                        <label
-                            for="password_confirmation"
-                            class="input-label">
-                            {{ $field['label'] }}
-                        </label>
-                    </section>
-
-                    @if($field['name'] == 'client_country_id' || $field['name'] == 'client_shipping_country_id')
-                    <select id="client_country" class="input w-full form-select bg-white" name="{{ $field['name'] }}" wire:model="{{ $field['name'] }}">
-                        <option value="none"></option>
-
-                        @foreach($countries as $country)
-                            <option value="{{ $country->id }}">
-                                {{ $country->iso_3166_2 }} ({{ $country->name }})
-                            </option>
-                        @endforeach
-                    </select>
-                    @else
-                        <input class="input w-full" type="{{ $field['type'] ?? 'text' }}" name="{{ $field['name'] }}" wire:model="{{ $field['name'] }}">
-                    @endif
-
-                    @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))
-                        <p class="mt-2 text-gray-900 border-red-300 px-2 py-1 bg-gray-100">{{ session('validation_errors')[$field['name']][0] }}</p>
-                    @endif
-                </div>
-            @endif
-        @endforeach
         </div>
 
         <button 
