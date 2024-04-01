@@ -177,6 +177,7 @@ class CountriesSeeder extends Seeder
             ],
             'SK' => [ // Slovakia
                 'swap_currency_symbol' => true,
+                'thousand_separator' => ' ',
             ],
             'US' => [
                 'thousand_separator' => ',',
