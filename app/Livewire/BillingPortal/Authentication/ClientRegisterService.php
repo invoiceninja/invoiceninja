@@ -27,6 +27,7 @@ class ClientRegisterService
 
     public function __construct(
         public Company $company,
+        public array $additional = [],
     ) {
     }
 
@@ -52,6 +53,12 @@ class ClientRegisterService
 
         if ($this->company->settings->client_portal_terms || $this->company->settings->client_portal_privacy_policy) {
             $rules['terms'] = ['required'];
+        }
+
+        foreach ($this->additional as $field) {
+            if ($field['visible'] ?? true) {
+                $rules[$field['key']] = $field['required'] ? ['bail', 'required'] : ['sometimes'];
+            }
         }
 
         return $rules;
@@ -96,5 +103,30 @@ class ClientRegisterService
         $client_contact->save();
 
         return $client_contact;
+    }
+
+    public static function mappings(): array
+    {
+        return [
+            'contact_first_name' => 'first_name',
+            'contact_last_name' => 'last_name',
+            'contact_email' => 'email',
+            'client_phone' => 'phone',
+            'client_city' => 'city',
+            'client_address_line_1' => 'address1',
+            'client_address_line_2' => 'address2',
+            'client_state' => 'state',
+            'client_country_id' => 'country_id',
+            'client_postal_code' => 'postal_code',
+            'client_shipping_postal_code' => 'shipping_postal_code',
+            'client_shipping_address_line_1' => 'shipping_address1',
+            'client_shipping_city' => 'shipping_city',
+            'client_shipping_state' => 'shipping_state',
+            'client_shipping_country_id' => 'shipping_country_id',
+            'client_custom_value1' => 'custom_value1',
+            'client_custom_value2' => 'custom_value2',
+            'client_custom_value3' => 'custom_value3',
+            'client_custom_value4' => 'custom_value4',
+        ];
     }
 }
