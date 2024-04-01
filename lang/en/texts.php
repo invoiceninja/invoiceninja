@@ -5285,6 +5285,9 @@ $lang = array(
     'duration_words' => 'Duration in words',
     'upcoming_recurring_invoices' => 'Upcoming Recurring Invoices',
     'shipping_country_id' => 'Shipping Country',
+    'show_table_footer' => 'Show table footer',
+    'show_table_footer_help' => 'Displays the totals in the footer of the table',
+    'total_invoices' => 'Total Invoices',
 );
 
 return $lang;

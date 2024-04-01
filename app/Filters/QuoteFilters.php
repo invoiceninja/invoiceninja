@@ -156,7 +156,7 @@ class QuoteFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
         if ($sort_col[0] == 'valid_until') {

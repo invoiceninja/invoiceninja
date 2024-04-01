@@ -287,6 +287,27 @@ class BraintreePaymentDriver extends BaseDriver
         }
     }
 
+
+    /**
+     * Required fields for client to fill, to proceed with gateway actions.
+     *
+     * @return array[]
+     */
+    public function getClientRequiredFields(): array
+    {
+        $fields = [];
+    
+            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
+            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+
+        return $fields;
+    }
+
     public function processWebhookRequest($request)
     {
         $validator = Validator::make($request->all(), [

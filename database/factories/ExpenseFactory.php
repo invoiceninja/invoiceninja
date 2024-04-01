@@ -35,6 +35,7 @@ class ExpenseFactory extends Factory
             'private_notes' => $this->faker->text(50),
             'transaction_reference' => $this->faker->text(5),
             'invoice_id' => null,
+            'uses_inclusive_taxes' => false,
         ];
     }
 }

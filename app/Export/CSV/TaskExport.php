@@ -72,10 +72,16 @@ class TaskExport extends BaseExport
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
+        
+        $clients = &$this->input['client_id'];
 
-        if($this->input['document_email_attachment'] ?? false) {
+        if($clients)
+            $query = $this->addClientFilter($query, $clients);
+
+        $document_attachments = &$this->input['document_email_attachment'];
+
+        if($document_attachments) 
             $this->queueDocuments($query);
-        }
 
         return $query;
 
@@ -197,7 +203,7 @@ class TaskExport extends BaseExport
             if (in_array('task.duration', $this->input['report_keys']) || in_array('duration', $this->input['report_keys'])) {
                 $seconds = $task->calcDuration();
                 $entity['task.duration'] = $seconds;
-                $entity['task.duration_words'] = CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans();
+                $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
             }
 
             $entity = $this->decorateAdvancedFields($task, $entity);

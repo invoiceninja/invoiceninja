@@ -69,6 +69,12 @@ class QuoteExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
+
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
 
         if($this->input['document_email_attachment'] ?? false) {

@@ -12,6 +12,9 @@
 
 namespace App\DataProviders;
 
+/**
+ * Class Domain.
+ */
 class Domains
 {
     private static array $verify_domains = [

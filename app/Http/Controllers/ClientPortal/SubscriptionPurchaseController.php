@@ -26,7 +26,7 @@ class SubscriptionPurchaseController extends Controller
         App::setLocale($subscription->company->locale());
 
         if ($subscription->trashed()) {
-            return $this->render('generic.not_available', ['account' => $subscription->company->account, 'company' => $subscription->company]);
+            return $this->render('generic.not_available', ['passed_account' => $subscription->company->account, 'passed_company' => $subscription->company]);
         }
 
         /* Make sure the contact is logged into the correct company for this subscription */
