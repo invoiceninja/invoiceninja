@@ -41,7 +41,9 @@ class RegisterOrLogin extends Component
         'initial_completed' => false,
     ];
 
-    public array $fields = [];
+    public array $register_fields = [];
+
+    public array $additional_fields = [];
 
     public function initial()
     {
@@ -161,6 +163,7 @@ class RegisterOrLogin extends Component
     {
         $service = new ClientRegisterService(
             company: $this->subscription->company,
+            additional: $this->additional_fields,
         );
 
         $rules = $service->rules();
@@ -197,44 +200,42 @@ class RegisterOrLogin extends Component
             return;
         }
 
-        $this->fields = [...collect($this->subscription->company->client_registration_fields ?? [])->toArray()];
-
-        $registration_keys = collect($this->fields)->pluck('key')->toArray();
-
-        $mappings = [
-            'contact_first_name' => 'first_name',
-            'contact_last_name' => 'last_name',
-            'contact_email' => 'email',
-            'client_city' => 'city',
-            'client_address_line_1' => 'address1',
-        ];
+        $this->register_fields = [...collect($this->subscription->company->client_registration_fields ?? [])->toArray()];
 
         $first_gateway = collect($this->subscription->company->company_gateways)
             ->sortBy('sort_order')
             ->first();
 
-        $gateway_fields = collect($first_gateway->driver()->getClientRequiredFields() ?? [])->map(function ($field) {
-            return [
-                'key' => $field['name'],
-                'required' => true,
-                'visible' => true,
-                'label' => str_replace(['client_', 'contact_'], '', $field['name'])
-            ];
-        })->toArray();
+        $mappings = ClientRegisterService::mappings();
 
-        $gateway_fields = collect($gateway_fields)
-            ->filter(function ($field) use ($registration_keys, $mappings) {
-                $mapping = $mappings[$field['key']] ?? null;
+        collect($first_gateway->driver()->getClientRequiredFields() ?? [])
+            ->each(function ($field) use ($mappings) {
+                $mapping = $mappings[$field['name']] ?? null;
 
                 if ($mapping === null) {
-                    return true;
+                    return;
                 }
 
-                return !in_array($mapping, $registration_keys);
+                $i = collect($this->register_fields)->search(fn ($field) => $field['key'] == $mapping);
+
+                if ($i !== false) {
+                    $this->register_fields[$i]['visible'] = true;
+                    $this->register_fields[$i]['required'] = true;
+
+
+                    $this->additional_fields[] = $this->register_fields[$i];
+                } else {
+                    $field = [
+                        'key' => $mapping,
+                        'required' => true,
+                        'visible' => true,
+                    ];
+
+                    $this->register_fields[] = $field;
+                    $this->additional_fields[] = $field;
+                }
             })
             ->toArray();
-
-        $this->fields = array_merge($this->fields, $gateway_fields);
 
         return $this->state['register_form'] = true;
     }
