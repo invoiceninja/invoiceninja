@@ -34,6 +34,10 @@ class Register extends Component
         'register_form' => false,
     ];
 
+    public array $register_fields = [];
+
+    public array $additional_fields = [];
+
     public function initial(): void
     {
         $this->validateOnly('email', ['email' => 'required|bail|email:rfc']);
@@ -57,6 +61,7 @@ class Register extends Component
     {
         $service = new ClientRegisterService(
             company: $this->subscription->company,
+            additional: $this->additional_fields,
         );
 
         $rules = $service->rules();
@@ -93,6 +98,43 @@ class Register extends Component
 
             return;
         }
+
+        $this->register_fields = [...collect($this->subscription->company->client_registration_fields ?? [])->toArray()];
+
+        $first_gateway = collect($this->subscription->company->company_gateways)
+            ->sortBy('sort_order')
+            ->first();
+
+        $mappings = ClientRegisterService::mappings();
+
+        collect($first_gateway->driver()->getClientRequiredFields() ?? [])
+            ->each(function ($field) use ($mappings) {
+                $mapping = $mappings[$field['name']] ?? null;
+
+                if ($mapping === null) {
+                    return;
+                }
+
+                $i = collect($this->register_fields)->search(fn ($field) => $field['key'] == $mapping);
+
+                if ($i !== false) {
+                    $this->register_fields[$i]['visible'] = true;
+                    $this->register_fields[$i]['required'] = true;
+
+
+                    $this->additional_fields[] = $this->register_fields[$i];
+                } else {
+                    $field = [
+                        'key' => $mapping,
+                        'required' => true,
+                        'visible' => true,
+                    ];
+
+                    $this->register_fields[] = $field;
+                    $this->additional_fields[] = $field;
+                }
+            })
+            ->toArray();
 
         return $this->state['register_form'] = true;
     }
