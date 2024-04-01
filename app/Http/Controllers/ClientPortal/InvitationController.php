@@ -87,7 +87,7 @@ class InvitationController extends Controller
                                     ->firstOrFail();
 
         if ($invitation->trashed() || $invitation->{$entity}->is_deleted) {
-            return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
+            return $this->render('generic.not_available', ['passed_account' => $invitation->company->account, 'passed_company' => $invitation->company]);
         }
 
         if ($invitation->contact->trashed()) {
@@ -138,11 +138,10 @@ class InvitationController extends Controller
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
 
-            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         }
+
         return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
 
-        return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})])->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     }
 
     private function fireEntityViewedEvent($invitation, $entity_string)

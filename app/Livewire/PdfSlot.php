@@ -108,7 +108,7 @@ class PdfSlot extends Component
 
     }
 
-    public function downloadEInvoice()
+    public function downloadEDocument()
     {
 
         $file_name = $this->entity->numberFormatter().'.xml';

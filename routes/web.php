@@ -16,10 +16,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\WePayController;
 use Illuminate\Support\Facades\Route;
 
-//Auth::routes(['password.reset' => false]);
-
 Route::get('/', [BaseController::class, 'flutterRoute'])->middleware('guest');
-// Route::get('self-update', [SelfUpdateController::class, 'update'])->middleware('guest');
 
 Route::get('setup', [SetupController::class, 'index'])->middleware('guest');
 Route::post('setup', [SetupController::class, 'doSetup'])->middleware('guest');
@@ -37,15 +34,8 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])->middle
 Route::get('wepay/signup/{token}', [WePayController::class, 'signup'])->name('wepay.signup');
 Route::get('wepay/finished', [WePayController::class, 'finished'])->name('wepay.finished');
 
-/*
- * Social authentication
- */
-
 Route::get('auth/{provider}', [LoginController::class, 'redirectToProvider']);
 
-/*
- * Inbound routes requiring DB Lookup
- */
 Route::middleware('url_db')->group(function () {
     Route::get('/user/confirm/{confirmation_code}', [UserController::class, 'confirm']);
     Route::post('/user/confirm/{confirmation_code}', [UserController::class, 'confirmWithPassword']);

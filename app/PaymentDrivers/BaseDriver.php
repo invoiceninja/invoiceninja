@@ -790,19 +790,24 @@ class BaseDriver extends AbstractPaymentDriver
             'client' => $this->client->present()->name(),
         ]);
 
-        return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
+        // return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
     }
 
     /**
      * Stub for disconnecting from the gateway.
      *
-     * @return void
+     * @return bool
      */
     public function disconnect()
     {
         return true;
     }
 
+    /**
+     * Stub for checking authentication.
+     *
+     * @return bool
+     */
     public function auth(): bool
     {
         return true;
