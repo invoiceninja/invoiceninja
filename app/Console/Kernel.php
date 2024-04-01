@@ -17,7 +17,6 @@ use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\Cron\UpdateCalculatedFields;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
-use App\Jobs\Imap\ProcessImapMailboxJob;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Ninja\CheckACHStatus;
@@ -105,9 +104,6 @@ class Kernel extends ConsoleKernel
             $schedule->call(function () {
                 Account::query()->whereNotNull('id')->update(['is_scheduler_running' => true]);
             })->everyFiveMinutes();
-
-            /* Check ImapMailboxes */
-            $schedule->job(new ProcessImapMailboxJob)->everyFiveMinutes()->withoutOverlapping()->name('imap-mailbox-job')->onOneServer();
         }
 
         /* Run hosted specific jobs */
