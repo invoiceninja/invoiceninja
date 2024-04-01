@@ -12,10 +12,13 @@
 
 namespace App\Transformers;
 
-use App\Models\Client;
-use App\Models\Document;
-use App\Models\Project;
 use App\Models\Task;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\Document;
+use App\Models\Expense;
+use App\Models\Invoice;
 use App\Utils\Traits\MakesHash;
 
 /**
@@ -35,6 +38,9 @@ class ProjectTransformer extends EntityTransformer
     protected array $availableIncludes = [
         'client',
         'tasks',
+        'invoices',
+        'expenses',
+        'quotes',
     ];
 
     public function includeDocuments(Project $project)
@@ -65,6 +71,27 @@ class ProjectTransformer extends EntityTransformer
         $transformer = new TaskTransformer($this->serializer);
 
         return $this->includeCollection($project->tasks, $transformer, Task::class);
+    }
+
+    public function includeInvoices(Project $project): \League\Fractal\Resource\Collection
+    {
+        $transformer = new InvoiceTransformer($this->serializer);
+
+        return $this->includeCollection($project->invoices, $transformer, Invoice::class);
+    }
+
+    public function includeExpenses(Project $project): \League\Fractal\Resource\Collection
+    {
+        $transformer = new ExpenseTransformer($this->serializer);
+                
+        return $this->includeCollection($project->expenses, $transformer, Expense::class);
+    }
+
+    public function includeQuotes(Project $project): \League\Fractal\Resource\Collection
+    {
+        $transformer = new QuoteTransformer($this->serializer);
+        
+        return $this->includeCollection($project->quotes, $transformer, Quote::class);
     }
 
     public function transform(Project $project)

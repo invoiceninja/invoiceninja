@@ -65,7 +65,7 @@ class ClientBalanceReportController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($request->has('send_email') && $request->get('send_email')) {
+        if ($request->has('send_email') && $request->get('send_email') && $request->missing('output')) {
             SendToAdmin::dispatch($user->company(), $request->all(), ClientBalanceReport::class, $this->filename);
 
             return response()->json(['message' => 'working...'], 200);

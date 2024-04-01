@@ -197,7 +197,7 @@ class ExpenseFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
         if (is_array($sort_col) && in_array($sort_col[1], ['asc', 'desc']) && in_array($sort_col[0], ['public_notes', 'date', 'id_number', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {

@@ -157,9 +157,9 @@ class TemplateService
         return $this;
     }
 
-    private function setGlobals(): self
+    public function setGlobals(): self
     {
-
+        
         foreach($this->global_vars as $key => $value) {
             $this->twig->addGlobal($key, $value);
         }
@@ -241,8 +241,6 @@ class TemplateService
     public function getPdf(): string
     {
 
-        // nlog($this->getHtml());
-
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
         } else {
@@ -273,7 +271,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        // nlog($this->data);
+        // nlog(json_encode($this->data));
         return $this;
     }
 

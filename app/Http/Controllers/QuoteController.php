@@ -914,7 +914,7 @@ class QuoteController extends BaseController
         $contact = $invitation->contact;
         $quote = $invitation->quote;
 
-        $file = $quote->service()->getEInvoice($contact);
+        $file = $quote->service()->getEQuote($contact);
         $file_name = $quote->getFileName("xml");
 
         $headers = ['Content-Type' => 'application/xml'];

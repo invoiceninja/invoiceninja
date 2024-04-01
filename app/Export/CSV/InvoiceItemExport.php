@@ -75,6 +75,12 @@ class InvoiceItemExport extends BaseExport
 
         $query = $this->addDateRange($query);
 
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
+
         if($this->input['status'] ?? false) {
             $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
         }

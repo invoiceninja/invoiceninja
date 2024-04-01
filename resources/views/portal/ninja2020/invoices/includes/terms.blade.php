@@ -14,7 +14,7 @@
                         <div class="mb-4">
                             <p class="text-sm leading-6 font-medium text-gray-500">{{ $entity_type }} {{ $entity->number }}:</p>
                             @if($variables && $entity->terms)
-                                <h5 data-ref="entity-terms"{!! $entity->parseHtmlVariables('terms', $variables) !!}</h5>
+                                <h5 data-ref="entity-terms">{!! $entity->parseHtmlVariables('terms', $variables) !!}</h5>
                             @elseif($entity->terms)
                                 <h5 data-ref="entity-terms" class="text-sm leading-5 text-gray-900">{!! $entity->terms !!}</h5>
                             @else

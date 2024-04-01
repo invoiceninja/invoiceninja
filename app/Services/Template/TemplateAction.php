@@ -79,7 +79,7 @@ class TemplateAction implements ShouldQueue
      */
     public function handle()
     {
-        // nlog("inside template action");
+        nlog("inside template action");
 
         MultiDB::setDb($this->db);
 
@@ -108,7 +108,14 @@ class TemplateAction implements ShouldQueue
             ->where('company_id', $this->company->id)
             ->get();
 
-        // nlog($result->toArray());
+        /** Set a global currency_code */
+        $first_entity = $result->first();
+        if($first_entity->client)
+            $currency_code = $first_entity->client->currency()->code;
+        elseif($first_entity instanceof Client)
+            $currency_code = $first_entity->currency()->code;
+        else
+            $currency_code = $this->company->currency()->code;
 
         if($result->count() <= 1) {
             $data[$key] = collect($result);
@@ -118,9 +125,8 @@ class TemplateAction implements ShouldQueue
 
         $ts = $template_service
                     ->setCompany($this->company)
+                    ->addGlobal(['currency_code' => $currency_code])
                     ->build($data);
-
-        // nlog($ts->getHtml());
 
         if($this->send_email) {
             $pdf = $ts->getPdf();

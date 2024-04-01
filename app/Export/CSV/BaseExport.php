@@ -134,6 +134,7 @@ class BaseExport
 
     protected array $invoice_report_keys = [
         'name' => 'client.name',
+        "currency" => "client.currency_id",
         "invoice_number" => "invoice.number",
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
@@ -174,6 +175,8 @@ class BaseExport
     ];
 
     protected array $recurring_invoice_report_keys = [
+        'name' => 'client.name',
+        "currency" => "client.currency_id",
         "invoice_number" => "recurring_invoice.number",
         "amount" => "recurring_invoice.amount",
         "balance" => "recurring_invoice.balance",
@@ -298,6 +301,8 @@ class BaseExport
     ];
 
     protected array $quote_report_keys = [
+        'name' => 'client.name',
+        "currency" => "client.currency_id",
         'custom_value1' => 'quote.custom_value1',
         'custom_value2' => 'quote.custom_value2',
         'custom_value3' => 'quote.custom_value3',
@@ -336,6 +341,8 @@ class BaseExport
     ];
 
     protected array $credit_report_keys = [
+        'name' => 'client.name',
+        "currency" => "client.currency_id",
         "credit_number" => "credit.number",
         "amount" => "credit.amount",
         "balance" => "credit.balance",
@@ -368,6 +375,7 @@ class BaseExport
   ];
 
     protected array $payment_report_keys = [
+        'name' => 'client.name',
         "date" => "payment.date",
         "amount" => "payment.amount",
         "refunded" => "payment.refunded",
@@ -385,7 +393,6 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
-
   ];
 
     protected array $expense_report_keys = [
@@ -867,15 +874,15 @@ class BaseExport
     protected function addClientFilter(Builder $query, $clients): Builder
     {
         if(is_string($clients)) {
-            $clients =  explode(',', $clients);
+            $clients = explode(',', $clients);
         }
 
         $transformed_clients = $this->transformKeys($clients);
 
-        nlog($clients);
         nlog($transformed_clients);
 
         if(count($transformed_clients) > 0) {
+            nlog("yus");
             $query->whereIn('client_id', $transformed_clients);
         }
 
@@ -1573,7 +1580,7 @@ class BaseExport
 
     public function queueDocuments(Builder $query)
     {
-        nlog("queue docs pls");
+        
         if($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
@@ -1583,8 +1590,6 @@ class BaseExport
                                })->flatten()
                                ->toArray();
         }
-
-        nlog($documents);
 
         if(count($documents) > 0) {
 

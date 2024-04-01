@@ -144,7 +144,7 @@ class TaskFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

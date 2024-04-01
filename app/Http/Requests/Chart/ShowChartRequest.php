@@ -59,6 +59,7 @@ class ShowChartRequest extends Request
         }
 
         if (! isset($input['end_date'])) {
+            // $input['end_date'] = now()->lastOfMonth()->format('Y-m-d');
             $input['end_date'] = now()->format('Y-m-d');
         }
 
