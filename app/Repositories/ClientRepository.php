@@ -126,6 +126,21 @@ class ClientRepository extends BaseRepository
             ClientFactory::create($user->company()->id, $user->id)
         );
     }
+    
+    /**
+     * Bulk assign clients to a group.
+     *
+     * @param  mixed $clients
+     * @param  mixed $group_settings_id
+     * @return void
+     */
+    public function assignGroup($clients, $group_settings_id): void
+    {
+        Client::query()
+              ->company()
+              ->whereIn('id', $clients->pluck('id'))
+              ->update(['group_settings_id' => $group_settings_id]);
+    }
 
     public function purge($client)
     {
