@@ -49,7 +49,9 @@ class GenerateDeliveryNote
         if($design && $design->is_template) {
 
             $ts = new TemplateService($design);
-            $pdf = $ts->build([
+            
+            $pdf = $ts->setCompany($this->invoice->company)
+            ->build([
                 'invoices' => collect([$this->invoice]),
             ])->getPdf();
 

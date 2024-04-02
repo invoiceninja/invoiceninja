@@ -183,7 +183,7 @@ class AuthorizePaymentMethod
         // Create a new Customer Payment Profile object
         $paymentprofile = new CustomerPaymentProfileType();
         $paymentprofile->setCustomerType('individual');
-
+        
         if ($billto) {
             $paymentprofile->setBillTo($billto);
         }
