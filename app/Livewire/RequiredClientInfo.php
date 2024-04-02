@@ -12,7 +12,6 @@
 
 namespace App\Livewire;
 
-use App\Models\Client;
 use App\Models\Invoice;
 use Livewire\Component;
 use App\Libraries\MultiDB;
@@ -187,6 +186,7 @@ class RequiredClientInfo extends Component
     public $company_gateway_id;
 
     public bool $form_only = false;
+
     public $db;
 
     public function mount()
@@ -223,7 +223,7 @@ class RequiredClientInfo extends Component
             $this->show_form = true;
 
             $hash = Cache::get(request()->input('hash'));
-            
+
             /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::find($this->decodePrimaryKey($hash['invoice_id']));
 
@@ -250,7 +250,7 @@ class RequiredClientInfo extends Component
 
         MultiDB::setDb($this->db);
         return ClientContact::withTrashed()->find($this->contact_id);
-        
+
     }
 
     #[Computed]
@@ -269,7 +269,7 @@ class RequiredClientInfo extends Component
 
     public function handleSubmit(array $data): bool
     {
-        
+
         MultiDB::setDb($this->db);
         $contact = ClientContact::withTrashed()->find($this->contact_id);
 
@@ -377,7 +377,6 @@ $_contact->push();
 
     public function checkFields()
     {
-
         MultiDB::setDb($this->db);
         $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
@@ -385,7 +384,10 @@ $_contact->push();
             $_field = $this->mappings[$field['name']];
 
             if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($_contact->client->{$_field}) || is_null($_contact->client->{$_field}) || in_array($_field, $this->client_address_array)) {
+                if (empty($_contact->client->{$_field})
+                   || is_null($_contact->client->{$_field})
+                   // || in_array($_field, $this->client_address_array)
+                ) {
                     $this->show_form = true;
                 } else {
                     $this->fields[$index]['filled'] = true;
