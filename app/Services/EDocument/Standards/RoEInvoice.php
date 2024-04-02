@@ -65,10 +65,10 @@ class RoEInvoice extends AbstractService
         $ubl_invoice = new UBLInvoice();
 
         // invoice
-        $ubl_invoice->setId($invoice->custom_value1 . ' ' . $invoice->number);
+        $ubl_invoice->setId($invoice->number);
         $ubl_invoice->setIssueDate(date_create($invoice->date));
         $ubl_invoice->setDueDate(date_create($invoice->due_date));
-        $ubl_invoice->setInvoiceTypeCode(explode('-', $invoice->custom_value3)[0]);
+        $ubl_invoice->setInvoiceTypeCode("380");
         $ubl_invoice->setDocumentCurrencyCode($invoice->client->getCurrencyCode());
         $ubl_invoice->setTaxCurrencyCode($invoice->client->getCurrencyCode());
 
