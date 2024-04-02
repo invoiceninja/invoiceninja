@@ -103,7 +103,7 @@ class AuthorizeCustomer
             } else {
                 // nlog("creating client");
 
-                $first_payment_profile = $profile['payment_profiles'][0];
+                $first_payment_profile = &$profile['payment_profiles'][0];
 
                 if (! $first_payment_profile) {
                     continue;
