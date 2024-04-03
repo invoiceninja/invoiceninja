@@ -148,6 +148,20 @@ class Product extends BaseModel
         return $converter->convert($this->notes ?? '');
     }
 
+    public static function markdownHelp(string $notes = '')
+    {
+                
+        $converter = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+            'renderer' => [
+                'soft_break' => '<br>',
+            ],
+        ]);
+
+        return $converter->convert($notes);
+
+    }
+
     public function portalUrl($use_react_url): string
     {
         return $use_react_url ? config('ninja.react_url') . "/#/products/{$this->hashed_id}/edit" : config('ninja.app_url');

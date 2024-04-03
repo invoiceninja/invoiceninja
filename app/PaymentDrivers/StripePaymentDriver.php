@@ -387,7 +387,6 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
         }
 
-
         return $fields;
     }
 

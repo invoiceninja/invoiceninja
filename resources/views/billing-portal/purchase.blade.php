@@ -14,7 +14,7 @@
             Livewire.on('beforePaymentEventsCompleted', () => {
                 setTimeout(() => {
                     document.getElementById('payment-method-form').submit()
-                }, 2000);
+                }, 2500);
             });
 
         });
