@@ -226,11 +226,11 @@ class InboundMailEngine
         // from vendors
         if ($company->inbound_mailbox_allow_vendors && $company->vendors()->where("invoicing_email", $email->from)->orWhere("invoicing_domain", $domain)->exists())
             return true;
-        if ($company->inbound_mailbox_allow_vendors && $company->vendors()->contacts()->where("email", $email->from)->exists())
+        if ($company->inbound_mailbox_allow_vendors && VendorContact::where("company_id", $company->id)->where("email", $email->from)->exists())
             return true;
 
         // from clients
-        if ($company->inbound_mailbox_allow_clients && $company->clients()->contacts()->where("email", $email->from)->exists())
+        if ($company->inbound_mailbox_allow_clients && ClientContact::where("company_id", $company->id)->where("email", $email->from)->exists())
             return true;
 
         // denie
