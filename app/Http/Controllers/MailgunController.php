@@ -80,6 +80,10 @@ class MailgunController extends BaseController
     /**
      * Process Mailgun Inbound Webhook.
      *
+     * IMPORTANT NOTICE: mailgun does NOT strip old sended emails, therefore all past attachements are present
+     *
+     * IMPORTANT NOTICE: mailgun saves the message and attachemnts for later retrieval, therefore we can process it within a async job for performance reasons
+     *
      *
      * @OA\Post(
      *      path="/api/v1/mailgun_inbound_webhook",

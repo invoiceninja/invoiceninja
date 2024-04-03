@@ -78,6 +78,9 @@ class PostMarkController extends BaseController
     /**
      * Process Postmark Webhook.
      *
+     * IMPORTANT NOTICE: postmark does NOT strip old sended emails, therefore also all past attachements are present
+     *
+     * IMPORTANT NOTICE: postmark does not saves attachements for later retrieval, therefore we cannot process it within a async job
      *
      * @OA\Post(
      *      path="/api/v1/postmark_inbound_webhook",

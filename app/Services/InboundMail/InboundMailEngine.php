@@ -237,16 +237,18 @@ class InboundMailEngine
     private function getClient(Company $company, InboundMail $email)
     {
         $clientContact = ClientContact::where("company_id", $company->id)->where("email", $email->from)->first();
-        $client = $clientContact->client();
+        if (!$clientContact)
+            return null;
 
-        return $client;
+        return $clientContact->client();
     }
     private function getVendor(Company $company, InboundMail $email)
     {
         $vendorContact = VendorContact::where("company_id", $company->id)->where("email", $email->from)->first();
-        $vendor = $vendorContact->vendor();
+        if (!$vendorContact)
+            return null;
 
-        return $vendor;
+        return $vendorContact->vendor();
     }
     private function logBlocked(Company $company, string $data)
     {

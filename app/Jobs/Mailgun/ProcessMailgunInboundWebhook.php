@@ -40,6 +40,8 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
     /**
      * Execute the job.
      *
+     * IMPORTANT NOTICE: mailgun does NOT strip old sended emails, therefore all past attachements are present
+     *
      * Mail from Storage
      * {
      *   "Content-Type": "multipart/related; boundary=\"00000000000022bfbe0613e8b7f5\"",

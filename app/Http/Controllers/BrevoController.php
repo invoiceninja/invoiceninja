@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\Jobs\Brevo\ProcessBrevoInboundWebhook;
 use App\Jobs\Brevo\ProcessBrevoWebhook;
 use App\Libraries\MultiDB;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Log;
 
@@ -77,6 +78,9 @@ class BrevoController extends BaseController
     /**
      * Process Brevo Inbound Webhook.
      *
+     * IMPORTANT NOTICE: brevo strips old sended emails, therefore only current attachements are present
+     *
+     * IMPORTANT NOTICE: brevo saves the message and attachemnts for later retrieval, therefore we can process it within a async job for performance reasons
      *
      * @OA\Post(
      *      path="/api/v1/brevo_inbound_webhook",
@@ -187,17 +191,18 @@ class BrevoController extends BaseController
         $input = $request->all();
 
         // validation for client mail credentials by recipient
-        // if ($request->has('company')) {
-        //     if (!($request->has('token')))
-        //         return response()->json(['message' => 'Unauthorized'], 403);
+        if ($request->has('company_key')) {
+            if (!($request->has('token')))
+                return response()->json(['message' => 'Unauthorized'], 403);
 
-        //     $company = MultiDB::findAndSetDbByCompanyId($request->has('company'));
-        //     $company_brevo_secret = $company?->settings?->email_sending_method === 'client_brevo' && $company?->settings?->brevo_secret ? $company->settings->brevo_secret : null;
-        //     if (!$company || !$company_brevo_secret || $request->get('token') !== $company_brevo_secret)
-        //         return response()->json(['message' => 'Unauthorized'], 403);
+            MultiDB::findAndSetDbByCompanyKey($request->has('company_key'));
+            $company = Company::where('company_key', $request->has('company_key'))->first();
+            $company_brevo_secret = $company?->settings?->email_sending_method === 'client_brevo' && $company?->settings?->brevo_secret ? $company->settings->brevo_secret : null;
+            if (!$company || !$company_brevo_secret || $request->get('token') !== $company_brevo_secret)
+                return response()->json(['message' => 'Unauthorized'], 403);
 
-        // } else if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
-        //     return response()->json(['message' => 'Unauthorized'], 403);
+        } else if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
+            return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!array_key_exists('items', $input)) {
             Log::info('Failed: Message could not be parsed, because required parameters are missing.');

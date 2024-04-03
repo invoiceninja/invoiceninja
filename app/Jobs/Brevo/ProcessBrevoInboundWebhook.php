@@ -33,6 +33,9 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
     /**
      * Create a new job instance.
+     *
+     * IMPORTANT NOTICE: brevo strips old sended emails, therefore only current attachements are present
+     *
      * $input consists of json/serialized-array:
      *
      *         array (
@@ -110,8 +113,6 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * TODO: insert Mail from Storage
      *
      * @return void
      */
