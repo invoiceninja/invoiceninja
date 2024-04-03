@@ -21,12 +21,15 @@ use App\Models\Currency;
 use Tests\MockAccountData;
 use Illuminate\Support\Str;
 use App\Models\CompanyToken;
+use App\Models\GroupSetting;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
+use Tests\Unit\GroupSettingsTest;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\DefaultSettings;
 use App\Factory\InvoiceItemFactory;
+use App\Factory\GroupSettingFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -67,6 +70,45 @@ class ClientTest extends TestCase
         );
 
         $this->makeTestData();
+    }
+
+    public function testBulkGroupAssignment()
+    {
+        Client::factory()->count(5)->create(['user_id' => $this->user->id, 'company_id' => $this->company->id])->each(function ($c) {
+            ClientContact::factory()->create([
+                'user_id' => $this->user->id,
+                'client_id' => $c->id,
+                'company_id' => $this->company->id,
+                'is_primary' => 1,
+            ]);
+        });
+
+        $gs = GroupSettingFactory::create($this->company->id, $this->user->id);
+        $gs->name = 'testtest';
+        $gs->save();
+
+        $ids = Client::where('company_id', $this->company->id)->get()->pluck('hashed_id')->toArray();
+        $data = [
+            'action' => 'assign_group',
+            'ids' => $ids,
+            'group_settings_id' => $gs->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/clients/bulk', $data);
+
+        $arr = $response->json();
+
+        Client::query()->whereIn('id', $this->transformKeys($ids))->cursor()->each(function ($c) use ($gs, $arr) {
+            $this->assertEquals($gs->id, $c->group_settings_id);
+        });
+
+        foreach($arr['data'] as $client_response){
+            
+            $this->assertEquals($gs->hashed_id, $client_response['group_settings_id']);
+        }
     }
 
     public function testClientExchangeRateCalculation()

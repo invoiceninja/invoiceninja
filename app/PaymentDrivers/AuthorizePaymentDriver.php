@@ -195,6 +195,8 @@ class AuthorizePaymentDriver extends BaseDriver
     {
         $this->init();
         
+        nlog("starting import auth.net");
+
         return (new AuthorizeCustomer($this))->importCustomers();
     }
 

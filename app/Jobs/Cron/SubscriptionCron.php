@@ -39,62 +39,25 @@ class SubscriptionCron
      */
     public function handle(): void
     {
-        nlog('Subscription Cron');
 
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $invoices = Invoice::where('is_deleted', 0)
-                              ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                              ->where('balance', '>', 0)
-                              ->where('is_proforma', 0)
-                              ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
-                              ->whereNull('deleted_at')
-                              ->whereNotNull('subscription_id')
-                              ->cursor();
 
-            $invoices->each(function (Invoice $invoice) {
-                $subscription = $invoice->subscription;
+                nlog('Subscription Cron '. now()->toDateTimeString());
 
-                $body = [
-                    'context' => 'plan_expired',
-                    'client' => $invoice->client->hashed_id,
-                    'invoice' => $invoice->hashed_id,
-                    'subscription' => $subscription->hashed_id,
-                ];
+                $this->timezoneAware();
 
-                $this->sendLoad($subscription, $body);
-                //This will send the notification daily.
-                //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
-            });
+                
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $invoices = Invoice::where('is_deleted', 0)
-                                  ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                                  ->where('balance', '>', 0)
-                                  ->where('is_proforma', 0)
-                                  ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
-                                  ->whereNull('deleted_at')
-                                  ->whereNotNull('subscription_id')
-                                  ->cursor();
+                nlog('Subscription Cron for ' . $db . ' ' . now()->toDateTimeString());
 
-                $invoices->each(function (Invoice $invoice) {
-                    $subscription = $invoice->subscription;
+                $this->timezoneAware();
 
-                    $body = [
-                        'context' => 'plan_expired',
-                        'client' => $invoice->client->hashed_id,
-                        'invoice' => $invoice->hashed_id,
-                        'subscription' => $subscription->hashed_id,
-                    ];
-
-                    $this->sendLoad($subscription, $body);
-                    //This will send the notification daily.
-                    //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
-                });
             }
         }
     }
@@ -131,7 +94,7 @@ class SubscriptionCron
                                 ->where('is_proforma', 0)
                                 ->whereNotNull('subscription_id')
                                 ->where('balance', '>', 0)
-                                ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                                ->whereDate('due_date', '<=', now()->addDay()->startOfDay())
                                 ->cursor()
                                 ->each(function (Invoice $invoice) {
 

@@ -250,6 +250,14 @@ class ClientController extends BaseController
             return response()->json(['message' => $hash_or_response], 200);
         }
 
+        if($action == 'assign_group' && $user->can('edit', $clients->first())){
+
+            $this->client_repo->assignGroup($clients, $request->group_settings_id);
+            
+            return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
+        }
+
         $clients->each(function ($client) use ($action, $user) {
             if ($user->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
