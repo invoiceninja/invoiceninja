@@ -224,8 +224,6 @@ class InboundMailEngine
             return true;
 
         // from vendors
-        if ($company->inbound_mailbox_allow_vendors && $company->vendors()->where("invoicing_email", $email->from)->orWhere("invoicing_domain", $domain)->exists())
-            return true;
         if ($company->inbound_mailbox_allow_vendors && VendorContact::where("company_id", $company->id)->where("email", $email->from)->exists())
             return true;
 
@@ -238,9 +236,6 @@ class InboundMailEngine
     }
     private function getClient(Company $company, InboundMail $email)
     {
-        // $parts = explode('@', $email->from);
-        // $domain = array_pop($parts);
-
         $clientContact = ClientContact::where("company_id", $company->id)->where("email", $email->from)->first();
         $client = $clientContact->client();
 
@@ -248,16 +243,8 @@ class InboundMailEngine
     }
     private function getVendor(Company $company, InboundMail $email)
     {
-        $parts = explode('@', $email->from);
-        $domain = array_pop($parts);
-
-        $vendor = Vendor::where("company_id", $company->id)->where('invoicing_email', $email->from)->first();
-        if ($vendor == null)
-            $vendor = Vendor::where("company_id", $company->id)->where("invoicing_domain", $domain)->first();
-        if ($vendor == null) {
-            $vendorContact = VendorContact::where("company_id", $company->id)->where("email", $email->from)->first();
-            $vendor = $vendorContact->vendor();
-        }
+        $vendorContact = VendorContact::where("company_id", $company->id)->where("email", $email->from)->first();
+        $vendor = $vendorContact->vendor();
 
         return $vendor;
     }

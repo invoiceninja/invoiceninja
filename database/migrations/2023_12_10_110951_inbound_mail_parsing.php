@@ -23,10 +23,6 @@ return new class extends Migration {
             $table->text("inbound_mailbox_blacklist_domains")->nullable();
             $table->text("inbound_mailbox_blacklist_senders")->nullable();
         });
-        Schema::table('vendors', function (Blueprint $table) {
-            $table->string("invoicing_email")->nullable();
-            $table->string("invoicing_domain")->nullable();
-        });
     }
 
     /**

@@ -270,9 +270,6 @@ class PostMarkController extends BaseController
     public function inboundWebhook(Request $request)
     {
 
-        Log::info($request->all());
-        Log::info($request->headers);
-
         $input = $request->all();
 
         if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] == "inbound") || !array_key_exists("To", $input) || !array_key_exists("From", $input) || !array_key_exists("MessageID", $input)) {

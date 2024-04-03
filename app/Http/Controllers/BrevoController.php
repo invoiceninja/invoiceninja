@@ -187,17 +187,17 @@ class BrevoController extends BaseController
         $input = $request->all();
 
         // validation for client mail credentials by recipient
-        if ($request->has('company')) {
-            if (!($request->has('token')))
-                return response()->json(['message' => 'Unauthorized'], 403);
+        // if ($request->has('company')) {
+        //     if (!($request->has('token')))
+        //         return response()->json(['message' => 'Unauthorized'], 403);
 
-            $company = MultiDB::findAndSetDbByCompanyId($request->has('company'));
-            $company_brevo_secret = $company?->settings?->email_sending_method === 'client_brevo' && $company?->settings?->brevo_secret ? $company->settings->brevo_secret : null;
-            if (!$company || !$company_brevo_secret || $request->get('token') !== $company_brevo_secret)
-                return response()->json(['message' => 'Unauthorized'], 403);
+        //     $company = MultiDB::findAndSetDbByCompanyId($request->has('company'));
+        //     $company_brevo_secret = $company?->settings?->email_sending_method === 'client_brevo' && $company?->settings?->brevo_secret ? $company->settings->brevo_secret : null;
+        //     if (!$company || !$company_brevo_secret || $request->get('token') !== $company_brevo_secret)
+        //         return response()->json(['message' => 'Unauthorized'], 403);
 
-        } else if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
-            return response()->json(['message' => 'Unauthorized'], 403);
+        // } else if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
+        //     return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!array_key_exists('items', $input)) {
             Log::info('Failed: Message could not be parsed, because required parameters are missing.');
