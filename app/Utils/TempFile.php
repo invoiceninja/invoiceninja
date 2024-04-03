@@ -40,7 +40,7 @@ class TempFile
     }
 
     /* create a tmp file from a base64 string: https://gist.github.com/waska14/8b3bcebfad1f86f7fcd3b82927576e38*/
-    public static function UploadedFileFromBase64(string $base64File): UploadedFile
+    public static function UploadedFileFromBase64(string $base64File, string|null $fileName = null, string|null $mimeType = null): UploadedFile
     {
         // Get file data base64 string
         $fileData = base64_decode(Arr::last(explode(',', $base64File)));
@@ -55,8 +55,8 @@ class TempFile
         $tempFileObject = new File($tempFilePath);
         $file = new UploadedFile(
             $tempFileObject->getPathname(),
-            $tempFileObject->getFilename(),
-            $tempFileObject->getMimeType(),
+            $fileName ?: $tempFileObject->getFilename(),
+            $mimeType ?: $tempFileObject->getMimeType(),
             0,
             true // Mark it as test, since the file isn't from real HTTP POST.
         );

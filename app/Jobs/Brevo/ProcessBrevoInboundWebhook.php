@@ -125,57 +125,65 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
             $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
             if (!$company) {
                 Log::info('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
+                (new InboundMailEngine())->saveMeta($this->input["From"]["Address"], $recipient); // important to save this, to protect from spam
                 continue;
             }
 
-            $company_brevo_secret = $company->settings?->email_sending_method === 'client_brevo' && $company->settings?->brevo_secret ? $company->settings?->brevo_secret : null;
-            if (empty ($company_brevo_secret) && empty (config('services.brevo.secret')))
-                throw new \Error("[ProcessBrevoInboundWebhook] no brevo credenitals found, we cannot get the attachement");
+            try { // important to save meta if something fails here to prevent spam
 
-            // prepare data for ingresEngine
-            $inboundMail = new InboundMail();
+                $company_brevo_secret = $company->settings?->email_sending_method === 'client_brevo' && $company->settings?->brevo_secret ? $company->settings?->brevo_secret : null;
+                if (empty($company_brevo_secret) && empty(config('services.brevo.secret')))
+                    throw new \Error("[ProcessBrevoInboundWebhook] no brevo credenitals found, we cannot get the attachement");
 
-            $inboundMail->from = $this->input["From"]["Address"];
-            $inboundMail->to = $recipient;
-            $inboundMail->subject = $this->input["Subject"];
-            $inboundMail->body = $this->input["RawHtmlBody"];
-            $inboundMail->text_body = $this->input["RawTextBody"];
-            $inboundMail->date = Carbon::createFromTimeString($this->input["SentAtDate"]);
+                // prepare data for ingresEngine
+                $inboundMail = new InboundMail();
 
-            // parse documents as UploadedFile from webhook-data
-            foreach ($this->input["Attachments"] as $attachment) {
+                $inboundMail->from = $this->input["From"]["Address"];
+                $inboundMail->to = $recipient;
+                $inboundMail->subject = $this->input["Subject"];
+                $inboundMail->body = $this->input["RawHtmlBody"];
+                $inboundMail->text_body = $this->input["RawTextBody"];
+                $inboundMail->date = Carbon::createFromTimeString($this->input["SentAtDate"]);
 
-                // download file and save to tmp dir
-                if (!empty ($company_brevo_secret)) {
+                // parse documents as UploadedFile from webhook-data
+                foreach ($this->input["Attachments"] as $attachment) {
 
-                    $attachment = null;
-                    try {
+                    // download file and save to tmp dir
+                    if (!empty($company_brevo_secret)) {
 
-                        $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", $company_brevo_secret));
-                        $attachment = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
+                        $attachment = null;
+                        try {
 
-                    } catch (\Error $e) {
-                        if (config('services.brevo.secret')) {
-                            Log::info("[ProcessBrevoInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
-
-                            $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
+                            $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", $company_brevo_secret));
                             $attachment = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
 
-                        } else
-                            throw $e;
+                        } catch (\Error $e) {
+                            if (config('services.brevo.secret')) {
+                                Log::info("[ProcessBrevoInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+
+                                $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
+                                $attachment = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
+
+                            } else
+                                throw $e;
+                        }
+                        $inboundMail->documents[] = TempFile::UploadedFileFromRaw($attachment, $attachment["Name"], $attachment["ContentType"]);
+
+                    } else {
+
+                        $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
+                        $inboundMail->documents[] = TempFile::UploadedFileFromRaw($brevo->getInboundEmailAttachment($attachment["DownloadToken"]), $attachment["Name"], $attachment["ContentType"]);
+
                     }
-                    $inboundMail->documents[] = TempFile::UploadedFileFromRaw($attachment, $attachment["Name"], $attachment["ContentType"]);
-
-                } else {
-
-                    $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
-                    $inboundMail->documents[] = TempFile::UploadedFileFromRaw($brevo->getInboundEmailAttachment($attachment["DownloadToken"]), $attachment["Name"], $attachment["ContentType"]);
 
                 }
 
+            } catch (\Exception $e) {
+                (new InboundMailEngine())->saveMeta($this->input["From"]["Address"], $recipient); // important to save this, to protect from spam
+                throw $e;
             }
 
-            (new InboundMailEngine($inboundMail))->handle();
+            (new InboundMailEngine())->handle($inboundMail);
 
         }
     }

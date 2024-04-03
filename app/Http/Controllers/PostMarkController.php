@@ -13,6 +13,10 @@ namespace App\Http\Controllers;
 
 use App\Jobs\PostMark\ProcessPostmarkInboundWebhook;
 use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Services\InboundMail\InboundMail;
+use App\Services\InboundMail\InboundMailEngine;
+use App\Utils\TempFile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Log;
 
@@ -254,6 +258,13 @@ class PostMarkController extends BaseController
      *   ),
      *   'Attachments' =>
      *   array (
+     *      array (
+     *          'Content' => "base64-String",
+     *          'ContentLength' => 60164,
+     *          'Name' => 'Unbenannt.png',
+     *          'ContentType' => 'image/png',
+     *          'ContentID' => 'ii_luh2h8lg0',
+     *      )
      *   ),
      *  )
      */
@@ -261,20 +272,47 @@ class PostMarkController extends BaseController
     {
 
         Log::info($request->all());
+        Log::info($request->headers);
 
         $input = $request->all();
 
-        if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] != "inbound") || !array_key_exists("To", $input) || !array_key_exists("MessageID", $input)) {
-            Log::info('Failed: Message could not be parsed, because required parameters are missing. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation!');
+        if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] == "inbound") || !array_key_exists("To", $input) || !array_key_exists("From", $input) || !array_key_exists("MessageID", $input)) {
+            Log::info('Failed: Message could not be parsed, because required parameters are missing.');
             return response()->json(['message' => 'Failed. Missing/Invalid Parameters.'], 400);
         }
 
-        if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')) {
-            ProcessPostmarkInboundWebhook::dispatch($input["To"] . "|" . $input["MessageID"])->delay(10);
+        // // TODO: security
+        // if (!($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')))
+        //     return response()->json(['message' => 'Unauthorized'], 403);
 
-            return response()->json(['message' => 'Success'], 200);
+
+        try { // important to save meta if something fails here to prevent spam
+
+            // prepare data for ingresEngine
+            $inboundMail = new InboundMail();
+
+            $inboundMail->from = $input["From"];
+            $inboundMail->to = $input["To"]; // usage of data-input, because we need a single email here
+            $inboundMail->subject = $input["Subject"];
+            $inboundMail->body = $input["HtmlBody"];
+            $inboundMail->text_body = $input["TextBody"];
+            $inboundMail->date = Carbon::createFromTimeString($input["Date"]);
+
+            // parse documents as UploadedFile from webhook-data
+            foreach ($input["Attachments"] as $attachment) {
+
+                $inboundMail->documents[] = TempFile::UploadedFileFromBase64($attachment["Content"], $attachment["Name"], $attachment["ContentType"]);
+
+            }
+
+        } catch (\Exception $e) {
+            (new InboundMailEngine())->saveMeta($input["From"], $input["To"]); // important to save this, to protect from spam
+            throw $e;
         }
 
-        return response()->json(['message' => 'Unauthorized'], 403);
+        // perform
+        (new InboundMailEngine())->handle($inboundMail);
+
+        return response()->json(['message' => 'Success'], 200);
     }
 }

@@ -115,7 +115,7 @@ class MailgunController extends BaseController
     {
         $input = $request->all();
 
-        if (!array_key_exists('recipient', $input) || !array_key_exists('message-url', $input)) {
+        if (!array_key_exists('sender', $input) || !array_key_exists('recipient', $input) || !array_key_exists('message-url', $input)) {
             Log::info('Failed: Message could not be parsed, because required parameters are missing. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation!');
             return response()->json(['message' => 'Failed. Missing Parameters. Use store and notify!'], 400);
         }
@@ -123,7 +123,7 @@ class MailgunController extends BaseController
         // @turbo124 TODO: how to check for services.mailgun.webhook_signing_key on company level, when custom credentials are defined
         // TODO: validation for client mail credentials by recipient
         if (\hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature'])) {
-            ProcessMailgunInboundWebhook::dispatch($input["recipient"] . "|" . $input["message-url"])->delay(10);
+            ProcessMailgunInboundWebhook::dispatch($input["sender"] . "|" . $input["recipient"] . "|" . $input["message-url"])->delay(10);
 
             return response()->json(['message' => 'Success'], 201);
         }

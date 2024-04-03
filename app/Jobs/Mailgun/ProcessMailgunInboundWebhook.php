@@ -31,7 +31,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * $input consists of 2 informations: recipient|messageUrl
+     * $input consists of 3 informations: sender/from|recipient/to|messageUrl
      */
     public function __construct(private string $input)
     {
@@ -163,88 +163,45 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
      */
     public function handle()
     {
-        $recipient = explode("|", $this->input)[0];
+        $from = explode("|", $this->input)[0];
+        $to = explode("|", $this->input)[1];
+        // $messageId = explode("|", $this->input)[2]; // used as base in download function
 
         // match company
-        $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
+        $company = MultiDB::findAndSetDbByInboundMailbox($to);
         if (!$company) {
-            Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $recipient);
+            Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
+            (new InboundMailEngine())->saveMeta($from, $to); // important to save this, to protect from spam
             return;
         }
 
-        // fetch message from mailgun-api
-        $company_mailgun_domain = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_domain ? $company->settings?->mailgun_domain : null;
-        $company_mailgun_secret = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_secret ? $company->settings?->mailgun_secret : null;
-        if (!($company_mailgun_domain && $company_mailgun_secret) && !(config('services.mailgun.domain') && config('services.mailgun.secret')))
-            throw new \Error("[ProcessMailgunInboundWebhook] no mailgun credenitals found, we cannot get the attachements and files");
+        try { // important to save meta if something fails here to prevent spam
 
-        $mail = null;
-        if ($company_mailgun_domain && $company_mailgun_secret) {
+            // fetch message from mailgun-api
+            $company_mailgun_domain = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_domain ? $company->settings?->mailgun_domain : null;
+            $company_mailgun_secret = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_secret ? $company->settings?->mailgun_secret : null;
+            if (!($company_mailgun_domain && $company_mailgun_secret) && !(config('services.mailgun.domain') && config('services.mailgun.secret')))
+                throw new \Error("[ProcessMailgunInboundWebhook] no mailgun credenitals found, we cannot get the attachements and files");
 
-            $credentials = $company_mailgun_domain . ":" . $company_mailgun_secret . "@";
-            $messageUrl = explode("|", $this->input)[1];
-            $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
-            $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
-
-            try {
-                $mail = json_decode(file_get_contents($messageUrl));
-            } catch (\Error $e) {
-                if (config('services.mailgun.secret')) {
-                    Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
-
-                    $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
-                    $messageUrl = explode("|", $this->input)[1];
-                    $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
-                    $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
-                    $mail = json_decode(file_get_contents($messageUrl));
-
-                } else
-                    throw $e;
-            }
-
-        } else {
-
-            $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
-            $messageUrl = explode("|", $this->input)[1];
-            $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
-            $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
-            $mail = json_decode(file_get_contents($messageUrl));
-
-        }
-
-        // prepare data for ingresEngine
-        $inboundMail = new InboundMail();
-
-        $inboundMail->from = $mail->sender;
-        $inboundMail->to = $recipient; // usage of data-input, because we need a single email here
-        $inboundMail->subject = $mail->Subject;
-        $inboundMail->body = $mail->{"body-html"};
-        $inboundMail->text_body = $mail->{"body-plain"};
-        $inboundMail->date = Carbon::createFromTimeString($mail->Date);
-
-        // parse documents as UploadedFile from webhook-data
-        foreach ($mail->attachments as $attachment) { // prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
-
-            // download file and save to tmp dir
+            $mail = null;
             if ($company_mailgun_domain && $company_mailgun_secret) {
 
+                $credentials = $company_mailgun_domain . ":" . $company_mailgun_secret . "@";
+                $messageUrl = explode("|", $this->input)[2];
+                $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
+                $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
+
                 try {
-
-                    $credentials = $company_mailgun_domain . ":" . $company_mailgun_secret . "@";
-                    $url = $attachment->url;
-                    $url = str_replace("http://", "http://" . $credentials, $url);
-                    $url = str_replace("https://", "https://" . $credentials, $url);
-                    $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
-
+                    $mail = json_decode(file_get_contents($messageUrl));
                 } catch (\Error $e) {
                     if (config('services.mailgun.secret')) {
                         Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                         $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
-                        $url = $attachment->url;
-                        $url = str_replace("http://", "http://" . $credentials, $url);
-                        $url = str_replace("https://", "https://" . $credentials, $url);
-                        $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                        $messageUrl = explode("|", $this->input)[2];
+                        $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
+                        $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
+                        $mail = json_decode(file_get_contents($messageUrl));
 
                     } else
                         throw $e;
@@ -253,16 +210,69 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
             } else {
 
                 $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
-                $url = $attachment->url;
-                $url = str_replace("http://", "http://" . $credentials, $url);
-                $url = str_replace("https://", "https://" . $credentials, $url);
-                $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+                $messageUrl = explode("|", $this->input)[2];
+                $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
+                $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
+                $mail = json_decode(file_get_contents($messageUrl));
 
             }
 
+            // prepare data for ingresEngine
+            $inboundMail = new InboundMail();
+
+            $inboundMail->from = $from;
+            $inboundMail->to = $to; // usage of data-input, because we need a single email here
+            $inboundMail->subject = $mail->Subject;
+            $inboundMail->body = $mail->{"body-html"};
+            $inboundMail->text_body = $mail->{"body-plain"};
+            $inboundMail->date = Carbon::createFromTimeString($mail->Date);
+
+            // parse documents as UploadedFile from webhook-data
+            foreach ($mail->attachments as $attachment) { // prepare url with credentials before downloading :: https://github.com/mailgun/mailgun.js/issues/24
+
+                // download file and save to tmp dir
+                if ($company_mailgun_domain && $company_mailgun_secret) {
+
+                    try {
+
+                        $credentials = $company_mailgun_domain . ":" . $company_mailgun_secret . "@";
+                        $url = $attachment->url;
+                        $url = str_replace("http://", "http://" . $credentials, $url);
+                        $url = str_replace("https://", "https://" . $credentials, $url);
+                        $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
+                    } catch (\Error $e) {
+                        if (config('services.mailgun.secret')) {
+                            Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+
+                            $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
+                            $url = $attachment->url;
+                            $url = str_replace("http://", "http://" . $credentials, $url);
+                            $url = str_replace("https://", "https://" . $credentials, $url);
+                            $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
+                        } else
+                            throw $e;
+                    }
+
+                } else {
+
+                    $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
+                    $url = $attachment->url;
+                    $url = str_replace("http://", "http://" . $credentials, $url);
+                    $url = str_replace("https://", "https://" . $credentials, $url);
+                    $inboundMail->documents[] = TempFile::UploadedFileFromUrl($url, $attachment->name, $attachment->{"content-type"});
+
+                }
+
+            }
+
+        } catch (\Exception $e) {
+            (new InboundMailEngine())->saveMeta($from, $to); // important to save this, to protect from spam
+            throw $e;
         }
 
         // perform
-        (new InboundMailEngine($inboundMail))->handle();
+        (new InboundMailEngine())->handle($inboundMail);
     }
 }
