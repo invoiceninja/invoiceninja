@@ -167,6 +167,12 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         $to = explode("|", $this->input)[1];
         // $messageId = explode("|", $this->input)[2]; // used as base in download function
 
+        // Spam protection
+        if ((new InboundMailEngine())->isInvalidOrBlocked($from, $to)) {
+            Log::info('Failed: Sender is blocked: ' . $from . " Recipient: " . $to);
+            throw new \Error('Sender is blocked');
+        }
+
         // match company
         $company = MultiDB::findAndSetDbByInboundMailbox($to);
         if (!$company) {

@@ -48,7 +48,7 @@ class InboundMailEngine
      */
     public function handle(InboundMail $email)
     {
-        if ($this->isInvalidOrBlocked($email))
+        if ($this->isInvalidOrBlocked($email->from, $email->to))
             return;
 
         $isUnknownRecipent = true;
@@ -64,59 +64,59 @@ class InboundMailEngine
     }
 
     // SPAM Protection
-    private function isInvalidOrBlocked(InboundMail $email)
+    public function isInvalidOrBlocked(string $from, string $to)
     {
         // invalid email
-        if (!filter_var($email->from, FILTER_VALIDATE_EMAIL)) {
-            Log::info('E-Mail blocked, because from e-mail has the wrong format: ' . $email->from);
+        if (!filter_var($from, FILTER_VALIDATE_EMAIL)) {
+            Log::info('E-Mail blocked, because from e-mail has the wrong format: ' . $from);
             return true;
         }
 
-        $parts = explode('@', $email->from);
+        $parts = explode('@', $from);
         $domain = array_pop($parts);
 
         // global blacklist
         if (in_array($domain, $this->globalBlacklistDomains)) {
-            Log::info('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $email->from);
+            Log::info('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $from);
             return true;
         }
-        if (in_array($email->from, $this->globalBlacklistSenders)) {
-            Log::info('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $email->from);
+        if (in_array($from, $this->globalBlacklistSenders)) {
+            Log::info('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $from);
             return true;
         }
 
-        if (Cache::has('inboundMailBlockedSender:' . $email->from)) { // was marked as blocked before, so we block without any console output
+        if (Cache::has('inboundMailBlockedSender:' . $from)) { // was marked as blocked before, so we block without any console output
             return true;
         }
 
         // sender occured in more than 500 emails in the last 12 hours
-        $senderMailCountTotal = Cache::get('inboundMailSender:' . $email->from, 0);
+        $senderMailCountTotal = Cache::get('inboundMailSender:' . $from, 0);
         if ($senderMailCountTotal >= 5000) {
-            Log::info('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $email->from);
-            $this->blockSender($email->from);
-            $this->saveMeta($email->from, $email->to);
+            Log::info('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
+            $this->blockSender($from);
+            $this->saveMeta($from, $to);
             return true;
         }
         if ($senderMailCountTotal >= 1000) {
-            Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $email->from);
-            $this->saveMeta($email->from, $email->to);
+            Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
+            $this->saveMeta($from, $to);
             return true;
         }
 
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
-        $senderMailCountUnknownRecipent = Cache::get('inboundMailSenderUnknownRecipent:' . $email->from, 0);
+        $senderMailCountUnknownRecipent = Cache::get('inboundMailSenderUnknownRecipent:' . $from, 0);
         if ($senderMailCountUnknownRecipent >= 50) {
-            Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $email->from);
-            $this->saveMeta($email->from, $email->to);
+            Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $from);
+            $this->saveMeta($from, $to);
             return true;
         }
 
         // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
-        $mailCountUnknownRecipent = Cache::get('inboundMailUnknownRecipent:' . $email->to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
+        $mailCountUnknownRecipent = Cache::get('inboundMailUnknownRecipent:' . $to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
         if ($mailCountUnknownRecipent >= 100) {
-            Log::info('E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $email->from);
-            $this->blockSender($email->from);
-            $this->saveMeta($email->from, $email->to);
+            Log::info('E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $from);
+            $this->blockSender($from);
+            $this->saveMeta($from, $to);
             return true;
         }
 

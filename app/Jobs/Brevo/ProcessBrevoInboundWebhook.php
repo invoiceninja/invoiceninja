@@ -121,6 +121,12 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
         // brevo defines recipients as array, we check all of them, to be sure
         foreach ($this->input["Recipients"] as $recipient) {
 
+            // Spam protection
+            if ((new InboundMailEngine())->isInvalidOrBlocked($this->input["From"]["Address"], $recipient)) {
+                Log::info('Failed: Sender is blocked: ' . $this->input["From"]["Address"] . " Recipient: " . $recipient);
+                throw new \Error('Sender is blocked');
+            }
+
             // match company
             $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
             if (!$company) {

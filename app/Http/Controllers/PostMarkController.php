@@ -11,12 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\PostMark\ProcessPostmarkInboundWebhook;
 use App\Jobs\PostMark\ProcessPostmarkWebhook;
 use App\Services\InboundMail\InboundMail;
 use App\Services\InboundMail\InboundMailEngine;
 use App\Utils\TempFile;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 use Log;
 
@@ -285,6 +284,10 @@ class PostMarkController extends BaseController
         // if (!($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')))
         //     return response()->json(['message' => 'Unauthorized'], 403);
 
+        if ((new InboundMailEngine())->isInvalidOrBlocked($input["From"], $input["To"])) {
+            Log::info('Failed: Sender is blocked: ' . $input["From"] . " Recipient: " . $input["To"]);
+            return response()->json(['message' => 'Blocked.'], 403);
+        }
 
         try { // important to save meta if something fails here to prevent spam
 
