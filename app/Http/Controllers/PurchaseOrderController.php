@@ -646,7 +646,6 @@ class PurchaseOrderController extends BaseController
                     echo $file;
                 }, $purchase_order->numberFormatter().".pdf", ['Content-Type' => 'application/pdf']);
 
-                break;
             case 'restore':
                 $this->purchase_order_repository->restore($purchase_order);
 

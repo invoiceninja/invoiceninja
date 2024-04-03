@@ -31,6 +31,7 @@ use CleverIt\UBL\Invoice\TaxCategory;
 use CleverIt\UBL\Invoice\TaxScheme;
 use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxTotal;
+use App\Models\Product;
 
 class RoEInvoice extends AbstractService
 {
@@ -130,7 +131,7 @@ class RoEInvoice extends AbstractService
             ->setTaxAmount($invoicing_data->getItemTotalTaxes())
             ->setTaxableAmount($taxable)
             ->setTaxCategory((new TaxCategory())
-                ->setId(explode('-', $company->settings->custom_value3)[0])
+                ->setId("S")
                 ->setPercent($taxRatePercent)
                 ->setTaxScheme(($taxNameScheme === 'TVA') ? 'VAT' : $taxNameScheme)));
         $ubl_invoice->setTaxTotal($taxtotal);
@@ -212,29 +213,29 @@ class RoEInvoice extends AbstractService
     {
         if (strlen($item->tax_name1) > 1) {
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
-            ->setId(explode('-', $item->custom_value4)[0])
+            ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate1)
             ->setTaxScheme(($item->tax_name1 === 'TVA') ? 'VAT' : $item->tax_name1);
         } elseif (strlen($item->tax_name2) > 1) {
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
-            ->setId(explode('-', $item->custom_value4)[0])
+            ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate2)
             ->setTaxScheme(($item->tax_name2 === 'TVA') ? 'VAT' : $item->tax_name2);
         } elseif (strlen($item->tax_name3) > 1) {
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
-            ->setId(explode('-', $item->custom_value4)[0])
+            ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate3)
             ->setTaxScheme(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3);
         }
         $invoiceLine = (new InvoiceLine())
             ->setId($index + 1)
             ->setInvoicedQuantity($item->quantity)
-            ->setUnitCode($item->custom_value3)
+            ->setUnitCode($item->unit_code ?? 'C62')
             ->setLineExtensionAmount($item->line_total)
             ->setItem((new Item())
                 ->setName($item->product_key)
                 ->setDescription($item->notes)
-                ->setClassifiedTaxCategory($classifiedTaxCategory))
+                ->setClassifiedTaxCategory([$classifiedTaxCategory]))
             ->setPrice((new Price())
                 ->setPriceAmount($this->costWithDiscount($item)));
 
@@ -363,6 +364,25 @@ class RoEInvoice extends AbstractService
         } else {
             return round($taxable * ($rate / 100), 2);
         }
+    }
+
+    private function resolveTaxCode($tax_id)
+    {
+        $code = $tax_id;
+
+        match($tax_id){
+            Product::PRODUCT_TYPE_REVERSE_TAX => $code = 'AE', // VAT_REVERSE_CHARGE =
+            Product::PRODUCT_TYPE_EXEMPT => $code = 'E', // EXEMPT_FROM_TAX =
+            Product::PRODUCT_TYPE_PHYSICAL => $code = 'S', // STANDARD_RATE =
+            Product::PRODUCT_TYPE_ZERO_RATED => $code = 'Z', // ZERO_RATED_GOODS =
+            Product::PRODUCT_TYPE_REDUCED_TAX => $code = 'AA', // LOWER_RATE =
+            Product::PRODUCT_TYPE_SERVICE => $code = 'S', // STANDARD_RATE =
+            Product::PRODUCT_TYPE_DIGITAL => $code = 'S', // STANDARD_RATE =
+            Product::PRODUCT_TYPE_SHIPPING => $code = 'S', // STANDARD_RATE =
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => $code = 'S', // STANDARD_RATE =
+        };
+        
+        return $code;
     }
 
     public function generateXml(): string
