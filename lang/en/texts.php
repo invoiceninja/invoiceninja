@@ -3155,7 +3155,7 @@ $lang = array(
     'archived_group' => 'Successfully archived group',
     'deleted_group' => 'Successfully deleted group',
     'restored_group' => 'Successfully restored group',
-    'upload_logo' => 'Upload Logo',
+    'upload_logo' => 'Upload Your Company Logo',
     'uploaded_logo' => 'Successfully uploaded logo',
     'saved_settings' => 'Successfully saved settings',
     'device_settings' => 'Device Settings',
@@ -5271,6 +5271,7 @@ $lang = array(
     'show_table_footer' => 'Show table footer',
     'show_table_footer_help' => 'Displays the totals in the footer of the table',
     'total_invoices' => 'Total Invoices',
+    'add_to_group' => 'Add to group',
 );
 
 return $lang;
