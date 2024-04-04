@@ -320,8 +320,8 @@ class EmailDefaults
             }
         }
         /** E-Invoice xml file */
-        if ($this->email->email_object->settings->enable_e_invoice && ! $this->email->email_object->entity instanceof PurchaseOrder) {
-            $xml_string = $this->email->email_object->entity->service()->getEInvoice();
+        if ($this->email->email_object->settings->enable_e_invoice) {
+            $xml_string = $this->email->email_object->entity->service()->getEDocument();
 
             if($xml_string) {
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);

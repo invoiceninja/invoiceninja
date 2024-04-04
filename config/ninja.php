@@ -17,8 +17,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.8.42'),
-    'app_tag' => env('APP_TAG', '5.8.42'),
+    'app_version' => env('APP_VERSION', '5.8.43'),
+    'app_tag' => env('APP_TAG', '5.8.43'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -101,7 +101,6 @@ return [
         'wepay' => env('WEPAY_KEYS', ''),
         'braintree' => env('BRAINTREE_KEYS', ''),
         'mollie' => env('MOLLIE_KEYS', ''),
-        'square' => env('SQUARE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
