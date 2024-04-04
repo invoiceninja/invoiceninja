@@ -145,7 +145,7 @@ class HtmlEngine
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
         $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
-
+        $data['$ship_to'] = &$data['$shipping'];
         $data['$total_tax_labels'] = ['value' => $this->totalTaxLabels(), 'label' => ctrans('texts.taxes')];
         $data['$total_tax_values'] = ['value' => $this->totalTaxValues(), 'label' => ctrans('texts.taxes')];
         $data['$line_tax_labels'] = ['value' => $this->lineTaxLabels(), 'label' => ctrans('texts.taxes')];
@@ -154,7 +154,6 @@ class HtmlEngine
         $data['$status_logo'] = ['value' => ' ', 'label' => ' '];
         $data['$delivery_note'] = ['value' => ' ', 'label' => ctrans('texts.delivery_note')];
         $data['$receipt'] = ['value' => ' ', 'label' => ctrans('texts.receipt')];
-        $data['$shipping'] = ['value' => ' ', 'label' => ctrans('texts.ship_to')];
 
         $data['$invoice.date'] = &$data['$date'];
         $data['$invoiceDate'] = &$data['$date'];
@@ -661,7 +660,6 @@ class HtmlEngine
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
         $data['$to'] = ['value' => '', 'label' => ctrans('texts.to')];
-        $data['$shipping'] = ['value' => '', 'label' => ctrans('texts.ship_to')];
 
         $data['$details'] = ['value' => '', 'label' => ctrans('texts.details')];
 

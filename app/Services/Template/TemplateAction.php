@@ -11,33 +11,34 @@
 
 namespace App\Services\Template;
 
-use App\Libraries\MultiDB;
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Quote;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Project;
+use App\Libraries\MultiDB;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
+use Illuminate\Bus\Queueable;
+use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Vendor;
 use App\Services\Email\AdminEmail;
 use App\Services\Email\EmailObject;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\PdfMaker\PdfMerge;
 use Illuminate\Mail\Mailables\Address;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 
 class TemplateAction implements ShouldQueue
 {
@@ -110,10 +111,44 @@ class TemplateAction implements ShouldQueue
 
         /** Set a global currency_code */
         $first_entity = $result->first();
-        if($first_entity->client)
-            $currency_code = $first_entity->client->currency()->code;
-        elseif($first_entity instanceof Client)
+
+        /** Lets be clever and sniff out Statements */
+        if($first_entity instanceof Client && stripos(json_encode($template->design), '##statement##') !== false) {
+            
+                $options = [
+                    'show_payments_table' => true, 
+                    'show_aging_table' => true, 
+                    'status' => 'all', 
+                    'show_credits_table' => false,
+                    'template' => $this->template,
+                ];
+
+                $pdfs = [];
+
+                foreach($result as $client) {
+                    $pdfs[] = $client->service()->statement($options);
+                }
+
+                if(count($pdfs) == 1) {
+                    $pdf = $pdfs[0];
+                } else {
+                    $pdf = (new PdfMerge($pdfs))->run();
+                }
+                
+                if($this->send_email) {
+                    $this->sendEmail($pdf, $template);
+                } else {
+                    $filename = "templates/{$this->hash}.pdf";
+                    Storage::disk(config('filesystems.default'))->put($filename, $pdf);
+                    return $pdf;
+                }
+
+        }
+
+        if($first_entity instanceof Client)
             $currency_code = $first_entity->currency()->code;
+        elseif($first_entity->client)
+            $currency_code = $first_entity->client->currency()->code;
         else
             $currency_code = $this->company->currency()->code;
 
