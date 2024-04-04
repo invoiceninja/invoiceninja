@@ -221,7 +221,7 @@ class SubscriptionApiTest extends TestCase
 
         $this->assertFalse($i);
 
-        $count = Invoice::whereNotNull('subscription_id')->count();
+        $count = Invoice::whereNotNull('subscription_id')->whereIn('company_id', [$c2->id, $c->id])->count();
 
         $this->assertEquals(2, $count);
 
@@ -415,11 +415,12 @@ class SubscriptionApiTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
+            
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions', ['product_ids' => $product->hashed_id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
+        ])->post('/api/v1/subscriptions', ['steps' => "cart,auth.login-or-register",'product_ids' => $product->hashed_id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
 
         // nlog($response);
         $response->assertStatus(200);
@@ -434,14 +435,14 @@ class SubscriptionApiTest extends TestCase
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/subscriptions', ['product_ids' => $product->hashed_id, 'name' => Str::random(5)])
+            ->post('/api/v1/subscriptions', ['steps' => "cart,auth.login-or-register",'product_ids' => $product->hashed_id, 'name' => Str::random(5)])
             ->assertStatus(200)
             ->json();
 
         // try {
         $response2 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->put('/api/v1/subscriptions/'.$response1['data']['id'], ['allow_cancellation' => true])
+            ->put('/api/v1/subscriptions/'.$response1['data']['id'], ['steps' => "cart,auth.login-or-register",'allow_cancellation' => true])
             ->assertStatus(200)
             ->json();
         // }catch(ValidationException $e) {
