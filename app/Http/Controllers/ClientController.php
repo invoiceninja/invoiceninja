@@ -237,7 +237,7 @@ class ClientController extends BaseController
             $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(
-                $clients->pluck('id')->toArray(),
+                $clients->pluck('hashed_id')->toArray(),
                 $request->template_id,
                 Client::class,
                 $user->id,

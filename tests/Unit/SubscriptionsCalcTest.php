@@ -79,13 +79,13 @@ class SubscriptionsCalcTest extends TestCase
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals(10, $invoice->balance);
 
-        $sub_calculator = new SubscriptionCalculator($target->fresh(), $invoice->fresh());
+        $sub_calculator = $target->calc();
 
-        $this->assertFalse($sub_calculator->isPaidUp());
+        $this->assertFalse($sub_calculator->isPaidUp($invoice));
 
         $invoice = $invoice->service()->markPaid()->save();
 
-        $this->assertTrue($sub_calculator->isPaidUp());
+        $this->assertTrue($sub_calculator->isPaidUp($invoice));
 
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals(0, $invoice->balance);

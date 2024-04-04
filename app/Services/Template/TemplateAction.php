@@ -110,10 +110,11 @@ class TemplateAction implements ShouldQueue
 
         /** Set a global currency_code */
         $first_entity = $result->first();
-        if($first_entity->client)
-            $currency_code = $first_entity->client->currency()->code;
-        elseif($first_entity instanceof Client)
+
+        if($first_entity instanceof Client)
             $currency_code = $first_entity->currency()->code;
+        elseif($first_entity->client)
+            $currency_code = $first_entity->client->currency()->code;
         else
             $currency_code = $this->company->currency()->code;
 
