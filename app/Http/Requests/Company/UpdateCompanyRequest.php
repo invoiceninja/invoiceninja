@@ -66,7 +66,7 @@ class UpdateCompanyRequest extends Request
         // $rules['smtp_verify_peer'] = 'sometimes|string';
 
 
-        if (isset ($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
+        if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'bail|nullable|sometimes|url';
         }
 
@@ -74,7 +74,7 @@ class UpdateCompanyRequest extends Request
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
-        $rules['inbound_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise'); // @turbo124 check if this is right
+        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise'); // @turbo124 check if this is right
 
         return $rules;
     }
@@ -83,40 +83,40 @@ class UpdateCompanyRequest extends Request
     {
         $input = $this->all();
 
-        if (isset ($input['portal_domain']) && strlen($input['portal_domain']) > 1) {
+        if (isset($input['portal_domain']) && strlen($input['portal_domain']) > 1) {
             $input['portal_domain'] = $this->addScheme($input['portal_domain']);
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        if (isset ($input['inbound_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
-            unset($input['inbound_mailbox']);
+        if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
+            unset($input['expense_mailbox']);
         }
 
-        if (isset ($input['settings'])) {
+        if (isset($input['settings'])) {
             $input['settings'] = (array) $this->filterSaveableSettings($input['settings']);
         }
 
-        if (isset ($input['subdomain']) && $this->company->subdomain == $input['subdomain']) {
+        if (isset($input['subdomain']) && $this->company->subdomain == $input['subdomain']) {
             unset($input['subdomain']);
         }
 
-        if (isset ($input['e_invoice_certificate_passphrase']) && empty ($input['e_invoice_certificate_passphrase'])) {
+        if (isset($input['e_invoice_certificate_passphrase']) && empty($input['e_invoice_certificate_passphrase'])) {
             unset($input['e_invoice_certificate_passphrase']);
         }
 
-        if (isset ($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
+        if (isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
             unset($input['smtp_username']);
         }
 
-        if (isset ($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
+        if (isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
             unset($input['smtp_password']);
         }
 
-        if (isset ($input['smtp_port'])) {
+        if (isset($input['smtp_port'])) {
             $input['smtp_port'] = (int) $input['smtp_port'];
         }
 
-        if (isset ($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
+        if (isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 
@@ -143,7 +143,7 @@ class UpdateCompanyRequest extends Request
             }
         }
 
-        if (isset ($settings['email_style_custom'])) {
+        if (isset($settings['email_style_custom'])) {
             $settings['email_style_custom'] = str_replace(['{!!', '!!}', '{{', '}}', '@if(', '@endif', '@isset', '@unless', '@auth', '@empty', '@guest', '@env', '@section', '@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for'], '', $settings['email_style_custom']);
         }
 

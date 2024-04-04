@@ -31,19 +31,19 @@ class ValidExpenseMailbox implements Rule
     public function __construct(string $company_key, bool $isEnterprise = false)
     {
         $this->company_key = $company_key;
-        $this->endings = explode(",", config('ninja.inbound_mailbox.inbound_mailbox_endings'));
+        $this->endings = explode(",", config('ninja.inbound_mailbox.expense_mailbox_endings'));
     }
 
     public function passes($attribute, $value)
     {
-        if (empty ($value)) {
+        if (empty($value)) {
             return true;
         }
 
         // early return, if we dont have any additional validation
-        if (!config('ninja.inbound_mailbox.inbound_mailbox_endings')) {
+        if (!config('ninja.inbound_mailbox.expense_mailbox_endings')) {
             $this->validated_schema = true;
-            return MultiDB::checkInboundMailboxAvailable($value);
+            return MultiDB::checkExpenseMailboxAvailable($value);
         }
 
         // Validate Schema
@@ -59,7 +59,7 @@ class ValidExpenseMailbox implements Rule
             return false;
 
         $this->validated_schema = true;
-        return MultiDB::checkInboundMailboxAvailable($value);
+        return MultiDB::checkExpenseMailboxAvailable($value);
     }
 
     /**
@@ -68,8 +68,8 @@ class ValidExpenseMailbox implements Rule
     public function message()
     {
         if (!$this->validated_schema)
-            return ctrans('texts.inbound_mailbox_invalid');
+            return ctrans('texts.expense_mailbox_invalid');
 
-        return ctrans('texts.inbound_mailbox_taken');
+        return ctrans('texts.expense_mailbox_taken');
     }
 }

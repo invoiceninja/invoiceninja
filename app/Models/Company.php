@@ -111,8 +111,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $convert_expense_currency
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
- * @property string|null $inbound_mailbox
- * @property boolean $inbound_mailbox_active
+ * @property string|null $expense_mailbox
+ * @property boolean $expense_mailbox_active
  * @property bool $inbound_mailbox_allow_company_users
  * @property bool $inbound_mailbox_allow_vendors
  * @property bool $inbound_mailbox_allow_clients
@@ -369,8 +369,8 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
-        'inbound_mailbox_active',
-        'inbound_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
+        'expense_mailbox_active',
+        'expense_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
         'inbound_mailbox_allow_company_users',
         'inbound_mailbox_allow_vendors',
         'inbound_mailbox_allow_clients',
@@ -732,7 +732,7 @@ class Company extends BaseModel
 
     public function getLocale()
     {
-        return isset ($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
+        return isset($this->settings->language_id) && $this->language() ? $this->language()->locale : config('ninja.i18n.locale');
     }
 
     public function getLogo(): ?string

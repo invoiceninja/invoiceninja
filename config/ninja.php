@@ -237,8 +237,8 @@ return [
         'webhook_id' => env('PAYPAL_WEBHOOK_ID', null),
     ],
     'inbound_mailbox' => [
-        'inbound_mailbox_template' => env('INBOUND_MAILBOX_TEMPLATE', null),
-        'inbound_mailbox_endings' => env('INBOUND_MAILBOX_ENDINGS', '@expense.invoicing.co'),
+        'expense_mailbox_template' => env('EXPENSE_MAILBOX_TEMPLATE', null),
+        'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
     ],
     'cloudflare' => [
         'turnstile' => [

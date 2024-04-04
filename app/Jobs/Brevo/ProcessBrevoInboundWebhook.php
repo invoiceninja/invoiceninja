@@ -129,7 +129,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
             }
 
             // match company
-            $company = MultiDB::findAndSetDbByInboundMailbox($recipient);
+            $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
             if (!$company) {
                 Log::info('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
                 (new InboundMailEngine())->saveMeta($this->input["From"]["Address"], $recipient); // important to save this, to protect from spam

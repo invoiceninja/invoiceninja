@@ -54,7 +54,7 @@ class InboundMailEngine
         $isUnknownRecipent = true;
 
         // Expense Mailbox => will create an expense
-        $company = MultiDB::findAndSetDbByInboundMailbox($email->to);
+        $company = MultiDB::findAndSetDbByExpenseMailbox($email->to);
         if ($company) {
             $isUnknownRecipent = false;
             $this->createExpense($company, $email);
@@ -148,7 +148,7 @@ class InboundMailEngine
     protected function createExpense(Company $company, InboundMail $email)
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
-        if (!($company?->inbound_mailbox_active ?: false)) {
+        if (!($company?->expense_mailbox_active ?: false)) {
             $this->logBlocked($company, 'mailbox not active for this company. from: ' . $email->from);
             return;
         }

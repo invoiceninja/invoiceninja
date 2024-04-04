@@ -47,7 +47,7 @@ class StoreCompanyRequest extends Request
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000'; // max 10000kb
         $rules['settings'] = new ValidSettingsRule();
 
-        if (isset ($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
+        if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'sometimes|url';
         } else {
             if (Ninja::isHosted()) {
@@ -57,7 +57,7 @@ class StoreCompanyRequest extends Request
             }
         }
 
-        $rules['inbound_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise');
+        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise');
 
         $rules['smtp_host'] = 'sometimes|string|nullable';
         $rules['smtp_port'] = 'sometimes|integer|nullable';
@@ -75,39 +75,39 @@ class StoreCompanyRequest extends Request
     {
         $input = $this->all();
 
-        if (!isset ($input['name'])) {
+        if (!isset($input['name'])) {
             $input['name'] = 'Untitled Company';
         }
 
-        if (isset ($input['google_analytics_url'])) {
+        if (isset($input['google_analytics_url'])) {
             $input['google_analytics_key'] = $input['google_analytics_url'];
         }
 
-        if (isset ($input['portal_domain'])) {
+        if (isset($input['portal_domain'])) {
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        if (isset ($input['inbound_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
-            unset($input['inbound_mailbox']);
+        if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
+            unset($input['expense_mailbox']);
         }
 
-        if (Ninja::isHosted() && !isset ($input['subdomain'])) {
+        if (Ninja::isHosted() && !isset($input['subdomain'])) {
             $input['subdomain'] = MultiDB::randomSubdomainGenerator();
         }
 
-        if (isset ($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
+        if (isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
             unset($input['smtp_username']);
         }
 
-        if (isset ($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
+        if (isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
             unset($input['smtp_password']);
         }
 
-        if (isset ($input['smtp_port'])) {
+        if (isset($input['smtp_port'])) {
             $input['smtp_port'] = (int) $input['smtp_port'];
         }
 
-        if (isset ($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer']))
+        if (isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer']))
             $input['smtp_verify_peer'] == 'true' ? true : false;
 
         $this->replace($input);

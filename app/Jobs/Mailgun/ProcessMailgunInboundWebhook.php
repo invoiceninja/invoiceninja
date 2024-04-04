@@ -176,7 +176,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         }
 
         // match company
-        $company = MultiDB::findAndSetDbByInboundMailbox($to);
+        $company = MultiDB::findAndSetDbByExpenseMailbox($to);
         if (!$company) {
             Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
             (new InboundMailEngine())->saveMeta($from, $to); // important to save this, to protect from spam
