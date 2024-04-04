@@ -204,6 +204,11 @@ class InvoiceService
         return (new CreateEDocument($this->invoice))->handle();
     }
 
+    public function getEDocument($contact = null)
+    {
+        return $this->getEInvoice($contact);
+    }
+    
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
