@@ -655,7 +655,7 @@ class TemplateService
             'amount_raw' => $payment->amount,
             'applied_raw' => $payment->applied,
             'refunded_raw' => $payment->refunded,
-            'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
+            'balance_raw' => ($payment->amount - $payment->applied),
             'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
             'method' => $payment->translatedType(),
             'currency' => $payment->currency->code ?? $this->company->currency()->code,
