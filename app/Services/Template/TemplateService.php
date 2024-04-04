@@ -552,6 +552,7 @@ class TemplateService
                             'payment_balance' => $invoice->client->payment_balance,
                             'credit_balance' => $invoice->client->credit_balance,
                             'vat_number' => $invoice->client->vat_number ?? '',
+                            'currency' => $invoice->client->currency()->code ?? 'USD',
                         ],
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
@@ -675,6 +676,7 @@ class TemplateService
                 'payment_balance' => $payment->client->payment_balance,
                 'credit_balance' => $payment->client->credit_balance,
                 'vat_number' => $payment->client->vat_number ?? '',
+                'currency' => $payment->client->currency()->code ?? 'USD',
             ],
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
@@ -755,6 +757,7 @@ class TemplateService
                             'payment_balance' => $quote->client->payment_balance,
                             'credit_balance' => $quote->client->credit_balance,
                             'vat_number' => $quote->client->vat_number ?? '',
+                            'currency' => $quote->client->currency()->code ?? 'USD',
                         ],
                 'status_id' => $quote->status_id,
                 'status' => Quote::stringStatus($quote->status_id),
@@ -874,6 +877,7 @@ class TemplateService
                             'payment_balance' => $credit->client->payment_balance,
                             'credit_balance' => $credit->client->credit_balance,
                             'vat_number' => $credit->client->vat_number ?? '',
+                            'currency' => $credit->client->currency()->code ?? 'USD',
                         ],
                         'payments' => [],
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
@@ -938,6 +942,7 @@ class TemplateService
                             'payment_balance' => $task->client->payment_balance,
                             'credit_balance' => $task->client->credit_balance,
                             'vat_number' => $task->client->vat_number ?? '',
+                            'currency' => $task->client->currency()->code ?? 'USD',
                         ] : [],
             ];
 
@@ -999,6 +1004,7 @@ class TemplateService
                     'payment_balance' => $project->client->payment_balance,
                     'credit_balance' => $project->client->credit_balance,
                     'vat_number' => $project->client->vat_number ?? '',
+                    'currency' => $project->client->currency()->code ?? 'USD',
                 ] : [],
             'user' => $this->userInfo($project->user)
         ];
@@ -1019,6 +1025,7 @@ class TemplateService
                 'vendor' => $purchase_order->vendor ? [
                     'name' => $purchase_order->vendor->present()->name(),
                     'vat_number' => $purchase_order->vendor->vat_number ?? '',
+                    'currency' => $purchase_order->vendor->currency()->code ?? 'USD',
                 ] : [],
                 'amount' => (float)$purchase_order->amount,
                 'balance' => (float)$purchase_order->balance,
@@ -1030,6 +1037,7 @@ class TemplateService
                     'vat_number' => $purchase_order->client->vat_number ?? '',
                     'address' => $purchase_order->client->present()->address(),
                     'shipping_address' => $purchase_order->client->present()->shipping_address(),
+                    'currency' => $purchase_order->client->currency()->code ?? 'USD',
                 ] : [],
                 'status_id' => (string)($purchase_order->status_id ?: 1),
                 'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),
