@@ -63,8 +63,10 @@ class Statement
 
         $variables = [];
         $variables = $html->generateLabelsAndValues();
+        
+        $option_template = &$this->options['template'];
 
-        if($this->client->getSetting('statement_design_id') != '') {
+        if($this->client->getSetting('statement_design_id') != '' || $option_template && $option_template != '') {
 
             $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
             $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
