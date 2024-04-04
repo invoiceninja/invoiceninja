@@ -380,6 +380,7 @@ class RoEInvoice extends AbstractService
             Product::PRODUCT_TYPE_DIGITAL => $code = 'S', // STANDARD_RATE =
             Product::PRODUCT_TYPE_SHIPPING => $code = 'S', // STANDARD_RATE =
             Product::PRODUCT_TYPE_OVERRIDE_TAX => $code = 'S', // STANDARD_RATE =
+            default => $code = 'S',
         };
         
         return $code;
