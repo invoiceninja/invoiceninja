@@ -48,7 +48,11 @@ trait SubscriptionHooker
                 RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false,
             ]);
 
-            return array_merge($body, json_decode($response->getBody(), true));
+            if($response_body = json_decode($response->getBody(), true))
+                return array_merge($body, $response_body);
+
+            return array_merge($body, ['message' => 'Success', 'status_code' => 200]);
+
         } catch (ClientException $e) {
             $message = $e->getMessage();
 
