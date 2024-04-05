@@ -150,6 +150,19 @@ class TaskFilters extends QueryFilters
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 
+    public function user_id(string $user = ''): Builder
+    {
+        if (strlen($user) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->where(function ($query) use ($user) {
+            $query->where('user_id', $this->decodePrimaryKey($user))
+                  ->orWhere('assigned_user_id', $this->decodePrimaryKey($user));
+        });
+
+    }
+
     public function task_status(string $value = ''): Builder
     {
         if (strlen($value) == 0) {
