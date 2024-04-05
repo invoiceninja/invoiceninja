@@ -141,7 +141,6 @@ class PdfMaker
     {
 
         $html = $this->document->saveHTML();
-        // nlog($html);
         return str_replace('%24', '$', $html);
     }
 }
