@@ -239,6 +239,7 @@ return [
     'inbound_mailbox' => [
         'expense_mailbox_template' => env('EXPENSE_MAILBOX_TEMPLATE', null),
         'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
+        'inbound_webhook_key' => env('INBOUND_WEBHOOK_KEY', null)
     ],
     'cloudflare' => [
         'turnstile' => [

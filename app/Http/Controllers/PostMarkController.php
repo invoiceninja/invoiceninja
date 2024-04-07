@@ -275,17 +275,19 @@ class PostMarkController extends BaseController
 
         $input = $request->all();
 
+        if (!($request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token')))
+            return response()->json(['message' => 'Unauthorized'], 403);
+
         if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] == "inbound") || !array_key_exists("To", $input) || !array_key_exists("From", $input) || !array_key_exists("MessageID", $input)) {
             Log::info('Failed: Message could not be parsed, because required parameters are missing.');
             return response()->json(['message' => 'Failed. Missing/Invalid Parameters.'], 400);
         }
 
-        // // TODO: security
-        // if (!($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')))
-        //     return response()->json(['message' => 'Unauthorized'], 403);
+        $inboundEngine = new InboundMailEngine();
 
-        if ((new InboundMailEngine())->isInvalidOrBlocked($input["From"], $input["To"])) {
+        if ($inboundEngine->isInvalidOrBlocked($input["From"], $input["To"])) {
             Log::info('Failed: Sender is blocked: ' . $input["From"] . " Recipient: " . $input["To"]);
+            $inboundEngine->saveMeta($input["From"], $input["To"]);
             return response()->json(['message' => 'Blocked.'], 403);
         }
 
@@ -309,12 +311,12 @@ class PostMarkController extends BaseController
             }
 
         } catch (\Exception $e) {
-            (new InboundMailEngine())->saveMeta($input["From"], $input["To"]); // important to save this, to protect from spam
+            $inboundEngine->saveMeta($input["From"], $input["To"]); // important to save this, to protect from spam
             throw $e;
         }
 
         // perform
-        (new InboundMailEngine())->handle($inboundMail);
+        $inboundEngine->handle($inboundMail);
 
         return response()->json(['message' => 'Success'], 200);
     }

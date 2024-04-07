@@ -190,18 +190,7 @@ class BrevoController extends BaseController
     {
         $input = $request->all();
 
-        // validation for client mail credentials by recipient
-        if ($request->has('company_key')) {
-            if (!($request->has('token')))
-                return response()->json(['message' => 'Unauthorized'], 403);
-
-            MultiDB::findAndSetDbByCompanyKey($request->has('company_key'));
-            $company = Company::where('company_key', $request->has('company_key'))->first();
-            $company_brevo_secret = $company?->settings?->email_sending_method === 'client_brevo' && $company?->settings?->brevo_secret ? $company->settings->brevo_secret : null;
-            if (!$company || !$company_brevo_secret || $request->get('token') !== $company_brevo_secret)
-                return response()->json(['message' => 'Unauthorized'], 403);
-
-        } else if (!($request->has('token') && $request->get('token') == config('services.brevo.secret')))
+        if (!($request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token')))
             return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!array_key_exists('items', $input)) {
