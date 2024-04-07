@@ -11,6 +11,7 @@
 
 namespace App\Jobs\EDocument;
 
+use App\Services\EDocument\Standards\RoEInvoice;
 use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Credit;
@@ -64,6 +65,8 @@ class CreateEDocument implements ShouldQueue
 
         if ($this->document instanceof Invoice){
             switch ($e_document_type) {
+                case "FACT1":
+                    return (new RoEInvoice($this->document))->generateXml();
                 case "EN16931":
                 case "XInvoice_3_0":
                 case "XInvoice_2_3":
