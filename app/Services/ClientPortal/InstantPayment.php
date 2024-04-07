@@ -44,6 +44,9 @@ class InstantPayment
 
     public function run()
     {
+        nlog($this->request->all());
+        
+        /** @var \App\Models\ClientContact $cc */
 
         $cc = auth()->guard('contact')->user();
 
@@ -69,6 +72,9 @@ class InstantPayment
          * ['invoice_id' => xxx, 'amount' => 22.00]
          */
         $payable_invoices = collect($this->request->payable_invoices);
+
+        nlog($payable_invoices);
+
         $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {

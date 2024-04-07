@@ -88,6 +88,7 @@ class CreateRawPdf
             'quote' => $type = 'product',
             'credit' => $type = 'product',
             'recurring_invoice' => $type = 'product',
+            default => $type = 'product',
         };
 
         return $type;

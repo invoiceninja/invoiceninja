@@ -11,7 +11,9 @@
 
 namespace App\Factory;
 
+use App\Livewire\BillingPortal\Purchase;
 use App\Models\Subscription;
+use App\Services\Subscription\StepService;
 
 class SubscriptionFactory
 {
@@ -20,6 +22,9 @@ class SubscriptionFactory
         $billing_subscription = new Subscription();
         $billing_subscription->company_id = $company_id;
         $billing_subscription->user_id = $user_id;
+        $billing_subscription->steps = collect(Purchase::defaultSteps())
+            ->map(fn($step) => StepService::mapClassNameToString($step))
+            ->implode(',');
 
         return $billing_subscription;
     }

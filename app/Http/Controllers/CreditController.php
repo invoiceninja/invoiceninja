@@ -781,7 +781,7 @@ class CreditController extends BaseController
         $contact = $invitation->contact;
         $credit = $invitation->credit;
 
-        $file = $credit->service()->getEInvoice($contact);
+        $file = $credit->service()->getECredit($contact);
         $file_name = $credit->getFileName("xml");
 
         $headers = ['Content-Type' => 'application/xml'];

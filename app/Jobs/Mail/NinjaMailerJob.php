@@ -70,9 +70,7 @@ class NinjaMailerJob implements ShouldQueue
 
     public function backoff()
     {
-        // return [5, 10, 30, 240];
-        return [rand(5, 10), rand(30, 40), rand(60, 79), rand(160, 400)];
-
+        return [rand(5, 29), rand(30, 59), rand(61, 100), rand(180, 500)];
     }
 
     public function handle()
@@ -182,6 +180,11 @@ class NinjaMailerJob implements ShouldQueue
 
                 $this->fail();
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
+                
+                if ($this->nmo->entity) {
+                    $this->entityEmailFailed($message);
+                }
+
                 $this->cleanUpMailers();
 
                 return;
@@ -195,6 +198,11 @@ class NinjaMailerJob implements ShouldQueue
 
                 $this->fail();
                 $this->logMailError($message, $this->company->clients()->first());
+                
+                if ($this->nmo->entity) {
+                    $this->entityEmailFailed($message);
+                }
+
                 $this->cleanUpMailers();
 
                 return;
@@ -203,7 +211,7 @@ class NinjaMailerJob implements ShouldQueue
 
             //only report once, not on all tries
             if ($this->attempts() == $this->tries) {
-                /* If the is an entity attached to the message send a failure mailer */
+                /* If there is an entity attached to the message send a failure mailer */
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }

@@ -43,6 +43,11 @@ class CreditService
         return (new CreateEDocument($this->credit))->handle();
     }
 
+    public function getEDocument($contact = null)
+    {
+        return $this->getECredit($contact);
+    }
+    
     /**
      * Applies the invoice number.
      * @return $this InvoiceService object

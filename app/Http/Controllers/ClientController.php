@@ -237,7 +237,7 @@ class ClientController extends BaseController
             $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(
-                $clients->pluck('id')->toArray(),
+                $clients->pluck('hashed_id')->toArray(),
                 $request->template_id,
                 Client::class,
                 $user->id,
@@ -248,6 +248,14 @@ class ClientController extends BaseController
             );
 
             return response()->json(['message' => $hash_or_response], 200);
+        }
+
+        if($action == 'assign_group' && $user->can('edit', $clients->first())){
+
+            $this->client_repo->assignGroup($clients, $request->group_settings_id);
+            
+            return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
         }
 
         $clients->each(function ($client) use ($action, $user) {

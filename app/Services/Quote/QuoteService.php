@@ -78,6 +78,11 @@ class QuoteService
         return (new CreateEDocument($this->quote))->handle();
     }
 
+    public function getEDocument($contact = null)
+    {
+        return $this->getEQuote($contact);
+    }
+
     public function sendEmail($contact = null): self
     {
         $send_email = new SendEmail($this->quote, null, $contact);

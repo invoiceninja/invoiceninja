@@ -93,7 +93,7 @@ class Email implements ShouldQueue
      */
     public function backoff()
     {
-        return [rand(10, 20), rand(30, 45), rand(60, 79), rand(160, 400)];
+        return [rand(5, 29), rand(30, 59), rand(61, 100), rand(180, 500)];
     }
 
     /**
@@ -314,6 +314,8 @@ class Email implements ShouldQueue
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
                 $this->cleanUpMailers();
 
+$this->entityEmailFailed($message);
+
                 return;
             }
 
@@ -329,6 +331,8 @@ class Email implements ShouldQueue
                 $this->logMailError($message, $this->company->clients()->first());
                 $this->cleanUpMailers();
 
+                $this->entityEmailFailed($message);
+
                 return;
             }
 
@@ -343,11 +347,12 @@ class Email implements ShouldQueue
 
                 if ($message_body && property_exists($message_body, 'Message')) {
                     $message = $message_body->Message;
-                    nlog($message);
                 }
 
                 $this->fail();
+                $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
+                
                 return;
             }
 

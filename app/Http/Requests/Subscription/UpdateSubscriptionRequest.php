@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Subscription;
 
 use App\Http\Requests\Request;
+use App\Rules\Subscriptions\Steps;
 use App\Utils\Traits\ChecksEntityStatus;
 use Illuminate\Validation\Rule;
 
@@ -65,6 +66,7 @@ class UpdateSubscriptionRequest extends Request
             'optional_recurring_product_ids' => 'bail|sometimes|nullable|string',
             'optional_product_ids' => 'bail|sometimes|nullable|string',
             'use_inventory_management' => 'bail|sometimes|bool',
+            'steps' => ['required', new Steps()],
         ];
 
         return $this->globalRules($rules);

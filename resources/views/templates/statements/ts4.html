@@ -1,0 +1,216 @@
+<!doctype html>
+<!-- Statement - TemplateID #TS4 ##statement##-->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url($font_url);
+
+        @page {
+            margin: 50 0 50 0 !important;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-family: $font_name, Helvetica, sans-serif;
+            font-size: $font_size !important;
+            zoom: 80%;
+        }
+
+        #logo-container {
+            width: 100%;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        img {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 0px solid #000;
+        }
+
+        .body-margin {
+            margin-left: 2rem;
+            margin-right: 2rem;
+        }
+
+        .aging-table {
+            border: 0px dashed $primary_color;
+            text-align: center;
+        }
+
+        #client-wrapper {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 0px solid #000;
+        }
+
+        #client-details {}
+
+        #company-details {}
+
+        #company-address {}
+
+        #company-wrapper {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        #statement-details {
+            margin-top: 1rem;
+        }
+
+        #statement-details>h2 {
+            font-style: italic;
+            font-size: 1.3rem;
+        }
+
+        #date-range {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="repeating-header" id="header"></div>
+    <table style="min-width: 100%">
+        <thead>
+            <tr>
+                <td>
+                    <!-- repeating header -->
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <!-- body -->
+                    <div id="logo-container">
+                        <img src="$company.logo">
+                    </div>
+
+                    <div class="two-col-grid body-margin">
+                        <div id="client-details"></div>
+                        <div id="company-wrapper">
+                            <div id="company-details"></div>
+                            <div id="company-address"></div>
+
+                            <div id="statement-details">
+                                <h2>$statement_label</h2>
+                                <p id="date-range">$start_date - $end_date</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <ninja>
+                        <table class="min-w-full text-left text-sm font-light">
+                            <thead class="border-b font-medium dark:border-neutral-500">
+                                <tr class="text-sm leading-normal">
+                                    <th scope="col" class="px-6 py-4">Doc #</th>
+                                    <th scope="col" class="px-6 py-4">Date</th>
+                                    <th scope="col" class="px-6 py-4">Due Date</th>
+                                    <th scope="col" class="px-6 py-4">Total</th>
+                                    <th scope="col" class="px-6 py-4">Transaction</th>
+                                    <th scope="col" class="px-6 py-4">Outstanding</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for invoice in invoices %}
+                                <tr class="border-b dark:border-neutral-500">
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">Invoice - {{ invoice.number }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.date }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.due_date }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{
+                                        invoice.amount_raw|format_currency(invoice.client.currency) }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{
+                                        invoice.balance_raw|format_currency(invoice.client.currency) }}</td>
+                                </tr>
+
+                                {% for payment in invoice.payments|filter(payment => payment.is_deleted == false) %}
+
+                                {% for pivot in payment.paymentables %}
+
+                                <tr class="border-b dark:border-neutral-500">
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">Payment - {{ payment.number }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.date }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">
+                                        {% if pivot.amount > 0 %}
+                                        {{ pivot.amount_raw|format_currency(payment.currency) }} - {{ payment.type.name
+                                        }}
+                                        {% else %}
+                                        ({{ pivot.refunded_raw|format_currency(payment.currency) }})
+                                        {% endif %}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.transaction_reference
+                                        }}</td>
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                </tr>
+
+                                {% endfor %}
+                                {% endfor %}
+                                {% endfor%}
+                            </tbody>
+                        </table>
+
+                    </ninja>
+
+                    <ninja>
+                        {% if aging and show_aging %}
+                        <div id="entity-container" style="break-inside: avoid;">
+                            <table width="100%" cellspacing="0" cellpadding="0" class="">
+                                <thead class="">
+                                    <tr class="item-row border-bottom">
+                                        {% for key, age in aging %}
+                                        <th class="">{{ key }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="item-row">
+                                        {% for key, age in aging %}
+                                        <td class="aging-table">{{ age }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        {% endif %}
+                    </ninja>
+
+                    </div>
+                    </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>
+                    <!-- repeating header -->
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+    </div>
+    <div id="footer">
+    </div>
+</body>
+</html>

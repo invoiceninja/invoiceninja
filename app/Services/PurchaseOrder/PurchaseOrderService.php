@@ -82,6 +82,11 @@ class PurchaseOrderService
     {
         return (new CreateEDocument($this->purchase_order))->handle();
     }
+    public function getEDocument($contact = null)
+    {
+        return $this->getEPurchaseOrder($contact);
+    }
+    
     public function deleteEPurchaseOrder()
     {
         $this->purchase_order->load('invitations');
