@@ -37,7 +37,7 @@ class BrevoController extends BaseController
      *      path="/api/v1/brevo_webhook",
      *      operationId="brevoWebhook",
      *      tags={"brevo"},
-     *      summary="Processing webhooks from PostMark",
+     *      summary="Processing webhooks from Brevo",
      *      description="Adds an credit to the system",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
