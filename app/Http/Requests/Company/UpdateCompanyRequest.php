@@ -74,7 +74,7 @@ class UpdateCompanyRequest extends Request
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
-        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise'); // @turbo124 check if this is right
+        $rules['expense_mailbox'] = new ValidExpenseMailbox();
 
         return $rules;
     }

@@ -22,15 +22,13 @@ class ValidExpenseMailbox implements Rule
 {
 
     private $validated_schema = false;
-    private $company_key = false;
     private $isEnterprise = false;
     private array $endings;
     private bool $hasCompanyKey;
     private array $enterprise_endings;
 
-    public function __construct(string $company_key, bool $isEnterprise = false)
+    public function __construct()
     {
-        $this->company_key = $company_key;
         $this->endings = explode(",", config('ninja.inbound_mailbox.expense_mailbox_endings'));
     }
 

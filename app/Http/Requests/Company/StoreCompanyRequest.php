@@ -57,7 +57,7 @@ class StoreCompanyRequest extends Request
             }
         }
 
-        $rules['expense_mailbox'] = new ValidExpenseMailbox($this->company->key, $this->company->account->isPaid() && $this->company->account->plan == 'enterprise');
+        $rules['expense_mailbox'] = new ValidExpenseMailbox();
 
         $rules['smtp_host'] = 'sometimes|string|nullable';
         $rules['smtp_port'] = 'sometimes|integer|nullable';
