@@ -31,7 +31,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
     public $tries = 1;
 
-    private InboundMailEngine $engine = new InboundMailEngine();
+    private InboundMailEngine $engine;
 
     /**
      * Create a new job instance.
@@ -111,6 +111,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
      */
     public function __construct(private array $input)
     {
+        $this->engine = new InboundMailEngine();
     }
 
     /**
@@ -128,8 +129,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
             // Spam protection
             if ($this->engine->isInvalidOrBlocked($this->input["From"]["Address"], $recipient)) {
-                Log::info('Failed: Sender is blocked: ' . $this->input["From"]["Address"] . " Recipient: " . $recipient);
-                throw new \Error('Sender is blocked');
+                return;
             }
 
             // match company

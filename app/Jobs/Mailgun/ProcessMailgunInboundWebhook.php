@@ -29,7 +29,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
     public $tries = 1;
 
-    private InboundMailEngine $engine = new InboundMailEngine();
+    private InboundMailEngine $engine;
 
     /**
      * Create a new job instance.
@@ -37,6 +37,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
      */
     public function __construct(private string $input)
     {
+        $this->engine = new InboundMailEngine();
     }
 
     /**
@@ -173,8 +174,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
         // Spam protection
         if ($this->engine->isInvalidOrBlocked($from, $to)) {
-            Log::info('Failed: Sender is blocked: ' . $from . " Recipient: " . $to);
-            throw new \Error('Sender is blocked');
+            return;
         }
 
         // match company

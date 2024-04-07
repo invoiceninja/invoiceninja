@@ -287,7 +287,6 @@ class PostMarkController extends BaseController
         $inboundEngine = new InboundMailEngine();
 
         if ($inboundEngine->isInvalidOrBlocked($input["From"], $input["To"])) {
-            Log::info('Failed: Sender is blocked: ' . $input["From"] . " Recipient: " . $input["To"]);
             return response()->json(['message' => 'Blocked.'], 403);
         }
 

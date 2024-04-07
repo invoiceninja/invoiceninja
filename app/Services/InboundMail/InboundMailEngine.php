@@ -39,6 +39,8 @@ class InboundMailEngine
     private ?bool $isUnknownRecipent = null;
     private array $globalBlacklistDomains = [];
     private array $globalBlacklistSenders = [];
+    private array $globalWhitelistDomains = []; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
+    private array $globalWhitelistSenders = []; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
     public function __construct()
     {
     }
@@ -70,14 +72,24 @@ class InboundMailEngine
             Log::info('E-Mail blocked, because from e-mail has the wrong format: ' . $from);
             return true;
         }
+        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            Log::info('E-Mail blocked, because to e-mail has the wrong format: ' . $from);
+            return true;
+        }
 
         $parts = explode('@', $from);
         $domain = array_pop($parts);
 
         // global blacklist
+        if (in_array($from, $this->globalWhitelistDomains)) {
+            return false;
+        }
         if (in_array($domain, $this->globalBlacklistDomains)) {
             Log::info('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $from);
             return true;
+        }
+        if (in_array($domain, $this->globalWhitelistSenders)) {
+            return false;
         }
         if (in_array($from, $this->globalBlacklistSenders)) {
             Log::info('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $from);
@@ -89,7 +101,7 @@ class InboundMailEngine
         }
 
         // sender occured in more than 500 emails in the last 12 hours
-        $senderMailCountTotal = Cache::get('inboundMailSender:' . $from, 0);
+        $senderMailCountTotal = Cache::get('inboundMailCountSender:' . $from, 0);
         if ($senderMailCountTotal >= 5000) {
             Log::info('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->blockSender($from);
@@ -103,7 +115,7 @@ class InboundMailEngine
         }
 
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
-        $senderMailCountUnknownRecipent = Cache::get('inboundMailSenderUnknownRecipent:' . $from, 0);
+        $senderMailCountUnknownRecipent = Cache::get('inboundMailCountSenderUnknownRecipent:' . $from, 0);
         if ($senderMailCountUnknownRecipent >= 50) {
             Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $from);
             $this->saveMeta($from, $to);
@@ -111,8 +123,8 @@ class InboundMailEngine
         }
 
         // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
-        $mailCountUnknownRecipent = Cache::get('inboundMailUnknownRecipent:' . $to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
-        if ($mailCountUnknownRecipent >= 100) {
+        $mailCountUnknownRecipent = Cache::get('inboundMailCountUnknownRecipent:' . $to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
+        if ($mailCountUnknownRecipent >= 200) {
             Log::info('E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $from);
             $this->blockSender($from);
             $this->saveMeta($from, $to);
@@ -131,15 +143,15 @@ class InboundMailEngine
     public function saveMeta(string $from, string $to, bool $isUnknownRecipent = false)
     {
         // save cache
-        Cache::add('inboundMailSender:' . $from, 0, now()->addHours(12));
-        Cache::increment('inboundMailSender:' . $from);
+        Cache::add('inboundMailCountSender:' . $from, 0, now()->addHours(12));
+        Cache::increment('inboundMailCountSender:' . $from);
 
         if ($isUnknownRecipent) {
-            Cache::add('inboundMailSenderUnknownRecipent:' . $from, 0, now()->addHours(6));
-            Cache::increment('inboundMailSenderUnknownRecipent:' . $from); // we save the sender, to may block him
+            Cache::add('inboundMailCountSenderUnknownRecipent:' . $from, 0, now()->addHours(6));
+            Cache::increment('inboundMailCountSenderUnknownRecipent:' . $from); // we save the sender, to may block him
 
-            Cache::add('inboundMailUnknownRecipent:' . $to, 0, now()->addHours(12));
-            Cache::increment('inboundMailUnknownRecipent:' . $to); // we save the sender, to may block him
+            Cache::add('inboundMailCountUnknownRecipent:' . $to, 0, now()->addHours(12));
+            Cache::increment('inboundMailCountUnknownRecipent:' . $to); // we save the sender, to may block him
         }
     }
 
