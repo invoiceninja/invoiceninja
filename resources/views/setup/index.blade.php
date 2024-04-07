@@ -51,7 +51,6 @@
                     </div>
                     @endif
 
-                    @include('setup._application')
                     @include('setup._database')
                     @include('setup._account')
 
