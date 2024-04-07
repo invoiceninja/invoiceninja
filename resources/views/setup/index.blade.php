@@ -53,7 +53,6 @@
 
                     @include('setup._application')
                     @include('setup._database')
-                    @include('setup._mail')
                     @include('setup._account')
 
                     <p class="mt-4 text-sm">{{ ctrans('texts.setup_steps_notice') }}</p>

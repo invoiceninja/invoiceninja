@@ -43,16 +43,6 @@
                         about how we use this.</a>
                 </dd>
             </div>
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
-                <dt class="text-sm leading-5 font-medium text-gray-500">
-                    <button type="button" class="button button-primary bg-blue-600 py-2 px-3 text-xs" id="test-pdf">
-                        {{ ctrans('texts.test_pdf') }}
-                    </button>
-                </dt>
-                <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <div class="alert py-2 bg-white" id="test-pdf-response"></div>
-                </dd>
-            </div>
         </dl>
     </div>
 </div>
