@@ -31,6 +31,8 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
     public $tries = 1;
 
+    private InboundMailEngine $engine = new InboundMailEngine();
+
     /**
      * Create a new job instance.
      *
@@ -123,7 +125,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
         foreach ($this->input["Recipients"] as $recipient) {
 
             // Spam protection
-            if ((new InboundMailEngine())->isInvalidOrBlocked($this->input["From"]["Address"], $recipient)) {
+            if ($this->engine->isInvalidOrBlocked($this->input["From"]["Address"], $recipient)) {
                 Log::info('Failed: Sender is blocked: ' . $this->input["From"]["Address"] . " Recipient: " . $recipient);
                 throw new \Error('Sender is blocked');
             }
@@ -132,7 +134,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
             $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
             if (!$company) {
                 Log::info('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
-                (new InboundMailEngine())->saveMeta($this->input["From"]["Address"], $recipient); // important to save this, to protect from spam
+                // $this->engine->saveMeta($this->input["From"]["Address"], $recipient, true); // @turbo124 disabled, because recipents contains all recipients, and will likly result in false bans?! => normally important to save this, to protect from spam
                 continue;
             }
 
@@ -186,11 +188,11 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
                 }
 
             } catch (\Exception $e) {
-                (new InboundMailEngine())->saveMeta($this->input["From"]["Address"], $recipient); // important to save this, to protect from spam
+                $this->engine->saveMeta($this->input["From"]["Address"], $recipient); // important to save this, to protect from spam
                 throw $e;
             }
 
-            (new InboundMailEngine())->handle($inboundMail);
+            $this->engine->handleExpenseMailbox($inboundMail);
 
         }
     }

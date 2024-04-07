@@ -29,6 +29,8 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
     public $tries = 1;
 
+    private InboundMailEngine $engine = new InboundMailEngine();
+
     /**
      * Create a new job instance.
      * $input consists of 3 informations: sender/from|recipient/to|messageUrl
@@ -170,7 +172,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         // $messageId = explode("|", $this->input)[2]; // used as base in download function
 
         // Spam protection
-        if ((new InboundMailEngine())->isInvalidOrBlocked($from, $to)) {
+        if ($this->engine->isInvalidOrBlocked($from, $to)) {
             Log::info('Failed: Sender is blocked: ' . $from . " Recipient: " . $to);
             throw new \Error('Sender is blocked');
         }
@@ -179,7 +181,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         $company = MultiDB::findAndSetDbByExpenseMailbox($to);
         if (!$company) {
             Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
-            (new InboundMailEngine())->saveMeta($from, $to); // important to save this, to protect from spam
+            $this->engine->saveMeta($from, $to, true); // important to save this, to protect from spam
             return;
         }
 
@@ -276,11 +278,11 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
             }
 
         } catch (\Exception $e) {
-            (new InboundMailEngine())->saveMeta($from, $to); // important to save this, to protect from spam
+            $this->engine->saveMeta($from, $to); // important to save this, to protect from spam
             throw $e;
         }
 
         // perform
-        (new InboundMailEngine())->handle($inboundMail);
+        $this->engine->handleExpenseMailbox($inboundMail);
     }
 }

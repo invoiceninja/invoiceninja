@@ -46,21 +46,20 @@ class InboundMailEngine
      * if there is not a company with an matching mailbox, we only do monitoring
      * reuse this method to add more mail-parsing behaviors
      */
-    public function handle(InboundMail $email)
+    public function handleExpenseMailbox(InboundMail $email)
     {
         if ($this->isInvalidOrBlocked($email->from, $email->to))
             return;
 
-        $isUnknownRecipent = true;
-
         // Expense Mailbox => will create an expense
         $company = MultiDB::findAndSetDbByExpenseMailbox($email->to);
-        if ($company) {
-            $isUnknownRecipent = false;
-            $this->createExpense($company, $email);
+        if (!$company) {
+            $this->saveMeta($email->from, $email->to, true);
+            return;
         }
 
-        $this->saveMeta($email->from, $email->to, $isUnknownRecipent);
+        $this->createExpense($company, $email);
+        $this->saveMeta($email->from, $email->to);
     }
 
     // SPAM Protection

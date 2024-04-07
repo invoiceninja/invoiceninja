@@ -12,6 +12,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\PostMark\ProcessPostmarkWebhook;
+use App\Libraries\MultiDB;
 use App\Services\InboundMail\InboundMail;
 use App\Services\InboundMail\InboundMailEngine;
 use App\Utils\TempFile;
@@ -287,8 +288,14 @@ class PostMarkController extends BaseController
 
         if ($inboundEngine->isInvalidOrBlocked($input["From"], $input["To"])) {
             Log::info('Failed: Sender is blocked: ' . $input["From"] . " Recipient: " . $input["To"]);
-            $inboundEngine->saveMeta($input["From"], $input["To"]);
             return response()->json(['message' => 'Blocked.'], 403);
+        }
+
+        $company = MultiDB::findAndSetDbByExpenseMailbox($input["To"]);
+        if (!$company) {
+            Log::info('[PostmarkInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $input["To"]);
+            $inboundEngine->saveMeta($input["From"], $input["To"], true); // important to save this, to protect from spam
+            return;
         }
 
         try { // important to save meta if something fails here to prevent spam
@@ -316,7 +323,7 @@ class PostMarkController extends BaseController
         }
 
         // perform
-        $inboundEngine->handle($inboundMail);
+        $inboundEngine->handleExpenseMailbox($inboundMail);
 
         return response()->json(['message' => 'Success'], 200);
     }
