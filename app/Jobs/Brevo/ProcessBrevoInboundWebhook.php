@@ -121,6 +121,8 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
     public function handle()
     {
 
+        $foundOneRecipient = false; // used for spam documentation below
+
         // brevo defines recipients as array, we check all of them, to be sure
         foreach ($this->input["Recipients"] as $recipient) {
 
@@ -134,9 +136,10 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
             $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
             if (!$company) {
                 Log::info('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
-                // $this->engine->saveMeta($this->input["From"]["Address"], $recipient, true); // @turbo124 disabled, because recipents contains all recipients, and will likly result in false bans?! => normally important to save this, to protect from spam
                 continue;
             }
+
+            $foundOneRecipient = true;
 
             try { // important to save meta if something fails here to prevent spam
 
@@ -195,5 +198,11 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
             $this->engine->handleExpenseMailbox($inboundMail);
 
         }
+
+        // document for spam => mark all recipients as handled emails with unmatched mailbox => otherwise dont do any
+        if (!$foundOneRecipient)
+            foreach ($this->input["Recipients"] as $recipient) {
+                $this->engine->saveMeta($this->input["From"]["Address"], $recipient, true);
+            }
     }
 }
