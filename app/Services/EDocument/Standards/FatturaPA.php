@@ -19,37 +19,37 @@ use SimpleXMLElement;
 <?xml version="1.0" encoding="UTF-8"?>
 <FatturaElettronica versione="FPR12" xmlns="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2">
     <FatturaElettronicaHeader>
-        <DatiTrasmissione>
-            <IdTrasmittente>
-                <IdPaese>IT</IdPaese>
-                <IdCodice>01234567890</IdCodice>
+        <DatiTrasmissione>// Transmission data 
+            <IdTrasmittente>// Transmitter ID
+                <IdPaese>IT</IdPaese> //Country code
+                <IdCodice>01234567890</IdCodice> //Taxpayer code
             </IdTrasmittente>
-            <ProgressivoInvio>00001</ProgressivoInvio>
-            <FormatoTrasmissione>FPR12</FormatoTrasmissione>
-            <CodiceDestinatario>ABCDE1</CodiceDestinatario>
+            <ProgressivoInvio>00001</ProgressivoInvio> // Transmission progress
+            <FormatoTrasmissione>FPR12</FormatoTrasmissione>// Transmission format
+            <CodiceDestinatario>ABCDE1</CodiceDestinatario>// Receiver code
         </DatiTrasmissione>
-        <CedentePrestatore>
+        <CedentePrestatore>//Seller/Provider
             <!-- Company information of the sender (seller/provider) -->
         </CedentePrestatore>
-        <CessionarioCommittente>
+        <CessionarioCommittente>//Buyer/Recipient
             <!-- Company information of the receiver (buyer) -->
         </CessionarioCommittente>
     </FatturaElettronicaHeader>
     <FatturaElettronicaBody>
-        <DatiGenerali>
-            <DatiGeneraliDocumento>
-                <TipoDocumento>TD01</TipoDocumento>
-                <Divisa>EUR</Divisa>
-                <Data>2023-04-21</Data>
-                <Numero>1</Numero>
+        <DatiGenerali>//General data
+            <DatiGeneraliDocumento>// Document general data
+                <TipoDocumento>TD01</TipoDocumento>// Document type
+                <Divisa>EUR</Divisa>// Currency
+                <Data>2023-04-21</Data>// Date
+                <Numero>1</Numero>// Number
                 <!-- Add other information as needed -->
             </DatiGeneraliDocumento>
             <!-- Add other general data as needed -->
         </DatiGenerali>
-        <DatiBeniServizi>
+        <DatiBeniServizi>//Goods and services data
             <!-- List of items or services -->
         </DatiBeniServizi>
-        <DatiPagamento>
+        <DatiPagamento>//Payment data
             <!-- Payment details -->
         </DatiPagamento>
     </FatturaElettronicaBody>
@@ -60,6 +60,20 @@ class FatturaPA extends AbstractService
 {
     private $xml;
 
+    //urn:cen.eu:en16931:2017#compliant#urn:fatturapa.gov.it:CIUS-IT:2.0.0
+    //<cbc:EndpointID schemeID=" 0201 ">UFF001</cbc:EndpointID>
+
+    /**
+     * 		File Types
+     * 
+     * 		EI01 => FILE VUOTO
+     *      EI02 => SERVIZIO NON DISPONIBILE
+     *      EI03 => UTENTE NON ABILITATO
+     */
+    
+     /**
+     * @param Invoice $invoice
+     */
     public function __construct(public Invoice $invoice)
     {
         $this->xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><FatturaElettronica></FatturaElettronica>');
