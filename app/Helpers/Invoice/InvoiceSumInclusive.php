@@ -119,7 +119,7 @@ class InvoiceSumInclusive
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
-
+nlog($this->total_taxes);
         return $this;
     }
 
@@ -172,7 +172,8 @@ class InvoiceSumInclusive
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
         }
-
+nlog($this->total_taxes);
+nlog($this->total_tax_map);
         return $this;
     }
 
@@ -373,7 +374,7 @@ class InvoiceSumInclusive
 
             $this->total_taxes += $total_line_tax;
         }
-
+nlog($this->total_taxes);
         return $this;
     }
 

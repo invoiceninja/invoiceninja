@@ -105,18 +105,19 @@ class InvoiceInclusiveTest extends TestCase
     {
         $this->invoice->discount = 5;
         $this->invoice->custom_surcharge1 = 5;
+        $this->invoice->custom_surcharge_tax1 = false;
         $this->invoice->tax_name1 = 'GST';
         $this->invoice->tax_rate1 = 10;
         $this->invoice->is_amount_discount = true;
 
-        
-        $this->invoice_calc = new InvoiceSumInclusive($this->invoice);
-        $this->invoice_calc->build();
+        nlog($this->invoice->withoutRelations()->toArray());
 
-        $this->assertEquals($this->invoice_calc->getSubTotal(), 20);
-        $this->assertEquals($this->invoice_calc->getTotalTaxes(), 1.36);
-        $this->assertEquals($this->invoice_calc->getTotal(), 20);
-        $this->assertEquals($this->invoice_calc->getBalance(), 20);
+        $calc = $this->invoice->calc();
+
+        $this->assertEquals($calc->getSubTotal(), 20);
+        $this->assertEquals($calc->getTotalTaxes(), 1.36);
+        $this->assertEquals($calc->getTotal(), 20);
+        $this->assertEquals($calc->getBalance(), 20);
     }
 
     public function testInvoiceTotalsWithPercentDiscountWithSurchargeWithInclusiveTax()
