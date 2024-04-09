@@ -111,9 +111,6 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->is_amount_discount = true;
         $this->invoice->line_items = $this->buildLineItems();
 
-        nlog("xxx");
-        nlog($this->invoice->withoutRelations()->toArray());
-
         $calc = $this->invoice->calc();
 
         $this->assertEquals($calc->getSubTotal(), 20);
@@ -300,7 +297,7 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice_calc->build();
 
         $line_items = $this->invoice_calc->invoice_items->getLineItems();
-        nlog($this->invoice_calc->getTaxMap());
+        // nlog($this->invoice_calc->getTaxMap());
 
         $this->assertEquals(19, $this->invoice_calc->getSubTotal());
         $this->assertEquals(0.95, $this->invoice_calc->getTotalDiscount());
