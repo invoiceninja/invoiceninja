@@ -231,7 +231,7 @@
     "src": "resources/js/clients/statements/view.js"
   },
   "resources/js/setup/setup.js": {
-    "file": "assets/setup-81f58464.js",
+    "file": "assets/setup-66b6b3c0.js",
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"

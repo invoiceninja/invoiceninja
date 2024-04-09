@@ -201,11 +201,12 @@ class SystemHealth
 
     private static function simpleDbCheck(): bool
     {
-        $result = true;
+        $result = false;
 
         try {
-            $pdo = DB::connection()->getPdo();
+            $result = DB::connection()->getPdo();
             $result = true;
+            $result = DB::connection()->getDatabaseName() && strlen(DB::connection()->getDatabaseName()) > 1;
         } catch (Exception $e) {
             $result = false;
         }

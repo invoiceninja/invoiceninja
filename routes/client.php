@@ -158,21 +158,31 @@ Route::get('.env', function () {
 
 Route::fallback(function () {
 
-    if (Ninja::isSelfHost() && Account::first()?->set_react_as_default_ap) {
+    if (Ninja::isSelfHost()) {
+
+        $result = false;
+        try {
+            $result = DB::connection()->getPdo();
+            $result = DB::connection()->getDatabaseName();
+        } catch(\Exception $e) {
+            $result = false;
+        }
+
+        if(!$result) {
+            return redirect('/setup');
+        }
 
         $account = Account::first();
 
-        return response()->view('react.index', [
+        return $account->set_react_as_default_ap ? response()->view('react.index', [
             'rc' => request()->input('rc', ''),
             'login' => request()->input('login', ''),
             'signup' => request()->input('signup', ''),
             'report_errors' => $account->report_errors,
             'user_agent' => request()->server('HTTP_USER_AGENT'),
-        ])->header('X-Frame-Options', 'SAMEORIGIN', false);
+        ])->header('X-Frame-Options', 'SAMEORIGIN', false) : abort(404);
     }
 
     abort(404);
 
 })->middleware('throttle:404');
-
-// Fix me: Move into invite_db middleware group.

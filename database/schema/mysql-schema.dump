@@ -41,7 +41,7 @@ CREATE TABLE `accounts` (
   `hosted_client_count` int(10) unsigned DEFAULT NULL,
   `hosted_company_count` int(10) unsigned DEFAULT NULL,
   `inapp_transaction_id` varchar(100) DEFAULT NULL,
-  `set_react_as_default_ap` tinyint(1) NOT NULL DEFAULT 0,
+  `set_react_as_default_ap` tinyint(1) NOT NULL DEFAULT 1,
   `is_flagged` tinyint(1) NOT NULL DEFAULT 0,
   `is_verified_account` tinyint(1) NOT NULL DEFAULT 0,
   `account_sms_verification_code` text DEFAULT NULL,
