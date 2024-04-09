@@ -109,7 +109,9 @@ class InvoiceInclusiveTest extends TestCase
         $this->invoice->tax_name1 = 'GST';
         $this->invoice->tax_rate1 = 10;
         $this->invoice->is_amount_discount = true;
+        $this->invoice->line_items = $this->buildLineItems();
 
+        nlog("xxx");
         nlog($this->invoice->withoutRelations()->toArray());
 
         $calc = $this->invoice->calc();
