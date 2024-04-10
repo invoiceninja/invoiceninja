@@ -185,7 +185,7 @@ class FatturaPA extends AbstractService
     $cedentePrestatore->setDatiAnagrafici($datiAnagrafici);
 
     $sede = new Sede(Indirizzo: $this->invoice->company->settings->address1, 
-                    CAP: $this->invoice->company->settings->postal_code, 
+                    CAP: (int)$this->invoice->company->settings->postal_code, 
                     Comune: $this->invoice->company->settings->city, 
                     Provincia: $this->invoice->company->settings->state);
 
