@@ -243,6 +243,6 @@ return [
         'public_key' => env('NINJA_PUBLIC_KEY', false),
         'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
-    'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', false),
+    'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', ''),
     
 ];

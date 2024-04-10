@@ -47,34 +47,11 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle(): void
     {
-        $uuid = \Illuminate\Support\Str::uuid();
-
-        // nlog("Updating company ledger for client {$this->client->id} {$uuid}");
-
+       
         MultiDB::setDb($this->company->db);
 
-        // $dupes = CompanyLedger::query()
-        //     ->where('client_id', $this->client->id)
-        //     ->where('balance', 0)
-        //     ->where('hash', '<>', '')
-        //     ->groupBy(['adjustment','hash'])
-        //     ->havingRaw('COUNT(*) > 1')
-        //     ->pluck('id');
-
-        // CompanyLedger::query()->whereIn('id', $dupes)->delete();
-
-        // $dupes = CompanyLedger::query()
-        //     ->where('client_id', $this->client->id)
-        //     ->where('balance', 0)
-        //     ->where('hash', '<>', '')
-        //     ->groupBy(['adjustment','hash'])
-        //     ->havingRaw('COUNT(*) > 1')
-        //     ->pluck('id');
-
-        // CompanyLedger::query()->whereIn('id', $dupes)->delete();
-
         CompanyLedger::query()
-                        ->where('balance', 0)
+                        ->whereNull('balance')
                         ->where('client_id', $this->client->id)
                         ->orderBy('id', 'ASC')
                         ->get()
@@ -88,13 +65,11 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                                                     ->orderBy('id', 'DESC')
                                                     ->first();
 
-                            // $company_ledger->balance = $last_record->balance + $company_ledger->adjustment;
                             $company_ledger->balance = ($parent_ledger ? $parent_ledger->balance : 0) + $company_ledger->adjustment;
                             $company_ledger->save();
 
                         });
 
-        // nlog("finished job {$uuid}");
     }
 
     public function middleware()

@@ -48,32 +48,10 @@ class LedgerService
             return $this;
         }
 
-        // $timestamp = \Carbon\Carbon::createFromTimestamp($this->entity->updated_at)->format('ymdhhmmssSS');
-        // $hash = sha1($adjustment.$notes.$this->entity->status_id.$this->entity->client_id.$this->entity->amount.$this->entity->balance.$this->entity->company_id.Activity::UPDATE_INVOICE);
-        // $hash = sha1($hash);
-        // $hash = sha1("{$this->entity->amount}.{$this->entity->balance}");
-        // $hash = "{$adjustment}.{$this->entity->amount}.{$this->entity->balance}";
-
-        // $exists = CompanyLedger::query()
-        //                          ->where('client_id', $this->entity->client_id)
-        //                          ->where('company_id', $this->entity->company_id)
-        //                          ->where('activity_id', Activity::UPDATE_INVOICE)
-        //                          ->where('adjustment', $adjustment)
-        //                          ->where('hash', $hash)
-        //                          ->where('notes', $notes)
-        //                          ->where('created_at', '>=', now()->subSeconds(1))
-        //                          ->exists();
-
-        // if($exists) {
-        //     nlog("Collision {$adjustment} {$notes}");
-        //     return $this;
-        // }
-
         $company_ledger = CompanyLedgerFactory::create($this->entity->company_id, $this->entity->user_id);
         $company_ledger->client_id = $this->entity->client_id;
         $company_ledger->adjustment = $adjustment;
         $company_ledger->notes = $notes;
-        // $company_ledger->hash = $hash;
         $company_ledger->activity_id = Activity::UPDATE_INVOICE;
         $company_ledger->save();
 

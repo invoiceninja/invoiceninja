@@ -21,7 +21,7 @@ class CompanyLedgerFactory
         $company_ledger->company_id = $company_id;
         $company_ledger->user_id = $user_id;
         $company_ledger->adjustment = 0;
-        $company_ledger->balance = 0;
+        // $company_ledger->balance = 0;
         $company_ledger->notes = '';
         $company_ledger->hash = '';
         $company_ledger->client_id = 0;
