@@ -203,7 +203,7 @@ class FatturaPA extends AbstractService
     $datiAnagrafici->setAnagrafica($anagrafica);
 
     $sede = new Sede(Indirizzo: $this->invoice->client->address1, 
-                    CAP: $this->invoice->client->postal_code, 
+                    CAP: (int)$this->invoice->client->postal_code, 
                     Comune: $this->invoice->client->city, 
                     Provincia: $this->invoice->client->state);
 
