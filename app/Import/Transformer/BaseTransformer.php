@@ -65,6 +65,35 @@ class BaseTransformer
             return $parsed_date;
         }
     }
+    
+    public function parseDateOrNull($data, $field)
+    {
+        $date = &$data[$field];
+
+        if(!$date || strlen($date) <= 1) {
+            return null;
+        }
+
+        if(stripos($date, "/") !== false && $this->company->settings->country_id != 840) {
+            $date = str_replace('/', '-', $date);
+        }
+
+        try {
+            $parsed_date = Carbon::parse($date);
+
+            return $parsed_date->format('Y-m-d');
+        } catch(\Exception $e) {
+            $parsed_date = date('Y-m-d', strtotime($date));
+
+            if ($parsed_date == '1970-01-01') {
+                return now()->format('Y-m-d');
+            }
+
+            return $parsed_date;
+        }
+
+
+    }
 
     public function getInvoiceTypeId($data, $field)
     {
@@ -641,7 +670,7 @@ class BaseTransformer
             return $ec->id;
         }
 
-        $ec = \App\Factory\ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
+        $ec = ExpenseCategoryFactory::create($this->company->id, $this->company->owner()->id);
         $ec->name = $name;
         $ec->save();
 

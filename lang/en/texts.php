@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Successfully removed logo',
     'sent_message' => 'Successfully sent message',
     'invoice_error' => 'Please make sure to select a client and correct any errors',
-    'limit_clients' => 'Sorry, this will exceed the limit of :count clients. Please upgrade to a paid plan.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'There was an error processing your payment. Please try again later.',
     'registration_required' => 'Registration Required',
     'confirmation_required' => 'Please confirm your email address, :link to resend the confirmation email.',
@@ -5292,6 +5292,7 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!'
 );
 
 return $lang;
