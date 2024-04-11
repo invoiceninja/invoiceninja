@@ -492,7 +492,7 @@ class StripePaymentDriver extends BaseDriver
             return $customer;
         }
 
-        return false;
+        return null;
     }
 
     /**
