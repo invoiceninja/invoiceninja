@@ -1,8 +1,19 @@
 <?php
+/**
+* Invoice Ninja (https://invoiceninja.com).
+*
+* @link https://github.com/invoiceninja/invoiceninja source repository
+*
+* @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
+*
+* @license https://www.elastic.co/licensing/elastic-license
+*/
 
-class RegimeFiscale
+namespace App\DataProviders;
+
+class FatturaPADataProvider
 {
-    private array $regime_fiscale = [
+    public array $regime_fiscale = [
         "RF01" => "Regime ordinario",
         "RF02" => "Regime dei contribuenti minimi (art. 1,c.96-117, L. 244/2007)",
         "RF04" => "Agricoltura e attività connesse e pesca (artt. 34 e 34-bis, D.P.R. 633/1972)",
@@ -23,7 +34,7 @@ class RegimeFiscale
         "RF18" => "Altro"
     ];
 
-    private array $tipo_documento = [
+    public array $tipo_documento = [
         'TD01' => 'Fattura',
         'TD02' => 'Acconto/Anticipo su fattura',
         'TD03' => 'Acconto/Anticipo su parcella',
@@ -44,13 +55,13 @@ class RegimeFiscale
         'TD27' => 'Fattura per autoconsumo o per cessioni gratuite senza rivalsa',
     ];
 
-    private array $esigibilita_iva = [
+    public array $esigibilita_iva = [
         'I' => 'IVA ad esigibilità immediata',
         'D' => 'IVA ad esigibilità differita',
         'S' => 'Scissione dei pagamenti',
     ];
 
-    private array $modalita_pagamento = [
+    public array $modalita_pagamento = [
         'MP01' => 'contanti', //cash
         'MP02' => 'assegno', //check
         'MP03' => 'assegno circolare', //cashier's check
@@ -76,7 +87,7 @@ class RegimeFiscale
         'MP23' => 'PagoPA', //PagoPA
     ];
 
-    private array $esigibilita_pagamento = [
+    public array $esigibilita_pagamento = [
         'TP01' => 'Pagamento a rate',
         'TP02' => 'Pagamento completo',
         'TP03' => 'Anticipo',
