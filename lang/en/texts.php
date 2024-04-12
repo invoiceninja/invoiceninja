@@ -5292,7 +5292,8 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
-    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!'
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
 );
 
 return $lang;
