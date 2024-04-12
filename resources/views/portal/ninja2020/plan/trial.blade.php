@@ -1539,7 +1539,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                         </div>
                     </div>
                     <div class="flex justify-start mb-[25px]">
-                        <span class="text-[12px]">* At the end of your 14 day trial your card will be charged $10/month. Cancel anytime.</span>
+                        <span class="text-[12px]">* At the end of your 14 day trial your card will be charged $12/month. Cancel anytime.</span>
                     </div>
                     <div class="flex justify-end">
                         <button

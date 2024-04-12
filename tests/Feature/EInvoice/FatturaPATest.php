@@ -41,8 +41,6 @@ class FatturaPATest extends TestCase
         $fat = new FatturaPA($this->invoice);
         $xml = $fat->run();
 
-        // nlog($xml);
-
         $this->assertnotNull($xml);
     }
 }

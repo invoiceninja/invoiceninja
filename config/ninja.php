@@ -17,8 +17,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.8.47'),
-    'app_tag' => env('APP_TAG', '5.8.47'),
+    'app_version' => env('APP_VERSION', '5.8.48'),
+    'app_tag' => env('APP_TAG', '5.8.48'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -243,6 +243,6 @@ return [
         'public_key' => env('NINJA_PUBLIC_KEY', false),
         'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
-    'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', false),
+    'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', ''),
     
 ];

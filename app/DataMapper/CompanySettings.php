@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -513,7 +513,6 @@ class CompanySettings extends BaseSettings
         'delivery_note_design_id'            => 'string',
         'payment_receipt_design_id'          => 'string',
         'payment_refund_design_id'           => 'string',
-        'classification'                     => 'string',
         'enable_e_invoice'                   => 'bool',
         'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
