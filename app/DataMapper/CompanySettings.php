@@ -513,7 +513,6 @@ class CompanySettings extends BaseSettings
         'delivery_note_design_id'            => 'string',
         'payment_receipt_design_id'          => 'string',
         'payment_refund_design_id'           => 'string',
-        'classification'                     => 'string',
         'enable_e_invoice'                   => 'bool',
         'classification'                     => 'string',
         'default_expense_payment_type_id'    => 'string',
