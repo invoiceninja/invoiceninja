@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,7 +72,7 @@ class InvoiceController extends Controller
         $variables = ($invitation && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invitation))->generateLabelsAndValues() : false;
 
         $data = [
-            'invoice' => $invoice,
+            'invoice' => $invoice->service()->removeUnpaidGatewayFees()->save(),
             'invitation' => $invitation ?: $invoice->invitations->first(),
             'key' => $invitation ? $invitation->key : false,
             'hash' => $hash,

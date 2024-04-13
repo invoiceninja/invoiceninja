@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. PurchaseOrder Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. PurchaseOrder Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,9 +59,15 @@ class PurchaseOrderExport extends BaseExport
                         ->withTrashed()
                         ->with('vendor')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', $this->input['include_deleted']);
+                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
+
+
+        $clients = &$this->input['client_id'];
+
+        if($clients)
+            $query = $this->addClientFilter($query, $clients);
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
 

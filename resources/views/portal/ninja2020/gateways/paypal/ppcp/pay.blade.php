@@ -60,7 +60,7 @@
             document.getElementById("server_response").submit();
         },
         onClick: function (){
-            document.getElementById('paypal-button-container').hidden = true;
+           // document.getElementById('paypal-button-container').hidden = true;
         }
     
     }).render('#paypal-button-container').catch(function(err) {

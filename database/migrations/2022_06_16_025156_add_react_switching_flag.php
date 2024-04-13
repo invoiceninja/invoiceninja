@@ -21,7 +21,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('accounts', function (Blueprint $table) {
-            $table->boolean('set_react_as_default_ap')->default(0);
+            $table->boolean('set_react_as_default_ap')->default(1);
         });
     }
 

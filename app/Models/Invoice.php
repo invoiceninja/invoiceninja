@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -204,7 +204,11 @@ class Invoice extends BaseModel
         'is_deleted' => 'bool',
         'is_amount_discount' => 'bool',
         'tax_data' => 'object',
-        'partial_due_date' => 'date:Y-m-d'
+        'partial_due_date' => 'date:Y-m-d',
+        'custom_surcharge_tax1' => 'bool',
+        'custom_surcharge_tax2' => 'bool',
+        'custom_surcharge_tax3' => 'bool',
+        'custom_surcharge_tax4' => 'bool',
     ];
 
     protected $with = [];

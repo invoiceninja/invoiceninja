@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -104,6 +104,13 @@ class PrePaymentController extends Controller
             $invoice->balance = Number::formatValue($invoice->balance, $invoice->client->currency());
             return $invoice;
         });
+
+        
+        $variables = false;
+
+        if(($invitation = $invoices->first()->invitations()->first() ?? false) && $invoice->client->getSetting('show_accept_invoice_terms')) {
+            $variables = (new HtmlEngine($invitation))->generateLabelsAndValues();
+        }
 
         $data = [
             'settings' => auth()->guard('contact')->user()->client->getMergedSettings(),

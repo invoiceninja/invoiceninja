@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,6 +52,7 @@ class InvoiceSum
 
     public InvoiceItemSum $invoice_items;
 
+    private $rappen_rounding = false;
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -63,8 +64,11 @@ class InvoiceSum
 
         if ($this->invoice->client) {
             $this->precision = $this->invoice->client->currency()->precision;
+            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
         } else {
             $this->precision = $this->invoice->vendor->currency()->precision;
+            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
+
         }
 
         $this->tax_map = new Collection();
@@ -252,9 +256,20 @@ class InvoiceSum
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
+        if($this->rappen_rounding){
+            $this->invoice->amount = $this->roundRappen($this->invoice->amount);
+            $this->invoice->balance = $this->roundRappen($this->invoice->balance);
+        }
+
         $this->invoice->total_taxes = $this->getTotalTaxes();
 
         return $this;
+    }
+
+
+    function roundRappen($value): float
+    {
+        return round($value / .05, 0) * .05;
     }
 
     public function getSubTotal()

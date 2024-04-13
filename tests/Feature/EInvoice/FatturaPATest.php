@@ -11,7 +11,7 @@
 
 namespace Tests\Feature\EInvoice;
 
-use App\Services\Invoice\EInvoice\FatturaPA;
+use App\Services\EDocument\Standards\FatturaPA;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
@@ -41,8 +41,6 @@ class FatturaPATest extends TestCase
         $fat = new FatturaPA($this->invoice);
         $xml = $fat->run();
 
-        // nlog($xml);
-        
         $this->assertnotNull($xml);
     }
 }

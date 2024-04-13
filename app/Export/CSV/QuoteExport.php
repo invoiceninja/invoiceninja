@@ -65,9 +65,15 @@ class QuoteExport extends BaseExport
                         ->withTrashed()
                         ->with('client')
                         ->where('company_id', $this->company->id)
-                        ->where('is_deleted', $this->input['include_deleted']);
+                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
         $query = $this->addDateRange($query);
+
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
 
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
 

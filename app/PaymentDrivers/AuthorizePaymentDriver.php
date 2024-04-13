@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -193,6 +193,20 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function import()
     {
+        $this->init();
+        
+        nlog("starting import auth.net");
+
         return (new AuthorizeCustomer($this))->importCustomers();
+    }
+
+    public function importCustomers()
+    {
+        return $this->import();
+    }
+
+    public function auth(): bool
+    {
+        return $this->init()->getPublicClientKey() ?? false;
     }
 }

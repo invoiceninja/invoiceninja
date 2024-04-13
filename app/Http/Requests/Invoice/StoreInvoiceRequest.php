@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,17 +44,17 @@ class StoreInvoiceRequest extends Request
         $user = auth()->user();
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->file_validation;
+            $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->file_validation;
+            $rules['documents'] = $this->fileValidation();
         }else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->file_validation;
+            $rules['file.*'] = $this->fileValidation();
         } elseif ($this->file('file')) {
-            $rules['file'] = $this->file_validation;
+            $rules['file'] = $this->fileValidation();
         }
 
         $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
@@ -116,7 +116,9 @@ class StoreInvoiceRequest extends Request
         //handles edge case where we need for force set the due date of the invoice.
         if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || (empty($input['due_date']) && empty($this->invoice->due_date)))) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
-            $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays($client->getSetting('payment_terms'))->format('Y-m-d');
+
+            if($client)
+                $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays($client->getSetting('payment_terms'))->format('Y-m-d');
         }
 
         $this->replace($input);

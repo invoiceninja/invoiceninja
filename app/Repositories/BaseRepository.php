@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -167,7 +167,8 @@ class BaseRepository
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $data['exchange_rate'] = $company_defaults['exchange_rate'];
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
-            $data = array_merge($company_defaults, $data);
+            // $data = array_merge($company_defaults, $data);
+            $data = array_merge($data, $company_defaults);
         }
 
         $tmp_data = $data; //preserves the $data array

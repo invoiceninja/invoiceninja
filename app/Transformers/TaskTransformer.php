@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,6 +42,7 @@ class TaskTransformer extends EntityTransformer
         'project',
         'user',
         'invoice',
+        'assigned_user',
     ];
 
     public function includeDocuments(Task $task)
@@ -73,6 +74,16 @@ class TaskTransformer extends EntityTransformer
         return $this->includeItem($task->user, $transformer, User::class);
     }
 
+    public function includeAssignedUser(Task $task): ?Item
+    {
+        $transformer = new UserTransformer($this->serializer);
+
+        if (!$task->assigned_user) {
+            return null;
+        }
+
+        return $this->includeItem($task->assigned_user, $transformer, User::class);
+    }
 
     public function includeClient(Task $task): ?Item
     {

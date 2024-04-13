@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -158,7 +158,6 @@ class LicenseController extends BaseController
 
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost') {
-            // $response = Http::get( "http://ninja.test:8000/claim_license", [
             $response = Http::get("https://invoicing.co/claim_license", [
                 'license_key' => $license_key,
                 'product_id' => 3,

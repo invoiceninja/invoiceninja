@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,15 +59,12 @@ class CleanStaleInvoiceOrder implements ShouldQueue
             Invoice::query()
                    ->withTrashed()
                    ->where('status_id', Invoice::STATUS_SENT)
-                   ->whereBetween('created_at', [now()->subHours(1), now()->subMinutes(30)])
+                   ->where('created_at', '<', now()->subMinutes(30))
                    ->where('balance', '>', 0)
+                   ->whereJsonContains('line_items', ['type_id' => '3'])
                    ->cursor()
                    ->each(function ($invoice) {
-
-                       if (collect($invoice->line_items)->contains('type_id', 3)) {
-                           $invoice->service()->removeUnpaidGatewayFees();
-                       }
-
+                        $invoice->service()->removeUnpaidGatewayFees();
                    });
 
             return;
@@ -86,6 +83,18 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                         $invoice->is_proforma = false;
                         $repo->delete($invoice);
                     });
+            
+            Invoice::query()
+                ->withTrashed()
+                ->where('status_id', Invoice::STATUS_SENT)
+                ->where('created_at', '<', now()->subMinutes(30))
+                ->where('balance', '>', 0)
+                ->whereJsonContains('line_items', ['type_id' => '3'])
+                ->cursor()
+                ->each(function ($invoice) {
+                    $invoice->service()->removeUnpaidGatewayFees();
+                });
+
         }
     }
 

@@ -54,6 +54,27 @@ class QuoteTest extends TestCase
         );
     }
 
+    public function testPartialDueDates()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'due_date' => now()->format('Y-m-d'),
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data']['due_date']);
+        $this->assertEmpty($arr['data']['partial_due_date']);
+    }
+
     public function testQuoteToProjectConversion2()
     {
         $settings = ClientSettings::defaults();

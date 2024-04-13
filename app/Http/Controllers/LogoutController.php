@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -63,8 +63,12 @@ class LogoutController extends BaseController
         $ct->company
                     ->tokens()
                     ->where('is_system', true)
-                    ->forceDelete();
-
+                    ->cursor()
+                    ->each(function ($ct){
+                        $ct->token = \Illuminate\Support\Str::random(64);
+                        $ct->save();
+                    });
+                    
         return response()->json(['message' => 'All tokens deleted'], 200);
     }
 }

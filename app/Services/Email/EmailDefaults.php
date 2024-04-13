@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,8 @@ use App\Jobs\Invoice\CreateUbl;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Models\Quote;
 use App\Models\Task;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
@@ -107,10 +109,10 @@ class EmailDefaults
 
         match ($this->email->email_object->settings->email_style) {
             'plain' => $this->template = 'email.template.plain',
-            'light' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
-            'dark' => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
+            'light' => $this->template = 'email.template.client',
+            'dark' => $this->template = 'email.template.client',
             'custom' => $this->template = 'email.template.custom',
-            default => $this->template = $this->email->email_object->company->account->isPremium() ? 'email.template.client_premium' :'email.template.client',
+            default => $this->template = 'email.template.client',
         };
 
         $this->email->email_object->html_template = $this->template;
@@ -123,7 +125,7 @@ class EmailDefaults
      */
     private function setFrom(): self
     {
-        if (Ninja::isHosted() && $this->email->email_object->settings->email_sending_method == 'default') {
+        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method,['default', 'mailgun'])) {
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {
@@ -299,7 +301,7 @@ class EmailDefaults
         $documents = [];
 
         /* Return early if the user cannot attach documents */
-        if (!$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT) || $this->email->email_object->email_template_subject == 'email_subject_statement') {
+        if (!$this->email->email_object->invitation || !$this->email->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT) || $this->email->email_object->email_template_subject == 'email_subject_statement') {
             return $this;
         }
 
@@ -318,8 +320,8 @@ class EmailDefaults
             }
         }
         /** E-Invoice xml file */
-        if ($this->email->email_object->settings->enable_e_invoice && $this->email->email_object->entity instanceof Invoice) {
-            $xml_string = $this->email->email_object->entity->service()->getEInvoice();
+        if ($this->email->email_object->settings->enable_e_invoice) {
+            $xml_string = $this->email->email_object->entity->service()->getEDocument();
 
             if($xml_string) {
                 $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);

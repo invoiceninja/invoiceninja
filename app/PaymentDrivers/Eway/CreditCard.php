@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -61,9 +61,9 @@ class CreditCard
             'State' => $this->eway_driver->client->state,
             'PostalCode' => $this->eway_driver->client->postal_code,
             'Country' => $this->eway_driver->client->country->iso_3166_2,
-            'Phone' => $this->eway_driver->client->phone,
-            'Email' => $this->eway_driver->client->contacts()->first()->email,
-            'Url' => $this->eway_driver->client->website,
+            'Phone' => $this->eway_driver->client->phone ?? '',
+            'Email' => $this->eway_driver->client->contacts()->first()->email ?? '',
+            'Url' => $this->eway_driver->client->website  ?? '',
             'Method' => \Eway\Rapid\Enum\PaymentMethod::CREATE_TOKEN_CUSTOMER,
             'SecuredCardData' => $securefieldcode,
         ];

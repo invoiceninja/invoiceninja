@@ -49,6 +49,114 @@ class InvoiceTest extends TestCase
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
 
+    public function testRappenRounding()
+    {
+
+        $c_settings = $this->client->settings;
+        $c_settings->enable_rappen_rounding = true;
+
+        $c = \App\Models\Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $c_settings,
+        ]);
+        
+        $this->assertEquals(0, $c->balance);
+        
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10.01;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+        $line_items[] = $item;
+
+        $i = Invoice::factory()->create([
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $c->id,
+            'line_items' => $line_items,
+            'status_id' => 1,
+        ]);
+        
+        $invoice_calc = new InvoiceSum($i);
+        $ii = $invoice_calc->build()->getInvoice();
+
+        $this->assertEquals(10, $ii->amount);
+
+        $ii->service()->markSent()->save();
+
+        $this->assertEquals(10, $c->fresh()->balance);
+
+    }
+
+    public function testRappenRoundingUp()
+    {
+
+        $c_settings = $this->client->settings;
+        $c_settings->enable_rappen_rounding = true;
+
+        $c = \App\Models\Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $c_settings,
+        ]);
+        
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 10.09;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+        $line_items[] = $item;
+
+        $i = Invoice::factory()->create([
+            'discount' => 0,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $c->id,
+            'line_items' => $line_items,
+            'status_id' => 1,
+        ]);
+        
+        $invoice_calc = new InvoiceSum($i);
+        $ii = $invoice_calc->build()->getInvoice();
+
+        $this->assertEquals(10.10, round($ii->amount,2));
+
+        $ii->service()->markSent()->save();
+
+        $this->assertEquals(10.10, $c->fresh()->balance);
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 2;
+        $item->cost = 10.09;
+        $item->type_id = '1';
+        $item->tax_id = '1';
+
+        $i->line_items = [$item];
+
+        $invoice_calc = new InvoiceSum($i);
+        $ii = $invoice_calc->build()->getInvoice();
+
+        $ii->client->service()->calculateBalance($ii);
+
+        $this->assertEquals(20.20, round($ii->amount,2));
+        $this->assertEquals(20.20, round($ii->balance,2));
+        $this->assertEquals(20.20, round($c->fresh()->balance,2));
+    }
+
     public function testPartialDueDateCast()
     {
         $i = Invoice::factory()

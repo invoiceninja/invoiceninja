@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -99,6 +99,64 @@ class Product extends BaseModel
         'tax_id',
     ];
 
+    public array $ubl_tax_map = [
+        self::PRODUCT_TYPE_REVERSE_TAX => 'AE', // VAT_REVERSE_CHARGE =
+        self::PRODUCT_TYPE_EXEMPT => 'E', // EXEMPT_FROM_TAX =
+        self::PRODUCT_TYPE_PHYSICAL => 'S', // STANDARD_RATE =
+        self::PRODUCT_TYPE_ZERO_RATED => 'Z', // ZERO_RATED_GOODS =
+        //  self::PRODUCT_TYPE_ZERO_RATED => 'G', // FREE_EXPORT_ITEM =
+        //  self::PRODUCT_TYPE_ZERO_RATED => 'O', // OUTSIDE_TAX_SCOPE =
+        //  self::PRODUCT_TYPE_EXEMPT => 'K', // EEA_GOODS_AND_SERVICES =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'L', // CANARY_ISLANDS_INDIRECT_TAX =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'M', // CEUTA_AND_MELILLA =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'B', // TRANSFERRED_VAT_ITALY =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'A', // MIXED_TAX_RATE =
+        self::PRODUCT_TYPE_REDUCED_TAX => 'AA', // LOWER_RATE =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'AB', // EXEMPT_FOR_RESALE =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'AC', // VAT_NOT_NOW_DUE =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'AD', // VAT_DUE_PREVIOUS_INVOICE =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'B', // TRANSFERRED_VAT =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'C', // DUTY_PAID_BY_SUPPLIER =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'D', // VAT_MARGIN_SCHEME_TRAVEL_AGENTS =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'F', // VAT_MARGIN_SCHEME_SECOND_HAND_GOODS =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'H', // HIGHER_RATE =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'I', // VAT_MARGIN_SCHEME_WORKS_OF_ART =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'J', // VAT_MARGIN_SCHEME_COLLECTORS_ITEMS =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'K', // VAT_EXEMPT_EEA_INTRA_COMMUNITY =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'L', // CANARY_ISLANDS_TAX =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'M', // TAX_CEUTA_MELILLA =
+        //  self::PRODUCT_TYPE_PHYSICAL => 'O', // SERVICES_OUTSIDE_SCOPE =
+    ];
+
+    public array $ubl_tax_translations = [
+        'texts.reverse_tax' => 'AE', // VAT_REVERSE_CHARGE
+        'texts.tax_exempt' => 'E', // EXEMPT_FROM_TAX
+        'texts.physical_goods' => 'S', // STANDARD_RATE
+        'texts.zero_rated' => 'Z', // ZERO_RATED_GOODS
+        'ubl.vat_exempt_eea_intra_community' => 'K', // VAT_EXEMPT_EEA_INTRA_COMMUNITY
+        'ubl.free_export_item' => 'G', // FREE_EXPORT_ITEM
+        'ubl.outside_tax_scope' => 'O', // OUTSIDE_TAX_SCOPE
+        'ubl.eea_goods_and_services' => 'K', // EEA_GOODS_AND_SERVICES
+        'ubl.canary_islands_indirect_tax' => 'L', // CANARY_ISLANDS_INDIRECT_TAX
+        'ubl.ceuta_and_melilla' => 'M', // CEUTA_AND_MELILLA
+        'ubl.transferred_vat_italy' => 'B', // TRANSFERRED_VAT_ITALY
+        'ubl.mixed_tax_rate' => 'A', // MIXED_TAX_RATE
+        'ubl.lower_rate' => 'AA', // LOWER_RATE
+        'ubl.exempt_for_resale' => 'AB', // EXEMPT_FOR_RESALE
+        'ubl.vat_not_now_due' => 'AC', // VAT_NOT_NOW_DUE
+        'ubl.vat_due_previous_invoice' => 'AD', // VAT_DUE_PREVIOUS_INVOICE
+        'ubl.transferred_vat' => 'B', // TRANSFERRED_VAT
+        'ubl.duty_paid_by_supplier' => 'C', // DUTY_PAID_BY_SUPPLIER
+        'ubl.vat_margin_scheme_travel_agents' => 'D', // VAT_MARGIN_SCHEME_TRAVEL_AGENTS
+        'ubl.vat_margin_scheme_second_hand_goods' => 'F', // VAT_MARGIN_SCHEME_SECOND_HAND_GOODS
+        'ubl.higher_rate' => 'H', // HIGHER_RATE
+        'ubl.vat_margin_scheme_works_of_art' => 'I', // VAT_MARGIN_SCHEME_WORKS_OF_ART
+        'ubl.vat_margin_scheme_collectors_items' => 'J', // VAT_MARGIN_SCHEME_COLLECTORS_ITEMS
+        'ubl.canary_islands_tax' => 'L', // CANARY_ISLANDS_TAX
+        'ubl.tax_ceuta_melilla' => 'M', // TAX_CEUTA_MELILLA
+        'ubl.services_outside_scope' => 'O', // SERVICES_OUTSIDE_SCOPE
+    ];
+
     protected $touches = [];
 
     public function getEntityType()
@@ -146,6 +204,20 @@ class Product extends BaseModel
         ]);
 
         return $converter->convert($this->notes ?? '');
+    }
+
+    public static function markdownHelp(string $notes = '')
+    {
+                
+        $converter = new CommonMarkConverter([
+            'allow_unsafe_links' => false,
+            'renderer' => [
+                'soft_break' => '<br>',
+            ],
+        ]);
+
+        return $converter->convert($notes);
+
     }
 
     public function portalUrl($use_react_url): string

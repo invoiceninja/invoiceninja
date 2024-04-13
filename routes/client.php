@@ -49,7 +49,7 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
     Route::get('dashboard', [App\Http\Controllers\ClientPortal\DashboardController::class, 'index'])->name('dashboard'); // name = (dashboard. index / create / show / update / destroy / edit
 
     Route::get('plan', [App\Http\Controllers\ClientPortal\NinjaPlanController::class, 'plan'])->name('plan'); // name = (dashboard. index / create / show / update / destroy / edit
-    
+
     Route::get('showBlob/{hash}', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'showBlob'])->name('invoices.showBlob');
     Route::get('invoices', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'index'])->name('invoices.index')->middleware('portal_enabled');
     Route::post('invoices/payment', [App\Http\Controllers\ClientPortal\InvoiceController::class, 'bulk'])->name('invoices.bulk');
@@ -120,6 +120,7 @@ Route::get('payments/process/response', [App\Http\Controllers\ClientPortal\Payme
 
 Route::get('client/subscriptions/{subscription}/purchase', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'index'])->name('client.subscription.purchase')->middleware('domain_db');
 Route::get('client/subscriptions/{subscription}/purchase/v2', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'upgrade'])->name('client.subscription.upgrade')->middleware('domain_db');
+Route::get('client/subscriptions/{subscription}/purchase/v3', [App\Http\Controllers\ClientPortal\SubscriptionPurchaseController::class, 'v3'])->name('client.subscription.v3')->middleware('domain_db');
 
 Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'client.'], function () {
     /*Invitation catches*/
@@ -131,7 +132,9 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('invoice/{invitation_key}/download_pdf', [InvoiceController::class, 'downloadPdf'])->name('invoice.download_invitation_key')->middleware('token_auth');
     Route::get('invoice/{invitation_key}/download_e_invoice', [InvoiceController::class, 'downloadEInvoice'])->name('invoice.download_e_invoice')->middleware('token_auth');
     Route::get('quote/{invitation_key}/download_pdf', [QuoteController::class, 'downloadPdf'])->name('quote.download_invitation_key')->middleware('token_auth');
+    Route::get('quote/{invitation_key}/download_e_quote', [QuoteController::class, "downloadEQuote"])->name('invoice.download_e_quote')->middleware('token_auth');
     Route::get('credit/{invitation_key}/download_pdf', [CreditController::class, 'downloadPdf'])->name('credit.download_invitation_key')->middleware('token_auth');
+    Route::get('credit/{invitation_key}/download_e_credit', [CreditController::class, 'downloadECredit'])->name('credit.download_e_credit')->middleware('token_auth');
     Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload'])->middleware('token_auth');
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 
@@ -142,7 +145,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 });
 
 Route::get('route/{hash}', function ($hash) {
-    
+
     return redirect(decrypt($hash));
 
 });
@@ -155,21 +158,31 @@ Route::get('.env', function () {
 
 Route::fallback(function () {
 
-    if (Ninja::isSelfHost() && Account::first()?->set_react_as_default_ap) {
+    if (Ninja::isSelfHost()) {
+
+        $result = false;
+        try {
+            $result = DB::connection()->getPdo();
+            $result = DB::connection()->getDatabaseName();
+        } catch(\Exception $e) {
+            $result = false;
+        }
+
+        if(!$result) {
+            return redirect('/setup');
+        }
 
         $account = Account::first();
 
-        return response()->view('react.index', [
+        return $account->set_react_as_default_ap ? response()->view('react.index', [
             'rc' => request()->input('rc', ''),
             'login' => request()->input('login', ''),
             'signup' => request()->input('signup', ''),
             'report_errors' => $account->report_errors,
             'user_agent' => request()->server('HTTP_USER_AGENT'),
-        ])->header('X-Frame-Options', 'SAMEORIGIN', false);
+        ])->header('X-Frame-Options', 'SAMEORIGIN', false) : abort(404);
     }
 
     abort(404);
 
 })->middleware('throttle:404');
-
-// Fix me: Move into invite_db middleware group.

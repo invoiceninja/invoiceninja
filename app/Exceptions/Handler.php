@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -138,7 +138,7 @@ class Handler extends ExceptionHandler
                         'email' => 'anonymous@example.com',
                         'name'  => 'Anonymous User',
                     ]);
-                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->user()->company() && auth()->user()->company()->account->report_errors) {
+                } elseif (auth()->guard('user') && auth()->guard('user')->user() && auth()->user()->companyIsSet() && auth()->user()->company()->account->report_errors) {
                     $scope->setUser([
                         'id'    => auth()->user()->account->key,
                         'email' => 'anonymous@example.com',

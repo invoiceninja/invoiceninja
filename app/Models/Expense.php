@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -190,7 +190,7 @@ class Expense extends BaseModel
 
     public function purchase_order()
     {
-        return $this->hasOne(PurchaseOrder::class);
+        return $this->hasOne(PurchaseOrder::class)->withTrashed();
     }
 
     public function translate_entity()
