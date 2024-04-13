@@ -233,10 +233,8 @@ class SubscriptionApiTest extends TestCase
         $timezone_now = now()->setTimezone($company->timezone()->name);
 
         $this->assertEquals('Europe/Vienna', $timezone_now->timezoneName);
-        
-        $this->travelTo($timezone_now->copy()->startOfDay()->subHour());
 
-        $this->travelTo($timezone_now->copy()->startOfDay()->subHour());
+        $this->travelTo($timezone_now->startOfDay()->subHours(2));
 
         $i = false;
 

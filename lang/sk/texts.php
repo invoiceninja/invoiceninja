@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logo bolo úspešne odstánené',
     'sent_message' => 'Správa úspešne odoslaná',
     'invoice_error' => 'Uistite sa, že máte zvoleného klienta a opravte prípadné chyby',
-    'limit_clients' => 'Ospravedlňujeme sa, toto prekročí limit klientov :count. Inovujte na platený plán.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'Nastala chyba počas spracovávania Vašej platby. Skúste to prosím zopakovať neskôr.',
     'registration_required' => 'Vyžaduje sa registrácia',
     'confirmation_required' => 'Prosím potvrďte vašu email adresu, <a href=\'/resend_confirmation\'>kliknutím sem</a> na preposlanie potvrdzujúceho emailu.',
@@ -5264,8 +5264,6 @@ $lang = array(
     'accept_payments_online' => 'Prijímajte platby online',
     'all_payment_gateways' => 'Pozrite si všetky platobné brány',
     'product_cost' => 'Cena produktu',
-    'enable_rappen_roudning' => 'Povoliť zaokrúhľovanie Rappen',
-    'enable_rappen_rounding_help' => 'Zaokrúhľuje súčty na najbližších 5',
     'duration_words' => 'Trvanie v slovách',
     'upcoming_recurring_invoices' => 'Nadchádzajúce opakované faktúry',
     'shipping_country_id' => 'Shipping Country',
@@ -5279,6 +5277,11 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

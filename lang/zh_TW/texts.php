@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => '移除標誌成功',
     'sent_message' => '寄出訊息成功',
     'invoice_error' => '請確認選取一個用戶並更正任何錯誤',
-    'limit_clients' => '抱歉，這將超出:count客戶端的限制。請升級到付費方案。',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => '您的付款處理過程有誤。請稍後重試。',
     'registration_required' => '需要註冊',
     'confirmation_required' => '請確認您的電子郵件地址 :link ，以重寄確認函。',
@@ -5277,8 +5277,6 @@ $lang = array(
     'accept_payments_online' => '接受線上付款',
     'all_payment_gateways' => '查看所有支付網關',
     'product_cost' => '產品成本',
-    'enable_rappen_roudning' => '啟用 Rappen 舍入',
-    'enable_rappen_rounding_help' => '將總計四捨五入到最接近的 5',
     'duration_words' => '文字持續時間',
     'upcoming_recurring_invoices' => '即將開立的經常性發票',
     'shipping_country_id' => 'Shipping Country',
@@ -5292,6 +5290,11 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

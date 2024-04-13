@@ -5295,6 +5295,7 @@ $lang = array(
     'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
+    'assign_group' => 'Assign group',
 );
 
 return $lang;

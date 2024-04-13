@@ -192,7 +192,7 @@ $lang = array(
     'removed_logo' => 'לוגו הוסר בהצלחה',
     'sent_message' => 'הודעה נשלחה בהצלחה',
     'invoice_error' => 'בבקשה בחר לקוח ותקן כל שגיאה',
-    'limit_clients' => 'מצטערים, זה חורוג מהמגבלה של חשבון לקוחות חינמי. שדרג לתוכנית בתשלום.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'אופס קרתה תקלה בביצוע התשלום, נא בבקשה לנסות שוב מאוחר יותר.',
     'registration_required' => 'נדרשת הרשמה',
     'confirmation_required' => 'בבקשה לאמת את הכתובת דואר אלקטרוני : קישור לשליחה מחדש הודעת אימות למייל',
@@ -5275,8 +5275,6 @@ $lang = array(
     'accept_payments_online' => 'קבל תשלומים באינטרנט',
     'all_payment_gateways' => 'הצג את כל שערי התשלום',
     'product_cost' => 'עלות המוצר',
-    'enable_rappen_roudning' => 'הפעל עיגול Rappen',
-    'enable_rappen_rounding_help' => 'סיבובים מסתכמים ל-5 הקרובים ביותר',
     'duration_words' => 'משך זמן במילים',
     'upcoming_recurring_invoices' => 'חשבוניות חוזרות בקרוב',
     'shipping_country_id' => 'Shipping Country',
@@ -5290,6 +5288,11 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

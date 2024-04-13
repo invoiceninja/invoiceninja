@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Le logo a été supprimé',
     'sent_message' => 'Le message a été envoyé',
     'invoice_error' => 'Veuillez vous assurer de sélectionner un client et de corriger les erreurs',
-    'limit_clients' => 'Désolé, cela va dépasser la limite de :count clients. Veuillez passer à un forfait payant.',
+    'limit_clients' => 'Vous avez atteint la limite de :count clients sur un compte gratuit. Félicitations pour votre réussite !',
     'payment_error' => 'Il y a eu une erreur lors du traitement de votre paiement. Veuillez réessayer ultérieurement',
     'registration_required' => 'Inscription requise',
     'confirmation_required' => 'Veuillez confirmer votre adresse courriel, :link pour renvoyer le courriel de confirmation.',
@@ -5274,8 +5274,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'accept_payments_online' => 'Accepter les paiements en ligne',
     'all_payment_gateways' => 'Voir toutes les passerelles de paiements',
     'product_cost' => 'Coût du produit',
-    'enable_rappen_roudning' => 'Activer arrondir les cents',
-    'enable_rappen_rounding_help' => 'Arrondir les totaux au 5 le plus proche',
     'duration_words' => 'Durée en mots',
     'upcoming_recurring_invoices' => 'Factures récurrentes à venir',
     'shipping_country_id' => 'Pays de livraison',
@@ -5289,6 +5287,11 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'e_credit' => 'E-Crédit',
     'e_purchase_order' => 'E-Bon d\'achat',
     'e_quote_type' => 'E-Type de soumission',
+    'unlock_unlimited_clients' => 'Mettre à jour pour débloquer un nombre de clients illimités!',
+    'download_e_purchase_order' => 'Télécharger le E-Bon de dommance',
+    'flutter_web_warning' => 'Nous vous recommandons d\'utiliser la nouvelle application web ou l\'application PC pour de meilleures performances.',
+    'rappen_rounding' => 'Arrondir au cents',
+    'rappen_rounding_help' => 'Arrondir au 5 cents',
 );
 
 return $lang;

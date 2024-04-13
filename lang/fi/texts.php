@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logo on poistettu onnistuneesti ',
     'sent_message' => 'Viesti on onnistuneesti lähetetty',
     'invoice_error' => 'Ystävällisesti varmistakaa että asiakasta on valittu ja korjaatkaa kaikki virheet',
-    'limit_clients' => 'Pahoittelut, tämä ylittää :count asiakkaan rajan',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'Maksukäsittelyssä ilmeni ongelma. Yrittäkää myöhemmin uudelleen.',
     'registration_required' => 'Rekisteröinti vaaditaan',
     'confirmation_required' => 'Ole hyvä ja vahvista sähköpostiosoitteesi, :link paina tästä uudelleenlähettääksesi vahvistussähköpostin. ',
@@ -5277,8 +5277,6 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'accept_payments_online' => 'Accept Payments Online',
     'all_payment_gateways' => 'View all payment gateways',
     'product_cost' => 'Product cost',
-    'enable_rappen_roudning' => 'Enable Rappen Rounding',
-    'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
     'duration_words' => 'Duration in words',
     'upcoming_recurring_invoices' => 'Upcoming Recurring Invoices',
     'shipping_country_id' => 'Shipping Country',
@@ -5292,6 +5290,11 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;
