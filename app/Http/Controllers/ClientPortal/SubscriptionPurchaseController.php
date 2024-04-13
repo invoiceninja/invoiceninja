@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,6 +24,10 @@ class SubscriptionPurchaseController extends Controller
     public function index(Subscription $subscription, Request $request)
     {
         App::setLocale($subscription->company->locale());
+
+        if ($subscription->trashed()) {
+            return $this->render('generic.not_available', ['passed_account' => $subscription->company->account, 'passed_company' => $subscription->company]);
+        }
 
         /* Make sure the contact is logged into the correct company for this subscription */
         if (auth()->guard('contact')->user() && auth()->guard('contact')->user()->company_id != $subscription->company_id) {
@@ -65,6 +69,17 @@ class SubscriptionPurchaseController extends Controller
         }
 
         return view('billing-portal.purchasev2', [
+            'subscription' => $subscription,
+            'hash' => Str::uuid()->toString(),
+            'request_data' => $request->all(),
+        ]);
+    }
+
+    public function v3(Subscription $subscription, Request $request)
+    {
+        // Todo: Prerequirement checks for subscription.
+
+        return view('billing-portal.v3.index', [
             'subscription' => $subscription,
             'hash' => Str::uuid()->toString(),
             'request_data' => $request->all(),

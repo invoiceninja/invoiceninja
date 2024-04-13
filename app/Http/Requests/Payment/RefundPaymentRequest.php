@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,8 +57,6 @@ class RefundPaymentRequest extends Request
 
         if (isset($input['credits'])) {
             unset($input['credits']);
-            // foreach($input['credits'] as $key => $credit)
-            //     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($credit['credit_id']);
         }
 
         $this->replace($input);

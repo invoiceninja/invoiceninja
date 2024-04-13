@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,6 +42,7 @@ class ExpenseFactory
         $expense->tax_amount1 = 0;
         $expense->tax_amount2 = 0;
         $expense->tax_amount3 = 0;
+        $expense->uses_inclusive_taxes = false;
 
         return $expense;
     }

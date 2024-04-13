@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -134,6 +134,7 @@ class BaseExport
 
     protected array $invoice_report_keys = [
         'name' => 'client.name',
+        "currency" => "client.currency_id",
         "invoice_number" => "invoice.number",
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
@@ -174,6 +175,8 @@ class BaseExport
     ];
 
     protected array $recurring_invoice_report_keys = [
+        'name' => 'client.name',
+        "currency" => "client.currency_id",
         "invoice_number" => "recurring_invoice.number",
         "amount" => "recurring_invoice.amount",
         "balance" => "recurring_invoice.balance",
@@ -294,9 +297,12 @@ class BaseExport
         'line_total' => 'item.line_total',
         'gross_line_total' => 'item.gross_line_total',
         'tax_amount' => 'item.tax_amount',
+        'product_cost' => 'item.product_cost'
     ];
 
     protected array $quote_report_keys = [
+        'name' => 'client.name',
+        "currency" => "client.currency_id",
         'custom_value1' => 'quote.custom_value1',
         'custom_value2' => 'quote.custom_value2',
         'custom_value3' => 'quote.custom_value3',
@@ -335,6 +341,8 @@ class BaseExport
     ];
 
     protected array $credit_report_keys = [
+        'name' => 'client.name',
+        "currency" => "client.currency_id",
         "credit_number" => "credit.number",
         "amount" => "credit.amount",
         "balance" => "credit.balance",
@@ -367,6 +375,7 @@ class BaseExport
   ];
 
     protected array $payment_report_keys = [
+        'name' => 'client.name',
         "date" => "payment.date",
         "amount" => "payment.amount",
         "refunded" => "payment.refunded",
@@ -384,7 +393,6 @@ class BaseExport
         "custom_value4" => "payment.custom_value4",
         "user" => "payment.user_id",
         "assigned_user" => "payment.assigned_user_id",
-
   ];
 
     protected array $expense_report_keys = [
@@ -426,8 +434,11 @@ class BaseExport
 
     protected array $task_report_keys = [
         'start_date' => 'task.start_date',
+        'start_time' => 'task.start_time',
         'end_date' => 'task.end_date',
+        'end_time' => 'task.end_time',
         'duration' => 'task.duration',
+        'duration_words' => 'task.duration_words',
         'rate' => 'task.rate',
         'number' => 'task.number',
         'description' => 'task.description',
@@ -863,15 +874,15 @@ class BaseExport
     protected function addClientFilter(Builder $query, $clients): Builder
     {
         if(is_string($clients)) {
-            $clients =  explode(',', $clients);
+            $clients = explode(',', $clients);
         }
 
         $transformed_clients = $this->transformKeys($clients);
 
-        nlog($clients);
         nlog($transformed_clients);
 
         if(count($transformed_clients) > 0) {
+            nlog("yus");
             $query->whereIn('client_id', $transformed_clients);
         }
 
@@ -1569,7 +1580,7 @@ class BaseExport
 
     public function queueDocuments(Builder $query)
     {
-        nlog("queue docs pls");
+        
         if($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
@@ -1579,8 +1590,6 @@ class BaseExport
                                })->flatten()
                                ->toArray();
         }
-
-        nlog($documents);
 
         if(count($documents) > 0) {
 

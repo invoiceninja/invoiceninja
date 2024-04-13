@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,6 +59,7 @@ class ShowChartRequest extends Request
         }
 
         if (! isset($input['end_date'])) {
+            // $input['end_date'] = now()->lastOfMonth()->format('Y-m-d');
             $input['end_date'] = now()->format('Y-m-d');
         }
 

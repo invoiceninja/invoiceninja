@@ -46,6 +46,7 @@ class PurchaseOrderFactory extends Factory
             'due_date' => $this->faker->date(),
             'line_items' => InvoiceItemFactory::generate(5),
             'terms' => $this->faker->text(500),
+            'uses_inclusive_taxes' => false,
         ];
     }
 }

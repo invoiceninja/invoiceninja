@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -118,15 +118,60 @@ class SubscriptionRepository extends BaseRepository
 
         return $line_items;
     }
+    
+    /**
+     * ConvertV3Bundle
+     *
+     * Removing the nested keys of the items array
+     * 
+     * @param  array $bundle
+     * @return array
+     */
+    private function convertV3Bundle($bundle): array
+    {
+        if(is_object($bundle))
+            $bundle = json_decode(json_encode($bundle),1);
+
+        $items = [];
+
+        foreach($bundle['recurring_products'] as $key => $value) {
+
+            $line_item = new \stdClass;
+            $line_item->product_key = $value['product']['product_key'];
+            $line_item->qty = (float) $value['quantity'];
+            $line_item->unit_cost = (float) $value['product']['price'];
+            $line_item->description = $value['product']['notes'];
+            $line_item->is_recurring = $value['product']['is_recurring'] ?? false;
+            $items[] = $line_item;
+        }
+
+        foreach($bundle['recurring_products'] as $key => $value) {
+
+            $line_item = new \stdClass;
+            $line_item->product_key = $value['product']['product_key'];
+            $line_item->qty = (float) $value['quantity'];
+            $line_item->unit_cost = (float) $value['product']['price'];
+            $line_item->description = $value['product']['notes'];
+            $line_item->is_recurring = $value['product']['is_recurring'] ?? false;
+
+        }
+
+        return $items;
+
+    }
 
     public function generateBundleLineItems($bundle, $is_recurring = false, $is_credit = false)
     {
+
+        if(isset($bundle->recurring_products))
+            $bundle = $this->convertV3Bundle($bundle);
+
         $multiplier = $is_credit ? -1 : 1;
 
         $line_items = [];
 
         $line_items = collect($bundle)->filter(function ($item) {
-            return $item->is_recurring;
+            return $item->is_recurring ?? false;
         })->map(function ($item) {
             $line_item = new InvoiceItem();
             $line_item->product_key = $item->product_key;

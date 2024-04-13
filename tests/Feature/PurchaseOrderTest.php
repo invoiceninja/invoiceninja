@@ -46,6 +46,24 @@ class PurchaseOrderTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testExpensePurchaseOrderConversion()
+    {
+
+        $p = PurchaseOrder::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'vendor_id' => $this->vendor->id,
+            'project_id' => $this->project->id,
+        ]);
+
+        $expense = $p->service()->expense();
+
+        $this->assertEquals($expense->project_id, $this->project->id);
+        $this->assertEquals($expense->client_id, $p->project->client_id);
+        
+    }
+    
+
     public function testPurchaseOrderHistory()
     {
         event(new PurchaseOrderWasUpdated($this->purchase_order, $this->company, Ninja::eventVars($this->company, $this->user)));

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,6 +12,7 @@
 namespace App\Models;
 
 use App\Utils\Traits\MakesHash;
+use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -248,6 +249,7 @@ class Task extends BaseModel
             $duration += max($end_time - $start_time, 0);
         }
 
+        // return CarbonInterval::seconds(round($duration))->locale($this->company->locale())->cascade()->forHumans();
         return round($duration);
     }
 

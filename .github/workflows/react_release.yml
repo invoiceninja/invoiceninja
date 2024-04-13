@@ -38,8 +38,6 @@ jobs:
           sudo php artisan cache:clear
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;
-          sudo rm -f public/main.*
-          sudo rm -f public/flutter*
 
       - name: Prepare React FrontEnd
         run: |
@@ -49,7 +47,8 @@ jobs:
           npm i
           npm run build
           cp -r dist/* ../public/
-
+          cp dist/index.html ../resources/views/react/index.blade.php
+          
       - name: Prepare JS/CSS assets
         run: |
           npm i

@@ -96,9 +96,7 @@
         @stack('head')
 
         @if(strpos(Request::url(),'setup'))
-            <meta name="setup-pdf-check" content="{{ str_replace("setup", "", Request::url())}}setup/check_pdf">
             <meta name="setup-db-check" content="{{ str_replace("setup", "", Request::url())}}setup/check_db">
-            <meta name="setup-email-check" content="{{ str_replace("setup", "", Request::url())}}setup/check_mail">
         @endif
 
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />

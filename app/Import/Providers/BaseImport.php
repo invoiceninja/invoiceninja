@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -892,12 +892,17 @@ class BaseImport
         ksort($keys);
 
         $data = array_map(function ($row) use ($keys) {
-            $row_count = count($row);
-            $key_count = count($keys);
 
-            if ($key_count > $row_count) {
-                $row = array_pad($row, $key_count, ' ');
+            /** 12-04-2024 If we do not have matching keys - then this row import is _not_ valid */
+            $row_keys = array_keys($row);
+            $key_keys = array_keys($keys);
+
+            $diff = array_diff($key_keys, $row_keys);
+
+            if(!empty($diff)) {
+                return false;
             }
+            /** 12-04-2024 If we do not have matching keys - then this row import is _not_ valid */
 
             return array_combine($keys, array_intersect_key($row, $keys));
         }, $data);

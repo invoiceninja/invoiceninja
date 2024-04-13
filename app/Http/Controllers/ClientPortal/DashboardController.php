@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,17 +13,24 @@
 namespace App\Http\Controllers\ClientPortal;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\View\View;
+use App\Models\Invoice;
 
 class DashboardController extends Controller
 {
-    /**
-     * @return Factory|View
-     */
-    public function index()
+    public function index(): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
     {
-        return redirect()->route('client.invoices.index');
-        //return $this->render('dashboard.index');
+        if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === false) {
+            return redirect()->route('client.invoices.index');
+        } 
+
+        $total_invoices = Invoice::withTrashed()
+            ->where('client_id', auth()->guard('contact')->user()->client_id)
+            ->where('is_deleted', 0)
+            ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+            ->sum('amount');
+
+        return $this->render('dashboard.index', [
+            'total_invoices' => $total_invoices,
+        ]);
     }
 }

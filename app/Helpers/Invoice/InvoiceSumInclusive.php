@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,6 +47,8 @@ class InvoiceSumInclusive
 
     private $precision;
 
+    private $rappen_rounding = false;
+
     public InvoiceItemSumInclusive $invoice_items;
     /**
      * Constructs the object with Invoice and Settings object.
@@ -59,8 +61,10 @@ class InvoiceSumInclusive
 
         if ($this->invoice->client) {
             $this->precision = $this->invoice->client->currency()->precision;
+            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
         } else {
             $this->precision = $this->invoice->vendor->currency()->precision;
+            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
         }
 
         $this->tax_map = new Collection();
@@ -102,17 +106,19 @@ class InvoiceSumInclusive
 
     private function calculateCustomValues()
     {
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
+
+        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
+        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
+        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        $this->total_taxes += $this->valuerTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
+        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
+
 
         $this->total += $this->total_custom_values;
 
@@ -122,13 +128,30 @@ class InvoiceSumInclusive
     private function calculateInvoiceTaxes()
     {
         $amount = $this->total;
-       
+
         if ($this->invoice->discount > 0 && $this->invoice->is_amount_discount) {
             $amount = $this->formatValue(($this->sub_total - $this->invoice->discount), 2);
         }
 
         if ($this->invoice->discount > 0 && ! $this->invoice->is_amount_discount) {
             $amount = $this->formatValue(($this->sub_total - ($this->sub_total * ($this->invoice->discount / 100))), 2);
+        }
+
+        //Handles cases where the surcharge is not taxed
+        if(is_numeric($this->invoice->custom_surcharge1) && $this->invoice->custom_surcharge1 > 0 && $this->invoice->custom_surcharge_tax1) {
+            $amount += $this->invoice->custom_surcharge1;
+        }
+
+        if(is_numeric($this->invoice->custom_surcharge2) && $this->invoice->custom_surcharge2 > 0 && $this->invoice->custom_surcharge_tax2) {
+            $amount += $this->invoice->custom_surcharge2;
+        }
+
+        if(is_numeric($this->invoice->custom_surcharge3) && $this->invoice->custom_surcharge3 > 0 && $this->invoice->custom_surcharge_tax3) {
+            $amount += $this->invoice->custom_surcharge3;
+        }
+
+        if(is_numeric($this->invoice->custom_surcharge4) && $this->invoice->custom_surcharge4 > 0 && $this->invoice->custom_surcharge_tax4) {
+            $amount += $this->invoice->custom_surcharge4;
         }
 
         if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
@@ -270,9 +293,19 @@ class InvoiceSumInclusive
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
+        if($this->rappen_rounding) {
+            $this->invoice->amount = $this->roundRappen($this->invoice->amount);
+            $this->invoice->balance = $this->roundRappen($this->invoice->balance);
+        }
+
         $this->invoice->total_taxes = $this->getTotalTaxes();
 
         return $this;
+    }
+    
+    function roundRappen($value): float
+    {
+        return round($value / .05, 0) * .05;
     }
 
     public function getSubTotal()
@@ -340,7 +373,7 @@ class InvoiceSumInclusive
 
             $this->total_taxes += $total_line_tax;
         }
-
+        
         return $this;
     }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,6 +59,9 @@ class CreditCard
             'enc_key' => $data['enc_key'],
             'integrator_id' =>  $this->paytrace->company_gateway->getConfigField('integratorId'),
             'billing_address' => $this->buildBillingAddress(),
+            'email' => $this->paytrace->client->present()->email(),
+            'phone' => $this->paytrace->client->present()->phone(),
+
         ];
 
         $response = $this->paytrace->gatewayRequest('/v1/customer/pt_protect_create', $post_data);

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -126,14 +126,9 @@ class BaseDriver extends AbstractPaymentDriver
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_contact_name) {
-            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
-        }
-
-        if ($this->company_gateway->require_contact_email) {
-            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
-        }
+        $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
 
         if ($this->company_gateway->require_client_phone) {
             $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
@@ -166,11 +161,9 @@ class BaseDriver extends AbstractPaymentDriver
             $fields[] = ['name' => 'client_custom_value2', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client2'), 'type' => 'text', 'validation' => 'required'];
         }
 
-
         if ($this->company_gateway->require_custom_value3) {
             $fields[] = ['name' => 'client_custom_value3', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client3'), 'type' => 'text', 'validation' => 'required'];
         }
-
 
         if ($this->company_gateway->require_custom_value4) {
             $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
@@ -579,15 +572,18 @@ class BaseDriver extends AbstractPaymentDriver
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
+        if($this->payment_hash)
+        {
+            $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
-        $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-            if (! $invitation->contact->trashed()) {
-                $nmo->to_user = $invitation->contact;
-                NinjaMailerJob::dispatch($nmo);
-            }
-        });
-
+            $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
+                if (! $invitation->contact->trashed()) {
+                    $nmo->to_user = $invitation->contact;
+                    NinjaMailerJob::dispatch($nmo);
+                }
+            });
+        }
+        
         $message = [
             'server_response' => $response,
             'data' => $this->payment_hash->data,
@@ -794,16 +790,31 @@ class BaseDriver extends AbstractPaymentDriver
             'client' => $this->client->present()->name(),
         ]);
 
-        return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
+        // return sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()));
     }
 
     /**
      * Stub for disconnecting from the gateway.
      *
-     * @return void
+     * @return bool
      */
     public function disconnect()
     {
         return true;
+    }
+
+    /**
+     * Stub for checking authentication.
+     *
+     * @return bool
+     */
+    public function auth(): bool
+    {
+        return true;
+    }
+
+    public function importCustomers()
+    {
+        
     }
 }

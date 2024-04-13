@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -63,8 +63,10 @@ class Statement
 
         $variables = [];
         $variables = $html->generateLabelsAndValues();
+        
+        $option_template = &$this->options['template'];
 
-        if($this->client->getSetting('statement_design_id') != '') {
+        if($this->client->getSetting('statement_design_id') != '' || $option_template && $option_template != '') {
 
             $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
             $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
@@ -162,6 +164,7 @@ class Statement
         $ts->addGlobal(['show_credits' => $this->options['show_credits_table']]);
         $ts->addGlobal(['show_aging' => $this->options['show_aging_table']]);
         $ts->addGlobal(['show_payments' => $this->options['show_payments_table']]);
+        $ts->addGlobal(['currency_code' => $this->client->company->currency()->code]);
 
         $ts->build([
             'variables' => collect([$variables]),

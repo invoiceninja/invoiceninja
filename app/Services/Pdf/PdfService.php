@@ -11,7 +11,7 @@
 
 namespace App\Services\Pdf;
 
-use App\Jobs\Invoice\CreateEInvoice;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Company;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;
@@ -216,7 +216,7 @@ class PdfService
     {
         try {
 
-            $e_rechnung = (new CreateEInvoice($this->config->entity, true))->handle();
+            $e_rechnung = (new CreateEDocument($this->config->entity, true))->handle();
             $pdfBuilder = new ZugferdDocumentPdfBuilder($e_rechnung, $pdf);
             $pdfBuilder->generateDocument();
 

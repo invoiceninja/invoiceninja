@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -90,13 +90,12 @@ class YodleeController extends BaseController
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->from_date = now()->subYear();
-
+                $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
                 $bank_integration->auto_sync = true;
 
                 $bank_integration->save();
             }
         }
-
 
         $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
             ProcessBankTransactionsYodlee::dispatch($company->account->id, $bank_integration);

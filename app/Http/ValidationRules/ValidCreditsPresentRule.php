@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use Illuminate\Contracts\Validation\Rule;
 
 /**
  * Class ValidCreditsPresentRule.
+ * @deprecated 20-03-2024
  */
 class ValidCreditsPresentRule implements Rule
 {
@@ -49,11 +50,8 @@ class ValidCreditsPresentRule implements Rule
 
     private function validCreditsPresent(): bool
     {
-        //todo need to ensure the clients credits are here not random ones!
-
         if (array_key_exists('credits', $this->input) && is_array($this->input['credits']) && count($this->input['credits']) > 0) {
             $credit_collection = Credit::query()->whereIn('id', array_column($this->input['credits'], 'credit_id'))->count();
-
             return $credit_collection == count($this->input['credits']);
         }
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -265,7 +265,7 @@ class PurchaseOrder extends BaseModel
 
     public function expense(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Expense::class);
+        return $this->belongsTo(Expense::class)->withTrashed();
     }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

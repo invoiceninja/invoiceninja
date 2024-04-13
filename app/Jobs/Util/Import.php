@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -1144,8 +1144,6 @@ class Import implements ShouldQueue
 
             $key = "invoices_{$resource['id']}";
 
-            nlog($invoice->id);
-
             $this->ids['invoices'][$key] = [
                 'old' => $resource['id'],
                 'new' => $invoice->id,
@@ -1527,10 +1525,11 @@ class Import implements ShouldQueue
                     }
                 }
 
-
                 // throw new Exception("Resource invoice/quote document not available.");
             }
 
+            $entity = false;
+            
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
                 $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();

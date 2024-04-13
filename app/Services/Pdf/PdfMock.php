@@ -113,24 +113,30 @@ class PdfMock
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Invoice::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client->setRelation('company', $this->company);
                 $entity->invitation = InvoiceInvitation::factory()->make();
                 break;
             case 'quote':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Quote::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client->setRelation('company', $this->company);
                 $entity->invitation = QuoteInvitation::factory()->make();
                 break;
             case 'credit':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Credit::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client->setRelation('company', $this->company);
                 $entity->invitation = CreditInvitation::factory()->make();
                 break;
             case 'purchase_order':
-                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
+
+                /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                // $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->vendor = Vendor::factory()->make();
+                $entity->vendor->setRelation('company', $this->company);
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
                 break;
             case PurchaseOrder::class:
@@ -138,17 +144,17 @@ class PdfMock
                 $entity = PurchaseOrder::factory()->make();
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
                 $entity->vendor = Vendor::factory()->make();
+                $entity->invitation->setRelation('company', $this->company);
                 break;
             default:
                 $entity = false;
                 break;
         }
 
-
         $entity->tax_map = $this->getTaxMap();
         $entity->total_tax_map = $this->getTotalTaxMap();
         $entity->invitation->company = $this->company;
-
+        
         return $entity;
     }
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,6 +60,12 @@ class PaymentExport extends BaseExport
                             ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
+
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
 
         $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
         

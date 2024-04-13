@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -89,6 +89,10 @@ class PaymentIntentWebhook implements ShouldQueue
         }
 
         $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
+
+        if(!$company_gateway)
+            return;
+
         $stripe_driver = $company_gateway->driver()->init();
 
         $charge_id = false;

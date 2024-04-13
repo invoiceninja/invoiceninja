@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -200,14 +200,16 @@ class InvoiceFilters extends QueryFilters
      */
     public function payable(string $client_id = ''): Builder
     {
+
         if (strlen($client_id) == 0) {
             return $this->builder;
         }
 
-        return $this->builder->whereIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                             ->where('balance', '>', 0)
-                             ->where('is_deleted', 0)
-                             ->where('client_id', $this->decodePrimaryKey($client_id));
+        return $this->builder
+                    ->where('client_id', $this->decodePrimaryKey($client_id))
+                    ->whereIn('status_id', [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_deleted', 0)
+                    ->where('balance', '>', 0);
     }
 
 
@@ -328,7 +330,10 @@ class InvoiceFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+            // return $this->builder->orderByRaw('CAST(number AS UNSIGNED), number ' . $dir);
+            // return $this->builder->orderByRaw("number REGEXP '^[A-Za-z]+$',CAST(number as SIGNED INTEGER),CAST(REPLACE(number,'-','')AS SIGNED INTEGER) ,number");
+            // return $this->builder->orderByRaw('ABS(number) ' . $dir);
+               return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

@@ -4,28 +4,28 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Invoice;
 
-use App\Models\Task;
-use App\Utils\Ninja;
+use App\Events\Invoice\InvoiceWasArchived;
+use App\Jobs\EDocument\CreateEDocument;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Jobs\Inventory\AdjustProductInventory;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use App\Models\CompanyGateway;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Subscription;
-use App\Models\CompanyGateway;
-use Illuminate\Support\Carbon;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Invoice\CreateEInvoice;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
-use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\Inventory\AdjustProductInventory;
-use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class InvoiceService
 {
@@ -201,9 +201,14 @@ class InvoiceService
 
     public function getEInvoice($contact = null)
     {
-        return (new CreateEInvoice($this->invoice))->handle();
+        return (new CreateEDocument($this->invoice))->handle();
     }
 
+    public function getEDocument($contact = null)
+    {
+        return $this->getEInvoice($contact);
+    }
+    
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
@@ -409,12 +414,12 @@ class InvoiceService
         $this->invoice->invitations->each(function ($invitation) {
             try {
                 // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
-                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
                 // }
 
                 // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
                 if (Ninja::isHosted()) {
-                    Storage::disk('public')->delete($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"));
+                    Storage::disk('public')->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -452,12 +457,6 @@ class InvoiceService
 
         if ((int) $pre_count != (int) $post_count) {
             $adjustment = $balance - $new_balance;
-
-            // $this->invoice
-            // ->client
-            // ->service()
-            // ->updateBalance($adjustment * -1)
-            // ->save();
 
             $this->invoice
             ->ledger()
@@ -544,7 +543,7 @@ class InvoiceService
         return $this;
     }
 
-    public function fillDefaults()
+    public function fillDefaults(bool $is_recurring = false)
     {
         $this->invoice->load('client.company');
 
@@ -571,7 +570,7 @@ class InvoiceService
             $this->invoice->exchange_rate = $this->invoice->client->setExchangeRate();
         }
 
-        if ($this->invoice->client->getSetting('auto_bill_standard_invoices')) {
+        if ($is_recurring && $this->invoice->client->getSetting('auto_bill_standard_invoices')) {
             $this->invoice->auto_bill_enabled = true;
         }
 

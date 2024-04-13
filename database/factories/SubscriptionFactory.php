@@ -27,6 +27,7 @@ class SubscriptionFactory extends Factory
         return [
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
             'name' => $this->faker->company(),
+            'steps' => "cart,auth.login-or-register",
         ];
     }
 }

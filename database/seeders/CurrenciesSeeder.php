@@ -144,6 +144,8 @@ class CurrenciesSeeder extends Seeder
             ['id' => 119, 'name' => 'Malagasy ariary', 'code' => 'MGA', 'symbol' => 'Ar', 'precision' => '0', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 120, 'name' => "Tongan Pa anga", 'code' => 'TOP', 'symbol' => 'T$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 121, 'name' => "Lao kip", 'code' => 'LAK', 'symbol' => '₭', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 122, 'name' => "Bhutan Ngultrum", 'code' => 'BTN', 'symbol' => 'Nu', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 123, 'name' => "Mauritanian Ouguiya", 'code' => 'MRU', 'symbol' => 'UM', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
         ];
 
         foreach ($currencies as $currency) {

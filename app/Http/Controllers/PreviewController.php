@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\DataMapper\Analytics\LivePreview;
 use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
+use App\Http\Requests\Preview\ShowPreviewRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -131,9 +132,9 @@ class PreviewController extends BaseController
      * Used in the Custom Designer to preview design changes
      * @return mixed
      */
-    public function show()
+    public function show(ShowPreviewRequest $request)
     {
-        if(request()->has('template')) {
+        if($request->input('design.is_template')) {
             return $this->template();
         }
 
@@ -238,7 +239,6 @@ class PreviewController extends BaseController
 
     private function liveTemplate(array $request_data)
     {
-        nlog($request_data['entity_type']);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -292,8 +292,6 @@ class PreviewController extends BaseController
                 ->setTemplate($design_object)
                 ->mock();
         } catch(SyntaxError $e) {
-
-            // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);
         }
 
         if (request()->query('html') == 'true') {

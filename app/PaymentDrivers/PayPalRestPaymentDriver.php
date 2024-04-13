@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,6 +18,7 @@ use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
+use Illuminate\Support\Str;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
@@ -81,11 +82,7 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     public function init()
     {
-        // $this->omnipay_gateway = Omnipay::create(
-        //     $this->company_gateway->gateway->provider
-        // );
 
-        // $this->omnipay_gateway->initialize((array) $this->company_gateway->getConfig());
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
         $secret = $this->company_gateway->getConfigField('secret');
@@ -215,7 +212,8 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
-
+        
+        // nlog($response);
         //capture
         $orderID = $response['orderID'];
 
@@ -239,7 +237,33 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         }
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+        try{
+            $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+        }
+        catch(\Exception $e) {
+
+            //Rescue for duplicate invoice_id
+            if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false){
+
+
+                $_invoice = collect($this->payment_hash->data->invoices)->first();
+                $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+                $new_invoice_number = $invoice->number."_".Str::random(5);
+
+                $update_data =
+                        [[
+                            "op" => "replace",
+                            "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+                            "value" => $new_invoice_number,
+                        ]];
+
+                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
+
+                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+            }
+
+        }
 
         $response = $r;
 
@@ -380,61 +404,6 @@ class PayPalRestPaymentDriver extends BaseDriver
 
         return $r->json()['id'];
 
-
-
-        // $_invoice = collect($this->payment_hash->data->invoices)->first();
-
-        // $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-
-        // $order = [
-        //   "intent" => "CAPTURE",
-        //   "payer" => [
-        //     "name" => [
-        //         "given_name" => $this->client->present()->first_name(),
-        //         "surname" => $this->client->present()->last_name(),
-        //     ],
-        //     "email_address" => $this->client->present()->email(),
-        //     "address" => [
-        //         "address_line_1" => $this->client->address1,
-        //         "address_line_2" => $this->client->address2,
-        //         "admin_area_1" => $this->client->city,
-        //         "admin_area_2" => $this->client->state,
-        //         "postal_code" => $this->client->postal_code,
-        //         "country_code" => $this->client->country->iso_3166_2,
-        //     ]
-        //     ],
-        //   "purchase_units" => [
-        //         [
-        //     "description" => ctrans('texts.invoice_number').'# '.$invoice->number,
-        //     "invoice_id" => $invoice->number,
-        //     "amount" => [
-        //         "value" => (string)$data['amount_with_fee'],
-        //         "currency_code" => $this->client->currency()->code,
-        //         "breakdown" => [
-        //             "item_total" => [
-        //                 "currency_code" => $this->client->currency()->code,
-        //                 "value" => (string)$data['amount_with_fee']
-        //             ]
-        //         ]
-        //     ],
-        //     "items" => [
-        //         [
-        //             "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
-        //             "quantity" => "1",
-        //             "unit_amount" => [
-        //                 "currency_code" => $this->client->currency()->code,
-        //                 "value" => (string)$data['amount_with_fee']
-        //             ],
-        //         ],
-        //     ],
-        //   ]
-        //   ]
-        // ];
-
-        // $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
-
-        // return $r->json()['id'];
-
     }
 
     private function getShippingAddress(): ?array
@@ -483,7 +452,7 @@ class PayPalRestPaymentDriver extends BaseDriver
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_PAYPAL,
             $this->client,
-            $this->client->company,
+            $this->client->company ?? $this->company_gateway->company,
         );
 
         throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
@@ -520,5 +489,23 @@ class PayPalRestPaymentDriver extends BaseDriver
         return 0;
     }
 
+    public function auth(): bool
+    {
+
+        try {
+            $this->init()->getClientToken();
+            return true;
+        }
+        catch(\Exception $e) {
+
+        }
+
+        return false;
+    }
+
+    public function importCustomers()
+    {
+        return true;
+    }   
 
 }

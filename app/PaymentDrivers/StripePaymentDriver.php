@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -149,6 +149,7 @@ class StripePaymentDriver extends BaseDriver
     {
         $types = [
             GatewayType::CREDIT_CARD,
+            GatewayType::APPLE_PAY,
         ];
 
         if ($this->client
@@ -165,8 +166,10 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
+            && $this->client->currency()
+            && in_array($this->client->currency()->code, ['CNY', 'AUD', 'CAD', 'EUR', 'GBP', 'HKD', 'JPY', 'SGD', 'MYR', 'NZD', 'USD'])) {
+            // && isset($this->client->country)
+            // && in_array($this->client->country->iso_3166_3, ['AUS', 'DNK', 'DEU', 'ITA', 'LUX', 'NOR', 'SVN', 'GBR', 'AUT', 'EST', 'GRC', 'JPN', 'MYS', 'PRT', 'ESP', 'USA', 'BEL', 'FIN', 'HKG', 'LVA', 'NLD', 'SGP', 'SWE', 'CAN', 'FRA', 'IRL', 'LTU', 'NZL', 'SVK', 'CHE'])) {
             $types[] = GatewayType::ALIPAY;
         }
 
@@ -260,14 +263,7 @@ class StripePaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_3, ['AUT','BEL','DNK','FIN','FRA','DEU','IRL','ITA','NLD','NOR','ESP','SWE','GBR','USA'])) {
             $types[] = GatewayType::KLARNA;
         }
-        if (
-            $this->client
-            && isset($this->client->country)
-            && in_array($this->client->country->iso_3166_2, ['AE', 'AT', 'AU', 'BE', 'BG', 'BR', 'CA', 'CH', 'CI', 'CR', 'CY', 'CZ', 'DE', 'DK', 'DO', 'EE', 'ES', 'FI', 'FR', 'GB', 'GI', 'GR', 'GT', 'HK', 'HU', 'ID', 'IE', 'IN', 'IT', 'JP', 'LI', 'LT', 'LU', 'LV', 'MT', 'MX', 'MY', 'NL', 'NO', 'NZ', 'PE', 'PH', 'PL', 'PT', 'RO', 'SE', 'SG', 'SI', 'SK', 'SN', 'TH', 'TT', 'US', 'UY'])
-        ) {
-            $types[] = GatewayType::APPLE_PAY;
-        }
-
+        
         if (
             $this->client
             && isset($this->client->country)
@@ -332,14 +328,14 @@ class StripePaymentDriver extends BaseDriver
             $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
         }
 
-        if ($this->company_gateway->require_contact_name) {
+        // if ($this->company_gateway->require_contact_name) {
             $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
             $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
-        }
+        // }
 
-        if ($this->company_gateway->require_contact_email) {
+        // if ($this->company_gateway->require_contact_email) {
             $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
-        }
+        // }
 
         if ($this->company_gateway->require_client_phone) {
             $fields[] = ['name' => 'client_phone', 'label' => ctrans('texts.client_phone'), 'type' => 'tel', 'validation' => 'required'];
@@ -384,7 +380,6 @@ class StripePaymentDriver extends BaseDriver
         if ($this->company_gateway->require_custom_value4) {
             $fields[] = ['name' => 'client_custom_value4', 'label' => $this->helpers->makeCustomField($this->client->company->custom_fields, 'client4'), 'type' => 'text', 'validation' => 'required'];
         }
-
 
         return $fields;
     }
@@ -497,7 +492,7 @@ class StripePaymentDriver extends BaseDriver
             return $customer;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -690,7 +685,7 @@ class StripePaymentDriver extends BaseDriver
 
         //payment_intent.succeeded - this will confirm or cancel the payment
         if ($request->type === 'payment_intent.succeeded') {
-            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10, 15)));
 
             return response()->json([], 200);
         }
@@ -989,5 +984,21 @@ class StripePaymentDriver extends BaseDriver
         return preg_replace_callback('#\\\\u([0-9a-f]{4})#ism', function ($matches) {
             return mb_convert_encoding(pack('H*', $matches[1]), 'UTF-8', 'UCS-2BE');
         }, $string);
+    }
+
+    public function auth(): bool
+    {
+        $this->init();
+
+        try {
+            $this->verifyConnect();
+            return true;
+        }
+        catch(\Exception $e) {
+            
+        }
+
+        return false;
+
     }
 }
