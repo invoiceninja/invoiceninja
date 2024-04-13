@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logo ištrintas sėkmingai',
     'sent_message' => 'Žinutė išsiųsta',
     'invoice_error' => 'Pasitinkite klientą ir pataisykite klaidas',
-    'limit_clients' => 'Atsiprašome, tai viršys :count klientų limitą. Atsinaujinkite į mokamą planą.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'There was an error processing your payment. Please try again later.',
     'registration_required' => 'Būtina registracija',
     'confirmation_required' => 'Prašome patvirtinti jūsų el.pašto adresą, :link jei norite dar kartą atsiųsti patvirtinimo laišką.',
@@ -5277,8 +5277,6 @@ $lang = array(
     'accept_payments_online' => 'Accept Payments Online',
     'all_payment_gateways' => 'View all payment gateways',
     'product_cost' => 'Product cost',
-    'enable_rappen_roudning' => 'Enable Rappen Rounding',
-    'enable_rappen_rounding_help' => 'Rounds totals to nearest 5',
     'duration_words' => 'Duration in words',
     'upcoming_recurring_invoices' => 'Upcoming Recurring Invoices',
     'shipping_country_id' => 'Shipping Country',
@@ -5292,6 +5290,11 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

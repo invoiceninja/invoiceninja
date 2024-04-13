@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logotipo removido com sucesso',
     'sent_message' => 'Mensagem enviada com sucesso',
     'invoice_error' => 'Assegure-se de selecionar um cliente e corrigir quaisquer erros',
-    'limit_clients' => 'Desculpe, isso excederá o limite de :count clientes. Atualize para um plano pago.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'Ocorreu um erro ao processar seu pagamento. Por favor tente novamente mais tarde.',
     'registration_required' => 'Registro requerido',
     'confirmation_required' => 'Por favor confirme seu endereço de email, :link para re-enviar o email de confirmação.',
@@ -5274,8 +5274,6 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'accept_payments_online' => 'Aceite pagamentos on-line',
     'all_payment_gateways' => 'Veja todos os gateways de pagamento',
     'product_cost' => 'Custo do produto',
-    'enable_rappen_roudning' => 'Habilitar arredondamento Rappen',
-    'enable_rappen_rounding_help' => 'Arredonda o total para o 5 mais próximo',
     'duration_words' => 'Duração em palavras',
     'upcoming_recurring_invoices' => 'Próximas faturas recorrentes',
     'shipping_country_id' => 'Shipping Country',
@@ -5289,6 +5287,11 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

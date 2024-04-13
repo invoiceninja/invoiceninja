@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logo sters cu succes',
     'sent_message' => 'Mesaj trimis cu succes',
     'invoice_error' => 'Te rog alege un client si corecteaza erorile',
-    'limit_clients' => 'Această acțiune va depăși limita de :cont clienți. Vă recomandăm să optați pentru un plan plătit.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'A fost o eroare in procesarea platii. Te rog sa incerci mai tarizu.',
     'registration_required' => 'Înregistrare necesară',
     'confirmation_required' => 'Confirmați adresa dvs. de e-mail, :link pentru a retrimite e-mailul de confirmare.',
@@ -5278,8 +5278,6 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'accept_payments_online' => 'Acceptați plăți online',
     'all_payment_gateways' => 'Vedeți toate gateway-urile de plată',
     'product_cost' => 'Costul produsului',
-    'enable_rappen_roudning' => 'Activați rotunjirea Rappen',
-    'enable_rappen_rounding_help' => 'Rotunjește totalurile la cel mai apropiat 5',
     'duration_words' => 'Durata în cuvinte',
     'upcoming_recurring_invoices' => 'Facturi recurente viitoare',
     'shipping_country_id' => 'Shipping Country',
@@ -5293,6 +5291,11 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

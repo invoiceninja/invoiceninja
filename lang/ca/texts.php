@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'El logo s\'ha eliminat correctament',
     'sent_message' => 'S\'ha enviat el missatge satisfactòriament',
     'invoice_error' => 'Per favor, assegura\'t de seleccionar un client, i corregeix els errors',
-    'limit_clients' => 'Disculpa, açò superaria el límit de :count clients. Per favor, augmenta a un pla de pagament.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'Ha hagut un error al processar el teu pagament. Per favor, torna-ho a intentar més tard.',
     'registration_required' => 'Registration Required',
     'confirmation_required' => 'Per favor, confirma la teua adreça de correu electrònic, :link per a reenviar el missatge de confirmació.',
@@ -5277,8 +5277,6 @@ $lang = array(
     'accept_payments_online' => 'Accepteu pagaments en línia',
     'all_payment_gateways' => 'Veure totes les passarel·les de pagament',
     'product_cost' => 'Cost del producte',
-    'enable_rappen_roudning' => 'Activa l&#39;arrodoniment de Rappen',
-    'enable_rappen_rounding_help' => 'Arrodoneix els totals al 5 més proper',
     'duration_words' => 'Durada en paraules',
     'upcoming_recurring_invoices' => 'Pròximes factures recurrents',
     'shipping_country_id' => 'Shipping Country',
@@ -5292,6 +5290,11 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logo supprimé avec succès',
     'sent_message' => 'Message envoyé avec succès',
     'invoice_error' => 'Veuillez vous assurer de sélectionner un client et de corriger les erreurs',
-    'limit_clients' => 'Désolé, cela va dépasser la limite de :count clients. Veuillez passer à un forfait payant.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'Il y a eu une erreur lors du traitement de votre paiement. Veuillez réessayer ultérieurement',
     'registration_required' => 'Enregistrement Requis',
     'confirmation_required' => 'Veuillez confirmer votre adresse e-mail, :link pour renvoyer l\'e-mail de confirmation.',
@@ -5277,8 +5277,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'accept_payments_online' => 'Acceptez les paiements en ligne',
     'all_payment_gateways' => 'Voir toutes les passerelles de paiement',
     'product_cost' => 'Coût du produit',
-    'enable_rappen_roudning' => 'Activer l&#39;arrondi Rappen',
-    'enable_rappen_rounding_help' => 'Arrondit les totaux au 5 le plus proche',
     'duration_words' => 'Durée en mots',
     'upcoming_recurring_invoices' => 'Factures récurrentes à venir',
     'shipping_country_id' => 'Shipping Country',
@@ -5292,6 +5290,11 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

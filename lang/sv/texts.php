@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'Logotyp borttagen',
     'sent_message' => 'Meddelandet skickat',
     'invoice_error' => 'Välj kund och rätta till eventuella fel',
-    'limit_clients' => 'Ursäkta, detta överskrider begränsningen av :count kunder. Uppgradera till en betald plan.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'Något blev fel när din betalning bearbetades. Var vänlig och försök igen lite senare.',
     'registration_required' => 'Registering krävs',
     'confirmation_required' => 'Please confirm your email address, :link to resend the confirmation email.',
@@ -5285,8 +5285,6 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'accept_payments_online' => 'Acceptera betalningar online',
     'all_payment_gateways' => 'Se alla betalningsportar',
     'product_cost' => 'Produktkostnad',
-    'enable_rappen_roudning' => 'Aktivera Rappen-avrundning',
-    'enable_rappen_rounding_help' => 'Avrundar totalt till närmaste 5',
     'duration_words' => 'Varaktighet i ord',
     'upcoming_recurring_invoices' => 'Kommande återkommande fakturor',
     'shipping_country_id' => 'Shipping Country',
@@ -5300,6 +5298,11 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;

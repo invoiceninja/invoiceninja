@@ -199,7 +199,7 @@ $lang = array(
     'removed_logo' => 'ລຶບໂລໂກ້ສຳເລັດແລ້ວ',
     'sent_message' => 'ສົ່ງຂໍ້ຄວາມສຳເລັດແລ້ວ',
     'invoice_error' => 'ກະລຸນາໃຫ້ແນ່ໃຈວ່າເລືອກລູກຄ້າແລະແກ້ໄຂຂໍ້ຜິດພາດຕ່າງໆ',
-    'limit_clients' => 'ຂໍອະໄພ, ນີ້ຈະເກີນຂອບເຂດຈໍາກັດຂອງ :ນັບລູກຄ້າ. ກະລຸນາອັບເກຣດເປັນແຜນຈ່າຍ.',
+    'limit_clients' => 'You\'ve hit the :count client limit on Free accounts. Congrats on your success!.',
     'payment_error' => 'ມີຄວາມຜິດພາດໃນການປະມວນຜົນການຈ່າຍເງິນຂອງທ່ານ. ກະລຸນາລອງໃໝ່ໃນພາຍຫຼັງ.',
     'registration_required' => 'ຕ້ອງລົງທະບຽນ',
     'confirmation_required' => 'ກະລຸນາຢືນຢັນທີ່ຢູ່ອີເມວຂອງເຈົ້າ, :ລິ້ງເພື່ອສົ່ງອີເມວຢືນຢັນຄືນໃໝ່.',
@@ -5277,8 +5277,6 @@ $lang = array(
     'accept_payments_online' => 'ຍອມຮັບການຊໍາລະເງິນອອນໄລນ໌',
     'all_payment_gateways' => 'ເບິ່ງປະຕູການຈ່າຍເງິນທັງໝົດ',
     'product_cost' => 'ຄ່າໃຊ້ຈ່າຍຜະລິດຕະພັນ',
-    'enable_rappen_roudning' => 'ເປີດໃຊ້ Rappen Rounding',
-    'enable_rappen_rounding_help' => 'ຮອບທັງໝົດໄປຫາໃກ້ທີ່ສຸດ 5',
     'duration_words' => 'ໄລຍະເວລາໃນຄໍາສັບຕ່າງໆ',
     'upcoming_recurring_invoices' => 'ໃບເກັບເງິນທີ່ເກີດຂື້ນທີ່ຈະມາເຖິງ',
     'shipping_country_id' => 'Shipping Country',
@@ -5292,6 +5290,11 @@ $lang = array(
     'e_credit' => 'E-Credit',
     'e_purchase_order' => 'E-Purchase Order',
     'e_quote_type' => 'E-Quote Type',
+    'unlock_unlimited_clients' => 'Please upgrade to unlock unlimited clients!',
+    'download_e_purchase_order' => 'Download E-Purchase Order',
+    'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
+    'rappen_rounding' => 'Rappen Rounding',
+    'rappen_rounding_help' => 'Round amount to 5 cents',
 );
 
 return $lang;
