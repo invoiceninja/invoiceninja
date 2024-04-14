@@ -119,6 +119,7 @@ class Number
 
 
     }
+    
     /**
      * Formats a given value based on the clients currency
      * BACK to a float.

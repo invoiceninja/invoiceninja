@@ -255,6 +255,9 @@ class BaseImport
 
             unset($record['']);
 
+            if(!is_array($record))
+                continue;
+
             try {
                 $entity = $this->transformer->transform($record);
 
@@ -310,6 +313,11 @@ class BaseImport
         $count = 0;
 
         foreach ($data as $key => $record) {
+            
+            if(!is_array($record)) {
+                continue;
+            }
+
             try {
                 $entity = $this->transformer->transform($record);
                 $validator = $this->request_name::runFormRequest($entity);
@@ -372,6 +380,11 @@ class BaseImport
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
         foreach ($invoices as $raw_invoice) {
+            
+            if(!is_array($raw_invoice)) {
+                continue;
+            }
+
             try {
                 $invoice_data = $invoice_transformer->transform($raw_invoice);
 
@@ -459,6 +472,11 @@ class BaseImport
 
         foreach ($tasks as $raw_task) {
             $task_data = [];
+            
+            if(!is_array($raw_task)) {
+                continue;
+            }
+
             try {
                 $task_data = $task_transformer->transform($raw_task);
                 $task_data['user_id'] = $this->company->owner()->id;
@@ -527,6 +545,11 @@ class BaseImport
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
         foreach ($invoices as $raw_invoice) {
+            
+            if(!is_array($raw_invoice)) {
+                continue;
+            }
+
             try {
                 $invoice_data = $invoice_transformer->transform($raw_invoice);
                 $invoice_data['user_id'] = $this->company->owner()->id;
@@ -742,6 +765,11 @@ class BaseImport
         $quotes = $this->groupInvoices($quotes, $quote_number_key);
 
         foreach ($quotes as $raw_quote) {
+            
+            if(!is_array($raw_quote)) {
+                continue;
+            }
+
             try {
                 $quote_data = $quote_transformer->transform($raw_quote);
                 $quote_data['line_items'] = $this->cleanItems(
