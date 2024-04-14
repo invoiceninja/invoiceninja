@@ -86,6 +86,10 @@ class UpdateCreditRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
+        }
+
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
