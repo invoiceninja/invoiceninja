@@ -166,6 +166,15 @@ class Vendor extends BaseModel
         return $this->hasMany(Activity::class);
     }
 
+    public function getCurrencyCode(): string
+    {
+        if ($this->currency()) {
+            return $this->currency()->code;
+        }
+
+        return 'USD';
+    }
+
     public function currency()
     {
         $currencies = Cache::get('currencies');
