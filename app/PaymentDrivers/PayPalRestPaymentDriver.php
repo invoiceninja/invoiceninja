@@ -166,7 +166,10 @@ class PayPalRestPaymentDriver extends BaseDriver
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
 
-        return render('gateways.paypal.pay', $data);
+
+// return render('gateways.paypal.ppcp.card', $data);
+
+return render('gateways.paypal.pay', $data);
 
     }
 
