@@ -91,8 +91,8 @@ class UpdateInvoiceRequest extends Request
 
         $input['id'] = $this->invoice->id;
 
-        if(isset($input['partial']) && $input['partial'] == 0 && isset($input['partial_due_date'])) {
-            $input['partial_due_date'] = '';
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
         }
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {

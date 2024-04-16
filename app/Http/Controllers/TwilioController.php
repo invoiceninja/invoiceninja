@@ -144,7 +144,6 @@ class TwilioController extends BaseController
     public function generate2faResetCode(Generate2faRequest $request)
     {
         nlog($request->all());
-        nlog($request->headers());
 
         $user = User::where('email', $request->email)->first();
 

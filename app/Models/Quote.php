@@ -77,7 +77,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
- * @property string|null $partial_due_date
+ * @property \Carbon\Carbon|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
  * @property int|null $updated_at
@@ -195,10 +195,10 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function getDueDateAttribute($value)
-    {
-        return $value ? $this->dateMutator($value) : null;
-    }
+//    public function getDueDateAttribute($value)
+//    {
+//        return $value ? $this->dateMutator($value) : null;
+//    }
 
     // public function getPartialDueDateAttribute($value)
     // {

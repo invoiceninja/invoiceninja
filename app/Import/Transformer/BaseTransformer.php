@@ -115,7 +115,7 @@ class BaseTransformer
         return isset($data[$field]) && $data[$field] ? $data[$field] : null;
     }
 
-    public function getCurrencyByCode($data, $key = 'client.currency_id')
+    public function getCurrencyByCode(array $data, string $key = 'client.currency_id')
     {
         $code = array_key_exists($key, $data) ? $data[$key] : false;
 

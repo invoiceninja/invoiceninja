@@ -94,6 +94,10 @@ class StoreCreditRequest extends Request
             $input['design_id'] = $this->decodePrimaryKey($input['design_id']);
         }
 
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
+        }
+
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];

@@ -93,8 +93,8 @@ class StoreInvoiceRequest extends Request
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
 
-        if(isset($input['partial']) && $input['partial'] == 0 && isset($input['partial_due_date'])) {
-            $input['partial_due_date'] = '';
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
         }
 
         $input['amount'] = 0;
