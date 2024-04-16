@@ -67,6 +67,7 @@ class EDocRules
                 "type" => "dropdown",
                 "resource" => "CondizioniPagamento",
                 "required" => false,
+                "children" => [],
             ],
             [
                 "key" => "DatiContratto",
@@ -74,6 +75,14 @@ class EDocRules
                 "type" => "object",
                 "resource" => "DatiContratto",
                 "required" => false,
+                "children" => [
+                    [
+                        "key"=> "RiferimentoNumeroLinea",
+                        "validation" => [
+                            "string","min:1","max:10","required" 
+                        ],
+                    ]
+                ],
             ],
             [
                 "key" => "DatiOrdineAcquisto",
