@@ -45,6 +45,10 @@ class Request extends FormRequest
         $merge_rules = [];
 
         foreach ($this->all() as $key => $value) {
+
+            if($key == 'user')
+                continue;
+            
             if (method_exists($this, $key)) {
                 $merge_rules = $this->{$key}($rules);
             }

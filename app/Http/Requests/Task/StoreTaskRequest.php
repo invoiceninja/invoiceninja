@@ -92,7 +92,6 @@ class StoreTaskRequest extends Request
             $rules['file'] = $this->fileValidation();
         }
 
-
         return $this->globalRules($rules);
     }
 
