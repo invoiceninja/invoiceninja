@@ -379,7 +379,7 @@ $_contact->push();
     {
         
         $this->show_form = true;
-
+//@todo - need to make this optional
         // MultiDB::setDb($this->db);
         // $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
