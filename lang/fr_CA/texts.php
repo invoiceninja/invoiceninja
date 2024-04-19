@@ -5292,6 +5292,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'flutter_web_warning' => 'Nous vous recommandons d\'utiliser la nouvelle application web ou l\'application PC pour de meilleures performances.',
     'rappen_rounding' => 'Arrondir au cents',
     'rappen_rounding_help' => 'Arrondir au 5 cents',
+    'assign_group' => 'Assigner un groupe',
 );
 
 return $lang;

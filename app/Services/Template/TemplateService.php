@@ -207,7 +207,7 @@ class TemplateService
         $tm = new TemplateMock($this->company);
         $tm->setSettings($this->getSettings())->init();
 
-        $this->entity = $this->company->invoices()->first();
+        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first();
 
         $this->data = $tm->engines;
         $this->variables = $tm->variables[0];

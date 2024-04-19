@@ -66,7 +66,9 @@ class Statement
         
         $option_template = &$this->options['template'];
 
-        if($this->client->getSetting('statement_design_id') != '' || $option_template && $option_template != '') {
+        $custom_statement_template = \App\Models\Design::where('id', $this->decodePrimaryKey($this->client->getSetting('statement_design_id')))->where('is_template',true)->first();
+
+        if($custom_statement_template || $option_template && $option_template != '') {
 
             $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
             $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());

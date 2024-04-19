@@ -79,9 +79,66 @@ class EDocRules
                     [
                         "key"=> "RiferimentoNumeroLinea",
                         "validation" => [
-                            "string","min:1","max:10","required" 
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
                         ],
-                    ]
+                    ],
+                    [
+                        "key"=> "IdDocumento",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "Data",
+                        "validation" => [
+                            "string","date","required",
+                            "type" => "date",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "NumItem",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "CodiceCommessaConvenzione",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "CodiceCUP",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+[
+                        "key"=> "CodiceCIG",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
                 ],
             ],
             [
@@ -90,6 +147,71 @@ class EDocRules
                 "type" => "object",
                 "resource" => "DatiOrdineAcquisto",
                 "required" => false,
+                "children" => [
+                    [
+                        "key"=> "RiferimentoNumeroLinea",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "IdDocumento",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "Data",
+                        "validation" => [
+                            "string","date","required",
+                            "type" => "date",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "NumItem",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "CodiceCommessaConvenzione",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "CodiceCUP",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+[
+                        "key"=> "CodiceCIG",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                ],
             ],
             [
                 "key" => "DatiAnagraficiVettore",
@@ -97,6 +219,71 @@ class EDocRules
                 "type" => "object",
                 "resource" => "DatiAnagraficiVettore",
                 "required" => false,
+                "children" => [
+                    [
+                        "key"=> "RiferimentoNumeroLinea",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "IdDocumento",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "Data",
+                        "validation" => [
+                            "string","date","required",
+                            "type" => "date",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "NumItem",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "CodiceCommessaConvenzione",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                    [
+                        "key"=> "CodiceCUP",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+[
+                        "key"=> "CodiceCIG",
+                        "validation" => [
+                            "string","min:1","max:10","required",
+                            "type" => "string",
+                            "resource" => "",
+                            "required" => true,
+                        ],
+                    ],
+                ],
             ],
         ];
     }

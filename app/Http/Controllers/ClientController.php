@@ -401,6 +401,12 @@ class ClientController extends BaseController
             }
 
             $bounce_id = $resolved_bounce_id;
+
+            $record = $log->log;
+            $record['ID'] = '';
+            $log->log = $record;
+            $log->save();
+
         }
 
         $postmark = new PostmarkClient(config('services.postmark.token'));

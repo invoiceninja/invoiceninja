@@ -48,7 +48,6 @@ class NinjaMailerJob implements ShouldQueue
     use MakesHash;
 
     public $tries = 4; //number of retries
-
     public $deleteWhenMissingModels = true;
 
     /** @var null|\App\Models\Company $company  **/
@@ -223,7 +222,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             /* Releasing immediately does not add in the backoff */
-            sleep(rand(0, 3));
+            sleep(rand(5, 10));
 
             $this->release($this->backoff()[$this->attempts() - 1]);
         }

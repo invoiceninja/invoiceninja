@@ -137,9 +137,6 @@ class UpdateTaskRequest extends Request
             $input['time_log'] = json_encode([]);
         }
 
-        if(isset($input['user']))
-            unset($input['user']);
-
         $this->replace($input);
     }
 

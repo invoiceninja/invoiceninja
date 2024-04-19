@@ -95,11 +95,6 @@ class AddGatewayFee extends AbstractService
         if (floatval($new_balance) - floatval($balance) != 0) {
             $adjustment = $new_balance - $balance;
 
-            // $this->invoice
-            // ->client
-            // ->service()
-            // ->updateBalance($adjustment);
-
             $this->invoice
             ->ledger()
             ->updateInvoiceBalance($adjustment, 'Adjustment for adding gateway fee');
