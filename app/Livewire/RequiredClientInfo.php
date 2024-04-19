@@ -377,42 +377,45 @@ $_contact->push();
 
     public function checkFields()
     {
-        MultiDB::setDb($this->db);
-        $_contact = ClientContact::withTrashed()->find($this->contact_id);
+        
+        $this->show_form = true;
 
-        foreach ($this->fields as $index => $field) {
-            $_field = $this->mappings[$field['name']];
+        // MultiDB::setDb($this->db);
+        // $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
-            if (Str::startsWith($field['name'], 'client_')) {
-                if (empty($_contact->client->{$_field})
-                   || is_null($_contact->client->{$_field})
-                   // || in_array($_field, $this->client_address_array)
-                ) {
-                    $this->show_form = true;
-                } else {
-                    $this->fields[$index]['filled'] = true;
-                }
-            }
+        // foreach ($this->fields as $index => $field) {
+        //     $_field = $this->mappings[$field['name']];
 
-            if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
-                    $this->show_form = true;
-                } else {
-                    $this->fields[$index]['filled'] = true;
-                }
-            }
-        }
+        //     if (Str::startsWith($field['name'], 'client_')) {
+        //         if (empty($_contact->client->{$_field})
+        //            || is_null($_contact->client->{$_field})
+        //            // || in_array($_field, $this->client_address_array)
+        //         ) {
+        //             $this->show_form = true;
+        //         } else {
+        //             $this->fields[$index]['filled'] = true;
+        //         }
+        //     }
 
-        $left = collect($this->fields)
-            ->filter(fn ($field) => !array_key_exists('filled', $field))
-            ->count();
+        //     if (Str::startsWith($field['name'], 'contact_')) {
+        //         if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
+        //             $this->show_form = true;
+        //         } else {
+        //             $this->fields[$index]['filled'] = true;
+        //         }
+        //     }
+        // }
 
-        if ($left === 0) {
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $this->contact->client->postal_code
-            );
-        }
+        // $left = collect($this->fields)
+        //     ->filter(fn ($field) => !array_key_exists('filled', $field))
+        //     ->count();
+
+        // if ($left === 0) {
+        //     $this->dispatch(
+        //         'passed-required-fields-check',
+        //         client_postal_code: $this->contact->client->postal_code
+        //     );
+        // }
     }
 
     public function showCopyBillingCheckbox(): bool
