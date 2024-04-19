@@ -150,18 +150,18 @@ class AutoBillInvoice extends AbstractService
                 ->setPaymentHash($payment_hash)
                 ->tokenBilling($gateway_token, $payment_hash);
         } catch (\Exception $e) {
-            $this->invoice->auto_bill_tries += 1;
-
-            if ($this->invoice->auto_bill_tries == 3) {
-                $this->invoice->auto_bill_enabled = false;
-                $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
-                $this->invoice->save();
-            }
-
-            $this->invoice->save();
 
             nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
         }
+
+        $this->invoice->auto_bill_tries += 1;
+
+        if ($this->invoice->auto_bill_tries == 3) {
+            $this->invoice->auto_bill_enabled = false;
+            $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
+        }
+
+        $this->invoice->save();
 
         if ($payment) {
             info('Auto Bill payment captured for '.$this->invoice->number);
