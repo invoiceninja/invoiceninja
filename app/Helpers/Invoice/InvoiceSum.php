@@ -227,11 +227,14 @@ class InvoiceSum
 
     public function getRecurringInvoice()
     {
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
-        $this->invoice->total_taxes = $this->getTotalTaxes();
-        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
-
+        // $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
+        // $this->invoice->total_taxes = $this->getTotalTaxes();
+        
+        $this->setCalculatedAttributes();
+        $this->invoice->balance = $this->invoice->amount;
         $this->invoice->saveQuietly();
+
+        // $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
