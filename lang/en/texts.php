@@ -5296,6 +5296,7 @@ $lang = array(
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
     'assign_group' => 'Assign group',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

@@ -52,6 +52,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         3 => 'paypal',
         1 => 'card',
         25 => 'venmo',
+        29 => 'paypal_advanced_cards',
         // 9 => 'sepa',
         // 12 => 'bancontact',
         // 17 => 'eps',
@@ -117,6 +118,7 @@ class PayPalRestPaymentDriver extends BaseDriver
             "3" => $method = PaymentType::PAYPAL,
             "25" => $method = PaymentType::VENMO,
             "28" => $method = PaymentType::PAY_LATER,
+            "29" => $method = PaymentType::CREDIT_CARD_OTHER,
         };
 
         return $method;
@@ -208,6 +210,10 @@ return render('gateways.paypal.pay', $data);
 
     }
 
+    public function processTokenPayment(array $response) {
+
+    }
+
     public function processPaymentResponse($request)
     {
 
@@ -216,6 +222,9 @@ return render('gateways.paypal.pay', $data);
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
         
+        if(isset($response['gateway_response']['token']) && strlen($response['gateway_response']['token']) > 2)
+            return $this->processTokenPayment($response);
+
         // nlog($response);
         //capture
         $orderID = $response['orderID'];
@@ -272,6 +281,8 @@ return render('gateways.paypal.pay', $data);
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
+            nlog($response->json());
+
             $data = [
                 'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
                 'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
@@ -281,8 +292,40 @@ return render('gateways.paypal.pay', $data);
 
             $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
+            if ($request->has('store_card') && $request->input('store_card') === true) {
+                $payment_source = $response->json()['payment_source'];
+                
+                if(isset($payment_source['card']) && ($payment_source['card']['attributes']['vault']['status'] ?? false) && $payment_source['card']['attributes']['vault']['status'] == 'VAULTED'){
+
+                    $last4 = $payment_source['card']['last_digits'];
+                    $expiry = $payment_source['card']['expiry']; //'2025-01'
+                    $expiry_meta = explode('-', $expiry);
+                    $brand = $payment_source['card']['brand'];
+
+                    $payment_meta = new \stdClass();
+                    $payment_meta->exp_month = $expiry_meta[1] ?? '';
+                    $payment_meta->exp_year = $expiry_meta[0] ?? $expiry;
+                    $payment_meta->brand = $brand;
+                    $payment_meta->last4 = $last4;
+                    $payment_meta->type = GatewayType::CREDIT_CARD;
+
+                    $token = $payment_source['card']['attributes']['vault']['id']; // 09f28652d01257021
+                    $gateway_customer_reference = $payment_source['card']['attributes']['vault']['customer']['id']; //rbTHnLsZqE;
+
+                    $data['token'] = $token;
+                    $data['payment_method_id'] = GatewayType::PAYPAL_ADVANCED_CARDS;
+                    $data['payment_meta'] = $payment_meta;
+                    $data['payment_method_id'] = GatewayType::CREDIT_CARD;
+
+                    $additional['gateway_customer_reference'] = $gateway_customer_reference;
+
+                    $this->storeGatewayToken($data, $additional);
+
+                }
+            }
+
             SystemLogger::dispatch(
-                ['response' => $response, 'data' => $data],
+                ['response' => $response->json(), 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_PAYPAL,
@@ -329,32 +372,40 @@ return render('gateways.paypal.pay', $data);
 
     private function getPaymentSource(): array
     {
-
-        if($this->gateway_type_id == 1) {
+        //@todo - roll back here for advanced payments vs hosted card fields.
+        if($this->gateway_type_id == GatewayType::PAYPAL_ADVANCED_CARDS) {
 
             return [
                 "card" => [
                     "attributes" => [
                         "verification" => [
                             "method" => "SCA_WHEN_REQUIRED", //SCA_ALWAYS
+                            // "method" => "SCA_ALWAYS", //SCA_ALWAYS
+                        ],
+                        "vault" => [
+                            "store_in_vault" => "ON_SUCCESS", //must listen to this webhook - VAULT.PAYMENT-TOKEN.CREATED webhook.
                         ],
                     ],
-                    "name" => $this->client->present()->primary_contact_name(),
-                    "email_address" => $this->client->present()->email(),
-                    "address" => [
-                        "address_line_1" => $this->client->address1,
-                        "address_line_2" => $this->client->address2,
-                        "admin_area_2" => $this->client->city,
-                        "admin_area_1" => $this->client->state,
-                        "postal_code" => $this->client->postal_code,
-                        "country_code" => $this->client->country->iso_3166_2,
-                    ],
-                    "experience_context" => [
-                        "user_action" => "PAY_NOW"
-                    ],
+                "experience_context" => [
+                    "shipping_preference" => "SET_PROVIDED_ADDRESS"
+                ],
+                    // "name" => $this->client->present()->primary_contact_name(),
+                    // "email_address" => $this->client->present()->email(),
+                    // "address" => [
+                    //     "address_line_1" => $this->client->address1,
+                    //     "address_line_2" => $this->client->address2,
+                    //     "admin_area_2" => $this->client->city,
+                    //     "admin_area_1" => $this->client->state,
+                    //     "postal_code" => $this->client->postal_code,
+                    //     "country_code" => $this->client->country->iso_3166_2,
+                    // ],
+                    // "experience_context" => [
+                    //     "user_action" => "PAY_NOW"
+                    // ],
                     "stored_credential" => [
-                        "payment_initiator" => "MERCHANT", //"CUSTOMER" who initiated the transaction?
-                        "payment_type" => "UNSCHEDULED",
+                        // "payment_initiator" => "MERCHANT", //"CUSTOMER" who initiated the transaction?
+                        "payment_initiator" => "CUSTOMER", //"" who initiated the transaction?
+                        "payment_type" => "UNSCHEDULED", //UNSCHEDULED
                         "usage"=> "DERIVED",
                     ],
                 ],
@@ -406,9 +457,9 @@ return render('gateways.paypal.pay', $data);
                     "custom_id" => $this->payment_hash->hash,
                     "description" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
                     "invoice_id" => $invoice->number,
-                    "payment_instruction" => [
-                        "disbursement_mode" => "INSTANT",
-                    ],
+                    // "payment_instruction" => [
+                    //     "disbursement_mode" => "INSTANT",
+                    // ],
                     $this->getShippingAddress(),
                     "amount" => [
                         "value" => (string) $data['amount_with_fee'],
@@ -440,6 +491,8 @@ return render('gateways.paypal.pay', $data);
             $order['purchase_units'][0]["shipping"] = $shipping;
         }
 
+        nlog($order);
+        
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         // nlog($r->json());
@@ -463,7 +516,11 @@ return render('gateways.paypal.pay', $data);
                 ],
         ]
 
-        : null;
+        : [
+            "name" => [
+                "full_name" => $this->client->present()->name()
+            ]
+        ];
 
     }
 
