@@ -50,9 +50,10 @@
       </div>
 
       @include('portal.ninja2020.gateways.includes.save_card')
+      @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now'])
     </div>
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+    @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-token'])
     
 @endsection
 
@@ -232,7 +233,9 @@
           document
               .getElementById('save-card--container').style.display = 'none';
           document
-              .getElementById('checkout-form').style.display = 'none';
+              .getElementById('checkout-form').classList.add('hidden');
+        document
+              .getElementById('pay-now-token').classList.remove('hidden');
 
           document
               .getElementById('token').value = e.target.dataset.token;
@@ -243,14 +246,21 @@
   if (payWithCreditCardToggle) {
       payWithCreditCardToggle
           .addEventListener('click', () => {
+            console.log("Cc");
               document
                   .getElementById('save-card--container').style.display = 'grid';
+             document
+              .getElementById('checkout-form').classList.remove('hidden');
+
+            document
+              .getElementById('pay-now-token').classList.add('hidden');
+
               document
                   .getElementById('token').value = null;
           });
   }
 
-  let payNowButton = document.getElementById('pay-now');
+  let payNowButton = document.getElementById('pay-now-token');
 
   if (payNowButton) {
       payNowButton
@@ -260,7 +270,7 @@
                 document.getElementById("token").value = token.value;
             }
 
-            document.getElementById("gateway_response").value = JSON.stringify( data );
+            document.getElementById("gateway_response").value = JSON.stringify( {token: token.value, orderID: "{!! $order_id !!}"} );
             document.getElementById("server_response").submit();
 
           });
