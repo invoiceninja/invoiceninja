@@ -138,7 +138,7 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('{entity}/{invitation_key}/download', [App\Http\Controllers\ClientPortal\InvitationController::class, 'routerForDownload'])->middleware('token_auth');
     Route::get('pay/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'payInvoice'])->name('pay.invoice');
 
-    Route::get('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'index'])->name('email_preferences')->middleware('signed');
+    Route::get('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'index'])->name('email_preferences');
     Route::put('email_preferences/{entity}/{invitation_key}', [EmailPreferencesController::class, 'update']);
 
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
@@ -158,21 +158,31 @@ Route::get('.env', function () {
 
 Route::fallback(function () {
 
-    if (Ninja::isSelfHost() && Account::first()?->set_react_as_default_ap) {
+    if (Ninja::isSelfHost()) {
+
+        $result = false;
+        try {
+            $result = DB::connection()->getPdo();
+            $result = DB::connection()->getDatabaseName();
+        } catch(\Exception $e) {
+            $result = false;
+        }
+
+        if(!$result) {
+            return redirect('/setup');
+        }
 
         $account = Account::first();
 
-        return response()->view('react.index', [
+        return $account->set_react_as_default_ap ? response()->view('react.index', [
             'rc' => request()->input('rc', ''),
             'login' => request()->input('login', ''),
             'signup' => request()->input('signup', ''),
             'report_errors' => $account->report_errors,
             'user_agent' => request()->server('HTTP_USER_AGENT'),
-        ])->header('X-Frame-Options', 'SAMEORIGIN', false);
+        ])->header('X-Frame-Options', 'SAMEORIGIN', false) : abort(404);
     }
 
     abort(404);
 
 })->middleware('throttle:404');
-
-// Fix me: Move into invite_db middleware group.

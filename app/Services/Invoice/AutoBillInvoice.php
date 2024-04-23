@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -150,18 +150,18 @@ class AutoBillInvoice extends AbstractService
                 ->setPaymentHash($payment_hash)
                 ->tokenBilling($gateway_token, $payment_hash);
         } catch (\Exception $e) {
-            $this->invoice->auto_bill_tries += 1;
-
-            if ($this->invoice->auto_bill_tries == 3) {
-                $this->invoice->auto_bill_enabled = false;
-                $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
-                $this->invoice->save();
-            }
-
-            $this->invoice->save();
 
             nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
         }
+
+        $this->invoice->auto_bill_tries += 1;
+
+        if ($this->invoice->auto_bill_tries == 3) {
+            $this->invoice->auto_bill_enabled = false;
+            $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
+        }
+
+        $this->invoice->save();
 
         if ($payment) {
             info('Auto Bill payment captured for '.$this->invoice->number);

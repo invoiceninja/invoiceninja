@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -70,7 +70,15 @@ class GmailTransport extends AbstractTransport
             /* Need to slow down */
             if ($e->getCode() == '429') {
                 nlog("429 google - retrying ");
-                $service->users_messages->send('me', $body, []);
+
+                sleep(rand(3,8));
+                
+                try {
+                    $service->users_messages->send('me', $body, []);
+                } catch(\Google\Service\Exception $e) {
+                
+                }
+
             }
         }
     }

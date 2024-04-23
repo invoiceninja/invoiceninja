@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -227,11 +227,14 @@ class InvoiceSum
 
     public function getRecurringInvoice()
     {
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
-        $this->invoice->total_taxes = $this->getTotalTaxes();
-        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
-
+        // $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
+        // $this->invoice->total_taxes = $this->getTotalTaxes();
+        
+        $this->setCalculatedAttributes();
+        $this->invoice->balance = $this->invoice->amount;
         $this->invoice->saveQuietly();
+
+        // $this->invoice->saveQuietly();
 
         return $this->invoice;
     }

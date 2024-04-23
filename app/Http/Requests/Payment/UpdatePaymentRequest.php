@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,9 +45,9 @@ class UpdatePaymentRequest extends Request
             'client_id' => ['sometimes', 'bail', Rule::in([$this->payment->client_id])],
             'number' => ['sometimes', 'bail', Rule::unique('payments')->where('company_id', $user->company()->id)->ignore($this->payment->id)],
             'invoices' => ['sometimes', 'bail', 'nullable', 'array', new PaymentAppliedValidAmount($this->all())],
-            'invoices.*.invoice_id' => ['sometimes','distinct',Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
+            'invoices.*.invoice_id' => ['sometimes','distinct',Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', $this->payment->client_id)],
             'invoices.*.amount' => ['sometimes','numeric','min:0'],
-            'credits.*.credit_id' => ['sometimes','bail','distinct',Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
+            'credits.*.credit_id' => ['sometimes','bail','distinct',Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', $this->payment->client_id)],
             'credits.*.amount' => ['required', 'bail'],
         ];
 

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -91,7 +91,6 @@ class StoreTaskRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->fileValidation();
         }
-
 
         return $this->globalRules($rules);
     }

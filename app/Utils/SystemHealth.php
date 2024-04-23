@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -201,11 +201,12 @@ class SystemHealth
 
     private static function simpleDbCheck(): bool
     {
-        $result = true;
+        $result = false;
 
         try {
-            $pdo = DB::connection()->getPdo();
+            $result = DB::connection()->getPdo();
             $result = true;
+            $result = DB::connection()->getDatabaseName() && strlen(DB::connection()->getDatabaseName()) > 1;
         } catch (Exception $e) {
             $result = false;
         }

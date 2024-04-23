@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -85,6 +85,10 @@ class UpdateCreditRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
+
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
+        }
 
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];

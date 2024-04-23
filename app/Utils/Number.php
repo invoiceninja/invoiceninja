@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -101,6 +101,12 @@ class Number
         if($comma === false) //no comma must be a decimal number already
             return (float) $value;
 
+        if(!$decimal && substr($value, -3, 1) != ","){
+            $value = $value.".00";
+        }
+        
+        $decimal = strpos($value, '.');
+
         if($decimal < $comma){ //decimal before a comma = euro
             $value = str_replace(['.',','], ['','.'], $value);
             return (float) $value;
@@ -113,6 +119,7 @@ class Number
 
 
     }
+    
     /**
      * Formats a given value based on the clients currency
      * BACK to a float.
@@ -227,9 +234,6 @@ class Number
         $precision = $currency->precision;
         $code = $currency->code;
         $swapSymbol = $currency->swap_currency_symbol;
-
-        // App\Models\Client::country() returns instance of BelongsTo.
-        // App\Models\Company::country() returns record for the country, that's why we check for the instance.
 
         if ($entity instanceof Company) {
             $country = $entity->country();

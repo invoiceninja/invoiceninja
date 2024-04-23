@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -83,7 +83,7 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-            $line_item->tax_id = $item['product']['tax_id'] ?? '1';
+            $line_item->tax_id = (string)$item['product']['tax_id'] ?? '1';
             $items[] = $line_item;
 
         }
@@ -99,7 +99,7 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-            $line_item->tax_id = $item['product']['tax_id'] ?? '1';
+            $line_item->tax_id = (string)$item['product']['tax_id'] ?? '1';
             $items[] = $line_item;
 
         }

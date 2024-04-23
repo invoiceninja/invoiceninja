@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -74,9 +74,12 @@ class TemplateEmail extends Mailable
     {
         $template_name = 'email.template.'.$this->build_email->getTemplate();
 
-        if ($this->build_email->getTemplate() == 'light' || $this->build_email->getTemplate() == 'dark') {
-            // $template_name = $this->company->account->isPremium() ? 'email.template.client_premium' : 'email.template.client';
+        if (in_array($this->build_email->getTemplate(), ['light', 'dark'])) {
             $template_name = 'email.template.client';
+        }
+
+        if($this->build_email->getTemplate() == 'premium') {
+            $template_name = 'email.template.client_premium';
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
@@ -151,7 +154,10 @@ class TemplateEmail extends Mailable
             }
         }
 
-        if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+        if(!$this->invitation)
+            return $this;
+
+        if ($this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $ubl_string = (new CreateUbl($this->invitation->invoice))->handle();
 
             if ($ubl_string) {
@@ -159,8 +165,9 @@ class TemplateEmail extends Mailable
             }
 
         }
+
         if ($this->invitation->invoice) {
-            if ($this->invitation && $this->invitation->invoice && $this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            if ($this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
 
                 if ($xml_string) {
@@ -170,7 +177,7 @@ class TemplateEmail extends Mailable
             }
         }
         elseif ($this->invitation->credit){
-            if ($this->invitation && $this->invitation->credit && $this->invitation->credit->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            if ($this->invitation->credit->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->credit->service()->getECredit($this->invitation->contact);
 
                 if ($xml_string) {
@@ -180,7 +187,7 @@ class TemplateEmail extends Mailable
             }
         }
         elseif ($this->invitation->quote){
-            if ($this->invitation && $this->invitation->quote && $this->invitation->quote->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            if ($this->invitation->quote->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->quote->service()->getEQuote($this->invitation->contact);
 
                 if ($xml_string) {
@@ -190,7 +197,7 @@ class TemplateEmail extends Mailable
             }
         }
         elseif ($this->invitation->purchase_order){
-            if ($this->invitation && $this->invitation->purchase_order && $this->invitation->purchase_order->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            if ($this->invitation->purchase_order->vendor->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->purchase_order->service()->getEPurchaseOrder($this->invitation->contact);
 
                 if ($xml_string) {

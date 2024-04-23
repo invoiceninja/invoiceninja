@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -207,7 +207,7 @@ class TemplateService
         $tm = new TemplateMock($this->company);
         $tm->setSettings($this->getSettings())->init();
 
-        $this->entity = $this->company->invoices()->first();
+        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first();
 
         $this->data = $tm->engines;
         $this->variables = $tm->variables[0];

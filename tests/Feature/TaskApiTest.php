@@ -104,6 +104,71 @@ class TaskApiTest extends TestCase
         }
     }
 
+    public function testRequestRuleParsing()
+    {
+                
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+            'assigned_user' => [],
+            'project' => [],
+            'user' => [],
+            // 'status' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+    }
+    public function testUserFilters()
+    {
+        
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->getJson("/api/v1/tasks")->assertStatus(200);
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->getJson("/api/v1/tasks?user_id={$this->user->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($this->user->hashed_id, $arr['data'][0]['user_id']);
+        $this->assertCount(1, $arr['data']);
+
+        $t = Task::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'assigned_user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+        ]);
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->getJson("/api/v1/tasks?assigned_user={$this->user->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($this->user->hashed_id, $arr['data'][0]['user_id']);
+        $this->assertEquals($this->user->hashed_id, $arr['data'][0]['assigned_user_id']);
+        $this->assertCount(1, $arr['data']);
+
+    }
+
     public function testEmptyTimeLogArray()
     {
         

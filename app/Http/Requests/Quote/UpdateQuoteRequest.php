@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,15 +56,15 @@ class UpdateQuoteRequest extends Request
             $rules['file'] = $this->fileValidation();
         }
 
-
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)->ignore($this->quote->id)];
-
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->quote->client_id])];
-
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+
+        $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date', 'before:due_date'];
+        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', 'after_or_equal:date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
 
         return $rules;
     }
@@ -89,6 +89,9 @@ class UpdateQuoteRequest extends Request
             $input['exchange_rate'] = 1;
         }
 
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
+        }
 
         $this->replace($input);
     }

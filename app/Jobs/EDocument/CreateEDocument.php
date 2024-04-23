@@ -4,13 +4,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Jobs\EDocument;
 
+use App\Services\EDocument\Standards\RoEInvoice;
 use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Credit;
@@ -25,6 +26,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use App\Services\EDocument\Standards\OrderXDocument;
 use App\Services\EDocument\Standards\FacturaEInvoice;
+use App\Services\EDocument\Standards\FatturaPA;
 use App\Services\EDocument\Standards\ZugferdEDokument;
 
 class CreateEDocument implements ShouldQueue
@@ -61,9 +63,14 @@ class CreateEDocument implements ShouldQueue
 
         $e_document_type = strlen($settings_entity->getSetting('e_invoice_type')) > 2 ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
         $e_quote_type = strlen($settings_entity->getSetting('e_quote_type')) > 2 ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
+nlog($e_document_type);
 
         if ($this->document instanceof Invoice){
             switch ($e_document_type) {
+                case "FACT1":
+                    return (new RoEInvoice($this->document))->generateXml();
+                case "FatturaPA":
+                    return (new FatturaPA($this->document))->run();
                 case "EN16931":
                 case "XInvoice_3_0":
                 case "XInvoice_2_3":

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,10 +33,132 @@ use CleverIt\UBL\Invoice\TaxSubTotal;
 use CleverIt\UBL\Invoice\TaxTotal;
 use App\Models\Product;
 
+/**
+ * Requirements:
+ *  FACT1: 
+ *  Bank ID =>   company->settings->custom_value1
+ *  Bank Name => company->settings->custom_value2
+ *  Sector Code => company->settings->state
+ *  Sub Entity Code => company->settings->city
+ *  Payment Means => invoice.custom_value1
+ */
 class RoEInvoice extends AbstractService
 {
+
+    private array $countrySubEntity = [
+        'RO-AB' => 'Alba',
+        'RO-AG' => 'Argeș',
+        'RO-AR' => 'Arad',
+        'RO-B' => 'Bucharest',
+        'RO-BC' => 'Bacău',
+        'RO-BH' => 'Bihor',
+        'RO-BN' => 'Bistrița-Năsăud',
+        'RO-BR' => 'Brăila',
+        'RO-BT' => 'Botoșani',
+        'RO-BV' => 'Brașov',
+        'RO-BZ' => 'Buzău',
+        'RO-CJ' => 'Cluj',
+        'RO-CL' => 'Călărași',
+        'RO-CS' => 'Caraș-Severin',
+        'RO-CT' => 'Constanța',
+        'RO-CV' => 'Covasna',
+        'RO-DB' => 'Dâmbovița',
+        'RO-DJ' => 'Dolj',
+        'RO-GJ' => 'Gorj',
+        'RO-GL' => 'Galați',
+        'RO-GR' => 'Giurgiu',
+        'RO-HD' => 'Hunedoara',
+        'RO-HR' => 'Harghita',
+        'RO-IF' => 'Ilfov',
+        'RO-IL' => 'Ialomița',
+        'RO-IS' => 'Iași',
+        'RO-MH' => 'Mehedinți',
+        'RO-MM' => 'Maramureș',
+        'RO-MS' => 'Mureș',
+        'RO-NT' => 'Neamț',
+        'RO-OT' => 'Olt',
+        'RO-PH' => 'Prahova',
+        'RO-SB' => 'Sibiu',
+        'RO-SJ' => 'Sălaj',
+        'RO-SM' => 'Satu Mare',
+        'RO-SV' => 'Suceava',
+        'RO-TL' => 'Tulcea',
+        'RO-TM' => 'Timiș',
+        'RO-TR' => 'Teleorman',
+        'RO-VL' => 'Vâlcea',
+        'RO-VN' => 'Vaslui',
+        'RO-VS' => 'Vrancea',
+    ];
+
+    private array $sectorList = [
+        'SECTOR1' => 'Agriculture',
+        'SECTOR2' => 'Manufacturing',
+        'SECTOR3' => 'Tourism',
+        'SECTOR4' => 'Information Technology (IT):',
+        'SECTOR5' => 'Energy',
+        'SECTOR6' => 'Healthcare',
+        'SECTOR7' => 'Education',
+    ];
+
+    private array $sectorCodes = [
+        'RO-AB'  => 'Manufacturing, Agriculture',
+        'RO-AG'  => 'Manufacturing, Agriculture',
+        'RO-AR'  => 'Manufacturing, Agriculture',
+        'RO-B'  => 'Information Technology (IT), Education, Tourism',
+        'RO-BC'  => 'Manufacturing, Agriculture',
+        'RO-BH'  => 'Agriculture, Manufacturing',
+        'RO-BN'  => 'Agriculture',
+        'RO-BR'  => 'Agriculture',
+        'RO-BT'  => 'Agriculture',
+        'RO-BV'  => 'Tourism, Agriculture',
+        'RO-BZ'  => 'Agriculture',
+        'RO-CJ'  => 'Information Technology (IT), Education, Tourism',
+        'RO-CL'  => 'Agriculture',
+        'RO-CS'  => 'Manufacturing, Agriculture',
+        'RO-CT'  => 'Tourism, Agriculture',
+        'RO-CV'  => 'Agriculture',
+        'RO-DB'  => 'Agriculture',
+        'RO-DJ'  => 'Agriculture',
+        'RO-GJ'  => 'Manufacturing, Agriculture',
+        'RO-GL'  => 'Energy, Manufacturing',
+        'RO-GR'  => 'Agriculture',
+        'RO-HD'  => 'Energy, Manufacturing',
+        'RO-HR'  => 'Agriculture',
+        'RO-IF'  => 'Information Technology (IT), Education',
+        'RO-IL'  => 'Agriculture',
+        'RO-IS'  => 'Information Technology (IT), Education, Agriculture',
+        'RO-MH'  => 'Manufacturing, Agriculture',
+        'RO-MM'  => 'Agriculture',
+        'RO-MS'  => 'Energy, Manufacturing, Agriculture',
+        'RO-NT'  => 'Agriculture',
+        'RO-OT'  => 'Agriculture',
+        'RO-PH'  => 'Energy, Manufacturing',
+        'RO-SB'  => 'Manufacturing, Agriculture',
+        'RO-SJ'  => 'Agriculture',
+        'RO-SM'  => 'Agriculture',
+        'RO-SV'  => 'Agriculture',
+        'RO-TL'  => 'Agriculture',
+        'RO-TM'  => 'Agriculture, Manufacturing',
+        'RO-TR'  => 'Agriculture',
+        'RO-VL'  => 'Agriculture',
+        'RO-VN'  => 'Agriculture',
+        'RO-VS'  => 'Agriculture',
+    ];
+
     public function __construct(public Invoice $invoice)
     {
+    }
+
+    private function resolveSubEntityCode(string $city) 
+    {
+        $city_references = &$this->countrySubEntity[$city];
+
+        return $city_references ?? 'RO-B';
+    }
+
+    private function resolveSectorCode(string $state) 
+    {
+        return in_array($state, $this->sectorList) ? $state : 'SECTOR1';
     }
 
     /**
@@ -65,6 +187,7 @@ class RoEInvoice extends AbstractService
 
         $ubl_invoice = new UBLInvoice();
 
+        $ubl_invoice->setCustomizationID("urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1");
         // invoice
         $ubl_invoice->setId($invoice->number);
         $ubl_invoice->setIssueDate(date_create($invoice->date));
@@ -93,10 +216,11 @@ class RoEInvoice extends AbstractService
         $payeeFinancialAccount = (new PayeeFinancialAccount())
             ->setBankId($company->settings->custom_value1)
             ->setBankName($company->settings->custom_value2);
-        $paymentMeans = (new PaymentMeans())
-            ->setPaymentMeansCode($invoice->custom_value2)
+        
+            $paymentMeans = (new PaymentMeans())
+            ->setPaymentMeansCode($invoice->custom_value1)
             ->setPayeeFinancialAccount($payeeFinancialAccount);
-        $ubl_invoice->setPaymentMeans($paymentMeans);
+            $ubl_invoice->setPaymentMeans($paymentMeans);
 
         // line items
         $invoice_lines = [];
@@ -133,7 +257,8 @@ class RoEInvoice extends AbstractService
             ->setTaxCategory((new TaxCategory())
                 ->setId("S")
                 ->setPercent($taxRatePercent)
-                ->setTaxScheme(($taxNameScheme === 'TVA') ? 'VAT' : $taxNameScheme)));
+                ->setTaxScheme(((new TaxScheme())->setId(($taxNameScheme === 'TVA') ? 'VAT' : $taxNameScheme)))));
+
         $ubl_invoice->setTaxTotal($taxtotal);
 
         $ubl_invoice->setLegalMonetaryTotal((new LegalMonetaryTotal())
@@ -151,13 +276,13 @@ class RoEInvoice extends AbstractService
         $party->setPartyIdentification(preg_replace('/^RO/', '', $vatNr));
         $address = new Address();
         if ($compType === 'company') {
-            $address->setCityName($company->settings->state);
+            $address->setCityName($this->resolveSectorCode($company->settings->state));
             $address->setStreetName($company->settings->address1);
-            $address->setCountrySubentity($company->settings->city);
+            $address->setCountrySubentity($this->resolveSubEntityCode($company->settings->city));
         } elseif ($compType === 'client') {
-            $address->setCityName($company->state);
+            $address->setCityName($this->resolveSectorCode($company->state));
             $address->setStreetName($company->address1);
-            $address->setCountrySubentity($company->city);
+            $address->setCountrySubentity($this->resolveSubEntityCode($company->city));
         }
 
         if ($compType === 'company') {
@@ -204,6 +329,7 @@ class RoEInvoice extends AbstractService
             ->setName($fullName)
             ->setElectronicMail($eMail)
             ->setTelephone($phone);
+        
         $party->setContact($contact);
 
         return $party;
@@ -215,17 +341,17 @@ class RoEInvoice extends AbstractService
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
             ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate1)
-            ->setTaxScheme(($item->tax_name1 === 'TVA') ? 'VAT' : $item->tax_name1);
+            ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name1 === 'TVA') ? 'VAT' : $item->tax_name1)));
         } elseif (strlen($item->tax_name2) > 1) {
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
             ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate2)
-            ->setTaxScheme(($item->tax_name2 === 'TVA') ? 'VAT' : $item->tax_name2);
+            ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name2 === 'TVA') ? 'VAT' : $item->tax_name2)));
         } elseif (strlen($item->tax_name3) > 1) {
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
             ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate3)
-            ->setTaxScheme(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3);
+            ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3)));
         }
         $invoiceLine = (new InvoiceLine())
             ->setId($index + 1)

@@ -54,12 +54,19 @@ class Office365MailTransport extends AbstractTransport
                 ->setReturnType(\Microsoft\Graph\Model\Message::class)
                 ->execute();
         } catch (\Exception $e) {
-            sleep(5);
+            
+            sleep(rand(5,10));
+
+            try {
             $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
                 ->attachBody(base64_encode($bcc_list.$message->toString()))
                 ->addHeaders(['Content-Type' => 'text/plain'])
                 ->setReturnType(\Microsoft\Graph\Model\Message::class)
                 ->execute();
+            } catch (\Exception $e) {
+            
+            }
+
         }
     }
 

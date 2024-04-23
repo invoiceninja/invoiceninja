@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,7 +77,7 @@ class StoreInvoiceRequest extends Request
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
         $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
-        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
+        // $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
 
 
         return $rules;
@@ -93,8 +93,8 @@ class StoreInvoiceRequest extends Request
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
         }
 
-        if(isset($input['partial']) && $input['partial'] == 0 && isset($input['partial_due_date'])) {
-            $input['partial_due_date'] = '';
+        if(isset($input['partial']) && $input['partial'] == 0) {
+            $input['partial_due_date'] = null;
         }
 
         $input['amount'] = 0;

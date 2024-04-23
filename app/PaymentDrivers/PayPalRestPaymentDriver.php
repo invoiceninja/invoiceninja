@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -166,7 +166,10 @@ class PayPalRestPaymentDriver extends BaseDriver
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
 
-        return render('gateways.paypal.pay', $data);
+
+// return render('gateways.paypal.ppcp.card', $data);
+
+return render('gateways.paypal.pay', $data);
 
     }
 
@@ -324,6 +327,65 @@ class PayPalRestPaymentDriver extends BaseDriver
 
     }
 
+    private function getPaymentSource(): array
+    {
+
+        if($this->gateway_type_id == 1) {
+
+            return [
+                "card" => [
+                    "attributes" => [
+                        "verification" => [
+                            "method" => "SCA_WHEN_REQUIRED", //SCA_ALWAYS
+                        ],
+                    ],
+                    "name" => $this->client->present()->primary_contact_name(),
+                    "email_address" => $this->client->present()->email(),
+                    "address" => [
+                        "address_line_1" => $this->client->address1,
+                        "address_line_2" => $this->client->address2,
+                        "admin_area_2" => $this->client->city,
+                        "admin_area_1" => $this->client->state,
+                        "postal_code" => $this->client->postal_code,
+                        "country_code" => $this->client->country->iso_3166_2,
+                    ],
+                    "experience_context" => [
+                        "user_action" => "PAY_NOW"
+                    ],
+                    "stored_credential" => [
+                        "payment_initiator" => "MERCHANT", //"CUSTOMER" who initiated the transaction?
+                        "payment_type" => "UNSCHEDULED",
+                        "usage"=> "DERIVED",
+                    ],
+                ],
+            ];
+
+        }
+
+        return [
+            "paypal" => [
+                "name" => [
+                    "given_name" => $this->client->present()->first_name(),
+                    "surname" => $this->client->present()->last_name(),
+                ],
+                "email_address" => $this->client->present()->email(),
+                "address" => [
+                    "address_line_1" => $this->client->address1,
+                    "address_line_2" => $this->client->address2,
+                    "admin_area_2" => $this->client->city,
+                    "admin_area_1" => $this->client->state,
+                    "postal_code" => $this->client->postal_code,
+                    "country_code" => $this->client->country->iso_3166_2,
+                ],
+                "experience_context" => [
+                    "user_action" => "PAY_NOW"
+                ],
+            ],
+        ];
+
+    }
+
+
     private function createOrder(array $data): string
     {
 
@@ -338,27 +400,7 @@ class PayPalRestPaymentDriver extends BaseDriver
         $order = [
 
                 "intent" => "CAPTURE",
-                "payment_source" => [
-                    "paypal" => [
-
-                        "name" => [
-                            "given_name" => $this->client->present()->first_name(),
-                            "surname" => $this->client->present()->last_name(),
-                        ],
-                        "email_address" => $this->client->present()->email(),
-                        "address" => [
-                            "address_line_1" => $this->client->address1,
-                            "address_line_2" => $this->client->address2,
-                            "admin_area_2" => $this->client->city,
-                            "admin_area_1" => $this->client->state,
-                            "postal_code" => $this->client->postal_code,
-                            "country_code" => $this->client->country->iso_3166_2,
-                        ],
-                        "experience_context" => [
-                            "user_action" => "PAY_NOW"
-                        ],
-                    ],
-                ],
+                "payment_source" => $this->getPaymentSource(),
                 "purchase_units" => [
                     [
                     "custom_id" => $this->payment_hash->hash,

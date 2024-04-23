@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,7 +48,6 @@ class NinjaMailerJob implements ShouldQueue
     use MakesHash;
 
     public $tries = 4; //number of retries
-
     public $deleteWhenMissingModels = true;
 
     /** @var null|\App\Models\Company $company  **/
@@ -223,7 +222,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             /* Releasing immediately does not add in the backoff */
-            sleep(rand(0, 3));
+            sleep(rand(5, 10));
 
             $this->release($this->backoff()[$this->attempts() - 1]);
         }

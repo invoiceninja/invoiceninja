@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,7 +77,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
- * @property string|null $partial_due_date
+ * @property \Carbon\Carbon|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
  * @property int|null $updated_at
@@ -165,7 +165,7 @@ class Quote extends BaseModel
     protected $casts = [
         // 'date' => 'date:Y-m-d',
         'due_date' => 'date:Y-m-d',
-        // 'partial_due_date' => 'date:Y-m-d',
+        'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
         'backup' => 'object',
         'updated_at' => 'timestamp',
@@ -195,15 +195,15 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function getDueDateAttribute($value)
-    {
-        return $value ? $this->dateMutator($value) : null;
-    }
+//    public function getDueDateAttribute($value)
+//    {
+//        return $value ? $this->dateMutator($value) : null;
+//    }
 
-    public function getPartialDueDateAttribute($value)
-    {
-        return $this->dateMutator($value);
-    }
+    // public function getPartialDueDateAttribute($value)
+    // {
+    //     return $this->dateMutator($value);
+    // }
 
     public function getStatusIdAttribute($value)
     {

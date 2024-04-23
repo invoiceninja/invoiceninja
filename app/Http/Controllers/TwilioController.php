@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -144,7 +144,6 @@ class TwilioController extends BaseController
     public function generate2faResetCode(Generate2faRequest $request)
     {
         nlog($request->all());
-        nlog($request->headers());
 
         $user = User::where('email', $request->email)->first();
 
