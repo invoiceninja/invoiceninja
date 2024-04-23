@@ -251,7 +251,7 @@ return render('gateways.paypal.ppcp.card', $data);
         nlog($response);
 
         $data = [
-            'payment_type' => $this->getPaymentMethod($this->gateway_type_id),
+            'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
             'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
             'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
             'gateway_type_id' => $this->gateway_type_id,

@@ -271,7 +271,8 @@ class StripePaymentDriver extends BaseDriver
                 (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR') ||
                 ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY') ||
                 ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN') ||
-                ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP')
+                ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP') ||
+                ($this->client->country->iso_3166_2 == 'US' && $this->client->currency()->code == 'USD')
             )
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;

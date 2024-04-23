@@ -41,7 +41,6 @@ class ClientExport extends BaseExport
         'balance' => 'client.balance',
         'city' => 'client.city',
         'country' => 'client.country_id',
-        'credit_balance' => 'client.credit_balance',
         'custom_value1' => 'client.custom_value1',
         'custom_value2' => 'client.custom_value2',
         'custom_value3' => 'client.custom_value3',
@@ -227,6 +226,18 @@ class ClientExport extends BaseExport
 
         if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {
             $entity['client.classification'] = ctrans("texts.{$client->classification}") ?? '';
+        }
+
+        if (in_array('client.industry_id', $this->input['report_keys']) && isset($client->industry_id)) {
+            $entity['client.industry_id'] = ctrans("texts.industry_{$client->industry->name}") ?? '';
+        }
+
+        if (in_array('client.country_id', $this->input['report_keys']) && isset($client->country_id)) {
+            $entity['client.country_id'] = $client->country->full_name;
+        }
+
+        if (in_array('client.shipping_country_id', $this->input['report_keys']) && isset($client->shipping_country_id)) {
+            $entity['client.shipping_country_id'] = $client->shipping_country->full_name;
         }
 
         return $entity;
