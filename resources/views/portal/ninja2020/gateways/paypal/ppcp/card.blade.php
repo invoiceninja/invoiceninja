@@ -97,10 +97,10 @@
              if(liabilityShift) {
               
               /* Handle liability shift. More information in 3D Secure response parameters */
-              // console.log("inside liability shift")
-              // console.log(liabilityShift)
-              // console.log(orderID);
-              // console.log(data);
+              console.log("inside liability shift")
+              console.log(liabilityShift)
+              console.log(orderID);
+              console.log(data);
               //doesn't really do anything as failure is linked in SUBMIT. We only hit here after a successful return
               //and where SCA is optional?
 
@@ -175,7 +175,7 @@
       expiryField.render("#card-expiry-field-container");
 
       document.getElementById("pay-now").addEventListener('click', (e) => {
-
+        console.log("paynow");
         document.getElementById('errors').textContent = '';
         document.getElementById('errors').hidden = true;
         
@@ -189,8 +189,8 @@
         document.querySelector('#pay-now > span').classList.add('hidden');
 
         cardField.submit().then((response) => {
-          // console.log("then");
-          // console.log(response);
+          console.log("then");
+          console.log(response);
 
         }).catch((error) => {
 

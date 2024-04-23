@@ -276,7 +276,7 @@ class BaseController extends Controller
     /**
      * API Error response.
      *
-     * @param string    $message        The return error message
+     * @param string|array    $message        The return error message
      * @param int       $httpErrorCode  404/401/403 etc
      * @return Response                 The JSON response
      * @throws BindingResolutionException

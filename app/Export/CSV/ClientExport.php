@@ -178,13 +178,9 @@ class ClientExport extends BaseExport
             } elseif (is_array($parts) && $parts[0] == 'contact' && array_key_exists($parts[1], $transformed_contact)) {
                 $entity[$key] = $transformed_contact[$parts[1]];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $client);
-                // $entity[$key] = '';
             }
         }
-
-        // return $entity;
 
         return $this->decorateAdvancedFields($client, $entity);
     }
@@ -233,11 +229,11 @@ class ClientExport extends BaseExport
         }
 
         if (in_array('client.country_id', $this->input['report_keys']) && isset($client->country_id)) {
-            $entity['client.country_id'] = $client->country->full_name;
+            $entity['client.country_id'] = $client->country ? $client->country->full_name : '';
         }
 
         if (in_array('client.shipping_country_id', $this->input['report_keys']) && isset($client->shipping_country_id)) {
-            $entity['client.shipping_country_id'] = $client->shipping_country->full_name;
+            $entity['client.shipping_country_id'] = $client->shipping_country ? $client->shipping_country->full_name : '';
         }
 
         return $entity;

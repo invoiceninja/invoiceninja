@@ -209,7 +209,7 @@ class BaseModel extends Model
      * Retrieve the model for a bound value.
      *
      * @param mixed $value
-     * @param null $field
+     * @param mixed $field
      * @return Model|null
      */
     public function resolveRouteBinding($value, $field = null)

@@ -565,7 +565,6 @@ class CompanyGatewayController extends BaseController
 
     public function importCustomers(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-        // $x = Cache::pull("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}");
         
         //Throttle here
         if (Cache::has("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}")) 
