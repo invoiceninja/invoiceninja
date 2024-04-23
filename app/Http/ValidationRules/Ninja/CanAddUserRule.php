@@ -39,20 +39,6 @@ class CanAddUserRule implements Rule
             return true;
         }
 
-        /*
-        Check that we have sufficient quota to allow this to happen
-
-        @ 31-01-2024 - changed query to use email instead of user_id
-
-        $count = CompanyUser::query()
-                          ->where('company_user.account_id', $user->account_id)
-                          ->join('users', 'users.id', '=', 'company_user.user_id')
-                          ->whereNull('users.deleted_at')
-                          ->whereNull('company_user.deleted_at')
-                          ->distinct()
-                          ->count('company_user.user_id');
-        */
-
         $count = CompanyUser::query()
                         ->where("company_user.account_id", $user->account_id)
                         ->join("users", "users.id", "=", "company_user.user_id")
