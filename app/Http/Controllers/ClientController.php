@@ -258,6 +258,16 @@ class ClientController extends BaseController
 
         }
 
+        if($action == 'bulk_update' && $user->can('edit', $clients->first())){
+
+            $clients = Client::withTrashed()
+                    ->company()
+                    ->whereIn('id', $request->ids);
+
+            $this->client_repo->bulkUpdate($clients, $request->column, $request->new_value);
+            
+        }
+
         $clients->each(function ($client) use ($action, $user) {
             if ($user->can('edit', $client)) {
                 $this->client_repo->{$action}($client);
