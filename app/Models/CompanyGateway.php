@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $require_custom_value2
  * @property bool $require_custom_value3
  * @property bool $require_custom_value4
+ * @property bool $always_show_required_fields
  * @property-read int|null $client_gateway_tokens_count
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Gateway $gateway
@@ -77,6 +78,7 @@ class CompanyGateway extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'always_show_required_fields' => 'bool',
     ];
 
     protected $with = [
@@ -107,6 +109,7 @@ class CompanyGateway extends BaseModel
         'custom_value4',
         'token_billing',
         'label',
+        'always_show_required_fields',
     ];
 
     public static $credit_cards = [
