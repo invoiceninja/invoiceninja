@@ -180,7 +180,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         // match company
         $company = MultiDB::findAndSetDbByExpenseMailbox($to);
         if (!$company) {
-            Log::info('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
+            nlog('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
             $this->engine->saveMeta($from, $to, true); // important to save this, to protect from spam
             return;
         }
@@ -205,7 +205,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                     $mail = json_decode(file_get_contents($messageUrl));
                 } catch (\Error $e) {
                     if (config('services.mailgun.secret')) {
-                        Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+                        nlog("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                         $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
                         $messageUrl = explode("|", $this->input)[2];
@@ -253,7 +253,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
 
                     } catch (\Error $e) {
                         if (config('services.mailgun.secret')) {
-                            Log::info("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+                            nlog("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                             $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
                             $url = $attachment->url;

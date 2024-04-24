@@ -69,11 +69,11 @@ class InboundMailEngine
     {
         // invalid email
         if (!filter_var($from, FILTER_VALIDATE_EMAIL)) {
-            Log::info('E-Mail blocked, because from e-mail has the wrong format: ' . $from);
+            nlog('E-Mail blocked, because from e-mail has the wrong format: ' . $from);
             return true;
         }
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            Log::info('E-Mail blocked, because to e-mail has the wrong format: ' . $from);
+            nlog('E-Mail blocked, because to e-mail has the wrong format: ' . $from);
             return true;
         }
 
@@ -85,14 +85,14 @@ class InboundMailEngine
             return false;
         }
         if (in_array($domain, $this->globalBlacklistDomains)) {
-            Log::info('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $from);
+            nlog('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $from);
             return true;
         }
         if (in_array($domain, $this->globalWhitelistSenders)) {
             return false;
         }
         if (in_array($from, $this->globalBlacklistSenders)) {
-            Log::info('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $from);
+            nlog('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $from);
             return true;
         }
 
@@ -103,13 +103,13 @@ class InboundMailEngine
         // sender occured in more than 500 emails in the last 12 hours
         $senderMailCountTotal = Cache::get('inboundMailCountSender:' . $from, 0);
         if ($senderMailCountTotal >= 5000) {
-            Log::info('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
+            nlog('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->blockSender($from);
             $this->saveMeta($from, $to);
             return true;
         }
         if ($senderMailCountTotal >= 1000) {
-            Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
+            nlog('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->saveMeta($from, $to);
             return true;
         }
@@ -117,7 +117,7 @@ class InboundMailEngine
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
         $senderMailCountUnknownRecipent = Cache::get('inboundMailCountSenderUnknownRecipent:' . $from, 0);
         if ($senderMailCountUnknownRecipent >= 50) {
-            Log::info('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $from);
+            nlog('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $from);
             $this->saveMeta($from, $to);
             return true;
         }
@@ -125,7 +125,7 @@ class InboundMailEngine
         // wrong recipent occurs in more than 100 emails in the last 12 hours, so the processing is blocked
         $mailCountUnknownRecipent = Cache::get('inboundMailCountUnknownRecipent:' . $to, 0); // @turbo124 maybe use many to save resources in case of spam with multiple to addresses each time
         if ($mailCountUnknownRecipent >= 200) {
-            Log::info('E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $from);
+            nlog('E-Mail blocked, because anyone sended more than ' . $mailCountUnknownRecipent . ' emails to the wrong mailbox in the last 12 hours. Current sender was blocked as well: ' . $from);
             $this->blockSender($from);
             $this->saveMeta($from, $to);
             return true;
@@ -263,7 +263,7 @@ class InboundMailEngine
     }
     private function logBlocked(Company $company, string $data)
     {
-        Log::info("[InboundMailEngine][company:" . $company->id . "] " . $data);
+        nlog("[InboundMailEngine][company:" . $company->id . "] " . $data);
 
         (
             new SystemLogger(

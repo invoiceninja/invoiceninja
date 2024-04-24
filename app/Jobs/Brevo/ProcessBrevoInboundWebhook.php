@@ -135,7 +135,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
             // match company
             $company = MultiDB::findAndSetDbByExpenseMailbox($recipient);
             if (!$company) {
-                Log::info('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
+                nlog('[ProcessBrevoInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from brevo: ' . $recipient);
                 continue;
             }
 
@@ -171,7 +171,7 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
 
                         } catch (\Error $e) {
                             if (config('services.brevo.secret')) {
-                                Log::info("[ProcessBrevoInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
+                                nlog("[ProcessBrevoInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                                 $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
                                 $attachment = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);

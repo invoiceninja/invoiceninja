@@ -280,7 +280,7 @@ class PostMarkController extends BaseController
             return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] == "inbound") || !array_key_exists("To", $input) || !array_key_exists("From", $input) || !array_key_exists("MessageID", $input)) {
-            Log::info('Failed: Message could not be parsed, because required parameters are missing.');
+            nlog('Failed: Message could not be parsed, because required parameters are missing.');
             return response()->json(['message' => 'Failed. Missing/Invalid Parameters.'], 400);
         }
 
@@ -292,7 +292,7 @@ class PostMarkController extends BaseController
 
         $company = MultiDB::findAndSetDbByExpenseMailbox($input["To"]);
         if (!$company) {
-            Log::info('[PostmarkInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $input["To"]);
+            nlog('[PostmarkInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $input["To"]);
             $inboundEngine->saveMeta($input["From"], $input["To"], true); // important to save this, to protect from spam
             return;
         }

@@ -194,14 +194,14 @@ class BrevoController extends BaseController
             return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!array_key_exists('items', $input)) {
-            Log::info('Failed: Message could not be parsed, because required parameters are missing.');
+            nlog('Failed: Message could not be parsed, because required parameters are missing.');
             return response()->json(['message' => 'Failed. Invalid Parameters.'], 400);
         }
 
         foreach ($input["items"] as $item) {
 
             if (!array_key_exists('Recipients', $item) || !array_key_exists('MessageId', $item)) {
-                Log::info('Failed: Message could not be parsed, because required parameters are missing. At least one item was invalid.');
+                nlog('Failed: Message could not be parsed, because required parameters are missing. At least one item was invalid.');
                 return response()->json(['message' => 'Failed. Invalid Parameters. At least one item was invalid.'], 400);
             }
 
