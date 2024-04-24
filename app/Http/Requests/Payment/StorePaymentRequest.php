@@ -45,12 +45,12 @@ class StorePaymentRequest extends Request
 
         $rules = [
             'client_id' => ['bail','required',Rule::exists('clients','id')->where('company_id',$user->company()->id)->where('is_deleted', 0)],
-            'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule()],
+            'invoices' => ['bail','sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required'],
             'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
             'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
-            'invoices' => ['bail','sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
+            'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule()],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
             'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
         ];
@@ -94,7 +94,7 @@ class StorePaymentRequest extends Request
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {
             foreach ($input['invoices'] as $key => $value) {
-                if (is_string($value['invoice_id'])) {
+                if (isset($value['invoice_id']) && is_string($value['invoice_id'])) {
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
                 }
 
@@ -110,7 +110,7 @@ class StorePaymentRequest extends Request
 
         if (isset($input['credits']) && is_array($input['credits']) !== false) {
             foreach ($input['credits'] as $key => $value) {
-                if (array_key_exists('credit_id', $input['credits'][$key])) {
+                if (isset($value['credit_id']) && is_string($value['credit_id'])) {
                     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
                     $credits_total += $value['amount'];
                 }
