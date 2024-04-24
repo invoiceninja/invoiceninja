@@ -87,8 +87,6 @@ return [
         'gocardless' => env('GOCARDLESS_KEYS', ''),
         'square' => env('SQUARE_KEYS', ''),
         'eway' => env('EWAY_KEYS', ''),
-        'mollie',
-        env('MOLLIE_KEYS', ''),
         'paytrace' => env('PAYTRACE_KEYS', ''),
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
