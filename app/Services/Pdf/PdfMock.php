@@ -154,7 +154,7 @@ class PdfMock
         $entity->tax_map = $this->getTaxMap();
         $entity->total_tax_map = $this->getTotalTaxMap();
         $entity->invitation->company = $this->company;
-        
+
         return $entity;
     }
 
@@ -242,6 +242,7 @@ class PdfMock
     '$company.postal_code' => $this->settings->postal_code,
     '$client.billing_city' => 'Aufderharchester',
     '$secondary_font_name' => isset($this->settings?->secondary_font) ? $this->settings->secondary_font : 'Roboto',
+    '$secondary_font_url' => isset($this->settings?->secondary_font) ? \App\Utils\Helpers::resolveFont($this->settings->secondary_font)['url'] : 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$product.line_total' => '',
     '$product.tax_amount' => '',
     '$company.vat_number' => $this->settings->vat_number,
@@ -249,7 +250,6 @@ class PdfMock
     '$quote.quote_number' => '0029',
     '$client.postal_code' => '11243',
     '$contact.first_name' => 'Benedict',
-    '$secondary_font_url' => 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$contact.signature' => '',
     '$company_logo_size' => $this->settings->company_logo_size ?: '65%',
     '$product.tax_rate1' => ctrans('texts.tax'),
@@ -994,7 +994,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
@@ -1028,7 +1028,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
@@ -1059,7 +1059,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
@@ -1094,7 +1094,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
