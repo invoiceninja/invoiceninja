@@ -13,10 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\Brevo\ProcessBrevoInboundWebhook;
 use App\Jobs\Brevo\ProcessBrevoWebhook;
-use App\Libraries\MultiDB;
-use App\Models\Company;
 use Illuminate\Http\Request;
-use Log;
 
 /**
  * Class PostMarkController.

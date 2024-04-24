@@ -14,7 +14,6 @@ namespace App\Http\Controllers;
 use App\Jobs\Mailgun\ProcessMailgunInboundWebhook;
 use App\Jobs\Mailgun\ProcessMailgunWebhook;
 use Illuminate\Http\Request;
-use Log;
 
 /**
  * Class MailgunController.

@@ -18,7 +18,6 @@ use App\Services\InboundMail\InboundMailEngine;
 use App\Utils\TempFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
-use Log;
 
 /**
  * Class PostMarkController.

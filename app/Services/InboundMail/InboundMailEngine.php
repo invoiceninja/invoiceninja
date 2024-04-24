@@ -18,7 +18,6 @@ use App\Libraries\MultiDB;
 use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\SystemLog;
-use App\Models\Vendor;
 use App\Models\VendorContact;
 use App\Services\InboundMail\InboundMail;
 use App\Utils\Ninja;
@@ -28,14 +27,12 @@ use App\Utils\Traits\SavesDocuments;
 use App\Utils\Traits\MakesHash;
 use Cache;
 use Illuminate\Queue\SerializesModels;
-use Log;
 
 class InboundMailEngine
 {
     use SerializesModels, MakesHash;
     use GeneratesCounter, SavesDocuments;
 
-    private ?Company $company;
     private ?bool $isUnknownRecipent = null;
     private array $globalBlacklistDomains = [];
     private array $globalBlacklistSenders = [];
