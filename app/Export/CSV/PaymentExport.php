@@ -56,6 +56,9 @@ class PaymentExport extends BaseExport
 
         $query = Payment::query()
                             ->withTrashed()
+                            ->whereHas('client', function ($q){
+                                $q->where('is_deleted', false);
+                            })
                             ->where('company_id', $this->company->id)
                             ->where('is_deleted', 0);
 

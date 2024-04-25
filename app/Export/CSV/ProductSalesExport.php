@@ -120,6 +120,9 @@ class ProductSalesExport extends BaseExport
         //insert the header
         $query = Invoice::query()
                         ->withTrashed()
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
