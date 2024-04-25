@@ -127,6 +127,10 @@ class Statics
             $data['templates'] = Cache::get('templates');
         }
 
+        $data['bulk_updates'] = [
+            'client' => \App\Models\Client::$bulk_update_columns,
+        ];
+        
         return $data;
     }
 }

@@ -266,6 +266,8 @@ class ClientController extends BaseController
 
             $this->client_repo->bulkUpdate($clients, $request->column, $request->new_value);
             
+            return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
         }
 
         $clients->each(function ($client) use ($action, $user) {
