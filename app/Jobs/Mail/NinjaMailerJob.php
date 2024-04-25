@@ -77,6 +77,8 @@ class NinjaMailerJob implements ShouldQueue
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
+nlog("nn");
+
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::query()->where('company_key', $this->nmo->company->company_key)->first();
 
@@ -87,7 +89,6 @@ class NinjaMailerJob implements ShouldQueue
         if (!$this->company || $this->preFlightChecksFail()) {
             return;
         }
-
         /* Run time we set Reply To Email*/
         if (strlen($this->nmo->settings->reply_to_email) > 1) {
             if (property_exists($this->nmo->settings, 'reply_to_name')) {
