@@ -102,7 +102,12 @@ class ZugferdEDokument extends AbstractService
             $this->xdocument->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
 
-        $this->xdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
+        //Payment Means - Switcher
+        if($company->settings->custom_value1 == '42'){
+            $this->xdocument->addDocumentPaymentMean(typecode: 42, payeeIban: $company->settings->custom_value2, payeeAccountName: $company->settings->custom_value4, payeeBic: $company->settings->custom_value3);
+        }
+        else
+            $this->xdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
             $this->xdocument->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));

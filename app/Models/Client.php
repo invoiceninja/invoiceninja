@@ -220,12 +220,17 @@ class Client extends BaseModel implements HasLocalePreference
         'routing_id',
     ];
 
-    // public function scopeExclude($query)
-    // {
-    //     $query->makeHidden(['balance','paid_to_date']);
+    public static array $bulk_update_columns = [
+        'public_notes',
+        'industry_id',
+        'size_id',
+        'country_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+    ];
 
-    //     return $query;
-    // }
 
     public function getEntityType()
     {

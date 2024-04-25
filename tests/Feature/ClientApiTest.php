@@ -59,6 +59,33 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testBulkUpdates()
+    {
+        Client::factory()->count(3)->create([
+            "company_id" => $this->company->id,
+            "user_id" => $this->user->id,
+        ]);
+
+        $client_count = Client::query()->where('company_id', $this->company->id)->count();
+
+        $data = [
+            "column" => "public_notes",
+            "new_value" => "THISISABULKUPDATE",
+            "action" => "bulk_update",
+            "ids" => Client::where('company_id', $this->company->id)->get()->pluck("hashed_id")
+        ];
+        
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+            ])->postJson("/api/v1/clients/bulk", $data);
+
+
+        $response->assertStatus(200);
+
+        $this->assertEquals($client_count, Client::query()->where('public_notes', "THISISABULKUPDATE")->where('company_id', $this->company->id)->count());
+
+    }
+
     public function testCountryCodeValidation()
     {
         
