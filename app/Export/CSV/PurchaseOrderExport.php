@@ -58,6 +58,9 @@ class PurchaseOrderExport extends BaseExport
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')
+                        ->whereHas('vendor', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 

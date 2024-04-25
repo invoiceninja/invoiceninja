@@ -58,7 +58,10 @@ class ContactExport extends BaseExport
         }
 
         $query = ClientContact::query()
-                        ->where('company_id', $this->company->id);
+                        ->where('company_id', $this->company->id)
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        });
 
         $query = $this->addDateRange($query);
 
