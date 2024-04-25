@@ -79,7 +79,8 @@ class RequiredClientInfo extends Component
     public $client_custom_value2;
     public $client_custom_value3;
     public $client_custom_value4;
-
+    private ?CompanyGateway $company_gateway;
+    private int $unfilled_fields = 0;
 
     /**
      * Mappings for updating the database. Left side is mapping from gateway,
@@ -194,6 +195,7 @@ class RequiredClientInfo extends Component
         MultiDB::setDb($this->db);
         $contact = ClientContact::withTrashed()->find($this->contact_id);
         $company = $contact->company;
+        $this->company_gateway = CompanyGateway::withTrashed()->find($this->company_gateway_id);
 
         $this->client_name = $contact->client->name;
         $this->contact_first_name = $contact->first_name;
@@ -215,8 +217,6 @@ class RequiredClientInfo extends Component
         $this->client_custom_value3 = $contact->client->custom_value3;
         $this->client_custom_value4 = $contact->client->custom_value4;
 
-        // $this->client = $this->contact->client;
-
         if ($company->settings->show_accept_invoice_terms && request()->query('hash')) {
             $this->show_terms = true;
             $this->terms_accepted = false;
@@ -230,18 +230,12 @@ class RequiredClientInfo extends Component
             $this->invoice_terms = $invoice->terms;
         }
 
-        count($this->fields) > 0 || $this->show_terms
-            ? $this->checkFields()
-            : $this->show_form = false;
+        if(!$this->company_gateway->always_show_required_fields)
+            $this->checkFields();
 
-        if (request()->query('source') === 'subscriptions') {
-            $this->show_form = false;
+        if($this->unfilled_fields > 0 || $this->company_gateway->always_show_required_fields)
+            $this->show_form = true;
 
-            $this->dispatch(
-                'passed-required-fields-check',
-                client_postal_code: $this->contact->client->postal_code
-            );
-        }
     }
 
     #[Computed]
@@ -327,26 +321,26 @@ class RequiredClientInfo extends Component
         }
 
 
-$_contact->first_name = $this->contact_first_name;
-$_contact->last_name = $this->contact_last_name;
-$_contact->client->name = $this->client_name;
-$_contact->email = $this->contact_email;
-$_contact->client->phone = $this->client_phone;
-$_contact->client->address1 = $this->client_address_line_1;
-$_contact->client->city  = $this->client_city;
-$_contact->client->state = $this->client_state;
-$_contact->client->country_id = $this->client_country_id;
-$_contact->client->postal_code = $this->client_postal_code;
-$_contact->client->shipping_address1 = $this->client_shipping_address_line_1;
-$_contact->client->shipping_city = $this->client_shipping_city;
-$_contact->client->shipping_state = $this->client_shipping_state;
-$_contact->client->shipping_postal_code = $this->client_shipping_postal_code;
-$_contact->client->shipping_country_id = $this->client_shipping_country_id;
-$_contact->client->custom_value1 = $this->client_custom_value1;
-$_contact->client->custom_value2 = $this->client_custom_value2;
-$_contact->client->custom_value3 = $this->client_custom_value3;
-$_contact->client->custom_value4 = $this->client_custom_value4;
-$_contact->push();
+        $_contact->first_name = $this->contact_first_name;
+        $_contact->last_name = $this->contact_last_name;
+        $_contact->client->name = $this->client_name;
+        $_contact->email = $this->contact_email;
+        $_contact->client->phone = $this->client_phone;
+        $_contact->client->address1 = $this->client_address_line_1;
+        $_contact->client->city  = $this->client_city;
+        $_contact->client->state = $this->client_state;
+        $_contact->client->country_id = $this->client_country_id;
+        $_contact->client->postal_code = $this->client_postal_code;
+        $_contact->client->shipping_address1 = $this->client_shipping_address_line_1;
+        $_contact->client->shipping_city = $this->client_shipping_city;
+        $_contact->client->shipping_state = $this->client_shipping_state;
+        $_contact->client->shipping_postal_code = $this->client_shipping_postal_code;
+        $_contact->client->shipping_country_id = $this->client_shipping_country_id;
+        $_contact->client->custom_value1 = $this->client_custom_value1;
+        $_contact->client->custom_value2 = $this->client_custom_value2;
+        $_contact->client->custom_value3 = $this->client_custom_value3;
+        $_contact->client->custom_value4 = $this->client_custom_value4;
+        $_contact->push();
 
 
         $contact_update = $_contact
@@ -378,44 +372,39 @@ $_contact->push();
     public function checkFields()
     {
         
-        $this->show_form = true;
-//@todo - need to make this optional
-        // MultiDB::setDb($this->db);
-        // $_contact = ClientContact::withTrashed()->find($this->contact_id);
+        MultiDB::setDb($this->db);
+        $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
-        // foreach ($this->fields as $index => $field) {
-        //     $_field = $this->mappings[$field['name']];
+        foreach ($this->fields as $index => $field) {
+            $_field = $this->mappings[$field['name']];
 
-        //     if (Str::startsWith($field['name'], 'client_')) {
-        //         if (empty($_contact->client->{$_field})
-        //            || is_null($_contact->client->{$_field})
-        //            // || in_array($_field, $this->client_address_array)
-        //         ) {
-        //             $this->show_form = true;
-        //         } else {
-        //             $this->fields[$index]['filled'] = true;
-        //         }
-        //     }
+            if (Str::startsWith($field['name'], 'client_')) {
+                if (empty($_contact->client->{$_field})
+                   || is_null($_contact->client->{$_field})
+                ) {
+                    // $this->show_form = true;
+                    $this->unfilled_fields++;
+                } else {
+                    // $this->fields[$index]['filled'] = true;
+                }
+            }
 
-        //     if (Str::startsWith($field['name'], 'contact_')) {
-        //         if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
-        //             $this->show_form = true;
-        //         } else {
-        //             $this->fields[$index]['filled'] = true;
-        //         }
-        //     }
-        // }
+            if (Str::startsWith($field['name'], 'contact_')) {
+                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
+                    $this->unfilled_fields++;
+                } else {
+                    // $this->fields[$index]['filled'] = true;
+                }
+            }
+        }
 
-        // $left = collect($this->fields)
-        //     ->filter(fn ($field) => !array_key_exists('filled', $field))
-        //     ->count();
+        if ($this->unfilled_fields === 0 && !$this->company_gateway->always_show_required_fields) {
+            $this->dispatch(
+                'passed-required-fields-check',
+                client_postal_code: $this->contact->client->postal_code
+            );
+        }
 
-        // if ($left === 0) {
-        //     $this->dispatch(
-        //         'passed-required-fields-check',
-        //         client_postal_code: $this->contact->client->postal_code
-        //     );
-        // }
     }
 
     public function showCopyBillingCheckbox(): bool
