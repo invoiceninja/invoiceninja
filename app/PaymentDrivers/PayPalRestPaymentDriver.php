@@ -444,8 +444,8 @@ return render('gateways.paypal.pay', $data);
                 "card" => [
                     "attributes" => [
                         "verification" => [
-                            "method" => "SCA_WHEN_REQUIRED", //SCA_ALWAYS
-                            // "method" => "SCA_ALWAYS", //SCA_ALWAYS
+                            // "method" => "SCA_WHEN_REQUIRED", //SCA_ALWAYS
+                            "method" => "SCA_ALWAYS", //SCA_ALWAYS
                         ],
                         "vault" => [
                             "store_in_vault" => "ON_SUCCESS", //must listen to this webhook - VAULT.PAYMENT-TOKEN.CREATED webhook.
@@ -478,26 +478,38 @@ return render('gateways.paypal.pay', $data);
 
         }
 
-        return [
+        $order = [
             "paypal" => [
                 "name" => [
                     "given_name" => $this->client->present()->first_name(),
                     "surname" => $this->client->present()->last_name(),
                 ],
                 "email_address" => $this->client->present()->email(),
-                "address" => [
+                "experience_context" => [
+                    "user_action" => "PAY_NOW"
+                ],
+            ],
+        ];
+
+        if(
+            strlen($this->client->address1 ?? '') > 2 &&
+            strlen($this->client->city ?? '') > 2 &&
+            strlen($this->client->state ?? '') >= 2 &&
+            strlen($this->client->postal_code ?? '') > 2 &&
+            strlen($this->client->country->iso_3166_2 ?? '') >= 2
+        )
+        {
+            $order['paypal']['address'] = [
                     "address_line_1" => $this->client->address1,
                     "address_line_2" => $this->client->address2,
                     "admin_area_2" => $this->client->city,
                     "admin_area_1" => $this->client->state,
                     "postal_code" => $this->client->postal_code,
                     "country_code" => $this->client->country->iso_3166_2,
-                ],
-                "experience_context" => [
-                    "user_action" => "PAY_NOW"
-                ],
-            ],
-        ];
+            ];
+        }
+
+        return $order;
 
     }
 
