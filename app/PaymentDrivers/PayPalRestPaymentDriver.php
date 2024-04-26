@@ -491,7 +491,24 @@ return render('gateways.paypal.pay', $data);
             ],
         ];
 
+        /** If we have a complete address, add it to the order, otherwise leave it blank! */
         if(
+            strlen($this->client->shipping_address1 ?? '') > 2 &&
+            strlen($this->client->shipping_city ?? '') > 2 &&
+            strlen($this->client->shipping_state ?? '') >= 2 &&
+            strlen($this->client->shipping_postal_code ?? '') > 2 &&
+            strlen($this->client->shipping_country->iso_3166_2 ?? '') >= 2
+        ) {
+            $order['paypal']['address'] = [
+                    "address_line_1" => $this->client->shipping_address1,
+                    "address_line_2" => $this->client->shipping_address2,
+                    "admin_area_2" => $this->client->shipping_city,
+                    "admin_area_1" => $this->client->shipping_state,
+                    "postal_code" => $this->client->shipping_postal_code,
+                    "country_code" => $this->client->present()->shipping_country_code(),
+            ];
+        }
+        elseif(
             strlen($this->client->address1 ?? '') > 2 &&
             strlen($this->client->city ?? '') > 2 &&
             strlen($this->client->state ?? '') >= 2 &&
@@ -533,7 +550,6 @@ return render('gateways.paypal.pay', $data);
                     "custom_id" => $this->payment_hash->hash,
                     "description" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
                     "invoice_id" => $invoice->number,
-                    $this->getShippingAddress(),
                     "amount" => [
                         "value" => (string) $data['amount_with_fee'],
                         "currency_code" => $this->client->currency()->code,
@@ -566,12 +582,8 @@ return render('gateways.paypal.pay', $data);
 
         if(isset($data['payment_source']))
             $order['payment_source'] = $data['payment_source'];
-
-        nlog($order);
         
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
-
-        // nlog($r->json());
 
         return $r->json()['id'];
 

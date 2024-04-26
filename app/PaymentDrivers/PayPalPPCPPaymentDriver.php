@@ -233,8 +233,8 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     /**
      * Presents the Payment View to the client
      *
-     * @param  mixed $data
-     * @return void
+     * @param  array $data
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
      */
     public function processPaymentView($data)
     {
@@ -251,7 +251,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
         $data['currency'] = $this->client->currency()->code;
-        // nlog($data['merchantId']);
 
         return render('gateways.paypal.ppcp.pay', $data);
 
@@ -279,11 +278,11 @@ class PayPalPPCPPaymentDriver extends BaseDriver
                 "op" => "replace",
                 "path" => "/purchase_units/@reference_id=='default'/shipping/address",
                 "value" => [
-                    "address_line_1" => strlen($this->client->shipping_address1) > 1 ? $this->client->shipping_address1 : $this->client->address1,
+                    "address_line_1" => strlen($this->client->shipping_address1 ?? '') > 1 ? $this->client->shipping_address1 : $this->client->address1,
                     "address_line_2" => $this->client->shipping_address2,
-                    "admin_area_2" => strlen($this->client->shipping_city) > 1 ? $this->client->shipping_city : $this->client->city,
-                    "admin_area_1" => strlen($this->client->shipping_state) > 1 ? $this->client->shipping_state : $this->client->state,
-                    "postal_code" => strlen($this->client->shipping_postal_code) > 1 ? $this->client->shipping_postal_code : $this->client->postal_code,
+                    "admin_area_2" => strlen($this->client->shipping_city ?? '') > 1 ? $this->client->shipping_city : $this->client->city,
+                    "admin_area_1" => strlen($this->client->shipping_state ?? '') > 1 ? $this->client->shipping_state : $this->client->state,
+                    "postal_code" => strlen($this->client->shipping_postal_code ?? '') > 1 ? $this->client->shipping_postal_code : $this->client->postal_code,
                     "country_code" => $this->client->present()->shipping_country_code(),
                 ],
             ]];
@@ -406,20 +405,31 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     private function injectPayPalPaymentSource(): array
     {
 
-        return [
+        $order = [
             "paypal" => [
-
                 "name" => [
                     "given_name" => $this->client->present()->first_name(),
                     "surname" => $this->client->present()->last_name(),
                 ],
                 "email_address" => $this->client->present()->email(),
-                "address" => $this->getBillingAddress(),
                 "experience_context" => [
                     "user_action" => "PAY_NOW"
                 ],
             ],
         ];
+
+        if(
+            strlen($this->client->address1 ?? '') > 2 &&
+            strlen($this->client->city ?? '') > 2 &&
+            strlen($this->client->state ?? '') >= 2 &&
+            strlen($this->client->postal_code ?? '') > 2 &&
+            strlen($this->client->country->iso_3166_2 ?? '') >= 2
+        )
+        {
+            $order["paypal"]["address"] = $this->getBillingAddress();
+        }   
+
+        return $order;
 
     }
 
@@ -488,8 +498,6 @@ class PayPalPPCPPaymentDriver extends BaseDriver
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
-        // nlog($r->json());
-
         return $r->json()['id'];
 
     }
@@ -497,14 +505,14 @@ class PayPalPPCPPaymentDriver extends BaseDriver
     private function getBillingAddress(): array
     {
         return
-        [
-            "address_line_1" => $this->client->address1,
-            "address_line_2" => $this->client->address2,
-            "admin_area_2" => $this->client->city,
-            "admin_area_1" => $this->client->state,
-            "postal_code" => $this->client->postal_code,
-            "country_code" => $this->client->country->iso_3166_2,
-        ];
+            [
+                "address_line_1" => $this->client->address1,
+                "address_line_2" => $this->client->address2,
+                "admin_area_2" => $this->client->city,
+                "admin_area_1" => $this->client->state,
+                "postal_code" => $this->client->postal_code,
+                "country_code" => $this->client->country->iso_3166_2,
+            ];
     }
 
     private function getShippingAddress(): ?array
@@ -513,11 +521,11 @@ class PayPalPPCPPaymentDriver extends BaseDriver
         [
             "address" =>
                 [
-                    "address_line_1" => strlen($this->client->shipping_address1) > 1 ? $this->client->shipping_address1 : $this->client->address1,
+                    "address_line_1" => strlen($this->client->shipping_address1 ?? '') > 1 ? $this->client->shipping_address1 : $this->client->address1,
                     "address_line_2" => $this->client->shipping_address2,
-                    "admin_area_2" => strlen($this->client->shipping_city) > 1 ? $this->client->shipping_city : $this->client->city,
-                    "admin_area_1" => strlen($this->client->shipping_state) > 1 ? $this->client->shipping_state : $this->client->state,
-                    "postal_code" => strlen($this->client->shipping_postal_code) > 1 ? $this->client->shipping_postal_code : $this->client->postal_code,
+                    "admin_area_2" => strlen($this->client->shipping_city ?? '') > 1 ? $this->client->shipping_city : $this->client->city,
+                    "admin_area_1" => strlen($this->client->shipping_state ?? '') > 1 ? $this->client->shipping_state : $this->client->state,
+                    "postal_code" => strlen($this->client->shipping_postal_code ?? '') > 1 ? $this->client->shipping_postal_code : $this->client->postal_code,
                     "country_code" => $this->client->present()->shipping_country_code(),
                 ],
         ]
