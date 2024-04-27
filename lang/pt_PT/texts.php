@@ -2195,7 +2195,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'mailgun_private_key' => 'Chave Privada do Mailgun',
     'brevo_domain' => 'Domínio Brevo',
     'brevo_private_key' => 'Chave privada Brevo',
-    'send_test_email' => 'Enviar e-mail de teste',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Selecione a Legenda',
     'label' => 'Legenda',
     'service' => 'Serviço',
@@ -4169,7 +4169,7 @@ debitar da sua conta de acordo com essas instruções. Está elegível a um reem
     'one_time_purchases' => 'Compras únicas',
     'recurring_purchases' => 'Compras recorrentes',
     'you_might_be_interested_in_following' => 'Pode estar interessado no seguinte',
-    'quotes_with_status_sent_can_be_approved' => 'Apenas os orçamentos com o estado "Enviado" podem ser aprovados.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Nenhum orçamento disponível para transferência',
     'copyright' => 'Copyright',
     'user_created_user' => ':user criado :created_user em :time',
@@ -5296,6 +5296,7 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'rappen_rounding' => 'Arredondamento de Rappen',
     'rappen_rounding_help' => 'Montante redondo para 5 centavos',
     'assign_group' => 'Atribuir grupo',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

@@ -2188,7 +2188,7 @@ $lang = array(
     'mailgun_private_key' => 'Chiave privata Mailgun',
     'brevo_domain' => 'Dominio Brevo',
     'brevo_private_key' => 'Chiave privata Brevo',
-    'send_test_email' => 'Invia email di test',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Seleziona etichetta',
     'label' => 'Etichetta',
     'service' => 'Servizio',
@@ -4161,7 +4161,7 @@ $lang = array(
     'one_time_purchases' => 'Acquisti singoli',
     'recurring_purchases' => 'Acquisti ricorrenti',
     'you_might_be_interested_in_following' => 'Potresti essere interessato a quanto segue',
-    'quotes_with_status_sent_can_be_approved' => 'Solo i preventivi in stato "inviato" possono essere approvati.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Nessuna citazione disponibile per il download.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user creato :created_user a :time',
@@ -5287,6 +5287,7 @@ $lang = array(
     'rappen_rounding' => 'Arrotondamento rapido',
     'rappen_rounding_help' => 'Ammontare tondo a 5 centesimi',
     'assign_group' => 'Assegna gruppo',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

@@ -2196,7 +2196,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun privat nøgle',
     'brevo_domain' => 'Brevo domæne',
     'brevo_private_key' => 'Brevo privat nøgle',
-    'send_test_email' => 'Send test e-mail',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Vælg Label',
     'label' => 'Etiket',
     'service' => 'Service',
@@ -4169,7 +4169,7 @@ $lang = array(
     'one_time_purchases' => 'Engangskøb',
     'recurring_purchases' => 'Gentagen indkøb',
     'you_might_be_interested_in_following' => 'Du kan være interesseret i følgende',
-    'quotes_with_status_sent_can_be_approved' => 'Kun citater med &quot;Sendt&quot;-status kan være Godkendt .',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Ingen tilbud tilgængelige for download.',
     'copyright' => 'ophavsret',
     'user_created_user' => ':user oprettet :created_user på :time',
@@ -5295,6 +5295,7 @@ $lang = array(
     'rappen_rounding' => 'Rappen afrunding',
     'rappen_rounding_help' => 'Rund Beløb til 5 øre',
     'assign_group' => 'Tildel gruppe',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

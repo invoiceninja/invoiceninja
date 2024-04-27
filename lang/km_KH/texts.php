@@ -2177,7 +2177,7 @@ $lang = array(
     'mailgun_private_key' => 'សោឯកជន Mailgun',
     'brevo_domain' => 'ដែន Brevo',
     'brevo_private_key' => 'សោឯកជន Brevo',
-    'send_test_email' => 'ផ្ញើអ៊ីមែលសាកល្បង',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'ជ្រើសរើសស្លាក',
     'label' => 'ស្លាក​សញ្ញា',
     'service' => 'សេវាកម្ម',
@@ -4150,7 +4150,7 @@ $lang = array(
     'one_time_purchases' => 'ការទិញតែម្តង',
     'recurring_purchases' => 'ការទិញដដែលៗ',
     'you_might_be_interested_in_following' => 'អ្នក​ប្រហែល​ជា​ចាប់​អារម្មណ៍​នឹង​ចំណុច​ខាង​ក្រោម',
-    'quotes_with_status_sent_can_be_approved' => 'មានតែសម្រង់ដែលមានស្ថានភាព &quot;បានផ្ញើ&quot; ប៉ុណ្ណោះដែលអាចយល់ព្រមបាន។',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'មិនមានសម្រង់សម្រាប់ទាញយកទេ។',
     'copyright' => 'រក្សាសិទ្ធិ',
     'user_created_user' => ':user បានបង្កើត :created_user នៅ :time',
@@ -5276,6 +5276,7 @@ $lang = array(
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'ចំនួនទឹកប្រាក់ជុំដល់ 5 សេន',
     'assign_group' => 'ចាត់តាំងក្រុម',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

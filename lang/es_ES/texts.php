@@ -2193,7 +2193,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'mailgun_private_key' => 'Mailgun Private Key',
     'brevo_domain' => 'Dominio Brevo',
     'brevo_private_key' => 'Clave privada de Brevo',
-    'send_test_email' => 'Enviar email de prueba',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Seleccionar etiqueta',
     'label' => 'Etiqueta',
     'service' => 'Servicio',
@@ -4166,7 +4166,7 @@ Una vez que tenga los montos, vuelva a esta página de métodos de pago y haga c
     'one_time_purchases' => 'Compras únicas',
     'recurring_purchases' => 'Pagos recurrentes',
     'you_might_be_interested_in_following' => 'Puede que te interese lo siguiente',
-    'quotes_with_status_sent_can_be_approved' => 'Solo se pueden aprobar presupuestos con el estado "Enviado".',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'No hay presupuestos disponibles para descargar.',
     'copyright' => 'Derechos de autor',
     'user_created_user' => ':user creó :created_user a las :time',
@@ -5292,6 +5292,8 @@ De lo contrario, este campo deberá dejarse en blanco.',
     'flutter_web_warning' => 'Recomendamos utilizar la nueva aplicación web o la aplicación de escritorio para obtener el mejor rendimiento.',
     'rappen_rounding' => 'Redondeo de rappen',
     'rappen_rounding_help' => 'Cantidad redonda a 5 centimos',
+    'assign_group' => 'Assign group',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

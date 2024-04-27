@@ -2195,7 +2195,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun Private Key',
     'brevo_domain' => 'Brevo Domain',
     'brevo_private_key' => 'מפתח פרטי Brevo',
-    'send_test_email' => 'Send test email',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Select Label',
     'label' => 'Label',
     'service' => 'Service',
@@ -4168,7 +4168,7 @@ $lang = array(
     'one_time_purchases' => 'רכישות חד פעמיות',
     'recurring_purchases' => 'רכישות חוזרות',
     'you_might_be_interested_in_following' => 'אולי יעניין אותך בדברים הבאים',
-    'quotes_with_status_sent_can_be_approved' => 'ניתן לאשר רק ציטוטים בסטטוס &quot;נשלח&quot;.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'אין הצעות מחיר זמינות להורדה.',
     'copyright' => 'זכויות יוצרים',
     'user_created_user' => ':user נוצר :created_user ב-:time',
@@ -5294,6 +5294,7 @@ $lang = array(
     'rappen_rounding' => 'עיגול רפן',
     'rappen_rounding_help' => 'סכום עגול עד 5 סנט',
     'assign_group' => 'הקצה קבוצה',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;
