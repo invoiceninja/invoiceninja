@@ -2197,7 +2197,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun Private Key',
     'brevo_domain' => 'Domini Brevo',
     'brevo_private_key' => 'Clau privada Brevo',
-    'send_test_email' => 'Send test email',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Select Label',
     'label' => 'Label',
     'service' => 'Service',
@@ -4170,7 +4170,7 @@ $lang = array(
     'one_time_purchases' => 'One time purchases',
     'recurring_purchases' => 'Recurring purchases',
     'you_might_be_interested_in_following' => 'You might be interested in the following',
-    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'No quotes available for download.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user created :created_user at :time',
@@ -5296,6 +5296,7 @@ $lang = array(
     'rappen_rounding' => 'Arrodoniment de Rappen',
     'rappen_rounding_help' => 'Import rodó a 5 cèntims',
     'assign_group' => 'Assigna un grup',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

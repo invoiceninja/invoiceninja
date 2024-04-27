@@ -2194,7 +2194,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'mailgun_private_key' => 'Chave Privada do Mailgun',
     'brevo_domain' => 'Domínio Brevo',
     'brevo_private_key' => 'Chave privada Brevo',
-    'send_test_email' => 'Enviar email de teste',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Selecione o Rótulo',
     'label' => 'Rótulo',
     'service' => 'Serviço',
@@ -4167,7 +4167,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'one_time_purchases' => 'Compras únicas',
     'recurring_purchases' => 'Compras recorrentes',
     'you_might_be_interested_in_following' => 'Você pode estar interessado no seguinte',
-    'quotes_with_status_sent_can_be_approved' => 'Somente cotações com status &quot;Enviado&quot; poderão ser aprovadas.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Não há cotações disponíveis para download.',
     'copyright' => 'direito autoral',
     'user_created_user' => ':user criou :created_user em :time',
@@ -5293,6 +5293,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'rappen_rounding' => 'Arredondamento de Rappen',
     'rappen_rounding_help' => 'Montante redondo para 5 centavos',
     'assign_group' => 'Atribuir grupo',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

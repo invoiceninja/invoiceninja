@@ -2178,7 +2178,7 @@ $lang = array(
     'mailgun_private_key' => 'مفتاح Mailgun الخاص',
     'brevo_domain' => 'مجال بريفو',
     'brevo_private_key' => 'مفتاح بريفو الخاص',
-    'send_test_email' => 'إرسال بريد إلكتروني تجريبي',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'حدد تسمية',
     'label' => 'ملصق',
     'service' => 'خدمة',
@@ -4151,7 +4151,7 @@ $lang = array(
     'one_time_purchases' => 'عملية شراء لمرة واحدة',
     'recurring_purchases' => 'مشتريات متكررة',
     'you_might_be_interested_in_following' => 'قد ترغب في الاطلاع على التالي',
-    'quotes_with_status_sent_can_be_approved' => 'فقط عروض الاسعار المرسلة يمكن التاكيد عليها',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'لاتوجد عروض اسعار للتنزيل',
     'copyright' => 'حقوق النشر',
     'user_created_user' => ':user انشاء حساب للمستخدم :created_user في :time',
@@ -5277,6 +5277,7 @@ $lang = array(
     'rappen_rounding' => 'تقريب رابين',
     'rappen_rounding_help' => 'جولة المبلغ إلى 5 سنتات',
     'assign_group' => 'تعيين المجموعة',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

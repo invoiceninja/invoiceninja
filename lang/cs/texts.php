@@ -2198,7 +2198,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun Private Key',
     'brevo_domain' => 'Brevo Domain',
     'brevo_private_key' => 'Brevo Private Key',
-    'send_test_email' => 'Odeslat zkušební e-mail',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Vybrat štítek',
     'label' => 'Štítek',
     'service' => 'Služba',
@@ -4171,7 +4171,7 @@ $lang = array(
     'one_time_purchases' => 'Jednorázové nákupy',
     'recurring_purchases' => 'Pravidelné nákupy',
     'you_might_be_interested_in_following' => 'Mohlo by vás zajímat',
-    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'No quotes available for download.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user vytvořil uživatgele :created_user v :time',
@@ -5296,6 +5296,8 @@ $lang = array(
     'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
+    'assign_group' => 'Assign group',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

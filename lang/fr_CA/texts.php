@@ -4167,7 +4167,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'one_time_purchases' => 'Achat définitif',
     'recurring_purchases' => 'Achat récurrent',
     'you_might_be_interested_in_following' => 'Ceci pourrait vous intéresser',
-    'quotes_with_status_sent_can_be_approved' => 'Seules les soumissions avec l\'état "Envoyée" peuvent être approuvées',
+    'quotes_with_status_sent_can_be_approved' => 'Seules les soumission avec l\'état "Envoyée" peuvent être approuvées. Les soumission expires ne peuvent pas être approuvées.',
     'no_quotes_available_for_download' => 'Aucune soumission disponible pour le téléchargement.',
     'copyright' => 'Droits d\'auteur',
     'user_created_user' => ':user a créé :created_user à :time',
@@ -5293,6 +5293,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'rappen_rounding' => 'Arrondir au cents',
     'rappen_rounding_help' => 'Arrondir au 5 cents',
     'assign_group' => 'Assigner un groupe',
+    'paypal_advanced_cards' => 'Paiements avancés pour carte',
 );
 
 return $lang;

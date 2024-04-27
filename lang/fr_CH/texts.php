@@ -2194,7 +2194,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'mailgun_private_key' => 'Clé privée Mailgun',
     'brevo_domain' => 'Domaine de Brevo',
     'brevo_private_key' => 'Clé privée Brevo',
-    'send_test_email' => 'Envoyer un courriel test',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Sélectionnez le libellé',
     'label' => 'Libellé',
     'service' => 'Service',
@@ -4167,7 +4167,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'one_time_purchases' => 'Achat définitif',
     'recurring_purchases' => 'Achat récurrent',
     'you_might_be_interested_in_following' => 'Ceci pourrait vous intéresser',
-    'quotes_with_status_sent_can_be_approved' => 'Seulement les soumissions avant la mention envoyé peuvent être approuvé.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Aucune offre disponible pour le téléchargement.',
     'copyright' => 'Droits d\'auteur',
     'user_created_user' => ':user a créé :created_user à :time',
@@ -5293,6 +5293,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'rappen_rounding' => 'Arrondi de Rappen',
     'rappen_rounding_help' => 'Montant rond à 5 centimes',
     'assign_group' => 'Attribuer un groupe',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

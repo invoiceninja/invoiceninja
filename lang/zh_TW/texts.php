@@ -2197,7 +2197,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun 私密金鑰',
     'brevo_domain' => '布雷沃域',
     'brevo_private_key' => '布雷沃私鑰',
-    'send_test_email' => '寄送測試郵件',
+    'send_test_email' => 'Send Test Email',
     'select_label' => '選擇標籤',
     'label' => '標籤',
     'service' => '服務',
@@ -4170,7 +4170,7 @@ $lang = array(
     'one_time_purchases' => '一次性購買',
     'recurring_purchases' => '經常性購買',
     'you_might_be_interested_in_following' => '您可能對以下內容感興趣',
-    'quotes_with_status_sent_can_be_approved' => '只有狀態為「已發送」的報價才能獲得批准。',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => '沒有可供下載的報價。',
     'copyright' => '版權',
     'user_created_user' => ':user在:time創建了:created_user',
@@ -5296,6 +5296,7 @@ $lang = array(
     'rappen_rounding' => '拉彭舍入',
     'rappen_rounding_help' => '金額為 5 美分',
     'assign_group' => '分配群組',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;
