@@ -156,7 +156,7 @@ class DeletePayment
 
                 $paymentable_credit->service()
                                    ->updateBalance($paymentable_credit->pivot->amount * $multiplier * -1)
-                                   ->updatePaidToDate($paymentable_credit->pivot->amount * $multiplier)
+                                   ->updatePaidToDate($paymentable_credit->pivot->amount * $multiplier * -1)
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();
 
