@@ -245,12 +245,11 @@ class InvoiceSum
      */
     private function setCalculatedAttributes(): self
     {
-        /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
-
-        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
+        if($this->invoice->status_id == Invoice::STATUS_CANCELLED){
+            $this->invoice->balance = 0;
+        }
+        elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
-                // $paid_to_date = $this->invoice->amount - $this->invoice->balance;
-
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
             } else {
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
