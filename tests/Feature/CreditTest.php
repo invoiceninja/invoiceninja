@@ -105,10 +105,12 @@ class CreditTest extends TestCase
         $this->assertEquals(100, $i->balance);
         $this->assertEquals(100, $i->amount);
         $this->assertEquals(0, $i->paid_to_date);
-        
+        $this->assertEquals(2, $i->status_id);
+
         $this->assertEquals(100, $cr->balance);
         $this->assertEquals(100, $cr->amount);
         $this->assertEquals(0, $cr->paid_to_date);
+        $this->assertEquals(2, $cr->status_id);
 
         $this->assertEquals(100, $c->balance);
         $this->assertEquals(0, $c->paid_to_date);
@@ -145,9 +147,11 @@ class CreditTest extends TestCase
 
         $this->assertEquals(0, $i->balance);
         $this->assertEquals(100, $i->paid_to_date);
+        $this->assertEquals(4, $i->status_id);
 
         $this->assertEquals(0, $cr->balance);
         $this->assertEquals(100, $cr->paid_to_date);
+        $this->assertEquals(4, $i->status_id);
 
         $this->assertEquals(100, $c->paid_to_date);
         $this->assertEquals(0, $c->balance);
@@ -171,13 +175,31 @@ class CreditTest extends TestCase
         $this->assertEquals(100, $i->balance);
         $this->assertEquals(100, $i->amount);
         $this->assertEquals(0, $i->paid_to_date);
+        $this->assertEquals(2, $i->status_id);
 
         $this->assertEquals(100, $cr->balance);
         $this->assertEquals(100, $cr->amount);
+        $this->assertEquals(2, $cr->status_id);
         $this->assertEquals(0, $cr->paid_to_date);
 
         $this->assertEquals(100, $c->balance);
         $this->assertEquals(0, $c->paid_to_date);
+
+            
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->deleteJson("/api/v1/credits/{$cr->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $cr = $cr->fresh();
+
+        $this->assertEquals(true, $cr->is_deleted); 
+
+        $this->assertEquals(100, $c->balance);
+        $this->assertEquals(0, $c->paid_to_date);
+
 
     }
 
