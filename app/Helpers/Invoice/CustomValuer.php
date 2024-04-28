@@ -35,7 +35,7 @@ trait CustomValuer
         return 0;
     }
 
-    public function multiInclusiveTax($value, $has_custom_invoice_taxes) {
+    public function multiInclusiveTax($custom_value, $has_custom_invoice_taxes) {
 
         if (isset($custom_value) && is_numeric($custom_value) && $has_custom_invoice_taxes !== false) {
 
