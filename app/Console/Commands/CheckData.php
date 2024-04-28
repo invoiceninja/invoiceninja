@@ -479,7 +479,7 @@ class CheckData extends Command
                         $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
                         
                         try{
-                        $entity->service()->createInvitations()->save();
+                            $entity->service()->createInvitations()->save();
                         }
                         catch(\Exception $e){
 
