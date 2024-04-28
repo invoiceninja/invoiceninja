@@ -213,7 +213,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         $payment->ledger()
-            ->updatePaymentBalance($amount * -1)
+            ->updatePaymentBalance($amount * -1, "AutoBill")
             ->save();
 
         $this->invoice

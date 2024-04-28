@@ -122,7 +122,7 @@ class ApplyPayment
 
         $this->payment
                  ->ledger()
-                 ->updatePaymentBalance($this->amount_applied * -1);
+                 ->updatePaymentBalance($this->amount_applied * -1, "ApplyPaymentCredit");
 
         $this->payment
                  ->client

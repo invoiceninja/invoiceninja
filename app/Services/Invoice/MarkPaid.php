@@ -107,7 +107,7 @@ class MarkPaid extends AbstractService
                 ->save();
 
         $payment->ledger()
-                ->updatePaymentBalance($this->payable_balance * -1);
+                ->updatePaymentBalance($this->payable_balance * -1, "Marked Paid Activity");
 
         //06-09-2022
         $this->invoice
