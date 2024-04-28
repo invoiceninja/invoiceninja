@@ -70,7 +70,6 @@ class DeletePayment
     /** @return $this  */
     private function deletePaymentables()
     {
-        // $this->payment->paymentables()->update(['deleted_at' => now()]);
 
         $this->payment->paymentables()
                 ->each(function ($pp) {
