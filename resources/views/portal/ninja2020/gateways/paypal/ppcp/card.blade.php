@@ -104,6 +104,13 @@
               //doesn't really do anything as failure is linked in SUBMIT. We only hit here after a successful return
               //and where SCA is optional?
 
+              if(liabilityShift == 'NO') {
+
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed, Please try a different payment method.`;
+                document.getElementById('errors').hidden = false;
+                return;
+              }
+
             }
 
             var errorDetail = Array.isArray(data.details) && data.details[0];
