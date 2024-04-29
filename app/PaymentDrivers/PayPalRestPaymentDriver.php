@@ -444,8 +444,8 @@ return render('gateways.paypal.pay', $data);
                 "card" => [
                     "attributes" => [
                         "verification" => [
-                            // "method" => "SCA_WHEN_REQUIRED", //SCA_ALWAYS
-                            "method" => "SCA_ALWAYS", //SCA_ALWAYS
+                            "method" => "SCA_WHEN_REQUIRED", //SCA_ALWAYS
+                            // "method" => "SCA_ALWAYS", //SCA_ALWAYS
                         ],
                         "vault" => [
                             "store_in_vault" => "ON_SUCCESS", //must listen to this webhook - VAULT.PAYMENT-TOKEN.CREATED webhook.
