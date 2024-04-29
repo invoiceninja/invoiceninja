@@ -229,6 +229,11 @@ class CompanyImport implements ShouldQueue
                 'is_template',
             ]
         ],
+        '5.8.51' => [
+            CompanyGateway::class => [
+                'always_show_required_fields',
+            ]
+        ]
     ];
 
     /**
