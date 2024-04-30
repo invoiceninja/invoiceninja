@@ -102,6 +102,9 @@ class SelfUpdateController extends BaseController
             }
         }
 
+        if(Storage::disk('base')->directoryExists('resources/lang'))
+            Storage::disk('base')->deleteDirectory('resources/lang');
+
         nlog('Removing cache files');
 
         Artisan::call('clear-compiled');
