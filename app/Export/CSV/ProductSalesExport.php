@@ -112,6 +112,7 @@ class ProductSalesExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
