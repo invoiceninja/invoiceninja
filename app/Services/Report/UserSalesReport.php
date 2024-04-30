@@ -61,6 +61,7 @@ class UserSalesReport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $query = Invoice::query()
                         ->withTrashed()
