@@ -190,6 +190,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapSubscriptionApiRoutes()
     {
         Route::prefix('')
+            ->middleware('api')
             ->group(base_path('routes/subscription.php'));
     }
 }
