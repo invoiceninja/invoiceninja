@@ -11,8 +11,7 @@
 
 namespace App\Jobs\EDocument;
 
-use App\Utils\Ninja;
-use App\Models\PurchaseOrder;
+use App\Services\EDocument\Imports\ZugferdEDocument;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Queue\SerializesModels;
@@ -29,48 +28,20 @@ class ImportEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private object $document, private bool $returnObject = false)
+    public function __construct(private object $request)
     {
     }
 
     /**
      * Execute the job.
      *
-     * @return string|ZugferdDocumentBuilder
+     * @return string
      */
-    public function handle(): string|ZugferdDocumentBuilder
+    public function handle(): string
     {
-
-        if ($this->document instanceof Invoice) {
-            switch ($e_document_type) {
-                case "FACT1":
-                    return (new RoEInvoice($this->document))->generateXml();
-                case "FatturaPA":
-                    return (new FatturaPA($this->document))->run();
-                case "EN16931":
-                case "XInvoice_3_0":
-                case "XInvoice_2_3":
-                case "XInvoice_2_2":
-                case "XInvoice_2_1":
-                case "XInvoice_2_0":
-                case "XInvoice_1_0":
-                case "XInvoice-Extended":
-                case "XInvoice-BasicWL":
-                case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-
-                    return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
-                case "Facturae_3.2":
-                case "Facturae_3.2.1":
-                case "Facturae_3.2.2":
-                    return (new FacturaEInvoice($this->document, str_replace("Facturae_", "", $e_document_type)))->run();
-                default:
-
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-
-                    return $this->returnObject ? $zugferd : $zugferd->getXml();
-        return "";
-            }
-        }
+        // TODO: check type of file. For now only ZuGFerD
+        $document =
+       (new ZugferdEDocument($this->request->all()))->run();
+       return "";
     }
 }

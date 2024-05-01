@@ -23,9 +23,11 @@ use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Http\Requests\Expense\UploadExpenseRequest;
+use App\Jobs\EDocument\ImportEDocument;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
+use App\Services\EDocument\Imports\ZugferdEDocument;
 use App\Transformers\ExpenseTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;
@@ -583,6 +585,9 @@ class ExpenseController extends BaseController
     }
 
     public function edocument(EDocumentRequest $request){
-
+        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
+            return $this->featureFailure();
+        }
+        return (new ImportEDocument($request))->handle();
     }
 }
