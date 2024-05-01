@@ -10,6 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-use App\Http\Controllers\SubscriptionsV4\SubscriptionProductController;
+use App\Http\Controllers\SubscriptionsV4\SubscriptionContextController;
 
-Route::get('/api/v1/subscriptions/{subscription}/v4/products', [SubscriptionProductController::class, 'index']);
+Route::get('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionContextController::class, 'index']);
+Route::post('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionContextController::class, 'summary']);
