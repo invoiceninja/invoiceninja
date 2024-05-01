@@ -581,4 +581,8 @@ class ExpenseController extends BaseController
 
         return $this->itemResponse($expense->fresh());
     }
+
+    public function edocument(EDocumentRequest $request){
+
+    }
 }
