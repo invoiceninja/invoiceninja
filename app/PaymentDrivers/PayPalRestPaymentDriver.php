@@ -170,9 +170,9 @@ class PayPalRestPaymentDriver extends BaseDriver
         $data['currency'] = $this->client->currency()->code;
 
 
-return render('gateways.paypal.ppcp.card', $data);
+// return render('gateways.paypal.ppcp.card', $data);
 
-// return render('gateways.paypal.pay', $data);
+return render('gateways.paypal.pay', $data);
 
     }
 
@@ -400,7 +400,7 @@ return render('gateways.paypal.ppcp.card', $data);
                 $data['token'] = $token;
                 $data['payment_method_id'] = GatewayType::PAYPAL_ADVANCED_CARDS;
                 $data['payment_meta'] = $payment_meta;
-                $data['payment_method_id'] = GatewayType::CREDIT_CARD;
+                // $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
                 $additional['gateway_customer_reference'] = $gateway_customer_reference;
 
