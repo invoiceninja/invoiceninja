@@ -244,7 +244,8 @@ return render('gateways.paypal.pay', $data);
         nlog("post order creation");
         nlog($orderId);
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+      $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
         nlog($r);
 
         $response = $r->json();
