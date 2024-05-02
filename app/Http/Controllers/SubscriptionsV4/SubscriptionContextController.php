@@ -69,6 +69,10 @@ class SubscriptionContextController
 
         $service = new SummaryService($bundle);
 
+        $stripe = $subscription->company->company_gateways
+            ->where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')
+            ->first();
+
         return response()->json([
             'context' => [
                 'per_seat_enabled' => $subscription->per_seat_enabled,
@@ -84,6 +88,13 @@ class SubscriptionContextController
             'products' => $bundle['products'],
             'optional_recurring_products' => $bundle['optional_recurring_products'],
             'optional_products' => $bundle['optional_products'],
+            'gateways' => [
+                [
+                    'id' => $stripe->hashed_id,
+                    'key' => 'd14dd26a37cecc30fdd65700bfb55b23',
+                    'fields' => $stripe->driver()->getClientRequiredFields(),
+                ],
+            ],
         ]);
     }
 
