@@ -43,7 +43,7 @@ class ClientRegisterService
 
         foreach ($rules as $field => $properties) {
             if ($field === 'email') {
-                $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:191', Rule::unique('client_contacts')->where('company_id', $this->company->id)]);
+                $rules[$field] = array_merge($rules[$field], ['email:rfc', 'max:191', Rule::unique('client_contacts')->where('company_id', $this->company->id)]);
             }
 
             if ($field === 'current_password' || $field === 'password') {
