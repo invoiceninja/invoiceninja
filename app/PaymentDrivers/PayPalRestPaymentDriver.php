@@ -244,7 +244,8 @@ return render('gateways.paypal.pay', $data);
         nlog("post order creation");
         nlog($orderId);
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+      $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
         nlog($r);
 
         $response = $r->json();
@@ -400,7 +401,7 @@ return render('gateways.paypal.pay', $data);
                 $data['token'] = $token;
                 $data['payment_method_id'] = GatewayType::PAYPAL_ADVANCED_CARDS;
                 $data['payment_meta'] = $payment_meta;
-                $data['payment_method_id'] = GatewayType::CREDIT_CARD;
+                // $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
                 $additional['gateway_customer_reference'] = $gateway_customer_reference;
 

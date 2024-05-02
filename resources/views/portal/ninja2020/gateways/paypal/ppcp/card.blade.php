@@ -97,17 +97,11 @@
              if(liabilityShift) {
               
               /* Handle liability shift. More information in 3D Secure response parameters */
-              console.log("inside liability shift")
-              console.log(liabilityShift)
-              console.log(orderID);
-              console.log(data);
-              //doesn't really do anything as failure is linked in SUBMIT. We only hit here after a successful return
-              //and where SCA is optional?
-
               if(liabilityShift == 'NO') {
 
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed, Please try a different payment method.`;
                 document.getElementById('errors').hidden = false;
+
                 return;
               }
 
@@ -118,9 +112,6 @@
                 return actions.restart();
             }
 
-            // console.log("on approve");
-            // console.log(data);
-            // console.log(actions);
             let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
 
             if (storeCard) {
@@ -182,7 +173,6 @@
       expiryField.render("#card-expiry-field-container");
 
       document.getElementById("pay-now").addEventListener('click', (e) => {
-        console.log("paynow");
         document.getElementById('errors').textContent = '';
         document.getElementById('errors').hidden = true;
         
@@ -196,13 +186,8 @@
         document.querySelector('#pay-now > span').classList.add('hidden');
 
         cardField.submit().then((response) => {
-          console.log("then");
-          console.log(response);
 
         }).catch((error) => {
-
-          // console.log("catch error")
-          //   console.log(error);
 
             document.getElementById('pay-now').disabled = false;
             document.querySelector('#pay-now > svg').classList.add('hidden');
