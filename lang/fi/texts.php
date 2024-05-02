@@ -2197,7 +2197,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'mailgun_private_key' => 'Mailgun Private Key',
     'brevo_domain' => 'Brevo Domain',
     'brevo_private_key' => 'Brevo Private Key',
-    'send_test_email' => 'lähetä testisähköposti',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Valitse kenttä',
     'label' => 'Label',
     'service' => 'Service',
@@ -4170,7 +4170,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'one_time_purchases' => 'One time purchases',
     'recurring_purchases' => 'Recurring purchases',
     'you_might_be_interested_in_following' => 'You might be interested in the following',
-    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'No quotes available for download.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user created :created_user at :time',
@@ -5295,6 +5295,8 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
+    'assign_group' => 'Assign group',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

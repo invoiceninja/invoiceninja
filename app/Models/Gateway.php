@@ -75,14 +75,14 @@ class Gateway extends StaticModel
         return $this->getMethods();
     }
 
-    /**
-     * Test if gateway is custom.
-     * @return bool TRUE|FALSE
-     */
-    public function isCustom(): bool
-    {
-        return in_array($this->id, [62, 67, 68]); //static table ids of the custom gateways
-    }
+    // /**
+    //  * Test if gateway is custom.
+    //  * @return bool TRUE|FALSE
+    //  */
+    // public function isCustom(): bool
+    // {
+    //     return in_array($this->id, [62, 67, 68]); //static table ids of the custom gateways
+    // }
 
     public function getHelp()
     {

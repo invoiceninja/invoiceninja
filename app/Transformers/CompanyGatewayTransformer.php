@@ -80,6 +80,7 @@ class CompanyGatewayTransformer extends EntityTransformer
             'label' => (string) $company_gateway->label ?: '',
             'token_billing' => (string) $company_gateway->token_billing,
             'test_mode' => (bool) $company_gateway->isTestMode(),
+            'always_show_required_fields' => (bool) $company_gateway->always_show_required_fields,
         ];
     }
 

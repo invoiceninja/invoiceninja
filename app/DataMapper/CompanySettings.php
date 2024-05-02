@@ -503,7 +503,13 @@ class CompanySettings extends BaseSettings
 
     public $enable_rappen_rounding = false;
 
+    public bool $task_round_up = true;
+
+    public int $task_round_to_nearest = 1;
+
     public static $casts = [
+        'task_round_up'                      => 'bool',
+        'task_round_to_nearest'              => 'int',
         'e_quote_type'                       => 'string',
         'enable_rappen_rounding'             => 'bool',
         'use_unapplied_payment'              => 'string',

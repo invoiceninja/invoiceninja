@@ -67,7 +67,6 @@ class Handler extends ExceptionHandler
     ];
 
     protected $hostedDontReport = [
-        PDOException::class,
         MaxAttemptsExceededException::class,
         CommandNotFoundException::class,
         ValidationException::class,

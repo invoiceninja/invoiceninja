@@ -133,6 +133,10 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
+        if($sort_col[0] == 'next_send_datetime'){
+            $sort_col[0] = 'next_send_date';
+        }
+
         return $this->builder->orderBy($sort_col[0], $dir);
     }
 

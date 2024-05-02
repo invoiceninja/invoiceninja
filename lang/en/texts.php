@@ -4029,7 +4029,7 @@ $lang = array(
     'user_detached' => 'User detached from company',
     'create_webhook_failure' => 'Failed to create Webhook',
     'payment_message_extended' => 'Thank you for your payment of :amount for :invoice',
-    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is bigger than $1 or currency equivalent.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Payment token not found, please try again. If an issue still persist, try with another payment method',
     'vendor_address1' => 'Vendor Street',
     'vendor_address2' => 'Vendor Apt/Suite',
@@ -5297,6 +5297,9 @@ $lang = array(
     'rappen_rounding_help' => 'Round amount to 5 cents',
     'assign_group' => 'Assign group',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

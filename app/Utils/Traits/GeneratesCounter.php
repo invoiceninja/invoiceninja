@@ -288,6 +288,7 @@ trait GeneratesCounter
      */
     public function getNextProjectNumber(Project $project): string
     {
+        
         $entity_number = $this->getNextEntityNumber(Project::class, $project->client, false);
 
         return $this->replaceUserVars($project, $entity_number);

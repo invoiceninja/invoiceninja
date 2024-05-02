@@ -27,6 +27,10 @@ class TaskRepository extends BaseRepository
 
     private $completed = true;
 
+    private bool $task_round_up = true;
+
+    private int $task_round_to_nearest = 1;
+
     /**
      * Saves the task and its contacts.
      *
@@ -43,6 +47,8 @@ class TaskRepository extends BaseRepository
 
         $task->fill($data);
         $task->saveQuietly();
+
+        $this->init($task);
 
         if ($this->new_task && ! $task->status_id) {
             $task->status_id = $this->setDefaultStatus($task);
@@ -105,6 +111,11 @@ class TaskRepository extends BaseRepository
         $key_values = array_column($time_log, 0);
         array_multisort($key_values, SORT_ASC, $time_log);
 
+        foreach($time_log as $key => $value)
+        {
+            $time_log[$key][1] = $this->roundTimeLog($time_log[$key][1]);
+        }
+
         if (isset($data['action'])) {
             if ($data['action'] == 'start') {
                 $task->is_running = true;
@@ -125,8 +136,6 @@ class TaskRepository extends BaseRepository
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
 
         $task->time_log = json_encode($time_log);
-
-
 
         $task->saveQuietly();
 
@@ -243,14 +252,27 @@ class TaskRepository extends BaseRepository
         return $task;
     }
 
+    public function roundTimeLog(int $end_time): int
+    {
+        if($this->task_round_to_nearest == 1)
+            return $end_time;
+
+        if($this->task_round_up)
+            return (int)ceil($end_time/$this->task_round_to_nearest)*$this->task_round_to_nearest;
+
+        return (int)floor($end_time/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+    }
+
     public function stop(Task $task)
     {
+        $this->init($task);
+        
         $log = json_decode($task->time_log, true);
 
         $last = end($log);
 
         if (is_array($last) && $last[1] === 0) {
-            $last[1] = time();
+            $last[1] = $this->roundTimeLog(time());
 
             array_pop($log);
             $log = array_merge($log, [$last]);//check at this point, it may be prepending here.
@@ -275,6 +297,15 @@ class TaskRepository extends BaseRepository
         return $task;
     }
 
+    private function init(Task $task): self
+    {
+        
+        $this->task_round_up = $task->client ? $task->client->getSetting('task_round_up') : $task->company->getSetting('task_round_up');
+        $this->task_round_to_nearest = $task->client ? $task->client->getSetting('task_round_to_nearest') : $task->company->getSetting('task_round_to_nearest');
+
+        return $this;
+
+    }
 
     private function trySaving(Task $task)
     {

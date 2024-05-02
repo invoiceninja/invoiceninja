@@ -2184,7 +2184,7 @@ $lang = array(
     'mailgun_private_key' => 'Privátny kľúč Mailgun',
     'brevo_domain' => 'Doména Brevo',
     'brevo_private_key' => 'Súkromný kľúč Brevo',
-    'send_test_email' => 'Odoslať skúšobný email',
+    'send_test_email' => 'Odoslať testovací email',
     'select_label' => 'Vybrať štítok',
     'label' => 'Štítok',
     'service' => 'Služba',
@@ -4157,7 +4157,7 @@ $lang = array(
     'one_time_purchases' => 'Jednorázové nákupy',
     'recurring_purchases' => 'Opakované nákupy',
     'you_might_be_interested_in_following' => 'Mohlo by vás zaujímať nasledovné',
-    'quotes_with_status_sent_can_be_approved' => 'Schválené môžu byť iba ponuky so stavom „Odoslané“.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Žiadne ponuky na stiahnutie.',
     'copyright' => 'Autorské práva',
     'user_created_user' => ':user vytvoril :created_user o :time',
@@ -5283,6 +5283,7 @@ $lang = array(
     'rappen_rounding' => 'Rappen zaokrúhľovanie',
     'rappen_rounding_help' => 'Okrúhla suma do 5 centov',
     'assign_group' => 'Priradiť skupinu',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

@@ -146,9 +146,18 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
 
 Route::get('route/{hash}', function ($hash) {
 
-    return redirect(decrypt($hash));
+    $route = '/';
 
-});
+    try {
+        $route = decrypt($hash); 
+    }
+    catch (\Exception $e) { 
+        abort(404);
+    }
+
+    return redirect($route);
+
+})->middleware('throttle:404');
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 Route::get('blade/', [Phantom::class, 'blade'])->name('blade');

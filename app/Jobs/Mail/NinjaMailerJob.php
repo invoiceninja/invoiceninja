@@ -77,6 +77,8 @@ class NinjaMailerJob implements ShouldQueue
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
+nlog("nn");
+
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::query()->where('company_key', $this->nmo->company->company_key)->first();
 
@@ -87,7 +89,6 @@ class NinjaMailerJob implements ShouldQueue
         if (!$this->company || $this->preFlightChecksFail()) {
             return;
         }
-
         /* Run time we set Reply To Email*/
         if (strlen($this->nmo->settings->reply_to_email) > 1) {
             if (property_exists($this->nmo->settings, 'reply_to_name')) {
@@ -362,7 +363,7 @@ class NinjaMailerJob implements ShouldQueue
         return $this;
     }
 
-    private function configureSmtpMailer(): void
+    private function configureSmtpMailer()
     {
 
         $company = $this->company;
@@ -374,6 +375,16 @@ class NinjaMailerJob implements ShouldQueue
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
         $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
+
+        if(strlen($smtp_host ?? '') <= 1 ||
+        strlen($smtp_username ?? '') <= 1 ||
+        strlen($smtp_password ?? '') <= 1
+        )
+        {
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
+
 
         config([
             'mail.mailers.smtp' => [

@@ -104,6 +104,64 @@ class TaskApiTest extends TestCase
         }
     }
 
+    public function testRoundingViaApi()
+    {
+                
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,0]]',
+            'assigned_user' => [],
+            'project' => [],
+            'user' => [],
+            // 'status' => [],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+    }
+
+    public function testRoundingToNearestXXX()
+    {
+
+        $time = 1680036807;
+
+        $round_up_to_next_minute = ceil($time / 60) * 60;
+        $round_down_to_next_minute = floor($time / 60) * 60;
+        $this->assertEquals(1680036840, $round_up_to_next_minute);
+        $this->assertEquals(1680036780, $round_down_to_next_minute);
+
+        $round_up_to_next_minute = ceil($round_up_to_next_minute / 3600) * 3600;
+        $round_down_to_next_minute = floor($round_down_to_next_minute / 3600) * 3600;
+        $this->assertEquals(1680037200, $round_up_to_next_minute);
+        $this->assertEquals(1680033600, $round_down_to_next_minute);
+
+    }
+
+    public function testKsortPerformance()
+    {
+        $logs = [
+        [1680035007,1680036807,"",true],
+        [1681156840,1681158000,"",true],
+        [1680302433,1680387960,"",true],
+        [1680715620,1680722820,"",true],
+        [1,1680737460,"",true]
+        ];
+        
+        $key_values = array_column($logs, 0);
+        array_multisort($key_values, SORT_ASC, $logs);
+
+        $start = $logs[0];
+
+        $this->assertEquals(1, $start[0]);
+
+    }
+
     public function testRequestRuleParsing()
     {
                 
@@ -393,26 +451,6 @@ class TaskApiTest extends TestCase
 
 
     }
-
-    public function testKsortPerformance()
-    {
-        $logs = [
-        [1680035007,1680036807,"",true],
-        [1681156840,1681158000,"",true],
-        [1680302433,1680387960,"",true],
-        [1680715620,1680722820,"",true],
-        [1,1680737460,"",true]
-        ];
-        
-        $key_values = array_column($logs, 0);
-        array_multisort($key_values, SORT_ASC, $logs);
-
-        $start = $logs[0];
-
-        $this->assertEquals(1, $start[0]);
-
-    }
-
     public function testStartStopSanity()
     {
         

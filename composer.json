@@ -77,7 +77,6 @@
         "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^10.0",
         "omnipay/paypal": "^3.0",
-        "payfast/payfast-php-sdk": "^1.1",
         "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",

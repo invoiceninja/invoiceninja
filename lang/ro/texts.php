@@ -2197,7 +2197,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'mailgun_private_key' => 'Cheie privată Mailgun',
     'brevo_domain' => 'Domeniul Brevo',
     'brevo_private_key' => 'Cheie privată Brevo',
-    'send_test_email' => 'Trimiteți un email de test',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Selectați eticheta',
     'label' => 'Etichetă',
     'service' => 'Serviciu',
@@ -4171,7 +4171,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'one_time_purchases' => 'Achiziții unice',
     'recurring_purchases' => 'Achiziții recurente',
     'you_might_be_interested_in_following' => 'S-ar putea să vă intereseze și',
-    'quotes_with_status_sent_can_be_approved' => 'Doar ofertele marcate ca „Trimise” pot fi aprovate.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Nu există oferte pregătite pentru descărcare.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user a creat :created_user la :time',
@@ -5297,6 +5297,7 @@ Odată ce sumele au ajuns la dumneavoastră, reveniți la pagina cu metode de pl
     'rappen_rounding' => 'Rappen rotunjire',
     'rappen_rounding_help' => 'Suma rotundă la 5 cenți',
     'assign_group' => 'Atribuiți grup',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

@@ -879,10 +879,7 @@ class BaseExport
 
         $transformed_clients = $this->transformKeys($clients);
 
-        nlog($transformed_clients);
-
         if(count($transformed_clients) > 0) {
-            nlog("yus");
             $query->whereIn('client_id', $transformed_clients);
         }
 
