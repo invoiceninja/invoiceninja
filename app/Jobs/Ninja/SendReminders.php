@@ -232,7 +232,6 @@ class SendReminders implements ShouldQueue
         }
         $invoice->service()->touchReminder($template)->save();
 
-        // $invoice->save();
     }
 
     /**
