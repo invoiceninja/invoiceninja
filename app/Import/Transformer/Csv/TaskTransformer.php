@@ -49,7 +49,7 @@ class TaskTransformer extends BaseTransformer
             'client_id' => $clientId,
             'project_id' => $this->getProjectId($projectId, $clientId),
             'description' => $this->getString($task_data, 'task.description'),
-            'status' => $this->getTaskStatusId($task_data),
+            'status_id' => $this->getTaskStatusId($task_data),
             'custom_value1' => $this->getString($task_data, 'task.custom_value1'),
             'custom_value2' => $this->getString($task_data, 'task.custom_value2'),
             'custom_value3' => $this->getString($task_data, 'task.custom_value3'),
