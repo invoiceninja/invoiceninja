@@ -84,7 +84,7 @@ class TaskTransformer extends BaseTransformer
         } elseif(isset($item['task.billable']) && is_bool($item['task.billable'])) {
             $is_billable = $item['task.billable'];
         } else {
-            $is_billable = false;
+            $is_billable = true;
         }
 
         if(isset($item['task.start_date']) &&
