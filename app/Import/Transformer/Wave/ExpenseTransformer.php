@@ -43,7 +43,7 @@ class ExpenseTransformer extends BaseTransformer
             'vendor_id'   => $this->getVendorIdOrCreate($this->getString($data, 'Vendor')),
             'number' 	  => $this->getString($data, 'Bill Number'),
             'public_notes' => $this->getString($data, 'Notes / Memo'),
-            'date'        => date('Y-m-d', strtotime($data['Transaction Date Added'])) ?: now()->format('Y-m-d'), //27-01-2022
+            'date'        => $this->parseDate($data['Transaction Date Added']) ?: now()->format('Y-m-d'), //27-01-2022
             'currency_id' => $this->company->settings->currency_id,
             'category_id' => $this->getOrCreateExpenseCategry($data['Account Name']),
             'amount'	  => $amount,

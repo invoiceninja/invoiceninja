@@ -208,7 +208,7 @@ class CheckData extends Command
                 ->cursor()
                 ->each(function ($client) {
                     if ($client->recurring_invoices()->where('is_deleted', 0)->where('deleted_at', null)->count() > 1) {
-                        $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1}");
+                        $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1} || {$client->id}}");
                     }
                 });
         }
