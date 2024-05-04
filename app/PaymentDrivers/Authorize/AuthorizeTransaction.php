@@ -147,7 +147,7 @@ class AuthorizeTransaction
 
                 if($tresponse->getResponseCode() == "4"){
                     //notify user that this transaction is being held under FDS review:
-                        FDSReview::dispatch((string)$tresponse->getTransId(), $this->authorize->payment_hash, $this->authorize->company_gateway->company->db);
+                    FDSReview::dispatch((string)$tresponse->getTransId(), $this->authorize->payment_hash, $this->authorize->company_gateway->company->db);
                 }
 
             } else {
