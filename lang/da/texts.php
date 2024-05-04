@@ -4028,7 +4028,7 @@ $lang = array(
     'user_detached' => 'Bruger løsrevet fra selskabet',
     'create_webhook_failure' => 'Opret Webhook mislykkedes',
     'payment_message_extended' => 'Tak for din Betaling på :amount for :invoice',
-    'online_payments_minimum_note' => 'Bemærk : Online Betalinger understøttes kun, hvis Beløb er større end $1 eller tilsvarende i valuta.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Betaling blev ikke fundet, prøv venligst igen. Hvis et problem stadig fortsætter, kan du prøve med en anden Betaling',
     'vendor_address1' => 'Sælger Gade',
     'vendor_address2' => 'Sælger Apt/Suite',
@@ -5296,6 +5296,9 @@ $lang = array(
     'rappen_rounding_help' => 'Rund Beløb til 5 øre',
     'assign_group' => 'Tildel gruppe',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

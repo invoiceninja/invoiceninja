@@ -4029,7 +4029,7 @@ $lang = array(
     'user_detached' => 'ຜູ້ໃຊ້ຖືກແຍກອອກຈາກບໍລິສັດ',
     'create_webhook_failure' => 'ລົ້ມເຫລວໃນການສ້າງ Webhook',
     'payment_message_extended' => 'ຂໍຂອບໃຈສຳລັບການຈ່າຍເງິນ:ຈຳນວນເງິນ:ໃບແຈ້ງໜີ້',
-    'online_payments_minimum_note' => 'ໝາຍເຫດ: ການຈ່າຍເງິນອອນລາຍແມ່ນຮອງຮັບໄດ້ພຽງແຕ່ຖ້າຈຳນວນເງິນໃຫຍ່ກວ່າ $1 ຫຼື ທຽບເທົ່າສະກຸນເງິນເທົ່ານັ້ນ.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'ບໍ່ພົບໂທເຄັນການຈ່າຍເງິນ, ກະລຸນາລອງໃໝ່ອີກຄັ້ງ. ຖ້າບັນຫາຍັງຄົງຢູ່, ໃຫ້ລອງໃຊ້ວິທີຈ່າຍເງິນອື່ນ',
     'vendor_address1' => 'ຖະໜົນຜູ້ຂາຍ',
     'vendor_address2' => 'ຜູ້ຂາຍ Apt/Suite',
@@ -5297,6 +5297,9 @@ $lang = array(
     'rappen_rounding_help' => 'ຈໍານວນຮອບເປັນ 5 ເຊັນ',
     'assign_group' => 'ກຳນົດກຸ່ມ',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

@@ -4029,7 +4029,7 @@ $lang = array(
     'user_detached' => '用戶脫離公司',
     'create_webhook_failure' => '建立 Webhook 失敗',
     'payment_message_extended' => '感謝您為:amount支付:invoice',
-    'online_payments_minimum_note' => '注意：僅當金額大於 1 美元或等值貨幣時才支援線上付款。',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => '未找到支付令牌，請重試。如果問題仍然存在，請嘗試使用其他付款方式',
     'vendor_address1' => '供應商街',
     'vendor_address2' => '供應商 公寓/套房',
@@ -5297,6 +5297,9 @@ $lang = array(
     'rappen_rounding_help' => '金額為 5 美分',
     'assign_group' => '分配群組',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

@@ -4010,7 +4010,7 @@ $lang = array(
     'user_detached' => 'فصل المستخدم عن الشركة',
     'create_webhook_failure' => 'فشل إنشاء Webhook',
     'payment_message_extended' => 'شكرًا لك على دفعك لـ :amount مقابل :invoice',
-    'online_payments_minimum_note' => 'ملاحظة: يتم دعم المدفوعات عبر الإنترنت فقط إذا كان المبلغ أكبر من دولار واحد أو ما يعادله بالعملة.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'لم يتم العثور على رمز الدفع ، يرجى المحاولة مرة أخرى. إذا استمرت المشكلة ، فحاول استخدام طريقة دفع أخرى',
     'vendor_address1' => 'شارع البائع',
     'vendor_address2' => 'بائع شقة / جناح',
@@ -5278,6 +5278,9 @@ $lang = array(
     'rappen_rounding_help' => 'جولة المبلغ إلى 5 سنتات',
     'assign_group' => 'تعيين المجموعة',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

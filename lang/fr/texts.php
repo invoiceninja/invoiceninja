@@ -4029,7 +4029,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'user_detached' => 'Utilisateur détaché de l\'entreprise',
     'create_webhook_failure' => 'Échec de la création du Webhook',
     'payment_message_extended' => 'Merci pour votre paiement de :amount pour :invoice',
-    'online_payments_minimum_note' => 'Remarque : Les paiements en ligne ne sont pris en charge que si le montant est supérieur à 1 $ ou l\'équivalent en devise.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Le jeton de paiement est introuvable. Veuillez essayer de nouveau. Si le problème persiste, essayez avec un autre mode de paiement',
     'vendor_address1' => 'Rue du fournisseur',
     'vendor_address2' => 'Appt/Bâtiment du fournisseur',
@@ -5297,6 +5297,9 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'rappen_rounding_help' => 'Montant rond à 5 centimes',
     'assign_group' => 'Attribuer un groupe',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

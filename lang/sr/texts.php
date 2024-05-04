@@ -4029,7 +4029,7 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'user_detached' => 'Korisnik je odvojen od kompanije',
     'create_webhook_failure' => 'Neuspešno kreiranje Webhook-a',
     'payment_message_extended' => 'Hvala vam na vašoj uplati od :amount za :invoice',
-    'online_payments_minimum_note' => 'Napomena: onlajn plaćanja su podržana samo ako je iznos veći od 1 USD ili ekvivalentne valute.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Token za plaćanje nije pronađen, pokušajte ponovo. Ako problem i dalje postoji, pokušajte sa drugim načinom plaćanja ',
     'vendor_address1' => 'Ulica dobavljača',
     'vendor_address2' => 'Stan/apartman dobavljača',
@@ -5297,6 +5297,9 @@ Kada budete imali iznose, vratite se na ovu stranicu sa načinima plaćanja i k
     'rappen_rounding_help' => 'Round amount to 5 cents',
     'assign_group' => 'Assign group',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

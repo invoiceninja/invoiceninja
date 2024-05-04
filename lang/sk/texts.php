@@ -2847,7 +2847,7 @@ $lang = array(
     'reminder1' => 'Prvá Upomienka',
     'reminder2' => 'Druhá Upomienka',
     'reminder3' => 'Tretia Upomienka',
-    'send' => 'Odoslané',
+    'send' => 'Odoslať',
     'auto_billing' => 'Automatické účtovanie',
     'button' => 'Tlačidlo',
     'more' => 'VIac',
@@ -4016,7 +4016,7 @@ $lang = array(
     'user_detached' => 'Používateľ je oddelený od spoločnosti',
     'create_webhook_failure' => 'Nepodarilo sa vytvoriť webhook',
     'payment_message_extended' => 'Ďakujeme za platbu vo výške :amount za :invoice',
-    'online_payments_minimum_note' => 'Poznámka: Online platby sú podporované iba vtedy, ak je suma vyššia ako 1 $ alebo ekvivalent v inej mene.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Platobný token sa nenašiel, skúste to znova. Ak problém stále pretrváva, skúste použiť iný spôsob platby ',
     'vendor_address1' => 'Ulica predajcu',
     'vendor_address2' => 'Apartmán/byt dodávateľa',
@@ -4223,7 +4223,7 @@ $lang = array(
     'payment_type_Bancontact' => 'Zákaz kontaktu',
     'payment_type_BECS' => 'BECS',
     'payment_type_ACSS' => 'ACSS',
-    'gross_line_total' => 'Hrubý riadok celkom',
+    'gross_line_total' => 'Celková suma brutto',
     'lang_Slovak' => 'Slovensky',
     'normal' => 'Normálne',
     'large' => 'Veľké',
@@ -5284,6 +5284,9 @@ $lang = array(
     'rappen_rounding_help' => 'Okrúhla suma do 5 centov',
     'assign_group' => 'Priradiť skupinu',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;
