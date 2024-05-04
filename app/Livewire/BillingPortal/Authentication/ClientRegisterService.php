@@ -51,9 +51,9 @@ class ClientRegisterService
             }
         }
 
-        if ($this->company->settings->client_portal_terms || $this->company->settings->client_portal_privacy_policy) {
-            $rules['terms'] = ['required'];
-        }
+        // if ($this->company->settings->client_portal_terms || $this->company->settings->client_portal_privacy_policy) {
+        //     $rules['terms'] = ['required'];
+        // }
 
         foreach ($this->additional as $field) {
             if ($field['visible'] ?? true) {

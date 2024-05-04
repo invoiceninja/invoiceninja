@@ -680,7 +680,7 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($request->type === 'payment_intent.processing') {
-            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(2));
+            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10,12)));
             return response()->json([], 200);
         }
 
@@ -692,7 +692,7 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($request->type === 'payment_intent.partially_funded') {
-            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10, 15)));
 
             return response()->json([], 200);
         }
@@ -715,7 +715,6 @@ class StripePaymentDriver extends BaseDriver
                         ->first();
                 } else {
                     $payment = Payment::query()
-                        // ->where('company_id', $request->getCompany()->id)
                         ->where('transaction_reference', $transaction['id'])
                         ->first();
                 }
