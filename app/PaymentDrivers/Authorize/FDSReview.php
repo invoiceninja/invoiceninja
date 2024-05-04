@@ -17,7 +17,7 @@ use App\Services\Email\Email;
 use Illuminate\Bus\Queueable;
 use App\Services\Email\EmailObject;
 use Illuminate\Support\Facades\App;
-use Symfony\Component\Mime\Address;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -50,20 +50,17 @@ class FDSReview implements ShouldQueue
         
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: '';
 
-        $body = "Transaction {$this->transaction_reference} has been held for your review in Auth.net based on your Fraud Detection Settings.\n We have marked invoices {$invoices_string} as paid in Invoice Ninja.\n Please review these transaction in your auth.net account, and authorize them if they are correct to ensure the transactions are processed as expected. If these charges need to be cancelled, you will need to delete the payments that have been created in Invoice Ninja to reverse those payments.";
+        $body = "Transaction {$this->transaction_reference} has been held for your review in Auth.net based on your Fraud Detection Settings.\n\n\nWe have marked invoices {$invoices_string} as paid in Invoice Ninja.\n\n\nPlease review this transaction in your auth.net account, and authorize if correct to ensure the transaction is finalized as expected.\n\n\nIf these charges need to be cancelled, you will need to delete the payments that have been created in Invoice Ninja.";
 
         $mo = new EmailObject();
         $mo->subject = "Transaction {$this->transaction_reference} held for review by auth.net";
-        $mo->body = $body;
+        $mo->body = nl2br($body);
         $mo->text_body = $body;
         $mo->company_key = $company->company_key;
         $mo->html_template = 'email.template.generic';
         $mo->to = [new Address($company->owner()->email, $company->owner()->present()->name())];
-        // $mo->email_template_body = 'nordigen_requisition_body';
-        // $mo->email_template_subject = 'nordigen_requisition_subject';
 
         Email::dispatch($mo, $company);
-
 
     }
 
