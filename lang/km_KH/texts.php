@@ -4009,7 +4009,7 @@ $lang = array(
     'user_detached' => 'អ្នកប្រើប្រាស់ត្រូវបានផ្តាច់ចេញពីក្រុមហ៊ុន',
     'create_webhook_failure' => 'បរាជ័យក្នុងការបង្កើត Webhook',
     'payment_message_extended' => 'សូមអរគុណចំពោះការបង់ប្រាក់របស់អ្នក :amount សម្រាប់ :invoice',
-    'online_payments_minimum_note' => 'ចំណាំ៖ ការទូទាត់តាមអ៊ីនធឺណិតត្រូវបានគាំទ្រលុះត្រាតែចំនួនទឹកប្រាក់ធំជាង $1 ឬសមមូលរូបិយប័ណ្ណ។',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'រកមិនឃើញនិមិត្តសញ្ញាបង់ប្រាក់ទេ សូមព្យាយាមម្តងទៀត។ ប្រសិនបើបញ្ហានៅតែកើតមាន សូមសាកល្បងជាមួយវិធីបង់ប្រាក់ផ្សេងទៀត។',
     'vendor_address1' => 'ផ្លូវអ្នកលក់',
     'vendor_address2' => 'អ្នកលក់ Apt/Suite',
@@ -5277,6 +5277,9 @@ $lang = array(
     'rappen_rounding_help' => 'ចំនួនទឹកប្រាក់ជុំដល់ 5 សេន',
     'assign_group' => 'ចាត់តាំងក្រុម',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

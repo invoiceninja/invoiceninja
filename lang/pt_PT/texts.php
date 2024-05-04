@@ -4028,7 +4028,7 @@ debitar da sua conta de acordo com essas instruções. Está elegível a um reem
     'user_detached' => 'Utilizador não vinculado à empresa',
     'create_webhook_failure' => 'Falha ao criar Webhook',
     'payment_message_extended' => 'Obrigado pelo pagamento de :amount para :invoice',
-    'online_payments_minimum_note' => 'Nota: Pagamentos online estão disponíveis se a quantia for superior a 1$ ou ao equivalente na moeda utilizada.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Token de pagamento não encontrada, por favor tente novamente. Se este erro persistir, tente outro método de pagamento',
     'vendor_address1' => 'Morada Fornecedor',
     'vendor_address2' => 'Andar / Fração Fornecedor',
@@ -5297,6 +5297,9 @@ O envio de E-mails foi suspenso. Será retomado às 23:00 UTC.',
     'rappen_rounding_help' => 'Montante redondo para 5 centavos',
     'assign_group' => 'Atribuir grupo',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

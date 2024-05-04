@@ -5300,6 +5300,9 @@ $lang = array(
     'local_domain_help' => 'EHLO domain (optional)',
     'port_help' => 'ie. 25,587,465',
     'host_help' => 'ie. smtp.gmail.com',
+    'always_show_required_fields' => 'Allows show required fields form',
+    'always_show_required_fields_help' => 'Displays the required fields form always at checkout',
+    'advanced_cards' => 'Advanced Cards',
     'tax_currency_mismatch' => 'Tax currency is different from invoice currency',
     'edocument_import_already_exists' => '\nThe invoice has already been imported on :date',
 

@@ -4031,7 +4031,7 @@ https://invoiceninja.github.io/docs/migration/#troubleshooting',
     'user_detached' => 'Nutzer wurden vom Unternehmen entkoppelt',
     'create_webhook_failure' => 'Webhook konnte nicht erstellt werden',
     'payment_message_extended' => 'Vielen Dank für Ihre Zahlung von :amount für die Rechnung :invoice',
-    'online_payments_minimum_note' => 'Hinweis: Online-Zahlungen werden nur unterstützt, wenn der Betrag größer als 1€ oder der entsprechende Währungsbetrag ist.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Zahlungstoken nicht gefunden, bitte versuchen Sie es erneut. Wenn das Problem weiterhin besteht, versuchen Sie es mit einer anderen Zahlungsmethode',
     'vendor_address1' => 'Straße Lieferant',
     'vendor_address2' => 'Lieferant Apt/Suite',
@@ -5301,6 +5301,9 @@ Leistungsempfängers',
     'rappen_rounding_help' => 'Betrag auf 5 Cent aufrunden',
     'assign_group' => 'Gruppe zuweisen',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;
