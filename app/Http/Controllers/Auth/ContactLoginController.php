@@ -165,7 +165,9 @@ class ContactLoginController extends Controller
 
     private function setRedirectPath()
     {
-        if (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
+        if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === true) {
+            $this->redirectTo = '/client/dashboard';                                                                                              
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
             $this->redirectTo = '/client/invoices';
         } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES) {
             $this->redirectTo = '/client/recurring_invoices';
