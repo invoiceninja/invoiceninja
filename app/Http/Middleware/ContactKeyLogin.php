@@ -161,7 +161,9 @@ class ContactKeyLogin
 
     private function setRedirectPath()
     {
-        if (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
+        if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === true) {
+            return '/client/dashboard';                                                                                              
+        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
             return '/client/invoices';
         } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES) {
             return '/client/recurring_invoices';
