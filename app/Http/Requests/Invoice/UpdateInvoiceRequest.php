@@ -66,7 +66,8 @@ class UpdateInvoiceRequest extends Request
         $rules['is_amount_discount'] = ['boolean'];
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->invoice->client_id])];
         $rules['line_items'] = 'array';
-        $rules['discount'] = 'sometimes|numeric';
+
+$rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';

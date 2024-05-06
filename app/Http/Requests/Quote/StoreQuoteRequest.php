@@ -60,7 +60,8 @@ class StoreQuoteRequest extends Request
         }
 
         $rules['number'] = ['nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)];
-        $rules['discount'] = 'sometimes|numeric';
+
+$rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['line_items'] = 'array';

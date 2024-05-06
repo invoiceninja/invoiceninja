@@ -52,7 +52,8 @@ class UpdatePurchaseOrderRequest extends Request
         $rules['vendor_id'] = ['bail', 'sometimes', Rule::in([$this->purchase_order->vendor_id])];
 
         $rules['line_items'] = 'array';
-        $rules['discount'] = 'sometimes|numeric';
+
+$rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {

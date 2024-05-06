@@ -67,7 +67,7 @@ class StoreInvoiceRequest extends Request
         $rules['is_amount_discount'] = ['boolean'];
 
         $rules['line_items'] = 'array';
-        $rules['discount'] = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
