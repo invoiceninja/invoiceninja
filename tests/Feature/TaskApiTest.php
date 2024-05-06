@@ -104,6 +104,33 @@ class TaskApiTest extends TestCase
         }
     }
 
+    public function testTimeLogWithSameStartAndStopTimes()
+    {
+        $settings = ClientSettings::defaults();
+        $settings->default_task_rate = 41;
+
+        $c = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'settings' => $settings,
+        ]);
+
+        $data = [
+            'client_id' => $c->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],[1681165446,1681165446]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+    
+    }
+
     public function testRoundingViaApi()
     {
                 
