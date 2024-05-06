@@ -53,6 +53,7 @@ class StoreExpenseRequest extends Request
         $rules['payment_date'] = 'bail|nullable|sometimes|date:Y-m-d';
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
         $rules['documents'] = 'bail|sometimes|array';
+        $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
 
         return $this->globalRules($rules);
     }
