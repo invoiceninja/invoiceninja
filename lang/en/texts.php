@@ -5303,6 +5303,7 @@ $lang = array(
     'always_show_required_fields' => 'Allows show required fields form',
     'always_show_required_fields_help' => 'Displays the required fields form always at checkout',
     'advanced_cards' => 'Advanced Cards',
+    'activity_140' => 'Statement sent to :client - [:notes]',
 );
 
 return $lang;

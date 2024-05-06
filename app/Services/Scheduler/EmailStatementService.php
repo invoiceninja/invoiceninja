@@ -44,6 +44,8 @@ class EmailStatementService
 
         $query->cursor()
             ->each(function ($_client) {
+
+                /**@var \App\Models\Client $_client */
                 $this->client = $_client;
 
                 //work out the date range
