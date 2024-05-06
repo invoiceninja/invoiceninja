@@ -10,15 +10,14 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\SubscriptionsV4;
 
 use App\Models\ClientContact;
 use App\Models\Subscription;
-use Illuminate\Http\JsonResponse;
 
 class AuthController
 {
-    public function login(Subscription $subscription): JsonResponse
+    public function login(Subscription $subscription)
     {
         $contact = ClientContact::where('email', request()->email)
             ->where('company_id', $subscription->company_id)
@@ -28,9 +27,18 @@ class AuthController
             return response()->noContent(401);
         }
 
-        return response()->json([
-            'id' => $contact->hashed_id,
-            'email' => $contact->email,
+        $attempt = auth()->guard('contact')->attempt([
+            'email' => request()->email,
+            'password' => request()->password,
+            'company_id' => $subscription->company_id,
         ]);
+
+        if (!$attempt) {
+            return response()->noContent(401);
+        }
+
+        return response()->json(
+            auth()->guard('contact')->user()->client
+        );
     }
 }
