@@ -67,7 +67,8 @@ class UpdateCreditRequest extends Request
         $rules['client_id'] = ['bail', 'sometimes',Rule::in([$this->credit->client_id])];
 
         $rules['line_items'] = 'array';
-        $rules['discount'] = 'sometimes|numeric';
+
+$rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';

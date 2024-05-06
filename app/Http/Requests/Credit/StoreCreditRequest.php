@@ -67,7 +67,7 @@ class StoreCreditRequest extends Request
 
         // $rules['number'] = new UniqueCreditNumberRule($this->all());
         $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', $user->company()->id)];
-        $rules['discount'] = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
