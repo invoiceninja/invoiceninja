@@ -41,4 +41,17 @@ class AuthController
             auth()->guard('contact')->user()->client
         );
     }
+
+    public function check(Subscription $subscription)
+    {
+        $contact = ClientContact::where('email', request()->email)
+            ->where('company_id', $subscription->company_id)
+            ->first();
+
+        if (!$contact) {
+            return response()->noContent(404);
+        }
+
+        return response()->noContent(200);
+    }
 }
