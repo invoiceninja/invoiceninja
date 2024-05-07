@@ -706,15 +706,25 @@ class StripePaymentDriver extends BaseDriver
         if ($request->type === 'charge.succeeded') {
             foreach ($request->data as $transaction) {
                 
-                $payment = Payment::query()
-                    ->where('company_id', $this->company_gateway->company_id)
-                    ->when(isset($transaction['payment_intent']), function ($query) use ($transaction) {
+
+            $payment = Payment::query()
+                ->where('company_id', $this->company_gateway->company_id)
+                ->where(function ($query) use ($transaction) {
+
+                    if(isset($transaction['payment_intent'])) {
                         $query->where('transaction_reference', $transaction['payment_intent']);
-                    })
-                    ->when(isset($transaction['id']), function ($query) use ($transaction) {
+                    }
+
+                    if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                        $query->orWhere('transaction_reference', $transaction['id']);
+                    }
+
+                    if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
                         $query->where('transaction_reference', $transaction['id']);
-                    })
-                    ->first();
+                    }
+
+                })
+                ->first();
 
 
                 if ($payment) {
@@ -743,15 +753,26 @@ class StripePaymentDriver extends BaseDriver
 
                 if ($charge->captured) {
                     
+
                 $payment = Payment::query()
                     ->where('company_id', $this->company_gateway->company_id)
-                    ->when(isset($transaction['payment_intent']), function ($query) use ($transaction) {
-                        $query->where('transaction_reference', $transaction['payment_intent']);
-                    })
-                    ->when(isset($transaction['id']), function ($query) use ($transaction) {
-                        $query->where('transaction_reference', $transaction['id']);
+                    ->where(function ($query) use ($transaction) {
+
+                        if(isset($transaction['payment_intent'])) {
+                            $query->where('transaction_reference', $transaction['payment_intent']);
+                        }
+
+                        if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                            $query->orWhere('transaction_reference', $transaction['id']);
+                        }
+
+                        if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                            $query->where('transaction_reference', $transaction['id']);
+                        }
+
                     })
                     ->first();
+
 
 
                     if ($payment) {

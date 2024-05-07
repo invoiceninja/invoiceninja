@@ -52,20 +52,31 @@ class PaymentIntentFailureWebhook implements ShouldQueue
 
     public function handle()
     {
+        nlog("payment intent failed");
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
+        nlog($this->stripe_request);
 
         $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
 
-            
+            nlog($transaction);
+
             $payment = Payment::query()
                 ->where('company_id', $company->id)
-                ->when(isset($transaction['payment_intent']), function ($query) use ($transaction) {
-                    $query->where('transaction_reference', $transaction['payment_intent']);
-                })
-                ->when(isset($transaction['id']), function ($query) use ($transaction) {
-                    $query->where('transaction_reference', $transaction['id']);
+                ->where(function ($query) use ($transaction) {
+                    
+                    if(isset($transaction['payment_intent']))
+                        $query->where('transaction_reference', $transaction['payment_intent']);
+                    
+                    if(isset($transaction['payment_intent']) && isset($transaction['id']))
+                        $query->orWhere('transaction_reference', $transaction['id']);
+
+                    if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                        $query->where('transaction_reference', $transaction['id']);
+                    }
+
                 })
                 ->first();
 
