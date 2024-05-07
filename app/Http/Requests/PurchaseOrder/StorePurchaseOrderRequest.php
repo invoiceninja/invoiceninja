@@ -49,7 +49,8 @@ class StorePurchaseOrderRequest extends Request
         $rules['vendor_id'] = 'bail|required|exists:vendors,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
-        $rules['discount']  = 'sometimes|numeric';
+
+$rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['line_items'] = 'array';
 
@@ -70,6 +71,8 @@ class StorePurchaseOrderRequest extends Request
         $rules['status_id'] = 'nullable|integer|in:1,2,3,4,5';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
 
+        $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
+
         return $rules;
     }
 
@@ -79,16 +82,18 @@ class StorePurchaseOrderRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        $input['amount'] = 0;
+        $input['balance'] = 0;
+
         if(isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
         }
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
-        }
+            $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
-        $input['amount'] = 0;
-        $input['balance'] = 0;
+        }
 
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
             $input['exchange_rate'] = 1;

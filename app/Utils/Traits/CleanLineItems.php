@@ -90,4 +90,18 @@ trait CleanLineItems
 
         return $item;
     }
+
+    private function entityTotalAmount($items)
+    {
+        $total = 0;
+
+        foreach($items as $item)
+        {
+            $total += ($item['cost'] * $item['quantity']);
+        }
+
+        nlog($total);
+
+        return $total;
+    }
 }

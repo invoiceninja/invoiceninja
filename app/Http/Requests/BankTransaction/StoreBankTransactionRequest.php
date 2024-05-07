@@ -41,7 +41,7 @@ class StoreBankTransactionRequest extends Request
         $rules = [];
 
         $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.$user->company()->id.',is_deleted,0';
-
+        $rules['amount'] = ['sometimes', 'bail', 'numeric', 'nullable', 'max:99999999999999'];
         return $rules;
     }
 
@@ -55,6 +55,7 @@ class StoreBankTransactionRequest extends Request
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
 
+        
         $this->replace($input);
     }
 }

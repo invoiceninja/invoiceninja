@@ -4037,7 +4037,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'user_detached' => 'Användaren har kopplats bort från företaget',
     'create_webhook_failure' => 'Det gick inte att skapa Webhook',
     'payment_message_extended' => 'Tack för din betalning på :amount för :invoice',
-    'online_payments_minimum_note' => 'Notera: Online betalningar stöds endast om beloppet är större än 10:- eller motsvarande valuta.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Betalningstoken hittades inte. Försök igen. Om problemet fortfarande kvarstår kan du prova med en annan betalningsmetod',
     'vendor_address1' => 'Leverantörsadress',
     'vendor_address2' => 'Leverantörsadress 2',
@@ -5305,6 +5305,9 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'rappen_rounding_help' => 'Round amount to 5 cents',
     'assign_group' => 'Assign group',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

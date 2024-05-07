@@ -4020,7 +4020,7 @@ $lang = array(
     'user_detached' => 'Utente separato dall\'azienda',
     'create_webhook_failure' => 'Impossibile creare il webhook',
     'payment_message_extended' => 'Grazie per il pagamento di :amount per :invoice',
-    'online_payments_minimum_note' => 'Nota: i pagamenti online sono supportati solo se l&#39;importo è superiore a $ 1 o equivalente in valuta.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Token di pagamento non trovato, riprova. Se il problema persiste, prova con un altro metodo di pagamento',
     'vendor_address1' => 'Via Fornitore',
     'vendor_address2' => 'Scala/Appartamento Fornitore',
@@ -5288,6 +5288,9 @@ $lang = array(
     'rappen_rounding_help' => 'Ammontare tondo a 5 centesimi',
     'assign_group' => 'Assegna gruppo',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

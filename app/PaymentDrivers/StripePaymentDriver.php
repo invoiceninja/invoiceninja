@@ -680,7 +680,7 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($request->type === 'payment_intent.processing') {
-            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(2));
+            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10,12)));
             return response()->json([], 200);
         }
 
@@ -692,7 +692,7 @@ class StripePaymentDriver extends BaseDriver
         }
 
         if ($request->type === 'payment_intent.partially_funded') {
-            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10, 15)));
 
             return response()->json([], 200);
         }
@@ -705,20 +705,27 @@ class StripePaymentDriver extends BaseDriver
 
         if ($request->type === 'charge.succeeded') {
             foreach ($request->data as $transaction) {
-                if (array_key_exists('payment_intent', $transaction) && $transaction['payment_intent']) {
-                    $payment = Payment::query()
-                        // ->where('company_id', $request->getCompany()->id)
-                        ->where(function ($query) use ($transaction) {
-                            $query->where('transaction_reference', $transaction['payment_intent'])
-                                  ->orWhere('transaction_reference', $transaction['id']);
-                        })
-                        ->first();
-                } else {
-                    $payment = Payment::query()
-                        // ->where('company_id', $request->getCompany()->id)
-                        ->where('transaction_reference', $transaction['id'])
-                        ->first();
-                }
+                
+
+            $payment = Payment::query()
+                ->where('company_id', $this->company_gateway->company_id)
+                ->where(function ($query) use ($transaction) {
+
+                    if(isset($transaction['payment_intent'])) {
+                        $query->where('transaction_reference', $transaction['payment_intent']);
+                    }
+
+                    if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                        $query->orWhere('transaction_reference', $transaction['id']);
+                    }
+
+                    if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                        $query->where('transaction_reference', $transaction['id']);
+                    }
+
+                })
+                ->first();
+
 
                 if ($payment) {
 
@@ -745,19 +752,28 @@ class StripePaymentDriver extends BaseDriver
                 ], $this->stripe_connect_auth);
 
                 if ($charge->captured) {
-                    $payment = false;
+                    
 
-                    if (isset($transaction['payment_intent'])) {
-                        $payment = Payment::query()
-                            ->where('transaction_reference', $transaction['payment_intent'])
-                            ->where('company_id', $request->getCompany()->id)
-                            ->first();
-                    } elseif (isset($transaction['id'])) {
-                        $payment = Payment::query()
-                            ->where('transaction_reference', $transaction['id'])
-                            ->where('company_id', $request->getCompany()->id)
-                            ->first();
-                    }
+                $payment = Payment::query()
+                    ->where('company_id', $this->company_gateway->company_id)
+                    ->where(function ($query) use ($transaction) {
+
+                        if(isset($transaction['payment_intent'])) {
+                            $query->where('transaction_reference', $transaction['payment_intent']);
+                        }
+
+                        if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                            $query->orWhere('transaction_reference', $transaction['id']);
+                        }
+
+                        if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                            $query->where('transaction_reference', $transaction['id']);
+                        }
+
+                    })
+                    ->first();
+
+
 
                     if ($payment) {
                         $payment->status_id = Payment::STATUS_COMPLETED;

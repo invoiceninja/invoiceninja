@@ -4026,7 +4026,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'user_detached' => 'Gebruiker losgekoppeld van bedrijf',
     'create_webhook_failure' => 'Maken van webhook is mislukt',
     'payment_message_extended' => 'Bedankt voor uw betaling van :amount voor :invoice',
-    'online_payments_minimum_note' => 'Opmerking: Online betalingen worden alleen ondersteund als het bedrag groter is dan € 1 of het equivalent in een andere valuta.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Betalingstoken niet gevonden. Probeer het opnieuw. Als het probleem zich blijft voordoen, probeer het dan met een andere betaalmethode',
     'vendor_address1' => 'Leverancier straatnaam',
     'vendor_address2' => 'Leverancier Apt / Suite',
@@ -5297,6 +5297,9 @@ Email: :email<b><br><b>',
     'rappen_rounding_help' => 'Rond het bedrag af op 5 cent',
     'assign_group' => 'Groep toewijzen',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

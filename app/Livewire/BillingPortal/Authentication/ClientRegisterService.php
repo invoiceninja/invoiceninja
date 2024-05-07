@@ -42,18 +42,18 @@ class ClientRegisterService
         }
 
         foreach ($rules as $field => $properties) {
-            if ($field === 'email') {
+            if ($field == 'email') {
                 $rules[$field] = array_merge($rules[$field], ['email:rfc', 'max:191', Rule::unique('client_contacts')->where('company_id', $this->company->id)]);
             }
 
-            if ($field === 'current_password' || $field === 'password') {
+            if ($field == 'current_password' || $field == 'password') {
                 $rules[$field] = array_merge($rules[$field], ['string', 'min:6', 'confirmed']);
             }
         }
 
-        if ($this->company->settings->client_portal_terms || $this->company->settings->client_portal_privacy_policy) {
-            $rules['terms'] = ['required'];
-        }
+        // if ($this->company->settings->client_portal_terms || $this->company->settings->client_portal_privacy_policy) {
+        //     $rules['terms'] = ['required'];
+        // }
 
         foreach ($this->additional as $field) {
             if ($field['visible'] ?? true) {

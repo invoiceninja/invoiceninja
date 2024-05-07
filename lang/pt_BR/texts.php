@@ -4026,7 +4026,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'user_detached' => 'Usuário desconectado da empresa',
     'create_webhook_failure' => 'Falha ao criar Webhook',
     'payment_message_extended' => 'Obrigado pelo seu pagamento de :amount por :invoice',
-    'online_payments_minimum_note' => 'Nota: Os pagamentos on-line são suportados apenas se o valor for superior a US$ 1 ou o equivalente em moeda.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Token de pagamento não encontrado. Tente novamente. Se o problema persistir, tente outra forma de pagamento',
     'vendor_address1' => 'Rua do Vendedor',
     'vendor_address2' => 'Apartamento/Suíte do Vendedor',
@@ -5294,6 +5294,9 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'rappen_rounding_help' => 'Montante redondo para 5 centavos',
     'assign_group' => 'Atribuir grupo',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

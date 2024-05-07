@@ -43,8 +43,8 @@ class InvoiceTransformer extends BaseTransformer
             // 'client_id'    => $this->getClient($this->getString($invoice_data, 'Customer ID'), $this->getString($invoice_data, 'Primary Contact EmailID')),
             'client_id'    => $this->harvestClient($invoice_data),
             'number'       => $this->getString($invoice_data, 'Invoice Number'),
-            'date'         => isset($invoice_data['Invoice Date']) ? date('Y-m-d', strtotime($invoice_data['Invoice Date'])) : null,
-            'due_date'     => isset($invoice_data['Due Date']) ? date('Y-m-d', strtotime($invoice_data['Due Date'])) : null,
+            'date'         => isset($invoice_data['Invoice Date']) ? $this->parseDate($invoice_data['Invoice Date']) : null,
+            'due_date'     => isset($invoice_data['Due Date']) ? $this->parseDate($invoice_data['Due Date']) : null,
             'po_number'    => $this->getString($invoice_data, 'PurchaseOrder'),
             'public_notes' => $this->getString($invoice_data, 'Notes'),
             'currency_id'  => $this->getCurrencyByCode($invoice_data, 'Currency'),
@@ -74,7 +74,7 @@ class InvoiceTransformer extends BaseTransformer
 
         if ($transformed['balance'] < $transformed['amount']) {
             $transformed['payments'] = [[
-                'date'   => isset($invoice_data['Last Payment Date']) ? date('Y-m-d', strtotime($invoice_data['Invoice Date'])) : date('Y-m-d'),
+                'date'   => isset($invoice_data['Last Payment Date']) ? $this->parseDate($invoice_data['Invoice Date']) : date('Y-m-d'),
                 'amount' => $transformed['amount'] - $transformed['balance'],
             ]];
         }

@@ -49,10 +49,10 @@ class InvoiceTransformer extends BaseTransformer
             'company_id'  => $this->company->id,
             'client_id'   => $this->getClient($customer_name = $this->getString($invoice_data, $customer_key), null),
             'number'      => $invoice_number = $this->getString($invoice_data, 'Invoice Number'),
-            'date'        => date('Y-m-d', strtotime($invoice_data[$date_key])) ?: now()->format('Y-m-d'), //27-01-2022
+            'date'        => $this->parseDate($invoice_data[$date_key]) ?: now()->format('Y-m-d'), //27-01-2022
             'currency_id' => $this->getCurrencyByCode($invoice_data, 'Currency'),
             'status_id'   => Invoice::STATUS_SENT,
-            'due_date'	  => array_key_exists('Due Date', $invoice_data) ? date('Y-m-d', strtotime($invoice_data['Due Date'])) : null,
+            'due_date'	  => array_key_exists('Due Date', $invoice_data) ? $this->parseDate($invoice_data['Due Date']) : null,
         ];
 
         $line_items = [];
@@ -81,7 +81,7 @@ class InvoiceTransformer extends BaseTransformer
             } elseif (array_key_exists('Account Type', $record) && $record['Account Type'] === 'System Receivable Invoice') {
                 // This is a payment
                 $payments[] = [
-                    'date'   => date('Y-m-d', strtotime($invoice_data[$date_key])),
+                    'date'   => $this->parseDate($invoice_data[$date_key]),
                     'amount' => $this->getFloat($record, 'Amount (One column)'),
                 ];
             } else {
@@ -103,7 +103,7 @@ class InvoiceTransformer extends BaseTransformer
 
                 if (array_key_exists('Invoice Paid', $record) && $record['Invoice Paid'] > 0) {
                     $payments[] = [
-                        'date'   => date('Y-m-d', strtotime($record['Last Payment Date'])),
+                        'date'   => $this->parseDate($record['Last Payment Date']),
                         'amount' => $this->getFloat($record, 'Invoice Paid'),
                     ];
                 }

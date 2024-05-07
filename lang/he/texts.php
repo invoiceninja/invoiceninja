@@ -4027,7 +4027,7 @@ $lang = array(
     'user_detached' => 'משתמש מנותק מהחברה',
     'create_webhook_failure' => 'יצירת Webhook נכשלה',
     'payment_message_extended' => 'תודה על התשלום בסך :amount עבור :invoice',
-    'online_payments_minimum_note' => 'הערה: תשלומים מקוונים נתמכים רק אם הסכום גדול מ-$1 או שווה ערך במטבע.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'אסימון תשלום לא נמצא, אנא נסה שוב. אם הבעיה עדיין נמשכת, נסה עם אמצעי תשלום אחר',
     'vendor_address1' => 'רחוב הספקים',
     'vendor_address2' => 'דירת ספק/סוויטה',
@@ -5295,6 +5295,9 @@ $lang = array(
     'rappen_rounding_help' => 'סכום עגול עד 5 סנט',
     'assign_group' => 'הקצה קבוצה',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

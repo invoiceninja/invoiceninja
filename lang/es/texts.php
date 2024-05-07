@@ -4028,7 +4028,7 @@ $lang = array(
     'user_detached' => 'Usuario desvinculado de la empresa',
     'create_webhook_failure' => 'No se pudo crear el webhook',
     'payment_message_extended' => 'Gracias por su pago de :amount por :invoice',
-    'online_payments_minimum_note' => 'Nota: Los pagos en línea solo se admiten si el monto es superior a $ 1 o su equivalente en moneda.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'No se encontró el token de pago, inténtelo de nuevo. Si el problema persiste, intente con otro método de pago',
     'vendor_address1' => 'Calle del vendedor',
     'vendor_address2' => 'Proveedor Apt/Suite',
@@ -5296,6 +5296,9 @@ $lang = array(
     'rappen_rounding_help' => 'Monto redondo a 5 centavos',
     'assign_group' => 'Asignar grupo',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

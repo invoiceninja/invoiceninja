@@ -448,6 +448,7 @@ class BaseExport
         'custom_value4' => 'task.custom_value4',
         'status' => 'task.status_id',
         'project' => 'task.project_id',
+        'billable' => 'task.billable',
     ];
 
     protected array $forced_client_fields = [

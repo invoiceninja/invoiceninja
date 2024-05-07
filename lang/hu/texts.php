@@ -4013,7 +4013,7 @@ adva :date',
     'user_detached' => 'Felhasználó leválasztva',
     'create_webhook_failure' => 'Webhook létrehozása sikertelen',
     'payment_message_extended' => 'Fizetési üzenet kiterjesztve',
-    'online_payments_minimum_note' => 'Online fizetések minimális megjegyzése',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Fizetési token nem található',
     'vendor_address1' => 'Szállító címe 1',
     'vendor_address2' => 'Szállító címe 2',
@@ -5281,6 +5281,9 @@ adva :date',
     'rappen_rounding_help' => 'Kerek összeg 5 cent',
     'assign_group' => 'Csoport hozzárendelése',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;
