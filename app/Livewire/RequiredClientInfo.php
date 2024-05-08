@@ -190,6 +190,8 @@ class RequiredClientInfo extends Component
 
     public $db;
 
+    public bool $is_subscription = false;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
@@ -230,12 +232,11 @@ class RequiredClientInfo extends Component
             $this->invoice_terms = $invoice->terms;
         }
 
-        if(!$this->company_gateway->always_show_required_fields)
+        if(!$this->company_gateway->always_show_required_fields || $this->is_subscription)
             $this->checkFields();
 
-        if($this->unfilled_fields > 0 || $this->company_gateway->always_show_required_fields)
+        if($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription))
             $this->show_form = true;
-
     }
 
     #[Computed]
@@ -371,7 +372,7 @@ class RequiredClientInfo extends Component
 
     public function checkFields()
     {
-        
+
         MultiDB::setDb($this->db);
         $_contact = ClientContact::withTrashed()->find($this->contact_id);
 
@@ -398,7 +399,7 @@ class RequiredClientInfo extends Component
             }
         }
 
-        if ($this->unfilled_fields === 0 && !$this->company_gateway->always_show_required_fields) {
+        if ($this->unfilled_fields === 0 && (!$this->company_gateway->always_show_required_fields || $this->is_subscription)) {
             $this->dispatch(
                 'passed-required-fields-check',
                 client_postal_code: $this->contact->client->postal_code
