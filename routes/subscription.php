@@ -11,9 +11,11 @@
  */
 
 use App\Http\Controllers\SubscriptionsV4\AuthController;
+use App\Http\Controllers\SubscriptionsV4\StripeController;
 use App\Http\Controllers\SubscriptionsV4\SubscriptionContextController;
 
 Route::get('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionContextController::class, 'index']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionContextController::class, 'summary']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/login', [AuthController::class, 'login']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/login/check', [AuthController::class, 'check']);
+Route::post('/api/v1/subscriptions/{subscription}/v4/stripe/intent', [StripeController::class, 'intent']);
