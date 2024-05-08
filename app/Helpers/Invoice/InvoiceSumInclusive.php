@@ -11,14 +11,14 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Quote;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
-use App\Utils\Traits\NumberFormatter;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Collection;
+use App\Utils\Traits\NumberFormatter;
 
 class InvoiceSumInclusive
 {
