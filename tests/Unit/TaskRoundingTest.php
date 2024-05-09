@@ -42,6 +42,79 @@ class TaskRoundingTest extends TestCase
 
     }
 
+    public function testRoundUp2()
+    {
+        
+
+
+        $start_time = 1715237056;
+        $end_time = $start_time + 60*7; 
+        $this->task_round_to_nearest = 600;
+
+        $rounded = $start_time + 60*10;
+
+        $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
+
+
+    }
+
+    public function testRoundUp3()
+    {
+        
+
+        $start_time = 1715213100;
+        $end_time = $start_time + 60*15; 
+        $this->task_round_to_nearest = 900;
+
+        $rounded = $start_time + 60*15;
+
+        $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
+
+
+$s = \Carbon\Carbon::createFromTimestamp($start_time);
+
+$e = \Carbon\Carbon::createFromTimestamp($end_time);
+
+        $x = \Carbon\Carbon::createFromTimestamp($rounded);
+
+
+// echo $s->format('Y-m-d H:i:s').PHP_EOL;
+// echo $e->format('Y-m-d H:i:s').PHP_EOL;
+// echo $x->format('Y-m-d H:i:s').PHP_EOL;
+
+
+    }
+
+//     public function testRoundUp4()
+//     {
+        
+
+
+//         $start_time = 1715238900;
+//         $end_time = 1715238000;
+//         // $end_time = $start_time + 60*15; 
+//         $this->task_round_to_nearest = 900;
+
+//         $rounded = $start_time + 60*15;
+
+//         $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
+
+
+//         $s = \Carbon\Carbon::createFromTimestamp($start_time);
+
+//         $e = \Carbon\Carbon::createFromTimestamp($end_time);
+
+//         $x = \Carbon\Carbon::createFromTimestamp($rounded);
+
+
+// echo $s->format('Y-m-d H:i:s').PHP_EOL;
+// echo $e->format('Y-m-d H:i:s').PHP_EOL;
+// echo $x->format('Y-m-d H:i:s').PHP_EOL;
+
+
+//     }
+
+
     public function testRoundDown()
     {
         $start_time = 1714942800;

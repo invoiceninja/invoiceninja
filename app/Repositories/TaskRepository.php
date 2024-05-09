@@ -113,7 +113,7 @@ class TaskRepository extends BaseRepository
 
         foreach($time_log as $key => $value)
         {
-            $time_log[$key][1] = $this->roundTimeLog($time_log[$key][1]);
+            $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
         }
 
         if (isset($data['action'])) {
@@ -252,16 +252,30 @@ class TaskRepository extends BaseRepository
         return $task;
     }
 
-    public function roundTimeLog(int $end_time): int
+    public function roundTimeLog(int $start_time, int $end_time): int
     {
         if($this->task_round_to_nearest == 1)
             return $end_time;
 
-        if($this->task_round_up)
-            return (int)ceil($end_time/$this->task_round_to_nearest)*$this->task_round_to_nearest;
+        $interval = $end_time - $start_time;
 
-        return (int)floor($end_time/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+        if($this->task_round_up)
+            return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
+
+        return $start_time - (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+
     }
+
+    // public function roundTimeLog(int $end_time): int
+    // {
+    //     if($this->task_round_to_nearest == 1)
+    //         return $end_time;
+
+    //     if($this->task_round_up)
+    //         return (int)ceil($end_time/$this->task_round_to_nearest)*$this->task_round_to_nearest;
+
+    //     return (int)floor($end_time/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+    // }
 
     public function stop(Task $task)
     {
@@ -272,7 +286,7 @@ class TaskRepository extends BaseRepository
         $last = end($log);
 
         if (is_array($last) && $last[1] === 0) {
-            $last[1] = $this->roundTimeLog(time());
+            $last[1] = $this->roundTimeLog($last[0], time());
 
             array_pop($log);
             $log = array_merge($log, [$last]);//check at this point, it may be prepending here.
