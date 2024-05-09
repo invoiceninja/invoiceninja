@@ -10,6 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SubscriptionsV4\AuthController;
 use App\Http\Controllers\SubscriptionsV4\StripeController;
 use App\Http\Controllers\SubscriptionsV4\SubscriptionContextController;
@@ -19,3 +20,4 @@ Route::post('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionCont
 Route::post('/api/v1/subscriptions/{subscription}/v4/login', [AuthController::class, 'login']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/login/check', [AuthController::class, 'check']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/stripe/intent', [StripeController::class, 'intent']);
+Route::post('/api/v1/subscriptions/{subscription}/v4/stripe/charge', [StripeController::class, 'charge']);
