@@ -618,13 +618,13 @@ class ProfitLoss
                 break;
 
             case 'this_quarter':
-                $this->start_date = (new \Carbon\Carbon('-3 months'))->firstOfQuarter();
-                $this->end_date = (new \Carbon\Carbon('-3 months'))->lastOfQuarter();
+                $this->start_date = (new \Carbon\Carbon('0 months'))->startOfQuarter();
+                $this->end_date = (new \Carbon\Carbon('0 months'))->endOfQuarter();
                 break;
 
             case 'last_quarter':
-                $this->start_date = (new \Carbon\Carbon('-6 months'))->firstOfQuarter();
-                $this->end_date = (new \Carbon\Carbon('-6 months'))->lastOfQuarter();
+                $this->start_date = (new \Carbon\Carbon('-3 months'))->startOfQuarter();
+                $this->end_date = (new \Carbon\Carbon('-3 months'))->endOfQuarter();
                 break;
 
             case 'this_year':
