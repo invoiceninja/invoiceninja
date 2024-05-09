@@ -254,28 +254,17 @@ class TaskRepository extends BaseRepository
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1)
+        if($this->task_round_to_nearest == 1 || $end_time == 0)
             return $end_time;
 
         $interval = $end_time - $start_time;
-
+        
         if($this->task_round_up)
             return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
 
         return $start_time - (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
-
-    // public function roundTimeLog(int $end_time): int
-    // {
-    //     if($this->task_round_to_nearest == 1)
-    //         return $end_time;
-
-    //     if($this->task_round_up)
-    //         return (int)ceil($end_time/$this->task_round_to_nearest)*$this->task_round_to_nearest;
-
-    //     return (int)floor($end_time/$this->task_round_to_nearest) * $this->task_round_to_nearest;
-    // }
 
     public function stop(Task $task)
     {
