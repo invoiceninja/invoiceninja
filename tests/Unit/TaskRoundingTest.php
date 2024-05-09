@@ -12,6 +12,14 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use App\Models\Task;
+use App\Models\Client;
+use Tests\MockAccountData;
+use App\Utils\Traits\MakesHash;
+use App\DataMapper\ClientSettings;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * @test
@@ -23,10 +31,23 @@ class TaskRoundingTest extends TestCase
 
     public bool $task_round_up = true;
 
-    protected function setUp(): void
+    use MakesHash;
+    use DatabaseTransactions;
+    use MockAccountData;
+
+    private $faker;
+
+    protected function setUp() :void
     {
         parent::setUp();
 
+        $this->makeTestData();
+
+        Session::start();
+
+        $this->faker = \Faker\Factory::create();
+
+        Model::reguard();
     }
 
     public function testRoundUp()
@@ -70,50 +91,94 @@ class TaskRoundingTest extends TestCase
 
         $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
+        // $s = \Carbon\Carbon::createFromTimestamp($start_time);
+        // $e = \Carbon\Carbon::createFromTimestamp($end_time);
+        // $x = \Carbon\Carbon::createFromTimestamp($rounded);
+        // echo $s->format('Y-m-d H:i:s').PHP_EOL;
+        // echo $e->format('Y-m-d H:i:s').PHP_EOL;
+        // echo $x->format('Y-m-d H:i:s').PHP_EOL;
 
-$s = \Carbon\Carbon::createFromTimestamp($start_time);
+    }
 
-$e = \Carbon\Carbon::createFromTimestamp($end_time);
+    public function testRoundUp4()
+    {
+        
+        $start_time = 1715238000;
+        $end_time = 1715238900;
 
-        $x = \Carbon\Carbon::createFromTimestamp($rounded);
+        $this->task_round_to_nearest = 900;
+
+        $rounded = $start_time + 60*15;
+
+        // $s = \Carbon\Carbon::createFromTimestamp($start_time);
+        // $e = \Carbon\Carbon::createFromTimestamp($end_time);
+        // $x = \Carbon\Carbon::createFromTimestamp($rounded);
+        // echo $s->format('Y-m-d H:i:s').PHP_EOL;
+        // echo $e->format('Y-m-d H:i:s').PHP_EOL;
+        // echo $x->format('Y-m-d H:i:s').PHP_EOL;
 
 
-// echo $s->format('Y-m-d H:i:s').PHP_EOL;
-// echo $e->format('Y-m-d H:i:s').PHP_EOL;
-// echo $x->format('Y-m-d H:i:s').PHP_EOL;
+$this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
 
     }
 
-//     public function testRoundUp4()
-//     {
-        
+    public function testRoundingViaBulkAction()
+    {
+
+        $this->company->settings->default_task_rate = 41;
+        $this->company->settings->task_round_to_nearest = 900;
+        $this->company->settings->task_round_up = true;
+        $this->company->saveSettings($this->company->settings, $this->company);
+
+        $settings = ClientSettings::defaults();
+        $settings->default_task_rate = 41;
+        $settings->task_round_to_nearest = 900;
+        $settings->task_round_up = true;
+
+        $c = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            // 'settings' => $settings,
+        ]);
 
 
-//         $start_time = 1715238900;
-//         $end_time = 1715238000;
-//         // $end_time = $start_time + 60*15; 
-//         $this->task_round_to_nearest = 900;
+        $var = time()-800;
 
-//         $rounded = $start_time + 60*15;
+        $data = [
+            'client_id' => $c->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[[1681165417,1681165432,"sumtin",true],['.$var.',0]]',
+            'assigned_user' => [],
+            'project' => [],
+            'user' => [],
+        ];
 
-//         $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks/", $data);
 
+        $response->assertStatus(200);
+        $arr = $response->json();
 
-//         $s = \Carbon\Carbon::createFromTimestamp($start_time);
+        $i = $arr['data']['id'];
 
-//         $e = \Carbon\Carbon::createFromTimestamp($end_time);
+        $data = [
+            'ids' => [$i],
+            'action' => 'stop'
+        ];
 
-//         $x = \Carbon\Carbon::createFromTimestamp($rounded);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks/bulk", $data);
 
+        $response->assertStatus(200);
+        $arr = $response->json();
 
-// echo $s->format('Y-m-d H:i:s').PHP_EOL;
-// echo $e->format('Y-m-d H:i:s').PHP_EOL;
-// echo $x->format('Y-m-d H:i:s').PHP_EOL;
-
-
-//     }
-
+        $task = Task::find($this->decodePrimaryKey($i));
+    }
 
     public function testRoundDown()
     {
