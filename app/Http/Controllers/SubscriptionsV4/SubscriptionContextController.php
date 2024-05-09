@@ -93,6 +93,7 @@ class SubscriptionContextController
                     'id' => $stripe->hashed_id,
                     'key' => 'd14dd26a37cecc30fdd65700bfb55b23',
                     'fields' => $stripe->driver()->getClientRequiredFields(),
+                    'public_key' => $stripe->driver()->getPublishableKey(),
                 ],
             ],
         ]);
