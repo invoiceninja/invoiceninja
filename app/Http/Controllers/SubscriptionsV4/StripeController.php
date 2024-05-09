@@ -12,8 +12,11 @@
 
 namespace App\Http\Controllers\SubscriptionsV4;
 
+use App\Http\Requests\Request;
 use App\Models\Client;
+use App\Models\ClientContact;
 use App\Models\Subscription;
+use App\Services\ClientPortal\InstantPayment;
 
 class StripeController
 {
@@ -34,5 +37,16 @@ class StripeController
         return response()->json([
             'client_secret' => $intent->client_secret,
         ]);
+    }
+
+    public function charge(Subscription $subscription, Request $request)
+    {
+        if ($request->type === 'successful') {
+            return response()->noContent(
+                200
+            );
+        }
+
+        return response()->noContent(422);
     }
 }
