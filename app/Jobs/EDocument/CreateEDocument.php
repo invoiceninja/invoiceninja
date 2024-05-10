@@ -59,11 +59,11 @@ class CreateEDocument implements ShouldQueue
         App::setLocale($settings_entity->locale());
 
         /* Set customized translations _NOW_ */
-        $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
+        if($this->document->client ?? false)
+            $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
 
         $e_document_type = strlen($settings_entity->getSetting('e_invoice_type')) > 2 ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
         $e_quote_type = strlen($settings_entity->getSetting('e_quote_type')) > 2 ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
-nlog($e_document_type);
 
         if ($this->document instanceof Invoice){
             switch ($e_document_type) {

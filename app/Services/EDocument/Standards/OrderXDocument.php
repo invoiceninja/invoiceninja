@@ -51,7 +51,7 @@ class OrderXDocument extends AbstractService
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
             ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $this->document->user->present()->phone(), "", $this->document->user->email)
             ->setDocumentBuyer($settings_entity->present()->name(), $settings_entity->number)
-            ->setDocumentBuyerAddress($settings_entity->address1, "", "", $settings_entity->postal_code, $settings_entity->city, $settings_entity->country->iso_3166_2, $settings_entity->state)
+            ->setDocumentBuyerAddress($settings_entity->address1, "", "", $settings_entity->postal_code, $settings_entity->city, $settings_entity->country->iso_3166_2 ?? $company->country()->iso_3166_2, $settings_entity->state)
             ->setDocumentBuyerContact($settings_entity->present()->primary_contact_name(), "", $settings_entity->present()->phone(), "", $settings_entity->present()->email())
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->document->due_date]));
 

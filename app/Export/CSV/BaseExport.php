@@ -1281,13 +1281,13 @@ class BaseExport
                 $this->end_date = now()->startOfMonth()->subMonth()->endOfMonth()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->startOfMonth()->subMonth(), now()->startOfMonth()->subMonth()->endOfMonth()])->orderBy($this->date_key, 'ASC');
             case 'this_quarter':
-                $this->start_date = (new \Carbon\Carbon('-3 months'))->firstOfQuarter()->format('Y-m-d');
-                $this->end_date = (new \Carbon\Carbon('-3 months'))->lastOfQuarter()->format('Y-m-d');
-                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->firstOfQuarter(), (new \Carbon\Carbon('-3 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
+                $this->start_date = (new \Carbon\Carbon('0 months'))->startOfQuarter()->format('Y-m-d');
+                $this->end_date = (new \Carbon\Carbon('0 months'))->endOfQuarter()->format('Y-m-d');
+                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('0 months'))->startOfQuarter(), (new \Carbon\Carbon('0 months'))->endOfQuarter()])->orderBy($this->date_key, 'ASC');
             case 'last_quarter':
-                $this->start_date = (new \Carbon\Carbon('-6 months'))->firstOfQuarter()->format('Y-m-d');
-                $this->end_date = (new \Carbon\Carbon('-6 months'))->lastOfQuarter()->format('Y-m-d');
-                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-6 months'))->firstOfQuarter(), (new \Carbon\Carbon('-6 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
+                $this->start_date = (new \Carbon\Carbon('-3 months'))->startOfQuarter()->format('Y-m-d');
+                $this->end_date = (new \Carbon\Carbon('-3 months'))->endOfQuarter()->format('Y-m-d');
+                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->startOfQuarter(), (new \Carbon\Carbon('-3 months'))->endOfQuarter()])->orderBy($this->date_key, 'ASC');
             case 'last365_days':
                 $this->start_date = now()->startOfDay()->subDays(365)->format('Y-m-d');
                 $this->end_date = now()->startOfDay()->format('Y-m-d');
