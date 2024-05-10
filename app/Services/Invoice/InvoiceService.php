@@ -488,7 +488,7 @@ class InvoiceService
 
     /*When a reminder is sent we want to touch the dates they were sent*/
     public function touchReminder(string $reminder_template)
-    {
+    {   nrlog(now()->format('Y-m-d h:i:s') . " INV #{$this->invoice->number} : Touching Reminder => {$reminder_template}");
         switch ($reminder_template) {
             case 'reminder1':
                 $this->invoice->reminder1_sent = now();
