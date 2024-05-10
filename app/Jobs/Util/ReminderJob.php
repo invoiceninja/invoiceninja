@@ -56,7 +56,7 @@ class ReminderJob implements ShouldQueue
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            nlog("Sending invoice reminders on ".now()->format('Y-m-d h:i:s'));
+            nrlog("Sending invoice reminders on ".now()->format('Y-m-d h:i:s'));
 
             Invoice::query()
                  ->where('is_deleted', 0)
@@ -84,7 +84,7 @@ class ReminderJob implements ShouldQueue
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                nlog("Sending invoice reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
+                nrlog("Sending invoice reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
 
                 Invoice::query()
                      ->where('is_deleted', 0)
@@ -121,12 +121,12 @@ class ReminderJob implements ShouldQueue
         if ($invoice->isPayable()) {
             //Attempts to prevent duplicates from sending
             if ($invoice->reminder_last_sent && Carbon::parse($invoice->reminder_last_sent)->startOfDay()->eq(now()->startOfDay())) {
-                nlog("caught a duplicate reminder for invoice {$invoice->number}");
+                nrlog("caught a duplicate reminder for invoice {$invoice->number}");
                 return;
             }
 
             $reminder_template = $invoice->calculateTemplate('invoice');
-            nlog("reminder template = {$reminder_template}");
+            nrlog("reminder template = {$reminder_template}");
             $invoice->service()->touchReminder($reminder_template)->save();
             $fees = $this->calcLateFee($invoice, $reminder_template);
 
@@ -149,7 +149,7 @@ class ReminderJob implements ShouldQueue
                 $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                     if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email) {
                         EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                        nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
+                        nrlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
                         $invoice->entityEmailEvent($invitation, $reminder_template);
                         $invoice->sendEvent(Webhook::EVENT_REMIND_INVOICE, "client");
                     }
@@ -220,7 +220,7 @@ class ReminderJob implements ShouldQueue
             $invoice->invitations->each(function ($invitation) use ($invoice, $reminder_template) {
                 if ($invitation->contact && !$invitation->contact->trashed() && $invitation->contact->email) {
                     EmailEntity::dispatch($invitation, $invitation->company, $reminder_template);
-                    nlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
+                    nrlog("Firing reminder email for invoice {$invoice->number} - {$reminder_template}");
                     $invoice->entityEmailEvent($invitation, $reminder_template);
                     $invoice->sendEvent(Webhook::EVENT_REMIND_INVOICE, "client");
                 }
