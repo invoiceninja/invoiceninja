@@ -103,13 +103,6 @@ class Statement
             ], \App\Services\PdfMaker\Design::STATEMENT),
             'variables' => $variables,
             'options' => [
-                // 'client' => $this->client,
-                // 'entity' => $this->entity,
-                // 'variables' => $variables,
-                // 'invoices' => $this->getInvoices()->cursor(),
-                // 'payments' => $this->getPayments()->cursor(),
-                // 'credits' => $this->getCredits()->cursor(),
-                // 'aging' => $this->getAging(),
             ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
