@@ -18,19 +18,24 @@ use App\DataMapper\EDoc\FatturaPA\DatiContratto;
 use App\DataMapper\EDoc\FatturaPA\DatiRicezione;
 use App\DataMapper\EDoc\FatturaPA\DatiOrdineAcquisto;
 use App\DataMapper\EDoc\FatturaPA\DatiAnagraficiVettore;
+use App\DataMapper\EDoc\FatturaPA\FatturaElettronicaHeader;
+use App\DataMapper\EDoc\FatturaPA\FatturaElettronicaBody;
+
 
 class FatturaPA extends Data
 {
-    public DatiRicezione|Optional $DatiRicezione;
-    public DatiContratto|Optional $DatiContratto;
-    public DatiOrdineAcquisto|Optional $DatiOrdineAcquisto;
-    public DatiAnagraficiVettore|Optional $DatiAnagraficiVettore;
+    public FatturaElettronicaHeader $FatturaElettronicaHeader;
+    public FatturaElettronicaBody $FatturaElettronicaBody;
+    // public DatiRicezione|Optional $DatiRicezione;
+    // public DatiContratto|Optional $DatiContratto;
+    // public DatiOrdineAcquisto|Optional $DatiOrdineAcquisto;
+    // public DatiAnagraficiVettore|Optional $DatiAnagraficiVettore;
 
     public function __construct(
-        public string $RegimeFiscale = 'RF01',
-        public string $TipoDocumento = 'TD01',
-        public string $ModalitaPagamento = 'MP01',
-        public string $CondizioniPagamento = 'TP02',
+        // public string $RegimeFiscale = 'RF01',
+        // public string $TipoDocumento = 'TD01',
+        // public string $ModalitaPagamento = 'MP01',
+        // public string $CondizioniPagamento = 'TP02',
     ) {
     }
 
