@@ -36,7 +36,7 @@ class DatiRiepilogo extends Data
     public float|Optional $Arrotondamento;    
 
     //string options D/I/S
-    public float|Optional $EsigibilitaIVA;      
+    public  string|Optional $EsigibilitaIVA;      
     
     //String100LatinType
     public string|Optional $RiferimentoNormativo;

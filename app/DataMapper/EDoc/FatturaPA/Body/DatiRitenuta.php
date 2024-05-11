@@ -12,18 +12,24 @@
 namespace App\DataMapper\EDoc\FatturaPA\Body;
 
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Size;
+use Spatie\LaravelData\Attributes\Validation\Regex;
 
 class DatiRitenuta extends Data
 {
       //string 4 char options
+      #[Size(4)]
       public string $TipoRitenuta;
       
       //float 2 decimal
+      #[Regex('/^[\-]?[0-9]{1,11}\.[0-9]{2}$/')]
       public float $ImportoRitenuta;
 
       // <xs:restriction base="xs:decimal">
       // <xs:maxInclusive value="100.00" />
-      // <xs:pattern value="[0-9]{1,3}\.[0-9]{2}" />
+      // <xs:pattern value="/^[0-9]{1,3}\.[0-9]{2}$/" />
+      #[Regex('/^[\-]?[0-9]{1,11}\.[0-9]{2}$/')]
       public float $AliquotaRitenuta;
 
       /*
@@ -58,6 +64,7 @@ class DatiRitenuta extends Data
       <xs:enumeration value="V1" />
       <xs:enumeration value="ZO" />
       */
+      #[Max(2)]
       public string $CausalePagamento;
       
 }

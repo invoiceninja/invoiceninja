@@ -12,6 +12,7 @@
 namespace App\DataMapper\EDoc\FatturaPA;
 
 use Spatie\LaravelData\Data;
+use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Optional;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
@@ -19,8 +20,13 @@ use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 class DatiVeicoli extends Data
 {
     #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-    public \DateTime|Optional $Data;
+    public Carbon|Optional $Data;
 
     //String15Type
     public string $TotalePercorso;
+
+    public function __construct()
+    {
+        // $this->Data = new \DateTime();
+    }
 }

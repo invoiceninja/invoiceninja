@@ -22,5 +22,5 @@ class FatturaPrincipale extends Data
     public string $NumeroFatturaPrincipale;
       //dateTime
     #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-    public \DateTime|Optional $DataFatturaPrincipale;
+    public \Illuminate\Support\Carbon|Optional $DataFatturaPrincipale;
 }

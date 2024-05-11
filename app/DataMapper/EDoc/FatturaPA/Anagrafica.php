@@ -11,6 +11,7 @@
 
 namespace App\DataMapper\EDoc\FatturaPA;
 
+use Spatie\LaravelData\Attributes\Validation\Max;
 use Spatie\LaravelData\Data;
 
 class Anagrafica extends Data
@@ -19,13 +20,16 @@ class Anagrafica extends Data
 
     //either Deminominazione OR
     //string length 80
-    public string $Denominazione;
+    #[Max(80)]
+    public string $Denominazione = '';
 
     ////////////////////////////////////////////
     //2. Nome AND CogNome
     //string length 60
-    public string $Nome;
+    #[Max(60)]
+    public string $Nome = '';
 
     //string length 60
-    public string $CogNome;
+    #[Max(60)]
+    public string $CogNome = '';
 }

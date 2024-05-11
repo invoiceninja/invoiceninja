@@ -11,14 +11,21 @@
 
 namespace App\DataMapper\EDoc\FatturaPA\Header;
 
+use Spatie\LaravelData\Attributes\Validation\Max;
+use Spatie\LaravelData\Attributes\Validation\Min;
+use Spatie\LaravelData\Attributes\Validation\Regex;
 use Spatie\LaravelData\Data;
 
 class IdFiscaleIVA extends Data
 {
+    public function __construct(
+    // #[\Required]
+    #[Regex('/^[A-Z]{2}$/')]
+    public string $IdPaese = '',
 
-    #[\Required]
-    public string $IdPaese = '';
-
-    #[\Required]
-    public string $IdCodice = '';
+    // #[\Required]
+    #[Min(1)]
+    #[Max(28)]
+    public string $IdCodice = '',
+    ){}
 }

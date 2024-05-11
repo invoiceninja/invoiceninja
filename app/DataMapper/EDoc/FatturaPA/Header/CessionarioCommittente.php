@@ -13,16 +13,19 @@ namespace App\DataMapper\EDoc\FatturaPA\Header;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
-use CleverIt\UBL\Invoice\FatturaPA\common\Sede;
+use App\DataMapper\EDoc\FatturaPA\Sede;
 use App\DataMapper\EDoc\FatturaPA\RappresentanteFiscale;
+use App\DataMapper\EDoc\FatturaPA\Header\DatiAnagraficiCedenteType;
 
 class CessionarioCommittente extends Data
 {
-    public DatiAnagrafici $DatiAnagrafici;
+    public DatiAnagraficiCedenteType $DatiAnagrafici;
+    
+    /** @var Sede[] */
+    public array $Sede;
 
-    public Sede $Sede;
-
-    public Sede|Optional $StabileOrganizzazione;
+    /** @var Sede[] */
+    public array|Optional $StabileOrganizzazione;
 
     public RappresentanteFiscale|Optional $RappresentanteFiscale;
 }
