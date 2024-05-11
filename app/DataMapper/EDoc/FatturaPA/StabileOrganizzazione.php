@@ -11,9 +11,7 @@
 
 namespace App\DataMapper\EDoc\FatturaPA;
 
-use Spatie\LaravelData\Data;
-
-class StabileOrganizzazione extends Data
+class StabileOrganizzazione extends Sede
 {
 
 }

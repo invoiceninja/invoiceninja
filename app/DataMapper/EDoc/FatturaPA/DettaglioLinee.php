@@ -35,7 +35,7 @@ class DettaglioLinee extends Data
 
     //       <xs:restriction base="xs:decimal">
     //   <xs:maxInclusive value="100.00" />
-    //   <xs:pattern value="[0-9]{1,3}\.[0-9]{2}" />
+    //   <xs:pattern value="/^[0-9]{1,3}\.[0-9]{2}$/" />
     // 0-100  
     public float $AliquotaIVA;                
 
@@ -53,11 +53,11 @@ class DettaglioLinee extends Data
 
     //date
     #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-    public \DateTime|Optional $DataInizioPeriodo;           
+    public \Illuminate\Support\Carbon|Optional $DataInizioPeriodo;           
 
     //date
     #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-    public \DateTime|Optional $DataFinePeriodo;             
+    public \Illuminate\Support\Carbon|Optional $DataFinePeriodo;             
 
     public ScontoMaggiorazione|Optional $ScontoMaggiorazione;         
 

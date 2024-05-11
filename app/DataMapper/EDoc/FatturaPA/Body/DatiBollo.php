@@ -13,14 +13,18 @@ namespace App\DataMapper\EDoc\FatturaPA\Body;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
+use Spatie\LaravelData\Attributes\Validation\Size;
+use Spatie\LaravelData\Attributes\Validation\Regex;
 
 class DatiBollo extends Data
 {
 
 //SI
+#[Size(2)]
 public string $BolloVirtuale = 'SI';
 
 //Amount2DecimalType
+#[Regex('/^[\-]?[0-9]{1,11}\.[0-9]{2}$/')]
 public float|Optional $ImportoBollo;
 
 }

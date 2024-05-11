@@ -17,10 +17,14 @@ use Spatie\LaravelData\Optional;
 class Sede extends Data
 {
         public string $Indirizzo = ''; //string - address,  60char limit
+
         public int $CAP = 12345; //[0-9][0-9][0-9][0-9][0-9] ie 12345
+        
         public string $Comune = ''; //String 60char limit
+        
+        public string $Nazione = 'IT'; //String default IT
+        
         public string|Optional $Provincia; //String [A-Z]{2}
 
         public string|Optional $NumeroCivico; // regex \p{IsBasicLatin}{1,8})
-        public string $Nazione = 'IT'; //String default IT
 }

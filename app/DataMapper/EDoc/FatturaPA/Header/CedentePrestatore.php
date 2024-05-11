@@ -16,14 +16,25 @@ use Spatie\LaravelData\Optional;
 use App\DataMapper\EDoc\FatturaPA\Sede;
 use App\DataMapper\EDoc\FatturaPA\Contatti;
 use App\DataMapper\EDoc\FatturaPA\IscrizioneREA;
+use App\DataMapper\EDoc\FatturaPA\Header\DatiAnagrafici;
+use App\DataMapper\EDoc\FatturaPA\StabileOrganizzazione;
 
 class CedentePrestatore extends Data
 {
-    public DatiAnagrafici $DatiAnagrafici;
-    public Sede $sede;
-    public Sede|Optional $StabileOrganizzazione;
-    public IscrizioneREA|Optional $IscrizioneREA;
-    public Contatti|Optional $Contatti;
-    public string|Optional $RiferimentoAmministrazione;
+
+    public function  __construct(
+
+        public DatiAnagrafici $DatiAnagrafici,
+
+        public Sede $Sede,
+
+        public StabileOrganizzazione|Optional $StabileOrganizzazione,
+
+        public IscrizioneREA|Optional $IscrizioneREA,
+
+        public Contatti|Optional $Contatti,
+
+        public string|Optional $RiferimentoAmministrazione,
+    ){}
 
 }

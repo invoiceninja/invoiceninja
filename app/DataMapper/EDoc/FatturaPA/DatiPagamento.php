@@ -17,7 +17,7 @@ use Spatie\LaravelData\Data;
 class DatiPagamento extends Data
 {
     //string min4 max4 - optionlist
-    public string $CondizioniPagamento;
+    public string $CondizioniPagamento = 'TP02';
 
     public DettaglioPagamento $DettaglioPagamento;
 }

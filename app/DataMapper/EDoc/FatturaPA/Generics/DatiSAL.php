@@ -11,12 +11,14 @@
 
 namespace App\DataMapper\EDoc\FatturaPA\Generics;
 
+use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Data;
 
 class DatiSAL extends Data
 {
     
     //int 1-999
+    #[Between(1,999)]
     public int $RiferimentoFase;
 
 }

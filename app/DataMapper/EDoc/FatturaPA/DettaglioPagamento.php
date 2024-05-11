@@ -22,7 +22,7 @@ class DettaglioPagamento extends Data
 {
 
       //string length 4 - options
-      public string $ModalitaPagamento;             
+      public string $ModalitaPagamento = 'MP01';             
 
       // Amount2DecimalType
       public float $ImportoPagamento;      
@@ -40,7 +40,7 @@ class DettaglioPagamento extends Data
       
       //date
       #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-      public  \Datetime|Optional $DataScadenzaPagamento;
+      public  \Illuminate\Support\Carbon|Optional $DataScadenzaPagamento;
 
       //String20Type
       public string|Optional $CodUfficioPostale;          
@@ -77,14 +77,14 @@ class DettaglioPagamento extends Data
 
       //Date
       #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-      public string|Optional $DataLimitePagamentoAnticipato;  
+      public \Illuminate\Support\Carbon|Optional $DataLimitePagamentoAnticipato;  
       
       //Amount2DecimalType
       public float|Optional $PenalitaPagamentiRitardati;     
 
       //date
       #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-      public \DateTime|Optional $DataDecorrenzaPenale;
+      public \Illuminate\Support\Carbon|Optional $DataDecorrenzaPenale;
       
       //String60Type
       public string|Optional $CodicePagamento;                

@@ -12,6 +12,7 @@
 namespace App\DataMapper\EDoc\FatturaPA;
 
 use Spatie\LaravelData\Data;
+use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Optional;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
@@ -44,10 +45,10 @@ class DatiTrasporto extends Data
       
       //dateTime
       #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d\TH:i:s.uP')]
-      public \DateTime|Optional $DataOraRitiro;
+      public Carbon|Optional $DataOraRitiro;
       //date
       #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-      public \DateTime|Optional $DataInizioTrasporto;
+      public Carbon|Optional $DataInizioTrasporto;
       
       //[A-Z]{3}
       public string|Optional $TipoResa;              
@@ -55,7 +56,15 @@ class DatiTrasporto extends Data
       public Sede|Optional $IndirizzoResa;        
       
       //dateTime
-      #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d\TH:i:s.uP')]
-      public \DateTime|Optional $DataOraConsegna;
+      #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
+      public Carbon|Optional $DataOraConsegna;
+
+
+//     public function __construct()
+//     {
+      //   $this->DataOraConsegna = new \DateTime();
+      //   $this->DataInizioTrasporto = new \DateTime();
+      //   $this->DataInizioTrasporto = new \DateTime();
+//     }
 
 }

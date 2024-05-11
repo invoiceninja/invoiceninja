@@ -12,13 +12,16 @@
 namespace App\DataMapper\EDoc\FatturaPA\Generics;
 
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\Validation\Max;
 
 class CodiceArticolo extends Data
 {
     //string 35 char
+    #[Max(35)]
     public string $CodiceTipo;
     
     //string 35 char
+    #[Max(35)]
     public string $CodiceValore;
 }
 

@@ -11,6 +11,7 @@
 
 namespace App\DataMapper\EDoc\FatturaPA\Generics;
 
+use Spatie\LaravelData\Attributes\Validation\Between;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 use Spatie\LaravelData\Attributes\WithTransformer;
@@ -22,9 +23,10 @@ class DatiDDT extends Data
     public string $NumeroDDT;
 
     #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
-    public \DateTime $DataDDT;
+    public \Illuminate\Support\Carbon $DataDDT;
     
     //int 1-9999
+    #[Between(1,9999)]
     public int|Optional $RiferimentoNumeroLinea;
 
 }
