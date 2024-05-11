@@ -103,6 +103,7 @@ class CreateUbl implements ShouldQueue
 
         $ubl_invoice->setLegalMonetaryTotal((new LegalMonetaryTotal())
             //->setLineExtensionAmount()
+            ->setTaxInclusiveAmount($taxtotal->getTaxAmount())
             ->setTaxExclusiveAmount($taxable)
             ->setPayableAmount($invoice->balance));
 
