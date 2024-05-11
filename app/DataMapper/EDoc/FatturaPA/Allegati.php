@@ -14,16 +14,22 @@ namespace App\DataMapper\EDoc\FatturaPA;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 use App\DataMapper\EDoc\FatturaPA\DatiVeicoli;
-use App\DataMapper\EDoc\FatturaPA\DatiBeniServizi;
 use App\DataMapper\EDoc\FatturaPA\Body\DatiGenerali;
 
-class FatturaElettronicaBody extends Data
+class Allegati extends Data
 {
+    //string 60
+    public string $NomeAttachment;
 
-    public DatiGenerali $DatiGenerali;                                        
-    public DatiBeniServizi $DatiBeniServizi;                                   
-    public DatiVeicoli|Optional $DatiVeicoli;                       
-    public DatiPagamento|Optional $DatiPagamento;
-    public Allegati|Optional $Allegati;
-    
+    //base64 binary
+    public mixed $Attachment;
+
+    //string 10
+    public string|Optional $AlgoritmoCompressione;
+
+    //string 10
+    public string|Optional $FormatoAttachment;
+
+    //string 100
+    public string|Optional $DescrizioneAttachment;  
 }
