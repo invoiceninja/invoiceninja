@@ -585,11 +585,9 @@ class ExpenseController extends BaseController
         return $this->itemResponse($expense->fresh());
     }
 
-    public function edocument(EDocumentRequest $request){
+    public function edocument(EDocumentRequest $request): string
+    {
         nlog($request);
-        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
-            return $this->featureFailure();
-        }
         return (new ImportEDocument($request))->handle();
     }
 }

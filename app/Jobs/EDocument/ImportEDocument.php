@@ -41,7 +41,7 @@ class ImportEDocument implements ShouldQueue
     {
         // TODO: check type of file. For now only ZuGFerD
         $document =
-       (new ZugferdEDocument($this->request->all()))->run();
+       (new ZugferdEDocument($this->request->file('documents')))->run();
        return "";
     }
 }

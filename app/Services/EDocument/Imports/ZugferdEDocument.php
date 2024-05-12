@@ -13,6 +13,7 @@ namespace App\Services\EDocument\Imports;
 
 use App\Factory\ExpenseFactory;
 use App\Models\Currency;
+use App\Repositories\VendorRepository;
 use App\Services\AbstractService;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
@@ -65,6 +66,9 @@ class ZugferdEDocument extends AbstractService
                 $expense->${"tax_rate$counter"} = $rateApplicablePercent;
             } while ($this->document->nextDocumentTax());
         }
+        // TODO find vendor
+        $vendors_registration = VendorRepository::class;
+$vendor = $vendors_registration->findVendorByNumber($this->document->getDocumentSeller()->getGlobalID());
         return "";
     }
 }
