@@ -822,7 +822,15 @@ class TemplateService
         $credits = collect($credits)
                 ->map(function ($credit) {
 
+                    $payments = [];
+
                     $this->entity = $credit;
+
+                    if($credit->payments ?? false) {
+                        $payments = $credit->payments->map(function ($payment) {
+                            return $this->transformPayment($payment);
+                        })->toArray();
+                    }
 
                     return [
                         'amount' => Number::formatMoney($credit->amount, $credit->client),
@@ -879,7 +887,7 @@ class TemplateService
                             'vat_number' => $credit->client->vat_number ?? '',
                             'currency' => $credit->client->currency()->code ?? 'USD',
                         ],
-                        'payments' => [],
+                        'payments' => $payments,
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
                         'line_tax_map' => $credit->calc()->getTaxMap(),
                     ];

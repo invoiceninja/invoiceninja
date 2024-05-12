@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataMapper\EDoc\Schema\RO;
 use App\Utils\Statics;
 use Illuminate\Http\Response;
 
@@ -56,8 +57,15 @@ class StaticController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $response = Statics::company($user->getLocale() ?? $user->company()->getLocale());
+        $response_data = Statics::company($user->getLocale() ?? $user->company()->getLocale());
 
-        return response()->json($response, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        if(request()->has('einvoice')){
+            
+            $ro = new RO;
+
+            $response_data['einvoice_schema'] = $ro(); 
+        }
+
+        return response()->json($response_data, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
     }
 }
