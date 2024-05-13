@@ -60,7 +60,7 @@
     <script>
     
     @if($company_gateway->getConfigField('account_id'))
-      var stripe = Stripe({{ config('ninja.ninja_stripe_publishable_key') }}, {
+      var stripe = Stripe('{{ config('ninja.ninja_stripe_publishable_key') }}', {
         stripeAccount: '{{ $company_gateway->getConfigField('account_id') }}',
       });
     @else
