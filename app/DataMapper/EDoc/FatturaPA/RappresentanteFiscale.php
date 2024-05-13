@@ -11,18 +11,16 @@
 
 namespace App\DataMapper\EDoc\FatturaPA;
 
+use App\DataMapper\EDoc\FatturaPA\Header\IdFiscaleIVA;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
-use App\DataMapper\EDoc\FatturaPA\Header\IdFiscaleIVA;
 
-class DatiAnagraficiVettore extends Data
+class RappresentanteFiscale extends Data
 {
-        public IdFiscaleIVA $IdFiscaleIVA;
-        
-        public Anagrafica $Anagrafica;
-        
-        public string|Optional $CodiceFiscale;
-        
-        //String20Type
-        public string|Optional $NumeroLicenzaGuida;
+    public IdFiscaleIVA $IdFiscaleIVA;
+
+    public Anagrafica $Anagrafica;
+
+    //   <xs:pattern value="[A-Z0-9]{11,16}" />
+    public string|Optional $CodiceFiscaleType;
 }

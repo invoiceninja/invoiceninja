@@ -13,16 +13,10 @@ namespace App\DataMapper\EDoc\FatturaPA;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
-use App\DataMapper\EDoc\FatturaPA\Header\IdFiscaleIVA;
 
-class DatiAnagraficiVettore extends Data
+class Contatti extends Data
 {
-        public IdFiscaleIVA $IdFiscaleIVA;
-        
-        public Anagrafica $Anagrafica;
-        
-        public string|Optional $CodiceFiscale;
-        
-        //String20Type
-        public string|Optional $NumeroLicenzaGuida;
+    public string|Optional $Telefono;
+    public string|Optional $Fax;
+    public string|Optional $Email;
 }

@@ -13,16 +13,14 @@ namespace App\DataMapper\EDoc\FatturaPA;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
-use App\DataMapper\EDoc\FatturaPA\Header\IdFiscaleIVA;
+use Spatie\LaravelData\Attributes\WithTransformer;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
-class DatiAnagraficiVettore extends Data
+class FatturaPrincipale extends Data
 {
-        public IdFiscaleIVA $IdFiscaleIVA;
-        
-        public Anagrafica $Anagrafica;
-        
-        public string|Optional $CodiceFiscale;
-        
-        //String20Type
-        public string|Optional $NumeroLicenzaGuida;
+    //String20Type
+    public string $NumeroFatturaPrincipale;
+      //dateTime
+    #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d')]
+    public \Illuminate\Support\Carbon|Optional $DataFatturaPrincipale;
 }
