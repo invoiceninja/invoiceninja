@@ -61,10 +61,11 @@ class StoreQuoteRequest extends Request
 
         $rules['number'] = ['nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)];
 
-$rules['discount'] = 'sometimes|numeric|max:99999999999999';
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['line_items'] = 'array';
+        $rules['date'] = 'bail|sometimes|date:Y-m-d';
         $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date', 'before:due_date', 'after_or_equal:date'];
         $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
