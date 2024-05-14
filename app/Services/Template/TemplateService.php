@@ -94,6 +94,7 @@ class TemplateService
         $this->twig = new \Twig\Environment($loader, [
                 'debug' => true,
         ]);
+        
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
@@ -117,6 +118,26 @@ class TemplateService
             }
 
             return array_sum(array_column($array, $column));
+        });
+
+        $this->twig->addFilter($filter);
+
+        $filter = new \Twig\TwigFilter('filter', function ($array, $arrow){
+
+            if(is_string($arrow) && in_array($arrow, ['popen','exec','shell_exec','system','passthru','proc_open','pcntl_exec','sleep','escapeshellcmd','escapeshellarg']))
+                throw new RuntimeError("Attempt to access command line");
+
+            if (!is_iterable($array)) {
+                throw new RuntimeError(sprintf('The "filter" filter expects an array or "Traversable", got "%s".', \is_object($array) ? \get_class($array) : \gettype($array)));
+            }
+
+            if (\is_array($array)) {
+                return array_filter($array, $arrow, \ARRAY_FILTER_USE_BOTH);
+            }
+
+            // the IteratorIterator wrapping is needed as some internal PHP classes are \Traversable but do not implement \Iterator
+            return new \CallbackFilterIterator(new \IteratorIterator($array), $arrow);
+
         });
 
         $this->twig->addFilter($filter);
@@ -240,7 +261,7 @@ class TemplateService
      */
     public function getPdf(): string
     {
-
+        
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
         } else {
@@ -271,7 +292,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        // nlog(json_encode($this->data));
+
         return $this;
     }
 
@@ -1211,11 +1232,7 @@ class TemplateService
                 });
             })->toArray();
 
-        // nlog($company_details);
-
         $company_details = $include_labels ? $this->labelledFieldStack($company_details, 'company_details-') : $company_details;
-
-        // nlog($company_details);
 
         $this->updateElementProperties('company-details', $company_details);
 
