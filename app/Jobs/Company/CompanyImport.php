@@ -492,7 +492,6 @@ class CompanyImport implements ShouldQueue
             $settings->{$protected_var} = str_replace("script", "", $settings->{$protected_var});
         }
 
-        // $this->company->settings = $co->settings;
         $this->company->saveSettings($settings, $this->company);
 
         $this->company->save();
