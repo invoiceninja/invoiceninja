@@ -144,6 +144,9 @@ class ClientRepository extends BaseRepository
 
     public function purge($client)
     {
+        
+        nlog("Purging client id => {$client->id}");
+
         $client->contacts()->forceDelete();
         $client->tasks()->forceDelete();
         $client->invoices()->forceDelete();
