@@ -137,8 +137,11 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($settings['email_style_custom'])) {
-            $settings['email_style_custom'] = str_replace(['{!!','!!}','{{','}}','@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for'], '', $settings['email_style_custom']);
+            $settings['email_style_custom'] = str_replace(['{!!','!!}','{{','}}','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</s','<s','html;base64'], '', $settings['email_style_custom']);
         }
+
+        if(isset($settings['company_logo']) && strlen($settings['company_logo']) > 2)
+            $settings['company_logo'] = $this->forceScheme($settings['company_logo']);
 
         if (! $account->isFreeHostedClient()) {
             return $settings;
@@ -164,4 +167,9 @@ class UpdateCompanyRequest extends Request
 
         return rtrim($url, '/');
     }
+
+    private function forceScheme($url){
+        return stripos($url, 'http') !== false ? $url : "https://{$url}";
+    }
+
 }
