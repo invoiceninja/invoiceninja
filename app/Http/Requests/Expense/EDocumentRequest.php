@@ -17,7 +17,7 @@ class EDocumentRequest extends Request
         /** @var User $user */
         $user = auth()->user();
 
-        return $user->can('edit', $this->expense);
+        return $user->isAdmin();
     }
 
     public function rules()
