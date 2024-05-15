@@ -78,6 +78,7 @@ class SubscriptionContextController
                 'per_seat_enabled' => $subscription->per_seat_enabled,
                 'min_seats_limit' => $subscription->min_seats_limit,
                 'max_seats_limit' => $subscription->max_seats_limit,
+                'registration_fields' => $subscription->company->client_registration_fields,
             ],
             'summary' => [
                 'one_time_total' => $service->oneTimePurchasesTotal(),
