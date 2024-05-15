@@ -125,7 +125,7 @@ class ZugferdEDokument extends AbstractService
         foreach ($this->document->line_items as $index => $item) {
             /** @var \App\DataMapper\InvoiceItem $item **/
             $this->xdocument->addNewPosition($index)
-                ->setDocumentPositionGrossPrice($item->gross_line_total)
+                ->setDocumentPositionGrossPrice($item->gross_line_total+$item->discount)
                 ->setDocumentPositionNetPrice($item->line_total);
             if (!empty($item->product_key)) {
                 if (!empty($item->notes)) {
@@ -146,25 +146,37 @@ class ZugferdEDokument extends AbstractService
                 $this->xdocument->setDocumentPositionQuantity($item->quantity, "H87");
             }
             $linenetamount = $item->line_total;
-            if ($item->discount > 0) {
+/*            if ($item->discount > 0) {
                 if ($this->document->is_amount_discount) {
                     $linenetamount -= $item->discount;
                 } else {
                     $linenetamount -= $linenetamount * ($item->discount / 100);
                 }
-            }
-            $this->xdocument->setDocumentPositionLineSummation($linenetamount, $item->line_total-$linenetamount);
+            }*/
+            $this->xdocument->setDocumentPositionLineSummation($linenetamount, $item->discount);
             // According to european law, each line item can only have one tax rate
             if (!(empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3))) {
                 $taxtype = $this->getTaxType($item->tax_id);
                 if (!empty($item->tax_name1)) {
-                    $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1);
+                    if ($taxtype == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1, exemptionReason: ctrans('texts.intracommunity_suply'));
+                    } else {
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1);
+                    }
                     $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate1);
                 } elseif (!empty($item->tax_name2)) {
-                    $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2);
+                    if ($taxtype == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2, exemptionReason: ctrans('texts.intracommunity_suply'));
+                    } else {
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2);
+                    }
                     $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate2);
                 } elseif (!empty($item->tax_name3)) {
-                    $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
+                    if ($taxtype == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3, exemptionReason: ctrans('texts.intracommunity_suply'));
+                    } else {
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
+                    }
                     $this->addtoTaxMap($taxtype, $linenetamount, $item->tax_rate3);
                 } else {
                     // nlog("Can't add correct tax position");
