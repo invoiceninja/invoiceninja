@@ -41,12 +41,10 @@ class StripeController
 
     public function charge(Subscription $subscription, Request $request)
     {
-        if ($request->type === 'successful') {
-            return response()->noContent(
-                200
-            );
-        }
+        // Here we can access the "key" and "context" & "gateway_response".
 
-        return response()->noContent(422);
+        return response()->noContent(
+            200
+        );
     }
 }
