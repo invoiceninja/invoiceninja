@@ -19,7 +19,5 @@ Route::get('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionConte
 Route::post('/api/v1/subscriptions/{subscription}/v4/context', [SubscriptionContextController::class, 'summary']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/stripe/intent', [StripeController::class, 'intent']);
 Route::post('/api/v1/subscriptions/{subscription}/v4/stripe/charge', [StripeController::class, 'charge']);
-
-//
 Route::post('/api/v1/subscriptions/{subscription}/v4/login/check', [AuthController::class, 'check']);
-Route::post('/api/v1/subscriptions/{subscription}/v4/login', [AuthController::class, 'login']);
+Route::post('/api/v1/subscriptions/{subscription}/v4/login', [AuthController::class, 'authenticate']);
