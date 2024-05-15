@@ -13,18 +13,30 @@
 namespace App\Http\Controllers\SubscriptionsV4;
 
 use App\Http\Requests\SubscriptionsV4\LoginCheckRequest;
-use App\Http\Requests\SubscriptionsV4\LoginRequest;
+use App\Http\Requests\SubscriptionsV4\AuthenticateRequest;
+use App\Livewire\BillingPortal\Authentication\ClientRegisterService;
 use App\Livewire\BillingPortal\Authentication\Login;
 use App\Livewire\BillingPortal\Authentication\Register;
 use App\Livewire\BillingPortal\Authentication\RegisterOrLogin;
 use App\Models\ClientContact;
 use App\Models\Subscription;
 use App\Services\Subscription\StepService;
+use App\Transformers\ClientContactTransformer;
+use App\Transformers\ClientTransformer;
 use Illuminate\Support\Str;
+use Laracasts\Presenter\Exceptions\PresenterException;
 
 class AuthController
 {
-    public function login(Subscription $subscription, LoginRequest $request)
+    /**
+     * @throws PresenterException
+     */
+    public function authenticate(
+        Subscription             $subscription,
+        AuthenticateRequest      $request,
+        ClientTransformer        $client_transformer,
+        ClientContactTransformer $client_contact_transformer
+    )
     {
         $steps = StepService::mapToClassNames(
             steps: $subscription->steps,
@@ -51,8 +63,9 @@ class AuthController
                 );
 
                 return response()->json([
-                    'contact' => auth()->guard('contact')->user()->client,
                     'key' => $key,
+                    'contact' => $client_contact_transformer->transform($contact),
+                    'client' => $client_transformer->transform($contact->client),
                 ]);
             }
 
@@ -63,32 +76,43 @@ class AuthController
             return response()->noContent(401);
         }
 
-        // Otherwise register user
-        // Send email and configure otp/e-mail auth
+        $service = new ClientRegisterService(
+            company: $subscription->company,
+        );
+
+        $client = $service->createClient($request->registration_fields);
+        $contact = $service->createClientContact($request->registration_fields, $client);
+
+        $key = Str::random(64);
+
+        cache()->put(
+            key: $key,
+            value: $contact->id,
+        );
+
+        return response()->json([
+            'key' => $key,
+            'contact' => $client_contact_transformer->transform($contact),
+            'client' => $client_transformer->transform($contact->client),
+        ]);
     }
 
-    public function check(Subscription $subscription, LoginCheckRequest $request): \Illuminate\Http\Response
+    public function check(Subscription $subscription, LoginCheckRequest $request): \Illuminate\Http\JsonResponse
     {
         $contact = ClientContact::query()
             ->where('email', $request->email)
             ->where('company_id', $subscription->company_id)
             ->first();
 
-        if ($contact) {
-            return response()->noContent(200);
-        }
-
         $steps = StepService::mapToClassNames(
             steps: $subscription->steps,
         );
 
-        if (
-            in_array(Register::class, $steps) ||
-            in_array(RegisterOrLogin::class, $steps)
-        ) {
-            return response()->noContent(200);
-        }
+        $register = in_array(Register::class, $steps) || in_array(RegisterOrLogin::class, $steps);
 
-        return response()->noContent(404);
+        return response()->json([
+            'existing' => $contact !== null,
+            'register' => (bool) $register,
+        ]);
     }
 }
