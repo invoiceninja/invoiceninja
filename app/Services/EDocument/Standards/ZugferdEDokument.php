@@ -212,10 +212,11 @@ class ZugferdEDokument extends AbstractService
         }
         if ($this->document->is_amount_discount) {
             $this->xdocument->addDocumentAllowanceCharge($this->document->discount, false, ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX, "VAT", "0");
+            $this->xdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $this->document->discount, $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
         } else {
             $this->xdocument->addDocumentAllowanceCharge($this->document->amount * $this->document->discount / 100, false, ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX, "VAT", "19");
+            $this->xdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $this->document->amount * $this->document->discount / 100, $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
         }
-        $this->xdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
 
         foreach ($this->tax_map as $item) {
             if ($item["tax_type"] == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
