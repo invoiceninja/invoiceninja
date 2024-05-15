@@ -113,6 +113,10 @@ class ZugferdEDokument extends AbstractService
             $this->xdocument->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));
         } else {
             $this->xdocument->addDocumentSellerTaxRegistration("VA", $company->getSetting('vat_number'));
+
+        }
+        if (!empty($client->vat_number)){
+            $this->xdocument->addDocumentBuyerTaxRegistration("VA", $client->vat_number);
         }
 
         $invoicing_data = $this->document->calc();
@@ -149,7 +153,7 @@ class ZugferdEDokument extends AbstractService
                     $linenetamount -= $linenetamount * ($item->discount / 100);
                 }
             }
-            $this->xdocument->setDocumentPositionLineSummation($linenetamount);
+            $this->xdocument->setDocumentPositionLineSummation($linenetamount, $item->line_total-$linenetamount);
             // According to european law, each line item can only have one tax rate
             if (!(empty($item->tax_name1) && empty($item->tax_name2) && empty($item->tax_name3))) {
                 $taxtype = $this->getTaxType($item->tax_id);
@@ -190,7 +194,12 @@ class ZugferdEDokument extends AbstractService
         $this->xdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
 
         foreach ($this->tax_map as $item) {
+            if ($item["tax_type"] == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
+                $this->xdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100, ctrans('texts.intracommunity_suply'));
+            } else {
             $this->xdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100);
+            }
+
         }
 
         // The validity can be checked using https://portal3.gefeg.com/invoice/validation or https://e-rechnung.bayern.de/app/#/upload
