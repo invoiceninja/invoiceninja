@@ -12,9 +12,11 @@
 namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Jobs\EDocument\MergeEDocument;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;
+use App\Models\Company;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
@@ -39,7 +41,7 @@ class CreateRawPdf
 
     public Invoice | Credit | Quote | RecurringInvoice | PurchaseOrder $entity;
 
-    public $company;
+    public Company $company;
 
     public $contact;
 
@@ -105,7 +107,11 @@ class CreateRawPdf
         ]);
 
         $pdf = $ps->boot()->getPdf();
+
         nlog("pdf timer = ". $ps->execution_time);
+        if ($this->company->getSetting("enable_e_invoice")){
+            $pdf = (new MergeEDocument($this->entity))->handle();
+        }
         return $pdf;
 
         throw new FilePermissionsFailure('Unable to generate the raw PDF');

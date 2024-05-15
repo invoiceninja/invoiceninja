@@ -20,7 +20,6 @@ use App\Services\AbstractService;
 use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
-use horstoeko\zugferd\codelists\ZugferdSchemeIdentifiers;
 
 class ZugferdEDokument extends AbstractService
 {
