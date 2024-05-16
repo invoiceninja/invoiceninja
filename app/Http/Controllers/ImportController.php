@@ -167,11 +167,11 @@ class ImportController extends Controller
     private function convertEncoding($data)
     {
 
-        $enc = mb_detect_encoding($data, mb_list_encodings(), true);
+        // $enc = mb_detect_encoding($data, mb_list_encodings(), true);
 
-        if($enc !== false) {
-            $data = mb_convert_encoding($data, "UTF-8", $enc);
-        }
+        // if($enc !== false) {
+        //     $data = mb_convert_encoding($data, "UTF-8", $enc);
+        // }
 
         return $data;
     }
@@ -233,8 +233,50 @@ class ImportController extends Controller
             }
         }
 
+        return $this->convertData($data);
+    }
+
+
+
+    private function convertData(array $data): array
+    {
+
+        // List of encodings to check against
+        $encodings = [
+            'UTF-8',
+            'ISO-8859-1',  // Latin-1
+            'ISO-8859-2',  // Latin-2
+            'WINDOWS-1252', // CP1252
+            'SHIFT-JIS',
+            'EUC-JP',
+            'GB2312',
+            'GBK',
+            'BIG5',
+            'ISO-2022-JP',
+            'KOI8-R',
+            'KOI8-U',
+            'WINDOWS-1251', // CP1251
+            'UTF-16',
+            'UTF-32',
+            'ASCII'
+        ];
+
+        foreach ($data as $key => $value) {
+            // Only process strings
+            if (is_string($value)) {
+                // Detect the encoding of the string
+                $detectedEncoding = mb_detect_encoding($value, $encodings, true);
+
+                // If encoding is detected and it's not UTF-8, convert it to UTF-8
+                if ($detectedEncoding && $detectedEncoding !== 'UTF-8') {
+                    $array[$key] = mb_convert_encoding($value, 'UTF-8', $detectedEncoding);
+                }
+            }
+        }
+
         return $data;
     }
+    
 
     /**
      * Returns the best delimiter

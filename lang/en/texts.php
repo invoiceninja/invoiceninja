@@ -5304,6 +5304,22 @@ $lang = array(
     'always_show_required_fields_help' => 'Displays the required fields form always at checkout',
     'advanced_cards' => 'Advanced Cards',
     'activity_140' => 'Statement sent to :client',
+    'invoice_net_amount' => 'Invoice Net Amount',
+    'round_to_minutes' => 'Round To Minutes',
+    '1_minute' => '1 Minute',
+    '5_minutes' => '5 Minutes',
+    '15_minutes' => '15 Minutes',
+    '30_minutes' => '30 Minutes',
+    '1_hour' => '1 Hour',
+    '1_day' => '1 Day',
+    'round_tasks' => 'Round Tasks',
+    'round_tasks_help' => 'Round time intervals when saving tasks',
+    'direction' => 'Direction',
+    'round_up' => 'Round Up',
+    'round_down' => 'Round Down',
+    'task_round_to_nearest' => 'Round To Nearest',
+    'bulk_updated' => 'Successfully updated data',
+    'bulk_update' => 'Bulk Update',
 );
 
 return $lang;

@@ -80,6 +80,8 @@ $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['partial'] = 'bail|sometimes|nullable|numeric';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
 
+$rules['date'] = 'bail|sometimes|date:Y-m-d';
+
         // $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date', 'before:due_date'];
         // $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
 

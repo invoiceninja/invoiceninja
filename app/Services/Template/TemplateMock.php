@@ -56,9 +56,6 @@ class TemplateMock
         $this->engines['payments'] = json_decode($this->payment_data, true);
         $this->engines['purchase_orders'] = json_decode($this->purchase_order_data, true);
 
-        // nlog("engines");
-        // nlog($this->engines);
-
         return $this;
 
     }

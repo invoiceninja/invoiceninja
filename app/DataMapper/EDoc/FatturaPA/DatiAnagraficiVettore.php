@@ -12,17 +12,17 @@
 namespace App\DataMapper\EDoc\FatturaPA;
 
 use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Attributes\WithTransformer;
-use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
+use Spatie\LaravelData\Optional;
+use App\DataMapper\EDoc\FatturaPA\Header\IdFiscaleIVA;
 
 class DatiAnagraficiVettore extends Data
 {
-
-    public function __construct(
-        public string $IdFiscaleIVA = '',
-        public string $CodiceFiscale = '',
-        public string $Anagrafica = '',
-        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d\TH:i:s.uP')]
-        public \DateTime $DataOraConsegna = new \DateTime(),
-    ){}
+        public IdFiscaleIVA $IdFiscaleIVA;
+        
+        public Anagrafica $Anagrafica;
+        
+        public string|Optional $CodiceFiscale;
+        
+        //String20Type
+        public string|Optional $NumeroLicenzaGuida;
 }

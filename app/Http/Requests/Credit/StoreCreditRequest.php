@@ -78,6 +78,8 @@ class StoreCreditRequest extends Request
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
 
+$rules['date'] = 'bail|sometimes|date:Y-m-d';
+
         if ($this->invoice_id) {
             $rules['invoice_id'] = new ValidInvoiceCreditRule();
         }

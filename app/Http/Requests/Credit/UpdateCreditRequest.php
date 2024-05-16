@@ -68,7 +68,9 @@ class UpdateCreditRequest extends Request
 
         $rules['line_items'] = 'array';
 
-$rules['discount'] = 'sometimes|numeric|max:99999999999999';
+        $rules['date'] = 'bail|sometimes|date:Y-m-d';
+
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
