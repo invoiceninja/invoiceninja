@@ -20,7 +20,7 @@ class MergeEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private object $document, private object $pdf_file)
+    public function __construct(private object $document, private string $pdf_file)
     {
     }
 
@@ -35,7 +35,6 @@ class MergeEDocument implements ShouldQueue
         $settings_entity = ($this->document instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
 
         $e_document_type = strlen($settings_entity->getSetting('e_invoice_type')) > 2 ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
-        $e_quote_type = strlen($settings_entity->getSetting('e_quote_type')) > 2 ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
 
         if ($this->document instanceof Invoice){
             switch ($e_document_type) {
@@ -49,9 +48,8 @@ class MergeEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $xml = (new CreateEDocument($this->document))->handle();
-                    (new ZugferdDocumentPdfBuilder($xml, $this->pdf_file))->generateDocument()->saveDocument($mergeToPdf);
-                    return $mergeToPdf;
+                    $xml = (new CreateEDocument($this->document, true))->handle();
+                    return(new ZugferdDocumentPdfBuilder($xml, $this->pdf_file))->generateDocument()->downloadString("Invoice.pdf");
                 default:
                     return $this->pdf_file;
 
