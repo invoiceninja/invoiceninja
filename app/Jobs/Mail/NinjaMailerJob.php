@@ -77,8 +77,6 @@ class NinjaMailerJob implements ShouldQueue
         /*Set the correct database*/
         MultiDB::setDb($this->nmo->company->db);
 
-nlog("nn");
-
         /* Serializing models from other jobs wipes the primary key */
         $this->company = Company::query()->where('company_key', $this->nmo->company->company_key)->first();
 

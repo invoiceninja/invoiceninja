@@ -605,7 +605,7 @@ class TemplateService
             $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
             $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
 
-            return $item;
+            return (array)$item;
 
         })->toArray();
     }
