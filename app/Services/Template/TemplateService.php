@@ -126,7 +126,7 @@ class TemplateService
         $allowedTags = ['if', 'for', 'set', 'filter'];
         $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency','map', 'join', 'first', 'date','sum'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
-        $allowedProperties = [];
+        $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
 
         $policy = new \Twig\Sandbox\SecurityPolicy($allowedTags, $allowedFilters, $allowedFunctions, $allowedProperties, $allowedMethods);

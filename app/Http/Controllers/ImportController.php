@@ -169,6 +169,9 @@ class ImportController extends Controller
 
         $enc = mb_detect_encoding($data, mb_list_encodings(), true);
 
+        nlog("env");
+        nlog($enc);
+
         if($enc !== false) {
             $data = mb_convert_encoding($data, "UTF-8", $enc);
         }
