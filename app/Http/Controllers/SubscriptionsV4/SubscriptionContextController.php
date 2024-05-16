@@ -73,12 +73,30 @@ class SubscriptionContextController
             ->where('gateway_key', 'd14dd26a37cecc30fdd65700bfb55b23')
             ->first();
 
+        $registration_fields = collect($subscription->company->client_registration_fields)->map(function ($field) use ($subscription) {
+            if (in_array($field['key'], ['custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'])) {
+                $translation = (new \App\Utils\Helpers())->makeCustomField($subscription->company->custom_fields, str_replace("custom_value", "client", $field['key']));
+            } elseif (array_key_exists('label', $field)) {
+                $translation = ctrans("texts.{$field['label']}");
+            } else {
+                $translation = ctrans("texts.{$field['key']}");
+            }
+
+            if ($translation === '') {
+                $translation = ctrans("texts.{$field['key']}");
+            }
+
+            $field['translation'] = $translation;
+
+            return $field;
+        });
+
         return response()->json([
             'context' => [
                 'per_seat_enabled' => $subscription->per_seat_enabled,
                 'min_seats_limit' => $subscription->min_seats_limit,
                 'max_seats_limit' => $subscription->max_seats_limit,
-                'registration_fields' => $subscription->company->client_registration_fields,
+                'registration_fields' => $registration_fields,
             ],
             'summary' => [
                 'one_time_total' => $service->oneTimePurchasesTotal(),
