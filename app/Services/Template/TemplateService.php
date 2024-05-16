@@ -100,6 +100,7 @@ class TemplateService
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
 
+
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
             return '<img src="' . $string . '" style="' . $style . '"></img>';
         });
@@ -122,25 +123,14 @@ class TemplateService
 
         $this->twig->addFilter($filter);
 
-        $filter = new \Twig\TwigFilter('filter', function ($array, $arrow){
+        $allowedTags = ['if', 'for', 'set', 'filter'];
+        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency','map', 'join', 'first', 'date','sum'];
+        $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
+        $allowedProperties = [];
+        $allowedMethods = ['img','t'];
 
-            if(is_string($arrow) && in_array($arrow, ['popen','exec','shell_exec','system','passthru','proc_open','pcntl_exec','sleep','escapeshellcmd','escapeshellarg']))
-                throw new RuntimeError("Attempt to access command line");
-
-            if (!is_iterable($array)) {
-                throw new RuntimeError(sprintf('The "filter" filter expects an array or "Traversable", got "%s".', \is_object($array) ? \get_class($array) : \gettype($array)));
-            }
-
-            if (\is_array($array)) {
-                return array_filter($array, $arrow, \ARRAY_FILTER_USE_BOTH);
-            }
-
-            // the IteratorIterator wrapping is needed as some internal PHP classes are \Traversable but do not implement \Iterator
-            return new \CallbackFilterIterator(new \IteratorIterator($array), $arrow);
-
-        });
-
-        $this->twig->addFilter($filter);
+        $policy = new \Twig\Sandbox\SecurityPolicy($allowedTags, $allowedFilters, $allowedFunctions, $allowedProperties, $allowedMethods);
+        $this->twig->addExtension(new \Twig\Extension\SandboxExtension($policy, true));
 
         return $this;
     }
