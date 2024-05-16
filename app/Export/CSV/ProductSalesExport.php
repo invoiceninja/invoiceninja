@@ -146,9 +146,15 @@ class ProductSalesExport extends BaseExport
               ->each(function ($invoice) use($product_keys) {
                   foreach ($invoice->line_items as $item) {
 
-                     if($product_keys && in_array($item->product_key, $product_keys))
+                    if($product_keys)
+                    {
+                     if(in_array($item->product_key, $product_keys))
                         $this->csv->insertOne($this->buildRow($invoice, $item));
-
+                    }
+                    else {
+                        $this->csv->insertOne($this->buildRow($invoice, $item));
+                    }
+                    
                   }
               });
 

@@ -36,6 +36,7 @@ trait MakesInvoiceHtml
      * @param string $string The Blade file string
      * @param array $data The array of template variables
      * @return string         The return HTML string
+     * @deprecated // not needed!
      * @throws FatalThrowableError
      */
     public function renderView($string, $data = []): string
