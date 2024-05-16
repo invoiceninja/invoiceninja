@@ -16,7 +16,6 @@ use App\Jobs\EDocument\MergeEDocument;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;
-use App\Models\Company;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderInvitation;
@@ -41,7 +40,7 @@ class CreateRawPdf
 
     public Invoice | Credit | Quote | RecurringInvoice | PurchaseOrder $entity;
 
-    public Company $company;
+    public $company;
 
     public $contact;
 
@@ -109,8 +108,8 @@ class CreateRawPdf
         $pdf = $ps->boot()->getPdf();
 
         nlog("pdf timer = ". $ps->execution_time);
-        if ($this->company->getSetting("enable_e_invoice")){
-            $pdf = (new MergeEDocument($this->entity))->handle();
+        if ($this->entity_string == "invoice" && $this->entity->company->getSetting("enable_e_invoice")){
+            $pdf = (new MergeEDocument($this->entity, $pdf))->handle();
         }
         return $pdf;
 
