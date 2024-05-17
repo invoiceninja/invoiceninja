@@ -5104,7 +5104,6 @@ $lang = array(
     'triangular_tax_info' => 'Intra-community triangular transaction',
     'intracommunity_tax_info' => 'Tax-free intra-community delivery',
     'reverse_tax_info' => 'Please note that this supply is subject to reverse charge',
-    'intracommunity_suply'=>'Intra-community supply',
     'currency_nicaraguan_cordoba' => 'Nicaraguan Córdoba',
     'public' => 'Public',
     'private' => 'Private',
