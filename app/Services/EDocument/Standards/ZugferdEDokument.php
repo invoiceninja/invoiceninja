@@ -166,21 +166,21 @@ class ZugferdEDokument extends AbstractService
                 $taxtype = $this->getTaxType($item->tax_id);
                 if (!empty($item->tax_name1)) {
                     if ($taxtype == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
-                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1, exemptionReason: ctrans('texts.intracommunity_suply'));
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1, exemptionReason: ctrans('texts.intracommunity_tax_info'));
                     } else {
                         $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate1);
                     }
                     $this->addtoTaxMap($taxtype, $item->line_total, $item->tax_rate1);
                 } elseif (!empty($item->tax_name2)) {
                     if ($taxtype == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
-                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2, exemptionReason: ctrans('texts.intracommunity_suply'));
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2, exemptionReason: ctrans('texts.intracommunity_tax_info'));
                     } else {
                         $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate2);
                     }
                     $this->addtoTaxMap($taxtype, $item->line_total, $item->tax_rate2);
                 } elseif (!empty($item->tax_name3)) {
                     if ($taxtype == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
-                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3, exemptionReason: ctrans('texts.intracommunity_suply'));
+                        $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3, exemptionReason: ctrans('texts.intracommunity_tax_info'));
                     } else {
                         $this->xdocument->addDocumentPositionTax($taxtype, 'VAT', $item->tax_rate3);
                     }
@@ -226,7 +226,7 @@ class ZugferdEDokument extends AbstractService
                 }
             }
             if ($item["tax_type"] == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
-                $this->xdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100, ctrans('texts.intracommunity_suply'));
+                $this->xdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100, ctrans('texts.intracommunity_tax_info'));
             } else {
             $this->xdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100);
             }
