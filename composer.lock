@@ -4980,12 +4980,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "aec5dc1c1492151cb0cc4bcb7f58be7609bc7e3b"
+                "reference": "6028038ff94e6c0090ba5c444bd0be56a65bc0bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/aec5dc1c1492151cb0cc4bcb7f58be7609bc7e3b",
-                "reference": "aec5dc1c1492151cb0cc4bcb7f58be7609bc7e3b",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/6028038ff94e6c0090ba5c444bd0be56a65bc0bc",
+                "reference": "6028038ff94e6c0090ba5c444bd0be56a65bc0bc",
                 "shasum": ""
             },
             "require": {
@@ -5021,7 +5021,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-18T12:20:42+00:00"
+            "time": "2024-05-18T12:35:18+00:00"
         },
         {
             "name": "invoiceninja/inspector",

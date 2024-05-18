@@ -13,7 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Utils\Statics;
 use Illuminate\Http\Response;
-use InvoiceNinja\Einvoice\Decoder\Schema;
+use Invoiceninja\Einvoice\Decoder\Schema;
 
 class StaticController extends BaseController
 {
