@@ -11,9 +11,9 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\EDoc\Schema\RO;
 use App\Utils\Statics;
 use Illuminate\Http\Response;
+use InvoiceNinja\Einvoice\Decoder\Schema;
 
 class StaticController extends BaseController
 {
@@ -61,9 +61,8 @@ class StaticController extends BaseController
 
         if(request()->has('einvoice')){
             
-            $ro = new RO;
-
-            $response_data['einvoice_schema'] = $ro(); 
+            $schema = new Schema();
+            $response_data['einvoice_schema'] = $schema('FACT1'); 
         }
 
         return response()->json($response_data, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
