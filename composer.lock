@@ -1688,6 +1688,60 @@
             "time": "2023-01-15T23:15:59+00:00"
         },
         {
+            "name": "btcpayserver/btcpayserver-greenfield-php",
+            "version": "v2.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/btcpayserver/btcpayserver-greenfield-php.git",
+                "reference": "c115b0415719b9fe6e35d5df5f291646d4af2240"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/btcpayserver/btcpayserver-greenfield-php/zipball/c115b0415719b9fe6e35d5df5f291646d4af2240",
+                "reference": "c115b0415719b9fe6e35d5df5f291646d4af2240",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "phpunit/phpunit": "^9.5",
+                "vimeo/psalm": "^4.8",
+                "vlucas/phpdotenv": "^5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "BTCPayServer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Wouter Samaey",
+                    "email": "wouter.samaey@storefront.be"
+                },
+                {
+                    "name": "Andreas Tasch",
+                    "email": "andy.tasch@gmail.com"
+                }
+            ],
+            "description": "BTCPay Server Greenfield API PHP client library.",
+            "support": {
+                "issues": "https://github.com/btcpayserver/btcpayserver-greenfield-php/issues",
+                "source": "https://github.com/btcpayserver/btcpayserver-greenfield-php/tree/v2.6.0"
+            },
+            "time": "2024-04-25T09:19:49+00:00"
+        },
+        {
             "name": "carbonphp/carbon-doctrine-types",
             "version": "2.1.0",
             "source": {

@@ -42,6 +42,7 @@
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "^4",
         "braintree/braintree_php": "^6.0",
+        "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
         "invoiceninja/ubl_invoice": "^2",
         "doctrine/dbal": "^3.0",
