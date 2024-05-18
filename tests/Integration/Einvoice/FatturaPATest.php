@@ -169,7 +169,7 @@ class FatturaPATest extends TestCase
         foreach($files as $f)
         {
             
-            nlog("File => {$f}");
+            // nlog("File => {$f}");
 
             $xmlstring = file_get_contents($f);
 
@@ -180,12 +180,18 @@ class FatturaPATest extends TestCase
             $validation_array = false;
             try {
                 $rules = FatturaElettronica::getValidationRules($this->payload);
-                nlog($rules);
+                // nlog($rules);
                 
+                $this->assertIsArray($rules);
+
                 $payload = FatturaElettronica::from($payload)->toArray();
-                nlog($payload);
+                // nlog($payload);
+                $this->assertIsArray($payload);
 
                 $validation_array = FatturaElettronica::validate($payload);
+                
+                $this->assertIsArray($validation_array);
+
             } catch(\Illuminate\Validation\ValidationException $e) {
 
                 nlog($e->errors());
