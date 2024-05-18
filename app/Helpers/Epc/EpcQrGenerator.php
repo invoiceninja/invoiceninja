@@ -82,20 +82,11 @@ class EpcQrGenerator
             $this->company->present()->name(),
             isset($this->company?->custom_fields?->company1) ? $this->company->settings->custom_value1 : '',
             $this->formatMoney($this->amount),
-            $this->getPurposeCode(),
+            $this->sepa['purpose'],
             substr($this->invoice->number, 0, 34),
             '',
             ' '
         ]), "\n");
-    }
-
-    private function getPurposeCode(): string
-    {
-        if(isset($this->invoice->client->id_number) && strlen($this->invoice->client->id_number) > 2)
-            return $this->invoice->client->id_number;
-        
-        return $this->sepa['purpose'];
-
     }
     
     private function validateFields()
