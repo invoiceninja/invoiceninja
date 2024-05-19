@@ -16,7 +16,7 @@ use App\Factory\ExpenseFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
-use App\Models\Company; 
+use App\Models\Company;
 use App\Models\SystemLog;
 use App\Models\VendorContact;
 use App\Services\InboundMail\InboundMail;
@@ -34,10 +34,8 @@ class InboundMailEngine
     use GeneratesCounter, SavesDocuments;
 
     private ?bool $isUnknownRecipent = null;
-    private array $globalBlacklistDomains = [];
-    private array $globalBlacklistSenders = [];
-    private array $globalWhitelistDomains = []; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
-    private array $globalWhitelistSenders = []; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
+    private array $globalBlacklist = [];
+    private array $globalWhitelist = []; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
     public function __construct()
     {
     }
@@ -78,17 +76,17 @@ class InboundMailEngine
         $domain = array_pop($parts);
 
         // global blacklist
-        if (in_array($from, $this->globalWhitelistDomains)) {
+        if (in_array($from, $this->globalWhitelist)) {
             return false;
         }
-        if (in_array($domain, $this->globalBlacklistDomains)) {
+        if (in_array($domain, $this->globalWhitelist)) {
+            return false;
+        }
+        if (in_array($domain, $this->globalBlacklist)) {
             nlog('E-Mail blocked, because the domain was found on globalBlocklistDomains: ' . $from);
             return true;
         }
-        if (in_array($domain, $this->globalWhitelistSenders)) {
-            return false;
-        }
-        if (in_array($from, $this->globalBlacklistSenders)) {
+        if (in_array($from, $this->globalBlacklist)) {
             nlog('E-Mail blocked, because the email was found on globalBlocklistEmails: ' . $from);
             return true;
         }
@@ -210,17 +208,15 @@ class InboundMailEngine
         $domain = array_pop($parts);
 
         // whitelists
-        $email_whitelist = explode(",", $company->inbound_mailbox_whitelist_senders);
-        if (in_array($email->from, $email_whitelist))
+        $whitelist = explode(",", $company->inbound_mailbox_whitelist);
+        if (in_array($email->from, $whitelist))
             return true;
-        $domain_whitelist = explode(",", $company->inbound_mailbox_whitelist_domains);
-        if (in_array($domain, $domain_whitelist))
+        if (in_array($domain, $whitelist))
             return true;
-        $email_blacklist = explode(",", $company->inbound_mailbox_blacklist_senders);
-        if (in_array($email->from, $email_blacklist))
+        $blacklist = explode(",", $company->inbound_mailbox_blacklist);
+        if (in_array($email->from, $blacklist))
             return false;
-        $domain_blacklist = explode(",", $company->inbound_mailbox_blacklist_domains);
-        if (in_array($domain, $domain_blacklist))
+        if (in_array($domain, $blacklist))
             return false;
 
         // allow unknown

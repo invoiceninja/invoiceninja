@@ -117,10 +117,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $inbound_mailbox_allow_vendors
  * @property bool $inbound_mailbox_allow_clients
  * @property bool $inbound_mailbox_allow_unknown
- * @property string|null $inbound_mailbox_whitelist_domains
- * @property string|null $inbound_mailbox_whitelist_senders
- * @property string|null $inbound_mailbox_blacklist_domains
- * @property string|null $inbound_mailbox_blacklist_senders
+ * @property string|null $inbound_mailbox_whitelist
+ * @property string|null $inbound_mailbox_blacklist
  * @property int $deleted_at
  * @property string $smtp_username
  * @property string $smtp_password
@@ -375,10 +373,8 @@ class Company extends BaseModel
         'inbound_mailbox_allow_vendors',
         'inbound_mailbox_allow_clients',
         'inbound_mailbox_allow_unknown',
-        'inbound_mailbox_whitelist_domains',
-        'inbound_mailbox_whitelist_senders',
-        'inbound_mailbox_blacklist_domains',
-        'inbound_mailbox_blacklist_senders',
+        'inbound_mailbox_whitelist',
+        'inbound_mailbox_blacklist',
         'smtp_host',
         'smtp_port',
         'smtp_encryption',
