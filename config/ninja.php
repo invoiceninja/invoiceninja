@@ -235,7 +235,11 @@ return [
     ],
     'inbound_mailbox' => [
         'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
-        'inbound_webhook_key' => env('INBOUND_WEBHOOK_KEY', null)
+        'inbound_webhook_key' => env('INBOUND_WEBHOOK_KEY', null),
+        'global_inbound_sender_block_mailcount' => env('GLOBAL_INBOUND_SENDER_BLOCK_MAILCOUNT', 1000),
+        'global_inbound_sender_permablock_mailcount' => env('GLOBAL_INBOUND_SENDER_PERMABLOCK_MAILCOUNT', 5000),
+        'company_inbound_sender_block_unknown_reciepent' => env('COMPANY_INBOUND_SENDER_BLOCK_UNKNOWN_RECIEPENT', 50),
+        'global_inbound_sender_permablock_unknown_reciepent' => env('GLOBAL_INBOUND_SENDER_PERMABLOCK_UNKNOWN_RECIEPENT', 5000),
     ],
     'cloudflare' => [
         'turnstile' => [

@@ -16,7 +16,7 @@ use App\Factory\ExpenseFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
 use App\Models\ClientContact;
-use App\Models\Company;
+use App\Models\Company; 
 use App\Models\SystemLog;
 use App\Models\VendorContact;
 use App\Services\InboundMail\InboundMail;
@@ -99,13 +99,13 @@ class InboundMailEngine
 
         // sender occured in more than 500 emails in the last 12 hours
         $senderMailCountTotal = Cache::get('inboundMailCountSender:' . $from, 0);
-        if ($senderMailCountTotal >= 5000) {
+        if ($senderMailCountTotal >= config('global_inbound_sender_permablock_mailcount')) {
             nlog('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->blockSender($from);
             $this->saveMeta($from, $to);
             return true;
         }
-        if ($senderMailCountTotal >= 1000) {
+        if ($senderMailCountTotal >= config('global_inbound_sender_block_mailcount')) {
             nlog('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->saveMeta($from, $to);
             return true;
@@ -113,7 +113,7 @@ class InboundMailEngine
 
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
         $senderMailCountUnknownRecipent = Cache::get('inboundMailCountSenderUnknownRecipent:' . $from, 0);
-        if ($senderMailCountUnknownRecipent >= 50) {
+        if ($senderMailCountUnknownRecipent >= config('company_inbound_sender_block_unknown_reciepent')) {
             nlog('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $from);
             $this->saveMeta($from, $to);
             return true;
