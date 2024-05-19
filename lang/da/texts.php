@@ -2196,7 +2196,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun privat nøgle',
     'brevo_domain' => 'Brevo domæne',
     'brevo_private_key' => 'Brevo privat nøgle',
-    'send_test_email' => 'Send test e-mail',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Vælg Label',
     'label' => 'Etiket',
     'service' => 'Service',
@@ -4028,7 +4028,7 @@ $lang = array(
     'user_detached' => 'Bruger løsrevet fra selskabet',
     'create_webhook_failure' => 'Opret Webhook mislykkedes',
     'payment_message_extended' => 'Tak for din Betaling på :amount for :invoice',
-    'online_payments_minimum_note' => 'Bemærk : Online Betalinger understøttes kun, hvis Beløb er større end $1 eller tilsvarende i valuta.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Betaling blev ikke fundet, prøv venligst igen. Hvis et problem stadig fortsætter, kan du prøve med en anden Betaling',
     'vendor_address1' => 'Sælger Gade',
     'vendor_address2' => 'Sælger Apt/Suite',
@@ -4169,7 +4169,7 @@ $lang = array(
     'one_time_purchases' => 'Engangskøb',
     'recurring_purchases' => 'Gentagen indkøb',
     'you_might_be_interested_in_following' => 'Du kan være interesseret i følgende',
-    'quotes_with_status_sent_can_be_approved' => 'Kun citater med &quot;Sendt&quot;-status kan være Godkendt .',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Ingen tilbud tilgængelige for download.',
     'copyright' => 'ophavsret',
     'user_created_user' => ':user oprettet :created_user på :time',
@@ -5295,6 +5295,10 @@ $lang = array(
     'rappen_rounding' => 'Rappen afrunding',
     'rappen_rounding_help' => 'Rund Beløb til 5 øre',
     'assign_group' => 'Tildel gruppe',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

@@ -121,7 +121,8 @@ class DocumentController extends BaseController
         }
 
         return response()->streamDownload(function () use ($document) {
-            echo file_get_contents($document->generateUrl());
+            // echo file_get_contents($document->generateUrl());
+            echo $document->getFile();
         }, basename($document->generateUrl()), $headers);
     }
 

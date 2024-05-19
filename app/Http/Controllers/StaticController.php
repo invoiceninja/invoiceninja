@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Utils\Statics;
 use Illuminate\Http\Response;
+use Invoiceninja\Einvoice\Decoder\Schema;
 
 class StaticController extends BaseController
 {
@@ -56,8 +57,14 @@ class StaticController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $response = Statics::company($user->getLocale() ?? $user->company()->getLocale());
+        $response_data = Statics::company($user->getLocale() ?? $user->company()->getLocale());
 
-        return response()->json($response, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        if(request()->has('einvoice')){
+            
+            $schema = new Schema();
+            $response_data['einvoice_schema'] = $schema('FACT1'); 
+        }
+
+        return response()->json($response_data, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
     }
 }

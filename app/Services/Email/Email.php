@@ -589,7 +589,7 @@ $this->entityEmailFailed($message);
         return $this;
     }
 
-    private function configureSmtpMailer(): void
+    private function configureSmtpMailer()
     {
 
         $company = $this->company;
@@ -601,6 +601,14 @@ $this->entityEmailFailed($message);
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
         $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
+
+        if(strlen($smtp_host ?? '') <= 1 ||
+        strlen($smtp_username ?? '') <= 1 ||
+        strlen($smtp_password ?? '') <= 1
+        ) {
+            $this->email_object->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
 
         config([
             'mail.mailers.smtp' => [

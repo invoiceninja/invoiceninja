@@ -13,17 +13,17 @@ namespace App\DataMapper;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
-use App\DataMapper\EDoc\FatturaPA;
+use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronica;
 
 class EDocSettings extends Data
 {
-    public FatturaPA|Optional $FatturaPA;
+    public FatturaElettronica|Optional $FatturaElettronica;
 
     public function __construct() {}
 
-    public function createFatturaPA(): FatturaPA
+    public function createFatturaPA(): FatturaElettronica
     {
-        return $this->FatturaPA ??= new FatturaPA();
+        return $this->FatturaElettronica ??= new FatturaElettronica;
     }
 
 }

@@ -227,7 +227,13 @@ class InvoiceFilters extends QueryFilters
         if (is_numeric($date)) {
             $date = Carbon::createFromTimestamp((int)$date);
         } else {
-            $date = Carbon::parse($date);
+
+            try{
+                $date = Carbon::parse($date);
+            }
+            catch(\Exception $e){
+                return $this->builder;
+            }
         }
 
         return $this->builder->where('date', '>=', $date);

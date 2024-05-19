@@ -11,36 +11,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
-use App\Models\BankIntegration;
-use App\Models\BankTransaction;
-use App\Models\BankTransactionRule;
+use App\Models\User;
+use App\Utils\Ninja;
 use App\Models\Client;
-use App\Models\CompanyGateway;
 use App\Models\Design;
-use App\Models\ExpenseCategory;
-use App\Models\GroupSetting;
-use App\Models\PaymentTerm;
+use App\Utils\Statics;
+use App\Models\Account;
+use App\Models\TaxRate;
+use App\Models\Webhook;
 use App\Models\Scheduler;
 use App\Models\TaskStatus;
-use App\Models\TaxRate;
-use App\Models\User;
-use App\Models\Webhook;
-use App\Transformers\ArraySerializer;
-use App\Transformers\EntityTransformer;
-use App\Utils\Ninja;
-use App\Utils\Statics;
-use App\Utils\Traits\AppSetup;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
+use App\Models\PaymentTerm;
 use Illuminate\Support\Str;
 use League\Fractal\Manager;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
-use League\Fractal\Resource\Collection;
+use App\Models\GroupSetting;
+use Illuminate\Http\Response;
+use App\Models\CompanyGateway;
+use App\Utils\Traits\AppSetup;
+use App\Models\BankIntegration;
+use App\Models\BankTransaction;
+use App\Models\ExpenseCategory;
 use League\Fractal\Resource\Item;
+use App\DataMapper\EDoc\Schema\RO;
+use App\Models\BankTransactionRule;
+use Illuminate\Support\Facades\Auth;
+use App\Transformers\ArraySerializer;
+use App\Transformers\EntityTransformer;
+use League\Fractal\Resource\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\JsonApiSerializer;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
  * Class BaseController.
@@ -276,7 +277,7 @@ class BaseController extends Controller
     /**
      * API Error response.
      *
-     * @param string    $message        The return error message
+     * @param string|array    $message        The return error message
      * @param int       $httpErrorCode  404/401/403 etc
      * @return Response                 The JSON response
      * @throws BindingResolutionException
@@ -993,7 +994,17 @@ class BaseController extends Controller
                 /** @var \App\Models\User $user */
                 $user = auth()->user();
 
-                $response['static'] = Statics::company($user->getCompany()->getLocale());
+                $response_data = Statics::company($user->getCompany()->getLocale());
+
+                if(request()->has('einvoice')){
+
+                    $ro = new RO();
+                    $response_data['einvoice_schema'] = $ro();
+
+                }
+
+                $response['static'] = $response_data;
+                
             }
         }
 

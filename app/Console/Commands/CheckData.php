@@ -208,7 +208,7 @@ class CheckData extends Command
                 ->cursor()
                 ->each(function ($client) {
                     if ($client->recurring_invoices()->where('is_deleted', 0)->where('deleted_at', null)->count() > 1) {
-                        $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1}");
+                        $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1} || {$client->id}}");
                     }
                 });
         }
@@ -479,7 +479,7 @@ class CheckData extends Command
                         $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
                         
                         try{
-                        $entity->service()->createInvitations()->save();
+                            $entity->service()->createInvitations()->save();
                         }
                         catch(\Exception $e){
 

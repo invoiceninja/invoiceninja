@@ -2205,7 +2205,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'mailgun_private_key' => 'Mailgun Private Key',
     'brevo_domain' => 'Brevo-domän',
     'brevo_private_key' => 'Brevo privat nyckel',
-    'send_test_email' => 'Skicka test meddelande',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Välj rubrik',
     'label' => 'Rubrik',
     'service' => 'Service',
@@ -4037,7 +4037,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'user_detached' => 'Användaren har kopplats bort från företaget',
     'create_webhook_failure' => 'Det gick inte att skapa Webhook',
     'payment_message_extended' => 'Tack för din betalning på :amount för :invoice',
-    'online_payments_minimum_note' => 'Notera: Online betalningar stöds endast om beloppet är större än 10:- eller motsvarande valuta.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'Betalningstoken hittades inte. Försök igen. Om problemet fortfarande kvarstår kan du prova med en annan betalningsmetod',
     'vendor_address1' => 'Leverantörsadress',
     'vendor_address2' => 'Leverantörsadress 2',
@@ -4178,7 +4178,7 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'one_time_purchases' => 'Engångsköp',
     'recurring_purchases' => 'Återkommande köp',
     'you_might_be_interested_in_following' => 'Du kanske är intresserad av följande',
-    'quotes_with_status_sent_can_be_approved' => 'Endast offerter med status "Skickat" kan godkännas.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Inga offerter tillgängliga för nedladdning.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user skapade :created_user klockan :time',
@@ -5303,6 +5303,11 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
+    'assign_group' => 'Assign group',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

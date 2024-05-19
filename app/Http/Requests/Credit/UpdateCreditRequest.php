@@ -67,7 +67,10 @@ class UpdateCreditRequest extends Request
         $rules['client_id'] = ['bail', 'sometimes',Rule::in([$this->credit->client_id])];
 
         $rules['line_items'] = 'array';
-        $rules['discount'] = 'sometimes|numeric';
+
+        $rules['date'] = 'bail|sometimes|date:Y-m-d';
+
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
@@ -76,6 +79,7 @@ class UpdateCreditRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
+        $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
 
         return $rules;
     }
@@ -92,6 +96,8 @@ class UpdateCreditRequest extends Request
 
         if (isset($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+            $input['amount'] = $this->entityTotalAmount($input['line_items']);
+
         }
 
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {

@@ -178,13 +178,13 @@ class SwissQrGenerator
             if(is_iterable($qrBill->getViolations())) {
 
                 foreach ($qrBill->getViolations() as $key => $violation) {
-                    nlog("qr");
-                    nlog($violation);
+                    // nlog("qr");
+                    // nlog($violation);
                 }
 
             }
 
-            nlog($e->getMessage());
+            // nlog($e->getMessage());
 
             return '';
             // return $e->getMessage();

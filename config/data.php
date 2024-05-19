@@ -6,7 +6,10 @@ return [
      * is an array, it will try to convert from the first format that works,
      * and will serialize dates using the first format from the array.
      */
-    'date_format' => DATE_ATOM,
+    'date_format' => [
+        'Y-m-d',
+        'Y-m-d\TH:i:s.uP',
+    ],
 
     /*
      * Global transformers will take complex types and transform them into simple
@@ -15,7 +18,7 @@ return [
     'transformers' => [
         DateTimeInterface::class => \Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer::class,
         \Illuminate\Contracts\Support\Arrayable::class => \Spatie\LaravelData\Transformers\ArrayableTransformer::class,
-        BackedEnum::class => Spatie\LaravelData\Transformers\EnumTransformer::class,
+        BackedEnum::class => Spatie\LaravelData\Transformers\EnumTransformer::class
     ],
 
     /*

@@ -59,13 +59,13 @@ class EpcQrGenerator
           <rect x='0' y='0' width='100%'' height='100%' />{$qr}</svg>";
 
         } catch(\Throwable $e) {
-            nlog("EPC QR failure => ".$e->getMessage());
+            // nlog("EPC QR failure => ".$e->getMessage());
             return '';
         } catch(\Exception $e) {
-            nlog("EPC QR failure => ".$e->getMessage());
+            // nlog("EPC QR failure => ".$e->getMessage());
             return '';
         } catch(InvalidArgumentException $e) {
-            nlog("EPC QR failure => ".$e->getMessage());
+            // nlog("EPC QR failure => ".$e->getMessage());
             return '';
         }
 
@@ -88,7 +88,7 @@ class EpcQrGenerator
             ' '
         ]), "\n");
     }
-
+    
     private function validateFields()
     {
         if (Ninja::isSelfHost() && isset($this->company?->custom_fields?->company2)) {

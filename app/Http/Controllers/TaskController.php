@@ -538,16 +538,6 @@ class TaskController extends BaseController
     }
 
     /**
-     * Returns a client statement.
-     *
-     * @return void [type] [description]
-     */
-    public function statement()
-    {
-        //todo
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param UploadTaskRequest $request

@@ -2196,7 +2196,7 @@ $lang = array(
     'mailgun_private_key' => 'Llave Privada de Mailgun',
     'brevo_domain' => 'Dominio Brevo',
     'brevo_private_key' => 'Clave privada de Brevo',
-    'send_test_email' => 'Enviar correo de prueba',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Seleccionar Etiqueta',
     'label' => 'Etiqueta',
     'service' => 'Servicio',
@@ -4028,7 +4028,7 @@ $lang = array(
     'user_detached' => 'Usuario desvinculado de la empresa',
     'create_webhook_failure' => 'No se pudo crear el webhook',
     'payment_message_extended' => 'Gracias por su pago de :amount por :invoice',
-    'online_payments_minimum_note' => 'Nota: Los pagos en línea solo se admiten si el monto es superior a $ 1 o su equivalente en moneda.',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'No se encontró el token de pago, inténtelo de nuevo. Si el problema persiste, intente con otro método de pago',
     'vendor_address1' => 'Calle del vendedor',
     'vendor_address2' => 'Proveedor Apt/Suite',
@@ -4169,7 +4169,7 @@ $lang = array(
     'one_time_purchases' => 'Compras únicas',
     'recurring_purchases' => 'compras recurrentes',
     'you_might_be_interested_in_following' => 'Usted podría estar interesado en lo siguiente',
-    'quotes_with_status_sent_can_be_approved' => 'Solo se pueden aprobar cotizaciones con estado &quot;Enviado&quot;.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'No hay cotizaciones disponibles para descargar.',
     'copyright' => 'Derechos de autor',
     'user_created_user' => ':user creó :created_user en :time',
@@ -5295,6 +5295,10 @@ $lang = array(
     'rappen_rounding' => 'Redondeo de rappen',
     'rappen_rounding_help' => 'Monto redondo a 5 centavos',
     'assign_group' => 'Asignar grupo',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

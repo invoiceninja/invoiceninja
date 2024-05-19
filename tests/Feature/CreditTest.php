@@ -11,6 +11,7 @@
 
 namespace Tests\Feature;
 
+use App\DataMapper\InvoiceItem;
 use App\Models\Client;
 use App\Models\ClientContact;
 use App\Models\Credit;
@@ -40,6 +41,166 @@ class CreditTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testCreditPaymentsPaidToDates()
+    {
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'balance' => 100,
+        ]);
+
+        $ii = new InvoiceItem();
+        $ii->cost = 100;
+        $ii->quantity = 1;
+        $ii->product_key = 'xx';
+        $ii->notes = 'yy';
+
+        $i = \App\Models\Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $c->id,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'discount' => 0,
+            'line_items' => [
+                $ii
+            ],
+            'status_id' => 1,
+        ]);
+        
+        $i->save();
+
+        $i->calc()->getInvoice();
+
+        $i->service()->markSent()->save();
+
+        $cr = Credit::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $c->id,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'discount' => 0,
+            'line_items' => [
+                $ii
+            ],
+            'status_id' => 1,
+        ]);
+
+        
+        $cr->calc()->getCredit();
+
+        $cr->service()->markSent()->save();
+
+        $this->assertEquals(100, $i->balance);
+        $this->assertEquals(100, $i->amount);
+        $this->assertEquals(0, $i->paid_to_date);
+        $this->assertEquals(2, $i->status_id);
+
+        $this->assertEquals(100, $cr->balance);
+        $this->assertEquals(100, $cr->amount);
+        $this->assertEquals(0, $cr->paid_to_date);
+        $this->assertEquals(2, $cr->status_id);
+
+        $this->assertEquals(100, $c->balance);
+        $this->assertEquals(0, $c->paid_to_date);
+
+        $data = [
+            'date' => '2020/12/12',
+            'client_id' => $c->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $i->hashed_id,
+                    'amount' => 100
+                ],
+            ],
+            'credits' => [
+                [
+                    'credit_id' => $cr->hashed_id,
+                    'amount' => 100
+                ]
+            ],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments', $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $p_id = $arr['data']['id'];
+        $i = $i->fresh();
+        $cr = $cr->fresh();
+        $c = $c->fresh();
+
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(100, $i->paid_to_date);
+        $this->assertEquals(4, $i->status_id);
+
+        $this->assertEquals(0, $cr->balance);
+        $this->assertEquals(100, $cr->paid_to_date);
+        $this->assertEquals(4, $i->status_id);
+
+        $this->assertEquals(100, $c->paid_to_date);
+        $this->assertEquals(0, $c->balance);
+
+        $p = \App\Models\Payment::find($this->decodePrimaryKey($p_id));
+    
+        $this->assertEquals(0, $p->amount);
+        $this->assertEquals(0, $p->applied);
+                    
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->deleteJson("/api/v1/payments/{$p_id}");
+
+        $response->assertStatus(200);
+
+        $i = $i->fresh();
+        $cr = $cr->fresh();
+        $c = $c->fresh();
+
+        $this->assertEquals(100, $i->balance);
+        $this->assertEquals(100, $i->amount);
+        $this->assertEquals(0, $i->paid_to_date);
+        $this->assertEquals(2, $i->status_id);
+
+        $this->assertEquals(100, $cr->balance);
+        $this->assertEquals(100, $cr->amount);
+        $this->assertEquals(2, $cr->status_id);
+        $this->assertEquals(0, $cr->paid_to_date);
+
+        $this->assertEquals(100, $c->balance);
+        $this->assertEquals(0, $c->paid_to_date);
+
+            
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->deleteJson("/api/v1/credits/{$cr->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $cr = $cr->fresh();
+
+        $this->assertEquals(true, $cr->is_deleted); 
+
+        $this->assertEquals(100, $c->balance);
+        $this->assertEquals(0, $c->paid_to_date);
+
+
     }
 
     public function testApplicableFilters()

@@ -93,11 +93,8 @@ class InvoiceTransformer extends BaseTransformer
                 'invoice.custom_value4'
             ),
             'footer' => $this->getString($invoice_data, 'invoice.footer'),
-            'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ?: null,
-            'partial_due_date' => $this->getString(
-                $invoice_data,
-                'invoice.partial_due_date'
-            ),
+            'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ? $this->getFloat($invoice_data, 'invoice.partial') : null,
+            'partial_due_date' =>  isset($invoice_data['invoice.partial_due_date']) ? $this->parseDate($invoice_data['invoice.partial_due_date']) : null,
             'custom_surcharge1' => $this->getFloat(
                 $invoice_data,
                 'invoice.custom_surcharge1'

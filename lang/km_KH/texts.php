@@ -2177,7 +2177,7 @@ $lang = array(
     'mailgun_private_key' => 'សោឯកជន Mailgun',
     'brevo_domain' => 'ដែន Brevo',
     'brevo_private_key' => 'សោឯកជន Brevo',
-    'send_test_email' => 'ផ្ញើអ៊ីមែលសាកល្បង',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'ជ្រើសរើសស្លាក',
     'label' => 'ស្លាក​សញ្ញា',
     'service' => 'សេវាកម្ម',
@@ -4009,7 +4009,7 @@ $lang = array(
     'user_detached' => 'អ្នកប្រើប្រាស់ត្រូវបានផ្តាច់ចេញពីក្រុមហ៊ុន',
     'create_webhook_failure' => 'បរាជ័យក្នុងការបង្កើត Webhook',
     'payment_message_extended' => 'សូមអរគុណចំពោះការបង់ប្រាក់របស់អ្នក :amount សម្រាប់ :invoice',
-    'online_payments_minimum_note' => 'ចំណាំ៖ ការទូទាត់តាមអ៊ីនធឺណិតត្រូវបានគាំទ្រលុះត្រាតែចំនួនទឹកប្រាក់ធំជាង $1 ឬសមមូលរូបិយប័ណ្ណ។',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => 'រកមិនឃើញនិមិត្តសញ្ញាបង់ប្រាក់ទេ សូមព្យាយាមម្តងទៀត។ ប្រសិនបើបញ្ហានៅតែកើតមាន សូមសាកល្បងជាមួយវិធីបង់ប្រាក់ផ្សេងទៀត។',
     'vendor_address1' => 'ផ្លូវអ្នកលក់',
     'vendor_address2' => 'អ្នកលក់ Apt/Suite',
@@ -4150,7 +4150,7 @@ $lang = array(
     'one_time_purchases' => 'ការទិញតែម្តង',
     'recurring_purchases' => 'ការទិញដដែលៗ',
     'you_might_be_interested_in_following' => 'អ្នក​ប្រហែល​ជា​ចាប់​អារម្មណ៍​នឹង​ចំណុច​ខាង​ក្រោម',
-    'quotes_with_status_sent_can_be_approved' => 'មានតែសម្រង់ដែលមានស្ថានភាព &quot;បានផ្ញើ&quot; ប៉ុណ្ណោះដែលអាចយល់ព្រមបាន។',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'មិនមានសម្រង់សម្រាប់ទាញយកទេ។',
     'copyright' => 'រក្សាសិទ្ធិ',
     'user_created_user' => ':user បានបង្កើត :created_user នៅ :time',
@@ -5276,6 +5276,10 @@ $lang = array(
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'ចំនួនទឹកប្រាក់ជុំដល់ 5 សេន',
     'assign_group' => 'ចាត់តាំងក្រុម',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

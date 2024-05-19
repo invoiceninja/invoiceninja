@@ -205,6 +205,9 @@ class RoEInvoice extends AbstractService
             } elseif (!empty($item->tax_name3)) {
                 $taxName = $item->tax_name3;
             }
+            else {
+                $taxName = '';
+            }
         }
 
         $supplier_party = $this->createParty($company, $companyVatNr, $coEmail, $coPhone, $companyIdn, $coFullName, 'company', $taxName);
@@ -238,6 +241,8 @@ class RoEInvoice extends AbstractService
             $taxRatePercent = $item->tax_rate2;
         } elseif (!empty($item->tax_rate3)) {
             $taxRatePercent = $item->tax_rate3;
+        }else {
+            $taxRatePercent = 0;
         }
 
         if (!empty($item->tax_name1)) {
@@ -246,6 +251,8 @@ class RoEInvoice extends AbstractService
             $taxNameScheme = $item->tax_name2;
         } elseif (!empty($item->tax_name3)) {
             $taxNameScheme = $item->tax_name3;
+        } else {
+            $taxNameScheme = '';
         }
 
         $invoicing_data = $this->invoice->calc();
@@ -270,7 +277,7 @@ class RoEInvoice extends AbstractService
         return $ubl_invoice;
     }
 
-    private function createParty($company, $vatNr, $eMail, $phone, $idNr, $fullName, $compType, $taxNameScheme)
+    private function createParty($company, $vatNr, $eMail, $phone, $idNr, $fullName, $compType, $taxNameScheme = '')
     {
         $party = new Party();
         $party->setPartyIdentification(preg_replace('/^RO/', '', $vatNr));
@@ -352,7 +359,15 @@ class RoEInvoice extends AbstractService
             ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate3)
             ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3)));
+        }else {
+        
+            $classifiedTaxCategory = (new ClassifiedTaxCategory())
+            ->setId($this->resolveTaxCode($item->tax_id ?? 8))
+            ->setPercent(0)
+            ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3)));
+    
         }
+
         $invoiceLine = (new InvoiceLine())
             ->setId($index + 1)
             ->setInvoicedQuantity($item->quantity)

@@ -323,7 +323,7 @@ class HtmlEngine
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' => ''];
 
         $data['$entity_number'] = &$data['$number'];
-        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: ' ', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').' '.$this->entity->discount.'%'];
+        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: ' ', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').' '.(float)$this->entity->discount.'%'];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.subtotal')];
@@ -720,7 +720,7 @@ class HtmlEngine
         $data['$payment.date'] = ['value' => '', 'label' => ctrans('texts.payment_date')];
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
-
+        $data['$payment.refunded'] = ['value' => '', 'label' => ctrans('texts.refund')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
@@ -742,6 +742,7 @@ class HtmlEngine
             $data['$payment.date'] = ['value' => $this->formatDate($payment->date, $this->client->date_format()), 'label' => ctrans('texts.payment_date')];
             $data['$payment.number'] = ['value' => $payment->number, 'label' => ctrans('texts.payment_number')];
             $data['$payment.transaction_reference'] = ['value' => $payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
+            $data['$payment.refunded'] = ['value' => $this->getPaymentMeta($payment), 'label' => ctrans('texts.refund')];
 
         }
 
@@ -755,6 +756,35 @@ class HtmlEngine
         return $data;
     }
 
+    private function getPaymentMeta(\App\Models\Payment $payment) {
+
+        if(!is_array($payment->refund_meta))
+            return '';
+
+        return 
+        collect($payment->refund_meta)
+                ->map(function ($refund) use ($payment) {
+
+           $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
+           $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
+           $entity = ctrans('texts.invoice');
+
+           $map = [];
+
+           foreach($refund['invoices'] as $refunded_invoice) {
+               $invoice = \App\Models\Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
+               $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
+               $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
+
+               array_push($map, "{$date} {$entity} #{$invoice->number} {$notes}\n");
+
+           }
+
+           return $map;
+
+       })->flatten()->implode("\n");
+
+    }
     /**
      * Returns a localized string for tax compliance purposes
      *

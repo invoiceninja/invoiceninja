@@ -62,6 +62,9 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
+                        ->whereHas('vendor', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->with('vendor')->where('company_id', $this->company->id)
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
@@ -112,6 +115,7 @@ class PurchaseOrderItemExport extends BaseExport
     {
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $query = $this->init();
 

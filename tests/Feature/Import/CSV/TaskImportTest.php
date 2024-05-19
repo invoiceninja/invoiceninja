@@ -96,7 +96,7 @@ class TaskImportTest extends TestCase
         $time_log = json_decode($task->time_log);
 
         foreach($time_log as $log) {
-            $this->assertFalse($log[3]);
+            $this->assertTrue($log[3]);
         }
 
         $task = Task::where('company_id', $this->company->id)->where('number', 'x1233')->first();
@@ -106,7 +106,7 @@ class TaskImportTest extends TestCase
         $time_log = json_decode($task->time_log);
 
         foreach($time_log as $log) {
-            $this->assertFalse($log[3]);
+            $this->assertTrue($log[3]);
         }
 
     

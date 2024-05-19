@@ -57,6 +57,9 @@ class InvoiceExport extends BaseExport
         $query = Invoice::query()
                         ->withTrashed()
                         ->with('client')
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
@@ -105,6 +108,7 @@ class InvoiceExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -140,18 +144,6 @@ class InvoiceExport extends BaseExport
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
-
-        // if (in_array('invoice.country_id', $this->input['report_keys'])) {
-        //     $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
-        // }
-
-        // if (in_array('invoice.currency_id', $this->input['report_keys'])) {
-        //     $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        // }
-
-        // if (in_array('invoice.client_id', $this->input['report_keys'])) {
-        //     $entity['invoice.client_id'] = $invoice->client->present()->name();
-        // }
 
         // if (in_array('invoice.status', $this->input['report_keys'])) {
         //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);

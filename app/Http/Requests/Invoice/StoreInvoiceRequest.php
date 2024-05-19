@@ -66,8 +66,10 @@ class StoreInvoiceRequest extends Request
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
 
+        $rules['date'] = 'bail|sometimes|date:Y-m-d';
+
         $rules['line_items'] = 'array';
-        $rules['discount'] = 'sometimes|numeric';
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
@@ -77,8 +79,10 @@ class StoreInvoiceRequest extends Request
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
         $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
+        $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
+        
+        // $rules['amount'] = ['sometimes', 'bail', 'max:99999999999999'];
         // $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
-
 
         return $rules;
     }
@@ -89,16 +93,17 @@ class StoreInvoiceRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        $input['amount'] = 0;
+        $input['balance'] = 0;
+
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+            $input['amount'] = $this->entityTotalAmount($input['line_items']);
         }
 
         if(isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
         }
-
-        $input['amount'] = 0;
-        $input['balance'] = 0;
 
         if (array_key_exists('tax_rate1', $input) && is_null($input['tax_rate1'])) {
             $input['tax_rate1'] = 0;

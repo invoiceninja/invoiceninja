@@ -2197,7 +2197,7 @@ $lang = array(
     'mailgun_private_key' => 'Mailgun 私密金鑰',
     'brevo_domain' => '布雷沃域',
     'brevo_private_key' => '布雷沃私鑰',
-    'send_test_email' => '寄送測試郵件',
+    'send_test_email' => 'Send Test Email',
     'select_label' => '選擇標籤',
     'label' => '標籤',
     'service' => '服務',
@@ -4029,7 +4029,7 @@ $lang = array(
     'user_detached' => '用戶脫離公司',
     'create_webhook_failure' => '建立 Webhook 失敗',
     'payment_message_extended' => '感謝您為:amount支付:invoice',
-    'online_payments_minimum_note' => '注意：僅當金額大於 1 美元或等值貨幣時才支援線上付款。',
+    'online_payments_minimum_note' => 'Note: Online payments are supported only if amount is larger than $1 or currency equivalent.',
     'payment_token_not_found' => '未找到支付令牌，請重試。如果問題仍然存在，請嘗試使用其他付款方式',
     'vendor_address1' => '供應商街',
     'vendor_address2' => '供應商 公寓/套房',
@@ -4170,7 +4170,7 @@ $lang = array(
     'one_time_purchases' => '一次性購買',
     'recurring_purchases' => '經常性購買',
     'you_might_be_interested_in_following' => '您可能對以下內容感興趣',
-    'quotes_with_status_sent_can_be_approved' => '只有狀態為「已發送」的報價才能獲得批准。',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => '沒有可供下載的報價。',
     'copyright' => '版權',
     'user_created_user' => ':user在:time創建了:created_user',
@@ -5296,6 +5296,10 @@ $lang = array(
     'rappen_rounding' => '拉彭舍入',
     'rappen_rounding_help' => '金額為 5 美分',
     'assign_group' => '分配群組',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
+    'local_domain_help' => 'EHLO domain (optional)',
+    'port_help' => 'ie. 25,587,465',
+    'host_help' => 'ie. smtp.gmail.com',
 );
 
 return $lang;

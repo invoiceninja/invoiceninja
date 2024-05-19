@@ -112,6 +112,7 @@ class ProductSalesExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
@@ -120,6 +121,9 @@ class ProductSalesExport extends BaseExport
         //insert the header
         $query = Invoice::query()
                         ->withTrashed()
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
@@ -142,9 +146,15 @@ class ProductSalesExport extends BaseExport
               ->each(function ($invoice) use($product_keys) {
                   foreach ($invoice->line_items as $item) {
 
-                     if($product_keys && in_array($item->product_key, $product_keys))
+                    if($product_keys)
+                    {
+                     if(in_array($item->product_key, $product_keys))
                         $this->csv->insertOne($this->buildRow($invoice, $item));
-
+                    }
+                    else {
+                        $this->csv->insertOne($this->buildRow($invoice, $item));
+                    }
+                    
                   }
               });
 

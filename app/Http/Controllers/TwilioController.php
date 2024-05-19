@@ -129,6 +129,10 @@ class TwilioController extends BaseController
             $user->verified_phone_number = true;
             $user->save();
 
+            if (class_exists(\Modules\Admin\Jobs\Account\UserQualityCheck::class)) {
+                \Modules\Admin\Jobs\Account\UserQualityCheck::dispatch($user, $user->company()->db);
+            }
+
             return response()->json(['message' => 'SMS verified'], 200);
         }
 

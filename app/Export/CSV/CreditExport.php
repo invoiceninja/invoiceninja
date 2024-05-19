@@ -102,6 +102,9 @@ class CreditExport extends BaseExport
         $query = Credit::query()
                         ->withTrashed()
                         ->with('client')
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
@@ -129,6 +132,7 @@ class CreditExport extends BaseExport
         $query = $this->init();
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

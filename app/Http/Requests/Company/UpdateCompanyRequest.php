@@ -144,8 +144,11 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($settings['email_style_custom'])) {
-            $settings['email_style_custom'] = str_replace(['{!!', '!!}', '{{', '}}', '@if(', '@endif', '@isset', '@unless', '@auth', '@empty', '@guest', '@env', '@section', '@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for'], '', $settings['email_style_custom']);
+            $settings['email_style_custom'] = str_replace(['{!!', '!!}', '{{', '}}', '@checked', '@dd', '@dump', '@if', '@if(', '@endif', '@isset', '@unless', '@auth', '@empty', '@guest', '@env', '@section', '@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for', '@class', '</sc', '<sc', 'html;base64', '@elseif', '@else', '@endunless', '@endisset', '@endempty', '@endauth', '@endguest', '@endproduction', '@endenv', '@hasSection', '@endhasSection', '@sectionMissing', '@endsectionMissing', '@endfor', '@endforeach', '@empty', '@endforelse', '@endwhile', '@continue', '@break', '@includeIf', '@includeWhen', '@includeUnless', '@includeFirst', '@component', '@endcomponent', '@endsection', '@yield', '@show', '@append', '@overwrite', '@stop', '@extends', '@endpush', '@stack', '@prepend', '@endprepend', '@slot', '@endslot', '@endphp', '@method', '@csrf', '@error', '@enderror', '@json', '@endverbatim', '@inject'], '', $settings['email_style_custom']);
         }
+
+        if (isset($settings['company_logo']) && strlen($settings['company_logo']) > 2)
+            $settings['company_logo'] = $this->forceScheme($settings['company_logo']);
 
         if (!$account->isFreeHostedClient()) {
             return $settings;
@@ -171,4 +174,10 @@ class UpdateCompanyRequest extends Request
 
         return rtrim($url, '/');
     }
+
+    private function forceScheme($url)
+    {
+        return stripos($url, 'http') !== false ? $url : "https://{$url}";
+    }
+
 }

@@ -448,6 +448,7 @@ class BaseExport
         'custom_value4' => 'task.custom_value4',
         'status' => 'task.status_id',
         'project' => 'task.project_id',
+        'billable' => 'task.billable',
     ];
 
     protected array $forced_client_fields = [
@@ -879,10 +880,7 @@ class BaseExport
 
         $transformed_clients = $this->transformKeys($clients);
 
-        nlog($transformed_clients);
-
         if(count($transformed_clients) > 0) {
-            nlog("yus");
             $query->whereIn('client_id', $transformed_clients);
         }
 
@@ -1283,13 +1281,13 @@ class BaseExport
                 $this->end_date = now()->startOfMonth()->subMonth()->endOfMonth()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->startOfMonth()->subMonth(), now()->startOfMonth()->subMonth()->endOfMonth()])->orderBy($this->date_key, 'ASC');
             case 'this_quarter':
-                $this->start_date = (new \Carbon\Carbon('-3 months'))->firstOfQuarter()->format('Y-m-d');
-                $this->end_date = (new \Carbon\Carbon('-3 months'))->lastOfQuarter()->format('Y-m-d');
-                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->firstOfQuarter(), (new \Carbon\Carbon('-3 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
+                $this->start_date = (new \Carbon\Carbon('0 months'))->startOfQuarter()->format('Y-m-d');
+                $this->end_date = (new \Carbon\Carbon('0 months'))->endOfQuarter()->format('Y-m-d');
+                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('0 months'))->startOfQuarter(), (new \Carbon\Carbon('0 months'))->endOfQuarter()])->orderBy($this->date_key, 'ASC');
             case 'last_quarter':
-                $this->start_date = (new \Carbon\Carbon('-6 months'))->firstOfQuarter()->format('Y-m-d');
-                $this->end_date = (new \Carbon\Carbon('-6 months'))->lastOfQuarter()->format('Y-m-d');
-                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-6 months'))->firstOfQuarter(), (new \Carbon\Carbon('-6 months'))->lastOfQuarter()])->orderBy($this->date_key, 'ASC');
+                $this->start_date = (new \Carbon\Carbon('-3 months'))->startOfQuarter()->format('Y-m-d');
+                $this->end_date = (new \Carbon\Carbon('-3 months'))->endOfQuarter()->format('Y-m-d');
+                return $query->whereBetween($this->date_key, [(new \Carbon\Carbon('-3 months'))->startOfQuarter(), (new \Carbon\Carbon('-3 months'))->endOfQuarter()])->orderBy($this->date_key, 'ASC');
             case 'last365_days':
                 $this->start_date = now()->startOfDay()->subDays(365)->format('Y-m-d');
                 $this->end_date = now()->startOfDay()->format('Y-m-d');

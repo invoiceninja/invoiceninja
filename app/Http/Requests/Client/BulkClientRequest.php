@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 class BulkClientRequest extends Request
 {
     use MakesHash;
-
+    
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -35,12 +35,14 @@ class BulkClientRequest extends Request
         $user = auth()->user();
 
         return [
-            'action' => 'required|string|in:archive,restore,delete,template,assign_group',
+            'action' => 'required|string|in:archive,restore,delete,template,assign_group,bulk_update',
             'ids' => ['required','bail','array',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)],
             'template' => 'sometimes|string',
             'template_id' => 'sometimes|string',
             'group_settings_id' => ['required_if:action,assign_group',Rule::exists('group_settings', 'id')->where('company_id', $user->company()->id)],
-            'send_email' => 'sometimes|bool'
+            'send_email' => 'sometimes|bool',
+            'column' => ['required_if:action,bulk_update', 'string', Rule::in(\App\Models\Client::$bulk_update_columns)],
+            'new_value' => ['required_if:action,bulk_update|string'],
         ];
 
     }
