@@ -5320,6 +5320,11 @@ $lang = array(
     'task_round_to_nearest' => 'Round To Nearest',
     'bulk_updated' => 'Successfully updated data',
     'bulk_update' => 'Bulk Update',
+    'calculate' => 'Calculate',
+    'sum' => 'Sum',
+    'money' => 'Money',
+    'web_app' => 'Web App',
+    'desktop_app' => 'Desktop App',
 );
 
 return $lang;
