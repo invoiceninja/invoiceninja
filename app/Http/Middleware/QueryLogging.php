@@ -73,7 +73,7 @@ class QueryLogging
                 $ip = $request->ip();
             }
 
-            $client_version = '';
+            $client_version = $request->server('HTTP_USER_AGENT');
             $platform = '';
 
             if ($request->hasHeader('X-CLIENT-PLATFORM')) {
