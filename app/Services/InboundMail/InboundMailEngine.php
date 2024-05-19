@@ -34,8 +34,8 @@ class InboundMailEngine
     use GeneratesCounter, SavesDocuments;
 
     private ?bool $isUnknownRecipent = null;
-    private array $globalBlacklist = [];
-    private array $globalWhitelist = []; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
+    private array $globalBlacklist = explode(",", config('global_inbound_blocklist'));
+    private array $globalWhitelist = explode(",", config('global_inbound_whitelist')); // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
     public function __construct()
     {
     }
