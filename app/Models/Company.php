@@ -388,6 +388,7 @@ class Company extends BaseModel
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
+        'einvoice' => 'object',
     ];
 
     protected $with = [];
