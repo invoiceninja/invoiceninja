@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.304.1",
+            "version": "3.307.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6dac9b3257873a807ac73f6dc4418bdc49a5d9db"
+                "reference": "cc79f16e1a1bd3feee421401ba2f21915abfdf91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6dac9b3257873a807ac73f6dc4418bdc49a5d9db",
-                "reference": "6dac9b3257873a807ac73f6dc4418bdc49a5d9db",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/cc79f16e1a1bd3feee421401ba2f21915abfdf91",
+                "reference": "cc79f16e1a1bd3feee421401ba2f21915abfdf91",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.304.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.307.1"
             },
-            "time": "2024-04-09T19:25:27+00:00"
+            "time": "2024-05-17T18:07:44+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -5034,12 +5034,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "e59a4c4d06ea61da87f7cdb19dac88e4e8665454"
+                "reference": "39aec367c528ba66d923dc1d9e5c96f673bb46c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/e59a4c4d06ea61da87f7cdb19dac88e4e8665454",
-                "reference": "e59a4c4d06ea61da87f7cdb19dac88e4e8665454",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/39aec367c528ba66d923dc1d9e5c96f673bb46c7",
+                "reference": "39aec367c528ba66d923dc1d9e5c96f673bb46c7",
                 "shasum": ""
             },
             "require": {
@@ -5075,7 +5075,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-20T04:15:47+00:00"
+            "time": "2024-05-20T11:42:32+00:00"
         },
         {
             "name": "invoiceninja/inspector",
