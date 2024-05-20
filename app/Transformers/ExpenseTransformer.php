@@ -148,6 +148,8 @@ class ExpenseTransformer extends EntityTransformer
             'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
             'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
             'entity_type' => 'expense',
+            'e_invoice' => $expense->e_invoice ?: new \stdClass(),
+
         ];
     }
 }

@@ -13,7 +13,27 @@ return new class extends Migration
     {
         
         Schema::table('companies', function (Blueprint $table) {
-            $table->mediumText('einvoice')->nullable();
+            $table->mediumText('e_invoice')->nullable();
+        });
+        
+        Schema::table('invoices', function (Blueprint $table) {
+            $table->mediumText('e_invoice')->nullable();
+        });
+
+        Schema::table('quotes', function (Blueprint $table) {
+            $table->mediumText('e_invoice')->nullable();
+        });
+
+        Schema::table('credits', function (Blueprint $table) {
+            $table->mediumText('e_invoice')->nullable();
+        });
+
+        Schema::table('purchase_orders', function (Blueprint $table) {
+            $table->mediumText('e_invoice')->nullable();
+        });
+
+        Schema::table('expenses', function (Blueprint $table) {
+            $table->mediumText('e_invoice')->nullable();
         });
 
 

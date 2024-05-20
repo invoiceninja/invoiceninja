@@ -32,6 +32,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Invoice
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int $client_id
  * @property int $user_id
  * @property int|null $assigned_user_id
@@ -209,6 +210,7 @@ class Invoice extends BaseModel
         'custom_surcharge_tax2' => 'bool',
         'custom_surcharge_tax3' => 'bool',
         'custom_surcharge_tax4' => 'bool',
+        'e_invoice' => 'object',
     ];
 
     protected $with = [];
