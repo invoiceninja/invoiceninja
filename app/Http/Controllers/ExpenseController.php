@@ -587,7 +587,6 @@ class ExpenseController extends BaseController
 
     public function edocument(EDocumentRequest $request): string
     {
-        nlog($request);
         return (new ImportEDocument($request))->handle();
     }
 }

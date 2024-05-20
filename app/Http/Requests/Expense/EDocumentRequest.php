@@ -29,7 +29,6 @@ class EDocumentRequest extends Request
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
         }
-        nlog($rules);
         return $rules;
     }
 

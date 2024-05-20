@@ -228,7 +228,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::put('expenses/{expense}/upload', [ExpenseController::class, 'upload']);
     Route::post('expenses/bulk', [ExpenseController::class, 'bulk'])->name('expenses.bulk');
     Route::post('export', [ExportController::class, 'index'])->name('export.index');
-    Route::put('expenses/edocument/upload', [ExpenseController::class, "edocument"])->name("expenses.edocument");
+    Route::put('edocument/upload', [ExpenseController::class, "edocument"])->name("expenses.edocument");
 
     Route::resource('expense_categories', ExpenseCategoryController::class); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', [ExpenseCategoryController::class, 'bulk'])->name('expense_categories.bulk');
