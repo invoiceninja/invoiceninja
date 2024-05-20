@@ -12,18 +12,15 @@
 
 namespace App\PaymentDrivers;
 
-use Carbon\Carbon;
 use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
-use App\Models\PaymentType;
 use Illuminate\Support\Str;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\PayPal\PayPalBasePaymentDriver;
-use Illuminate\Support\Facades\Http;
 
 class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 {
@@ -47,7 +44,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
 
-        if($this->paypal_payment_method == 29)
+        if($this->gateway_type_id == 29)
             return render('gateways.paypal.ppcp.card', $data);
         else
             return render('gateways.paypal.pay', $data);
@@ -124,6 +121,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         }
 
         $response = $r;
+
+        nlog("Process response =>");
+        nlog($response->json());
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
@@ -256,6 +256,8 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         if(isset($data['payment_source']))
             $order['payment_source'] = $data['payment_source'];
+
+                        
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 

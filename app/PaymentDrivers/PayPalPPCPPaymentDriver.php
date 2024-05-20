@@ -98,7 +98,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
         $data['currency'] = $this->client->currency()->code;
 
-        if($this->paypal_payment_method == 29)
+        if($this->gateway_type_id == 29)
             return render('gateways.paypal.ppcp.card', $data);
         else
             return render('gateways.paypal.ppcp.pay', $data);
@@ -116,6 +116,10 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
+
+        if($request->has('token') && strlen($request->input('token')) > 2) {
+            return $this->processTokenPayment($request, $response);
+        }
 
         //capture
         $orderID = $response['orderID'];
@@ -184,7 +188,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 ['response' => $response, 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_PAYPAL,
+                SystemLog::TYPE_PAYPAL_PPCP,
                 $this->client,
                 $this->client->company,
             );
@@ -201,7 +205,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 ['response' => $response],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
-                SystemLog::TYPE_PAYPAL,
+                SystemLog::TYPE_PAYPAL_PPCP,
                 $this->client,
                 $this->client->company,
             );
@@ -283,6 +287,10 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
             $order['purchase_units'][0]["shipping"] = $shipping;
         }
 
+        if(isset($data['payment_source'])) {
+            $order['payment_source'] = $data['payment_source'];
+        }
+
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         return $r->json()['id'];
@@ -343,7 +351,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
             ['response' => $response, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_PAYPAL,
+            SystemLog::TYPE_PAYPAL_PPCP,
             $this->client,
             $this->client->company,
         );

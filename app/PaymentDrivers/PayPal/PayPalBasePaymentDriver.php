@@ -418,7 +418,6 @@ class PayPalBasePaymentDriver extends BaseDriver
     public function processWebhookRequest(Request $request)
     {
 
-        // nlog(json_encode($request->all()));
         $this->init();
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);

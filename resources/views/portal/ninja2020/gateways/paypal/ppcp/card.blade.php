@@ -57,6 +57,7 @@
     <div id="checkout-form">
       <!-- Containers for Card Fields hosted by PayPal -->    
       <div id="card-number-field-container"></div>
+      <div id="card-name-field-container"></div>
       <div class="expcvv" style="display:flex;">
         <div id="card-expiry-field-container" style="width:50%"></div>
         <div id="card-cvv-field-container" style="width:50%"></div>
@@ -158,6 +159,9 @@
 
   // Render each field after checking for eligibility
   if (cardField.isEligible()) {
+      
+      const nameField = cardField.NameField();
+      nameField.render("#card-name-field-container");
 
       const numberField = cardField.NumberField({
         inputEvents: {
@@ -166,6 +170,7 @@
             }
         },
       });
+      
       numberField.render("#card-number-field-container");
 
       const cvvField = cardField.CVVField({
