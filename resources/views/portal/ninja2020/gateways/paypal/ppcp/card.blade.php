@@ -1,5 +1,18 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ''])
+@php
+    $gateway_instance = $gateway instanceof \App\Models\CompanyGateway ? $gateway : $gateway->company_gateway;
+    $token_billing_string = 'true';
 
+    if($gateway_instance->token_billing == 'off' || $gateway_instance->token_billing == 'optin'){
+        $token_billing_string = 'false';
+    }
+
+    if (isset($pre_payment) && $pre_payment == '1' && isset($is_recurring) && $is_recurring == '1') {
+        $token_billing_string = 'true';
+    }
+
+    
+@endphp
 @section('gateway_head')
 
 @endsection
@@ -12,7 +25,7 @@
         <input type="hidden" name="gateway_type_id" id="gateway_type_id" value="{{ $gateway_type_id }}">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="amount_with_fee" id="amount_with_fee" value="{{ $total['amount_with_fee'] }}"/>
-        <input type="hidden" name="store_card" id="store_card">
+        <input type="hidden" name="store_card" id="store_card" value="{{ $token_billing_string }}">
         <input type="hidden" name="token" value="" id="token">
     </form>
 
@@ -62,8 +75,12 @@
 
 @push('footer')
 <link  rel="stylesheet" type="text/css" href=https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css />
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 
+@if(isset($merchantId))
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+@else
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+@endif
 <script>
 
     const clientId = "{{ $client_id }}";
@@ -128,9 +145,6 @@
             window.location.href = "/client/invoices/";
         },
         onError: function(error) {
-
-            // console.log("on error")
-            // console.log(error);
 
             document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
             document.getElementById('errors').hidden = false;
