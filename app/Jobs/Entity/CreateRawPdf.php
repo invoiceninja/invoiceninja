@@ -96,6 +96,9 @@ class CreateRawPdf
 
     }
 
+    /**
+     * @throws FilePermissionsFailure
+     */
     public function handle()
     {
         /** Testing this override to improve PDF generation performance */
@@ -105,15 +108,15 @@ class CreateRawPdf
             "{$this->entity_string}s" => [$this->entity],
         ]);
 
-        $pdf = $ps->boot()->getPdf();
-
-        nlog("pdf timer = ". $ps->execution_time);
-        if ($this->entity_string == "invoice" && $this->entity->company->getSetting("enable_e_invoice")){
+        try {
+            $pdf = $ps->boot()->getPdf();
+        } catch (\Exception) {
+            throw new FilePermissionsFailure('Unable to generate the raw PDF');
+        }
+        if ($this->entity_string == "invoice" && $this->entity->getSetting("merge_e_invoice_to_pdf")){
             $pdf = (new MergeEDocument($this->entity, $pdf))->handle();
         }
         return $pdf;
-
-        throw new FilePermissionsFailure('Unable to generate the raw PDF');
     }
 
     public function failed($e)

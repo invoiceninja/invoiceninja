@@ -72,9 +72,10 @@ class ZugferdEDokument extends AbstractService
                 // Probably wrong file code https://github.com/horstoeko/zugferd/blob/master/src/codelists/ZugferdInvoiceType.php
                 if (empty($this->document->number)) {
                     $this->xdocument->setDocumentInformation("DRAFT", "84", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->xdocument->setIsTestDocument();
                 } else {
                     $this->xdocument->setDocumentInformation($this->document->number, "84", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
-                };
+                }
                 break;
             case Invoice::class:
                 if (empty($this->document->number)) {
@@ -87,6 +88,7 @@ class ZugferdEDokument extends AbstractService
             case Credit::class:
                 if (empty($this->document->number)) {
                     $this->xdocument->setDocumentInformation("DRAFT", "389", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
+                    $this->xdocument->setIsTestDocument();
                 } else {
                     $this->xdocument->setDocumentInformation($this->document->number, "389", date_create($this->document->date ?? now()->format('Y-m-d')), $client->getCurrencyCode());
                 }
@@ -124,7 +126,6 @@ class ZugferdEDokument extends AbstractService
         }
 
         $invoicing_data = $this->document->calc();
-        $total_position_discount = 0.0;
         //Create line items and calculate taxes
         foreach ($this->document->line_items as $index => $item) {
             /** @var InvoiceItem $item **/
@@ -157,7 +158,6 @@ class ZugferdEDokument extends AbstractService
                     $line_discount -= $item->line_total * ($item->discount / 100);
                 }
                 $this->xdocument->addDocumentPositionGrossPriceAllowanceCharge( abs($line_discount), false);
-                $total_position_discount += abs($line_discount);
             }
 
             $this->xdocument->setDocumentPositionLineSummation($item->line_total);
@@ -214,15 +214,18 @@ class ZugferdEDokument extends AbstractService
         } else {
             $document_discount = $this->document->amount * $this->document->discount / 100;
             }
-        $this->xdocument->addDocumentAllowanceCharge($document_discount, false, ZugferdDutyTaxFeeCategories::STANDARD_RATE, "VAT", "19");
+
         $this->xdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $document_discount, $invoicing_data->getSubTotal()-$document_discount, $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
         foreach ($this->tax_map as $item) {
             if ($document_discount > 0){
                 if ($item["net_amount"] >= $document_discount) {
                     $item["net_amount"] -= $document_discount;
+                    $this->xdocument->addDocumentAllowanceCharge($document_discount, false, $item["tax_type"], "VAT", $item["tax_rate"] * 100);
                 } else {
                     $document_discount -= $item["net_amount"];
+                    $this->xdocument->addDocumentAllowanceCharge($item["net_amount"], false, $item["tax_type"], "VAT", $item["tax_rate"] * 100);
                     $item["net_amount"] = 0;
+
                 }
             }
             if ($item["tax_type"] == ZugferdDutyTaxFeeCategories::VAT_EXEMPT_FOR_EEA_INTRACOMMUNITY_SUPPLY_OF_GOODS_AND_SERVICES){
