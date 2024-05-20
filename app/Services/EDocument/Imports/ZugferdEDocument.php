@@ -25,10 +25,10 @@ class ZugferdEDocument extends AbstractService
     /**
      * @throws Exception
      */
-    public function __construct(public object $tempdocument)
+    public function __construct(public string $tempdocument)
     {
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
-
+        # curl -X POST http://localhost:8000/api/v1/edocument/upload -H "Content-Type: multipart/form-data" -H "X-API-TOKEN: 7tdDdkz987H3AYIWhNGXy8jTjJIoDhkAclCDLE26cTCj1KYX7EBHC66VEitJwWhn" -H "X-Requested-With: XMLHttpRequest" -F _method=PUT -F documents[]=@einvoice.xml
     }
 
     /**
