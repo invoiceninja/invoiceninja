@@ -3602,23 +3602,23 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.355.0",
+            "version": "v0.356.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "235e6a45ecafd77accc102b5ab6d529aab54da23"
+                "reference": "8e22b0a6f661f2db3f99abb6ee5a1dcf28d370e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/235e6a45ecafd77accc102b5ab6d529aab54da23",
-                "reference": "235e6a45ecafd77accc102b5ab6d529aab54da23",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/8e22b0a6f661f2db3f99abb6ee5a1dcf28d370e7",
+                "reference": "8e22b0a6f661f2db3f99abb6ee5a1dcf28d370e7",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.4||^8.0"
+                "php": "^8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7||^8.5.13"
+                "phpunit/phpunit": "^9.6"
             },
             "type": "library",
             "autoload": {
@@ -3640,9 +3640,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.355.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.356.0"
             },
-            "time": "2024-05-11T01:02:11+00:00"
+            "time": "2024-05-18T01:10:18+00:00"
         },
         {
             "name": "google/auth",
@@ -5034,12 +5034,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "6028038ff94e6c0090ba5c444bd0be56a65bc0bc"
+                "reference": "b340368e889bac1009c3cb45de024d00bfb43359"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/6028038ff94e6c0090ba5c444bd0be56a65bc0bc",
-                "reference": "6028038ff94e6c0090ba5c444bd0be56a65bc0bc",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/b340368e889bac1009c3cb45de024d00bfb43359",
+                "reference": "b340368e889bac1009c3cb45de024d00bfb43359",
                 "shasum": ""
             },
             "require": {
@@ -5075,7 +5075,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-18T12:35:18+00:00"
+            "time": "2024-05-20T03:57:25+00:00"
         },
         {
             "name": "invoiceninja/inspector",

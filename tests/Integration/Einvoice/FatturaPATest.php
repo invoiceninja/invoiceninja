@@ -26,6 +26,8 @@ class FatturaPATest extends TestCase
 
     }
 
+    private string $sample_request = '{"FatturaElettronicaHeader":{"DatiTrasmissione":{"IdTrasmittente":{"IdPaese":"","IdCodice":""},"ProgressivoInvio":"","FormatoTrasmissione":"","CodiceDestinatario":"","ContattiTrasmittente":{"Telefono":"","Email":""},"PECDestinatario":""},"CedentePrestatore":{"DatiAnagrafici":{"IdFiscaleIVA":{"IdPaese":"","IdCodice":""},"CodiceFiscale":"","Anagrafica":{"Denominazione":"","Nome":"","Cognome":"","Titolo":"","CodEORI":""},"AlboProfessionale":"","ProvinciaAlbo":"","NumeroIscrizioneAlbo":"","DataIscrizioneAlbo":"","RegimeFiscale":"RF01"},"Sede":{"Indirizzo":"","NumeroCivico":"","CAP":"","Comune":"","Provincia":"","Nazione":""},"StabileOrganizzazione":{"Indirizzo":"","NumeroCivico":"","CAP":"","Comune":"","Provincia":"","Nazione":""},"IscrizioneREA":{"Ufficio":"","NumeroREA":"","CapitaleSociale":0,"SocioUnico":"","StatoLiquidazione":""},"Contatti":{"Telefono":"","Fax":"","Email":""},"RiferimentoAmministrazione":""},"RappresentanteFiscale":{"DatiAnagrafici":{"IdFiscaleIVA":{"IdPaese":"","IdCodice":""},"CodiceFiscale":"","Anagrafica":{"Denominazione":"","Nome":"","Cognome":"","Titolo":"","CodEORI":""}}},"CessionarioCommittente":{"DatiAnagrafici":{"IdFiscaleIVA":{"IdPaese":"","IdCodice":""},"CodiceFiscale":"","Anagrafica":{"Denominazione":"","Nome":"","Cognome":"","Titolo":"","CodEORI":""}},"Sede":{"Indirizzo":"","NumeroCivico":"","CAP":"","Comune":"","Provincia":"","Nazione":""},"StabileOrganizzazione":{"Indirizzo":"","NumeroCivico":"","CAP":"","Comune":"","Provincia":"","Nazione":""},"RappresentanteFiscale":{"Denominazione":"","Nome":"","Cognome":"","IdFiscaleIVA":{"IdPaese":"","IdCodice":""}}},"TerzoIntermediarioOSoggettoEmittente":{"DatiAnagrafici":{"IdFiscaleIVA":{"IdPaese":"","IdCodice":""},"CodiceFiscale":"","Anagrafica":{"Denominazione":"","Nome":"","Cognome":"","Titolo":"","CodEORI":""}}},"SoggettoEmittente":""},"FatturaElettronicaBody":{"DatiGenerali":{"DatiGeneraliDocumento":{"TipoDocumento":"TD01","Divisa":"","Data":"","Numero":"","DatiRitenuta":{"TipoRitenuta":"","ImportoRitenuta":0,"AliquotaRitenuta":0,"CausalePagamento":""},"DatiBollo":{"BolloVirtuale":"","ImportoBollo":0},"DatiCassaPrevidenziale":{"TipoCassa":"","AlCassa":0,"ImportoContributoCassa":0,"ImponibileCassa":0,"AliquotaIVA":0,"Ritenuta":"","Natura":"","RiferimentoAmministrazione":""},"ScontoMaggiorazione":{"Tipo":"","Percentuale":0,"Importo":0},"ImportoTotaleDocumento":0,"Arrotondamento":0,"Causale":"","Art73":""},"DatiOrdineAcquisto":{"RiferimentoNumeroLinea":"","IdDocumento":"","Data":"","NumItem":"","CodiceCommessaConvenzione":"","CodiceCUP":"","CodiceCIG":""},"DatiContratto":{"RiferimentoNumeroLinea":"","IdDocumento":"","Data":"","NumItem":"","CodiceCommessaConvenzione":"","CodiceCUP":"","CodiceCIG":""},"DatiConvenzione":{"RiferimentoNumeroLinea":"","IdDocumento":"","Data":"","NumItem":"","CodiceCommessaConvenzione":"","CodiceCUP":"","CodiceCIG":""},"DatiRicezione":{"RiferimentoNumeroLinea":"","IdDocumento":"","Data":"","NumItem":"","CodiceCommessaConvenzione":"","CodiceCUP":"","CodiceCIG":""},"DatiFattureCollegate":{"RiferimentoNumeroLinea":"","IdDocumento":"","Data":"","NumItem":"","CodiceCommessaConvenzione":"","CodiceCUP":"","CodiceCIG":""},"DatiSAL":{"RiferimentoFase":""},"DatiDDT":{"NumeroDDT":"","DataDDT":"","RiferimentoNumeroLinea":""},"DatiTrasporto":{"DatiAnagraficiVettore":{"IdFiscaleIVA":{"IdPaese":"","IdCodice":""},"CodiceFiscale":"","NumeroLicenzaGuida":""},"MezzoTrasporto":"","CausaleTrasporto":"","NumeroColli":"","Descrizione":"","UnitaMisuraPeso":"","PesoLordo":0,"PesoNetto":0,"DataOraRitiro":"","DataInizioTrasporto":"","TipoResa":"","IndirizzoResa":{"Indirizzo":"","NumeroCivico":"","CAP":"","Comune":"","Provincia":"","Nazione":""},"DataOraConsegna":""},"FatturaPrincipale":{"NumeroFatturaPrincipale":"","DataFatturaPrincipale":""}},"DatiBeniServizi":{"DettaglioLinee":{"NumeroLinea":"","TipoCessionePrestazione":"","CodiceArticolo":{"CodiceTipo":"","CodiceValore":""},"Descrizione":"","Quantita":0,"UnitaMisura":"","DataInizioPeriodo":"","DataFinePeriodo":"","PrezzoUnitario":0,"ScontoMaggiorazione":{"Tipo":"","Percentuale":0,"Importo":0},"PrezzoTotale":0,"AliquotaIVA":0,"Ritenuta":"","Natura":"","RiferimentoAmministrazione":"","AltriDatiGestionali":{"TipoDato":"","RiferimentoTesto":"","RiferimentoNumero":0,"RiferimentoData":""}},"DatiRiepilogo":{"AliquotaIVA":0,"Natura":"","SpeseAccessorie":0,"Arrotondamento":0,"ImponibileImporto":0,"Imposta":0,"EsigibilitaIVA":"","RiferimentoNormativo":""}},"DatiVeicoli":{"Data":"","TotalePercorso":""},"DatiPagamento":{"CondizioniPagamento":"TP02","DettaglioPagamento":{"Beneficiario":"","ModalitaPagamento":"MP01","DataRiferimentoTerminiPagamento":"","GiorniTerminiPagamento":"","DataScadenzaPagamento":"","ImportoPagamento":0,"CodUfficioPostale":"","CognomeQuietanzante":"","NomeQuietanzante":"","CFQuietanzante":"","TitoloQuietanzante":"","IstitutoFinanziario":"","IBAN":"","ABI":"","CAB":"","BIC":"","ScontoPagamentoAnticipato":0,"DataLimitePagamentoAnticipato":"","PenalitaPagamentiRitardati":0,"DataDecorrenzaPenale":"","CodicePagamento":""}},"Allegati":{"NomeAttachment":"","AlgoritmoCompressione":"","FormatoAttachment":"","DescrizioneAttachment":"","Attachment":""}}}';
+
     private array $payload = [
         'FatturaElettronicaHeader' => [
         'DatiTrasmissione' => [
@@ -154,6 +156,24 @@ class FatturaPATest extends TestCase
         ],
     ];
 
+    // public function testValidateSampleRequest()
+    // {
+    //     $response = json_decode($this->sample_request, 1);
+        
+    //     try{
+    //     $validation_array = FatturaElettronica::validate($response);
+    //     }
+    //     catch(\Illuminate\Validation\ValidationException $e) {
+
+    //         nlog($e->errors());
+    //     }
+    //     $payload = FatturaElettronica::from($response)->toArray();
+    //     nlog($payload);
+    //     $this->assertIsArray($payload);
+
+        
+    // }
+
     public function testBulkValidation()
     {
 
@@ -168,8 +188,6 @@ class FatturaPATest extends TestCase
 
         foreach($files as $f)
         {
-            
-            // nlog("File => {$f}");
 
             $xmlstring = file_get_contents($f);
 
