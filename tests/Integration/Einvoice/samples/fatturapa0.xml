@@ -105,12 +105,6 @@
                 <Imposta>5.95</Imposta>
                 <EsigibilitaIVA>I</EsigibilitaIVA>
             </DatiRiepilogo>
-            <DatiRiepilogo>
-                <AliquotaIVA>22.00</AliquotaIVA>
-                <ImponibileImporto>27.00</ImponibileImporto>
-                <Imposta>5.95</Imposta>
-                <EsigibilitaIVA>I</EsigibilitaIVA>
-            </DatiRiepilogo>
         </DatiBeniServizi>
         <DatiPagamento>
             <CondizioniPagamento>TP01</CondizioniPagamento>

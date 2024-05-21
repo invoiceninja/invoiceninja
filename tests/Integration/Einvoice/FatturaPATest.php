@@ -315,6 +315,51 @@ class FatturaPATest extends TestCase
 
         
     // }
+    public function testBulkValidationX()
+    {
+    
+$files = [
+    'tests/Integration/Einvoice/samples/fatturapa0.xml',
+];
+
+foreach($files as $f) {
+
+    $xmlstring = file_get_contents($f);
+
+    $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
+    $json = json_encode($xml);
+    $payload = json_decode($json, true);
+
+    nlog($payload);
+
+    $validation_array = false;
+    
+        nlog($f);
+
+        $rules = FatturaElettronica::getValidationRules($this->payload);
+        nlog($rules);
+
+        $this->assertIsArray($rules);
+
+        $payload = FatturaElettronica::from($payload)->toArray();
+        // nlog($payload);
+
+        $this->assertIsArray($payload);
+
+        $validation_array = FatturaElettronica::validate($payload);
+
+        $this->assertIsArray($validation_array);
+
+    // } catch(\Illuminate\Validation\ValidationException $e) {
+
+    //     nlog($e->errors());
+    // }
+
+    $this->assertIsArray($validation_array);
+
+}
+
+    }
 
     public function testBulkValidation()
     {
@@ -345,7 +390,7 @@ class FatturaPATest extends TestCase
                 nlog($f);
 
                 $rules = FatturaElettronica::getValidationRules($this->payload);
-                // nlog($rules);
+                nlog($rules);
                 
                 $this->assertIsArray($rules);
 
