@@ -314,7 +314,7 @@ class Email implements ShouldQueue
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
                 $this->cleanUpMailers();
 
-$this->entityEmailFailed($message);
+                $this->entityEmailFailed($message);
 
                 return;
             }

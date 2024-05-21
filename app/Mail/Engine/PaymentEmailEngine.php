@@ -99,7 +99,6 @@ class PaymentEmailEngine extends BaseEmailEngine
             ->setViewLink('')
             ->setViewText('');
 
-
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
             $template_in_use = false;

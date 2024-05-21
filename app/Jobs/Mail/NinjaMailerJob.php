@@ -136,8 +136,8 @@ class NinjaMailerJob implements ShouldQueue
 
             $mailable = $this->nmo->mailable;
 
-            /** May need to re-build it here */
-            if (Ninja::isHosted() && method_exists($mailable, 'build')) {
+            /** May need to re-build it here @todo explain why we need this? */
+            if (Ninja::isHosted() && method_exists($mailable, 'build') && $this->nmo->settings->email_style != "custom") {
                 $mailable->build();
             }
 
@@ -675,9 +675,6 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function preFlightChecksFail(): bool
     {
-        
-(new \Modules\Admin\Jobs\Account\EmailQuality($this->nmo, $this->company))->run();
-        
         /* Always send regardless */
         if ($this->override) {
             return false;

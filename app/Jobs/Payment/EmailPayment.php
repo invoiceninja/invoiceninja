@@ -116,6 +116,7 @@ class EmailPayment implements ShouldQueue
 
         $invoice->invitations->each(function ($invite) use ($email_builder) {
 
+            
             $cloned_mailable = unserialize(serialize($email_builder));
 
             $nmo = new NinjaMailerObject();
