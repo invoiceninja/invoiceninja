@@ -1739,7 +1739,8 @@ class Import implements ShouldQueue
 
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
-
+            $modified['is_deleted'] = isset($modified['is_deleted']) ? (bool)$modified['is_deleted'] : false;
+             
             /** @var \App\Models\ExpenseCategory $expense_category **/
             $expense_category = ExpenseCategory::create($modified);
 
