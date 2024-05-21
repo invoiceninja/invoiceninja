@@ -32,7 +32,6 @@ use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\ExpenseCategory;
 use League\Fractal\Resource\Item;
-use App\DataMapper\EDoc\Schema\RO;
 use App\Models\BankTransactionRule;
 use Illuminate\Support\Facades\Auth;
 use App\Transformers\ArraySerializer;
@@ -42,6 +41,7 @@ use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\JsonApiSerializer;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Illuminate\Contracts\Container\BindingResolutionException;
+use Invoiceninja\Einvoice\Decoder\Schema;
 
 /**
  * Class BaseController.
@@ -890,7 +890,6 @@ class BaseController extends Controller
             /** @phpstan-ignore-next-line **/
             $query = $paginator->getCollection();// @phpstan-ignore-line
 
-
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
@@ -998,8 +997,8 @@ class BaseController extends Controller
 
                 if(request()->has('einvoice')){
 
-                    $ro = new RO();
-                    $response_data['einvoice_schema'] = $ro();
+                    $ro = new Schema();
+                    $response_data['einvoice_schema'] = $ro('FACT1');
 
                 }
 

@@ -52,6 +52,10 @@ class DbQuery extends GenericMixedMetric
 
     public $string_metric7 = 'ip_address';
 
+    public $string_metric8 = 'client_version';
+
+    public $string_metric9 = 'platform';
+    
     /**
      * The counter
      * set to 1.
