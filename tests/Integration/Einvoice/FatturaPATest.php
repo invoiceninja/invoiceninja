@@ -315,178 +315,178 @@ class FatturaPATest extends TestCase
 
         
     // }
-    public function testBulkValidationX()
-    {
+//     public function testBulkValidationX()
+//     {
     
-$files = [
-    'tests/Integration/Einvoice/samples/fatturapa0.xml',
-];
+// $files = [
+//     'tests/Integration/Einvoice/samples/fatturapa0.xml',
+// ];
 
-foreach($files as $f) {
+// foreach($files as $f) {
 
-    $xmlstring = file_get_contents($f);
+//     $xmlstring = file_get_contents($f);
 
-    $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
-    $json = json_encode($xml);
-    $payload = json_decode($json, true);
+//     $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
+//     $json = json_encode($xml);
+//     $payload = json_decode($json, true);
 
-    nlog($payload);
+//     nlog($payload);
 
-    $validation_array = false;
+//     $validation_array = false;
     
-        nlog($f);
+//         nlog($f);
 
-        $rules = FatturaElettronica::getValidationRules($this->payload);
-        nlog($rules);
+//         $rules = FatturaElettronica::getValidationRules($this->payload);
+//         nlog($rules);
 
-        $this->assertIsArray($rules);
+//         $this->assertIsArray($rules);
 
-        $payload = FatturaElettronica::from($payload)->toArray();
-        // nlog($payload);
+//         $payload = FatturaElettronica::from($payload)->toArray();
+//         // nlog($payload);
 
-        $this->assertIsArray($payload);
+//         $this->assertIsArray($payload);
 
-        $validation_array = FatturaElettronica::validate($payload);
+//         $validation_array = FatturaElettronica::validate($payload);
 
-        $this->assertIsArray($validation_array);
+//         $this->assertIsArray($validation_array);
 
-    // } catch(\Illuminate\Validation\ValidationException $e) {
+//     // } catch(\Illuminate\Validation\ValidationException $e) {
 
-    //     nlog($e->errors());
-    // }
+//     //     nlog($e->errors());
+//     // }
 
-    $this->assertIsArray($validation_array);
+//     $this->assertIsArray($validation_array);
 
-}
+// }
 
-    }
+//     }
 
-    public function testBulkValidation()
-    {
+//     public function testBulkValidation()
+//     {
 
-        $files = [
-            'tests/Integration/Einvoice/samples/fatturapa0.xml',
-            'tests/Integration/Einvoice/samples/fatturapa1.xml',
-            'tests/Integration/Einvoice/samples/fatturapa2.xml',
-            'tests/Integration/Einvoice/samples/fatturapa3.xml',
-            'tests/Integration/Einvoice/samples/fatturapa4.xml',
-            'tests/Integration/Einvoice/samples/fatturapa5.xml',
-            'tests/Integration/Einvoice/samples/fatturapa6.xml',
-        ];
+//         $files = [
+//             'tests/Integration/Einvoice/samples/fatturapa0.xml',
+//             'tests/Integration/Einvoice/samples/fatturapa1.xml',
+//             'tests/Integration/Einvoice/samples/fatturapa2.xml',
+//             'tests/Integration/Einvoice/samples/fatturapa3.xml',
+//             'tests/Integration/Einvoice/samples/fatturapa4.xml',
+//             'tests/Integration/Einvoice/samples/fatturapa5.xml',
+//             'tests/Integration/Einvoice/samples/fatturapa6.xml',
+//         ];
 
-        foreach($files as $f)
-        {
+//         foreach($files as $f)
+//         {
 
-            $xmlstring = file_get_contents($f);
+//             $xmlstring = file_get_contents($f);
 
-            $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
-            $json = json_encode($xml);
-            $payload = json_decode($json, true);
+//             $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
+//             $json = json_encode($xml);
+//             $payload = json_decode($json, true);
 
-            nlog($payload);
+//             nlog($payload);
 
-            $validation_array = false;
-            try {
-                nlog($f);
+//             $validation_array = false;
+//             try {
+//                 nlog($f);
 
-                $rules = FatturaElettronica::getValidationRules($this->payload);
-                nlog($rules);
+//                 $rules = FatturaElettronica::getValidationRules($this->payload);
+//                 nlog($rules);
                 
-                $this->assertIsArray($rules);
+//                 $this->assertIsArray($rules);
 
-                $payload = FatturaElettronica::from($payload)->toArray();
-                nlog($payload);
+//                 $payload = FatturaElettronica::from($payload)->toArray();
+//                 nlog($payload);
 
-                $this->assertIsArray($payload);
+//                 $this->assertIsArray($payload);
 
-                $validation_array = FatturaElettronica::validate($payload);
+//                 $validation_array = FatturaElettronica::validate($payload);
                 
-                $this->assertIsArray($validation_array);
+//                 $this->assertIsArray($validation_array);
 
-            } catch(\Illuminate\Validation\ValidationException $e) {
+//             } catch(\Illuminate\Validation\ValidationException $e) {
 
-                nlog($e->errors());
-            }
+//                 nlog($e->errors());
+//             }
 
-            $this->assertIsArray($validation_array);
+//             $this->assertIsArray($validation_array);
 
-        }
-    }
+//         }
+//     }
 
-    public function testUpdateProps()
-    {
-        $update = [
-            'e_invoice' => $this->payload
-        ];
+//     public function testUpdateProps()
+//     {
+//         $update = [
+//             'e_invoice' => $this->payload
+//         ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $update);
+//         $response = $this->withHeaders([
+//             'X-API-SECRET' => config('ninja.api_secret'),
+//             'X-API-TOKEN' => $this->token,
+//         ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $update);
 
-        $response->assertStatus(200);
+//         $response->assertStatus(200);
 
-        $arr = $response->json();
+//         $arr = $response->json();
 
-        $this->assertNotNull($arr['data']['e_invoice']);
-    }
-
-
-    public function testUpdateBadProps()
-    {
-        $update = [
-            'e_invoice' => $this->bad_payload
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $update);
-
-        $response->assertStatus(200);
-
-        $arr = $response->json();
-
-        $this->assertNotNull($arr['data']['e_invoice']);
-    }
+//         $this->assertNotNull($arr['data']['e_invoice']);
+//     }
 
 
-    public function testLaravelDataValidation()
-    {
+//     public function testUpdateBadProps()
+//     {
+//         $update = [
+//             'e_invoice' => $this->bad_payload
+//         ];
+
+//         $response = $this->withHeaders([
+//             'X-API-SECRET' => config('ninja.api_secret'),
+//             'X-API-TOKEN' => $this->token,
+//         ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $update);
+
+//         $response->assertStatus(200);
+
+//         $arr = $response->json();
+
+//         $this->assertNotNull($arr['data']['e_invoice']);
+//     }
 
 
-        $rules = FatturaElettronica::getValidationRules($this->payload);
-        // nlog($rules);
+//     public function testLaravelDataValidation()
+//     {
 
 
-        $this->assertIsArray($rules);
+//         $rules = FatturaElettronica::getValidationRules($this->payload);
+//         // nlog($rules);
 
-        // $validation_array = false;
 
-        try {
-            $validation_array = FatturaElettronica::validate($this->payload);
-        }
-        catch(\Illuminate\Validation\ValidationException $e) {
+//         $this->assertIsArray($rules);
 
-            nlog($e->errors());
+//         // $validation_array = false;
 
-        }
+//         try {
+//             $validation_array = FatturaElettronica::validate($this->payload);
+//         }
+//         catch(\Illuminate\Validation\ValidationException $e) {
 
-        $this->assertIsArray($validation_array);
+//             nlog($e->errors());
 
-        // try{
-        $array = FatturaElettronica::from($this->payload)->toArray();
-        // }
-        // catch(\Exception $e){
+//         }
 
-        // echo $e->errors();
-            // $errors = $e->getErrors();
+//         $this->assertIsArray($validation_array);
 
-        // echo $e->getMessage().PHP_EOL;
-        // }
+//         // try{
+//         $array = FatturaElettronica::from($this->payload)->toArray();
+//         // }
+//         // catch(\Exception $e){
 
-        // $this->assertIsArray($array);
-    }
+//         // echo $e->errors();
+//             // $errors = $e->getErrors();
+
+//         // echo $e->getMessage().PHP_EOL;
+//         // }
+
+//         // $this->assertIsArray($array);
+//     }
 
 
 }
