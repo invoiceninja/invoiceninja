@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Expense
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
@@ -141,6 +142,7 @@ class Expense extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'e_invoice' => 'object',
     ];
 
     protected $touches = [];

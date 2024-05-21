@@ -561,10 +561,19 @@ class HtmlEngine
 
         $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance, $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client)), 'label' => ''];
 
-        $logo = $this->company->present()->logo_base64($this->settings);
+        if(Ninja::isHosted())
+            $logo = $this->company->present()->logo($this->settings);
+        else
+            $logo = $this->company->present()->logo_base64($this->settings);
+
+        $logo_url = $this->company->present()->logo($this->settings);
+
 
         $data['$company.logo'] = ['value' => $logo ?: ' ', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
+        
+        $data['$company.logo_url'] = ['value' => $logo_url ?: ' ', 'label' => ctrans('texts.logo')];
+
         $data['$company1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
         $data['$company2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company2', $this->settings->custom_value2, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company2')];
         $data['$company3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company3', $this->settings->custom_value3, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company3')];

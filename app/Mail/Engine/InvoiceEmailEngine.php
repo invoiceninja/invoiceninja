@@ -134,10 +134,6 @@ class InvoiceEmailEngine extends BaseEmailEngine
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->invoice->numberFormatter().'.pdf']]);
         }
 
-        // $hash = Str::uuid();
-        // $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
-        // Cache::put($hash, $url, now()->addHour());
-
         //attach third party documents
         if ($this->client->getSetting('document_email_attachment') !== false && $this->invoice->company->account->hasFeature(Account::FEATURE_DOCUMENTS)) {
             if ($this->invoice->recurring_invoice()->exists()) {

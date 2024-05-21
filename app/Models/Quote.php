@@ -27,6 +27,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Quote
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int $client_id
  * @property int $user_id
  * @property int|null $assigned_user_id
@@ -174,6 +175,7 @@ class Quote extends BaseModel
         'deleted_at' => 'timestamp',
         'is_deleted' => 'boolean',
         'is_amount_discount' => 'bool',
+        'e_invoice' => 'object',
     ];
 
     public const STATUS_DRAFT = 1;

@@ -31,6 +31,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Account
  *
  * @property int $id
+ * @property int $email_quota
  * @property string|null $plan
  * @property string|null $plan_term
  * @property string|null $plan_started

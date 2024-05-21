@@ -83,9 +83,9 @@ class CompanyPresenter extends EntityPresenter
         ];
 
         if (strlen($settings->company_logo) >= 1 && (strpos($settings->company_logo, 'http') !== false)) {
-            return "data:image/png;base64, ". base64_encode(@file_get_contents($settings->company_logo, false, stream_context_create($context_options)));
+            return "data:image/png;base64,". base64_encode(@file_get_contents($settings->company_logo, false, stream_context_create($context_options)));
         } elseif (strlen($settings->company_logo) >= 1) {
-            return "data:image/png;base64, ". base64_encode(@file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options)));
+            return "data:image/png;base64,". base64_encode(@file_get_contents(url('') . $settings->company_logo, false, stream_context_create($context_options)));
         } else {
             return "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
         }

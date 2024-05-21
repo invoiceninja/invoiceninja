@@ -149,6 +149,8 @@ class QuoteTransformer extends EntityTransformer
             'project_id' => $this->encodePrimaryKey($quote->project_id),
             'subscription_id' => $this->encodePrimaryKey($quote->subscription_id),
             'tax_info' => $quote->tax_data ?: new \stdClass(),
+            'e_invoice' => $quote->e_invoice ?: new \stdClass(),
+
         ];
     }
 }

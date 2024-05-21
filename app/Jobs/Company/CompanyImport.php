@@ -241,6 +241,32 @@ class CompanyImport implements ShouldQueue
             CompanyGateway::class => [
                 'always_show_required_fields',
             ]
+        ],
+        '5.8.57' => [
+            Company::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Invoice::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Quote::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Credit::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            PurchaseOrder::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Expense::class => [
+                'einvoice',
+                'e_invoice',
+            ],
         ]
     ];
 

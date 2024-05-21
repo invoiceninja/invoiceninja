@@ -126,7 +126,7 @@ class ReminderJob implements ShouldQueue
             }
 
             $reminder_template = $invoice->calculateTemplate('invoice');
-            nrlog("reminder template = {$reminder_template}");
+            nrlog("#{$invoice->number} => reminder template = {$reminder_template}");
             $invoice->service()->touchReminder($reminder_template)->save();
             $fees = $this->calcLateFee($invoice, $reminder_template);
 
