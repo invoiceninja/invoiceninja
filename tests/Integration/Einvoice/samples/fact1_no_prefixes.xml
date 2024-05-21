@@ -77,7 +77,7 @@
             <TaxCategory>
                 <ID>S</ID> // this is a speciffic identifier for the VAT type <Percent>
                     19</Percent>
-    <TaxScheme>
+                <TaxScheme>
                     <ID>VAT</ID>
                 </TaxScheme>
             </TaxCategory>
@@ -92,21 +92,20 @@
     </LegalMonetaryTotal>
     <InvoiceLine>
         <ID>1</ID>
-  <InvoicedQuantity unitCode="H87">1</InvoicedQuantity> // unitcode is a speciffic
-        identifier for the type of product <LineExtensionAmount currencyID="RON">
-            335.00</LineExtensionAmount>
-  <Item>
+        <InvoicedQuantity unitCode="H87">1</InvoicedQuantity> // unitcode is a speciffic identifier for the type of product 
+        <LineExtensionAmount currencyID="RON">335.00</LineExtensionAmount>
+        <Item>
             <Description>Some Description</Description>
             <Name>Some product</Name>
             <ClassifiedTaxCategory>
-                <ID>S</ID> // this is a speciffic identifier for the VAT type <Percent>
-                    19</Percent>
-    <TaxScheme>
+                <ID>S</ID> // this is a speciffic identifier for the VAT type 
+                <Percent>19</Percent>
+                <TaxScheme>
                     <ID>VAT</ID>
                 </TaxScheme>
             </ClassifiedTaxCategory>
         </Item>
-  <Price>
+        <Price>
             <PriceAmount currencyID="RON">335</PriceAmount>
         </Price>
     </InvoiceLine>

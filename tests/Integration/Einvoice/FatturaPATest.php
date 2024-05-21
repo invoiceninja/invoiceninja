@@ -320,6 +320,7 @@ class FatturaPATest extends TestCase
     {
 
         $files = [
+            'tests/Integration/Einvoice/samples/fatturapa0.xml',
             'tests/Integration/Einvoice/samples/fatturapa1.xml',
             'tests/Integration/Einvoice/samples/fatturapa2.xml',
             'tests/Integration/Einvoice/samples/fatturapa3.xml',
@@ -337,15 +338,20 @@ class FatturaPATest extends TestCase
             $json = json_encode($xml);
             $payload = json_decode($json, true);
 
+            nlog($payload);
+
             $validation_array = false;
             try {
+                nlog($f);
+
                 $rules = FatturaElettronica::getValidationRules($this->payload);
-                nlog($rules);
+                // nlog($rules);
                 
                 $this->assertIsArray($rules);
 
                 $payload = FatturaElettronica::from($payload)->toArray();
-                // nlog($payload);
+                nlog($payload);
+
                 $this->assertIsArray($payload);
 
                 $validation_array = FatturaElettronica::validate($payload);

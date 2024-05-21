@@ -50,7 +50,6 @@ class FACT1Test extends TestCase
 
             $this->assertIsArray($rules);
 
-
             $validation_array = Invoice::validate($array);
 
             $this->assertIsArray($validation_array);
