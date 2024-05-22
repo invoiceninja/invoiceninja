@@ -176,13 +176,14 @@ class InboundMailEngine
         // handle documents seperatly
         foreach ($email->documents as $document) {
 
+            /** @var \App\Models\Expense $expense */
             $expense = null;
 
             // TODO: check if document is a ZugferdEDocument and can be handled that way
             if ($document->extension() === 'pdf' || $document->extension() === 'xml') {
                 try {
 
-                    $expense = (new ZugferdEDocument($document->getContent()))->run();
+                    $expense = (new ZugferdEDocument($document->get()))->run();
 
                 } catch (\Exception $err) {
 
