@@ -12,7 +12,7 @@
 namespace Tests\Integration\Einvoice;
 
 use Tests\TestCase;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronica;
+use App\DataMapper\EDoc\FatturaPA\FatturaElettronica;
 use Tests\MockAccountData;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -298,23 +298,27 @@ class FatturaPATest extends TestCase
         ],
     ];
 
-    // public function testValidateSampleRequest()
-    // {
-    //     $response = json_decode($this->sample_request, 1);
+    public function testValidateSampleRequest()
+    {
+        $response = json_decode($this->sample_request, 1);
         
-    //     try{
-    //     $validation_array = FatturaElettronica::validate($response);
-    //     }
-    //     catch(\Illuminate\Validation\ValidationException $e) {
+        
+        $rules = FatturaElettronica::getValidationRules($response);
+        nlog($rules);
 
-    //         nlog($e->errors());
-    //     }
-    //     $payload = FatturaElettronica::from($response)->toArray();
-    //     nlog($payload);
-    //     $this->assertIsArray($payload);
+        try{
+        $validation_array = FatturaElettronica::validate($response);
+        }
+        catch(\Illuminate\Validation\ValidationException $e) {
+
+            nlog($e->errors());
+        }
+        $payload = FatturaElettronica::from($response)->toArray();
+        nlog($payload);
+        $this->assertIsArray($payload);
 
         
-    // }
+    }
 //     public function testBulkValidationX()
 //     {
     
@@ -361,57 +365,57 @@ class FatturaPATest extends TestCase
 
 //     }
 
-//     public function testBulkValidation()
-//     {
+    public function testBulkValidation()
+    {
 
-//         $files = [
-//             'tests/Integration/Einvoice/samples/fatturapa0.xml',
-//             'tests/Integration/Einvoice/samples/fatturapa1.xml',
-//             'tests/Integration/Einvoice/samples/fatturapa2.xml',
-//             'tests/Integration/Einvoice/samples/fatturapa3.xml',
-//             'tests/Integration/Einvoice/samples/fatturapa4.xml',
-//             'tests/Integration/Einvoice/samples/fatturapa5.xml',
-//             'tests/Integration/Einvoice/samples/fatturapa6.xml',
-//         ];
+        $files = [
+            'tests/Integration/Einvoice/samples/fatturapa0.xml',
+            'tests/Integration/Einvoice/samples/fatturapa1.xml',
+            'tests/Integration/Einvoice/samples/fatturapa2.xml',
+            'tests/Integration/Einvoice/samples/fatturapa3.xml',
+            'tests/Integration/Einvoice/samples/fatturapa4.xml',
+            'tests/Integration/Einvoice/samples/fatturapa5.xml',
+            'tests/Integration/Einvoice/samples/fatturapa6.xml',
+        ];
 
-//         foreach($files as $f)
-//         {
+        foreach($files as $f)
+        {
 
-//             $xmlstring = file_get_contents($f);
+            $xmlstring = file_get_contents($f);
 
-//             $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
-//             $json = json_encode($xml);
-//             $payload = json_decode($json, true);
+            $xml = simplexml_load_string($xmlstring, "SimpleXMLElement", LIBXML_NOCDATA);
+            $json = json_encode($xml);
+            $payload = json_decode($json, true);
 
-//             nlog($payload);
+            nlog($payload);
 
-//             $validation_array = false;
-//             try {
-//                 nlog($f);
+            $validation_array = false;
+            try {
+                nlog($f);
 
-//                 $rules = FatturaElettronica::getValidationRules($this->payload);
-//                 nlog($rules);
+                $rules = FatturaElettronica::getValidationRules($this->payload);
+                nlog($rules);
                 
-//                 $this->assertIsArray($rules);
+                $this->assertIsArray($rules);
 
-//                 $payload = FatturaElettronica::from($payload)->toArray();
-//                 nlog($payload);
+                $payload = FatturaElettronica::from($payload)->toArray();
+                nlog($payload);
 
-//                 $this->assertIsArray($payload);
+                $this->assertIsArray($payload);
 
-//                 $validation_array = FatturaElettronica::validate($payload);
+                $validation_array = FatturaElettronica::validate($payload);
                 
-//                 $this->assertIsArray($validation_array);
+                $this->assertIsArray($validation_array);
 
-//             } catch(\Illuminate\Validation\ValidationException $e) {
+            } catch(\Illuminate\Validation\ValidationException $e) {
 
-//                 nlog($e->errors());
-//             }
+                nlog($e->errors());
+            }
 
-//             $this->assertIsArray($validation_array);
+            $this->assertIsArray($validation_array);
 
-//         }
-//     }
+        }
+    }
 
 //     public function testUpdateProps()
 //     {
