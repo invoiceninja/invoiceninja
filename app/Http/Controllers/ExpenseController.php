@@ -28,7 +28,6 @@ use App\Jobs\EDocument\ImportEDocument;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
-use App\Services\EDocument\Imports\ZugferdEDocument;
 use App\Transformers\ExpenseTransformer;
 use App\Utils\Ninja;
 use App\Utils\Traits\BulkOptions;

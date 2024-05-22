@@ -11,6 +11,7 @@
 
 namespace App\Jobs\EDocument;
 
+use App\Models\Expense;
 use App\Services\EDocument\Imports\ZugferdEDocument;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\App;
@@ -36,11 +37,12 @@ class ImportEDocument implements ShouldQueue
      * Execute the job.
      *
      * @return string
+     * @throws \Exception
      */
-    public function handle(): string
+    public function handle(): Expense
     {
         // TODO: check type of file. For now only ZuGFerD
-       (new ZugferdEDocument($this->request->file('documents')[0]->get()))->run();
-       return "";
+       return (new ZugferdEDocument($this->request->file('documents')[0]->get(), $this->request-file('documents')[0]->originalName))->run();
+
     }
 }
