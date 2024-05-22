@@ -12,20 +12,16 @@
 namespace App\Services\EDocument\Imports;
 
 use App\Factory\ExpenseFactory;
-use App\Factory\VendorFactory;
-use App\Jobs\Util\UploadFile;
-use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
-use App\Models\Vendor;
+use App\Repositories\VendorRepository;
 use App\Services\AbstractService;
-use App\Utils\TempFile;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
-use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
 
-class ZugferdEDocument extends AbstractService {
+class ZugferdEDocument extends AbstractService
+{
     public ZugferdDocumentReader|string $document;
 
     /**
@@ -39,91 +35,79 @@ class ZugferdEDocument extends AbstractService {
     /**
      * @throws Exception
      */
-    public function run(): Expense
+    public function run(): string
     {
         $user = auth()->user();
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
+        nlog($documentno);
+        nlog($documenttypecode);
+        nlog($documentdate);
+        nlog($invoiceCurrency);
+        nlog($taxCurrency);
+        nlog($documentname);
+        nlog($documentlanguage);
+        nlog($effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
+        nlog($grandTotalAmount);
+        nlog($duePayableAmount);
 
-        $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
-        if (empty($expense)) {
+        $expenses = Expense::all();
+        // Check if the document already exists as an expense
+        $existingExpense = $expenses->first(function ($expense) use ($documentno, $grandTotalAmount, $documentdate) {
+            return $expense->transaction_reference == $documentno && $expense->amount == $grandTotalAmount && $expense->date == $documentdate;
+        });
+
+        if ($existingExpense) {
+            // The document already exists as an expense
+            return $existingExpense;
+        } else {
             // The document does not exist as an expense
             // Handle accordingly
             $visualizer = new ZugferdVisualizer($this->document);
             $visualizer->setDefaultTemplate();
-            $visualizer->setRenderer(app(ZugferdVisualizerLaravelRenderer::class));
             $visualizer->setPdfFontDefault("arial");
             $visualizer->setPdfPaperSize('A4-P');
-            $visualizer->setTemplate('edocument.xinvoice');
 
             $expense = ExpenseFactory::create($user->company()->id, $user->id);
             $expense->date = $documentdate;
             $expense->user_id = $user->id;
-            $expense->company_id = $user->company->id;
+            $expense->company_id = $user->company()->id;
             $expense->public_notes = $documentno;
-            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
-            $expense->save();
-
-            $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml");
-            (new UploadFile($origin_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
-            $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
-            (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
-            $expense->save();
-            if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
-                $expense->private_notes = ctrans("texts.tax_currency_mismatch");
+            $expense->currency_id = Currency::whereCode($invoiceCurrency);
+            $expense->documents()->create(["content" => $visualizer->renderPdf(), "filename" => $documentname."_visualizer.pdf"]);
+            if ($taxCurrency != $invoiceCurrency){
+                $expense->private_notes = "Tax currency is different from invoice currency";
             }
-            $expense->uses_inclusive_taxes = True;
-            $expense->amount = $grandTotalAmount;
+            $expense->uses_inclusive_taxes = false;
+            $expense->amount = $lineTotalAmount;
             $counter = 1;
             if ($this->document->firstDocumentTax()) {
                 do {
                     $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
-                    $expense->{"tax_amount$counter"} = $calculatedAmount;
-                    $expense->{"tax_rate$counter"} = $rateApplicablePercent;
+                    $expense->${"tax_amount$counter"} = $calculatedAmount;
+                    $expense->${"tax_rate$counter"} = $rateApplicablePercent;
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }
             $this->document->getDocumentSeller($name, $buyer_id, $buyer_description);
             $this->document->getDocumentSellerContact($person_name, $person_department, $contact_phone, $contact_fax, $contact_email);
-            $this->document->getDocumentSellerAddress($address_1, $address_2, $address_3, $postcode, $city, $country, $subdivision);
             $this->document->getDocumentSellerTaxRegistration($taxtype);
-            $taxid = null;
-            if (array_key_exists("VA", $taxtype)) {
-                $taxid = $taxtype["VA"];
-            }
-            $vendor = Vendor::where('vat_number', $taxid)->first();
+            // TODO find vendor
+            $vendors_registration = VendorRepository::class;
+            $vendors = $vendors_registration::all();
+            // Find vendor by vatid or email
+            $vendor = $vendors->firstWhere('vatid', $taxtype) ?? $vendors->firstWhere('email', $contact_email);
 
-            if (!empty($vendor)) {
+            if ($vendor) {
                 // Vendor found
                 $expense->vendor_id = $vendor->id;
             } else {
-                $vendor = VendorFactory::create($user->company()->id, $user->id);
-                $vendor->name = $name;
-                if ($taxid != null) {
-                    $vendor->vat_number = $taxid;
-                }
-                $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
-                $vendor->phone = $contact_phone;
-                $vendor->address1 = $address_1;
-                $vendor->address2 = $address_2;
-                $vendor->city = $city;
-                $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id;
-
-                $vendor->save();
-                $expense->vendor_id = $vendor->id;
+                // Vendor not found
+                // Handle accordingly
             }
-            $expense->transaction_reference = $documentno;
+            return $expense;
         }
-        else {
-            // The document exists as an expense
-            // Handle accordingly
-            nlog("Document already exists");
-            $expense->private_notes = $expense->private_notes . ctrans("texts.edocument_import_already_exists", ["date" => time()]);
-        }
-        $expense->save();
-        return $expense;
     }
 }
 
