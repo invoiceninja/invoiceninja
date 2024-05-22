@@ -148,7 +148,7 @@ class TransactionTransformer implements BankRevenueInterface
             'description' => $description,
             'participant' => $participant,
             'participant_name' => $participant_name,
-            'base_type' => (int) $transaction["transactionAmount"]["amount"] <= 0 ? 'DEBIT' : 'CREDIT',
+            'base_type' => $amount < 0 ? 'DEBIT' : 'CREDIT',
         ];
 
     }
