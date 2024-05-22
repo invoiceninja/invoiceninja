@@ -14,6 +14,7 @@ namespace App\Http\Controllers\SubscriptionsV4;
 
 use App\Models\Subscription;
 use App\Services\SubscriptionV4\SummaryService;
+use App\Utils\Statics;
 use Illuminate\Http\JsonResponse;
 
 class SubscriptionContextController
@@ -91,12 +92,15 @@ class SubscriptionContextController
             return $field;
         });
 
+        $statics = Statics::company();
+
         return response()->json([
             'context' => [
                 'per_seat_enabled' => $subscription->per_seat_enabled,
                 'min_seats_limit' => $subscription->min_seats_limit,
                 'max_seats_limit' => $subscription->max_seats_limit,
                 'registration_fields' => $registration_fields,
+                'statics' => $statics,
             ],
             'summary' => [
                 'one_time_total' => $service->oneTimePurchasesTotal(),
