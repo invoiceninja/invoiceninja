@@ -55,7 +55,7 @@ class InboundMailEngine
             return;
         }
 
-        $this->createExpense($company, $email);
+        $this->createExpenses($company, $email);
         $this->saveMeta($email->from, $email->to);
     }
 
@@ -151,7 +151,7 @@ class InboundMailEngine
     }
 
     // MAIN-PROCESSORS
-    protected function createExpense(Company $company, InboundMail $email)
+    protected function createExpenses(Company $company, InboundMail $email)
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
         if (!($company?->expense_mailbox_active ?: false)) {
@@ -167,31 +167,77 @@ class InboundMailEngine
             return;
         }
 
-        // create expense
-        $expense = ExpenseFactory::create($company->id, $company->owner()->id);
-
-        $expense->public_notes = $email->subject;
-        $expense->private_notes = $email->text_body;
-        $expense->date = $email->date;
-
         // handle vendor assignment
         $expense_vendor = $this->getVendor($company, $email);
-        if ($expense_vendor)
-            $expense->vendor_id = $expense_vendor->id;
 
         // handle documents
         $this->processHtmlBodyToDocument($email);
-        $documents = [];
-        array_push($documents, ...$email->documents);
-        if ($email->body_document !== null)
-            array_push($documents, $email->body_document);
 
-        $expense->saveQuietly();
+        // handle documents seperatly
+        foreach ($email->documents as $document) {
 
-        $this->saveDocuments($documents, $expense);
+            $expense = null;
 
-        event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API-Controller
-        event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API-Controller
+            // TODO: check if document is a ZugferdEDocument and can be handled that way
+            if ($document->extension() === 'pdf' || $document->extension() === 'xml') {
+                try {
+
+                    $expense = (new ZugferdEDocument($document->getContent()))->run();
+
+                } catch (\Exception $err) {
+
+                    // throw error, when its not the DocumentNotFoundError
+                    if (!($exception instanceof \horstoeko\zugferd\exception\ZugferdFileNotFoundException)) {
+                        nlog("An error occured while processing InboundEmail document with ZugferdEDocument: {$err}");
+                        throw $err;
+                    }
+
+                }
+
+                // save additional context of the email to the document
+                if ($expense) {
+
+                    if (!$expense->vendor_id && $expense_vendor)
+                        $expense->vendor_id = $expense_vendor->id;
+
+                    $documents = [];
+                    if ($email->body_document !== null)
+                        array_push($documents, $email->body_document);
+
+                    $expense->saveQuietly();
+
+                    $this->saveDocuments($documents, $expense);
+
+                    continue;
+
+                }
+            }
+
+            // TODO: check if document can be handled by OCR solution
+
+            // create expense just from document
+            $expense = ExpenseFactory::create($company->id, $company->owner()->id);
+
+            $expense->public_notes = $email->subject;
+            $expense->private_notes = $email->text_body;
+            $expense->date = $email->date;
+
+            if ($expense_vendor)
+                $expense->vendor_id = $expense_vendor->id;
+
+            $documents = [];
+            array_push($documents, $document);
+            if ($email->body_document !== null)
+                array_push($documents, $email->body_document);
+
+            $expense->saveQuietly();
+
+            $this->saveDocuments($documents, $expense);
+
+            event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API-Controller
+            event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API-Controller
+
+        }
     }
 
     // HELPERS
