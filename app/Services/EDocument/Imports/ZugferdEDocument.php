@@ -75,7 +75,8 @@ class ZugferdEDocument extends AbstractService
             $expense->user_id = $user->id;
             $expense->company_id = $user->company()->id;
             $expense->public_notes = $documentno;
-            $expense->currency_id = Currency::whereCode($invoiceCurrency);
+            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+            $expense->save();
             $expense->documents()->create(["content" => $visualizer->renderPdf()]);
             if ($taxCurrency != $invoiceCurrency){
                 $expense->private_notes = "Tax currency is different from invoice currency";
