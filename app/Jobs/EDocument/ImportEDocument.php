@@ -37,12 +37,12 @@ class ImportEDocument implements ShouldQueue
      * Execute the job.
      *
      * @return string
-     * @throws \Exception
      */
     public function handle(): Expense
     {
+     nlog($this->request->file('documents')[0]);
         // TODO: check type of file. For now only ZuGFerD
-       return (new ZugferdEDocument($this->request->file('documents')[0]->get(), $this->request-file('documents')[0]->originalName))->run();
+       return (new ZugferdEDocument($this->request->file('documents')[0]->get(), ""))->run();
 
     }
 }

@@ -38,6 +38,7 @@ class ZugferdEDocument extends AbstractService
     public function run(): string
     {
         $user = auth()->user();
+        nlog("!---------------------!");
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         nlog($documentno);
@@ -75,7 +76,7 @@ class ZugferdEDocument extends AbstractService
             $expense->company_id = $user->company()->id;
             $expense->public_notes = $documentno;
             $expense->currency_id = Currency::whereCode($invoiceCurrency);
-            $expense->documents()->create(["content" => $visualizer->renderPdf(), "filename" => $documentname."_visualizer.pdf"]);
+            $expense->documents()->create(["content" => $visualizer->renderPdf()]);
             if ($taxCurrency != $invoiceCurrency){
                 $expense->private_notes = "Tax currency is different from invoice currency";
             }
@@ -106,6 +107,7 @@ class ZugferdEDocument extends AbstractService
                 // Vendor not found
                 // Handle accordingly
             }
+            $expense->save();
             return $expense;
         }
     }
