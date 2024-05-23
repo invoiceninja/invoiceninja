@@ -85,12 +85,15 @@ class ZugferdEDocument extends AbstractService
             $this->document->getDocumentSeller($name, $buyer_id, $buyer_description);
             $this->document->getDocumentSellerContact($person_name, $person_department, $contact_phone, $contact_fax, $contact_email);
             $this->document->getDocumentSellerTaxRegistration($taxtype);
-            nlog($taxtype);
+            $taxid = null;
+            if (array_key_exists("VA", $taxtype)) {
+                $taxid = $taxtype["VA"];
+            }
             // TODO find vendor
-            $vendors_registration = VendorRepository::class;
-            $vendors = $vendors_registration::all();
+            $vendors_registration = new VendorRepository();
+            $vendors = $vendors_registration->all();
             // Find vendor by vatid or email
-            $vendor = $vendors->firstWhere('vatid', $taxtype[1]) ?? $vendors->firstWhere('email', $contact_email);
+            $vendor = $vendors->firstWhere('vatid', $taxid) ?? $vendors->firstWhere('email', $contact_email);
 
             if ($vendor) {
                 // Vendor found
@@ -98,10 +101,9 @@ class ZugferdEDocument extends AbstractService
             } else {
                 $vendor = VendorFactory::create($user->company()->id, $user->id);
                 $vendor->name = $name;
-                if ($taxtype->startsWith('VA')) {
-                    $vendor->vat_number = substr($taxtype, 2);
-                } else {
-                $vendor->vatid = $taxtype;
+                if ($taxid != null) {
+                    $vendor->vatid = $taxid;
+                }
                 $vendor->email = $contact_email;
 
                 $vendor->save();
@@ -109,7 +111,7 @@ class ZugferdEDocument extends AbstractService
                 // Vendor not found
                 // Handle accordingly
                 }
-            }
+            $expense->transaction_reference = $documentno;
             $expense->save();
             return $expense;
         }
