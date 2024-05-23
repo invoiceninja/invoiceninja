@@ -12,6 +12,7 @@
 namespace App\Services\EDocument\Imports;
 
 use App\Factory\ExpenseFactory;
+use App\Factory\VendorFactory;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Repositories\VendorRepository;
@@ -38,21 +39,9 @@ class ZugferdEDocument extends AbstractService
     public function run(): string
     {
         $user = auth()->user();
-        nlog("!---------------------!");
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
-        nlog($documentno);
-        nlog($documenttypecode);
-        nlog($documentdate);
-        nlog($invoiceCurrency);
-        nlog($taxCurrency);
-        nlog($documentname);
-        nlog($documentlanguage);
-        nlog($effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
-        nlog($grandTotalAmount);
-        nlog($duePayableAmount);
-
         $expenses = Expense::all();
         // Check if the document already exists as an expense
         $existingExpense = $expenses->first(function ($expense) use ($documentno, $grandTotalAmount, $documentdate) {
@@ -77,7 +66,8 @@ class ZugferdEDocument extends AbstractService
             $expense->public_notes = $documentno;
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
             $expense->save();
-            $expense->documents()->create(["content" => $visualizer->renderPdf()]);
+            # todo: save visualized xinvoice pdf
+            #$expense->documents()->create(["content" => $visualizer->renderPdf()]);
             if ($taxCurrency != $invoiceCurrency){
                 $expense->private_notes = "Tax currency is different from invoice currency";
             }
@@ -87,26 +77,38 @@ class ZugferdEDocument extends AbstractService
             if ($this->document->firstDocumentTax()) {
                 do {
                     $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
-                    $expense->${"tax_amount$counter"} = $calculatedAmount;
-                    $expense->${"tax_rate$counter"} = $rateApplicablePercent;
+                    $expense->{"tax_amount$counter"} = $calculatedAmount;
+                    $expense->{"tax_rate$counter"} = $rateApplicablePercent;
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }
             $this->document->getDocumentSeller($name, $buyer_id, $buyer_description);
             $this->document->getDocumentSellerContact($person_name, $person_department, $contact_phone, $contact_fax, $contact_email);
             $this->document->getDocumentSellerTaxRegistration($taxtype);
+            nlog($taxtype);
             // TODO find vendor
             $vendors_registration = VendorRepository::class;
             $vendors = $vendors_registration::all();
             // Find vendor by vatid or email
-            $vendor = $vendors->firstWhere('vatid', $taxtype) ?? $vendors->firstWhere('email', $contact_email);
+            $vendor = $vendors->firstWhere('vatid', $taxtype[1]) ?? $vendors->firstWhere('email', $contact_email);
 
             if ($vendor) {
                 // Vendor found
                 $expense->vendor_id = $vendor->id;
             } else {
+                $vendor = VendorFactory::create($user->company()->id, $user->id);
+                $vendor->name = $name;
+                if ($taxtype->startsWith('VA')) {
+                    $vendor->vat_number = substr($taxtype, 2);
+                } else {
+                $vendor->vatid = $taxtype;
+                $vendor->email = $contact_email;
+
+                $vendor->save();
+                $expense->vendor_id = $vendor->id;
                 // Vendor not found
                 // Handle accordingly
+                }
             }
             $expense->save();
             return $expense;
