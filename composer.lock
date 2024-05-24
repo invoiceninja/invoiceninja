@@ -4588,16 +4588,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.45",
+            "version": "v1.0.47",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "b778941ebe5b262061443e375e2f6f46bf2a7cec"
+                "reference": "7a5a8b7bb44f7aebfd66af112662c30383f31dd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/b778941ebe5b262061443e375e2f6f46bf2a7cec",
-                "reference": "b778941ebe5b262061443e375e2f6f46bf2a7cec",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/7a5a8b7bb44f7aebfd66af112662c30383f31dd9",
+                "reference": "7a5a8b7bb44f7aebfd66af112662c30383f31dd9",
                 "shasum": ""
             },
             "require": {
@@ -4657,9 +4657,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.45"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.47"
             },
-            "time": "2024-05-21T14:57:41+00:00"
+            "time": "2024-05-23T03:12:53+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",

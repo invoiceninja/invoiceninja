@@ -344,9 +344,14 @@ class PayPalBasePaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
-        if($r->successful()) {
+        if($r->status() <= 422){
+        // if($r->successful()) {
             return $r;
         }
+
+        nlog($r->body());
+        nlog($r->json());
+        nlog($r);
 
         SystemLogger::dispatch(
             ['response' => $r->body()],
@@ -357,8 +362,21 @@ class PayPalBasePaymentDriver extends BaseDriver
             $this->client->company ?? $this->company_gateway->company,
         );
 
-        throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
+        
+        return response()->json(['message' => "Gateway failure - {$r->body()}"], 401);
 
+        // throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
+
+    }
+    
+    public function handleRetry($response, $request) {
+
+        //         $response = $r->json();
+        // nlog($response['details']);
+        
+        // if(in_array($response['details'][0]['issue'], ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED']))
+
+        return response()->json($response->json());
     }
 
     /**
@@ -369,6 +387,7 @@ class PayPalBasePaymentDriver extends BaseDriver
      */
     public function getHeaders(array $headers = []): array
     {
+
         return array_merge([
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
