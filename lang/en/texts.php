@@ -5325,6 +5325,9 @@ $lang = array(
     'money' => 'Money',
     'web_app' => 'Web App',
     'desktop_app' => 'Desktop App',
+    'disconnected' => 'Disconnected',
+    'reconnect' => 'Reconnect',
+    'e_invoice_settings' => 'E-Invoice Settings',
 );
 
 return $lang;

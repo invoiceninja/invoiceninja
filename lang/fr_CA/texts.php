@@ -5317,6 +5317,11 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'task_round_to_nearest' => 'Arrondir au plus près',
     'bulk_updated' => 'Les données ont été mises à jour',
     'bulk_update' => 'Mise à jour groupée',
+    'calculate' => 'Calculer',
+    'sum' => 'Somme',
+    'money' => 'Argent',
+    'web_app' => 'App web',
+    'desktop_app' => 'App de bureau',
 );
 
 return $lang;

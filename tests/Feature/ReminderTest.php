@@ -157,6 +157,58 @@ class ReminderTest extends TestCase
 
     }
 
+    public function testDKRemindersNotSending()
+    {
+
+        //Schedule
+        // Settings:
+        // Payment terms: 14 days
+        // 1st reminder: after 5 days
+        // 2st reminder: after 10 days
+        // 3rd reminder: after 15 days
+        // Endless reminder: all 2 weeks
+        // Email settings: 9:00
+        // Timezone: UTC+1
+
+        $settings = CompanySettings::defaults();
+        $settings->timezone_id = '40';
+        $settings->entity_send_time = 9;
+        $settings->payment_terms = '14';
+        $settings->send_reminders = true;
+        $settings->enable_reminder1 = true;
+        $settings->enable_reminder2 = true;
+        $settings->enable_reminder3 = true;
+        $settings->enable_reminder_endless = true;
+        $settings->schedule_reminder1 = 'after_invoice_date';
+
+        $settings->schedule_reminder2 = 'after_invoice_date';
+        $settings->schedule_reminder3 = 'after_invoice_date';
+
+        $settings->num_days_reminder1 = 5;
+        $settings->num_days_reminder1 = 10;
+        $settings->num_days_reminder1 = 15;
+        $settings->endless_reminder_frequency_id = '3';
+
+        $this->buildData($settings);
+
+        
+        $this->travelTo(Carbon::parse('2024-03-01')->startOfDay());
+
+        $this->invoice->status_id = 1;
+        $this->invoice->amount = 10;
+        $this->invoice->balance = 10;
+        $this->invoice->next_send_date = null;
+        $this->invoice->date = '2024-03-01';
+        $this->invoice->last_sent_date = now();
+        $this->invoice->reminder_last_sent = null;
+        $this->invoice->save();
+
+        $this->invoice->service()->markSent()->save();
+
+        $this->assertEquals('2024-03-15', $this->invoice->due_date);
+
+    }   
+
     public function testForUtcEdgeCaseOnTheFirstOfMonth()
     {
         
