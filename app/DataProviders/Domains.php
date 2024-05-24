@@ -18,6 +18,7 @@ namespace App\DataProviders;
 class Domains
 {
     private static array $verify_domains = [
+            'looksecure.net',
             '0-00.usa.cc',
             '0-180.com',
             '0-30-24.com',
