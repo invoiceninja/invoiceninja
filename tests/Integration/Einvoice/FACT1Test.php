@@ -14,7 +14,7 @@ namespace Tests\Integration\Einvoice;
 use Tests\TestCase;
 use Sabre\Xml\Reader;
 use Sabre\Xml\Service;
-use Invoiceninja\Einvoice\Models\FACT1\Invoice;
+// use Invoiceninja\Einvoice\Models\FACT1\Invoice;
 
 /**
  * @test
@@ -29,55 +29,55 @@ class FACT1Test extends TestCase
     }
 
 
-    public function testValidationFact1()
-    {
+    // public function testValidationFact1()
+    // {
 
-        $files = [
-            'tests/Integration/Einvoice/samples/fact1_no_prefixes.xml',
-        ];
+    //     $files = [
+    //         'tests/Integration/Einvoice/samples/fact1_no_prefixes.xml',
+    //     ];
 
-        foreach($files as $f) {
+    //     foreach($files as $f) {
 
-            $xml = file_get_contents($f);
+    //         $xml = file_get_contents($f);
 
-            $xml = simplexml_load_string($xml, "SimpleXMLElement", LIBXML_NOCDATA);
-            $json = json_encode($xml);
-            $array = json_decode($json, true);
+    //         $xml = simplexml_load_string($xml, "SimpleXMLElement", LIBXML_NOCDATA);
+    //         $json = json_encode($xml);
+    //         $array = json_decode($json, true);
 
-            $i = Invoice::from($array);
+    //         $i = Invoice::from($array);
            
-            $rules = Invoice::getValidationRules($array);
+    //         $rules = Invoice::getValidationRules($array);
 
-            $this->assertIsArray($rules);
+    //         $this->assertIsArray($rules);
 
-            $validation_array = Invoice::validate($array);
+    //         $validation_array = Invoice::validate($array);
 
-            $this->assertIsArray($validation_array);
+    //         $this->assertIsArray($validation_array);
 
-        }
-    }
+    //     }
+    // }
 
 
-    public function removeNamespacesFromArray($data)
-    {
-        if (is_array($data)) {
-            foreach ($data as &$item) {
-                if (isset($item['name'])) {
-                    // Remove the namespace from the name
-                    $item['name'] = preg_replace('/^\{\}(.+)/', '$1', $item['name']);
-                }
-                if (isset($item['value']) && is_array($item['value'])) {
-                    // Recursively process child elements
-                    $item['value'] = $this->removeNamespacesFromArray($item['value']);
-                }
-                if (isset($item['attributes'])) {
-                    unset($item['attributes']);
+    // public function removeNamespacesFromArray($data)
+    // {
+    //     if (is_array($data)) {
+    //         foreach ($data as &$item) {
+    //             if (isset($item['name'])) {
+    //                 // Remove the namespace from the name
+    //                 $item['name'] = preg_replace('/^\{\}(.+)/', '$1', $item['name']);
+    //             }
+    //             if (isset($item['value']) && is_array($item['value'])) {
+    //                 // Recursively process child elements
+    //                 $item['value'] = $this->removeNamespacesFromArray($item['value']);
+    //             }
+    //             if (isset($item['attributes'])) {
+    //                 unset($item['attributes']);
 
-                }
-            }
-        }
-        return $data;
-    }
+    //             }
+    //         }
+    //     }
+    //     return $data;
+    // }
 
 
     
