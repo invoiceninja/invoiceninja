@@ -144,7 +144,7 @@ class PayPalBalanceAffecting
         $item->quantity = 1;
 
         return [
-            'number' => $this->invoiceNumber ?? $this->transactionId,
+            'number' => trim($this->invoiceNumber ?? $this->transactionId),
             'date' => str_replace('/','-', $this->date ?? ''),
             'line_items' => [$item],
             'name' => $this->name ?? '',
@@ -213,3 +213,66 @@ class PayPalBalanceAffecting
         return $this->type == 'Website Payment';
     }
 }
+
+
+
+// $csv = Reader::createFromString($csvFile);
+// // $csvdelimiter = self::detectDelimiter($csvfile);
+// $csv->setDelimiter(",");
+// $stmt = new Statement();
+// $data = iterator_to_array($stmt->process($csv));
+
+// $header = $data[0];
+// $arr = [];
+
+// foreach($data as $key => $value) {
+
+
+//     if($key == 0) {
+//         continue;
+//     }
+
+//     $arr[] = array_combine($header, $value);
+
+// }
+
+// $arr;
+
+// $company =  Company::find(3358);
+// $owner = $company->owner();
+// $client_repo = new ClientRepository(new ClientContactRepository());
+// $invoice_repo = new InvoiceRepository();
+
+// foreach($arr as $pp) {
+
+//     $p = new PayPalBalanceAffecting($pp);
+//     $p->run();
+
+
+//     if(!$p->isInvoiceType()) {
+//         continue;
+//     }
+
+//     $import_c = $p->getClient();
+//     $import_i = $p->getInvoice();
+
+
+//     $contact = ClientContact::where('company_id', 3358)->where('email', $import_c['email'])->first();
+
+
+//     if(!$contact) {
+
+//         $cc = ClientFactory::create($company->id, $owner->id);
+
+//         $client = $client_repo->save($import_c, $cc);
+
+//     } else {
+//         $client = $contact->client;
+//     }
+
+//     $i = InvoiceFactory::create($company->id, $owner->id);
+//     $i->client_id = $client->id;
+//     $invoice_repo->save($import_i, $i);
+
+
+// }
