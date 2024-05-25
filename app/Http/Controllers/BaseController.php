@@ -41,7 +41,6 @@ use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\JsonApiSerializer;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use Illuminate\Contracts\Container\BindingResolutionException;
-use Invoiceninja\Einvoice\Decoder\Schema;
 
 /**
  * Class BaseController.
@@ -997,8 +996,8 @@ class BaseController extends Controller
 
                 if(request()->has('einvoice')){
 
-                    $ro = new Schema();
-                    $response_data['einvoice_schema'] = $ro('FACT1');
+                    // $ro = new Schema();
+                    // $response_data['einvoice_schema'] = $ro('FACT1');
 
                 }
 

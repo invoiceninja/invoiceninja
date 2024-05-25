@@ -17,7 +17,6 @@ use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\ValidSettingsRule;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronica;
 
 class UpdateCompanyRequest extends Request
 {

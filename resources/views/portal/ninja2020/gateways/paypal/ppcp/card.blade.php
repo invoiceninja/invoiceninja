@@ -125,10 +125,6 @@
 
             }
 
-            var errorDetail = Array.isArray(data.details) && data.details[0];
-                if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
-                return actions.restart();
-            }
 
             let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
 
@@ -136,9 +132,44 @@
                 document.getElementById("store_card").value = storeCard.value;
             }
 
-            document.getElementById("gateway_response").value = JSON.stringify( data );
-            document.getElementById("server_response").submit();
+            document.getElementById("gateway_response").value =JSON.stringify( data );  
+            
+            formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
 
+            fetch('{{ route('client.payments.response') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                var errorDetail = Array.isArray(data.details) && data.details[0];
+
+                if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
+                    return actions.restart();
+                }
+
+                if(data.redirect){
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                document.getElementById("gateway_response").value =JSON.stringify( data );
+                document.getElementById("server_response").submit();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
 
         },
         onCancel: function() {
@@ -160,8 +191,8 @@
   // Render each field after checking for eligibility
   if (cardField.isEligible()) {
       
-      const nameField = cardField.NameField();
-      nameField.render("#card-name-field-container");
+    //   const nameField = cardField.NameField();
+    //   nameField.render("#card-name-field-container");
 
       const numberField = cardField.NumberField({
         inputEvents: {

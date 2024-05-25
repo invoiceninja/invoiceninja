@@ -141,4 +141,55 @@ class AccountSummaryTest extends TestCase
         $this->assertEquals($dto->id, 19315);
     }
 
+    public function testTransformRefactor()
+    {
+      $dto = $this->transformSummary($this->data[0]);
+      $this->assertEquals($dto->id, 19315);
+      $this->assertEquals($dto->provider_account_id, 330);
+      $this->assertEquals($dto->account_type,  $this->data[0]['CONTAINER'] ?? '');
+      $this->assertEquals($dto->account_status,  $this->data[0]['accountStatus'] ?? '');
+      $this->assertEquals($dto->account_number,  $this->data[0]['accountNumber'] ?? '');
+      $this->assertEquals($dto->provider_account_id,  $this->data[0]['providerAccountId'] ?? '');
+      $this->assertEquals($dto->provider_id,  $this->data[0]['providerId'] ?? '');
+      $this->assertEquals($dto->provider_name,  $this->data[0]['providerName'] ?? '');
+      $this->assertEquals($dto->nickname,  $this->data[0]['nickname'] ?? '');
+      $this->assertEquals($dto->account_name,  $this->data[0]['accountName'] ?? '');
+      $this->assertEquals($dto->current_balance,  $this->data[0]['currentBalance']['amount'] ?? 0);
+      $this->assertEquals($dto->account_currency,  $this->data[0]['currentBalance']['currency'] ?? 0);
+
+      $dto_array = (array)$dto;
+
+      $this->assertEquals($dto_array['id'], 19315);
+      $this->assertEquals($dto_array['provider_account_id'], 330);
+      $this->assertEquals($dto_array['account_type'], $this->data[0]['CONTAINER'] ?? '');
+      $this->assertEquals($dto_array['account_status'], $this->data[0]['accountStatus'] ?? '');
+      $this->assertEquals($dto_array['account_number'], $this->data[0]['accountNumber'] ?? '');
+      $this->assertEquals($dto_array['provider_account_id'], $this->data[0]['providerAccountId'] ?? '');
+      $this->assertEquals($dto_array['provider_id'], $this->data[0]['providerId'] ?? '');
+      $this->assertEquals($dto_array['provider_name'], $this->data[0]['providerName'] ?? '');
+      $this->assertEquals($dto_array['nickname'], $this->data[0]['nickname'] ?? '');
+      $this->assertEquals($dto_array['account_name'], $this->data[0]['accountName'] ?? '');
+      $this->assertEquals($dto_array['current_balance'], $this->data[0]['currentBalance']['amount'] ?? 0);
+      $this->assertEquals($dto_array['account_currency'], $this->data[0]['currentBalance']['currency'] ?? 0);
+
+    }
+
+    private function transformSummary($summary)
+    {
+        $dto = new \stdClass;
+        $dto->id = $summary['id'] ?? 0;
+        $dto->account_type = $summary['CONTAINER'] ?? '';
+
+        $dto->account_status = $summary['accountStatus'] ?? '';
+        $dto->account_number = $summary['accountNumber'] ?? '';
+        $dto->provider_account_id = $summary['providerAccountId'] ?? '';
+        $dto->provider_id = $summary['providerId'] ?? '';
+        $dto->provider_name = $summary['providerName'] ?? '';
+        $dto->nickname = $summary['nickname'] ?? '';
+        $dto->account_name = $summary['accountName'] ?? '';
+        $dto->current_balance = $summary['currentBalance']['amount'] ?? 0;
+        $dto->account_currency = $summary['currentBalance']['currency'] ?? 0;
+
+        return $dto;
+    }
 }

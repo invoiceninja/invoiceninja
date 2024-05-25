@@ -146,6 +146,12 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         try {
             $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+            if($r->status() == 422) {
+                //handle conditions where the client may need to try again.
+                return $this->handleRetry($r, $request);
+            }
+
         } catch(\Exception $e) {
 
             //Rescue for duplicate invoice_id
@@ -192,8 +198,10 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 $this->client,
                 $this->client->company,
             );
+       
+            return response()->json(['redirect' => route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)], false)]);
 
-            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+            // return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         } else {
 
@@ -212,7 +220,9 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
             $message = $response['body']['details'][0]['description'] ?? 'Payment failed. Please try again.';
 
-            throw new PaymentFailed($message, 400);
+            return response()->json(['message' => $message], 400);
+
+            // throw new PaymentFailed($message, 400);
         }
     }
 

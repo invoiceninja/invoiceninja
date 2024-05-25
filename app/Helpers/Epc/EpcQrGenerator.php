@@ -89,6 +89,9 @@ class EpcQrGenerator
         ]), "\n");
     }
     
+
+    //            substr("{$this->invoice->number} {$this->invoice->client->number}", 0,139),
+
     private function validateFields()
     {
         if (Ninja::isSelfHost() && isset($this->company?->custom_fields?->company2)) {

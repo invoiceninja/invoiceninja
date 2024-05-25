@@ -66,6 +66,8 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
         
+        nlog($response);
+
         if($request->has('token') && strlen($request->input('token')) > 2)
             return $this->processTokenPayment($request, $response);
 
@@ -93,7 +95,14 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         }
 
         try{
+        
             $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+            if($r->status() == 422){
+                //handle conditions where the client may need to try again.
+                return $this->handleRetry($r, $request);
+            }
+
         }
         catch(\Exception $e) {
 
@@ -146,7 +155,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
             $message = $response['body']['details'][0]['description'] ?? 'Payment failed. Please try again.';
 
-            throw new PaymentFailed($message, 400);
+            return response()->json(['message' => $message], 400);
+
+            //throw new PaymentFailed($message, 400);
         }
 
     }
@@ -202,7 +213,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
             $this->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+        return response()->json(['redirect' => route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)], false)]);
+
+        // return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
     }
 
@@ -257,10 +270,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         if(isset($data['payment_source']))
             $order['payment_source'] = $data['payment_source'];
 
-                        
-
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
+        nlog($r->json());
         return $r->json()['id'];
 
     }
