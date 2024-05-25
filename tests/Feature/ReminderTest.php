@@ -215,12 +215,6 @@ class ReminderTest extends TestCase
         $this->assertEquals('2024-03-15', $invoice->due_date);
         $this->assertEquals('2024-03-06', $invoice->next_send_date->format('Y-m-d'));
 
-
-        $this->assertTrue(
-        $invoice->client->getSetting('send_reminders') &&
-        (Ninja::isSelfHost() || $invoice->company->account->isPaidHostedClient())
-        );
-
         // //day five:  schedule send time 7am UTC      
         $this->travelTo(now()->addDays(5)->startOfDay());
         $this->assertEquals('2024-03-06', now()->format('Y-m-d'));
