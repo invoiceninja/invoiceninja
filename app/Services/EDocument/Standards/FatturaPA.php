@@ -39,6 +39,9 @@ use CleverIt\UBL\Invoice\FatturaPA\common\CessionarioCommittente;
 use CleverIt\UBL\Invoice\FatturaPA\common\FatturaElettronicaBody;
 use CleverIt\UBL\Invoice\FatturaPA\common\FatturaElettronicaHeader;
 
+/**
+ * @deprecated not needed anylonger as we have invoiceninja/einvoice
+ */
 class FatturaPA extends AbstractService
 {
     private $xml;
