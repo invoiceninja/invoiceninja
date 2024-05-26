@@ -31,7 +31,7 @@
     ],
     "type": "project",
     "require": {
-        "php": "^8.1|^8.2",
+        "php": "^8.2",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
@@ -56,7 +56,6 @@
         "hashids/hashids": "^4.0",
         "hedii/laravel-gelf-logger": "^8",
         "horstoeko/zugferd": "^1",
-        "horstoeko/orderx": "^1",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
         "invoiceninja/inspector": "^2.0",
@@ -105,10 +104,12 @@
         "webpatser/laravel-countries": "dev-master#75992ad",
         "wepay/php-sdk": "^0.3",
         "wildbit/postmark-php": "^4.0",
-        "hyvor/php-json-exporter": "^0.0.3"
+        "hyvor/php-json-exporter": "^0.0.3",
+        "invoiceninja/einvoice": "dev-main",
+        "horstoeko/orderx": "dev-master"
     },
     "require-dev": {
-        "php": "^8.1|^8.2",
+        "php": "^8.2",
         "barryvdh/laravel-debugbar": "^3.6",
         "barryvdh/laravel-ide-helper": "^2.13",
         "beyondcode/laravel-query-detector": "^1.8",
@@ -184,6 +185,10 @@
         {
             "type":"vcs",
             "url": "https://github.com/invoiceninja/einvoice"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/orderx"
         }
     ],
     "minimum-stability": "dev",
