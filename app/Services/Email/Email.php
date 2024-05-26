@@ -302,7 +302,21 @@ class Email implements ShouldQueue
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        }
+        catch(\Google\Service\Exception $e){
+
+            if ($e->getCode() == '429') {
+            
+                $message = "Google rate limiting triggered, we are queueing based on GMail requirements.";
+                $this->logMailError($message, $this->company->clients()->first());
+                sleep(rand(1, 2));
+                $this->release(900);
+                $message = null;
+            }
+        
+        } 
+        
+        catch (\Exception | \RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
