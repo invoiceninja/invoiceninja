@@ -152,24 +152,31 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                 ->send();
 
-        } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+        } 
+        catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
+        } 
+        catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
         }
+        catch(\Symfony\Component\Mailer\Transport\Dsn $e){
+            nlog("Incorrectly configured mail server - setting to default mail driver.");
+            $this->nmo->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
         catch(\Google\Service\Exception $e){
 
             if ($e->getCode() == '429') {
             
-                $message = "Google rate limiting triggered, we are queueing based on GMail requirements.";
+                $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
                 $this->logMailError($message, $this->company->clients()->first());
                 sleep(rand(1, 2));
                 $this->release(900);
