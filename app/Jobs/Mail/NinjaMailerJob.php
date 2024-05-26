@@ -798,15 +798,20 @@ class NinjaMailerJob implements ShouldQueue
                 return false;
             }
 
-            $token = json_decode($guzzle->post($url, [
-                'form_params' => [
-                    'client_id' => config('ninja.o365.client_id'),
-                    'client_secret' => config('ninja.o365.client_secret'),
-                    'scope' => 'email Mail.Send offline_access profile User.Read openid',
-                    'grant_type' => 'refresh_token',
-                    'refresh_token' => $user->oauth_user_refresh_token
-                ],
-            ])->getBody()->getContents());
+            try {
+                $token = json_decode($guzzle->post($url, [
+                    'form_params' => [
+                        'client_id' => config('ninja.o365.client_id'),
+                        'client_secret' => config('ninja.o365.client_secret'),
+                        'scope' => 'email Mail.Send offline_access profile User.Read openid',
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $user->oauth_user_refresh_token
+                    ],
+                ])->getBody()->getContents());
+            }
+            catch(\Exception $e){
+                nlog("Problem getting new Microsoft token for User: {$user->email}");
+            }
 
             if ($token) {
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;
