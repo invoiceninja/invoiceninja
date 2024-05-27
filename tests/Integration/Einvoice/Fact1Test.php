@@ -91,8 +91,13 @@ class Fact1Test extends TestCase
             'number' => 'INV-'.rand(1000,1000000),
             'line_items' => [$item],
             'due_date' => now()->addDays(20)->format('Y-m-d'),
+            'status_id' => 1,
+            'discount' => 0,
         ]);
-
+        
+        $_invoice->service()->markSent()->save();
+        $calc = $_invoice->calc();
+        
         $invoice = new \InvoiceNinja\Einvoice\Models\FACT1\Invoice;
         $invoice->UBLVersionID = '2.1';
         $invoice->CustomizationID = 'urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1';
@@ -107,7 +112,7 @@ class Fact1Test extends TestCase
         $party = new Party();
         
         $party_identification = new PartyIdentification();
-        $party_identification->id = 'company_id_number';
+        $party_identification->ID = 'company_id_number';
         $party->PartyIdentification = $party_identification;
         
         $sp_address = new PostalAddress();
@@ -142,10 +147,49 @@ class Fact1Test extends TestCase
         $p_contact->ElectronicMail = $this->company->owner()->present()->email();
 
         $party->Contact = $p_contact;
+        $asp->Party = $party;
+
+        $invoice->AccountingSupplierParty = $asp;
 
         $acp = new AccountingCustomerParty();
 
-        $asp->Party = $party;
+        $party = new Party();
+
+        $party_identification = new PartyIdentification();
+        $party_identification->ID = 'client_id_number';
+        $party->PartyIdentification = $party_identification;
+
+        $sp_address = new PostalAddress();
+        $sp_address->StreetName = $client->address1;
+        $sp_address->CityName = 'SECTOR2';
+        $sp_address->CountrySubentity = 'RO-B';
+
+        $country = new Country();
+        $country->IdentificationCode = 'RO';
+        $sp_address->Country = $country;
+
+        $party->PostalAddress = $sp_address;
+
+        $ple = new PartyLegalEntity();
+        $ple->RegistrationName = $client->name;
+        $ple->CompanyID = '646546549';
+
+        $party->PartyLegalEntity = $ple;
+
+        $p_contact = new Contact();
+        $p_contact->Name = $client->contacts->first()->present()->name();
+        $p_contact->Telephone = $client->contacts->first()->present()->phone();
+        $p_contact->ElectronicMail = $client->contacts->first()->present()->email();
+
+        $party->Contact = $p_contact;
+
+        $acp->Party = $party;
+        $invoice->AccountingCustomerParty = $acp;
+
+
+
+
+        
         //set default standard props
     }
 }
