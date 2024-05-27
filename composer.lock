@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "da30e1542726b36cab8d48095dedaaecea5a0116"
+                "reference": "d1d416382b1949cc2cbb6501487f1592acf4d235"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/da30e1542726b36cab8d48095dedaaecea5a0116",
-                "reference": "da30e1542726b36cab8d48095dedaaecea5a0116",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/d1d416382b1949cc2cbb6501487f1592acf4d235",
+                "reference": "d1d416382b1949cc2cbb6501487f1592acf4d235",
                 "shasum": ""
             },
             "require": {
@@ -5094,6 +5094,7 @@
                 "symfony/validator": "^7"
             },
             "require-dev": {
+                "milo/schematron": "^1.0",
                 "nette/php-generator": "^4.1",
                 "phpstan/phpstan": "^1.11",
                 "phpunit/phpunit": "^10.5",
@@ -5120,7 +5121,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-27T06:05:25+00:00"
+            "time": "2024-05-27T23:02:56+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -17041,16 +17042,16 @@
         },
         {
             "name": "composer/pcre",
-            "version": "3.1.3",
+            "version": "3.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/pcre.git",
-                "reference": "5b16e25a5355f1f3afdfc2f954a0a80aec4826a8"
+                "reference": "04229f163664973f68f38f6f73d917799168ef24"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/pcre/zipball/5b16e25a5355f1f3afdfc2f954a0a80aec4826a8",
-                "reference": "5b16e25a5355f1f3afdfc2f954a0a80aec4826a8",
+                "url": "https://api.github.com/repos/composer/pcre/zipball/04229f163664973f68f38f6f73d917799168ef24",
+                "reference": "04229f163664973f68f38f6f73d917799168ef24",
                 "shasum": ""
             },
             "require": {
@@ -17092,7 +17093,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/pcre/issues",
-                "source": "https://github.com/composer/pcre/tree/3.1.3"
+                "source": "https://github.com/composer/pcre/tree/3.1.4"
             },
             "funding": [
                 {
@@ -17108,7 +17109,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-19T10:26:25+00:00"
+            "time": "2024-05-27T13:40:54+00:00"
         },
         {
             "name": "composer/semver",

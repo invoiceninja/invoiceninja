@@ -343,10 +343,6 @@ class Fact1Test extends TestCase
 
         $this->assertCount(0, $errors);
 
-
-
-
-
         $phpDocExtractor = new PhpDocExtractor();
         $reflectionExtractor = new ReflectionExtractor();
         // list of PropertyListExtractorInterface (any iterable)
@@ -370,18 +366,28 @@ class Fact1Test extends TestCase
             'xml_format_output' => true,
             'remove_empty_tags' => true,
         ];
+
         $encoder = new XmlEncoder($context);
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
         $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory);
         $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
+
         $normalizer = new ObjectNormalizer($classMetadataFactory, $metadataAwareNameConverter, null, $propertyInfo);
+        
         $normalizers = [  new DateTimeNormalizer(), $normalizer,  new ArrayDenormalizer() , ];
         $encoders = [$encoder, new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
 
-        $dataxml = $serializer->encode($invoice, 'xml', $context);
+        $n_context = [
+            AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
+            // AbstractObjectNormalizer::SKIP_UNINITIALIZED_VALUES => true,
+        ];
 
         
+        // $invoice = $normalizer->normalize($invoice, 'json', $n_context);
+        // echo print_r($invoice);
+        // $invoice = $serializer->serialize($invoice, 'xml', $n_context);
+        $dataxml = $serializer->encode($invoice, 'xml', $context);
 
         echo $dataxml;
 
