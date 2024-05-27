@@ -44,4 +44,15 @@ class ClientContactPresenter extends EntityPresenter
     {
         return $this->name().' <'.$this->entity->email.'>' ?? '';
     }
+
+    public function phone()
+    {
+        return strlen($this->phone ?? '') > 1 ? $this->phone : '';
+    }
+
+    public function email()
+    {
+        return strlen($this->email ?? '') > 1 ? $this->email : '';
+    }
+
 }

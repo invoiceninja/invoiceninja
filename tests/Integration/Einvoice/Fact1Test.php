@@ -11,25 +11,58 @@
 
 namespace Tests\Integration\Einvoice;
 
+use DateTime;
 use Tests\TestCase;
 use App\Models\Client;
 use App\Models\Invoice;
 use Tests\MockAccountData;
 use App\Models\ClientContact;
-use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
+use App\DataMapper\ClientSettings;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Invoiceninja\Einvoice\Models\FACT1\ItemType\Item;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Invoiceninja\Einvoice\Models\FACT1\AddressType\PostalAddress;
+use Invoiceninja\Einvoice\Models\FACT1\PartyType\Party;
+use Invoiceninja\Einvoice\Models\FACT1\PriceType\Price;
+use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use Invoiceninja\Einvoice\Models\FACT1\ContactType\Contact;
 use Invoiceninja\Einvoice\Models\FACT1\CountryType\Country;
-use Invoiceninja\Einvoice\Models\FACT1\CustomerPartyType\AccountingCustomerParty;
-use Invoiceninja\Einvoice\Models\FACT1\PartyIdentificationType\PartyIdentification;
-use Invoiceninja\Einvoice\Models\FACT1\PartyLegalEntityType\PartyLegalEntity;
-use Invoiceninja\Einvoice\Models\FACT1\PartyTaxSchemeType\PartyTaxScheme;
-use Invoiceninja\Einvoice\Models\FACT1\PartyType\Party;
-use Invoiceninja\Einvoice\Models\FACT1\SupplierPartyType\AccountingSupplierParty;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxAmount;
+use Invoiceninja\Einvoice\Models\FACT1\TaxTotalType\TaxTotal;
+use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\PriceAmount;
+use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
 use Invoiceninja\Einvoice\Models\FACT1\TaxSchemeType\TaxScheme;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
+use Invoiceninja\Einvoice\Models\FACT1\AddressType\PostalAddress;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Invoiceninja\Einvoice\Models\FACT1\InvoiceLineType\InvoiceLine;
+use Invoiceninja\Einvoice\Models\FACT1\TaxScheme as FACT1TaxScheme;
+use Invoiceninja\Einvoice\Models\FACT1\TaxSubtotalType\TaxSubtotal;
+use Invoiceninja\Einvoice\Models\FACT1\QuantityType\InvoicedQuantity;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\LineExtensionAmount;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\PayableAmount;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxableAmount;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxExclusiveAmount;
+use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxInclusiveAmount;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Invoiceninja\Einvoice\Models\FACT1\PartyTaxSchemeType\PartyTaxScheme;
+use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
+use Invoiceninja\Einvoice\Models\FACT1\MonetaryTotalType\LegalMonetaryTotal;
+use Invoiceninja\Einvoice\Models\FACT1\PartyLegalEntityType\PartyLegalEntity;
+use Invoiceninja\Einvoice\Models\FACT1\TaxCategoryType\ClassifiedTaxCategory;
+use Symfony\Component\Serializer\Mapping\ClassDiscriminatorFromClassMetadata;
+use Invoiceninja\Einvoice\Models\FACT1\CustomerPartyType\AccountingCustomerParty;
+use Invoiceninja\Einvoice\Models\FACT1\SupplierPartyType\AccountingSupplierParty;
+use Invoiceninja\Einvoice\Models\FACT1\PartyIdentificationType\PartyIdentification;
+use Invoiceninja\Einvoice\Models\FACT1\TaxCategoryType\TaxCategory;
 
 /**
  * @test
@@ -48,7 +81,13 @@ class Fact1Test extends TestCase
 
     public function testRoBuild()
     {
+        $settings = $this->company->settings;
+        $settings->currency_id = '42';
+        $this->company->saveSettings($settings, $this->company);
+        $this->company->save();
+
         $settings = ClientSettings::defaults();
+        $settings->currency_id = '42';
 
 //VAT
 //19%
@@ -63,6 +102,7 @@ class Fact1Test extends TestCase
             'country_id' => 642,
             'vat_number' => 646546549,
             'name' => 'Client Company Name',
+            'settings' => $settings,
         ]);
 
         ClientContact::factory()->create([
@@ -81,6 +121,8 @@ class Fact1Test extends TestCase
         $item->quantity = 10;
         $item->tax_name1 = 'VAT';
         $item->tax_rate1 = '19';
+        $item->product_key = "Product Name";
+        $item->notes = "A great product description";
 
         $_invoice = Invoice::factory()->create([
             'user_id' => $this->user->id,
@@ -101,8 +143,8 @@ class Fact1Test extends TestCase
         $invoice->CustomizationID = 'urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1';
         $invoice->ID = $_invoice->number;
         $invoice->InvoiceTypeCode = 380;
-        $invoice->IssueDate = $_invoice->date;
-        $invoice->DueDate = $_invoice->due_date;
+        $invoice->IssueDate = new DateTime($_invoice->date);
+        $invoice->DueDate = new DateTime($_invoice->due_date);
         $invoice->DocumentCurrencyCode = 'RON';
         $invoice->TaxCurrencyCode = 'RON';
 
@@ -111,7 +153,7 @@ class Fact1Test extends TestCase
         
         $party_identification = new PartyIdentification();
         $party_identification->ID = 'company_id_number';
-        $party->PartyIdentification = $party_identification;
+        $party->PartyIdentification[] = $party_identification;
         
         $sp_address = new PostalAddress();
         $sp_address->StreetName = $this->company->settings->address1;
@@ -131,19 +173,18 @@ class Fact1Test extends TestCase
         $pts->CompanyID = 'RO234234234';
         $pts->TaxScheme = $tax_scheme;
 
-        $party->PartyTaxScheme = $pts;
+        $party->PartyTaxScheme[] = $pts;
 
         $ple = new PartyLegalEntity();
         $ple->RegistrationName = $this->company->settings->name;
         $ple->CompanyID = 'J40/2222/2009';
 
-        $party->PartyLegalEntity = $ple;
+        $party->PartyLegalEntity[] = $ple;
 
         $p_contact = new Contact();
         $p_contact->Name = $this->company->owner()->present()->name();
         $p_contact->Telephone = $this->company->settings->phone;
-        $p_contact->ElectronicMail = $this->company->owner()->present()->email();
-
+        $p_contact->ElectronicMail = $this->company->owner()->email;
         $party->Contact = $p_contact;
         $asp->Party = $party;
 
@@ -155,7 +196,7 @@ class Fact1Test extends TestCase
 
         $party_identification = new PartyIdentification();
         $party_identification->ID = 'client_id_number';
-        $party->PartyIdentification = $party_identification;
+        $party->PartyIdentification[] = $party_identification;
 
         $sp_address = new PostalAddress();
         $sp_address->StreetName = $client->address1;
@@ -172,7 +213,7 @@ class Fact1Test extends TestCase
         $ple->RegistrationName = $client->name;
         $ple->CompanyID = '646546549';
 
-        $party->PartyLegalEntity = $ple;
+        $party->PartyLegalEntity[] = $ple;
 
         $p_contact = new Contact();
         $p_contact->Name = $client->contacts->first()->present()->name();
@@ -184,10 +225,220 @@ class Fact1Test extends TestCase
         $acp->Party = $party;
         $invoice->AccountingCustomerParty = $acp;
 
+        $taxtotal = new TaxTotal();
+        $tax_amount = new TaxAmount();
+
+        $tax_amount->amount = $calc->getItemTotalTaxes();
+        $tax_amount->currencyID = $_invoice->client->currency()->code;
+
+        $tc = new TaxCategory();
+        $tc->ID = "S";
+
+        $taxable = $this->getTaxable($_invoice);
+        
+        $taxable_amount = new TaxableAmount();
+        $taxable_amount->amount = $taxable;
+        $taxable_amount->currencyID = $_invoice->client->currency()->code;
+
+        $tax_sub_total = new TaxSubtotal();
+        $tax_sub_total->TaxAmount = $tax_amount;
+        $tax_sub_total->TaxCategory = $tc;
+        $tax_sub_total->TaxableAmount = $taxable_amount;
+        $taxtotal->TaxSubtotal[] = $tax_sub_total;
+        
+        $invoice->TaxTotal[] = $taxtotal;
+        
+        $lmt = new LegalMonetaryTotal();
+
+        $lea = new LineExtensionAmount();
+        $lea->amount = $taxable;
+        $lea->currencyID = $_invoice->client->currency()->code;
+
+        $lmt->LineExtensionAmount = $lea;
+
+        $tea = new TaxExclusiveAmount;
+        $tea->amount = $taxable;
+        $tea->currencyID = $_invoice->client->currency()->code;
+
+        $lmt->TaxExclusiveAmount = $tea;
+
+        $tia = new TaxInclusiveAmount;
+        $tia->amount = $_invoice->amount;
+        $tia->currencyID = $_invoice->client->currency()->code;
+
+        $lmt->TaxInclusiveAmount = $tia;
+
+        $pa = new PayableAmount;
+        $pa->amount = $_invoice->amount;
+        $pa->currencyID = $_invoice->client->currency()->code;
+
+        $lmt->PayableAmount = $pa;
+        $invoice->LegalMonetaryTotal = $lmt;
+
+        foreach($_invoice->line_items as $key => $item)
+        {
+
+            $invoice_line = new InvoiceLine;
+            $invoice_line->ID = $key++;
+
+            $iq = new InvoicedQuantity();
+            $iq->amount = $item->cost;
+            $iq->unitCode = 'H87';
+            
+            $invoice_line->InvoicedQuantity = $iq;
+
+            $invoice_line->Note = substr($item->notes, 0, 200);
+
+            $ctc = new ClassifiedTaxCategory();
+            $ctc->ID = 'S';
+
+            $i = new Item;
+            $i->Description = $item->notes;
+            $i->Name = $item->product_key;
+
+            $tax_scheme = new FACT1TaxScheme();
+            $tax_scheme->ID = $item->tax_name1;
+            $tax_scheme->Name = $item->tax_rate1;
+
+            $ctc = new ClassifiedTaxCategory();
+            $ctc->TaxScheme = $tax_scheme;
+            $ctc->ID = 'S';
+
+            $i->ClassifiedTaxCategory[] = $ctc;
+
+            $invoice_line->Item = $i;
 
 
+            $lea = new LineExtensionAmount;
+            $lea->amount = $item->line_total;
+            $lea->currencyID = $_invoice->client->currency()->code;
+
+            $invoice_line->LineExtensionAmount = $lea;
+
+            $price = new Price();
+            $pa = new PriceAmount();
+            $pa->amount = $item->line_total;
+            $pa->currencyID = $_invoice->client->currency()->code;
+
+            $price->PriceAmount = $pa;
+
+            $lea = new LineExtensionAmount();
+            $lea->amount = $item->line_total;
+            $lea->currencyID = $_invoice->client->currency()->code;
+            
+            $invoice_line->LineExtensionAmount = $lea;
+
+            $invoice->InvoiceLine[] = $invoice_line;
+        }
+
+        $validator = Validation::createValidatorBuilder()
+            ->enableAttributeMapping()
+            ->getValidator();
+
+        $errors = $validator->validate($invoice);
+
+        foreach($errors as $error) {
+            echo $error->getPropertyPath() . ': ' . $error->getMessage() . "\n";
+        }
+
+        $this->assertCount(0, $errors);
+
+
+
+
+
+        $phpDocExtractor = new PhpDocExtractor();
+        $reflectionExtractor = new ReflectionExtractor();
+        // list of PropertyListExtractorInterface (any iterable)
+        $listExtractors = [$reflectionExtractor];
+        // list of PropertyTypeExtractorInterface (any iterable)
+        $typeExtractors = [$reflectionExtractor,$phpDocExtractor];
+        // list of PropertyDescriptionExtractorInterface (any iterable)
+        $descriptionExtractors = [$phpDocExtractor];
+        // list of PropertyAccessExtractorInterface (any iterable)
+        $accessExtractors = [$reflectionExtractor];
+        // list of PropertyInitializableExtractorInterface (any iterable)
+        $propertyInitializableExtractors = [$reflectionExtractor];
+        $propertyInfo = new PropertyInfoExtractor(
+            // $listExtractors,
+            $propertyInitializableExtractors,
+            $descriptionExtractors,
+            $typeExtractors,
+            // $accessExtractors,
+        );
+        $context = [
+            'xml_format_output' => true,
+            'remove_empty_tags' => true,
+        ];
+        $encoder = new XmlEncoder($context);
+        $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
+        $metadataAwareNameConverter = new MetadataAwareNameConverter($classMetadataFactory);
+        $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
+        $normalizer = new ObjectNormalizer($classMetadataFactory, $metadataAwareNameConverter, null, $propertyInfo);
+        $normalizers = [  new DateTimeNormalizer(), $normalizer,  new ArrayDenormalizer() , ];
+        $encoders = [$encoder, new JsonEncoder()];
+        $serializer = new Serializer($normalizers, $encoders);
+
+        $dataxml = $serializer->encode($invoice, 'xml', $context);
 
         
+
+        echo $dataxml;
+
         //set default standard props
     }
+
+
+
+
+    /**
+     * @return float|int|mixed
+     */
+    private function getTaxable(Invoice $invoice): float
+    {
+        $total = 0;
+
+        foreach ($invoice->line_items as $item) {
+            $line_total = $item->quantity * $item->cost;
+
+            if ($item->discount != 0) {
+                if ($invoice->is_amount_discount) {
+                    $line_total -= $item->discount;
+                } else {
+                    $line_total -= $line_total * $item->discount / 100;
+                }
+            }
+
+            $total += $line_total;
+        }
+
+        if ($invoice->discount > 0) {
+            if ($invoice->is_amount_discount) {
+                $total -= $invoice->discount;
+            } else {
+                $total *= (100 - $invoice->discount) / 100;
+                $total = round($total, 2);
+            }
+        }
+
+        if ($invoice->custom_surcharge1 && $invoice->custom_surcharge_tax1) {
+            $total += $invoice->custom_surcharge1;
+        }
+
+        if ($invoice->custom_surcharge2 && $invoice->custom_surcharge_tax2) {
+            $total += $invoice->custom_surcharge2;
+        }
+
+        if ($invoice->custom_surcharge3 && $invoice->custom_surcharge_tax3) {
+            $total += $invoice->custom_surcharge3;
+        }
+
+        if ($invoice->custom_surcharge4 && $invoice->custom_surcharge_tax4) {
+            $total += $invoice->custom_surcharge4;
+        }
+
+        return $total;
+    }
+
+
 }
