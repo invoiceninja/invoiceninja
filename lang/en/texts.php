@@ -5328,6 +5328,9 @@ $lang = array(
     'disconnected' => 'Disconnected',
     'reconnect' => 'Reconnect',
     'e_invoice_settings' => 'E-Invoice Settings',
+    'currency_mauritanian_ouguiya' => 'Mauritanian Ouguiya',
+    'currency_bhutan_ngultrum' => 'Bhutan Ngultrum',
+    
 );
 
 return $lang;
