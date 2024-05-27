@@ -18,8 +18,6 @@ use Tests\MockAccountData;
 use App\Models\ClientContact;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\InvoiceItem;
-use CleverIt\UBL\Invoice\Party;
-use Contact;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Invoiceninja\Einvoice\Models\FACT1\AddressType\PostalAddress;
