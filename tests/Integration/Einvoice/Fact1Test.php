@@ -96,7 +96,7 @@ class Fact1Test extends TestCase
         $_invoice->service()->markSent()->save();
         $calc = $_invoice->calc();
         
-        $invoice = new \InvoiceNinja\Einvoice\Models\FACT1\Invoice;
+        $invoice = new \Invoiceninja\Einvoice\Models\FACT1\Invoice();
         $invoice->UBLVersionID = '2.1';
         $invoice->CustomizationID = 'urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1';
         $invoice->ID = $_invoice->number;
