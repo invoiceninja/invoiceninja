@@ -606,7 +606,7 @@ class PdfMock
             '$task.description_label' => ctrans('texts.description'),
             '$product.discount_label' => ctrans('texts.discount'),
             '$product.quantity_label' => ctrans('texts.quantity'),
-            '$entity_issued_to_label' => ctrans('texts.quote_issued_to'),
+            '$entity_issued_to_label' => ctrans("texts.{$this->entity_string}_issued_to"),
             '$partial_due_date_label' => ctrans('texts.partial_due_date'),
             '$invoice.datetime_label' => ctrans('texts.datetime_format_id'),
             '$invoice.due_date_label' => ctrans('texts.due_date'),
