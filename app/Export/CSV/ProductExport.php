@@ -73,8 +73,12 @@ class ProductExport extends BaseExport
 
         $query = Product::query()
                         ->withTrashed()
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('company_id', $this->company->id);
+                        
+                        
+        if(!$this->input['include_deleted']) {
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 

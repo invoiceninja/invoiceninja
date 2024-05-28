@@ -26,7 +26,8 @@ class GenericReportRequest extends Request
      */
     public function authorize(): bool
     {
-        return $this->checkAuthority();
+        return true;
+        // return $this->checkAuthority();
     }
 
     public function rules()
@@ -67,6 +68,15 @@ class GenericReportRequest extends Request
         $input['include_deleted'] = array_key_exists('include_deleted', $input) ? filter_var($input['include_deleted'], FILTER_VALIDATE_BOOLEAN) : false;
 
         $input['user_id'] = auth()->user()->id;
+
+        if(!$this->checkAuthority()){
+            $input['date_range'] = '';            
+            $input['start_date'] = '';
+            $input['end_date'] = '';
+            $input['send_email'] = true;
+            $input['report_keys'] = [];
+            $input['document_email_attachment'] = false;
+        }
 
         $this->replace($input);
     }
