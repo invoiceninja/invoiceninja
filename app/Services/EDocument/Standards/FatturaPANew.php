@@ -132,6 +132,12 @@ class FatturaPANew extends AbstractService
         $anagrafica->Denominazione =  $this->invoice->client->present()->name();
         $datiAnagrafici->Anagrafica = $anagrafica;
 
+        $idFiscale = new IdFiscaleIVA;
+        $idFiscale->IdCodice= $this->invoice->client->vat_number;
+        $idFiscale->IdPaese = $this->invoice->client->country->iso_3166_2;
+
+        $datiAnagrafici->IdFiscaleIVA = $idFiscale;
+        
         $sede = new Sede;
         $sede->Indirizzo =  $this->invoice->client->address1;
         $sede->CAP =  (int)$this->invoice->client->postal_code;
@@ -205,6 +211,8 @@ class FatturaPANew extends AbstractService
     private function setLineItems(): self
     {
 
+        $calc = $this->invoice->calc();
+
         $datiBeniServizi  = new DatiBeniServizi();
         $tax_rate_level = 0;
         //line items
@@ -233,7 +241,6 @@ class FatturaPANew extends AbstractService
             $tax_rate_level = sprintf('%0.2f', $this->invoice->tax_rate1);
         }
 
-        $calc = $this->invoice->calc();
         $subtotal = sprintf('%0.2f', $calc->getSubTotal());
         $taxes = sprintf('%0.2f', $calc->getTotalTaxes());
 

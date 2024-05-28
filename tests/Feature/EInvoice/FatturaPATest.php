@@ -76,7 +76,6 @@ $settings->state = 'PA';
             'name' => 'Italian Client Name',
             'address1' => 'Via Antonio da Legnago 68',
             'city' => 'Monasterace',
-
             'state' => 'CR',
             // 'state' => 'Reggio Calabria',
             'postal_code' => '89040',
@@ -90,7 +89,9 @@ $settings->state = 'PA';
         $item->notes = "Product Description";
         $item->cost = 10;
         $item->quantity = 10;
-
+        $item->tax_rate1 = 22;
+        $item->tax_name1 = 'IVA';
+        
         $invoice = Invoice::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
@@ -98,8 +99,12 @@ $settings->state = 'PA';
             'discount' => 0,
             'uses_inclusive_taxes' => false,
             'status_id' => 1,
-            'tax_rate1' => 19,
-            'tax_name1' => 'IVA',
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name2' => '',
+            'tax_name3' => '',
             'line_items' => [$item],
             'number' => 'ITA-'.rand(1000,100000)
         ]);
