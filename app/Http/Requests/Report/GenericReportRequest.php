@@ -68,14 +68,14 @@ class GenericReportRequest extends Request
 
         $input['user_id'] = auth()->user()->id;
 
-        if(!$this->checkAuthority()){
-            $input['date_range'] = '';            
-            $input['start_date'] = '';
-            $input['end_date'] = '';
-            $input['send_email'] = true;
-            $input['report_keys'] = [];
-            $input['document_email_attachment'] = false;
-        }
+        // if(!$this->checkAuthority()){
+        //     $input['date_range'] = '';            
+        //     $input['start_date'] = '';
+        //     $input['end_date'] = '';
+        //     $input['send_email'] = true;
+        //     $input['report_keys'] = [];
+        //     $input['document_email_attachment'] = false;
+        // }
 
         $this->replace($input);
     }

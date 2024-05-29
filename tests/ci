@@ -28,8 +28,8 @@ $tests = \Illuminate\Support\Str::of($process->getOutput())
     ))
     ->filter(fn (string $test) => !empty($test)) // Make sure there are no empty lines
     ->unique() // We only need unique classes
-    ->split((int) getenv('CI_NODE_TOTAL',1)) // Split it into equally sized chunks
-    ->get((int) getenv('CI_NODE_INDEX',1)); // Get the index we need for this instance
+    ->split((int) getenv('CI_NODE_TOTAL')) // Split it into equally sized chunks
+    ->get((int) getenv('CI_NODE_INDEX')); // Get the index we need for this instance
 
 /**
  * Run phpunit with a filter:
