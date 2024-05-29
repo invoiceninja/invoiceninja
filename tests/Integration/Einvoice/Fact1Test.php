@@ -338,7 +338,7 @@ class Fact1Test extends TestCase
         $errors = $validator->validate($invoice);
 
         foreach($errors as $error) {
-            echo $error->getPropertyPath() . ': ' . $error->getMessage() . "\n";
+            // echo $error->getPropertyPath() . ': ' . $error->getMessage() . "\n";
         }
 
         $this->assertCount(0, $errors);
@@ -389,7 +389,7 @@ class Fact1Test extends TestCase
         // $invoice = $serializer->serialize($invoice, 'xml', $n_context);
         $dataxml = $serializer->encode($invoice, 'xml', $context);
 
-        echo $dataxml;
+        // echo $dataxml;
 
         //set default standard props
     }
