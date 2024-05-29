@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.308.3",
+            "version": "3.308.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7fa0625056fa1fcf6732f89ba37b3f630d78de59"
+                "reference": "c88e9df7e076b6e2c652a1c87d2c3af0a9ac30b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7fa0625056fa1fcf6732f89ba37b3f630d78de59",
-                "reference": "7fa0625056fa1fcf6732f89ba37b3f630d78de59",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c88e9df7e076b6e2c652a1c87d2c3af0a9ac30b6",
+                "reference": "c88e9df7e076b6e2c652a1c87d2c3af0a9ac30b6",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.4"
             },
-            "time": "2024-05-24T18:29:40+00:00"
+            "time": "2024-05-28T18:05:38+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "6b908a33abab764dbb1ff113b8fe0992b18fe024"
+                "reference": "12f1ddf87098a070e22dccfec732c7ee5615557e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/6b908a33abab764dbb1ff113b8fe0992b18fe024",
-                "reference": "6b908a33abab764dbb1ff113b8fe0992b18fe024",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/12f1ddf87098a070e22dccfec732c7ee5615557e",
+                "reference": "12f1ddf87098a070e22dccfec732c7ee5615557e",
                 "shasum": ""
             },
             "require": {
@@ -5121,7 +5121,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-28T01:34:02+00:00"
+            "time": "2024-05-28T03:51:17+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -5684,16 +5684,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v10.48.11",
+            "version": "v10.48.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "afdc2b03bd8d126446583da5414d659491aa4f54"
+                "reference": "590afea38e708022662629fbf5184351fa82cf08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/afdc2b03bd8d126446583da5414d659491aa4f54",
-                "reference": "afdc2b03bd8d126446583da5414d659491aa4f54",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/590afea38e708022662629fbf5184351fa82cf08",
+                "reference": "590afea38e708022662629fbf5184351fa82cf08",
                 "shasum": ""
             },
             "require": {
@@ -5887,20 +5887,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-05-21T17:53:51+00:00"
+            "time": "2024-05-28T15:46:19+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.1.22",
+            "version": "v0.1.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "37f94de71758dbfbccc9d299b0e5eb76e02a40f5"
+                "reference": "9bc4df7c699b0452c6b815e64a2d84b6d7f99400"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/37f94de71758dbfbccc9d299b0e5eb76e02a40f5",
-                "reference": "37f94de71758dbfbccc9d299b0e5eb76e02a40f5",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/9bc4df7c699b0452c6b815e64a2d84b6d7f99400",
+                "reference": "9bc4df7c699b0452c6b815e64a2d84b6d7f99400",
                 "shasum": ""
             },
             "require": {
@@ -5943,9 +5943,9 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.1.22"
+                "source": "https://github.com/laravel/prompts/tree/v0.1.23"
             },
-            "time": "2024-05-10T19:22:18+00:00"
+            "time": "2024-05-27T13:53:20+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -17439,16 +17439,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.57.2",
+            "version": "v3.58.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "22f7f3145606df92b02fb1bd22c30abfce956d3c"
+                "reference": "55d3483c80c09f91d876aa4e2971ce349d07310c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/22f7f3145606df92b02fb1bd22c30abfce956d3c",
-                "reference": "22f7f3145606df92b02fb1bd22c30abfce956d3c",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/55d3483c80c09f91d876aa4e2971ce349d07310c",
+                "reference": "55d3483c80c09f91d876aa4e2971ce349d07310c",
                 "shasum": ""
             },
             "require": {
@@ -17527,7 +17527,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.57.2"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.58.0"
             },
             "funding": [
                 {
@@ -17535,7 +17535,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-20T20:41:57+00:00"
+            "time": "2024-05-28T16:55:30+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -17649,16 +17649,16 @@
         },
         {
             "name": "larastan/larastan",
-            "version": "v2.9.6",
+            "version": "v2.9.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/larastan/larastan.git",
-                "reference": "93d5b95d2e29cdb8203363d44abfdbc0bc7ef57f"
+                "reference": "5c805f636095cc2e0b659e3954775cf8f1dad1bb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/larastan/larastan/zipball/93d5b95d2e29cdb8203363d44abfdbc0bc7ef57f",
-                "reference": "93d5b95d2e29cdb8203363d44abfdbc0bc7ef57f",
+                "url": "https://api.github.com/repos/larastan/larastan/zipball/5c805f636095cc2e0b659e3954775cf8f1dad1bb",
+                "reference": "5c805f636095cc2e0b659e3954775cf8f1dad1bb",
                 "shasum": ""
             },
             "require": {
@@ -17672,7 +17672,7 @@
                 "illuminate/support": "^9.52.16 || ^10.28.0 || ^11.0",
                 "php": "^8.0.2",
                 "phpmyadmin/sql-parser": "^5.9.0",
-                "phpstan/phpstan": "^1.10.66"
+                "phpstan/phpstan": "^1.11.1"
             },
             "require-dev": {
                 "doctrine/coding-standard": "^12.0",
@@ -17727,7 +17727,7 @@
             ],
             "support": {
                 "issues": "https://github.com/larastan/larastan/issues",
-                "source": "https://github.com/larastan/larastan/tree/v2.9.6"
+                "source": "https://github.com/larastan/larastan/tree/v2.9.7"
             },
             "funding": [
                 {
@@ -17747,7 +17747,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2024-05-09T11:53:26+00:00"
+            "time": "2024-05-27T18:33:26+00:00"
         },
         {
             "name": "maximebf/debugbar",
