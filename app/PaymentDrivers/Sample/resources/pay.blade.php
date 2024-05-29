@@ -45,7 +45,7 @@
     @include('portal.ninja2020.gateways.includes.save_card')
 
     <!-- This include pops up a credit card form -->
-    @include('portal.ninja2020.gateways.wepay.includes.credit_card')
+    @include('portal.ninja2020.gateways.stripe.includes.credit_card')
 
     @include('portal.ninja2020.gateways.includes.pay_now')
 
