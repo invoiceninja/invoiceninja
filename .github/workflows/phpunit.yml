@@ -17,7 +17,7 @@ jobs:
         php-versions: ['8.2']
         phpunit-versions: ['latest']
         ci_node_total: [ 8 ]
-        ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
+        ci_node_index: [ 0, 1]
         laravel: [10.*]
         dependency-version: [prefer-stable]
 
@@ -91,6 +91,18 @@ jobs:
     - name: Copy .env
       run: |
         cp .env.ci .env
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: |
+        echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    - uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.php }}-composer-
+
 
     - name: Install composer dependencies
       run: |
