@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa35db7b4af6c9b43786bf1fab18c61a",
+    "content-hash": "099e6ca9def262b87d6fbecb734f6c5d",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -1226,16 +1226,16 @@
         },
         {
             "name": "authorizenet/authorizenet",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/AuthorizeNet/sdk-php.git",
-                "reference": "a3e76f96f674d16e892f87c58bedb99dada4b067"
+                "reference": "e1acf55c9cb22bef1852b1e494502973ade11cce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/AuthorizeNet/sdk-php/zipball/a3e76f96f674d16e892f87c58bedb99dada4b067",
-                "reference": "a3e76f96f674d16e892f87c58bedb99dada4b067",
+                "url": "https://api.github.com/repos/AuthorizeNet/sdk-php/zipball/e1acf55c9cb22bef1852b1e494502973ade11cce",
+                "reference": "e1acf55c9cb22bef1852b1e494502973ade11cce",
                 "shasum": ""
             },
             "require": {
@@ -1263,9 +1263,9 @@
             ],
             "support": {
                 "issues": "https://github.com/AuthorizeNet/sdk-php/issues",
-                "source": "https://github.com/AuthorizeNet/sdk-php/tree/2.0.2"
+                "source": "https://github.com/AuthorizeNet/sdk-php/tree/2.0.3"
             },
-            "time": "2021-03-31T18:22:14+00:00"
+            "time": "2024-05-29T17:33:13+00:00"
         },
         {
             "name": "awobaz/compoships",
@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.308.4",
+            "version": "3.308.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c88e9df7e076b6e2c652a1c87d2c3af0a9ac30b6"
+                "reference": "81386b0d0fd18ae8015f279247f714c5d5acb696"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c88e9df7e076b6e2c652a1c87d2c3af0a9ac30b6",
-                "reference": "c88e9df7e076b6e2c652a1c87d2c3af0a9ac30b6",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/81386b0d0fd18ae8015f279247f714c5d5acb696",
+                "reference": "81386b0d0fd18ae8015f279247f714c5d5acb696",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.5"
             },
-            "time": "2024-05-28T18:05:38+00:00"
+            "time": "2024-05-29T18:08:33+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4630,16 +4630,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.47",
+            "version": "v1.0.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "7a5a8b7bb44f7aebfd66af112662c30383f31dd9"
+                "reference": "32233f85860a71494716c077eb28bf9f3df5d673"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/7a5a8b7bb44f7aebfd66af112662c30383f31dd9",
-                "reference": "7a5a8b7bb44f7aebfd66af112662c30383f31dd9",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/32233f85860a71494716c077eb28bf9f3df5d673",
+                "reference": "32233f85860a71494716c077eb28bf9f3df5d673",
                 "shasum": ""
             },
             "require": {
@@ -4699,9 +4699,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.47"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.48"
             },
-            "time": "2024-05-23T03:12:53+00:00"
+            "time": "2024-05-29T15:12:06+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "12f1ddf87098a070e22dccfec732c7ee5615557e"
+                "reference": "9b400960f1d885ef98667494f46dc1fbd3a2fbbc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/12f1ddf87098a070e22dccfec732c7ee5615557e",
-                "reference": "12f1ddf87098a070e22dccfec732c7ee5615557e",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/9b400960f1d885ef98667494f46dc1fbd3a2fbbc",
+                "reference": "9b400960f1d885ef98667494f46dc1fbd3a2fbbc",
                 "shasum": ""
             },
             "require": {
@@ -5121,7 +5121,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-28T03:51:17+00:00"
+            "time": "2024-05-29T21:03:48+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -17439,16 +17439,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.58.0",
+            "version": "v3.58.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "55d3483c80c09f91d876aa4e2971ce349d07310c"
+                "reference": "04e9424025677a86914b9a4944dbbf4060bb0aff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/55d3483c80c09f91d876aa4e2971ce349d07310c",
-                "reference": "55d3483c80c09f91d876aa4e2971ce349d07310c",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/04e9424025677a86914b9a4944dbbf4060bb0aff",
+                "reference": "04e9424025677a86914b9a4944dbbf4060bb0aff",
                 "shasum": ""
             },
             "require": {
@@ -17527,7 +17527,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.58.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.58.1"
             },
             "funding": [
                 {
@@ -17535,7 +17535,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-28T16:55:30+00:00"
+            "time": "2024-05-29T16:39:07+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -20321,16 +20321,16 @@
         },
         {
             "name": "spatie/ignition",
-            "version": "1.14.1",
+            "version": "1.14.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/ignition.git",
-                "reference": "c23cc018c5f423d2f413b99f84655fceb6549811"
+                "reference": "5e11c11f675bb5251f061491a493e04a1a571532"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/ignition/zipball/c23cc018c5f423d2f413b99f84655fceb6549811",
-                "reference": "c23cc018c5f423d2f413b99f84655fceb6549811",
+                "url": "https://api.github.com/repos/spatie/ignition/zipball/5e11c11f675bb5251f061491a493e04a1a571532",
+                "reference": "5e11c11f675bb5251f061491a493e04a1a571532",
                 "shasum": ""
             },
             "require": {
@@ -20400,7 +20400,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-03T15:56:16+00:00"
+            "time": "2024-05-29T08:10:20+00:00"
         },
         {
             "name": "spatie/laravel-ignition",
