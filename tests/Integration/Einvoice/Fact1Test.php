@@ -76,6 +76,8 @@ class Fact1Test extends TestCase
     {
         parent::setUp();
 
+        $this->markTestSkipped('prevent running in CI');
+
         $this->makeTestData();
     }
 

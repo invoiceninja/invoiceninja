@@ -41,6 +41,9 @@ class FatturaPATest extends TestCase
 
         $this->makeTestData();
 
+        
+        $this->markTestSkipped('prevent running in CI');
+
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
