@@ -208,13 +208,19 @@ class PdfMock
      */
     public function getStubVariables(): array
     {
-        // Although $this->mock is the Invoice/etc entity, we need the invitation to get company details.
-        $entity_number = $this->getFormattedEntityNumber(
-            $this->mock->invitation,
-            29,
-            $this->settings->counter_padding,
-            $this->settings->invoice_number_pattern
-        );
+        $entity_pattern = $this->entity_string.'_number_pattern';
+        $entity_number = '0029';
+
+        if (!empty($this->settings->{$entity_pattern})) {
+            // Although $this->mock is the Invoice/etc entity,
+            // we need the invitation to get company details.
+            $entity_number = $this->getFormattedEntityNumber(
+                $this->mock->invitation,
+                (int) $entity_number,
+                $this->settings->counter_padding,
+                $this->settings->{$entity_pattern},
+            );
+        }
 
         return ['values' =>
          [
