@@ -54,17 +54,14 @@ return [
         'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
         'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
     ],
-
     'privacy_policy_url' => [
         'hosted' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
         'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),
     ],
-
     'db' => [
         'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
         'default' => env('DB_CONNECTION', 'mysql'),
     ],
-
     'i18n' => [
         'timezone_id' => env('DEFAULT_TIMEZONE', 1),
         'country_id' => env('DEFAULT_COUNTRY', 840), // United Stated
@@ -79,7 +76,6 @@ return [
         'first_day_of_week' => env('FIRST_DATE_OF_WEEK', 0),
         'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01'),
     ],
-
     'testvars' => [
         'username' => 'user@example.com',
         'clientname' => 'client@example.com',

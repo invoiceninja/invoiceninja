@@ -126,7 +126,6 @@ $settings->state = 'PA';
         $encoder = new Encode($fe);
         $xml = $encoder->toXml();
 
-        echo $xml;
         $this->assertNotNull($xml);
 
 
