@@ -61,7 +61,7 @@ class RecurringInvoiceExport extends BaseExport
                         })
                         ->where('company_id', $this->company->id);
                         
-        if(!$this->input['include_deleted']) {
+        if(!$this->input['include_deleted'] ?? false){
             $query->where('is_deleted', 0);
         }
 
