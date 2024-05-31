@@ -91,7 +91,7 @@
         <div class="text-light-grey-text flex grow basis-full flex-col justify-center text-sm md:basis-1/2 md:pl-4 xl:basis-auto xl:px-5 space-y-2 mt-3 xl:mt-0">
             <p><span class="font-semibold">{{ ctrans('texts.vat') }}</span>: {{ $client->company->settings->vat_number }}</p>
             <p>
-                <a class="underline" href="mailto:{{ $client->company->settings->email }}">{{ $client->company->settings->email }}</a>
+                <a class="underline" href="mailto:{{ $client->company->settings->email }}" target="_blank">{{ $client->company->settings->email }}</a>
             </p>
             <p>{{ $client->company->settings->phone }}</p>
             <p>
