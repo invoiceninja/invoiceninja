@@ -73,8 +73,11 @@ class InvoiceItemExport extends BaseExport
                         ->whereHas('client', function ($q){
                             $q->where('is_deleted', false);
                         })
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
+                        ->where('company_id', $this->company->id);
+                        
+        if(!$this->input['include_deleted'] ?? false){
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 

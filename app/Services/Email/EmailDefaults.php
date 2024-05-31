@@ -166,9 +166,9 @@ class EmailDefaults
     private function setBody(): self
     {
 
-        if (strlen($this->email->email_object->body) > 3) {
+        if (strlen($this->email->email_object->body ?? '') > 3) {
             // A Custom Message has been set in the email screen.
-        } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body}) > 3) {
+        } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body} ?? '') > 3) {
             // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
         } else {
