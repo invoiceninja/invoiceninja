@@ -5300,8 +5300,6 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'local_domain_help' => 'EHLO domain (optional)',
     'port_help' => 'ie. 25,587,465',
     'host_help' => 'ie. smtp.gmail.com',
-    'btcpay_refund_subject' => 'Remboursement de votre facture via BTCPay',
-    'btcpay_refund_body' => 'Un remboursement qui vous est destiné a été émis. Pour l\'obtenir via BTCPay, veuillez cliquer sur ce lien:',
 );
 
 return $lang;
