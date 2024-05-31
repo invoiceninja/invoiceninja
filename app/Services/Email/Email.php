@@ -302,7 +302,26 @@ class Email implements ShouldQueue
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        }
+        catch(\Symfony\Component\Mailer\Transport\Dsn $e){
+            nlog("Incorrectly configured mail server - setting to default mail driver.");
+            $this->email_object->settings->email_sending_method = 'default';
+            return $this->setMailDriver();
+        }
+        catch(\Google\Service\Exception $e){
+
+            if ($e->getCode() == '429') {
+            
+                $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
+                $this->logMailError($message, $this->company->clients()->first());
+                sleep(rand(1, 2));
+                $this->release(900);
+                $message = null;
+            }
+        
+        } 
+        
+        catch (\Exception | \RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -916,15 +935,20 @@ class Email implements ShouldQueue
             $guzzle = new \GuzzleHttp\Client();
             $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
 
-            $token = json_decode($guzzle->post($url, [
-                'form_params' => [
-                    'client_id' => config('ninja.o365.client_id'),
-                    'client_secret' => config('ninja.o365.client_secret'),
-                    'scope' => 'email Mail.Send offline_access profile User.Read openid',
-                    'grant_type' => 'refresh_token',
-                    'refresh_token' => $user->oauth_user_refresh_token
-                ],
-            ])->getBody()->getContents());
+            try {
+                $token = json_decode($guzzle->post($url, [
+                    'form_params' => [
+                        'client_id' => config('ninja.o365.client_id'),
+                        'client_secret' => config('ninja.o365.client_secret'),
+                        'scope' => 'email Mail.Send offline_access profile User.Read openid',
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $user->oauth_user_refresh_token
+                    ],
+                ])->getBody()->getContents());
+            }
+            catch(\Exception $e){
+                nlog("Problem getting new Microsoft token for User: {$user->email}");
+            }
 
             if ($token) {
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;

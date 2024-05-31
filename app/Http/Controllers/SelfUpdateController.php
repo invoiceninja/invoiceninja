@@ -26,8 +26,6 @@ class SelfUpdateController extends BaseController
     use ClientGroupSettingsSaver;
     use AppSetup;
 
-    // private bool $use_zip = false;
-
     private string $filename = 'invoiceninja.tar';
 
     private array $purge_file_list = [
