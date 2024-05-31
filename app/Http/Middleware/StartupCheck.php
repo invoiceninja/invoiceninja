@@ -70,12 +70,10 @@ class StartupCheck
     private function buildTemplates($name = 'templates')
     {
         $data = [
-
             'invoice' => [
                 'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
                 'body' => EmailTemplateDefaults::emailInvoiceTemplate(),
             ],
-
             'quote' => [
                 'subject' => EmailTemplateDefaults::emailQuoteSubject(),
                 'body' => EmailTemplateDefaults::emailQuoteTemplate(),
