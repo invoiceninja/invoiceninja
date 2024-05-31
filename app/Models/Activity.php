@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -258,6 +258,9 @@ class Activity extends StaticModel
     public const PAYMENT_EMAILED = 138;
 
     public const VENDOR_NOTIFICATION_EMAIL = 139;
+    
+    public const EMAIL_STATEMENT = 140;
+
 
     protected $casts = [
         'is_system' => 'boolean',
@@ -469,6 +472,8 @@ class Activity extends StaticModel
             ':adjustment' => $translation =  [substr($variable, 1) => [ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client ?? $this->company) ?? '', 'hashed_id' => '']],
             ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
             ':contact' => $translation = $this->resolveContact(),
+            ':notes' => $translation = [ 'notes' => $this->notes ?? ''],
+            
             default => $translation = [],
         };
 

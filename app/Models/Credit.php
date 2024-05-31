@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,6 +28,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Credit
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int $client_id
  * @property int $user_id
  * @property int|null $assigned_user_id
@@ -179,6 +180,7 @@ class Credit extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_amount_discount' => 'bool',
+        'e_invoice' => 'object',
 
     ];
 

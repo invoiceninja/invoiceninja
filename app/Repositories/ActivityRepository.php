@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,7 +41,7 @@ class ActivityRepository extends BaseRepository
      * Save the Activity.
      *
      * @param \stdClass $fields The fields
-     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\Expense $entity
      * @param array $event_vars
      */
     public function save($fields, $entity, $event_vars)
@@ -72,7 +72,7 @@ class ActivityRepository extends BaseRepository
     /**
      * Creates a backup.
      *
-     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity
+     * @param \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\Expense $entity
      * @param \App\Models\Activity $activity  The activity
      */
     public function createBackup($entity, $activity)

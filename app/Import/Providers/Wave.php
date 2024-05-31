@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -232,6 +232,11 @@ class Wave extends BaseImport implements ImportInterface
         $expenses = $this->groupExpenses($data);
 
         foreach ($expenses as $raw_expense) {
+                    
+            if(!is_array($raw_expense)) {
+                continue;
+            }
+
             try {
                 $expense_data = $expense_transformer->transform($raw_expense);
 

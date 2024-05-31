@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -705,8 +705,25 @@ class CompanyController extends BaseController
         $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
         $headers = ['Content-Disposition' => 'inline'];
 
+        try{
+            $response = \Illuminate\Support\Facades\Http::get($logo);
+
+            if ($response->successful()) {
+                $logo = $response->body();
+            }
+            else {
+                $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+            }
+
+        }
+        catch(\Exception $e){
+
+            $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+
+        }
+
         return response()->streamDownload(function () use ($logo) {
-            echo @file_get_contents($logo);
+            echo $logo;
         }, 'logo.png', $headers);
 
     }

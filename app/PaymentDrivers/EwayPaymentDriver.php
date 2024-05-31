@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -210,5 +210,25 @@ class EwayPaymentDriver extends BaseDriver
 
 
         return $fields;
+    }
+
+    public function auth(): bool
+    {
+
+        $response =$this->init()->eway->queryTransaction('xx');
+
+        return (bool) count($response->getErrors()) == 0;
+
+    }
+    
+    /**
+     * importCustomers
+     *
+     * No support
+     * @return void
+     */
+    public function importCustomers()
+    {
+        return true;
     }
 }

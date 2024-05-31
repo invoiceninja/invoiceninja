@@ -12,7 +12,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
+    | as Mailgun, Brevo, Postmark, AWS and more. This file provides the de facto
     | location for this type of information, allowing packages to have
     | a conventional file to locate the various service credentials.
     |
@@ -30,12 +30,19 @@ return [
         ],
     ],
 
+    'brevo' => [
+        'key' => env('BREVO_SECRET', ''),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_SECRET', ''),
     ],
 
     'postmark-outlook' => [
-        'token' => env('POSTMARK_OUTLOOK_SECRET','')
+        'token' => env('POSTMARK_OUTLOOK_SECRET',''),
+        'from' => [
+            'address' => env('POSTMARK_OUTLOOK_FROM_ADDRESS', '')
+        ],
     ],
     
     'microsoft' => [
@@ -64,8 +71,8 @@ return [
     ],
 
     'stripe' => [
-        'model'  => App\Models\User::class,
-        'key'    => env('STRIPE_KEY'),
+        'model' => App\Models\User::class,
+        'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
     ],
 

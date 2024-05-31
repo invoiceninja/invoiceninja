@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,6 +31,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Account
  *
  * @property int $id
+ * @property int $email_quota
  * @property string|null $plan
  * @property string|null $plan_term
  * @property string|null $plan_started
@@ -102,7 +103,7 @@ class Account extends BaseModel
 
     private $free_plan_email_quota = 20;
 
-    private $paid_plan_email_quota = 400;
+    private $paid_plan_email_quota = 300;
 
     /**
      * @var string
@@ -291,7 +292,7 @@ class Account extends BaseModel
 
     public function isPaid(): bool
     {
-        return Ninja::isNinja() ? ($this->isPaidHostedClient() && !$this->isTrial()) : $this->hasFeature(self::FEATURE_WHITE_LABEL);
+        return Ninja::isNinja() ? $this->isPaidHostedClient() : $this->hasFeature(self::FEATURE_WHITE_LABEL);
     }
 
     public function isPremium(): bool
@@ -494,7 +495,7 @@ class Account extends BaseModel
             return 0;
         }
 
-        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() == 0) {
+        if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 1) {
             return 20;
         }
 
@@ -503,11 +504,13 @@ class Account extends BaseModel
         }
 
         if ($this->isPaid()) {
+            $multiplier = $this->plan == 'enterprise' ? 2 : 1.2;
+
             $limit = $this->paid_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 50;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * (20 * $multiplier);
         } else {
             $limit = $this->free_plan_email_quota;
-            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 2;
+            $limit += Carbon::createFromTimestamp($this->created_at)->diffInMonths() * 1.5;
         }
 
         return min($limit, 1000);

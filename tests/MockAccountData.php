@@ -75,6 +75,11 @@ trait MockAccountData
     /**
      * @var
      */
+    public $project;
+
+    /**
+     * @var
+     */
     public $account;
 
     /**

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,6 +105,7 @@ class VendorTransformer extends EntityTransformer
             'language_id' => (string) $vendor->language_id ?: '',
             'classification' => (string) $vendor->classification ?: '',
             'display_name' =>  (string) $vendor->present()->name(),
+            'routing_id' => (string) $vendor->routing_id ?: '',
         ];
     }
 }

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -101,9 +101,9 @@ class PortalComposer
         $enabled_modules = auth()->guard('contact')->user()->company->enabled_modules;
         $data = [];
 
-        // TODO: Enable dashboard once it's completed.
-        // $this->settings->enable_client_portal_dashboard
-        // $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        if ($this->settings->enable_client_portal_dashboard) {
+            $data[] = [ 'title' => ctrans('texts.dashboard'), 'url' => 'client.dashboard', 'icon' => 'activity'];
+        }
 
         if (self::MODULE_INVOICES & $enabled_modules) {
             $data[] = ['title' => ctrans('texts.invoices'), 'url' => 'client.invoices.index', 'icon' => 'file-text'];

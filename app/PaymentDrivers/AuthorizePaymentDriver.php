@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -67,7 +67,7 @@ class AuthorizePaymentDriver extends BaseDriver
     public function getClientRequiredFields(): array
     {
         $data = [
-            ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
+            // ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
             ['name' => 'client_phone', 'label' => ctrans('texts.phone'), 'type' => 'text', 'validation' => 'required'],
             ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required|email:rfc'],
             ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'],
@@ -193,6 +193,20 @@ class AuthorizePaymentDriver extends BaseDriver
 
     public function import()
     {
+        $this->init();
+        
+        nlog("starting import auth.net");
+
         return (new AuthorizeCustomer($this))->importCustomers();
+    }
+
+    public function importCustomers()
+    {
+        return $this->import();
+    }
+
+    public function auth(): bool
+    {
+        return $this->init()->getPublicClientKey() ?? false;
     }
 }

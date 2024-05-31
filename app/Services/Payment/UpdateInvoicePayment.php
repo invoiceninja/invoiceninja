@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,18 +78,17 @@ class UpdateInvoicePayment
             //caution what if we amount paid was less than partial - we wipe it!
             $invoice->balance -= $paid_amount;
             $invoice->paid_to_date += $paid_amount;
-            $invoice->save();
+            $invoice->saveQuietly();
 
-            $invoice_service = $invoice->service()
+            $invoice = $invoice->service()
                                ->clearPartial()
                                ->updateStatus()
-                               ->workFlow();
+                               ->workFlow()
+                               ->save();
 
             if ($has_partial) {
-                $invoice_service->checkReminderStatus();
+                $invoice->service()->checkReminderStatus()->save();
             }
-
-            $invoice = $invoice_service->save();
 
             if ($invoice->is_proforma) {
                 //keep proforma's hidden
@@ -145,7 +144,7 @@ class UpdateInvoicePayment
             /* Updates the company ledger */
             $this->payment
                  ->ledger()
-                 ->updatePaymentBalance($paid_amount * -1);
+                 ->updatePaymentBalance($paid_amount * -1, "UpdateInvoicePayment");
 
             $pivot_invoice = $this->payment->invoices->first(function ($inv) use ($paid_invoice) {
                 return $inv->hashed_id == $paid_invoice->invoice_id;

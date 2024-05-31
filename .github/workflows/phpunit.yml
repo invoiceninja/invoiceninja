@@ -13,8 +13,8 @@ jobs:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
-        operating-system: ['ubuntu-20.04', 'ubuntu-22.04']
-        php-versions: ['8.1','8.2']
+        operating-system: ['ubuntu-22.04','ubuntu-24.04']
+        php-versions: ['8.2']
         phpunit-versions: ['latest']
         ci_node_total: [ 8 ]
         ci_node_index: [ 0, 1, 2, 3, 4, 5, 6, 7]
@@ -95,13 +95,14 @@ jobs:
     - name: Get Composer Cache Directory
       id: composer-cache
       run: |
-        echo "::set-output name=dir::$(composer config cache-files-dir)"
-    - uses: actions/cache@v3
+        echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    - uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-${{ matrix.php }}-composer-
+
 
     - name: Install composer dependencies
       run: |

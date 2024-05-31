@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -70,12 +70,28 @@ class InvoiceItemExport extends BaseExport
         $query = Invoice::query()
                         ->withTrashed()
                         ->with('client')
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        })
+                        ->where('company_id', $this->company->id);
+                        
+        if(!$this->input['include_deleted'] ?? false){
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 
-        $query = $this->applyFilters($query);
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
+
+        if($this->input['status'] ?? false) {
+            $query = $this->addInvoiceStatusFilter($query, $this->input['status']);
+        }
+
+        $query = $this->applyProductFilters($query);
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -118,6 +134,7 @@ class InvoiceItemExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -232,9 +249,9 @@ class InvoiceItemExport extends BaseExport
         //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
         // }
 
-        // if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
-        //     $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
-        // }
+        if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
+            $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
+        }
 
         if (in_array('invoice.assigned_user_id', $this->input['report_keys'])) {
             $entity['invoice.assigned_user_id'] = $invoice->assigned_user ? $invoice->assigned_user->present()->name() : '';

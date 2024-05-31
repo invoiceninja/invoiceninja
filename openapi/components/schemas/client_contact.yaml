@@ -10,11 +10,6 @@
           type: string
           example: Opnel5aKBz
           readOnly: true
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         client_id:
           description: 'The hashed id of the client'
           type: string

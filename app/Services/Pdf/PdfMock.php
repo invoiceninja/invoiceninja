@@ -27,11 +27,13 @@ use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\Vendor;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 
 class PdfMock
 {
     use MakesHash;
+    use GeneratesCounter;
 
     private mixed $mock;
 
@@ -113,24 +115,30 @@ class PdfMock
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Invoice::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client->setRelation('company', $this->company);
                 $entity->invitation = InvoiceInvitation::factory()->make();
                 break;
             case 'quote':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Quote::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client->setRelation('company', $this->company);
                 $entity->invitation = QuoteInvitation::factory()->make();
                 break;
             case 'credit':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Credit::factory()->make();
                 $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client->setRelation('company', $this->company);
                 $entity->invitation = CreditInvitation::factory()->make();
                 break;
             case 'purchase_order':
-                /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
+
+                /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                // $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->vendor = Vendor::factory()->make();
+                $entity->vendor->setRelation('company', $this->company);
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
                 break;
             case PurchaseOrder::class:
@@ -138,12 +146,12 @@ class PdfMock
                 $entity = PurchaseOrder::factory()->make();
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
                 $entity->vendor = Vendor::factory()->make();
+                $entity->invitation->setRelation('company', $this->company);
                 break;
             default:
                 $entity = false;
                 break;
         }
-
 
         $entity->tax_map = $this->getTaxMap();
         $entity->total_tax_map = $this->getTotalTaxMap();
@@ -200,6 +208,20 @@ class PdfMock
      */
     public function getStubVariables(): array
     {
+        $entity_pattern = $this->entity_string.'_number_pattern';
+        $entity_number = '0029';
+
+        if (!empty($this->settings->{$entity_pattern})) {
+            // Although $this->mock is the Invoice/etc entity,
+            // we need the invitation to get company details.
+            $entity_number = $this->getFormattedEntityNumber(
+                $this->mock->invitation,
+                (int) $entity_number,
+                $this->settings->counter_padding,
+                $this->settings->{$entity_pattern},
+            );
+        }
+
         return ['values' =>
          [
     '$client.shipping_postal_code' => '46420',
@@ -236,6 +258,7 @@ class PdfMock
     '$company.postal_code' => $this->settings->postal_code,
     '$client.billing_city' => 'Aufderharchester',
     '$secondary_font_name' => isset($this->settings?->secondary_font) ? $this->settings->secondary_font : 'Roboto',
+    '$secondary_font_url' => isset($this->settings?->secondary_font) ? \App\Utils\Helpers::resolveFont($this->settings->secondary_font)['url'] : 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$product.line_total' => '',
     '$product.tax_amount' => '',
     '$company.vat_number' => $this->settings->vat_number,
@@ -243,7 +266,6 @@ class PdfMock
     '$quote.quote_number' => '0029',
     '$client.postal_code' => '11243',
     '$contact.first_name' => 'Benedict',
-    '$secondary_font_url' => 'https://fonts.googleapis.com/css2?family=Roboto&display=swap',
     '$contact.signature' => '',
     '$company_logo_size' => $this->settings->company_logo_size ?: '65%',
     '$product.tax_rate1' => ctrans('texts.tax'),
@@ -303,10 +325,10 @@ class PdfMock
     '$invoice.custom2' => 'custom value',
     '$invoice.custom3' => 'custom value',
     '$invoice.custom4' => 'custom value',
-    '$company.custom1' => $this->company->custom_value1,
-    '$company.custom2' => $this->company->custom_value2,
-    '$company.custom3' => $this->company->custom_value3,
-    '$company.custom4' => $this->company->custom_value4,
+    '$company.custom1' => $this->company->settings->custom_value1,
+    '$company.custom2' => $this->company->settings->custom_value2,
+    '$company.custom3' => $this->company->settings->custom_value3,
+    '$company.custom4' => $this->company->settings->custom_value4,
     '$quote.po_number' => 'PO12345',
     '$company.website' => $this->settings->website,
     '$balance_due_raw' => '0.00',
@@ -364,7 +386,7 @@ class PdfMock
     '$company.phone' => $this->settings->phone,
     '$company.state' => $this->settings->state,
     '$credit.number' => '0029',
-    '$entity_number' => '0029',
+    '$entity_number' => $entity_number,
     '$credit_number' => '0029',
     '$global_margin' => '6.35mm',
     '$contact.phone' => '681-480-9828',
@@ -450,10 +472,10 @@ class PdfMock
     '$task.tax' => '',
     '$discount' => '$0.00',
     '$subtotal' => '$0.00',
-    '$company1' => $this->company->custom_value1,
-    '$company2' => $this->company->custom_value2,
-    '$company3' => $this->company->custom_value3,
-    '$company4' => $this->company->custom_value4,
+    '$company1' => $this->company->settings->custom_value1,
+    '$company2' => $this->company->settings->custom_value2,
+    '$company3' => $this->company->settings->custom_value3,
+    '$company4' => $this->company->settings->custom_value4,
     '$due_date' => '2022-01-01',
     '$poNumber' => 'PO-123456',
     '$quote_no' => '0029',
@@ -600,10 +622,10 @@ class PdfMock
             '$task.description_label' => ctrans('texts.description'),
             '$product.discount_label' => ctrans('texts.discount'),
             '$product.quantity_label' => ctrans('texts.quantity'),
-            '$entity_issued_to_label' => ctrans('texts.quote_issued_to'),
+            '$entity_issued_to_label' => ctrans("texts.{$this->entity_string}_issued_to") ?: ctrans('texts.quote_issued_to'),
             '$partial_due_date_label' => ctrans('texts.partial_due_date'),
             '$invoice.datetime_label' => ctrans('texts.datetime_format_id'),
-            '$invoice.due_date_label' => ctrans('texts.due_date'),
+            '$invoice.due_date_label' => ctrans('texts.invoice_due_date'),
             '$company.address1_label' => ctrans('texts.address1'),
             '$company.address2_label' => ctrans('texts.address2'),
             '$total_tax_labels_label' => ctrans('texts.total_taxes'),
@@ -698,16 +720,16 @@ class PdfMock
             '$contact.email_label' => ctrans('texts.email'),
             '$invoice.taxes_label' => ctrans('texts.taxes'),
             '$credit_amount_label' => ctrans('texts.credit_amount'),
-            '$invoice.total_label' => ctrans('texts.total'),
+            '$invoice.total_label' => ctrans('texts.invoice_total'),
             '$product.date_label' => ctrans('texts.date'),
             '$product.item_label' => ctrans('texts.item'),
             '$public_notes_label' => ctrans('texts.public_notes'),
             '$entity.terms_label' => ctrans('texts.terms'),
             '$task.service_label' => ctrans('texts.service'),
             '$portalButton_label' => '',
-            '$payment.date_label' => ctrans('texts.date'),
+            '$payment.date_label' => ctrans('texts.payment_date'),
             '$client.phone_label' => ctrans('texts.phone'),
-            '$invoice.date_label' => ctrans('texts.date'),
+            '$invoice.date_label' => ctrans('texts.invoice_date'),
             '$client.state_label' => ctrans('texts.state'),
             '$number_short_label' => '',
             '$quote.number_label' => ctrans('texts.number'),
@@ -988,7 +1010,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
@@ -1022,7 +1044,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
@@ -1053,7 +1075,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">
@@ -1088,7 +1110,7 @@ class PdfMock
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: #298AAB">

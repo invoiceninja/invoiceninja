@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,6 +52,10 @@ class DbQuery extends GenericMixedMetric
 
     public $string_metric7 = 'ip_address';
 
+    public $string_metric8 = 'client_version';
+
+    public $string_metric9 = 'platform';
+    
     /**
      * The counter
      * set to 1.

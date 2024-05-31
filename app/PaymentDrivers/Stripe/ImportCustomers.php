@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -61,12 +61,6 @@ class ImportCustomers
             foreach ($customers as $customer) {
                 $this->addCustomer($customer);
             }
-
-            //handle
-            // if(is_array($customers->data) && end($customers->data) && array_key_exists('id', end($customers->data)))
-            //     $starting_after = end($customers->data)['id'];
-            // else
-            //     break;
 
             $starting_after = isset(end($customers->data)['id']) ? end($customers->data)['id'] : false;
 

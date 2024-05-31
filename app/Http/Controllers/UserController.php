@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -260,8 +260,8 @@ class UserController extends BaseController
         /** @var \App\Models\User $logged_in_user */
         $logged_in_user = auth()->user();
 
-        $company_user = CompanyUser::whereUserId($user->id)
-                                    ->whereCompanyId($logged_in_user->companyId())
+        $company_user = CompanyUser::where('user_id',$user->id)
+                                    ->where('company_id', $logged_in_user->companyId())
                                     ->withTrashed()
                                     ->first();
 
@@ -269,14 +269,10 @@ class UserController extends BaseController
             return response()->json(['message', 'Cannot detach owner.'], 401);
         }
 
-        $token = $company_user->token->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->first();
-
-        if ($token) {
-            $token->delete();
-        }
+        $company_user->tokens()->where('company_id', $company_user->company_id)->where('user_id', $company_user->user_id)->forceDelete();
 
         if ($company_user) {
-            $company_user->delete();
+            $company_user->forceDelete();
         }
 
         return response()->json(['message' => ctrans('texts.user_detached')], 200);

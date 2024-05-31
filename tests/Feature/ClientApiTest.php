@@ -59,6 +59,436 @@ class ClientApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testBulkUpdates()
+    {
+        Client::factory()->count(3)->create([
+            "company_id" => $this->company->id,
+            "user_id" => $this->user->id,
+        ]);
+
+        $client_count = Client::query()->where('company_id', $this->company->id)->count();
+
+        $data = [
+            "column" => "public_notes",
+            "new_value" => "THISISABULKUPDATE",
+            "action" => "bulk_update",
+            "ids" => Client::where('company_id', $this->company->id)->get()->pluck("hashed_id")
+        ];
+        
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+            ])->postJson("/api/v1/clients/bulk", $data);
+
+
+        $response->assertStatus(200);
+
+        $this->assertEquals($client_count, Client::query()->where('public_notes', "THISISABULKUPDATE")->where('company_id', $this->company->id)->count());
+
+    }
+
+    public function testCountryCodeValidation()
+    {
+        
+        $data = [
+            'name' => 'name of client',
+            'country_code' => 'USA',
+            'id_number' => 'x-1-11a'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+            ])->postJson("/api/v1/clients/", $data)
+            ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals("840", $arr['data']['country_id']);
+
+        $data = [
+            'name' => 'name of client',
+            'country_code' => 'aaaaaaaaaa',
+            'id_number' => 'x-1-11a'
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+            ])->postJson("/api/v1/clients/", $data)
+            ->assertStatus(422);
+
+        $this->assertEquals($this->company->settings->country_id, $arr['data']['country_id']);
+
+
+        $data = [
+                'name' => 'name of client',
+                'country_code' => 'aaaaaaaaaa',
+            ];
+
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+            ])->putJson("/api/v1/clients/".$this->client->hashed_id, $data)
+            ->assertStatus(200);
+
+        
+        $this->assertEquals($this->company->settings->country_id, $arr['data']['country_id']);
+
+    }
+
+    public function testIdNumberPutValidation()
+    {
+        
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+            'id_number' => 'x-1-11a'
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/".$this->client->hashed_id, $data)
+        ->assertStatus(200);
+
+        
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/", $data)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+            'id_number' => 'x-1-11a'
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/".$arr['data']['id'], $data)
+        ->assertStatus(422);
+
+    }
+
+    public function testNumberPutValidation()
+    {
+        
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+            'number' => 'x-1-11a'
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/".$this->client->hashed_id, $data)
+        ->assertStatus(200);
+
+        
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/", $data)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+            'number' => 'x-1-11a'
+        ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/clients/".$arr['data']['id'], $data)
+        ->assertStatus(422);
+
+    }
+
+    public function testNumberValidation()
+    {
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+            'number' => 'x-1-11'
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/",$data)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals("x-1-11", $arr['data']['number']);
+        
+        $data = [
+                    'name' => 'name of client',
+                    'country_id' => '840',
+                    'number' => 'x-1-11'
+                ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/", $data)
+        ->assertStatus(422);
+
+        $data = [
+                    'name' => 'name of client',
+                    'country_id' => '840',
+                    'number' => ''
+                ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/", $data)
+        ->assertStatus(200);
+
+        $data = [
+                    'name' => 'name of client',
+                    'country_id' => '840',
+                    'number' => null
+                ];
+
+        $response = $this->withHeaders([
+        'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/clients/", $data)
+        ->assertStatus(200);
+
+    }
+
+    public function testCountryStore4()
+    {
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '840',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->putJson("/api/v1/clients/".$this->client->hashed_id,$data)
+      ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals("840", $arr['data']['country_id']);
+
+    }
+
+    public function testCountryStore3()
+    {
+        $data = [
+            'name' => 'name of client',
+            'country_id' => 'A',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->putJson("/api/v1/clients/".$this->client->hashed_id,$data)
+      ->assertStatus(422);
+
+    }
+
+
+    public function testCountryStore2()
+    {
+        $data = [
+            'name' => 'name of client',
+            'country_id' => 'A',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients/",$data)
+      ->assertStatus(422);
+
+    }
+
+
+    public function testCountryStore()
+    {
+        $data = [
+            'name' => 'name of client',
+            'country_id' => '8',
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients/",$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals("8", $arr['data']['country_id']);
+
+    }
+
+    public function testCurrencyStores8()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => '2'
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients/",$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals("2", $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores7()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => '2'
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->putJson("/api/v1/clients/".$this->client->hashed_id,$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals("2", $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores6()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => '1'
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->putJson("/api/v1/clients/".$this->client->hashed_id,$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals("1", $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores5()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => ''
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->putJson("/api/v1/clients/".$this->client->hashed_id,$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals($this->company->settings->currency_id, $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores4()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => 'A'
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->putJson("/api/v1/clients/".$this->client->hashed_id,$data)
+      ->assertStatus(422);
+
+      $arr = $response->json();
+
+    //   $this->assertEquals($this->company->settings->currency_id, $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores3()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => 'A'
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients",$data)
+      ->assertStatus(422);
+
+      $arr = $response->json();
+
+    //   $this->assertEquals($this->company->settings->currency_id, $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores2()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [
+                'currency_id' => ''
+            ],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients",$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals($this->company->settings->currency_id, $arr['data']['settings']['currency_id']);
+
+    }
+
+    public function testCurrencyStores()
+    {
+        $data = [
+            'name' => 'name of client',
+            'settings' => [],
+        ];
+
+        $response = $this->withHeaders([
+          'X-API-TOKEN' => $this->token,
+      ])->postJson("/api/v1/clients",$data)
+      ->assertStatus(200);
+
+      $arr = $response->json();
+
+      $this->assertEquals($this->company->settings->currency_id, $arr['data']['settings']['currency_id']);
+
+    }
+
     public function testDocumentValidation()
     {
         $data = [
@@ -907,7 +1337,7 @@ $this->assertCount(7, $arr['data']);
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/clients/', $data);
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
     }
 
     public function testClientPost()
@@ -1063,7 +1493,7 @@ $this->assertCount(7, $arr['data']);
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/', $data);
+        ])->postJson('/api/v1/clients/', $data);
 
         $response->assertStatus(200);
     }
@@ -1079,9 +1509,11 @@ $this->assertCount(7, $arr['data']);
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/', $data);
+        ])->postJson('/api/v1/clients/', $data);
 
-        $response->assertStatus(302);
+        $arr = $response->json();
+
+        $this->assertEquals($this->company->settings->country_id, $arr['data']['country_id']);
     }
 
     public function testRoundingDecimalsTwo()

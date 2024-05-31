@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -94,10 +94,12 @@ class TemplateService
         $this->twig = new \Twig\Environment($loader, [
                 'debug' => true,
         ]);
+        
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
+
 
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
             return '<img src="' . $string . '" style="' . $style . '"></img>';
@@ -120,6 +122,15 @@ class TemplateService
         });
 
         $this->twig->addFilter($filter);
+
+        $allowedTags = ['if', 'for', 'set', 'filter'];
+        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency','map', 'join', 'first', 'date','sum'];
+        $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
+        $allowedProperties = ['type_id'];
+        $allowedMethods = ['img','t'];
+
+        $policy = new \Twig\Sandbox\SecurityPolicy($allowedTags, $allowedFilters, $allowedFunctions, $allowedProperties, $allowedMethods);
+        $this->twig->addExtension(new \Twig\Extension\SandboxExtension($policy, true));
 
         return $this;
     }
@@ -157,9 +168,9 @@ class TemplateService
         return $this;
     }
 
-    private function setGlobals(): self
+    public function setGlobals(): self
     {
-
+        
         foreach($this->global_vars as $key => $value) {
             $this->twig->addGlobal($key, $value);
         }
@@ -207,7 +218,7 @@ class TemplateService
         $tm = new TemplateMock($this->company);
         $tm->setSettings($this->getSettings())->init();
 
-        $this->entity = $this->company->invoices()->first();
+        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first();
 
         $this->data = $tm->engines;
         $this->variables = $tm->variables[0];
@@ -240,9 +251,7 @@ class TemplateService
      */
     public function getPdf(): string
     {
-
-        // nlog($this->getHtml());
-
+        
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
         } else {
@@ -273,7 +282,7 @@ class TemplateService
     {
 
         $this->data = $this->preProcessDataBlocks($data);
-        // nlog($this->data);
+
         return $this;
     }
 
@@ -554,6 +563,7 @@ class TemplateService
                             'payment_balance' => $invoice->client->payment_balance,
                             'credit_balance' => $invoice->client->credit_balance,
                             'vat_number' => $invoice->client->vat_number ?? '',
+                            'currency' => $invoice->client->currency()->code ?? 'USD',
                         ],
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
@@ -595,7 +605,7 @@ class TemplateService
             $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
             $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
 
-            return $item;
+            return (array)$item;
 
         })->toArray();
     }
@@ -612,8 +622,6 @@ class TemplateService
         $data = [];
 
         $this->payment = $payment;
-
-        $this->addGlobal(['currency_code' => $payment->currency->code ?? $this->company->currency()->code]);
 
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
@@ -659,7 +667,7 @@ class TemplateService
             'amount_raw' => $payment->amount,
             'applied_raw' => $payment->applied,
             'refunded_raw' => $payment->refunded,
-            'balance_raw' => ($payment->amount - $payment->refunded - $payment->applied),
+            'balance_raw' => ($payment->amount - $payment->applied),
             'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
             'method' => $payment->translatedType(),
             'currency' => $payment->currency->code ?? $this->company->currency()->code,
@@ -679,6 +687,7 @@ class TemplateService
                 'payment_balance' => $payment->client->payment_balance,
                 'credit_balance' => $payment->client->credit_balance,
                 'vat_number' => $payment->client->vat_number ?? '',
+                'currency' => $payment->client->currency()->code ?? 'USD',
             ],
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
@@ -717,7 +726,7 @@ class TemplateService
         return collect($payment->refund_meta)
         ->map(function ($refund) use ($payment) {
 
-            $date = \Carbon\Carbon::parse($refund['date'])->addSeconds($payment->client->timezone_offset());
+            $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
             $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
             $entity = ctrans('texts.invoice');
 
@@ -759,6 +768,7 @@ class TemplateService
                             'payment_balance' => $quote->client->payment_balance,
                             'credit_balance' => $quote->client->credit_balance,
                             'vat_number' => $quote->client->vat_number ?? '',
+                            'currency' => $quote->client->currency()->code ?? 'USD',
                         ],
                 'status_id' => $quote->status_id,
                 'status' => Quote::stringStatus($quote->status_id),
@@ -823,7 +833,15 @@ class TemplateService
         $credits = collect($credits)
                 ->map(function ($credit) {
 
+                    $payments = [];
+
                     $this->entity = $credit;
+
+                    if($credit->payments ?? false) {
+                        $payments = $credit->payments->map(function ($payment) {
+                            return $this->transformPayment($payment);
+                        })->toArray();
+                    }
 
                     return [
                         'amount' => Number::formatMoney($credit->amount, $credit->client),
@@ -878,8 +896,9 @@ class TemplateService
                             'payment_balance' => $credit->client->payment_balance,
                             'credit_balance' => $credit->client->credit_balance,
                             'vat_number' => $credit->client->vat_number ?? '',
+                            'currency' => $credit->client->currency()->code ?? 'USD',
                         ],
-                        'payments' => [],
+                        'payments' => $payments,
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
                         'line_tax_map' => $credit->calc()->getTaxMap(),
                     ];
@@ -942,6 +961,7 @@ class TemplateService
                             'payment_balance' => $task->client->payment_balance,
                             'credit_balance' => $task->client->credit_balance,
                             'vat_number' => $task->client->vat_number ?? '',
+                            'currency' => $task->client->currency()->code ?? 'USD',
                         ] : [],
             ];
 
@@ -1003,6 +1023,7 @@ class TemplateService
                     'payment_balance' => $project->client->payment_balance,
                     'credit_balance' => $project->client->credit_balance,
                     'vat_number' => $project->client->vat_number ?? '',
+                    'currency' => $project->client->currency()->code ?? 'USD',
                 ] : [],
             'user' => $this->userInfo($project->user)
         ];
@@ -1023,6 +1044,7 @@ class TemplateService
                 'vendor' => $purchase_order->vendor ? [
                     'name' => $purchase_order->vendor->present()->name(),
                     'vat_number' => $purchase_order->vendor->vat_number ?? '',
+                    'currency' => $purchase_order->vendor->currency()->code ?? 'USD',
                 ] : [],
                 'amount' => (float)$purchase_order->amount,
                 'balance' => (float)$purchase_order->balance,
@@ -1032,6 +1054,9 @@ class TemplateService
                     'payment_balance' => $purchase_order->client->payment_balance,
                     'credit_balance' => $purchase_order->client->credit_balance,
                     'vat_number' => $purchase_order->client->vat_number ?? '',
+                    'address' => $purchase_order->client->present()->address(),
+                    'shipping_address' => $purchase_order->client->present()->shipping_address(),
+                    'currency' => $purchase_order->client->currency()->code ?? 'USD',
                 ] : [],
                 'status_id' => (string)($purchase_order->status_id ?: 1),
                 'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),
@@ -1197,11 +1222,7 @@ class TemplateService
                 });
             })->toArray();
 
-        // nlog($company_details);
-
         $company_details = $include_labels ? $this->labelledFieldStack($company_details, 'company_details-') : $company_details;
-
-        // nlog($company_details);
 
         $this->updateElementProperties('company-details', $company_details);
 

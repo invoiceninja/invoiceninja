@@ -82,10 +82,18 @@ class ExpenseExport extends BaseExport
         $query = Expense::query()
                         ->with('client')
                         ->withTrashed()
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('company_id', $this->company->id);
+        
+                        
+        if(!$this->input['include_deleted'] ?? false){
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
+
+        if($this->input['status'] ?? false) {
+            $query = $this->addExpenseStatusFilter($query, $this->input['status']);
+        }
 
         if(isset($this->input['clients'])) {
             $query = $this->addClientFilter($query, $this->input['clients']);
@@ -117,6 +125,7 @@ class ExpenseExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -150,6 +159,55 @@ class ExpenseExport extends BaseExport
         }
 
         return $this->decorateAdvancedFields($expense, $entity);
+    }
+
+    protected function addExpenseStatusFilter($query, $status): Builder
+    {
+
+        $status_parameters = explode(',', $status);
+
+        if (in_array('all', $status_parameters)) {
+            return $query;
+        }
+
+        $query->where(function ($query) use ($status_parameters) {
+            if (in_array('logged', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->where('amount', '>', 0)
+                          ->whereNull('invoice_id')
+                          ->whereNull('payment_date')
+                          ->where('should_be_invoiced', false);
+                });
+            }
+
+            if (in_array('pending', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->where('should_be_invoiced', true)
+                          ->whereNull('invoice_id');
+                });
+            }
+
+            if (in_array('invoiced', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->whereNotNull('invoice_id');
+                });
+            }
+
+            if (in_array('paid', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->whereNotNull('payment_date');
+                });
+            }
+
+            if (in_array('unpaid', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->whereNull('payment_date');
+                });
+            }
+
+        });
+
+        return $query;
     }
 
     private function decorateAdvancedFields(Expense $expense, array $entity): array

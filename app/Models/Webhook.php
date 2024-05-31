@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -180,6 +180,7 @@ class Webhook extends BaseModel
         self::EVENT_DELETE_PURCHASE_ORDER,
         self::EVENT_RESTORE_PURCHASE_ORDER,
         self::EVENT_ARCHIVE_PURCHASE_ORDER,
+        self::EVENT_CREATE_PRODUCT,
         self::EVENT_UPDATE_PRODUCT,
         self::EVENT_DELETE_PRODUCT,
         self::EVENT_RESTORE_PRODUCT,

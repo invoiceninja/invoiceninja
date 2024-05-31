@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -92,7 +92,8 @@ class AccountTransformer extends EntityTransformer
             'account_sms_verified' => (bool) $account->account_sms_verified,
             'has_iap_plan' => (bool)$account->inapp_transaction_id,
             'tax_api_enabled' => (bool) config('services.tax.zip_tax.key') ? true : false,
-            'nordigen_enabled' => (bool) (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')) ? true : false
+            'nordigen_enabled' => (bool) (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')) ? true : false,
+            'upload_extensions' => (string) config('ninja.upload_extensions'),
         ];
     }
 

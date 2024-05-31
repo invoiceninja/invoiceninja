@@ -69,7 +69,7 @@ class PaymentService
 
         $this->payment
              ->ledger()
-             ->updatePaymentBalance($this->payment->amount);
+             ->updatePaymentBalance($this->payment->amount, "PaymentService");
 
         $client->service()
             ->updateBalance($this->payment->amount)

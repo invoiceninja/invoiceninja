@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -86,6 +86,40 @@ class Number
         return rtrim(rtrim(number_format($value, $precision, $decimal, $thousand), '0'), $decimal);
     }
 
+    public static function parseFloat($value)
+    {
+
+        if(!$value)
+            return 0;
+
+        //remove everything except for numbers, decimals, commas and hyphens
+        $value = preg_replace('/[^0-9.,-]+/', '', $value);
+
+        $decimal = strpos($value, '.');
+        $comma = strpos($value, ',');
+
+        if($comma === false) //no comma must be a decimal number already
+            return (float) $value;
+
+        if(!$decimal && substr($value, -3, 1) != ","){
+            $value = $value.".00";
+        }
+        
+        $decimal = strpos($value, '.');
+
+        if($decimal < $comma){ //decimal before a comma = euro
+            $value = str_replace(['.',','], ['','.'], $value);
+            return (float) $value;
+        }
+
+        //comma first = traditional thousand separator
+        $value = str_replace(',', '', $value);
+
+        return (float)$value;
+
+
+    }
+    
     /**
      * Formats a given value based on the clients currency
      * BACK to a float.
@@ -93,59 +127,36 @@ class Number
      * @param string $value The formatted number to be converted back to float
      * @return float            The formatted value
      */
-    public static function parseFloat2($value)
+    public static function parseFloatXX($value)
     {
+
         if(!$value)
             return 0;
 
-        //remove everything except for numbers, decimals, commas and hyphens 
-        $value = preg_replace('/[^0-9.,-]+/', '', $value);
+        $multiplier = false;
 
-        $decimal = strpos($value, '.');
-        $comma = strpos($value, ',');
-        
-        if($comma === false) //no comma must be a decimal number already
-            return (float) $value;
+        if(substr($value, 0,1) == '-')
+            $multiplier = -1;
 
-        if($decimal < $comma){ //decimal before a comma = euro
-            $value = str_replace(['.',','], ['','.'], $value);
-            // $value = str_replace(',', '.', $value);
-            return (float) $value;
+        $s = str_replace(',', '.', $value);
+
+        $s = preg_replace("/[^0-9\.]/", '', $s);
+
+        if ($s < 1) {
+            return (float) $s;
         }
 
-        //comma first = traditional thousan separator
-        $value = str_replace(',', '', $value);
-        
-        return (float)$value;
-    
-        
-        // if(!$value)
-        //     return 0;
+        $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
 
-        // $multiplier = false;
+        if($multiplier)
+            $s = floatval($s)*-1;
 
-        // if(substr($value, 0,1) == '-')
-        //     $multiplier = -1;
-
-        // $s = str_replace(',', '.', $value);
-
-        // $s = preg_replace("/[^0-9\.]/", '', $s);
-
-        // if ($s < 1) {
-        //     return (float) $s;
-        // }
-
-        // $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
-
-        // if($multiplier)
-        //     $s = floatval($s)*-1;
-
-        // return (float) $s;
+        return (float) $s;
     }
 
     
     //next iteration of float parsing
-    public static function parseFloat($value)
+    public static function parseFloat2($value)
     {
 
         if(!$value) {
@@ -181,7 +192,7 @@ class Number
             return (float) $value;
         }
 
-        //comma first = traditional thousan separator
+        //comma first = traditional thousand separator
         $value = str_replace(',', '', $value);
 
         return (float)$value;
@@ -223,9 +234,6 @@ class Number
         $precision = $currency->precision;
         $code = $currency->code;
         $swapSymbol = $currency->swap_currency_symbol;
-
-        // App\Models\Client::country() returns instance of BelongsTo.
-        // App\Models\Company::country() returns record for the country, that's why we check for the instance.
 
         if ($entity instanceof Company) {
             $country = $entity->country();

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,7 +20,7 @@ class ReactBuilder extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:react';
+    protected $signature = 'ninja:react {--type=}';
 
     /**
      * The console command description.
@@ -42,10 +42,14 @@ class ReactBuilder extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function handle()
     {
+        if($this->option('type') == 'local') {
+
+        
+
         $includes = '';
 
         $directoryIterator = false;
@@ -72,5 +76,9 @@ class ReactBuilder extends Command
         }
 
         file_put_contents(resource_path('views/react/head.blade.php'), $includes);
+
+        }
+
+        
     }
 }

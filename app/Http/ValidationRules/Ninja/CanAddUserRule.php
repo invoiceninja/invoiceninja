@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,20 +38,6 @@ class CanAddUserRule implements Rule
         if (User::where('email', request()->input('email'))->where('account_id', $user->account_id)->where('is_deleted', 0)->exists()) {
             return true;
         }
-
-        /*
-        Check that we have sufficient quota to allow this to happen
-
-        @ 31-01-2024 - changed query to use email instead of user_id
-
-        $count = CompanyUser::query()
-                          ->where('company_user.account_id', $user->account_id)
-                          ->join('users', 'users.id', '=', 'company_user.user_id')
-                          ->whereNull('users.deleted_at')
-                          ->whereNull('company_user.deleted_at')
-                          ->distinct()
-                          ->count('company_user.user_id');
-        */
 
         $count = CompanyUser::query()
                         ->where("company_user.account_id", $user->account_id)

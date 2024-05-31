@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -130,7 +130,11 @@ class RecurringInvoiceFilters extends QueryFilters
         }
 
         if($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw("ABS(number) {$dir}");
+            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
+        }
+
+        if($sort_col[0] == 'next_send_datetime'){
+            $sort_col[0] = 'next_send_date';
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

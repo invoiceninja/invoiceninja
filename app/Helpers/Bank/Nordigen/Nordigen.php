@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  *
@@ -97,11 +97,11 @@ class Nordigen
             return $it->transform($out);
 
         } catch (\Exception $e) {
-            if (strpos($e->getMessage(), "Invalid Account ID") !== false) {
-                return false;
-            }
 
-            throw $e;
+            nlog("Nordigen getAccount() failed => {$account_id} => " . $e->getMessage());
+            
+            return false;
+
         }
     }
 

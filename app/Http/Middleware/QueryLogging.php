@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -73,7 +73,22 @@ class QueryLogging
                 $ip = $request->ip();
             }
 
-            LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip))
+            $client_version = $request->server('HTTP_USER_AGENT');
+            $platform = '';
+
+            if ($request->hasHeader('X-CLIENT-PLATFORM')) {
+                $platform = $request->header('X-CLIENT-PLATFORM');
+            }
+            elseif($request->hasHeader('X-React')){
+                $platform = 'react';
+            }
+
+            if ($request->hasHeader('X-CLIENT-VERSION'))
+            {   
+                $client_version = $request->header('X-CLIENT-VERSION');
+            }
+
+            LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip, $client_version, $platform))
                 ->batch();
         }
 
