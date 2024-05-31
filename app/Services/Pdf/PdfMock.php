@@ -27,11 +27,13 @@ use App\Models\PurchaseOrderInvitation;
 use App\Models\Quote;
 use App\Models\QuoteInvitation;
 use App\Models\Vendor;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 
 class PdfMock
 {
     use MakesHash;
+    use GeneratesCounter;
 
     private mixed $mock;
 
@@ -206,6 +208,20 @@ class PdfMock
      */
     public function getStubVariables(): array
     {
+        $entity_pattern = $this->entity_string.'_number_pattern';
+        $entity_number = '0029';
+
+        if (!empty($this->settings->{$entity_pattern})) {
+            // Although $this->mock is the Invoice/etc entity,
+            // we need the invitation to get company details.
+            $entity_number = $this->getFormattedEntityNumber(
+                $this->mock->invitation,
+                (int) $entity_number,
+                $this->settings->counter_padding,
+                $this->settings->{$entity_pattern},
+            );
+        }
+
         return ['values' =>
          [
     '$client.shipping_postal_code' => '46420',
@@ -370,7 +386,7 @@ class PdfMock
     '$company.phone' => $this->settings->phone,
     '$company.state' => $this->settings->state,
     '$credit.number' => '0029',
-    '$entity_number' => '0029',
+    '$entity_number' => $entity_number,
     '$credit_number' => '0029',
     '$global_margin' => '6.35mm',
     '$contact.phone' => '681-480-9828',
