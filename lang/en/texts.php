@@ -5330,9 +5330,10 @@ $lang = array(
     'disconnected' => 'Disconnected',
     'reconnect' => 'Reconnect',
     'e_invoice_settings' => 'E-Invoice Settings',
+    'btcpay_refund_subject' => 'Refund of your invoice via BTCPay',
+    'btcpay_refund_body' => 'A refund intended for you has been issued. To claim it via BTCPay, please click on this link:',
     'currency_mauritanian_ouguiya' => 'Mauritanian Ouguiya',
     'currency_bhutan_ngultrum' => 'Bhutan Ngultrum',
-    
 );
 
 return $lang;
