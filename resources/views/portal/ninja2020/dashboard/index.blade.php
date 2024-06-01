@@ -5,10 +5,10 @@
     <div class="flex flex-col xl:flex-row gap-4">
         <div class="w-full rounded-md border border-[#E5E7EB] bg-white p-5 text-sm text-[#6C727F]">
             <h3 class="mb-4 text-xl font-semibold text-[#212529]">{{ $contact->first_name }} {{ $contact->last_name }}</h3>
-            <p class="mb-1.5">{{ $contact->phone }}</p>
-            <p class="mb-4">{{ $client->address1 }}</p>
-            <p class="mb-1.5">{{ $client->city }}, {{ $client->state }}</p>
-            <p class="mb-1.5">{{ $client->postal_code }}</p>
+            <p>{{ $contact->phone }}</p>
+            <p>{{ $client->address1 }}</p>
+            <p>{{ $client->city }}, {{ $client->state }}</p>
+            <p>{{ $client->postal_code }}</p>
             <p>{{ App\Models\Country::find($client->country_id)?->name }}</p>
         </div>
 
@@ -81,16 +81,24 @@
             </div>
         </div>
 
-        <div class="text-light-grey-text flex grow basis-full flex-col justify-center pt-5 text-sm md:basis-1/2 md:border-r md:border-[#E5E7EB] md:pt-0 xl:basis-auto xl:px-5">
-            <p class="mb-2">{{ $client->company->settings->address1 }}</p>
-            <p class="mb-2">{{ $client->company->settings->address2 }}</p>
-            <p class="mb-2">{{ $client->company->settings->postal_code }}</p>
+        <div class="text-light-grey-text flex grow basis-full flex-col justify-center pt-5 text-sm md:basis-1/2 md:border-r md:border-[#E5E7EB] md:pt-0 xl:basis-auto xl:px-5 space-y-2">
+            <p>{{ $client->company->settings->address1 }}</p>
+            <p>{{ $client->company->settings->city }} {{ $client->company->settings->state }}</p>
+            <p>{{ $client->company->settings->postal_code }}</p>
             <p>{{ App\Models\Country::find($client->company->settings->country_id)?->name }}</p>
         </div>
-        <div class="text-light-grey-text flex grow basis-full flex-col justify-center text-sm md:basis-1/2 md:pl-4 xl:basis-auto xl:px-5">
-            <p class="mb-2">{{ $client->company->settings->email }}</p>
-            <p class="mb-2">{{ $client->company->settings->phone }}</p>
-            <p>{{ $client->company->settings->website }}</p>
+
+        <div class="text-light-grey-text flex grow basis-full flex-col justify-center text-sm md:basis-1/2 md:pl-4 xl:basis-auto xl:px-5 space-y-2 mt-3 xl:mt-0">
+            <p><span class="font-semibold">{{ ctrans('texts.vat') }}</span>: {{ $client->company->settings->vat_number }}</p>
+            <p>
+                <a class="underline" href="mailto:{{ $client->company->settings->email }}" target="_blank">{{ $client->company->settings->email }}</a>
+            </p>
+            <p>{{ $client->company->settings->phone }}</p>
+            <p>
+                <a class="underline" href="{{ $client->company->settings->website }}" target="_blank">
+                    {{ $client->company->settings->website }}
+                </a>
+            </p>
         </div>
     </div>
 @stop
