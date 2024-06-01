@@ -112,6 +112,7 @@ class NinjaMailerJob implements ShouldQueue
                 ->mailable
                 ->withSymfonyMessage(function ($message) {
                     $message->getHeaders()->addTextHeader('x-invitation', $this->nmo->invitation->key);
+                    // $message->getHeaders()->addTextHeader('List-Unsubscribe', $this->nmo->mailable->viewData->email_preferences);
                 });
         }
 

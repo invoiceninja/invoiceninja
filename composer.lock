@@ -959,16 +959,16 @@
         },
         {
             "name": "apimatic/core",
-            "version": "0.3.9",
+            "version": "0.3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/apimatic/core-lib-php.git",
-                "reference": "faea523afc30a9fa5ed2b08d929b5a14ba3c00b1"
+                "reference": "8c111790b8d6f67812ba651ebb9513b5233863d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/apimatic/core-lib-php/zipball/faea523afc30a9fa5ed2b08d929b5a14ba3c00b1",
-                "reference": "faea523afc30a9fa5ed2b08d929b5a14ba3c00b1",
+                "url": "https://api.github.com/repos/apimatic/core-lib-php/zipball/8c111790b8d6f67812ba651ebb9513b5233863d0",
+                "reference": "8c111790b8d6f67812ba651ebb9513b5233863d0",
                 "shasum": ""
             },
             "require": {
@@ -1007,9 +1007,9 @@
             ],
             "support": {
                 "issues": "https://github.com/apimatic/core-lib-php/issues",
-                "source": "https://github.com/apimatic/core-lib-php/tree/0.3.9"
+                "source": "https://github.com/apimatic/core-lib-php/tree/0.3.10"
             },
-            "time": "2024-05-09T08:01:58+00:00"
+            "time": "2024-05-30T06:32:24+00:00"
         },
         {
             "name": "apimatic/core-interfaces",
@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.308.5",
+            "version": "3.308.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "81386b0d0fd18ae8015f279247f714c5d5acb696"
+                "reference": "d119265faba226b3fab1514b6fa27a2986b91453"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/81386b0d0fd18ae8015f279247f714c5d5acb696",
-                "reference": "81386b0d0fd18ae8015f279247f714c5d5acb696",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d119265faba226b3fab1514b6fa27a2986b91453",
+                "reference": "d119265faba226b3fab1514b6fa27a2986b91453",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.6"
             },
-            "time": "2024-05-29T18:08:33+00:00"
+            "time": "2024-05-30T18:08:56+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4630,16 +4630,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.48",
+            "version": "v1.0.49",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "32233f85860a71494716c077eb28bf9f3df5d673"
+                "reference": "bc4f9180c455deae20fb0281b519a550cbfbd1ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/32233f85860a71494716c077eb28bf9f3df5d673",
-                "reference": "32233f85860a71494716c077eb28bf9f3df5d673",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/bc4f9180c455deae20fb0281b519a550cbfbd1ea",
+                "reference": "bc4f9180c455deae20fb0281b519a550cbfbd1ea",
                 "shasum": ""
             },
             "require": {
@@ -4699,9 +4699,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.48"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.49"
             },
-            "time": "2024-05-29T15:12:06+00:00"
+            "time": "2024-05-30T14:58:49+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "9b400960f1d885ef98667494f46dc1fbd3a2fbbc"
+                "reference": "6bc18a07aa1792277950388422550e1d4ddf042b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/9b400960f1d885ef98667494f46dc1fbd3a2fbbc",
-                "reference": "9b400960f1d885ef98667494f46dc1fbd3a2fbbc",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/6bc18a07aa1792277950388422550e1d4ddf042b",
+                "reference": "6bc18a07aa1792277950388422550e1d4ddf042b",
                 "shasum": ""
             },
             "require": {
@@ -5121,7 +5121,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-05-29T21:03:48+00:00"
+            "time": "2024-05-31T02:34:14+00:00"
         },
         {
             "name": "invoiceninja/inspector",
