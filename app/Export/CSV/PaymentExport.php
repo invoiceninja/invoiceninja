@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,11 +56,22 @@ class PaymentExport extends BaseExport
 
         $query = Payment::query()
                             ->withTrashed()
+                            ->whereHas('client', function ($q){
+                                $q->where('is_deleted', false);
+                            })
                             ->where('company_id', $this->company->id)
                             ->where('is_deleted', 0);
 
         $query = $this->addDateRange($query);
 
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
+
+        $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
+        
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }
@@ -94,6 +105,7 @@ class PaymentExport extends BaseExport
         $query =  $this->init();
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -122,7 +122,7 @@ class ApplyPayment
 
         $this->payment
                  ->ledger()
-                 ->updatePaymentBalance($this->amount_applied * -1);
+                 ->updatePaymentBalance($this->amount_applied * -1, "ApplyPaymentCredit");
 
         $this->payment
                  ->client
@@ -137,7 +137,6 @@ class ApplyPayment
                  ->updateBalance($this->amount_applied * -1)
                  ->updatePaidToDate($this->amount_applied)
                  ->updateStatus()
-                //  ->deletePdf()
                  ->save();
 
         $this->credit
@@ -147,7 +146,6 @@ class ApplyPayment
         event(new InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         if ((int) $this->invoice->balance == 0) {
-            // $this->invoice->service()->deletePdf();
             $this->invoice = $this->invoice->fresh();
             event(new InvoiceWasPaid($this->invoice, $this->payment, $this->payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }

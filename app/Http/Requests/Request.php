@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,7 +20,7 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
-    protected $file_validation = 'sometimes|file|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp|max:100000';
+    protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp';
     /**
      * Get the validation rules that apply to the request.
      *
@@ -31,11 +31,24 @@ class Request extends FormRequest
         return [];
     }
 
+    public function fileValidation()
+    {
+        if(config('ninja.upload_extensions'))
+            return $this->file_validation. ",".config('ninja.upload_extensions');
+
+        return $this->file_validation;
+        
+    }
+
     public function globalRules($rules)
     {
         $merge_rules = [];
 
         foreach ($this->all() as $key => $value) {
+
+            if($key == 'user')
+                continue;
+            
             if (method_exists($this, $key)) {
                 $merge_rules = $this->{$key}($rules);
             }

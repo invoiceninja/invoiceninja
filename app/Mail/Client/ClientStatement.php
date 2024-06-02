@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,7 +52,7 @@ class ClientStatement extends Mailable
     public function content()
     {
         return new Content(
-            view: $this->data['company']->account->isPremium() ? 'email.template.client_premium' : 'email.template.client',
+            view: 'email.template.client',
             text: 'email.template.text',
             with: [
                 'text_body' => $this->data['body'],

@@ -12,10 +12,6 @@
           description: 'The hashed id of the user assigned to this recurring expense'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The hashed id of the client'
           type: string

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -255,7 +255,7 @@ class TemplateEngine
 
             /*If no custom design exists, send back a blank!*/
             if (strlen($wrapper) > 1) {
-                $wrapper = $this->renderView($wrapper, $data);
+                // $wrapper = $this->renderView($wrapper, $data);
             } else {
                 $wrapper = '';
             }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -76,7 +76,7 @@ class BankTransfer
     /**
      * Resolve the bank type based on the currency
      *
-     * @return void
+     * @return array
      */
     private function resolveBankType()
     {
@@ -85,6 +85,7 @@ class BankTransfer
             'EUR' => ['type' => 'eu_bank_transfer', 'eu_bank_transfer' => ['country' => $this->stripe->client->country->iso_3166_2]],
             'JPY' => ['type' => 'jp_bank_transfer'],
             'MXN' => ['type' => 'mx_bank_transfer'],
+            'USD' => ['type' => 'us_bank_transfer'],
         };
     }
 
@@ -133,6 +134,7 @@ class BankTransfer
                     'gbp' => $data['bank_details'] = $this->formatDataforUk($pi),
                     'eur' => $data['bank_details'] = $this->formatDataforEur($pi),
                     'jpy' => $data['bank_details'] = $this->formatDataforJp($pi),
+                    'usd' => $data['bank_details'] = $this->formatDataforUs($pi),
                 };
 
                 $payment = $this->processSuccesfulRedirect($pi);
@@ -224,6 +226,28 @@ class BankTransfer
                     'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->bank_name,
                     'branch_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_code,
                     'branch_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->zengin->branch_name,
+                    'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
+                    'description' => $pi->description,
+                    'gateway'   => $this->stripe->company_gateway,
+                    'currency' => $pi->next_action->display_bank_transfer_instructions->currency,
+
+                ];
+    }
+
+
+    /**
+     *
+     * @param PaymentIntent $pi
+     * @return array
+     */
+    public function formatDataforUs(PaymentIntent $pi): array
+    {
+        return  [
+                    'amount' => Number::formatMoney($this->stripe->convertFromStripeAmount($pi->next_action->display_bank_transfer_instructions->amount_remaining, $this->stripe->client->currency()->precision, $this->stripe->client->currency()), $this->stripe->client),
+                    'account_holder_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->bank_name,
+                    'account_number' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->account_number,
+                    'bank_name' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->bank_name,
+                    'sort_code' => $pi->next_action->display_bank_transfer_instructions->financial_addresses[0]->aba->routing_number,
                     'reference' => $pi->next_action->display_bank_transfer_instructions->reference,
                     'description' => $pi->description,
                     'gateway'   => $this->stripe->company_gateway,

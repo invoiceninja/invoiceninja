@@ -54,6 +54,149 @@ class QuoteTest extends TestCase
         );
     }
 
+    public function testQuoteDueDateInjectionValidationLayer()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'partial_due_date' => now()->format('Y-m-d'),
+            'partial' => 1,
+            'amount' => 20,
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes', $data);
+        
+        $arr = $response->json();
+        // nlog($arr);
+
+        $this->assertNotEmpty($arr['data']['due_date']);
+
+    }
+
+    public function testNullDueDates()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'due_date' => '',
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEmpty($arr['data']['due_date']);
+        
+        $response = $this->withHeaders([
+                            'X-API-SECRET' => config('ninja.api_secret'),
+                            'X-API-TOKEN' => $this->token,
+                        ])->putJson('/api/v1/quotes/'.$arr['data']['id'], $arr['data']);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEmpty($arr['data']['due_date']);
+
+    }
+
+
+    public function testNonNullDueDates()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'due_date' => now()->addDays(10),
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotEmpty($arr['data']['due_date']);
+        
+        $response = $this->withHeaders([
+                            'X-API-SECRET' => config('ninja.api_secret'),
+                            'X-API-TOKEN' => $this->token,
+                        ])->putJson('/api/v1/quotes/'.$arr['data']['id'], $arr['data']);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotEmpty($arr['data']['due_date']);
+
+    }
+
+    public function testPartialDueDates()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'due_date' => now()->addDay()->format('Y-m-d'),
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertNotNull($arr['data']['due_date']);
+        $this->assertEmpty($arr['data']['partial_due_date']);
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'due_date' => now()->addDay()->format('Y-m-d'),
+            'partial' => 1,
+            'partial_due_date' => now()->format('Y-m-d'),
+            'amount' => 20,
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(now()->addDay()->format('Y-m-d'), $arr['data']['due_date']);
+        $this->assertEquals(now()->format('Y-m-d'), $arr['data']['partial_due_date']);
+        $this->assertEquals(1, $arr['data']['partial']);
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson('/api/v1/quotes/'.$arr['data']['id'], $arr['data']);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        
+        $this->assertEquals(now()->addDay()->format('Y-m-d'), $arr['data']['due_date']);
+        $this->assertEquals(now()->format('Y-m-d'), $arr['data']['partial_due_date']);
+        $this->assertEquals(1, $arr['data']['partial']);
+
+    }
+
     public function testQuoteToProjectConversion2()
     {
         $settings = ClientSettings::defaults();

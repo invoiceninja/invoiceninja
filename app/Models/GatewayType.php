@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -91,6 +91,8 @@ class GatewayType extends StaticModel
 
     public const PAYLATER = 28;
 
+    public const PAYPAL_ADVANCED_CARDS = 29;
+    
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
@@ -158,6 +160,9 @@ class GatewayType extends StaticModel
                 return ctrans('texts.mybank');
             case self::PAYLATER:
                 return ctrans('texts.paypal_paylater');
+            case self::PAYPAL_ADVANCED_CARDS:
+                return ctrans('texts.credit_card');
+    
             default:
                 return ' ';
         }

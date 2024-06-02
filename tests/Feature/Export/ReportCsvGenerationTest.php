@@ -266,6 +266,42 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+    public function testContactProps()
+    {
+        Invoice::factory()->count(5)->create(
+            [
+                'client_id'=> $this->client->id,
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id
+            ]
+        );
+        
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number','client.name', 'contact.email'],
+            'send_email' => false,
+            'client_id' => $this->client->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/invoices', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $hash = $arr['message'];
+
+        $response = $this->poll($hash);
+
+        $csv = $response->body();
+
+        $this->assertEquals('john@doe.com', $this->getFirstValueByColumn($csv, 'Contact Email'));
+
+    }
+
     public function testForcedInsertionOfMandatoryColumns()
     {
         $forced = ['client.name'];
@@ -501,6 +537,7 @@ class ReportCsvGenerationTest extends TestCase
             // 'start_date' => 'bail|required_if:date_range,custom|nullable|date',
             'report_keys' => [],
             'send_email' => false,
+            'include_deleted' => false,
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
 
@@ -547,6 +584,7 @@ class ReportCsvGenerationTest extends TestCase
             'date_range' => 'all',
             'report_keys' => ["vendor.name", "vendor.city", "vendor.number"],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -638,6 +676,7 @@ class ReportCsvGenerationTest extends TestCase
                 'task.custom_value4',
             ],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -792,6 +831,7 @@ class ReportCsvGenerationTest extends TestCase
             'date_range' => 'all',
             'report_keys' => [],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -873,6 +913,7 @@ class ReportCsvGenerationTest extends TestCase
                 "client.paid_to_date"
             ],
             'send_email' => false,
+            'include_deleted' => false,
         ];
 
         $response = $this->withHeaders([
@@ -1587,14 +1628,13 @@ class ReportCsvGenerationTest extends TestCase
                 
         $csv = $response->body();
 
-
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Number'));
-        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Public Notes'));
-        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Private Notes'));
-        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Terms'));
+        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Purchase Order Amount'));
+        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Purchase Order Balance'));
+        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Purchase Order Discount'));
+        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
+        $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Purchase Order Public Notes'));
+        $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Purchase Order Private Notes'));
+        $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Purchase Order Terms'));
     }
 
 

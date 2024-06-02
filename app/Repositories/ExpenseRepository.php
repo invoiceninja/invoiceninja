@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,10 +46,12 @@ class ExpenseRepository extends BaseRepository
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if(isset($data['payment_date']) && $data['payment_date'] == $expense->payment_date) {
+        $payment_date = &$data['payment_date'];
+        $vendor_id = &$data['vendor_id'];
+
+        if($payment_date && $payment_date == $expense->payment_date) {
             //do nothing
-        } elseif(isset($data['payment_date']) && strlen($data['payment_date']) > 1 && $user->company()->notify_vendor_when_paid && (isset($data['vendor_id']) || $expense->vendor_id)) {
-            nlog("ping");
+        } elseif($payment_date && strlen($payment_date) > 1 && $user->company()->notify_vendor_when_paid && ($vendor_id || $expense->vendor_id)) {
             $this->notify_vendor = true;
         }
 
@@ -71,6 +73,13 @@ class ExpenseRepository extends BaseRepository
 
         if($this->notify_vendor) {
             VendorExpenseNotify::dispatch($expense, $expense->company->db);
+        }
+
+        if($payment_date && strlen($payment_date) > 1 && $expense->purchase_order) {
+            $purchase_order = $expense->purchase_order;
+            $purchase_order->balance = round($purchase_order->amount - $expense->amount, 2);
+            $purchase_order->paid_to_date = $expense->amount;
+            $purchase_order->save();
         }
 
         return $expense;

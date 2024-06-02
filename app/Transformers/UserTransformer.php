@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -109,7 +109,10 @@ class UserTransformer extends EntityTransformer
 
         $transformer = new CompanyUserTransformer($this->serializer);
 
-        $cu = $user->company_users()->whereCompanyId($user->company_id)->first();
+        $cu = $user->company_users()->where('company_id',$user->company_id)->first();
+
+        if(!$cu)
+            return null;
 
         return $this->includeItem($cu, $transformer, CompanyUser::class);
     }

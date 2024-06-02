@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -25,8 +25,6 @@ class SelfUpdateController extends BaseController
     use DispatchesJobs;
     use ClientGroupSettingsSaver;
     use AppSetup;
-
-    // private bool $use_zip = false;
 
     private string $filename = 'invoiceninja.tar';
 
@@ -64,6 +62,9 @@ class SelfUpdateController extends BaseController
 
         $file_headers = @get_headers($this->getDownloadUrl());
 
+        if(!is_array($file_headers))
+            return response()->json(['message' => 'There was a problem reaching the update server, please try again in a little while.'], 410);
+
         if (stripos($file_headers[0], "404 Not Found") > 0  || (stripos($file_headers[0], "302 Found") > 0 && stripos($file_headers[7], "404 Not Found") > 0)) {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
         }
@@ -98,6 +99,9 @@ class SelfUpdateController extends BaseController
                 unlink($purge_file);
             }
         }
+
+        if(Storage::disk('base')->directoryExists('resources/lang'))
+            Storage::disk('base')->deleteDirectory('resources/lang');
 
         nlog('Removing cache files');
 

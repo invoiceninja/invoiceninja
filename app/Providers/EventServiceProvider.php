@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -97,6 +97,7 @@ use App\Events\RecurringQuote\RecurringQuoteWasCreated;
 use App\Events\RecurringQuote\RecurringQuoteWasDeleted;
 use App\Events\RecurringQuote\RecurringQuoteWasRestored;
 use App\Events\RecurringQuote\RecurringQuoteWasUpdated;
+use App\Events\Statement\StatementWasEmailed;
 use App\Events\Subscription\SubscriptionWasArchived;
 use App\Events\Subscription\SubscriptionWasCreated;
 use App\Events\Subscription\SubscriptionWasDeleted;
@@ -222,6 +223,7 @@ use App\Listeners\RecurringQuote\RecurringQuoteDeletedActivity;
 use App\Listeners\RecurringQuote\RecurringQuoteRestoredActivity;
 use App\Listeners\RecurringQuote\UpdateRecurringQuoteActivity;
 use App\Listeners\SendVerificationNotification;
+use App\Listeners\Statement\StatementEmailedActivity;
 use App\Listeners\User\ArchivedUserActivity;
 use App\Listeners\User\CreatedUserActivity;
 use App\Listeners\User\DeletedUserActivity;
@@ -576,6 +578,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         RecurringInvoiceWasRestored::class => [
             RecurringInvoiceRestoredActivity::class,
+        ],
+        StatementWasEmailed::class => [
+            StatementEmailedActivity::class,
         ],
         TaskWasCreated::class => [
             CreatedTaskActivity::class,

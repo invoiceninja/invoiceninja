@@ -1,27 +1,32 @@
     CompanyUser:
       properties:
         permissions:
-          description: 'The company user permissions'
+          description: 'The user permissionsfor this company in a comma separated list'
           type: string
-          example: '[create_invoice]'
+          example: 'create_invoice,create_client,view_client'
         settings:
-          description: 'Settings that are used for the frontend applications to store user preferences / metadata'
+          description: 'Settings that are used for the flutter applications to store user preferences / metadata'
           type: object
+          readOnly: true
         react_settings:
           description: 'Dedicated settings object for the react web application'
           type: object
+          readOnly: true
         is_owner:
           description: 'Determines whether the user owns this company'
           type: boolean
           example: true
+          readOnly: true
         is_admin:
           description: 'Determines whether the user is the admin of this company'
           type: boolean
           example: true
+          readOnly: true
         is_locked:
           description: 'Determines whether the users access to this company has been locked'
           type: boolean
           example: true
+          readOnly: true
         updated_at:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer

@@ -80,7 +80,7 @@
 
         @component('portal.ninja2020.components.general.card-element-single')
             <input type="checkbox" class="form-checkbox mr-1" name="accept_terms" id="accept-terms" required>
-            <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth('contact')->user()->client->company->settings->email]) }}</label>
+            <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->guard('contact')->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
         @endcomponent
 
         <div class="bg-white px-4 py-5 flex justify-end">

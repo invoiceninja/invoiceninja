@@ -17,8 +17,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.8.30'),
-    'app_tag' => env('APP_TAG', '5.8.30'),
+    'app_version' => env('APP_VERSION', '5.9.0'),
+    'app_tag' => env('APP_TAG', '5.9.0'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -54,17 +54,14 @@ return [
         'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
         'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
     ],
-
     'privacy_policy_url' => [
         'hosted' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
         'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),
     ],
-
     'db' => [
         'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
         'default' => env('DB_CONNECTION', 'mysql'),
     ],
-
     'i18n' => [
         'timezone_id' => env('DEFAULT_TIMEZONE', 1),
         'country_id' => env('DEFAULT_COUNTRY', 840), // United Stated
@@ -79,14 +76,19 @@ return [
         'first_day_of_week' => env('FIRST_DATE_OF_WEEK', 0),
         'first_month_of_year' => env('FIRST_MONTH_OF_YEAR', '2000-01-01'),
     ],
-
     'testvars' => [
         'username' => 'user@example.com',
         'clientname' => 'client@example.com',
         'password' => 'password',
+        'gocardless' => env('GOCARDLESS_KEYS',''),
+        'square' => env('SQUARE_KEYS',''),
+        'eway' => env('EWAY_KEYS',''),
+        'mollie', env('MOLLIE_KEYS',''),
+        'paytrace' => env('PAYTRACE_KEYS',''),
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
         'ppcp' => env('PPCP_KEYS', ''),
+        'forte' => env('FORTE_KEYS', ''),
         'paypal_rest' => env('PAYPAL_REST_KEYS', ''),
         'authorize' => env('AUTHORIZE_KEYS', ''),
         'checkout' => env('CHECKOUT_KEYS', ''),
@@ -94,13 +96,7 @@ return [
         'test_email' => env('TEST_EMAIL', 'test@example.com'),
         'wepay' => env('WEPAY_KEYS', ''),
         'braintree' => env('BRAINTREE_KEYS', ''),
-        'paytrace' => [
-            'username' => env('PAYTRACE_U', ''),
-            'password' => env('PAYTRACE_P', ''),
-            'decrypted' => env('PAYTRACE_KEYS', ''),
-        ],
         'mollie' => env('MOLLIE_KEYS', ''),
-        'square' => env('SQUARE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
@@ -243,4 +239,6 @@ return [
         'public_key' => env('NINJA_PUBLIC_KEY', false),
         'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
+    'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', ''),
+    
 ];

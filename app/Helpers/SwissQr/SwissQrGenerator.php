@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -159,7 +159,7 @@ class SwissQrGenerator
         // Optionally, add some human-readable information about what the bill is for.
         $qrBill->setAdditionalInformation(
             QrBill\DataGroup\Element\AdditionalInformation::create(
-                $this->invoice->public_notes ? substr($this->invoice->public_notes, 0, 139) : ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number])
+                $this->invoice->public_notes ? substr(strip_tags($this->invoice->public_notes), 0, 139) : ctrans('texts.invoice_number_placeholder', ['invoice' => $this->invoice->number])
             )
         );
 
@@ -178,13 +178,13 @@ class SwissQrGenerator
             if(is_iterable($qrBill->getViolations())) {
 
                 foreach ($qrBill->getViolations() as $key => $violation) {
-                    nlog("qr");
-                    nlog($violation);
+                    // nlog("qr");
+                    // nlog($violation);
                 }
 
             }
 
-            nlog($e->getMessage());
+            // nlog($e->getMessage());
 
             return '';
             // return $e->getMessage();

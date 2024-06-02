@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -206,6 +206,29 @@ class Document extends BaseModel
     public function translate_entity()
     {
         return ctrans('texts.document');
+    }
+
+    public function link()
+    {
+        $entity_id = $this->encodePrimaryKey($this->documentable_id);
+        $link = '';
+
+        match($this->documentable_type) {
+            'App\Models\Vendor' => $link = "/vendors/{$entity_id}",
+            'App\Models\Project' => $link = "/projects/{$entity_id}",
+            'invoices' => $link = "/invoices/{$entity_id}/edit",
+            'App\Models\Quote' => $link = "/quotes/{$entity_id}/edit",
+            'App\Models\Credit' => $link = "/credits/{$entity_id}/edit",
+            'App\Models\Expense' => $link = "/expenses/{$entity_id}/edit",
+            'App\Models\Payment' => $link = "/payments/{$entity_id}/edit",
+            'App\Models\Task' => $link = "/tasks/{$entity_id}/edit",
+            'App\Models\Client' => $link = "/clients/{$entity_id}",
+            'App\Models\RecurringExpense' => $link = "/recurring_expenses/{$entity_id}/edit",
+            'App\Models\RecurringInvoice' => $link = "/recurring_invoices/{$entity_id}/edit",
+            default => $link = '',
+        };
+
+        return $link;
     }
 
     public function compress(): mixed

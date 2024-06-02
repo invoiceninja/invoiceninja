@@ -4,18 +4,19 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\DataMapper\Tax;
 
-use App\DataMapper\Tax\ZipTax\Response;
-use App\DataProviders\USStates;
+use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Product;
+use App\DataProviders\USStates;
+use App\DataMapper\Tax\ZipTax\Response;
 
 class BaseRule implements RuleInterface
 {
@@ -168,7 +169,6 @@ class BaseRule implements RuleInterface
         /* We should only apply taxes for configured states */
         if(!array_key_exists($this->client->country->iso_3166_2, $this->region_codes)) {
             nlog('Automatic tax calculations not supported for this country - defaulting to company country');
-            nlog("With new logic, we should never see this");
         }
 
         /** Harvest the client_region */
@@ -211,7 +211,7 @@ class BaseRule implements RuleInterface
         }
 
         /** Applies the tax data to the invoice */
-        if($this->invoice instanceof Invoice && $tax_data) {
+        if(($this->invoice instanceof Invoice || $this->invoice instanceof Quote) && $tax_data) {
 
             $this->invoice->tax_data = $tax_data;
 
@@ -264,7 +264,7 @@ class BaseRule implements RuleInterface
             return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
 
         } catch (\Exception $e) {
-            return $this->client->company->country()->iso_3166_2 == 'US' ? $this->client->company->tax_data->seller_subregion : 'CA';
+            return 'CA';
         }
     }
 

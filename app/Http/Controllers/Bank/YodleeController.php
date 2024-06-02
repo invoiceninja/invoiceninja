@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -90,13 +90,12 @@ class YodleeController extends BaseController
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->from_date = now()->subYear();
-
+                $bank_integration->integration_type = BankIntegration::INTEGRATION_TYPE_YODLEE;
                 $bank_integration->auto_sync = true;
 
                 $bank_integration->save();
             }
         }
-
 
         $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
             ProcessBankTransactionsYodlee::dispatch($company->account->id, $bank_integration);
@@ -302,8 +301,30 @@ class YodleeController extends BaseController
 
         $summary = $yodlee->getAccountSummary($account_number);
 
-        $transformed_summary = AccountSummary::from($summary[0]);
+        //@todo remove laravel-data
+        // $transformed_summary = AccountSummary::from($summary[0]);
+        $transformed_summary = $this->transformSummary($summary[0]);
 
         return response()->json($transformed_summary, 200);
+    }
+
+    private function transformSummary($summary): array
+    {
+        $dto = new \stdClass;
+        $dto->id = $summary['id'] ?? 0;
+        $dto->account_type = $summary['CONTAINER'] ?? '';
+
+        $dto->account_status = $summary['accountStatus'] ?? '';
+        $dto->account_number = $summary['accountNumber'] ?? '';
+        $dto->provider_account_id = $summary['providerAccountId'] ?? '';
+        $dto->provider_id = $summary['providerId'] ?? '';
+        $dto->provider_name = $summary['providerName'] ?? '';
+        $dto->nickname = $summary['nickname'] ?? '';
+        $dto->account_name = $summary['accountName'] ?? '';
+        $dto->current_balance = $summary['currentBalance']['amount'] ?? 0;
+        $dto->account_currency = $summary['currentBalance']['currency'] ?? 0;
+
+        return (array)$dto;
+
     }
 }

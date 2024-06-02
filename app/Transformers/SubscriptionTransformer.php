@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,6 +72,7 @@ class SubscriptionTransformer extends EntityTransformer
             'optional_recurring_product_ids' => (string)$subscription->optional_recurring_product_ids,
             'optional_product_ids' => (string) $subscription->optional_product_ids,
             'registration_required' => (bool) $subscription->registration_required,
+            'steps' => $subscription->steps,
         ];
     }
 }

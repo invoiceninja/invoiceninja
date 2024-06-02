@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -132,6 +132,9 @@ class CreditTransformer extends EntityTransformer
             'paid_to_date' => (float) $credit->paid_to_date,
             'subscription_id' => $this->encodePrimaryKey($credit->subscription_id),
             'invoice_id' => $credit->invoice_id ? $this->encodePrimaryKey($credit->invoice_id) : '',
+            'tax_info' => $credit->tax_data ?: new \stdClass(),
+            'e_invoice' => $credit->e_invoice ?: new \stdClass(),
+
         ];
     }
 }

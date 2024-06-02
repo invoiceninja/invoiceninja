@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,6 +45,8 @@ class InstantPayment
     public function run()
     {
         nlog($this->request->all());
+        
+        /** @var \App\Models\ClientContact $cc */
 
         $cc = auth()->guard('contact')->user();
 
@@ -70,6 +72,9 @@ class InstantPayment
          * ['invoice_id' => xxx, 'amount' => 22.00]
          */
         $payable_invoices = collect($this->request->payable_invoices);
+
+        nlog($payable_invoices);
+
         $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
 
         $invoices->each(function ($invoice) {
@@ -202,11 +207,6 @@ class InstantPayment
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
-
-        /* Schedule a job to check the gateway fees for this invoice*/
-        // if (Ninja::isHosted()) {
-        //     CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(800);
-        // }
 
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();

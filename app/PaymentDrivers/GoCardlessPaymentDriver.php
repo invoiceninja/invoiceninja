@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -84,11 +84,11 @@ class GoCardlessPaymentDriver extends BaseDriver
             $types[] = GatewayType::DIRECT_DEBIT;
         }
 
-        if (in_array($this->client->currency()->code, ['EUR', 'GBP'])) {
+        if ($this->client && in_array($this->client->currency()->code, ['EUR', 'GBP'])) {
             $types[] = GatewayType::SEPA;
         }
 
-        if ($this->client->currency()->code === 'GBP') {
+        if ($this->client && $this->client->currency()->code === 'GBP') {
             $types[] = GatewayType::INSTANT_BANK_PAY;
         }
 
@@ -557,5 +557,18 @@ class GoCardlessPaymentDriver extends BaseDriver
     public function verificationView()
     {
         return render('gateways.gocardless.verification');
+    }
+
+    public function auth(): bool
+    {
+        try {
+            $customers = $this->init()->gateway->customers()->list();
+            return true;
+        }
+        catch(\Exception $e){
+
+        }
+
+        return false;
     }
 }

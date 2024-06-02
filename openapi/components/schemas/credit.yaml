@@ -12,10 +12,6 @@
           description: "The unique hashed ID of the assigned user responsible for the credit"
           type: string
           example: 6f7g8h9i0j
-        company_id:
-          description: "The unique hashed ID of the company associated with the credit"
-          type: string
-          example: k1l2m3n4o5
         client_id:
           description: "The unique hashed ID of the client associated with the credit"
           type: string

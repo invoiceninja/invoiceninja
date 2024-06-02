@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -277,7 +277,7 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate1_total;
 
-        if (strlen($this->item->tax_name1) > 2) {
+        if (strlen($this->item->tax_name1) > 1) {
             $this->groupTax($this->item->tax_name1, $this->item->tax_rate1, $item_tax_rate1_total);
         }
 
@@ -285,7 +285,7 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate2_total;
 
-        if (strlen($this->item->tax_name2) > 2) {
+        if (strlen($this->item->tax_name2) > 1) {
             $this->groupTax($this->item->tax_name2, $this->item->tax_rate2, $item_tax_rate2_total);
         }
 
@@ -293,7 +293,7 @@ class InvoiceItemSum
 
         $item_tax += $item_tax_rate3_total;
 
-        if (strlen($this->item->tax_name3) > 2) {
+        if (strlen($this->item->tax_name3) > 1) {
             $this->groupTax($this->item->tax_name3, $this->item->tax_rate3, $item_tax_rate3_total);
         }
 

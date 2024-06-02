@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. PurchaseOrder Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. PurchaseOrder Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,10 +62,24 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
-                        ->with('vendor')->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->whereHas('vendor', function ($q){
+                            $q->where('is_deleted', false);
+                        })
+                        ->with('vendor')->where('company_id', $this->company->id);
+                        
+        if(!$this->input['include_deleted'] ?? false){
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
+
+        $clients = &$this->input['client_id'];
+
+        if($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
+
+        $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -104,6 +118,7 @@ class PurchaseOrderItemExport extends BaseExport
     {
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $query = $this->init();
 
@@ -190,23 +205,35 @@ class PurchaseOrderItemExport extends BaseExport
 
     private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array
     {
-        if (in_array('currency_id', $this->input['report_keys'])) {
-            $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
+        // if (in_array('currency_id', $this->input['report_keys'])) {
+        //     $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
+        // }
+
+        // if(array_key_exists('type', $entity)) {
+        //     $entity['type'] = $purchase_order->typeIdString($entity['type']);
+        // }
+
+        // if(array_key_exists('tax_category', $entity)) {
+        //     $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
+        // }
+
+        // if($this->force_keys) {
+        //     $entity['vendor'] = $purchase_order->vendor->present()->name();
+        //     $entity['vendor_id_number'] = $purchase_order->vendor->id_number;
+        //     $entity['vendor_number'] = $purchase_order->vendor->number;
+        //     $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
+        // }
+
+        if (in_array('purchase_order.currency_id', $this->input['report_keys'])) {
+            $entity['purchase_order.currency_id'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
         }
 
-        if(array_key_exists('type', $entity)) {
-            $entity['type'] = $purchase_order->typeIdString($entity['type']);
+        if (in_array('purchase_order.vendor_id', $this->input['report_keys'])) {
+            $entity['purchase_order.vendor_id'] = $purchase_order->vendor->present()->name();
         }
 
-        if(array_key_exists('tax_category', $entity)) {
-            $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
-        }
-
-        if($this->force_keys) {
-            $entity['vendor'] = $purchase_order->vendor->present()->name();
-            $entity['vendor_id_number'] = $purchase_order->vendor->id_number;
-            $entity['vendor_number'] = $purchase_order->vendor->number;
-            $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
+        if (in_array('purchase_order.status', $this->input['report_keys'])) {
+            $entity['purchase_order.status'] = $purchase_order->stringStatus($purchase_order->status_id);
         }
 
         if (in_array('purchase_order.user_id', $this->input['report_keys'])) {

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -70,7 +70,7 @@ class EmailController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($request->cc_email && (Ninja::isSelfHost() || $user->account->isPaidHostedClient())) {
+        if ($request->cc_email && (Ninja::isSelfHost() || $user->account->isPremium())) {
 
             foreach($request->cc_email as $email) {
                 $mo->cc[] = new Address($email);

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,6 +12,7 @@
 namespace App\Factory;
 
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class UserFactory
 {
@@ -29,6 +30,7 @@ class UserFactory
         $user->signature = '';
         $user->theme_id = 0;
         $user->user_logged_in_notification = true;
+        $user->referral_code = Str::lower(Str::random(32));
 
         return $user;
     }
