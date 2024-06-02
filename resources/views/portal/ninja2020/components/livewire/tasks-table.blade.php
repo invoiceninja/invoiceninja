@@ -15,22 +15,22 @@
             <table class="min-w-full shadow rounded border border-gray-200 mt-4 credits-table bg-white">
                 <thead>
                 <tr>
-                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary task_description">
                         <span role="button" wire:click="sortBy('description')" class="cursor-pointer">
                             {{ ctrans('texts.description') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary">
+                    <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-primary task_project">
                         <span role="button" wire:click="sortBy('description')" class="cursor-pointer">
                             {{ ctrans('texts.project') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider task_status">
                         <span role="button" wire:click="sortBy('status_id')" class="cursor-pointer">
                             {{ ctrans('texts.status') }}
                         </span>
                     </th>
-                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
+                    <th class="px-6 py-3 border-b border-gray-200 bg-primary text-left text-xs leading-4 font-medium text-white uppercase tracking-wider task_duration">
                         <span role="button" class="cursor-pointer">
                             {{ ctrans('texts.duration') }}
                         </span>
@@ -40,13 +40,13 @@
                 <tbody>
                 @foreach($tasks as $task)
                     <tr class="bg-white group hover:bg-gray-100">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500 task_descripton">
                             {{ \Illuminate\Support\Str::limit($task->description, 80) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500 task_project">
                             {{ $task->project?->name }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500 task_status">
                             <div class="flex">
                             {!! $task->stringStatus() !!}
 
@@ -59,7 +59,7 @@
                             @endif
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm leading-5 text-gray-500 task_duration">
                             {{ \Carbon\CarbonInterval::seconds($task->calcDuration())->cascade()->forHumans() }}
                         </td>
                     </tr>
@@ -68,17 +68,17 @@
                             <table class="min-w-full ml-5">
                                 <thead>
                                     <tr>
-                                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500">
+                                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500 task_date">
                                             <span>
                                                 {{ ctrans('texts.date') }}
                                             </span>
                                         </th>
-                                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500">
+                                        <th class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500 task_duration">
                                             <span>
                                                 {{ ctrans('texts.duration') }}
                                             </span>
                                         </th>
-                                        <th colspan="4" class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500">
+                                        <th colspan="4" class="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-white uppercase border-b border-gray-200 bg-gray-500 task_description">
                                             <span>
                                                 {{ ctrans('texts.description') }}
                                             </span>
@@ -89,13 +89,13 @@
                                 @foreach($task->processLogsExpandedNotation() as $log)
                                     @if(strlen($log['description']) > 1)
                                         <tr class="bg-white group border-b border-gray-100">
-                                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6">
+                                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6 task_date">
                                                 {{ $log['start_date']}}
                                             </td>
-                                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6">
+                                            <td class="px-6 py-4 text-sm leading-5 text-gray-500 w-1/6 task_duration">
                                                 {{ $log['duration']}}
                                             </td>
-                                            <td colspan="4" class="px-6 py-4 text-sm leading-5 text-gray-500 w-4/6">
+                                            <td colspan="4" class="px-6 py-4 text-sm leading-5 text-gray-500 w-4/6 task_description">
                                                 {!! nl2br(e($log['description'])) !!}
                                             </td>
                                         </tr>

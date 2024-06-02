@@ -60,6 +60,7 @@ class DesignApiTest extends TestCase
 
         $q = Design::query()
               ->where('is_template', true)
+              ->where('company_id', $this->company->id)
               ->whereRaw('FIND_IN_SET( ? ,entities)', [$searchable]);
         
         $this->assertEquals(1, $q->count());

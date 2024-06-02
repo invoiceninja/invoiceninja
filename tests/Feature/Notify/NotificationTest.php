@@ -11,17 +11,18 @@
 
 namespace Tests\Feature\Notify;
 
-use App\DataMapper\CompanySettings;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Product;
-use App\Models\User;
-use App\Utils\Traits\Notifications\UserNotifies;
-use Illuminate\Support\Str;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\User;
+use App\Models\Invoice;
+use App\Models\Product;
+use Tests\MockAccountData;
+use App\Models\CompanyUser;
+use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\InvoiceInvitation;
+use App\DataMapper\CompanySettings;
+use App\Utils\Traits\Notifications\UserNotifies;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test
@@ -32,6 +33,8 @@ class NotificationTest extends TestCase
     use UserNotifies;
     use MockAccountData;
 
+    protected $faker;
+    
     protected function setUp() :void
     {
         parent::setUp();

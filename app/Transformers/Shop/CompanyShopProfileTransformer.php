@@ -72,6 +72,9 @@ class CompanyShopProfileTransformer extends EntityTransformer
             'email' => $company->settings->email,
             'country_id' => $company->settings->country_id,
             'vat_number' => $company->settings->vat_number,
+            'product' => $company->settings->translations->product ?? ctrans('texts.product'),
+            'products' => $company->settings->translations->products ?? ctrans('texts.products'),
+            'client_registration_fields' => $company->client_registration_fields,
         ];
 
         $new_settings = new stdClass();
