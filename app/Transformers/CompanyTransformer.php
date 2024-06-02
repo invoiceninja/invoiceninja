@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -211,6 +211,7 @@ class CompanyTransformer extends EntityTransformer
             'smtp_password' => $company->smtp_password ? '********' : '',
             'smtp_local_domain' => (string)$company->smtp_local_domain ?? '',
             'smtp_verify_peer' => (bool)$company->smtp_verify_peer,
+            'e_invoice' => $company->e_invoice ?: new \stdClass(),
         ];
     }
 

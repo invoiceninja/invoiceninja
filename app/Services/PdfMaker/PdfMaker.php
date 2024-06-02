@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -80,18 +80,29 @@ class PdfMaker
             $replacements = [];
             $contents = $this->document->getElementsByTagName('ninja');
 
-            $ts = new TemplateService();
+            $ts = new TemplateService();    
 
-            if(isset($this->data['template']['entity'])) {
+            if(isset($this->options['client'])) {
+                $client = $this->options['client'];
                 try {
-                    $entity = $this->data['template']['entity'];
-                    $ts->setCompany($entity->company);
+                    $ts->setCompany($client->company);
+                    $ts->addGlobal(['currency_code' => $client->company->currency()->code]);
                 } catch(\Exception $e) {
-
+                        nlog($e->getMessage());
+                }
+            }
+            
+            if(isset($this->options['vendor'])) {
+                $vendor = $this->options['vendor'];
+                try {
+                    $ts->setCompany($vendor->company);
+                    $ts->addGlobal(['currency_code' => $vendor->company->currency()->code]);
+                } catch(\Exception $e) {
+                    nlog($e->getMessage());
                 }
             }
 
-            $data = $ts->processData($this->options)->getData();
+            $data = $ts->processData($this->options)->setGlobals()->getData();
             $twig = $ts->twig;
 
             foreach ($contents as $content) {
@@ -130,7 +141,6 @@ class PdfMaker
     {
 
         $html = $this->document->saveHTML();
-        // nlog($html);
         return str_replace('%24', '$', $html);
     }
 }

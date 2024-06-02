@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,6 +51,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $last_login
  * @property int|null $industry_id
  * @property int|null $size_id
+ * @property object|null $e_invoice
  * @property string|null $address1
  * @property string|null $address2
  * @property string|null $city
@@ -185,6 +186,7 @@ class Client extends BaseModel implements HasLocalePreference
         'deleted_at' => 'timestamp',
         'last_login' => 'timestamp',
         'tax_data' => 'object',
+        'e_invoice' => 'object',
     ];
 
     protected $touches = [];
@@ -220,12 +222,17 @@ class Client extends BaseModel implements HasLocalePreference
         'routing_id',
     ];
 
-    // public function scopeExclude($query)
-    // {
-    //     $query->makeHidden(['balance','paid_to_date']);
+    public static array $bulk_update_columns = [
+        'public_notes',
+        'industry_id',
+        'size_id',
+        'country_id',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+    ];
 
-    //     return $query;
-    // }
 
     public function getEntityType()
     {
@@ -485,7 +492,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         /*Company Settings*/
-        elseif ((property_exists($this->company->settings, $setting) != false) && (isset($this->company->settings->{$setting}) !== false)) {
+        elseif ((property_exists($this->company->settings, $setting) !== false) && (isset($this->company->settings->{$setting}) !== false)) {
             return $this->company->settings->{$setting};
         } elseif (property_exists(CompanySettings::defaults(), $setting)) {
             return CompanySettings::defaults()->{$setting};
@@ -754,7 +761,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
     }
-    public function e_invoice_filepath($invitation): string
+    public function e_document_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
@@ -796,15 +803,18 @@ class Client extends BaseModel implements HasLocalePreference
     {
         $defaults = [];
 
-        if (! (array_key_exists('terms', $data) && is_string($data['terms']) && strlen($data['terms']) > 1)) {
+        $terms = &$data['terms'];
+        $footer = &$data['footer'];
+
+        if (!$terms || ($terms && strlen((string)$terms) == 0)) {
             $defaults['terms'] = $this->getSetting($entity_name.'_terms');
-        } elseif (array_key_exists('terms', $data)) {
+        } elseif ($terms) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if (! (array_key_exists('footer', $data) && is_string($data['footer']) && strlen($data['footer']) > 1)) {
+        if (!$footer || ($footer && strlen((string)$footer) == 0)) {
             $defaults['footer'] = $this->getSetting($entity_name.'_footer');
-        } elseif (array_key_exists('footer', $data)) {
+        } elseif ($footer) {
             $defaults['footer'] = $data['footer'];
         }
 

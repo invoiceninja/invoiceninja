@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -137,6 +137,7 @@ class ClientFilters extends QueryFilters
                               $query->where('first_name', 'like', '%'.$filter.'%');
                               $query->orWhere('last_name', 'like', '%'.$filter.'%');
                               $query->orWhere('email', 'like', '%'.$filter.'%');
+                              $query->orWhere('phone', 'like', '%'.$filter.'%');
                           })
                           ->orWhere('custom_value1', 'like', '%'.$filter.'%')
                           ->orWhere('custom_value2', 'like', '%'.$filter.'%')
@@ -159,6 +160,9 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
+        if($sort_col[0] == 'documents')
+            return $this->builder;
+
         if ($sort_col[0] == 'display_name') {
             $sort_col[0] = 'name';
         }
@@ -166,7 +170,7 @@ class ClientFilters extends QueryFilters
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if($sort_col[0] == 'number') {
-            return $this->builder->orderByRaw('ABS(number) ' . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

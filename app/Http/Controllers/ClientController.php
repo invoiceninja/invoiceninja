@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,6 +49,9 @@ use App\Http\Requests\Client\ClientDocumentsRequest;
 use App\Http\Requests\Client\ReactivateClientEmailRequest;
 use App\Models\Expense;
 use App\Models\Payment;
+use App\Models\Project;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
 use App\Models\Task;
 use App\Transformers\DocumentTransformer;
 
@@ -234,7 +237,7 @@ class ClientController extends BaseController
             $hash_or_response = $request->boolean('send_email') ? 'email sent' : \Illuminate\Support\Str::uuid();
 
             TemplateAction::dispatch(
-                $clients->pluck('id')->toArray(),
+                $clients->pluck('hashed_id')->toArray(),
                 $request->template_id,
                 Client::class,
                 $user->id,
@@ -245,6 +248,26 @@ class ClientController extends BaseController
             );
 
             return response()->json(['message' => $hash_or_response], 200);
+        }
+
+        if($action == 'assign_group' && $user->can('edit', $clients->first())){
+
+            $this->client_repo->assignGroup($clients, $request->group_settings_id);
+            
+            return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
+        }
+
+        if($action == 'bulk_update' && $user->can('edit', $clients->first())){
+
+            $clients = Client::withTrashed()
+                    ->company()
+                    ->whereIn('id', $request->ids);
+
+            $this->client_repo->bulkUpdate($clients, $request->column, $request->new_value);
+            
+            return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
         }
 
         $clients->each(function ($client) use ($action, $user) {
@@ -325,9 +348,12 @@ class ClientController extends BaseController
                             ->first();
 
         if (!$m_client) {
-            return response()->json(['message' => "Client not found"]);
+            return response()->json(['message' => "Client not found"], 400);
         }
 
+        if($m_client->id == $client->id) 
+            return response()->json(['message' => "Attempting to merge the same client is not possible."], 400);
+        
         $merged_client = $client->service()->merge($m_client)->save();
 
         return $this->itemResponse($merged_client);
@@ -387,6 +413,12 @@ class ClientController extends BaseController
             }
 
             $bounce_id = $resolved_bounce_id;
+
+            $record = $log->log;
+            $record['ID'] = '';
+            $log->log = $record;
+            $log->save();
+
         }
 
         $postmark = new PostmarkClient(config('services.postmark.token'));
@@ -421,7 +453,7 @@ class ClientController extends BaseController
 
         $documents = Document::query()
             ->company()
-            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class], function ($query) use ($client) {
+            ->whereHasMorph('documentable', [Invoice::class, Quote::class, Credit::class, Expense::class, Payment::class, Task::class, RecurringInvoice::class, RecurringExpense::class, Project::class], function ($query) use ($client) {
                 $query->where('client_id', $client->id);
             })
             ->orWhereHasMorph('documentable', [Client::class], function ($query) use ($client) {

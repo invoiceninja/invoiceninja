@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,7 +57,7 @@ class ProcessBankRules extends AbstractService
                                 ->get();
 
         $invoice = $this->invoices->first(function ($value, $key) {
-            return str_contains($this->bank_transaction->description, $value->number);
+            return str_contains($this->bank_transaction->description, $value->number) || str_contains(str_replace("\n", "", $this->bank_transaction->description), $value->number);
         });
 
         if ($invoice) {

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,7 +35,7 @@ class NordigenController extends BaseController
         /** @var array $context */
         $context = $request->getTokenContent();
         $company = $request->getCompany();
-        $lang = $company->locale();
+        $lang = substr($company->locale(), 0, 2);
         $context["lang"] = $lang;
 
         if (!$context) {
@@ -143,7 +143,7 @@ class NordigenController extends BaseController
         $data = $request->all();
         $company = $request->getCompany();
         $account = $company->account;
-        $lang = $company->locale();
+        $lang = substr($company->locale(), 0, 2);
 
         /** @var array $context */
         $context = $request->getTokenContent();

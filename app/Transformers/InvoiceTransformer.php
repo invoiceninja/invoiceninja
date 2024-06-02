@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -158,6 +158,8 @@ class InvoiceTransformer extends EntityTransformer
             'subscription_id' => $this->encodePrimaryKey($invoice->subscription_id),
             'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
             'tax_info' => $invoice->tax_data ?: new \stdClass(),
+            'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
+
         ];
 
         if (request()->has('reminder_schedule') && request()->query('reminder_schedule') == 'true') {

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,7 +58,10 @@ class ContactExport extends BaseExport
         }
 
         $query = ClientContact::query()
-                        ->where('company_id', $this->company->id);
+                        ->where('company_id', $this->company->id)
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        });
 
         $query = $this->addDateRange($query);
 
@@ -73,6 +76,7 @@ class ContactExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

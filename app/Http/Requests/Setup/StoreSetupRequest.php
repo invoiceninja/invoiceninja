@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,14 +31,6 @@ class StoreSetupRequest extends Request
             /*System*/
             'url'              => 'required',
             /*Mail driver*/
-            'mail_driver'      => 'required',
-            'encryption'       => 'required_unless:mail_driver,log',
-            'mail_host'        => 'required_unless:mail_driver,log',
-            'mail_username'    => 'required_unless:mail_driver,log',
-            'mail_name'        => 'required_unless:mail_driver,log',
-            'mail_address'     => 'required_unless:mail_driver,log',
-            'mail_password'    => 'required_unless:mail_driver,log',
-            /*user registration*/
             'privacy_policy'   => 'required',
             'terms_of_service' => 'required',
             'first_name'       => 'required',

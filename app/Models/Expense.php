@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Expense
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
@@ -141,6 +142,7 @@ class Expense extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'e_invoice' => 'object',
     ];
 
     protected $touches = [];
@@ -190,7 +192,7 @@ class Expense extends BaseModel
 
     public function purchase_order()
     {
-        return $this->hasOne(PurchaseOrder::class);
+        return $this->hasOne(PurchaseOrder::class)->withTrashed();
     }
 
     public function translate_entity()

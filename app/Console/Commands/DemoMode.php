@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -110,7 +110,9 @@ class DemoMode extends Command
 
         $this->info('Creating Small Account and Company');
 
-        $account = Account::factory()->create();
+        $account = Account::factory()->create([
+            "set_react_as_default_ap" => 0,
+        ]);
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),

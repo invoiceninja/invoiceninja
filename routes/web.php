@@ -13,13 +13,9 @@ use App\Http\Controllers\Gateways\Mollie3dsController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StripeConnectController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\WePayController;
 use Illuminate\Support\Facades\Route;
 
-//Auth::routes(['password.reset' => false]);
-
 Route::get('/', [BaseController::class, 'flutterRoute'])->middleware('guest');
-// Route::get('self-update', [SelfUpdateController::class, 'update'])->middleware('guest');
 
 Route::get('setup', [SetupController::class, 'index'])->middleware('guest');
 Route::post('setup', [SetupController::class, 'doSetup'])->middleware('guest');
@@ -34,18 +30,8 @@ Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEm
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->middleware(['domain_db', 'email_db'])->name('password.reset');
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])->middleware('email_db')->name('password.update');
 
-Route::get('wepay/signup/{token}', [WePayController::class, 'signup'])->name('wepay.signup');
-Route::get('wepay/finished', [WePayController::class, 'finished'])->name('wepay.finished');
-
-/*
- * Social authentication
- */
-
 Route::get('auth/{provider}', [LoginController::class, 'redirectToProvider']);
 
-/*
- * Inbound routes requiring DB Lookup
- */
 Route::middleware('url_db')->group(function () {
     Route::get('/user/confirm/{confirmation_code}', [UserController::class, 'confirm']);
     Route::post('/user/confirm/{confirmation_code}', [UserController::class, 'confirmWithPassword']);

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,6 +78,28 @@ class ProductSalesExport extends BaseExport
         $this->sales = collect();
     }
 
+    public function filterByProducts($query)
+    {
+    
+        $product_keys = &$this->input['product_key'];
+
+        if ($product_keys && !empty($this->input['product_key'])) {
+
+            $keys = explode(",", $product_keys);
+            $query->where(function ($q) use ($keys){
+
+                foreach($keys as $key)  {    
+                    $q->orWhereJsonContains('line_items', ['product_key' => $key]);
+                }
+
+            });
+            
+        }
+
+        return $query;
+    }
+
+
     public function run()
     {
         MultiDB::setDb($this->company->db);
@@ -90,6 +112,7 @@ class ProductSalesExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
@@ -98,6 +121,9 @@ class ProductSalesExport extends BaseExport
         //insert the header
         $query = Invoice::query()
                         ->withTrashed()
+                        ->whereHas('client', function ($q){
+                            $q->where('is_deleted', false);
+                        })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
@@ -106,17 +132,39 @@ class ProductSalesExport extends BaseExport
 
         $query = $this->filterByClients($query);
 
+        $query = $this->filterByProducts($query);
+
         $this->csv->insertOne($this->buildHeader());
 
+        $product_keys = &$this->input['product_key'];
+
+        if($product_keys){
+            $product_keys = explode(",", $product_keys);
+        }
+
         $query->cursor()
-              ->each(function ($invoice) {
+              ->each(function ($invoice) use($product_keys) {
                   foreach ($invoice->line_items as $item) {
-                      $this->csv->insertOne($this->buildRow($invoice, $item));
+
+                    if($product_keys)
+                    {
+                     if(in_array($item->product_key, $product_keys))
+                        $this->csv->insertOne($this->buildRow($invoice, $item));
+                    }
+                    else {
+                        $this->csv->insertOne($this->buildRow($invoice, $item));
+                    }
+                    
                   }
               });
 
 
-        $grouped = $this->sales->groupBy('product_key')->map(function ($key, $value) {
+        $grouped = $this->sales->groupBy('product_key')->map(function ($key, $value) use($product_keys){
+
+            if($product_keys && !in_array($value, $product_keys)){
+                return false;
+            }
+
             $data =  [
                 'product' => $value,
                 'quantity' => $key->sum('quantity'),
@@ -134,7 +182,10 @@ class ProductSalesExport extends BaseExport
             ];
 
             return $data;
-        });
+
+        })->reject(function ($value) {
+            return $value === false;
+        });;
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);

@@ -250,7 +250,7 @@
 
                             @if($steps['passwordless_login_sent'])
                                 <span
-                                    class="block mt-2 text-sm text-green-600">{!! ctrans('texts.sent') !!}</span>
+                                    class="block mt-2 text-sm text-emerald-600">{!! ctrans('texts.sent') !!}</span>
                             @endif
                         @endif
 

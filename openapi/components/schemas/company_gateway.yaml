@@ -4,10 +4,6 @@
           description: 'The hashed id of the company gateway'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: '2'
         gateway_key:
           description: 'The gateway key (hash)'
           type: string

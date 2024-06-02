@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -215,6 +215,14 @@ class CompanyImport implements ShouldQueue
         "convert_rate_to_client",
     ];
 
+    private array $protected_input = [
+        'client_portal_privacy_policy',
+        'client_portal_terms',
+        'portal_custom_footer',
+        'portal_custom_css',
+        'portal_custom_head'
+    ];
+
     private array $version_keys = [
         'baseline' => [],
         '5.7.35' => [
@@ -229,6 +237,37 @@ class CompanyImport implements ShouldQueue
                 'is_template',
             ]
         ],
+        '5.8.51' => [
+            CompanyGateway::class => [
+                'always_show_required_fields',
+            ]
+        ],
+        '5.8.57' => [
+            Company::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Invoice::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Quote::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Credit::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            PurchaseOrder::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+            Expense::class => [
+                'einvoice',
+                'e_invoice',
+            ],
+        ]
     ];
 
     /**
@@ -311,8 +350,11 @@ class CompanyImport implements ShouldQueue
             }
         }
 
-        unlink($tmp_file);
-        unlink(Storage::path($this->file_location));
+        if(file_exists($tmp_file))
+            unlink($tmp_file);
+
+        if(Storage::exists($this->file_location))
+            unlink(Storage::path($this->file_location));
     }
 
     //
@@ -467,9 +509,16 @@ class CompanyImport implements ShouldQueue
         $settings->payment_number_counter = 1;
         $settings->project_number_counter = 1;
         $settings->purchase_order_number_counter = 1;
-        $this->company->settings = $co->settings;
 
-        $this->company->saveSettings($co->settings, $this->company);
+        $settings->email_style_custom = str_replace(['{!!','!!}','{{','}}','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</s','<s','html;base64'], '', $settings->email_style_custom);
+        $settings->company_logo = (strlen($settings->company_logo) > 2 && stripos($settings->company_logo, 'http') !== false) ? $settings->company_logo : "https://{$settings->company_logo}";
+
+        foreach($this->protected_input as $protected_var)
+        {
+            $settings->{$protected_var} = str_replace("script", "", $settings->{$protected_var});
+        }
+
+        $this->company->saveSettings($settings, $this->company);
 
         $this->company->save();
 

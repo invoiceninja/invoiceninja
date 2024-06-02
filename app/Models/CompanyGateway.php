@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $require_custom_value2
  * @property bool $require_custom_value3
  * @property bool $require_custom_value4
+ * @property bool $always_show_required_fields
  * @property-read int|null $client_gateway_tokens_count
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Gateway $gateway
@@ -77,6 +78,7 @@ class CompanyGateway extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'always_show_required_fields' => 'bool',
     ];
 
     protected $with = [
@@ -107,6 +109,7 @@ class CompanyGateway extends BaseModel
         'custom_value4',
         'token_billing',
         'label',
+        'always_show_required_fields',
     ];
 
     public static $credit_cards = [
@@ -132,6 +135,7 @@ class CompanyGateway extends BaseModel
     // const TYPE_EWAY = 313;
     // const TYPE_FORTE = 314;
     // const PAYPAL_PPCP = 323;
+    // const SQUARE = 320;
 
     public $gateway_consts = [
         '38f2c48af60c7dd69e04248cbb24c36e' => 300,
@@ -144,13 +148,14 @@ class CompanyGateway extends BaseModel
         '8fdeed552015b3c7b44ed6c8ebd9e992' => 309,
         'd6814fc83f45d2935e7777071e629ef9' => 310,
         'bbd736b3254b0aabed6ad7fda1298c88' => 311,
-        '1bd651fb213ca0c9d66ae3c336dc77e7' => 312,
+        '1bd651fb213ca0c9d66ae3c336dc77e8' => 312,
         '944c20175bbe6b9972c05bcfe294c2c7' => 313,
         'kivcvjexxvdiyqtj3mju5d6yhpeht2xs' => 314,
         '65faab2ab6e3223dbe848b1686490baz' => 320,
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321, //GoCardless
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
+        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTPay
     ];
 
     protected $touches = [];

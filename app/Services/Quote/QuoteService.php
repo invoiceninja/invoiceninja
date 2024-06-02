@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@ namespace App\Services\Quote;
 
 use App\Events\Quote\QuoteWasApproved;
 use App\Exceptions\QuoteConversion;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
@@ -70,6 +71,16 @@ class QuoteService
     public function getQuotePdf($contact = null)
     {
         return (new GetQuotePdf($this->quote, $contact))->run();
+    }
+
+    public function getEQuote($contact = null)
+    {
+        return (new CreateEDocument($this->quote))->handle();
+    }
+
+    public function getEDocument($contact = null)
+    {
+        return $this->getEQuote($contact);
     }
 
     public function sendEmail($contact = null): self
@@ -222,6 +233,27 @@ class QuoteService
                 nlog($e->getMessage());
             }
 
+        });
+
+        return $this;
+    }
+    public function deleteEQuote()
+    {
+        $this->quote->load('invitations');
+
+        $this->quote->invitations->each(function ($invitation) {
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                Storage::disk(config('filesystems.default'))->delete($this->quote->client->e_document_filepath($invitation).$this->quote->getFileName("xml"));
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->quote->client->e_document_filepath($invitation).$this->quote->getFileName("xml"));
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
         });
 
         return $this;

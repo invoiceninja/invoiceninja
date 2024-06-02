@@ -252,7 +252,7 @@ class RandomDataSeeder extends Seeder
 
             $invoice->service()->createInvitations()->markSent()->save();
 
-            $invoice->ledger()->updateInvoiceBalance($invoice->balance);
+            $invoice->ledger()->update_invoiceBalance($invoice->balance);
 
             if (rand(0, 1)) {
                 $payment = Payment::create([
@@ -277,7 +277,7 @@ class RandomDataSeeder extends Seeder
 
                 event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-                // $payment->service()->updateInvoicePayment($payment_hash);
+                // $payment->service()->update_invoicePayment($payment_hash);
 
             }
         });

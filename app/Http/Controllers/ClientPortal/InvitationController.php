@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -87,7 +87,7 @@ class InvitationController extends Controller
                                     ->firstOrFail();
 
         if ($invitation->trashed() || $invitation->{$entity}->is_deleted) {
-            return $this->render('generic.not_available', ['account' => $invitation->company->account, 'company' => $invitation->company]);
+            return $this->render('generic.not_available', ['passed_account' => $invitation->company->account, 'passed_company' => $invitation->company]);
         }
 
         if ($invitation->contact->trashed()) {
@@ -138,11 +138,10 @@ class InvitationController extends Controller
 
             return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent]);
 
-            return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         }
+
         return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})]);
 
-        return redirect()->route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key})])->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
     }
 
     private function fireEntityViewedEvent($invitation, $entity_string)
@@ -271,13 +270,14 @@ class InvitationController extends Controller
                                     ->with('contact.client')
                                     ->firstOrFail();
 
+
         if ($invitation->contact->trashed()) {
             $invitation->contact->restore();
         }
 
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
-        $invoice = $invitation->invoice;
+        $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
 
         if ($invoice->partial > 0) {
             $amount = round($invoice->partial, (int)$invoice->client->currency()->precision);
@@ -294,7 +294,10 @@ class InvitationController extends Controller
                 'payable_invoices' => [
                     ['invoice_id' => $invitation->invoice->hashed_id, 'amount' => $amount],
                 ],
-                'signature' => false
+                'signature' => false,
+                'contact_first_name' => $invitation->contact->first_name ?? '',
+                'contact_last_name' => $invitation->contact->last_name ?? '',
+                'contact_email' => $invitation->contact->email ?? ''
             ];
 
             $request->replace($data);

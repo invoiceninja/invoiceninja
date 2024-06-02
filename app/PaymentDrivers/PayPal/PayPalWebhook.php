@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -399,3 +399,64 @@ class PayPalWebhook implements ShouldQueue
 }
 }
 */
+
+
+/** token created
+ * {
+         "id":"WH-1KN88282901968003-82E75604WM969463F",
+         "event_version":"1.0",
+         "create_time":"2022-08-15T14:13:48.978Z",
+         "resource_type":"payment_token",
+         "resource_version":"3.0",
+         "event_type":"VAULT.PAYMENT-TOKEN.CREATED",
+         "summary":"A payment token has been created.",
+         "resource":{
+            "time_created":"2022-08-15T07:13:48.964PDT",
+            "links":[
+               {
+                  "href":"https://api-m.sandbox.paypal.com/v3/vault/payment-tokens/9n6724m",
+                  "rel":"self",
+                  "method":"GET",
+                  "encType":"application/json"
+               },
+               {
+                  "href":"https://api-m.sandbox.paypal.com/v3/vault/payment-tokens/9n6724m",
+                  "rel":"delete",
+                  "method":"DELETE",
+                  "encType":"application/json"
+               }
+            ],
+            "id":"9n6724m",
+            "payment_source":{
+               "card":{
+                  "last_digits":"1111",
+                  "brand":"VISA",
+                  "expiry":"2027-02",
+                  "billing_address":{
+                     "address_line_1":"2211 N First Street",
+                     "address_line_2":"17.3.160",
+                     "admin_area_2":"San Jose",
+                     "admin_area_1":"CA",
+                     "postal_code":"95131",
+                     "country_code":"US"
+                  }
+               }
+            },
+            "customer":{
+               "id":"695922590"
+            }
+         },
+         "links":[
+            {
+               "href":"https://api-m.sandbox.paypal.com/v1/notifications/webhooks-events/WH-1KN88282901968003-82E75604WM969463F",
+               "rel":"self",
+               "method":"GET"
+            },
+            {
+               "href":"https://api-m.sandbox.paypal.com/v1/notifications/webhooks-events/WH-1KN88282901968003-82E75604WM969463F/resend",
+               "rel":"resend",
+               "method":"POST"
+            }
+         ]
+      }
+ */

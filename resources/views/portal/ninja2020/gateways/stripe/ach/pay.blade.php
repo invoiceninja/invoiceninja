@@ -59,11 +59,11 @@
 
         @component('portal.ninja2020.components.general.card-element-single')
             <input type="checkbox" class="form-checkbox mr-1" id="accept-terms" required>
-            <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
+            <label for="accept-terms" class="cursor-pointer">{{ ctrans('texts.ach_authorization', ['company' => auth()->guard('contact')->user()->company->present()->name, 'email' => auth()->guard('contact')->user()->client->company->settings->email]) }}</label>
         @endcomponent
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.account_holder_name')])
-            <input class="input w-full" id="account-holder-name-field" type="text" placeholder="{{ ctrans('texts.name') }}" value="{{ $gateway->client->present()->first_name() }} {{ $gateway->client->present()->last_name(); }}"required>
+            <input class="input w-full" id="account-holder-name-field" type="text" placeholder="{{ ctrans('texts.name') }}" value="{{ $gateway->client->present()->first_name() }} {{ $gateway->client->present()->last_name() }}"required>
         @endcomponent
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.email')])
             <input class="input w-full" id="email-field" type="text" placeholder="{{ ctrans('texts.email') }}" value="{{ $gateway->client->present()->email(); }}" required>

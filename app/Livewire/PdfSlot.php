@@ -5,14 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Livewire;
 
-use App\Jobs\Invoice\CreateEInvoice;
+use App\Jobs\EDocument\CreateEDocument;
 use App\Libraries\MultiDB;
 use App\Models\CreditInvitation;
 use App\Models\InvoiceInvitation;
@@ -108,12 +108,12 @@ class PdfSlot extends Component
 
     }
 
-    public function downloadEInvoice()
+    public function downloadEDocument()
     {
 
         $file_name = $this->entity->numberFormatter().'.xml';
 
-        $file = (new CreateEInvoice($this->entity))->handle();
+        $file = (new CreateEDocument($this->entity))->handle();
 
         $headers = ['Content-Type' => 'application/xml'];
 
@@ -149,6 +149,7 @@ class PdfSlot extends Component
         return render('components.livewire.pdf-slot', [
             'invitation' => $this->invitation,
             'entity' => $this->entity,
+            'settings' => $this->settings,
             'data' => $this->invitation->company->settings,
             'entity_type' => $this->entity_type,
             'products' => $this->getProducts(),

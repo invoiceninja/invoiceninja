@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,23 +44,24 @@ class StoreProjectRequest extends Request
 
         $rules['name'] = 'required';
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        $rules['budgeted_hours'] = 'sometimes|numeric';
 
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('projects')->where('company_id', $user->company()->id);
         }
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->file_validation;
+            $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->file_validation;
+            $rules['documents'] = $this->fileValidation();
         }else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
         if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->file_validation;
+            $rules['file.*'] = $this->fileValidation();
         } elseif ($this->file('file')) {
-            $rules['file'] = $this->file_validation;
+            $rules['file'] = $this->fileValidation();
         }
 
         return $this->globalRules($rules);
@@ -73,6 +74,9 @@ class StoreProjectRequest extends Request
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
         }
+
+        if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours']))
+            $input['budgeted_hours'] = 0;
 
         $this->replace($input);
     }

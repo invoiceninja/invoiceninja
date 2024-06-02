@@ -26,7 +26,7 @@
 @push('footer')
 
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
-<div id="paypal-button-container"></div>
+
 <script>
 
 //&buyer-country=US&currency=USD&enable-funding=venmo
@@ -44,19 +44,60 @@
         },
         onApprove: function(data, actions) {
 
-            var errorDetail = Array.isArray(data.details) && data.details[0];
+            console.log(data);
+            
+            document.getElementById("gateway_response").value =JSON.stringify( data );
+            
+            formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
+
+            fetch('{{ route('client.payments.response') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json(); // or response.json() if the response is JSON
+            })
+            .then(data => {
+
+                var errorDetail = Array.isArray(data.details) && data.details[0];
+
                 if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
-                return actions.restart();
-            }
+                    return actions.restart();
+                }
+
+                if(data.redirect){
+                    window.location.href = data.redirect;
+                    return;
+                }
 
                 document.getElementById("gateway_response").value =JSON.stringify( data );
                 document.getElementById("server_response").submit();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
+                document.getElementById('errors').hidden = false;
+            });
+
+
 
         },
         onCancel: function() {
             window.location.href = "/client/invoices/";
         },
         onError: function(error) {
+
+            console.log("on error");
+            console.log(error);
+
             document.getElementById("gateway_response").value = error;
             document.getElementById("server_response").submit();
         },
@@ -64,6 +105,12 @@
 
             if(fundingSource != 'card')
               document.getElementById('paypal-button-container').hidden = true;
+
+            document.querySelector('div[data-ref="required-fields-container').classList.add('hidden');
+            
+        },
+        onInit: function (){
+            console.log("init");
         }
     
     }).render('#paypal-button-container').catch(function(err) {

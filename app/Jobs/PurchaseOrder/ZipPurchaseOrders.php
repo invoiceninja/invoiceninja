@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,6 +66,11 @@ class ZipPurchaseOrders implements ShouldQueue
 
         try {
             foreach ($invitations as $invitation) {
+
+                if ($invitation->purchase_order->vendor->getSetting("enable_e_invoice")) {
+                    $xml = $invitation->purchase_order->service()->getEInvoice();
+                    $zipFile->addFromString($invitation->purchase_order->getFileName("xml"), $xml);
+                }
 
                 $file = (new CreateRawPdf($invitation))->handle();
 

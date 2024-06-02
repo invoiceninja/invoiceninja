@@ -36,6 +36,42 @@ class InvoiceItemTest extends TestCase
     }
 
 
+    public function testEdgeCasewithDiscountsPercentageAndTaxCalculations()
+    {
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id);
+        $invoice->client_id = $this->client->id;
+        $invoice->uses_inclusive_taxes = false;
+        $invoice->is_amount_discount =false;
+        $invoice->discount = 0;
+        $invoice->tax_rate1 = 0;
+        $invoice->tax_rate2 = 0;
+        $invoice->tax_rate3 = 0;
+        $invoice->tax_name1 = '';
+        $invoice->tax_name2 = '';
+        $invoice->tax_name3 = '';
+
+        $line_items = [];
+              
+        $line_item = new InvoiceItem;
+        $line_item->quantity = 1;
+        $line_item->cost = 100;
+        $line_item->tax_rate1 = 22;
+        $line_item->tax_name1 = 'Km';
+        $line_item->product_key = 'Test';
+        $line_item->notes = 'Test';
+        $line_item->is_amount_discount = false;
+        $line_items[] = $line_item;
+
+        $invoice->line_items = $line_items;
+        $invoice->save();
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $this->assertEquals(122, $invoice->amount);
+        $this->assertEquals(22, $invoice->total_taxes);
+    }
+
+
     public function testDiscountsWithInclusiveTaxes()
     {
         $invoice = InvoiceFactory::create($this->company->id, $this->user->id);

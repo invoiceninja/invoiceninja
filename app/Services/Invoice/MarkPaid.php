@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -107,7 +107,7 @@ class MarkPaid extends AbstractService
                 ->save();
 
         $payment->ledger()
-                ->updatePaymentBalance($this->payable_balance * -1);
+                ->updatePaymentBalance($this->payable_balance * -1, "Marked Paid Activity");
 
         //06-09-2022
         $this->invoice

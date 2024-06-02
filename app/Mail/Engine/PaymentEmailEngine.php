@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use App\Utils\Helpers;
 use App\Models\Account;
 use App\Models\Payment;
 use Illuminate\Support\Str;
+use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
 use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
@@ -28,7 +29,8 @@ use App\Services\Template\TemplateAction;
 class PaymentEmailEngine extends BaseEmailEngine
 {
     use MakesDates;
-
+    use MakesHash;
+    
     public $client;
 
     /** @var \App\Models\Payment $payment */
@@ -100,8 +102,8 @@ class PaymentEmailEngine extends BaseEmailEngine
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
             $template_in_use = false;
-
-            if($this->is_refund && strlen($this->payment->client->getSetting('payment_refund_design_id')) > 2) {
+            
+            if($this->is_refund && \App\Models\Design::where('id', $this->decodePrimaryKey($this->payment->client->getSetting('payment_refund_design_id')))->where('is_template', true)->exists()) {
                 $pdf = (new TemplateAction(
                     [$this->payment->hashed_id],
                     $this->payment->client->getSetting('payment_refund_design_id'),
@@ -118,7 +120,7 @@ class PaymentEmailEngine extends BaseEmailEngine
                 $this->setAttachments([['file' => base64_encode($pdf), 'name' => $file_name]]);
                 $template_in_use = true;
 
-            } elseif(!$this->is_refund && strlen($this->payment->client->getSetting('payment_receipt_design_id')) > 2) {
+            } elseif(!$this->is_refund && \App\Models\Design::where('id', $this->decodePrimaryKey($this->payment->client->getSetting('payment_receipt_design_id')))->where('is_template', true)->exists()) {
                 $pdf = (new TemplateAction(
                     [$this->payment->hashed_id],
                     $this->payment->client->getSetting('payment_receipt_design_id'),
@@ -389,7 +391,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} ".Number::formatMoney($invoice->pivot->amount, $this->client).'<br>';
+            $invoice_list .= ctrans('texts.invoice_number_short')." {$invoice->number} ".Number::formatMoney($invoice->pivot->amount, $this->client).'\n';
         }
 
         return $invoice_list;

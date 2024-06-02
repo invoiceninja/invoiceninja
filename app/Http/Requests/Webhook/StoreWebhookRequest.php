@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -23,7 +23,10 @@ class StoreWebhookRequest extends Request
      */
     public function authorize(): bool
     {
-        return auth()->user()->isAdmin() && auth()->user()->account->hasFeature(Account::FEATURE_API);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->isAdmin() && $user->account->hasFeature(Account::FEATURE_API);
     }
 
     public function rules()
@@ -31,7 +34,6 @@ class StoreWebhookRequest extends Request
         return [
             'target_url' => 'bail|required|url',
             'event_id' => 'bail|required',
-            // 'headers' => 'bail|sometimes|json',
             'rest_method' => 'required|in:post,put'
         ];
     }
@@ -43,9 +45,7 @@ class StoreWebhookRequest extends Request
         if (!isset($input['rest_method'])) {
             $input['rest_method'] = 'post';
         }
-        // if(isset($input['headers']) && count($input['headers']) == 0)
-        // $input['headers'] = null;
-
+        
         $this->replace($input);
     }
 }

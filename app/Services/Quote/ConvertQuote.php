@@ -5,20 +5,22 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Quote;
 
-use App\Factory\CloneQuoteToInvoiceFactory;
-use App\Factory\InvoiceInvitationFactory;
-use App\Models\Invoice;
 use App\Models\Quote;
-use App\Repositories\InvoiceRepository;
-use App\Utils\Traits\GeneratesConvertedQuoteCounter;
+use App\Models\Invoice;
+use App\Jobs\Util\UploadFile;
 use App\Utils\Traits\MakesHash;
+use App\Repositories\InvoiceRepository;
+use App\Factory\InvoiceInvitationFactory;
+use App\Factory\CloneQuoteToInvoiceFactory;
+use App\Jobs\Document\CopyDocs;
+use App\Utils\Traits\GeneratesConvertedQuoteCounter;
 
 class ConvertQuote
 {
@@ -73,7 +75,9 @@ class ConvertQuote
         $quote->status_id = Quote::STATUS_CONVERTED;
         $quote->save();
 
-        // maybe should return invoice here
+        if($quote->documents()->count() > 0)
+            CopyDocs::dispatch($quote->documents()->pluck('id'), $invoice, $invoice->company->db);
+
         return $invoice;
     }
 

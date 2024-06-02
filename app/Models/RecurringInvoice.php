@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -355,11 +355,13 @@ class RecurringInvoice extends BaseModel
     public function calculateStatus(bool $new_model = false) //15-02-2024 - $new_model needed
     {
 
-        if($this->remaining_cycles == 0) {
+        if($this->remaining_cycles == 0) 
             return self::STATUS_COMPLETED;
-        } elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
+        elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
             return self::STATUS_PENDING;
-        
+        elseif($this->remaining_cycles != 0 && ($this->status_id == self::STATUS_COMPLETED))
+            return self::STATUS_ACTIVE;
+
         return $this->status_id;
         
     }
@@ -696,7 +698,7 @@ class RecurringInvoice extends BaseModel
 
     public function subscription(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(Subscription::class);
+        return $this->belongsTo(Subscription::class)->withTrashed();
     }
 
     public function translate_entity()

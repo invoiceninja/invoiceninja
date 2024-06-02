@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,7 +45,7 @@ class EmailPreferencesController extends Controller
 
         if ($invitation->contact->is_locked && !Cache::has("unsubscribe_notitfication_suppression:{$invitation_key}")) {
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, $invitation->contact->company->owner()->company_users()->first()->portalType() ?? true))->build());
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, true))->build());
             $nmo->company = $invitation->contact->company;
             $nmo->to_user = $invitation->contact->company->owner();
             $nmo->settings = $invitation->contact->company->settings;

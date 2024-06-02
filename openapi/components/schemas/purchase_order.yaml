@@ -12,10 +12,6 @@
           description: 'The unique hashed identifier for the user assigned to the purchase order'
           type: string
           example: ''
-        company_id:
-          description: 'The unique hashed identifier for the company associated with the purchase order'
-          type: string
-          example: ''
         vendor_id:
           description: 'The unique hashed identifier for the vendor associated with the purchase order'
           type: string

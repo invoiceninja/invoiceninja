@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Str;
 
 class CreateUser
 {
@@ -62,6 +63,7 @@ class CreateUser
         $user->fill($this->request);
         $user->email = $this->request['email']; //todo need to remove this in production
         $user->last_login = now();
+        $user->referral_code = Str::lower(Str::random(32));
         $user->ip = request()->ip();
 
         if (Ninja::isSelfHost()) {

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,6 +72,9 @@ class CompanyShopProfileTransformer extends EntityTransformer
             'email' => $company->settings->email,
             'country_id' => $company->settings->country_id,
             'vat_number' => $company->settings->vat_number,
+            'product' => $company->settings->translations->product ?? ctrans('texts.product'),
+            'products' => $company->settings->translations->products ?? ctrans('texts.products'),
+            'client_registration_fields' => $company->client_registration_fields,
         ];
 
         $new_settings = new stdClass();

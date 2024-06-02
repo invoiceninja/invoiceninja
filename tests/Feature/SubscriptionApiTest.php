@@ -12,13 +12,19 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use App\Models\User;
+use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
-use App\Models\RecurringInvoice;
 use Tests\MockAccountData;
 use Illuminate\Support\Str;
+use App\Models\CompanyToken;
 use App\Models\Subscription;
 use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
@@ -49,6 +55,248 @@ class SubscriptionApiTest extends TestCase
         $this->faker = \Faker\Factory::create();
 
         Model::reguard();
+    }
+
+    public function testSubscriptionCronLocalization()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->timezone_id = '50'; //europe/vienna
+
+        $c2 = Company::factory()->create([
+            'account_id' => $this->company->account_id,
+            'settings' => $settings
+        ]);
+
+        $cu = CompanyUserFactory::create($this->user->id, $c2->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = true;
+        $cu->permissions = '["view_client"]';
+        $cu->save();
+
+        $different_company_token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $c2->id;
+        $company_token->account_id = $c2->account_id;
+        $company_token->name = 'test token';
+        $company_token->token = $different_company_token;
+        $company_token->is_system = true;
+        $company_token->save();
+
+
+        $s = Subscription::factory()->create([
+            'company_id' => $c2->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $client2 = Client::factory()->create([
+            'company_id' => $c2->id,
+            'user_id' => $this->user->id,
+        ]);
+        
+        $i = Invoice::factory()->create([
+            'company_id' => $c2->id,
+            'user_id' => $this->user->id,
+            'subscription_id' => $s->id,
+            'due_date' => now()->startOfDay(),
+            'client_id' => $client2->id,
+            'status_id' => Invoice::STATUS_SENT
+        ]);
+
+        $settings = CompanySettings::defaults();
+        $settings->timezone_id = '110'; //sydney/australia
+
+        $c = Company::factory()->create([
+            'account_id' => $this->company->account_id,
+            'settings' => $settings,
+        ]);
+
+        $cu = CompanyUserFactory::create($this->user->id, $c->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = true;
+        $cu->permissions = '["view_client"]';
+        $cu->save();
+
+        $different_company_token = \Illuminate\Support\Str::random(64);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $c->id;
+        $company_token->account_id = $c->account_id;
+        $company_token->name = 'test token';
+        $company_token->token = $different_company_token;
+        $company_token->is_system = true;
+        $company_token->save();
+
+        $s1 = Subscription::factory()->create([
+            'company_id' => $c->id,
+            'user_id' => $this->user->id,
+        ]);
+
+
+        $client = Client::factory()->create([
+            'company_id' => $c2->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $i = Invoice::factory()->create([
+            'company_id' => $c->id,
+            'user_id' => $this->user->id,
+            'subscription_id' => $s1->id,
+            'due_date' => now()->startOfDay(),
+            'client_id' => $client->id,
+            'status_id' => Invoice::STATUS_SENT
+        ]);
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        $company = Company::find($c->id); //sydney
+
+        $timezone_now = now()->setTimezone($company->timezone()->name);
+
+        $this->assertEquals('Australia/Sydney', $timezone_now->timezoneName);
+
+        $this->travelTo($timezone_now->copy()->startOfDay()->subHour());
+        
+        $i = false;
+
+        //Capture companies within the window of 00:00 and 00:30
+        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+
+            $i = Invoice::query()
+                    ->where('company_id', $company->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_deleted', 0)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_proforma', 0)
+                    ->whereNotNull('subscription_id')
+                    ->where('balance', '>', 0)
+                    ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                    ->get();
+
+        }
+        
+        $this->assertFalse($i);
+
+        $this->travelTo($timezone_now->copy()->startOfDay());
+        
+        if(now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+
+            $i = Invoice::query()
+                    ->where('company_id', $company->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_deleted', 0)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_proforma', 0)
+                    ->whereNotNull('subscription_id')
+                    ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                    ->get();
+
+        }
+
+        $this->assertEquals(1, $i->count());
+
+        $i = false;
+
+        $this->travelTo($timezone_now->copy()->startOfDay()->addHours(2));
+
+        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+
+            $i = Invoice::query()
+                    ->where('company_id', $company->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_deleted', 0)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_proforma', 0)
+                    ->whereNotNull('subscription_id')
+                    ->where('balance', '>', 0)
+                    ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                    ->get();
+
+        }
+
+        $this->assertFalse($i);
+
+        $count = Invoice::whereNotNull('subscription_id')->whereIn('company_id', [$c2->id, $c->id])->count();
+
+        $this->assertEquals(2, $count);
+
+        $this->travelBack();
+        //////////////////////////////////////////// vienna //////////////////////////////////////////////////
+
+        $company = Company::find($c2->id); //vienna
+
+        $timezone_now = now()->setTimezone($company->timezone()->name);
+
+        $this->assertEquals('Europe/Vienna', $timezone_now->timezoneName);
+
+        $this->travelTo($timezone_now->startOfDay()->subHours(2));
+
+        $i = false;
+
+        //Capture companies within the window of 00:00 and 00:30
+        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+
+            $i = Invoice::query()
+                    ->where('company_id', $company->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_deleted', 0)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_proforma', 0)
+                    ->whereNotNull('subscription_id')
+                    ->where('balance', '>', 0)
+                    ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                    ->get();
+
+        }
+
+        $this->assertFalse($i);
+
+        $this->travelTo($timezone_now->copy()->startOfDay());
+
+        if(now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+
+            $i = Invoice::query()
+                    ->where('company_id', $company->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_deleted', 0)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_proforma', 0)
+                    ->whereNotNull('subscription_id')
+                    ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                    ->get();
+
+        }
+
+        $this->assertEquals(1, $i->count());
+
+        $i = false;
+
+        $this->travelTo($timezone_now->copy()->startOfDay()->addHours(2));
+
+        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+
+            $i = Invoice::query()
+                    ->where('company_id', $company->id)
+                    ->whereNull('deleted_at')
+                    ->where('is_deleted', 0)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->where('is_proforma', 0)
+                    ->whereNotNull('subscription_id')
+                    ->where('balance', '>', 0)
+                    ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
+                    ->get();
+
+        }
+
+        $this->assertFalse($i);
+
+
+
     }
 
     public function testAssignInvoice()
@@ -165,11 +413,12 @@ class SubscriptionApiTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
+            
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/subscriptions', ['product_ids' => $product->hashed_id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
+        ])->post('/api/v1/subscriptions', ['steps' => "cart,auth.login-or-register",'product_ids' => $product->hashed_id, 'allow_cancellation' => true, 'name' => Str::random(5)]);
 
         // nlog($response);
         $response->assertStatus(200);
@@ -184,14 +433,14 @@ class SubscriptionApiTest extends TestCase
 
         $response1 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->post('/api/v1/subscriptions', ['product_ids' => $product->hashed_id, 'name' => Str::random(5)])
+            ->post('/api/v1/subscriptions', ['steps' => "cart,auth.login-or-register",'product_ids' => $product->hashed_id, 'name' => Str::random(5)])
             ->assertStatus(200)
             ->json();
 
         // try {
         $response2 = $this
             ->withHeaders(['X-API-SECRET' => config('ninja.api_secret'), 'X-API-TOKEN' => $this->token])
-            ->put('/api/v1/subscriptions/'.$response1['data']['id'], ['allow_cancellation' => true])
+            ->put('/api/v1/subscriptions/'.$response1['data']['id'], ['steps' => "cart,auth.login-or-register",'allow_cancellation' => true])
             ->assertStatus(200)
             ->json();
         // }catch(ValidationException $e) {

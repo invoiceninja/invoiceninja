@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -126,9 +126,27 @@ class ClientRepository extends BaseRepository
             ClientFactory::create($user->company()->id, $user->id)
         );
     }
+    
+    /**
+     * Bulk assign clients to a group.
+     *
+     * @param  mixed $clients
+     * @param  mixed $group_settings_id
+     * @return void
+     */
+    public function assignGroup($clients, $group_settings_id): void
+    {
+        Client::query()
+              ->company()
+              ->whereIn('id', $clients->pluck('id'))
+              ->update(['group_settings_id' => $group_settings_id]);
+    }
 
     public function purge($client)
     {
+        
+        nlog("Purging client id => {$client->id}");
+
         $client->contacts()->forceDelete();
         $client->tasks()->forceDelete();
         $client->invoices()->forceDelete();

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -226,6 +226,7 @@ class User extends Authenticatable implements MustVerifyEmail
             return $truth->getCompanyToken();
         }
 
+        // if (request()->header('X-API-TOKEN')) {
         if (request()->header('X-API-TOKEN')) {
             return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
         }

@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -63,11 +63,14 @@ class UpdateCalculatedFields
                 Project::query()->with('tasks')->whereHas('tasks', function ($query) {
                     $query->where('updated_at', '>', now()->subHours(2));
                 })
-                    ->cursor()
-                    ->each(function ($project) {
-                        $project->current_hours = $this->calculateDuration($project);
-                        $project->save();
-                    });
+                ->cursor()
+                ->each(function ($project) {
+                    $project->current_hours = $this->calculateDuration($project);
+                    $project->save();
+                });
+                
+                //Clean password resets table
+                \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHour())->delete();
 
             }
         }

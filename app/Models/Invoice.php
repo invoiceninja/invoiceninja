@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,6 +32,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Invoice
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int $client_id
  * @property int $user_id
  * @property int|null $assigned_user_id
@@ -204,7 +205,12 @@ class Invoice extends BaseModel
         'is_deleted' => 'bool',
         'is_amount_discount' => 'bool',
         'tax_data' => 'object',
-        'partial_due_date' => 'date:Y-m-d'
+        'partial_due_date' => 'date:Y-m-d',
+        'custom_surcharge_tax1' => 'bool',
+        'custom_surcharge_tax2' => 'bool',
+        'custom_surcharge_tax3' => 'bool',
+        'custom_surcharge_tax4' => 'bool',
+        'e_invoice' => 'object',
     ];
 
     protected $with = [];

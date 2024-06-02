@@ -12,10 +12,6 @@
           description: 'The assigned user hashed id'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The company hashed id'
-          type: string
-          example: Opnel5aKBz
         client_id:
           description: 'The client hashed id'
           type: string

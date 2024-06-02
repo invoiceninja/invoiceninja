@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use App\DataMapper\Analytics\LivePreview;
 use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
+use App\Http\Requests\Preview\ShowPreviewRequest;
 use App\Jobs\Util\PreviewPdf;
 use App\Models\Client;
 use App\Models\ClientContact;
@@ -28,6 +29,7 @@ use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\Ninja;
 use App\Utils\PhantomJS\Phantom;
+use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\Traits\Pdf\PageNumbering;
@@ -39,6 +41,7 @@ use Twig\Error\SyntaxError;
 
 class PreviewController extends BaseController
 {
+    use GeneratesCounter;
     use MakesHash;
     use MakesInvoiceHtml;
     use PageNumbering;
@@ -131,9 +134,9 @@ class PreviewController extends BaseController
      * Used in the Custom Designer to preview design changes
      * @return mixed
      */
-    public function show()
+    public function show(ShowPreviewRequest $request)
     {
-        if(request()->has('template')) {
+        if($request->input('design.is_template')) {
             return $this->template();
         }
 
@@ -238,7 +241,6 @@ class PreviewController extends BaseController
 
     private function liveTemplate(array $request_data)
     {
-        nlog($request_data['entity_type']);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -292,8 +294,6 @@ class PreviewController extends BaseController
                 ->setTemplate($design_object)
                 ->mock();
         } catch(SyntaxError $e) {
-
-            // return response()->json(['message' => 'Twig syntax is invalid.', 'errors' => new \stdClass], 422);
         }
 
         if (request()->query('html') == 'true') {
@@ -406,23 +406,24 @@ class PreviewController extends BaseController
 
             /** @var \App\Models\Client $client */
             $client = Client::factory()->create([
-                'user_id' => auth()->user()->id,
+                'user_id' => $user->id,
                 'company_id' => $company->id,
             ]);
 
             /** @var \App\Models\ClientContact $contact */
             $contact = ClientContact::factory()->create([
-                'user_id' => auth()->user()->id,
+                'user_id' => $user->id,
                 'company_id' => $company->id,
                 'client_id' => $client->id,
                 'is_primary' => 1,
                 'send_email' => true,
             ]);
 
-            /** @var \App\Models\Invoice $invoice */
+            $settings = $company->settings;
 
+            /** @var \App\Models\Invoice $invoice */
             $invoice = Invoice::factory()->create([
-                'user_id' => auth()->user()->id,
+                'user_id' => $user->id,
                 'company_id' => $company->id,
                 'client_id' => $client->id,
                 'terms' => $company->settings->invoice_terms,
@@ -430,8 +431,18 @@ class PreviewController extends BaseController
                 'public_notes' => 'Sample Public Notes',
             ]);
 
+            if ($settings->invoice_number_pattern) {
+                $invoice->number = $this->getFormattedEntityNumber(
+                    $invoice,
+                    rand(1, 9999),
+                    $settings->counter_padding ?: 4,
+                    $settings->invoice_number_pattern,
+                );
+                $invoice->save();
+            }
+
             $invitation = InvoiceInvitation::factory()->create([
-                'user_id' => auth()->user()->id,
+                'user_id' => $user->id,
                 'company_id' => $company->id,
                 'invoice_id' => $invoice->id,
                 'client_contact_id' => $contact->id,
@@ -456,7 +467,7 @@ class PreviewController extends BaseController
                 'template' => $design->elements([
                     'client' => $invoice->client,
                     'entity' => $invoice,
-                    'pdf_variables' => (array) $invoice->company->settings->pdf_variables,
+                    'pdf_variables' => (array) $settings->pdf_variables,
                     'products' => request()->design['design']['product'],
                 ]),
                 'variables' => $html->generateLabelsAndValues(),

@@ -4,10 +4,6 @@
           description: 'The hashed id of the client gateway token'
           type: string
           example: Opnel5aKBz
-        company_id:
-          description: 'The hashed id of the company'
-          type: string
-          example: '2'
         client_id:
           description: 'The hashed_id of the client'
           type: string

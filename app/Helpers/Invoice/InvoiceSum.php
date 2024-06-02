@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,6 +52,7 @@ class InvoiceSum
 
     public InvoiceItemSum $invoice_items;
 
+    private $rappen_rounding = false;
     /**
      * Constructs the object with Invoice and Settings object.
      *
@@ -63,8 +64,11 @@ class InvoiceSum
 
         if ($this->invoice->client) {
             $this->precision = $this->invoice->client->currency()->precision;
+            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
         } else {
             $this->precision = $this->invoice->vendor->currency()->precision;
+            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
+
         }
 
         $this->tax_map = new Collection();
@@ -122,7 +126,7 @@ class InvoiceSum
 
     private function calculateInvoiceTaxes(): self
     {
-        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 2) {
+        if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
 
@@ -130,7 +134,7 @@ class InvoiceSum
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
         }
 
-        if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 2) {
+        if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate2);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name2, $this->invoice->tax_rate2);
 
@@ -138,7 +142,7 @@ class InvoiceSum
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
         }
 
-        if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 2) {
+        if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate3);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name3, $this->invoice->tax_rate3);
 
@@ -223,11 +227,14 @@ class InvoiceSum
 
     public function getRecurringInvoice()
     {
-        $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
-        $this->invoice->total_taxes = $this->getTotalTaxes();
-        $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision);
-
+        // $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
+        // $this->invoice->total_taxes = $this->getTotalTaxes();
+        
+        $this->setCalculatedAttributes();
+        $this->invoice->balance = $this->invoice->amount;
         $this->invoice->saveQuietly();
+
+        // $this->invoice->saveQuietly();
 
         return $this->invoice;
     }
@@ -238,12 +245,11 @@ class InvoiceSum
      */
     private function setCalculatedAttributes(): self
     {
-        /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
-
-        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
+        if($this->invoice->status_id == Invoice::STATUS_CANCELLED){
+            $this->invoice->balance = 0;
+        }
+        elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
-                // $paid_to_date = $this->invoice->amount - $this->invoice->balance;
-
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
             } else {
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision);
@@ -252,9 +258,20 @@ class InvoiceSum
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
+        if($this->rappen_rounding){
+            $this->invoice->amount = $this->roundRappen($this->invoice->amount);
+            $this->invoice->balance = $this->roundRappen($this->invoice->balance);
+        }
+
         $this->invoice->total_taxes = $this->getTotalTaxes();
 
         return $this;
+    }
+
+
+    function roundRappen($value): float
+    {
+        return round($value / .05, 0) * .05;
     }
 
     public function getSubTotal()

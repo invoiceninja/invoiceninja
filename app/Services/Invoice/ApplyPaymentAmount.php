@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -101,7 +101,7 @@ class ApplyPaymentAmount extends AbstractService
         /* Update Invoice balance */
 
         $payment->ledger()
-                ->updatePaymentBalance($payment->amount * -1);
+                ->updatePaymentBalance($payment->amount * -1, "ApplyPaymentInvoice-");
 
         $this->invoice->service()->workFlow()->save();
 

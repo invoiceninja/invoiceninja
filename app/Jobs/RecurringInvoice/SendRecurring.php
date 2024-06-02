@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -76,12 +76,12 @@ class SendRecurring implements ShouldQueue
             $invoice = $invoice->service()
                                ->markSent()
                                ->applyNumber()
-                               ->fillDefaults()
+                               ->fillDefaults(true)
                                ->adjustInventory()
                                ->save();
         } else {
             $invoice = $invoice->service()
-                               ->fillDefaults()
+                               ->fillDefaults(true)
                                ->save();
         }
 

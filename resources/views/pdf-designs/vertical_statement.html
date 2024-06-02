@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<!-- Vertial Statement - TemplateID #TS3 -->
 <html>
 
 <head>
@@ -10,7 +12,7 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             font-family: $font_name, Helvetica, sans-serif;
-            font-size: $font_sizepx;
+            font-size: $font_size;
             zoom: 80%;
         }
 
@@ -22,7 +24,7 @@
         table tr td,
         table tr,
         th {
-            font-size: $font_sizepx !important;
+            font-size: $font_size !important;
         }
 
         table {
@@ -62,6 +64,11 @@
         tr {
             break-inside: avoid;
         }
+
+        /* tr.border-bottom td{
+	height: 2rem;
+	border-bottom: 0px dashed $primary_color;
+} */
 
         .container {
             display: flex;
@@ -166,9 +173,17 @@
             font-size: 1.3rem;
         }
 
-        #date-range {
-            padding: 0;
+        #date-label {
+            font-size: 1.3rem !important;
+            font-style: italic;
+            padding: 0 !important;
             margin-top: 2rem;
+            margin-bottom: 5px;
+        }
+
+        #date-range {
+            padding: 0 !important;
+            margin: 0 !important;
             border: 0px solid #000;
             font-size: 1.3rem;
             font-weight: bold;
@@ -196,11 +211,12 @@
                 <div id="company-wrapper">
                     <div id="company-details"></div>
                     <div id="company-address"></div>
+                    <p id="date-label">$statement_label $date_label</p>
                     <p id="date-range">$start_date - $end_date</p>
                 </div>
             </div>
 
-            <div style="min-width:100%; width:100%; padding-bottom: 1rem; margin-bottom:1rem;">
+            <div style="min-width:100% width:100%; padding-bottom: 1rem; margin-bottom:1rem;">
                 <ninja>
                     {% if invoices|e %}
                     <table width="100%" cellspacing="0" cellpadding="0" class="" data-ref="table">

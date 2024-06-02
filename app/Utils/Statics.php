@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -127,6 +127,10 @@ class Statics
             $data['templates'] = Cache::get('templates');
         }
 
+        $data['bulk_updates'] = [
+            'client' => \App\Models\Client::$bulk_update_columns,
+        ];
+        
         return $data;
     }
 }

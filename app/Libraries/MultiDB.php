@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
 use App\Models\CompanyToken;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
+use App\DataProviders\SMSNumbers;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -536,6 +537,10 @@ class MultiDB
         }
 
         $current_db = config('database.default');
+
+        if(SMSNumbers::hasNumber($phone)){
+            return true;
+        }
 
         foreach (self::$dbs as $db) {
             self::setDB($db);

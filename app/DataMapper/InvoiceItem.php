@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,7 +64,9 @@ class InvoiceItem
     public $task_id = '';
 
     public $expense_id = '';
-
+    
+    public $unit_code = 'C62';
+    
     public static $casts = [
         'task_id' => 'string',
         'expense_id' => 'string',
@@ -92,5 +94,6 @@ class InvoiceItem
         'custom_value2' => 'string',
         'custom_value3' => 'string',
         'custom_value4' => 'string',
+        'unit_code' => 'string',
     ];
 }

@@ -4,15 +4,18 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2023. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\PurchaseOrder;
 
+use App\Jobs\EDocument\CreateEDocument;
 use App\Models\PurchaseOrder;
+use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Storage;
 
 class PurchaseOrderService
 {
@@ -73,6 +76,37 @@ class PurchaseOrderService
     public function getPurchaseOrderPdf($contact = null)
     {
         return (new GetPurchaseOrderPdf($this->purchase_order, $contact))->run();
+    }
+
+    public function getEPurchaseOrder($contact = null)
+    {
+        return (new CreateEDocument($this->purchase_order))->handle();
+    }
+    public function getEDocument($contact = null)
+    {
+        return $this->getEPurchaseOrder($contact);
+    }
+    
+    public function deleteEPurchaseOrder()
+    {
+        $this->purchase_order->load('invitations');
+
+        $this->purchase_order->invitations->each(function ($invitation) {
+            try {
+                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                Storage::disk(config('filesystems.default'))->delete($this->purchase_order->vendor->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                // }
+
+                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
+                if (Ninja::isHosted()) {
+                    Storage::disk('public')->delete($this->purchase_order->vendor->e_document_filepath($invitation).$this->purchase_order->getFileName("xml"));
+                }
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+        });
+
+        return $this;
     }
 
     public function setStatus($status)

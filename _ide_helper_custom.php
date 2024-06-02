@@ -13,5 +13,10 @@ namespace Illuminate\Contracts\Mail
         {
             return true;
         }
+
+        public function brevo_config(string $key)
+        {
+            return true;
+        }
     }
 }
