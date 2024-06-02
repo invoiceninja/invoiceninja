@@ -164,6 +164,7 @@ class ClientTransformer extends EntityTransformer
             'routing_id' => (string) $client->routing_id,
             'tax_info' => $client->tax_data ?: new \stdClass(),
             'classification' => $client->classification ?: '',
+            'e_invoice' => $client->e_invoice ?: new \stdClass(),
         ];
     }
 }
