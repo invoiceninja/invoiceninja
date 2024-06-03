@@ -44,7 +44,7 @@ return [
             'address' => env('POSTMARK_OUTLOOK_FROM_ADDRESS', '')
         ],
     ],
-    
+
     'microsoft' => [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
@@ -120,5 +120,10 @@ return [
     'chorus' => [
         'client_id' => env('CHORUS_CLIENT_ID', false),
         'secret' => env('CHORUS_SECRET', false),
+    ],
+    'gocardless' => [
+        'client_id' => env('GOCARDLESS_CLIENT_ID', null),
+        'client_secret' => env('GOCARDLESS_CLIENT_SECRET', null),
+        'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
     ]
 ];
