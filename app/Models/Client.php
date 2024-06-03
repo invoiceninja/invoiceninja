@@ -411,7 +411,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function date_format()
     {
-        $date_formats = app('date_formts');
+        $date_formats = app('date_formats');
         // $date_formats = Cache::get('date_formats');
 
         // if (! $date_formats) {
