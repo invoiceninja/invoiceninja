@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "892aabc33233e0615056a72d0ad0289d",
+    "content-hash": "a1bbd8c63e7c792674843dc50a435d86",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.308.7",
+            "version": "3.309.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "97074bd8cdd9fe498570821cefa4868fa3353cf3"
+                "reference": "9213b2101afa17fe8ea99b8ea2dad85c1b1166a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/97074bd8cdd9fe498570821cefa4868fa3353cf3",
-                "reference": "97074bd8cdd9fe498570821cefa4868fa3353cf3",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9213b2101afa17fe8ea99b8ea2dad85c1b1166a8",
+                "reference": "9213b2101afa17fe8ea99b8ea2dad85c1b1166a8",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.308.7"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.309.0"
             },
-            "time": "2024-05-31T18:17:12+00:00"
+            "time": "2024-06-03T18:10:07+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "4ffb546114617db6b2e9c27934e072265e5ef257"
+                "reference": "228560c6eea03d9ae10a174a0d9f1456efc5eabd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/4ffb546114617db6b2e9c27934e072265e5ef257",
-                "reference": "4ffb546114617db6b2e9c27934e072265e5ef257",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/228560c6eea03d9ae10a174a0d9f1456efc5eabd",
+                "reference": "228560c6eea03d9ae10a174a0d9f1456efc5eabd",
                 "shasum": ""
             },
             "require": {
@@ -5121,7 +5121,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-06-02T10:54:40+00:00"
+            "time": "2024-06-03T07:03:23+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -8047,16 +8047,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "2.72.3",
+            "version": "2.72.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "0c6fd108360c562f6e4fd1dedb8233b423e91c83"
+                "reference": "afd46589c216118ecd48ff2b95d77596af1e57ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/0c6fd108360c562f6e4fd1dedb8233b423e91c83",
-                "reference": "0c6fd108360c562f6e4fd1dedb8233b423e91c83",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/afd46589c216118ecd48ff2b95d77596af1e57ed",
+                "reference": "afd46589c216118ecd48ff2b95d77596af1e57ed",
                 "shasum": ""
             },
             "require": {
@@ -8090,8 +8090,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-3.x": "3.x-dev",
-                    "dev-master": "2.x-dev"
+                    "dev-master": "3.x-dev",
+                    "dev-2.x": "2.x-dev"
                 },
                 "laravel": {
                     "providers": [
@@ -8150,7 +8150,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-25T10:35:09+00:00"
+            "time": "2024-06-03T19:18:41+00:00"
         },
         {
             "name": "nette/schema",
@@ -11945,20 +11945,20 @@
         },
         {
             "name": "spatie/laravel-data",
-            "version": "4.6.0",
+            "version": "3.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-data.git",
-                "reference": "ee513f693f8ab8f915dc26cae079d7b2e5999a65"
+                "reference": "d44e04839407bc32b029be59ba80090a5f720e91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/ee513f693f8ab8f915dc26cae079d7b2e5999a65",
-                "reference": "ee513f693f8ab8f915dc26cae079d7b2e5999a65",
+                "url": "https://api.github.com/repos/spatie/laravel-data/zipball/d44e04839407bc32b029be59ba80090a5f720e91",
+                "reference": "d44e04839407bc32b029be59ba80090a5f720e91",
                 "shasum": ""
             },
             "require": {
-                "illuminate/contracts": "^10.0|^11.0",
+                "illuminate/contracts": "^9.30|^10.0|^11.0",
                 "php": "^8.1",
                 "phpdocumentor/type-resolver": "^1.5",
                 "spatie/laravel-package-tools": "^1.9.0",
@@ -11967,21 +11967,21 @@
             "require-dev": {
                 "fakerphp/faker": "^1.14",
                 "friendsofphp/php-cs-fixer": "^3.0",
-                "inertiajs/inertia-laravel": "dev-master#4508fd1",
-                "livewire/livewire": "^3.0",
+                "inertiajs/inertia-laravel": "^0.6.3",
                 "mockery/mockery": "^1.6",
                 "nesbot/carbon": "^2.63",
+                "nette/php-generator": "^3.5",
                 "nunomaduro/larastan": "^2.0",
-                "orchestra/testbench": "^8.0|^9.0",
-                "pestphp/pest": "^2.31",
-                "pestphp/pest-plugin-laravel": "^2.0",
-                "pestphp/pest-plugin-livewire": "^2.1",
+                "orchestra/testbench": "^7.6|^8.0",
+                "pestphp/pest": "^1.22",
+                "pestphp/pest-plugin-laravel": "^1.3",
                 "phpbench/phpbench": "^1.2",
                 "phpstan/extension-installer": "^1.1",
-                "phpunit/phpunit": "^10.0",
+                "phpunit/phpunit": "^9.3",
                 "spatie/invade": "^1.0",
-                "spatie/laravel-typescript-transformer": "^2.3",
-                "spatie/pest-plugin-snapshots": "^2.1",
+                "spatie/laravel-typescript-transformer": "^2.1.6",
+                "spatie/pest-plugin-snapshots": "^1.1",
+                "spatie/phpunit-snapshot-assertions": "^4.2",
                 "spatie/test-time": "^1.2"
             },
             "type": "library",
@@ -11994,7 +11994,8 @@
             },
             "autoload": {
                 "psr-4": {
-                    "Spatie\\LaravelData\\": "src/"
+                    "Spatie\\LaravelData\\": "src",
+                    "Spatie\\LaravelData\\Database\\Factories\\": "database/factories"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -12017,7 +12018,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-data/issues",
-                "source": "https://github.com/spatie/laravel-data/tree/4.6.0"
+                "source": "https://github.com/spatie/laravel-data/tree/3.12.0"
             },
             "funding": [
                 {
@@ -12025,7 +12026,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-03T15:01:04+00:00"
+            "time": "2024-04-24T09:27:45+00:00"
         },
         {
             "name": "spatie/laravel-package-tools",
@@ -20742,5 +20743,5 @@
     "platform-dev": {
         "php": "^8.2"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
