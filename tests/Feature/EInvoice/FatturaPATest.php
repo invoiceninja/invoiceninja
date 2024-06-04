@@ -42,7 +42,7 @@ class FatturaPATest extends TestCase
         $this->makeTestData();
 
         
-        $this->markTestSkipped('prevent running in CI');
+        // $this->markTestSkipped('prevent running in CI');
 
         $this->withoutMiddleware(
             ThrottleRequests::class
@@ -56,9 +56,9 @@ class FatturaPATest extends TestCase
         $settings->address1 = 'Via Silvio Spaventa 108';
         $settings->city = 'Calcinelli';
 
-$settings->state = 'PA';
+        $settings->state = 'PA';
 
-// $settings->state = 'Perugia';
+        // $settings->state = 'Perugia';
         $settings->postal_code = '61030'; 
         $settings->country_id = '380';
         $settings->currency_id = '3';
@@ -128,6 +128,9 @@ $settings->state = 'PA';
 
         $encoder = new Encode($fe);
         $xml = $encoder->toXml();
+
+    
+nlog($xml);
 
         $this->assertNotNull($xml);
 

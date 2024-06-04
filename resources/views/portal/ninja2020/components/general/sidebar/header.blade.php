@@ -25,7 +25,7 @@
                             @foreach($multiple_contacts as $contact)
                                 <a data-turbolinks="false"
                                    href="{{ route('client.switch_company', $contact->hashed_id) }}"
-                                   class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->client->present()->name()}}
+                                   class="block px-4 py-2 text-sm leading-5 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900">{{ $contact->client->present()->name()}} - ({{$contact->company->present()->name()}})
                                     </a>
                             @endforeach
                         </div>
