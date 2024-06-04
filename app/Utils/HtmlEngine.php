@@ -660,10 +660,12 @@ class HtmlEngine
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
             $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+            $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
 
         } else {
             $data['$contact.signature'] = ['value' => '', 'label' => ''];
             $data['$contact.signature_date'] = ['value' => '', 'label' => ctrans('texts.date')];
+            $data['$contact.signature_ip'] = ['value' => '', 'label' => ctrans('texts.address')];
         }
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
