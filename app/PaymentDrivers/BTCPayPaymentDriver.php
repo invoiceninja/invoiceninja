@@ -79,10 +79,14 @@ class BTCPayPaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);  //this is your custom implementation from here
     }
 
+    public function processPaymentResponse($request)
+    {
+        return $this->payment_method->paymentResponse($request);
+    }
+
     public function processWebhookRequest()
     {
         $webhook_payload = file_get_contents('php://input');
-        //file_put_contents("/home/claude/invoiceninja/storage/my.log", $webhook_payload);
 
         $btcpayRep = json_decode($webhook_payload);
         if ($btcpayRep == null) {

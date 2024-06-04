@@ -20,6 +20,10 @@ use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Exceptions\PaymentFailed;
+use Illuminate\Mail\Mailables\Address;
+use App\Services\Email\EmailObject;
+use App\Services\Email\Email;
+use Illuminate\Support\Facades\App;
 
 class BTCPay implements MethodInterface
 {
@@ -128,18 +132,55 @@ class BTCPay implements MethodInterface
     public function refund(Payment $payment, $amount)
     {
         try {
-            $invoice = $payment->invoices()->first();
-            $isPartialRefund = ($amount < $payment->amount);
+            if ($amount == $payment->amount) {
+                $refundVariant = "Fiat";
+                $refundPaymentMethod = "BTC";
+                $refundDescription = "Full refund";
+                $refundCustomCurrency = null;
+                $refundCustomAmount = null;
+            } else {
+                $refundVariant = "Custom";
+                $refundPaymentMethod = "";
+                $refundDescription = "Partial refund";
+                $refundCustomCurrency = $payment->currency;
+                $refundCustomAmount = $amount;
+            }
 
             $client = new \BTCPayServer\Client\Invoice($this->driver_class->btcpay_url, $this->driver_class->api_key);
-            $refund = $client->refundInvoice($this->driver_class->store_id,  $payment->transaction_reference);
+            $refund = $client->refundInvoice(
+                $this->driver_class->store_id,
+                $payment->transaction_reference,
+                $refundVariant,
+                $refundPaymentMethod,
+                null,
+                $refundDescription,
+                0,
+                $refundCustomAmount,
+                $refundCustomCurrency
+            );
+            App::setLocale($payment->company->getLocale());
 
-           /* $data = [];
-            $data['InvoiceNumber'] = $invoice->number;
-            $data['isPartialRefund'] = $isPartialRefund;
-            $data['BTCPayLink'] = $refund->getViewLink();*/
+            $mo = new EmailObject();
+            $mo->subject = ctrans('texts.btcpay_refund_subject');
+            $mo->body = ctrans('texts.btcpay_refund_body') . '<br>' . $refund->getViewLink();
+            $mo->text_body = ctrans('texts.btcpay_refund_body') . '\n' . $refund->getViewLink();
+            $mo->company_key = $payment->company->company_key;
+            $mo->html_template = 'email.template.generic';
+            $mo->to = [new Address($payment->client->present()->email(), $payment->client->present()->name())];
+            $mo->email_template_body = 'btcpay_refund_subject';
+            $mo->email_template_subject = 'btcpay_refund_body';
 
-            return $refund->getViewLink();
+            Email::dispatch($mo, $payment->company);
+
+            $data = [
+                'transaction_reference' => $refund->getId(),
+                'transaction_response' => json_encode($refund),
+                'success' => true,
+                'description' => "Please follow this link to claim your refund: " . $refund->getViewLink(),
+                'code' => 202,
+            ];
+
+            return $data;
         } catch (\Throwable $e) {
             throw new PaymentFailed('Error during BTCPay refund : ' . $e->getMessage());
         }

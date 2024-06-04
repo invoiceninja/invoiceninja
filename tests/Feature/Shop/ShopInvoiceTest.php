@@ -27,6 +27,7 @@ class ShopInvoiceTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
+    protected $faker;
 
     protected function setUp() :void
     {

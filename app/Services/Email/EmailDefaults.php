@@ -11,19 +11,20 @@
 
 namespace App\Services\Email;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Invoice\CreateUbl;
+use App\Models\Task;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\Task;
-use App\Utils\Ninja;
+use App\Jobs\Invoice\CreateUbl;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Mail\Mailables\Address;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Mail\Mailables\Address;
+use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 
 class EmailDefaults
@@ -388,6 +389,7 @@ class EmailDefaults
     {
         if ($this->email->email_object->invitation_key) {
             $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key]);
+            // $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key,'List-Unsubscribe' =>  URL::signedRoute('client.email_preferences', ['entity' => $this->email->email_object->invitation->getEntityString(), 'invitation_key' => $this->email->email_object->invitation->key])]);
         }
 
         return $this;

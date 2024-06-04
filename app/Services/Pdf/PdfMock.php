@@ -341,7 +341,7 @@ class PdfMock
     '$client.currency' => 'USD',
     '$company.country' => $this->company->country()?->name ?? 'USA',
     '$company.address' => $this->company->present()->address(),
-    '$tech_hero_image' => 'http://ninja.test:8000/images/pdf-designs/tech-hero-image.jpg',
+    '$tech_hero_image' => 'https://invoicing.co/images/pdf-designs/tech-hero-image.jpg',
     '$task.tax_name1' => '',
     '$task.tax_name2' => '',
     '$task.tax_name3' => '',

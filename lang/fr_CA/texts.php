@@ -5322,6 +5322,12 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'money' => 'Argent',
     'web_app' => 'App web',
     'desktop_app' => 'App de bureau',
+    'disconnected' => 'Déconnecté',
+    'reconnect' => 'Reconnecté',
+    'e_invoice_settings' => 'Paramètres E-Facture',
+    'currency_mauritanian_ouguiya' => 'Ouguiya mauritanien',
+    'currency_bhutan_ngultrum' => 'Ngultrum Bhoutan',
+    
 );
 
 return $lang;

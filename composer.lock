@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a41ed3da96a8351f9ef162244dad6da",
+    "content-hash": "942c6a9765c10a4c48ad4904e2561cb7",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -20357,10 +20357,10 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "asm/php-ansible": 20,
-        "socialiteproviders/apple": 20,
-        "webpatser/laravel-countries": 20,
+        "horstoeko/orderx": 20,
         "invoiceninja/einvoice": 20,
-        "horstoeko/orderx": 20
+        "socialiteproviders/apple": 20,
+        "webpatser/laravel-countries": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
