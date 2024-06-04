@@ -240,7 +240,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-c7c5fad4.css",
+    "file": "assets/app-d1d7e29f.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
