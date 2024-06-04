@@ -252,7 +252,7 @@ class RandomDataSeeder extends Seeder
 
             $invoice->service()->createInvitations()->markSent()->save();
 
-            $invoice->ledger()->update_invoiceBalance($invoice->balance);
+            $invoice->ledger()->updateInvoiceBalance($invoice->balance);
 
             if (rand(0, 1)) {
                 $payment = Payment::create([

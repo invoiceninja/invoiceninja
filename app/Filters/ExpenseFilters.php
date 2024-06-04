@@ -44,6 +44,9 @@ class ExpenseFilters extends QueryFilters
                 })
                 ->orWhereHas('vendor', function ($q) use ($filter) {
                     $q->where('name', 'like', '%'.$filter.'%');
+                })
+                ->orWhereHas('client', function ($q) use ($filter) {
+                    $q->where('name', 'like', '%'.$filter.'%');
                 });
         });
     }

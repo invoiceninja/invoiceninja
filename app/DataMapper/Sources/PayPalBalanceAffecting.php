@@ -105,17 +105,34 @@ class PayPalBalanceAffecting
     public $discount;
     public $creditTransactionalFee;
     public $originalInvoiceId;
-
+    
     public function __construct(private array $import_row){}
 
     public function run(): self
     {
+        $this->cleanUp();
+
         foreach($this->import_row as $key => $value) {
 
             $prop = $this->key_map[$key] ?? false;
 
-            if($prop)
+            if($prop){
+
+                echo "Setting {$prop} to {$value}".PHP_EOL;
                 $this->{$prop} = $value;
+                
+            }
+        }
+
+        return $this;
+    }
+
+    private function cleanUp(): self
+    {
+
+        foreach($this->key_map as $value){
+            echo "Setting {$value} to null".PHP_EOL;
+            $this->{$value} = null;
         }
 
         return $this;
@@ -149,6 +166,7 @@ class PayPalBalanceAffecting
             'line_items' => [$item],
             'name' => $this->name ?? '',
             'email' => $this->fromEmailAddress ?? '',
+            'transaction_reference' => $this->transactionId ?? '',
         ];
     }
 

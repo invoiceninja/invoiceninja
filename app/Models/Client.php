@@ -378,15 +378,16 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function language()
     {
-        $languages = Cache::get('languages');
+        $languages = app('languages');
+        // $languages = Cache::get('languages');
 
-        if (! $languages) {
-            $this->buildCache(true);
-        }
+        // if (! $languages) {
+        //     $this->buildCache(true);
+        // }
 
-        return $languages->filter(function ($item) {
+        return $languages->first(function ($item) {
             return $item->id == $this->getSetting('language_id');
-        })->first();
+        });
     }
 
     public function industry(): BelongsTo
@@ -410,28 +411,30 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function date_format()
     {
-        $date_formats = Cache::get('date_formats');
+        $date_formats = app('date_formats');
+        // $date_formats = Cache::get('date_formats');
 
-        if (! $date_formats) {
-            $this->buildCache(true);
-        }
+        // if (! $date_formats) {
+        //     $this->buildCache(true);
+        // }
 
-        return $date_formats->filter(function ($item) {
+        return $date_formats->first(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
-        })->first()->format;
+        })->format;
     }
 
     public function currency()
     {
-        $currencies = Cache::get('currencies');
+        $currencies = app('currencies');
+        // $currencies = Cache::get('currencies');
 
-        if (! $currencies) {
-            $this->buildCache(true);
-        }
+        // if (! $currencies) {
+        //     $this->buildCache(true);
+        // }
 
-        return $currencies->filter(function ($item) {
+        return $currencies->first(function ($item) {
             return $item->id == $this->getSetting('currency_id');
-        })->first();
+        });
     }
 
     public function service(): ClientService
@@ -739,15 +742,17 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function preferredLocale()
     {
-        $languages = Cache::get('languages');
+        $this->language()->locale ?? 'en';
+        // $languages = app('languages');
+        // $languages = Cache::get('languages');
 
-        if (! $languages) {
-            $this->buildCache(true);
-        }
+        // if (! $languages) {
+        //     $this->buildCache(true);
+        // }
 
-        return $languages->filter(function ($item) {
-            return $item->id == $this->getSetting('language_id');
-        })->first()->locale;
+        // return $languages->first(function ($item) {
+        //     return $item->id == $this->getSetting('language_id');
+        // })->locale;
     }
 
     public function backup_path(): string

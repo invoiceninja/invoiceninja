@@ -26,7 +26,6 @@ class TaskFilters extends QueryFilters
      *
      * @param string $filter
      * @return Builder
-     * @deprecated
      */
     public function filter(string $filter = ''): Builder
     {
