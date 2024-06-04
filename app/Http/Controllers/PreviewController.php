@@ -136,6 +136,7 @@ class PreviewController extends BaseController
      */
     public function show(ShowPreviewRequest $request)
     {
+
         if($request->input('design.is_template')) {
             return $this->template();
         }
@@ -143,8 +144,8 @@ class PreviewController extends BaseController
         if (request()->has('entity') &&
             request()->has('entity_id') &&
             ! empty(request()->input('entity')) &&
-            ! empty(request()->input('entity_id')) &&
-            request()->has('body')) {
+            ! empty(request()->input('entity_id')))
+            {
 
             $design_object = json_decode(json_encode(request()->input('design')));
 
@@ -166,17 +167,15 @@ class PreviewController extends BaseController
 
             App::forgetInstance('translator');
             $t = app('translator');
-            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
+            App::setLocale($entity_obj->client->preferredLocale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
             $html = new HtmlEngine($entity_obj->invitations()->first());
 
-            $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
-
-            $design_class = new $design_namespace();
+            $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
 
             $state = [
-                'template' => $design_class->elements([
+                'template' => $design->elements([
                     'client' => $entity_obj->client,
                     'entity' => $entity_obj,
                     'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
@@ -191,7 +190,6 @@ class PreviewController extends BaseController
                 ]
             ];
 
-            $design = new Design(request()->design['name']);
             $maker = new PdfMaker($state);
 
             $maker
