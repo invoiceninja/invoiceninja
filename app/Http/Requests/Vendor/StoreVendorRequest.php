@@ -38,7 +38,7 @@ class StoreVendorRequest extends Request
         $user = auth()->user();
 
         $rules = [];
-
+        $rules['name'] = 'bail|required|string';
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
