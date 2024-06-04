@@ -37,7 +37,7 @@
         "ext-libxml": "*",
         "ext-curl": "*",
         "afosto/yaac": "^1.4",
-        "asm/php-ansible": "^4.0",
+        "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "bacon/bacon-qr-code": "^2.0",
@@ -108,7 +108,6 @@
         "horstoeko/orderx": "dev-master"
     },
     "require-dev": {
-        "php": "^8.2",
         "barryvdh/laravel-debugbar": "^3.6",
         "barryvdh/laravel-ide-helper": "^3.0",
         "brianium/paratest": "^7",
@@ -187,6 +186,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/turbo124/orderx"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/beganovich/php-ansible"
         }
     ],
     "minimum-stability": "dev",
