@@ -72,7 +72,6 @@ jobs:
 
       - name: Build project
         run: |
-          zip -r /home/runner/work/invoiceninja/invoiceninja.zip .* -x "../*"
           shopt -s dotglob
           tar --exclude='public/storage' --exclude='./htaccess' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar *
       - name: Release
@@ -83,4 +82,3 @@ jobs:
         with:
           files: |
             /home/runner/work/invoiceninja/invoiceninja.tar
-            /home/runner/work/invoiceninja/invoiceninja.zip
