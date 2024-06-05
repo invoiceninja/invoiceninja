@@ -1,9 +1,44 @@
 openapi: 3.0.0
 info:
-  tags:
-    - overview
   title: 'Invoice Ninja API Reference.'
-  description: "![](https://i.ibb.co/v3Yt03v/todo-api-background.png)\n\n## \U0001F4AB Overview\n\nTo Do API provides a simple way for people to manage their tasks and plan their day. This API can be used to create mobile and web applications.This API is documented using **OpenAPI 3.0**. The implementation lives in this [GitHub repo](https://github.com/stoplightio/studio-demo/blob/master/reference/todos/todo.v1.yaml).\n\n### \U0001F9F0 Cross-Origin Resource Sharing\nThis API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/). CORS support is necessary to make calls from the request maker within the API docs.\n\n### \U0001F3C1 Trying out your own API Specification\nElements can be used to generate API docs for any OpenAPI document. Replace this OpenAPI with a URL to your own OpenAPI document to get started."
+  description: |
+        ---
+          ## Introduction
+          Welcome to the Invoice Ninja API documentation, your comprehensive guide to integrating Invoice Ninja's powerful features into your applications. Whether you're building a custom client, automating workflows, or integrating with other systems, our API provides the tools you need to streamline your invoicing and billing processes.
+
+          ## What is Invoice Ninja?
+          Invoice Ninja is a robust source-available platform designed to simplify invoicing, billing, and payment management for freelancers, small businesses, and enterprises alike. With a user-friendly interface, customizable templates, and a suite of powerful features, Invoice Ninja empowers businesses to create professional invoices, track expenses, manage clients, and get paid faster.
+
+          ## Why use the Invoice Ninja API?
+          The Invoice Ninja API allows developers to extend the functionality of Invoice Ninja by programmatically accessing and manipulating data within their Invoice Ninja accounts. With the API, you can automate repetitive tasks, integrate with third-party services, and build custom solutions tailored to your specific business needs.
+
+          ## Getting Started
+          To get started with the Invoice Ninja API, you'll need an active Invoice Ninja account (or your own self hosted installation) and API credentials. If you haven't already done so, sign up for an account at Invoice Ninja and generate your API keys from the settings section.
+
+          Once you have your API credentials, you can start exploring the API endpoints, authentication methods, request and response formats, and more using the documentation provided here.
+
+          ## Explore the Documentation  
+          This documentation is organized into sections to help you navigate and understand the various aspects of the Invoice Ninja API:
+
+          Authentication: Learn how to authenticate your requests to the API using API tokens.
+          Endpoints: Explore the available API endpoints for managing invoices, clients, payments, expenses, and more.
+          Request and Response Formats: Understand the structure of API requests and responses, including parameters, headers, and payloads.
+          Error Handling: Learn about error codes, status messages, and best practices for handling errors gracefully.
+          Code Examples: Find code examples and tutorials to help you get started with integrating the Invoice Ninja API into your applications.      
+          
+          ## Need Help?     
+
+          If you have any questions, encounter any issues, or need assistance with using the Invoice Ninja API, don't hesitate to reach out to our support team or join our community forums. We're here to help you succeed with Invoice Ninja and make the most of our API.    
+
+          Let's start building together!
+        
+          ## Endpoints
+          
+          <div style="background-color: #2D394E; color: #fff padding: 20px; border-radius: 5px; border: 4px solid #212A3B; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+              <p style="padding:10px; color: #DBDBDB;"">Production: https://invoicing.co</p>
+              <p style="padding:10px; color: #DBDBDB;">Demo: https://demo.invoiceninja.com</p>
+          </div>
+            
   termsOfService: 'https://invoiceninja.github.io/docs/legal/terms_of_service/#page-content'
   contact:
     email: contact@invoiceninja.com
