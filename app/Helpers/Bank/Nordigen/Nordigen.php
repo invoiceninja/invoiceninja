@@ -167,7 +167,8 @@ class Nordigen
         $mo->email_template_body = 'nordigen_requisition_body';
         $mo->email_template_subject = 'nordigen_requisition_subject';
 
-        Email::dispatch($mo, $bank_integration->company);if(
+        Email::dispatch($mo, $bank_integration->company);
+        
         Cache::put($cache_key, true, 60 * 60 * 24);
 
     }

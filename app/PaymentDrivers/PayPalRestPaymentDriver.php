@@ -72,6 +72,12 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
             return $this->processTokenPayment($request, $response);
 
         //capture
+
+        if(!isset($response['orderID']) && isset($response['name']) && $response['name'] == "UNPROCESSABLE_ENTITY"){
+            $this->handleDuplicateInvoiceId($this->payment_hash->data->orderID);
+            $response['orderID'] = $this->payment_hash->data->orderID;
+        }
+
         $orderID = $response['orderID'];
 
         if($this->company_gateway->require_shipping_address) {
@@ -109,21 +115,8 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
             //Rescue for duplicate invoice_id
             if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false){
 
-
-                $_invoice = collect($this->payment_hash->data->invoices)->first();
-                $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-                $new_invoice_number = $invoice->number."_".Str::random(5);
-
-                $update_data =
-                        [[
-                            "op" => "replace",
-                            "path" => "/purchase_units/@reference_id=='default'/invoice_id",
-                            "value" => $new_invoice_number,
-                        ]];
-
-                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
-
-                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+                
+                $r = $this->handleDuplicateInvoiceId($orderID);
 
             }
 
@@ -160,6 +153,27 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
             //throw new PaymentFailed($message, 400);
         }
 
+    }
+
+    private function handleDuplicateInvoiceId(string $orderID)
+    {
+
+        $_invoice = collect($this->payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+        $new_invoice_number = $invoice->number."_".Str::random(5);
+
+        $update_data =
+                [[
+                    "op" => "replace",
+                    "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+                    "value" => $new_invoice_number,
+                ]];
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+        return $r;
     }
 
     private function createNinjaPayment($request, $response) {
@@ -273,6 +287,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         nlog($r->json());
+        
+        $this->payment_hash->withData("orderID", $r->json()['id']);
+
         return $r->json()['id'];
 
     }
