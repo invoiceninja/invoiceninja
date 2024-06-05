@@ -44,7 +44,7 @@ jobs:
           git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
           cd ui
           git checkout develop
-          cp ../vite.config.ts.react ./vite.config.ts
+          cp ../vite.config.ts.react ./vite.config.js
           npm i
           npm run build
           cp -r dist/* ../public/
@@ -61,7 +61,8 @@ jobs:
           sudo rm -rf node_modules
           sudo rm -rf .git
           sudo rm .env
-
+          sudo rm -rf ui
+          
       - name: Build project
         run: |
           shopt -s dotglob
