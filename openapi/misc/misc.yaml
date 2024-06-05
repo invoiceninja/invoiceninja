@@ -1,4 +1,7 @@
 tags:
+  - name: overview
+    description: |
+      System overview
   - name: login
     description: |
       Attempts to authenticate with the API using a email/password combination.
