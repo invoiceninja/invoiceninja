@@ -23,7 +23,7 @@ class GoCardlessOAuthController extends Controller
     {
         $params = [
             'client_id' => config('services.gocardless.client_id'),
-            'redirect_uri' => route('gocardless.oauth.confirm', ['token' => $request->getCompany()->company_key]),
+            'redirect_uri' => route('gocardless.oauth.confirm'),
             'scope' => 'read_write',
             'response_type' => 'code',
             'prefill[email]' => 'ben@invoiceninja.com',

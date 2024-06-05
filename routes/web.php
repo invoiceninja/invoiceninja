@@ -52,4 +52,4 @@ Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', 
 Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePayDomainController::class, 'showAppleMerchantId']);
 
 Route::get('gocardless/oauth/connect/{company_key}', [GoCardlessOAuthController::class, 'connect']);
-Route::get('gocardless/oauth/connect/{company_key}/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
+Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
