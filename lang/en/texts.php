@@ -5334,6 +5334,7 @@ $lang = array(
     'btcpay_refund_body' => 'A refund intended for you has been issued. To claim it via BTCPay, please click on this link:',
     'currency_mauritanian_ouguiya' => 'Mauritanian Ouguiya',
     'currency_bhutan_ngultrum' => 'Bhutan Ngultrum',
+    'end_of_month' => 'End Of Month'
 );
 
 return $lang;

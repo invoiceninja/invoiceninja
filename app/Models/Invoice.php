@@ -563,6 +563,8 @@ class Invoice extends BaseModel
                 return $this->status_id == self::STATUS_SENT;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
+            case 'end_of_month':
+                return \Carbon\Carbon::parse($this->date)->setTimezone($this->company->timezone()->name)->endOfMonth()->lte(now());
             default:
                 return false;
         }
