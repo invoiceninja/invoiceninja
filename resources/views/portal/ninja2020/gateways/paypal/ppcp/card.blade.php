@@ -290,6 +290,18 @@
                 document.getElementById("token").value = token.value;
             }
 
+                document.getElementById('errors').textContent = '';
+                document.getElementById('errors').hidden = true;
+                
+                document.getElementById('pay-now-token').disabled = true;
+                document.querySelector('#pay-now-token > svg').classList.remove('hidden');
+                document.querySelector('#pay-now-token > svg').classList.add('justify-center');
+
+                document.querySelector('#pay-now-token > svg').classList.add('mx-auto');
+                document.querySelector('#pay-now-token > svg').classList.add('item-center');
+
+                document.querySelector('#pay-now-token > span').classList.add('hidden');
+
             document.getElementById("gateway_response").value = JSON.stringify( {token: token.value, orderID: "{!! $order_id !!}"} );
             document.getElementById("server_response").submit();
 
