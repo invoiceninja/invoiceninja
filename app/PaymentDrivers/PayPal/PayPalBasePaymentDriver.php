@@ -369,13 +369,30 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
     
+    public function handleProcessingFailure(array $response)
+    {
+
+        SystemLogger::dispatch(
+            ['response' => $response],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client,
+            $this->client->company ?? $this->company_gateway->company,
+        );
+
+        switch ($response['name']) {
+            case 'NOT_AUTHORIZED':
+                throw new PaymentFailed("There was a permissions issue processing this payment, please contact the merchant. ", 401);
+                break;
+            
+            default:
+                throw new PaymentFailed("Unknown error occurred processing payment. Please contact merchant.", 500);
+                break;
+        }
+    }
+
     public function handleRetry($response, $request) {
-
-        //         $response = $r->json();
-        // nlog($response['details']);
-        
-        // if(in_array($response['details'][0]['issue'], ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED']))
-
         return response()->json($response->json());
     }
 

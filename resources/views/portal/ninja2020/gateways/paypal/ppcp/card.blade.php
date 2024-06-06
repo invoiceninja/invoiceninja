@@ -75,7 +75,6 @@
 @endsection
 
 @push('footer')
-<link  rel="stylesheet" type="text/css" href=https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css />
 
 @if(isset($merchantId))
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
@@ -87,24 +86,7 @@
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
 
-    const cardStyle = {
-        'input': {
-            'font-size': '16px',
-            'font-family': 'courier, monospace',
-            'font-weight': 'lighter',
-            'color': '#ccc',
-        },
-        '.invalid': {
-            'color': 'purple',
-        },
-        '.expcvv': {
-          'display': 'grid',
-          'grid-template-columns': 'auto'
-        }
-    };
-
     const cardField = paypal.CardFields({
-        // style: cardStyle,
         client: clientId,
         createOrder: function(data, actions) {
             return orderId;  
@@ -124,7 +106,6 @@
               }
 
             }
-
 
             let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
 
@@ -197,7 +178,6 @@
       const numberField = cardField.NumberField({
         inputEvents: {
             onChange: (event)=> {
-                // console.log("returns a stateObject", event);
             }
         },
       });
@@ -207,7 +187,6 @@
       const cvvField = cardField.CVVField({
         inputEvents: {
             onChange: (event)=> {
-                // console.log("returns a stateObject", event);
             }
         },
       });
@@ -216,7 +195,6 @@
       const expiryField = cardField.ExpiryField({
         inputEvents: {
             onChange: (event)=> {
-                // console.log("returns a stateObject", event);
             }
         },
       });

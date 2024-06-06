@@ -60,7 +60,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
      */
     public function processPaymentResponse($request)
     {
-
+        nlog("response");
         $this->init();
 
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
@@ -73,12 +73,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         //capture
 
-        if(!isset($response['orderID']) && isset($response['name']) && $response['name'] == "UNPROCESSABLE_ENTITY"){
-            $this->handleDuplicateInvoiceId($this->payment_hash->data->orderID);
-            $response['orderID'] = $this->payment_hash->data->orderID;
-        }
-
-        $orderID = $response['orderID'];
+        $orderID = $response['orderID'] ?? $this->payment_hash->data->orderID;
 
         if($this->company_gateway->require_shipping_address) {
 
@@ -106,7 +101,10 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
             if($r->status() == 422){
                 //handle conditions where the client may need to try again.
-                return $this->handleRetry($r, $request);
+
+                $r = $this->handleDuplicateInvoiceId($orderID);
+
+
             }
 
         }
@@ -287,13 +285,19 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         nlog($r->json());
-        
-        $this->payment_hash->withData("orderID", $r->json()['id']);
+        $response = $r->json();
 
-        return $r->json()['id'];
+        if(!isset($response['id']))
+            $this->handleProcessingFailure($response);
+
+        $this->payment_hash->withData("orderID", $response['id']);
+
+        return $response['id'];
 
     }
 
+
+    
     /**
      * processTokenPayment
      *
