@@ -619,7 +619,7 @@ class Account extends BaseModel
         $plan_expires = Carbon::parse($this->plan_expires);
 
         if ($plan_expires->gt(now())) {
-            $diff = $plan_expires->diffInDays();
+            $diff = intval(abs($plan_expires->diffInDays()));
 
             if ($diff > 14) {
                 return 0;

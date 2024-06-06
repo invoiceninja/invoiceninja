@@ -58,7 +58,7 @@ trait HasRecurrence
 
         //If the set date is less than the original date we need to add a month.
         //If we are overflowing dates, then we need to diff the dates and ensure it doesn't equal 0
-        if ($set_date->lte($date) || $set_date->diffInDays($carbon_date) == 0) {
+        if ($set_date->lte($date) || intval(abs($set_date->diffInDays($carbon_date))) == 0) {
             $set_date->addMonthNoOverflow();
         }
 
