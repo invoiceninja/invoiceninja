@@ -176,6 +176,27 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
 
+    public function handleDuplicateInvoiceId(string $orderID)
+    {
+
+        $_invoice = collect($this->payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+        $new_invoice_number = $invoice->number."_".Str::random(5);
+
+        $update_data =
+                [[
+                    "op" => "replace",
+                    "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+                    "value" => $new_invoice_number,
+                ]];
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+        return $r;
+    }
+    
     public function getShippingAddress(): ?array
     {
         return $this->company_gateway->require_shipping_address ?

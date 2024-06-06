@@ -114,15 +114,19 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
     public function processPaymentResponse($request)
     {
 
+        nlog("response");
+
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
+
+        nlog($response);
 
         if($request->has('token') && strlen($request->input('token')) > 2) {
             return $this->processTokenPayment($request, $response);
         }
 
         //capture
-        $orderID = $response['orderID'];
+        $orderID = $response['orderID'] ?? $this->payment_hash->data->orderID;
 
         if($this->company_gateway->require_shipping_address) {
 
@@ -149,35 +153,25 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
             if($r->status() == 422) {
                 //handle conditions where the client may need to try again.
-                return $this->handleRetry($r, $request);
+                // return $this->handleRetry($r, $request);
+                
+                $r = $this->handleDuplicateInvoiceId($orderID);
+
             }
 
         } catch(\Exception $e) {
 
             //Rescue for duplicate invoice_id
             if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false) {
-
-
-                $_invoice = collect($this->payment_hash->data->invoices)->first();
-                $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-                $new_invoice_number = $invoice->number."_".Str::random(5);
-
-                $update_data =
-                        [[
-                            "op" => "replace",
-                            "path" => "/purchase_units/@reference_id=='default'/invoice_id",
-                            "value" => $new_invoice_number,
-                        ]];
-
-                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
-
-                $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
-
+                $r = $this->handleDuplicateInvoiceId($orderID);
             }
 
         }
 
         $response = $r;
+
+        nlog("Process response =>");
+        nlog($response->json());
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
@@ -222,7 +216,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
             return response()->json(['message' => $message], 400);
 
-            // throw new PaymentFailed($message, 400);
         }
     }
 

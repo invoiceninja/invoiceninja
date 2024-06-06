@@ -303,11 +303,6 @@ class Email implements ShouldQueue
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
         }
-        catch(\Symfony\Component\Mailer\Transport\Dsn $e){
-            nlog("Incorrectly configured mail server - setting to default mail driver.");
-            $this->email_object->settings->email_sending_method = 'default';
-            return $this->setMailDriver();
-        }
         catch(\Google\Service\Exception $e){
 
             if ($e->getCode() == '429') {
@@ -326,7 +321,7 @@ class Email implements ShouldQueue
             $message = $e->getMessage();
 
 
-            if (stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+            if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
                 $this->fail();
@@ -337,8 +332,16 @@ class Email implements ShouldQueue
 
                 return;
             }
+            
+            if(stripos($e->getMessage(), 'Dsn') !== false) {
 
-            if (stripos($e->getMessage(), 'code 406')) {
+                nlog("Incorrectly configured mail server - setting to default mail driver.");
+                $this->email_object->settings->email_sending_method = 'default';
+                return $this->setMailDriver();
+
+            }
+
+            if (stripos($e->getMessage(), 'code 406') !== false) {
 
                 $address_object = reset($this->email_object->to);
 

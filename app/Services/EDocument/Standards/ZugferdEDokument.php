@@ -32,8 +32,13 @@ class ZugferdEDokument extends AbstractService
     public function run(): self
     {
 
+        /** @var \App\Models\Company $company */
         $company = $this->document->company;
+        
+        
+        /** @var \App\Models\Client $client */
         $client = $this->document->client;
+        
         $profile = $client->getSetting('e_invoice_type');
 
         $profile = match ($profile) {

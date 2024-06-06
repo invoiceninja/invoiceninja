@@ -161,9 +161,9 @@ class WePayPaymentDriver extends BaseDriver
 
     }
 
-    public function detach(ClientGatewayToken $token)
+    public function detach(ClientGatewayToken $token): bool
     {
-    
+        return true;
     }
 
     public function getClientRequiredFields(): array

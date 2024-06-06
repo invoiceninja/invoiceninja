@@ -87,7 +87,8 @@ class BTCPayPaymentDriver extends BaseDriver
     public function processWebhookRequest()
     {
         $webhook_payload = file_get_contents('php://input');
-
+        $sig = false;
+        /** @var \stdClass $btcpayRep */
         $btcpayRep = json_decode($webhook_payload);
         if ($btcpayRep == null) {
             throw new PaymentFailed('Empty data');

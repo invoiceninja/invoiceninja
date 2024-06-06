@@ -168,11 +168,6 @@ class NinjaMailerJob implements ShouldQueue
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
         }
-        catch(\Symfony\Component\Mailer\Transport\Dsn $e){
-            nlog("Incorrectly configured mail server - setting to default mail driver.");
-            $this->nmo->settings->email_sending_method = 'default';
-            return $this->setMailDriver();
-        }
         catch(\Google\Service\Exception $e){
 
             if ($e->getCode() == '429') {
@@ -194,7 +189,7 @@ class NinjaMailerJob implements ShouldQueue
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if (stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+            if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
                 $this->fail();
@@ -209,7 +204,15 @@ class NinjaMailerJob implements ShouldQueue
                 return;
             }
 
-            if (stripos($e->getMessage(), 'code 406')) {
+            if(stripos($e->getMessage(), 'Dsn') !== false){
+                
+                nlog("Incorrectly configured mail server - setting to default mail driver.");
+                $this->nmo->settings->email_sending_method = 'default';
+                return $this->setMailDriver();
+
+            }
+
+            if (stripos($e->getMessage(), 'code 406') !== false) {
 
                 $email = $this->nmo->to_user->email ?? '';
 
@@ -790,6 +793,7 @@ class NinjaMailerJob implements ShouldQueue
     private function refreshOfficeToken(User $user)
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
+        $token = false;
 
         if ($expiry->lt(now())) {
             $guzzle = new \GuzzleHttp\Client();
@@ -798,7 +802,7 @@ class NinjaMailerJob implements ShouldQueue
             if (!$user->oauth_user_refresh_token || $user->oauth_user_refresh_token == '') {
                 return false;
             }
-
+            
             try {
                 $token = json_decode($guzzle->post($url, [
                     'form_params' => [

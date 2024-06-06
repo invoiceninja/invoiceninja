@@ -148,31 +148,11 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
             return response()->json(['message' => $message], 400);
 
-            //throw new PaymentFailed($message, 400);
         }
 
     }
 
-    private function handleDuplicateInvoiceId(string $orderID)
-    {
-
-        $_invoice = collect($this->payment_hash->data->invoices)->first();
-        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-        $new_invoice_number = $invoice->number."_".Str::random(5);
-
-        $update_data =
-                [[
-                    "op" => "replace",
-                    "path" => "/purchase_units/@reference_id=='default'/invoice_id",
-                    "value" => $new_invoice_number,
-                ]];
-
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
-
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
-
-        return $r;
-    }
+    
 
     private function createNinjaPayment($request, $response) {
 
@@ -297,7 +277,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
     }
 
 
-    
+
     /**
      * processTokenPayment
      *
@@ -314,6 +294,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
      */
     public function processTokenPayment($request, array $response) {
 
+        /** @car \App\Models\ClientGatwayToken $cgt */
         $cgt = ClientGatewayToken::where('client_id', $this->client->id)
                                  ->where('token', $request['token'])
                                  ->firstOrFail();

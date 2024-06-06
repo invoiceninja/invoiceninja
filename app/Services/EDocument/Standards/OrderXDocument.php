@@ -26,14 +26,16 @@ class OrderXDocument extends AbstractService
 {
     public OrderDocumentBuilder $orderxdocument;
 
-    public function __construct(public object $document, private readonly bool $returnObject = false, private array $tax_map = [])
+    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document */
+    public function __construct(public mixed $document, private readonly bool $returnObject = false, private array $tax_map = [])
     {
     }
 
     public function run(): self
     {
-
+        
         $company = $this->document->company;
+        /** @var \App\Models\Client | \App\Models\Vendor $settings_entity */
         $settings_entity = ($this->document instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
         $profile = $settings_entity->getSetting('e_quote_type') ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
 

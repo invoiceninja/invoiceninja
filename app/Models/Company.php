@@ -647,6 +647,8 @@ class Company extends BaseModel
         // }
 
         return $countries->first(function ($item) {
+            
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('country_id');
         });
 
@@ -670,6 +672,7 @@ class Company extends BaseModel
         // }
 
         return $timezones->first(function ($item) {
+            /** @var \stdClass $item */
             return $item->id == $this->settings->timezone_id;
         });
 
