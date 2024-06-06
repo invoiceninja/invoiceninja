@@ -117,9 +117,19 @@ class CompanyController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $companies = Company::whereAccountId($user->company()->account->id);
+        $companies = Company::where('account_id', $user->company()->account->id);
 
         return $this->listResponse($companies);
+    }
+
+    public function current()
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company = Company::find($user->company()->id);
+
+        return $this->itemResponse($company);
     }
 
     /**

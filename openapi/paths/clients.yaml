@@ -3,15 +3,12 @@
       tags:
         - clients
       summary: 'List clients'
-      x-badges:
-        - color: blue
-          label: core
       x-code-samples:
-      - lang: javascript
+      - lang: go
+        label: php
         source: |
-          fetch('/example')
-            .then(response => response.json())
-            .then(data => console.log(data));
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->clients->all();
       x-custom-element:
             type: markdown
             value: |
