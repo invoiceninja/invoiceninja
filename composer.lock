@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.310.0",
+            "version": "3.311.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "8ac02d36c609c6507136e5996f60cfd5152b4fd7"
+                "reference": "90218b9372469babf294f97bdd764c9d47ec8a57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8ac02d36c609c6507136e5996f60cfd5152b4fd7",
-                "reference": "8ac02d36c609c6507136e5996f60cfd5152b4fd7",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/90218b9372469babf294f97bdd764c9d47ec8a57",
+                "reference": "90218b9372469babf294f97bdd764c9d47ec8a57",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.310.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.311.1"
             },
-            "time": "2024-06-04T18:05:36+00:00"
+            "time": "2024-06-06T18:05:50+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4630,16 +4630,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.51",
+            "version": "v1.0.53",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "9e036d4a9660638b4f51d2babb397fcff29ef046"
+                "reference": "939e93ab2e84ec476735e5957f4db7e7d58880c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/9e036d4a9660638b4f51d2babb397fcff29ef046",
-                "reference": "9e036d4a9660638b4f51d2babb397fcff29ef046",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/939e93ab2e84ec476735e5957f4db7e7d58880c3",
+                "reference": "939e93ab2e84ec476735e5957f4db7e7d58880c3",
                 "shasum": ""
             },
             "require": {
@@ -4699,9 +4699,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.51"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.53"
             },
-            "time": "2024-05-31T17:20:07+00:00"
+            "time": "2024-06-05T16:49:22+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "d067c8d89e61c76d1ef122ce15b4ed950289d900"
+                "reference": "17c57fabb8f065d2782dfc432df9fb801136d82b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/d067c8d89e61c76d1ef122ce15b4ed950289d900",
-                "reference": "d067c8d89e61c76d1ef122ce15b4ed950289d900",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/17c57fabb8f065d2782dfc432df9fb801136d82b",
+                "reference": "17c57fabb8f065d2782dfc432df9fb801136d82b",
                 "shasum": ""
             },
             "require": {
@@ -5122,7 +5122,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-06-04T22:01:40+00:00"
+            "time": "2024-06-07T00:28:18+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -18244,16 +18244,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.3",
+            "version": "1.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "e64220a05c1209fc856d58e789c3b7a32c0bb9a5"
+                "reference": "9100a76ce8015b9aa7125b9171ae3a76887b6c82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e64220a05c1209fc856d58e789c3b7a32c0bb9a5",
-                "reference": "e64220a05c1209fc856d58e789c3b7a32c0bb9a5",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9100a76ce8015b9aa7125b9171ae3a76887b6c82",
+                "reference": "9100a76ce8015b9aa7125b9171ae3a76887b6c82",
                 "shasum": ""
             },
             "require": {
@@ -18298,7 +18298,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-31T13:53:37+00:00"
+            "time": "2024-06-06T12:19:22+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

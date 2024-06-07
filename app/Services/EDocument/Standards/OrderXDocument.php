@@ -27,6 +27,7 @@ class OrderXDocument extends AbstractService
     public OrderDocumentBuilder $orderxdocument;
 
     /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document */
+    
     public function __construct(public mixed $document, private readonly bool $returnObject = false, private array $tax_map = [])
     {
     }

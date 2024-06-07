@@ -998,7 +998,7 @@ class BaseController extends Controller
                 if(request()->has('einvoice')){
 
                     $ro = new Schema();
-                    $response_data['einvoice_schema'] = $ro('FACT1');
+                    $response_data['einvoice_schema'] = $ro('Peppol');
 
                 }
 

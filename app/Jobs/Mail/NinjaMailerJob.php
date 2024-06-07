@@ -389,17 +389,17 @@ class NinjaMailerJob implements ShouldQueue
 
         $company = $this->company;
 
-        $smtp_host = $company->smtp_host;
+        $smtp_host = $company->smtp_host ?? '';
         $smtp_port = $company->smtp_port;
-        $smtp_username = $company->smtp_username;
-        $smtp_password = $company->smtp_password;
+        $smtp_username = $company->smtp_username ?? '';
+        $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
         $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
 
-        if(strlen($smtp_host ?? '') <= 1 ||
-        strlen($smtp_username ?? '') <= 1 ||
-        strlen($smtp_password ?? '') <= 1
+        if(strlen($smtp_host) <= 1 ||
+        strlen($smtp_username) <= 1 ||
+        strlen($smtp_password) <= 1
         )
         {
             $this->nmo->settings->email_sending_method = 'default';

@@ -62,7 +62,7 @@ class StaticController extends BaseController
         if(request()->has('einvoice')){
             
             $schema = new Schema();
-            $response_data['einvoice_schema'] = $schema('FACT1'); 
+            $response_data['einvoice_schema'] = $schema('Peppol'); 
         
         }
 
