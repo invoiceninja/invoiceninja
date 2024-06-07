@@ -83,7 +83,7 @@ return [
         ],
 
         'db-ninja-01' => [
-            'driver'         => 'mariadb',
+            'driver'         => 'mysql',
             'host'           => env('DB_HOST1', env('DB_HOST', '127.0.0.1')),
             'database'       => env('DB_DATABASE1', env('DB_DATABASE', 'forge')),
             'username'       => env('DB_USERNAME1', env('DB_USERNAME', 'forge')),
@@ -99,7 +99,7 @@ return [
         ],
 
         'db-ninja-01a' => [
-            'driver'         => 'mariadb',
+            'driver'         => 'mysql',
             'host'           => env('DB_HOST1', env('DB_HOST', '127.0.0.1')),
             'database'       => env('DB_DATABASE2', env('DB_DATABASE', 'forge')),
             'username'       => env('DB_USERNAME2', env('DB_USERNAME', 'forge')),
@@ -115,7 +115,7 @@ return [
         ],
 
         'db-ninja-02' => [
-            'driver'         => 'mariadb',
+            'driver'         => 'mysql',
             'host'           => env('DB_HOST2', env('DB_HOST', '127.0.0.1')),
             'database'       => env('DB_DATABASE2', env('DB_DATABASE', 'forge')),
             'username'       => env('DB_USERNAME2', env('DB_USERNAME', 'forge')),
@@ -131,7 +131,7 @@ return [
         ],
 
         'db-ninja-02a' => [
-            'driver'         => 'mariadb',
+            'driver'         => 'mysql',
             'host'           => env('DB_HOST2', env('DB_HOST', '127.0.0.1')),
             'database'       => env('DB_DATABASE1', env('DB_DATABASE', 'forge')),
             'username'       => env('DB_USERNAME1', env('DB_USERNAME', 'forge')),
