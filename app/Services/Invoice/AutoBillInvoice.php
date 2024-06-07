@@ -11,22 +11,25 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Libraries\MultiDB;
+use Carbon\Carbon;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientGatewayToken;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use Illuminate\Support\Str;
+use App\DataMapper\InvoiceItem;
+use App\Factory\PaymentFactory;
+use App\Services\AbstractService;
+use App\Models\ClientGatewayToken;
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Services\AbstractService;
-use App\Utils\Ninja;
-use Illuminate\Support\Str;
+use App\Events\Payment\PaymentWasCreated;
 
 class AutoBillInvoice extends AbstractService
 {
@@ -205,11 +208,27 @@ class AutoBillInvoice extends AbstractService
 
             info("adjusting credit balance {$current_credit->balance} by this amount ".$credit['amount']);
 
+
+            $item_date = Carbon::parse($payment->date)->format($payment->client->date_format());
+            $invoice_numbers = $this->invoice->number;
+
+            $item = new InvoiceItem();
+            $item->quantity = 0;
+            $item->cost = $credit['amount'] * -1;
+            $item->notes = "{$item_date} - " . ctrans('texts.credit_payment', ['invoice_number' => $invoice_numbers]) . " ". Number::formatMoney($credit['amount'], $payment->client);
+            $item->type_id = "1";
+
+            $line_items = $current_credit->line_items;
+            $line_items[] = $item;
+            $current_credit->line_items = $line_items;
+
+
             $current_credit->service()
                            ->adjustBalance($credit['amount'] * -1)
                            ->updatePaidToDate($credit['amount'])
                            ->setCalculatedStatus()
                            ->save();
+
         }
 
         $payment->ledger()
@@ -240,6 +259,7 @@ class AutoBillInvoice extends AbstractService
         return $this->invoice
                     ->service()
                     ->setCalculatedStatus()
+                    ->workFlow() //07-06-2024 - run the workflow if paid!
                     ->save();
     }
     

@@ -303,11 +303,6 @@ class Email implements ShouldQueue
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
         }
-        catch(\Symfony\Component\Mailer\Transport\Dsn $e){
-            nlog("Incorrectly configured mail server - setting to default mail driver.");
-            $this->email_object->settings->email_sending_method = 'default';
-            return $this->setMailDriver();
-        }
         catch(\Google\Service\Exception $e){
 
             if ($e->getCode() == '429') {
@@ -326,7 +321,7 @@ class Email implements ShouldQueue
             $message = $e->getMessage();
 
 
-            if (stripos($e->getMessage(), 'code 300') || stripos($e->getMessage(), 'code 413')) {
+            if (stripos($e->getMessage(), 'code 300') !== false || stripos($e->getMessage(), 'code 413') !== false) {
                 $message = "Either Attachment too large, or recipient has been suppressed.";
 
                 $this->fail();
@@ -337,8 +332,16 @@ class Email implements ShouldQueue
 
                 return;
             }
+            
+            if(stripos($e->getMessage(), 'Dsn') !== false) {
 
-            if (stripos($e->getMessage(), 'code 406')) {
+                nlog("Incorrectly configured mail server - setting to default mail driver.");
+                $this->email_object->settings->email_sending_method = 'default';
+                return $this->setMailDriver();
+
+            }
+
+            if (stripos($e->getMessage(), 'code 406') !== false) {
 
                 $address_object = reset($this->email_object->to);
 
@@ -613,17 +616,17 @@ class Email implements ShouldQueue
 
         $company = $this->company;
 
-        $smtp_host = $company->smtp_host;
+        $smtp_host = $company->smtp_host ?? '';
         $smtp_port = $company->smtp_port;
-        $smtp_username = $company->smtp_username;
-        $smtp_password = $company->smtp_password;
+        $smtp_username = $company->smtp_username ?? '';
+        $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
         $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
 
-        if(strlen($smtp_host ?? '') <= 1 ||
-        strlen($smtp_username ?? '') <= 1 ||
-        strlen($smtp_password ?? '') <= 1
+        if(strlen($smtp_host) <= 1 ||
+        strlen($smtp_username) <= 1 ||
+        strlen($smtp_password) <= 1
         ) {
             $this->email_object->settings->email_sending_method = 'default';
             return $this->setMailDriver();

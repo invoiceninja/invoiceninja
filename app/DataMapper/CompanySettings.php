@@ -29,7 +29,7 @@ class CompanySettings extends BaseSettings
 
     public $besr_id = ''; //@implemented
 
-    public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
+    public $lock_invoices = 'off'; //off,when_sent,when_paid,end_of_month //@implemented
 
     public $enable_client_portal_tasks = false; //@ben to implement
 

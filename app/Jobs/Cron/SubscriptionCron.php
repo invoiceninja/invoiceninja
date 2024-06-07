@@ -79,6 +79,7 @@ class SubscriptionCron
                 ->cursor()
                 ->each(function ($company_id){
 
+                    /** @var \App\Models\Company $company */
                     $company = Company::find($company_id);
 
                     $timezone_now = now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway');

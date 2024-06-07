@@ -176,6 +176,27 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
 
+    public function handleDuplicateInvoiceId(string $orderID)
+    {
+
+        $_invoice = collect($this->payment_hash->data->invoices)->first();
+        $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+        $new_invoice_number = $invoice->number."_".Str::random(5);
+
+        $update_data =
+                [[
+                    "op" => "replace",
+                    "path" => "/purchase_units/@reference_id=='default'/invoice_id",
+                    "value" => $new_invoice_number,
+                ]];
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}", 'patch', $update_data);
+
+        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
+
+        return $r;
+    }
+    
     public function getShippingAddress(): ?array
     {
         return $this->company_gateway->require_shipping_address ?
@@ -369,13 +390,30 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
     
+    public function handleProcessingFailure(array $response)
+    {
+
+        SystemLogger::dispatch(
+            ['response' => $response],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYPAL,
+            $this->client,
+            $this->client->company ?? $this->company_gateway->company,
+        );
+
+        switch ($response['name']) {
+            case 'NOT_AUTHORIZED':
+                throw new PaymentFailed("There was a permissions issue processing this payment, please contact the merchant. ", 401);
+                break;
+            
+            default:
+                throw new PaymentFailed("Unknown error occurred processing payment. Please contact merchant.", 500);
+                break;
+        }
+    }
+
     public function handleRetry($response, $request) {
-
-        //         $response = $r->json();
-        // nlog($response['details']);
-        
-        // if(in_array($response['details'][0]['issue'], ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED']))
-
         return response()->json($response->json());
     }
 

@@ -16,6 +16,7 @@ use Illuminate\Contracts\Validation\Rule;
 
 /**
  * Class LockedInvoiceRule.
+ * @deprecated
  */
 class LockedInvoiceRule implements Rule
 {
@@ -65,6 +66,13 @@ class LockedInvoiceRule implements Rule
                 if ($this->invoice->status_id == Invoice::STATUS_PAID) {
                     return false;
                 }
+
+                return true;
+
+            //if now is greater than the end of month the invoice was dated - do not modify
+            case 'end_of_month':
+                if(\Carbon\Carbon::parse($this->invoice->date)->setTimezone($this->invoice->company->timezone()->name)->endOfMonth()->lte(now()))
+                    return false;
 
                 return true;
             default:

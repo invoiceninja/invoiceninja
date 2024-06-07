@@ -72,6 +72,21 @@ class CompanyTest extends TestCase
         $this->assertEquals(1, TaxRate::count());
     }
 
+    public function testCompanyCurrent()
+    {
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/companies/current");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($arr['data']['id'], $this->company->hashed_id);
+
+    }
+
     public function testCompanyLogoInline()
     {
         $response = $this->withHeaders([

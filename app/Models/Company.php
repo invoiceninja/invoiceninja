@@ -636,17 +636,21 @@ class Company extends BaseModel
 
     public function country()
     {
-        $companies = Cache::get('countries');
+        $countries = app('countries');
 
-        if (! $companies) {
-            $this->buildCache(true);
+        // $countries = Cache::get('countries');
 
-            $companies = Cache::get('countries');
-        }
+        // if (! $companies) {
+        //     $this->buildCache(true);
 
-        return $companies->filter(function ($item) {
+        //     $companies = Cache::get('countries');
+        // }
+
+        return $countries->first(function ($item) {
+            
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('country_id');
-        })->first();
+        });
 
         //        return $this->belongsTo(Country::class);
         // return Country::find($this->settings->country_id);
@@ -659,15 +663,18 @@ class Company extends BaseModel
 
     public function timezone()
     {
-        $timezones = Cache::get('timezones');
+        // $timezones = Cache::get('timezones');
 
-        if (! $timezones) {
-            $this->buildCache(true);
-        }
+        $timezones = app('timezones');
 
-        return $timezones->filter(function ($item) {
+        // if (! $timezones) {
+        //     $this->buildCache(true);
+        // }
+
+        return $timezones->first(function ($item) {
+            /** @var \stdClass $item */
             return $item->id == $this->settings->timezone_id;
-        })->first();
+        });
 
         // return Timezone::find($this->settings->timezone_id);
     }

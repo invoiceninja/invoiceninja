@@ -13,7 +13,7 @@ namespace App\Http\Controllers;
 
 use App\Utils\Statics;
 use Illuminate\Http\Response;
-use Invoiceninja\Einvoice\Decoder\Schema;
+use InvoiceNinja\EInvoice\Decoder\Schema;
 
 class StaticController extends BaseController
 {
@@ -62,7 +62,7 @@ class StaticController extends BaseController
         if(request()->has('einvoice')){
             
             $schema = new Schema();
-            $response_data['einvoice_schema'] = $schema('FACT1'); 
+            $response_data['einvoice_schema'] = $schema('Peppol'); 
         
         }
 

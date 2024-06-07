@@ -386,6 +386,7 @@ class Client extends BaseModel implements HasLocalePreference
         // }
 
         return $languages->first(function ($item) {
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('language_id');
         });
     }
@@ -419,6 +420,8 @@ class Client extends BaseModel implements HasLocalePreference
         // }
 
         return $date_formats->first(function ($item) {
+      
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('date_format_id');
         })->format;
     }
@@ -433,6 +436,8 @@ class Client extends BaseModel implements HasLocalePreference
         // }
 
         return $currencies->first(function ($item) {
+            
+        /** @var \stdClass $item */
             return $item->id == $this->getSetting('currency_id');
         });
     }

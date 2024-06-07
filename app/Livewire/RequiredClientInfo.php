@@ -402,7 +402,7 @@ class RequiredClientInfo extends Component
         if ($this->unfilled_fields === 0 && (!$this->company_gateway->always_show_required_fields || $this->is_subscription)) {
             $this->dispatch(
                 'passed-required-fields-check',
-                client_postal_code: $this->contact->client->postal_code
+                client_postal_code: $_contact->client->postal_code
             );
         }
 
