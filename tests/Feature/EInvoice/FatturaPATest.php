@@ -137,11 +137,8 @@ class FatturaPATest extends TestCase
         $xml = $e->encode($fe, 'xml');
         $this->assertNotNull($xml);
 
-        nlog($xml);
-
         $json = $e->encode($fe, 'json');
         $this->assertNotNull($json);
-        nlog($json);
 
         $decode = $e->decode('FatturaPA', $json, 'json');
 
