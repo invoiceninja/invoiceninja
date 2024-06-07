@@ -11,27 +11,35 @@
 
 namespace App\Services\EDocument\Standards;
 
-use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Models\Invoice;
 use App\Services\AbstractService;
+use App\Helpers\Invoice\InvoiceSum;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
+use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
 use InvoiceNinja\EInvoice\Models\Peppol\AddressType\Address;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\ContactType\Contact;
 use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
-use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
-use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
-use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
-use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
-use InvoiceNinja\EInvoice\Models\Peppol\PartyNameType\PartyName;
-use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyNameType\PartyName;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
+use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
+use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
 
 class Peppol extends AbstractService
 {
@@ -97,10 +105,26 @@ class Peppol extends AbstractService
         $taxable = $this->getTaxable();
 
         $lmt = new LegalMonetaryTotal;
-        $lmt->LineExtensionAmount = $taxable;
-        $lmt->TaxExclusiveAmount = $taxable;
-        $lmt->TaxInclusiveAmount = $this->invoice->amount;
-        $lmt->PayableAmount = $this->invoice->amount;
+        
+        $lea = new LineExtensionAmount;
+        $lea->currencyID = $this->invoice->client->currency()->code;
+        $lea->amount = $taxable;
+        $lmt->LineExtensionAmount = $lea;
+
+        $tea = new TaxExclusiveAmount;
+        $tea->currencyID = $this->invoice->client->currency()->code;
+        $tea->amount = $taxable;
+        $lmt->TaxExclusiveAmount = $tea;
+
+        $tia = new TaxInclusiveAmount;
+        $tia->currencyID = $this->invoice->client->currency()->code;
+        $tia->amount = $this->invoice->amount;
+        $lmt->TaxInclusiveAmount = $tia;
+
+        $pa = new PayableAmount;
+        $pa->currencyID = $this->invoice->client->currency()->code;
+        $pa->amount = $this->invoice->amount;
+        $lmt->PayableAmount = $pa;
 
         return $lmt;
     }   
@@ -117,8 +141,18 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1),2);
-            $tax_subtotal = new TaxSubtotal();
-            $tax_subtotal->TaxableAmount = $tax_amount;
+
+$tax_subtotal = new TaxSubtotal();
+$tax_subtotal->TaxAmount = $tax_amount;
+
+
+$taxable_amount = new TaxableAmount();
+$taxable_amount->currencyID = $this->invoice->client->currency()->code;
+$taxable_amount->amount = $this->invoice->amount;
+$tax_subtotal->TaxableAmount = $taxable_amount;
+
+
+            
             $tc = new TaxCategory();
             $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $this->invoice->tax_rate1;
@@ -140,8 +174,16 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate2), 2);
-            $tax_subtotal = new TaxSubtotal();
-            $tax_subtotal->TaxableAmount = $tax_amount;
+
+$tax_subtotal = new TaxSubtotal();
+$tax_subtotal->TaxAmount = $tax_amount;
+
+$taxable_amount = new TaxableAmount();
+$taxable_amount->currencyID = $this->invoice->client->currency()->code;
+$taxable_amount->amount = $this->invoice->amount;
+$tax_subtotal->TaxableAmount = $taxable_amount;
+
+
             $tc = new TaxCategory();
             $tc->ID = $type_id == '2' ? 'HUR' : 'C62';  
             $tc->Percent = $this->invoice->tax_rate2;
@@ -164,8 +206,16 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1), 2);
-            $tax_subtotal = new TaxSubtotal();
-            $tax_subtotal->TaxableAmount = $tax_amount;
+
+$tax_subtotal = new TaxSubtotal();
+$tax_subtotal->TaxAmount = $tax_amount;
+
+$taxable_amount = new TaxableAmount();
+$taxable_amount->currencyID = $this->invoice->client->currency()->code;
+$taxable_amount->amount = $this->invoice->amount;
+$tax_subtotal->TaxableAmount = $taxable_amount;
+
+
             $tc = new TaxCategory();
             $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $this->invoice->tax_rate3;
@@ -201,10 +251,29 @@ class Peppol extends AbstractService
             $line = new InvoiceLine;
             $line->ID = $key+1;
             $line->InvoicedQuantity = $item->quantity;
-            $line->LineExtensionAmount = $item->line_total;
+
+            $lea = new LineExtensionAmount;
+            $lea->currencyID = $this->invoice->client->currency()->code;
+            $lea->amount = $item->line_total;
+            $line->LineExtensionAmount = $lea;
             $line->Item = $_item;
-            $line->TaxTotal = $this->getItemTaxes($item);
-            $line->Price = $this->costWithDiscount($item);
+
+            // $ta = new TaxAmount;
+            // $ta->amount = $this->getItemTaxes($item);
+            // $ta->currencyID = $this->invoice->client->currency()->Code;
+            // $tt->TaxAmount = $ta;
+            $item_taxes = $this->getItemTaxes($item);
+
+            if(count($item_taxes) > 0)
+                $line->TaxTotal = $item_taxes;
+
+            $price = new Price;
+            $pa = new PriceAmount;
+            $pa->currencyID = $this->invoice->client->currency()->code;
+            $pa->amount = $this->costWithDiscount($item);
+            $price->PriceAmount = $pa;
+            
+            $line->Price = $price; 
 
             $lines[] = $line;
         }
@@ -238,7 +307,12 @@ class Peppol extends AbstractService
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round(($item->line_total * (1/$item->tax_rate1)),2);
             $tax_subtotal = new TaxSubtotal;
-            $tax_subtotal->TaxableAmount = $tax_amount;
+            $tax_subtotal->TaxAmount = $tax_amount;
+
+            $taxable_amount = new TaxableAmount;
+            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+            $taxable_amount->amount = $item->line_total;
+            $tax_subtotal->TaxableAmount = $taxable_amount;
                 $tc = new TaxCategory;
             $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $item->tax_rate1;
@@ -247,7 +321,11 @@ class Peppol extends AbstractService
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
             
-            $item_taxes[] = $tax_subtotal;
+
+$tax_total = new TaxTotal();
+$tax_total->TaxAmount = $tax_amount;
+$tax_total->TaxSubtotal[] = $tax_subtotal;
+$item_taxes[] = $tax_total;
 
         }
 
@@ -257,8 +335,16 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate2)),2);
-            $tax_subtotal = new TaxSubtotal();
-            $tax_subtotal->TaxableAmount = $tax_amount;
+
+$tax_subtotal = new TaxSubtotal();
+$tax_subtotal->TaxAmount = $tax_amount;
+
+$taxable_amount = new TaxableAmount();
+$taxable_amount->currencyID = $this->invoice->client->currency()->code;
+$taxable_amount->amount = $item->line_total;
+$tax_subtotal->TaxableAmount = $taxable_amount;
+
+
             $tc = new TaxCategory();
             $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $item->tax_rate2;
@@ -267,7 +353,12 @@ class Peppol extends AbstractService
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
-            $item_taxes[] = $tax_subtotal;
+
+$tax_total = new TaxTotal();
+$tax_total->TaxAmount = $tax_amount;
+$tax_total->TaxSubtotal[] = $tax_subtotal;
+$item_taxes[] = $tax_total;
+
 
         }
 
@@ -277,8 +368,16 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate3)),2);
-            $tax_subtotal = new TaxSubtotal();
-            $tax_subtotal->TaxableAmount = $tax_amount;
+
+$tax_subtotal = new TaxSubtotal();
+$tax_subtotal->TaxAmount = $tax_amount;
+
+$taxable_amount = new TaxableAmount();
+$taxable_amount->currencyID = $this->invoice->client->currency()->code;
+$taxable_amount->amount = $item->line_total;
+$tax_subtotal->TaxableAmount = $taxable_amount;
+
+
             $tc = new TaxCategory();
             $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $item->tax_rate3;
@@ -287,7 +386,11 @@ class Peppol extends AbstractService
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
-            $item_taxes[] = $tax_subtotal;
+$tax_total = new TaxTotal();
+$tax_total->TaxAmount = $tax_amount;
+$tax_total->TaxSubtotal[] = $tax_subtotal;
+$item_taxes[] = $tax_total;
+
 
         }
 
@@ -307,11 +410,13 @@ class Peppol extends AbstractService
         $address = new Address();
         $address->CityName = $this->invoice->company->settings->city;
         $address->StreetName = $this->invoice->company->settings->address1;
-        $address->BuildingName = $this->invoice->company->settings->address2;
+        // $address->BuildingName = $this->invoice->company->settings->address2;
         $address->PostalZone = $this->invoice->company->settings->postal_code;
+        $address->CountrySubentity = $this->invoice->company->settings->state;
+        // $address->CountrySubentityCode = $this->invoice->company->settings->state;
 
         $country = new Country();
-        $country->IdentificationCode = $this->invoice->company->country()->iso_3166_2;
+        $country->IdentificationCode = $this->invoice->company->country()->iso_3166_2;        
         $address->Country = $country;
 
         $party->PostalAddress = $address;
@@ -341,8 +446,11 @@ class Peppol extends AbstractService
         $address = new Address();
         $address->CityName = $this->invoice->client->city;
         $address->StreetName = $this->invoice->client->address1;
-        $address->BuildingName = $this->invoice->client->address2;
+        // $address->BuildingName = $this->invoice->client->address2;
         $address->PostalZone = $this->invoice->client->postal_code;
+        $address->CountrySubentity = $this->invoice->client->state;
+        // $address->CountrySubentityCode = $this->invoice->client->state;
+
 
         $country = new Country();
         $country->IdentificationCode = $this->invoice->client->country->iso_3166_2;
@@ -350,7 +458,7 @@ class Peppol extends AbstractService
 
         $party->PostalAddress = $address;
         $party->PhysicalLocation = $address;
-
+        
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->client->present()->email();
 
