@@ -13,24 +13,24 @@ namespace App\Services\EDocument\Standards;
 
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronica;
-use Invoiceninja\Einvoice\Models\FatturaPA\IndirizzoType\Sede;
-use Invoiceninja\Einvoice\Models\FatturaPA\AnagraficaType\Anagrafica;
-use Invoiceninja\Einvoice\Models\FatturaPA\IdFiscaleType\IdFiscaleIVA;
-use Invoiceninja\Einvoice\Models\FatturaPA\IdFiscaleType\IdTrasmittente;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiGeneraliType\DatiGenerali;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiPagamentoType\DatiPagamento;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiRiepilogoType\DatiRiepilogo;
-use Invoiceninja\Einvoice\Models\FatturaPA\DettaglioLineeType\DettaglioLinee;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiBeniServiziType\DatiBeniServizi;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiTrasmissioneType\DatiTrasmissione;
-use Invoiceninja\Einvoice\Models\FatturaPA\CedentePrestatoreType\CedentePrestatore;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiAnagraficiCedenteType\DatiAnagrafici;
-use Invoiceninja\Einvoice\Models\FatturaPA\DettaglioPagamentoType\DettaglioPagamento;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiGeneraliDocumentoType\DatiGeneraliDocumento;
-use Invoiceninja\Einvoice\Models\FatturaPA\CessionarioCommittenteType\CessionarioCommittente;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
+use InvoiceNinja\EInvoice\Models\FatturaPA\IndirizzoType\Sede;
+use InvoiceNinja\EInvoice\Models\FatturaPA\AnagraficaType\Anagrafica;
+use InvoiceNinja\EInvoice\Models\FatturaPA\IdFiscaleType\IdFiscaleIVA;
+use InvoiceNinja\EInvoice\Models\FatturaPA\IdFiscaleType\IdTrasmittente;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiGeneraliType\DatiGenerali;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiPagamentoType\DatiPagamento;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiRiepilogoType\DatiRiepilogo;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DettaglioLineeType\DettaglioLinee;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiBeniServiziType\DatiBeniServizi;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiTrasmissioneType\DatiTrasmissione;
+use InvoiceNinja\EInvoice\Models\FatturaPA\CedentePrestatoreType\CedentePrestatore;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiAnagraficiCedenteType\DatiAnagrafici;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DettaglioPagamentoType\DettaglioPagamento;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiGeneraliDocumentoType\DatiGeneraliDocumento;
+use InvoiceNinja\EInvoice\Models\FatturaPA\CessionarioCommittenteType\CessionarioCommittente;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
 
 class FatturaPANew extends AbstractService
 {
@@ -178,7 +178,7 @@ class FatturaPANew extends AbstractService
         $this->DatiGeneraliDocumento->Divisa = $this->invoice->client->currency()->code;
         $this->DatiGeneraliDocumento->Data = new \DateTime($this->invoice->date);
         $this->DatiGeneraliDocumento->Numero = $this->invoice->number;
-        $this->DatiGeneraliDocumento->Causale[] = substr($this->invoice->public_notes ?? '',0, 200); //unsure..
+        $this->DatiGeneraliDocumento->Causale[] = substr($this->invoice->public_notes ?? ' ', 0, 200); //unsure..
 
         return $this;
     }

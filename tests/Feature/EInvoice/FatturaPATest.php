@@ -19,13 +19,14 @@ use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
 use App\DataMapper\InvoiceItem;
 use App\Models\Invoice;
-use Invoiceninja\Einvoice\Symfony\Encode;
+use InvoiceNinja\EInvoice\Symfony\Encode;
 use App\Services\EDocument\Standards\FatturaPANew;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronica;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
+use InvoiceNinja\EInvoice\EInvoice;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
 
 /**
  * @test
@@ -126,11 +127,16 @@ class FatturaPATest extends TestCase
         $this->assertInstanceOf(FatturaElettronicaHeader::class, $fe->FatturaElettronicaHeader);
 
 
+        $e = new EInvoice;
+        $errors = $e->validate($fe);
+
+        if(count($errors) > 0)
+            nlog($errors);
+        
+        $this->assertCount(0, $errors);
+
         $encoder = new Encode($fe);
         $xml = $encoder->toXml();
-
-    
-nlog($xml);
 
         $this->assertNotNull($xml);
 

@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "17c57fabb8f065d2782dfc432df9fb801136d82b"
+                "reference": "5ada5e64ee84137dbd5736e4b1c8da7661a8dc97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/17c57fabb8f065d2782dfc432df9fb801136d82b",
-                "reference": "17c57fabb8f065d2782dfc432df9fb801136d82b",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/5ada5e64ee84137dbd5736e4b1c8da7661a8dc97",
+                "reference": "5ada5e64ee84137dbd5736e4b1c8da7661a8dc97",
                 "shasum": ""
             },
             "require": {
@@ -5095,6 +5095,7 @@
                 "symfony/validator": "^7"
             },
             "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.58",
                 "milo/schematron": "^1.0",
                 "nette/php-generator": "^4.1",
                 "phpstan/phpstan": "^1.11",
@@ -5105,7 +5106,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Invoiceninja\\Einvoice\\": "src/"
+                    "InvoiceNinja\\EInvoice\\": "src/"
                 }
             },
             "license": [
@@ -5122,7 +5123,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-06-07T00:28:18+00:00"
+            "time": "2024-06-07T01:16:28+00:00"
         },
         {
             "name": "invoiceninja/inspector",
