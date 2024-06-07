@@ -126,20 +126,25 @@ class FatturaPATest extends TestCase
         $this->assertInstanceOf(FatturaElettronicaBody::class, $fe->FatturaElettronicaBody[0]);
         $this->assertInstanceOf(FatturaElettronicaHeader::class, $fe->FatturaElettronicaHeader);
 
-
         $e = new EInvoice;
         $errors = $e->validate($fe);
 
         if(count($errors) > 0)
             nlog($errors);
-        
+
         $this->assertCount(0, $errors);
 
-        $encoder = new Encode($fe);
-        $xml = $encoder->toXml();
-
+        $xml = $e->encode($fe, 'xml');
         $this->assertNotNull($xml);
 
+        nlog($xml);
 
+        $json = $e->encode($fe, 'json');
+        $this->assertNotNull($json);
+        nlog($json);
+
+        $decode = $e->decode('FatturaPA', $json, 'json');
+
+        $this->assertInstanceOf(FatturaElettronica::class, $decode);
     }
 }
