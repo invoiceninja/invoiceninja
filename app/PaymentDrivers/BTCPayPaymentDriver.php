@@ -92,6 +92,7 @@ class BTCPayPaymentDriver extends BaseDriver
     {
         $webhook_payload = file_get_contents('php://input');
 
+        /** @var \stdClass $btcpayRep */
         $btcpayRep = json_decode($webhook_payload);
         if ($btcpayRep == null) {
             throw new PaymentFailed('Empty data');
@@ -109,6 +110,7 @@ class BTCPayPaymentDriver extends BaseDriver
             return;
         }
 
+        $sig = '';
         $headers = getallheaders();
         foreach ($headers as $key => $value) {
             if (strtolower($key) === 'btcpay-sig') {
@@ -141,6 +143,7 @@ class BTCPayPaymentDriver extends BaseDriver
             ];
             $payment = $this->createPayment($dataPayment, $StatusId);
         } else {
+            /** @var \App\Models\Payment $payment */
             $payment = Payment::find($this->payment_hash->payment_id);
             $StatusId =  $payment->status_id;
         }

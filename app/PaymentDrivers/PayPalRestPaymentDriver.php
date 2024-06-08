@@ -62,7 +62,8 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
     {
         nlog("response");
         $this->init();
-
+        $r = false;
+        
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
         

@@ -115,7 +115,8 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
     {
 
         nlog("response");
-
+        $r = false;
+        
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
 
