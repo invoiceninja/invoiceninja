@@ -295,7 +295,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
      */
     public function processTokenPayment($request, array $response) {
 
-        /** @car \App\Models\ClientGatwayToken $cgt */
+        /** @var \App\Models\ClientGatewayToken $cgt */
         $cgt = ClientGatewayToken::where('client_id', $this->client->id)
                                  ->where('token', $request['token'])
                                  ->firstOrFail();
