@@ -196,7 +196,9 @@ class RoEInvoice extends AbstractService
         $ubl_invoice->setDocumentCurrencyCode($invoice->client->getCurrencyCode());
         $ubl_invoice->setTaxCurrencyCode($invoice->client->getCurrencyCode());
 
-        foreach ($invoice->line_items as $index => $item) {
+        $taxName = '';
+
+        foreach ($invoice->line_items as $index => $item) {           
 
             if (!empty($item->tax_name1)) {
                 $taxName = $item->tax_name1;
@@ -205,9 +207,7 @@ class RoEInvoice extends AbstractService
             } elseif (!empty($item->tax_name3)) {
                 $taxName = $item->tax_name3;
             }
-            else {
-                $taxName = '';
-            }
+
         }
 
         $supplier_party = $this->createParty($company, $companyVatNr, $coEmail, $coPhone, $companyIdn, $coFullName, 'company', $taxName);

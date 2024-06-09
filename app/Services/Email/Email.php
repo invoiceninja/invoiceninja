@@ -933,7 +933,8 @@ class Email implements ShouldQueue
     private function refreshOfficeToken(User $user): mixed
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
-
+        $token = false;
+        
         if ($expiry->lt(now())) {
             $guzzle = new \GuzzleHttp\Client();
             $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';

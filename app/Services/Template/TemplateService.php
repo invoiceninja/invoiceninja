@@ -564,6 +564,7 @@ class TemplateService
                             'credit_balance' => $invoice->client->credit_balance,
                             'vat_number' => $invoice->client->vat_number ?? '',
                             'currency' => $invoice->client->currency()->code ?? 'USD',
+                            'locale' => substr($invoice->client->locale(),0,2),
                         ],
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
