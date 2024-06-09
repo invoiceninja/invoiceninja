@@ -5303,18 +5303,20 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'activity_140' => 'État de compte envoyé à :client',
     'invoice_net_amount' => 'Montant net de la facture',
     'round_to_minutes' => 'Arrondir aux minutes',
+    '1_second' => '1 seconde',
     '1_minute' => '1 minute',
     '5_minutes' => '5 minutes',
     '15_minutes' => '15 minutes',
     '30_minutes' => '30 minutes',
     '1_hour' => '1 heure',
     '1_day' => '1 jour',
-    'round_tasks' => 'Arrondir les tâches',
-    'round_tasks_help' => 'Arrondir les intervales à la sauvegarde des tâches',
+    'round_tasks' => 'Direction d\'arrondi des tâches',
+    'round_tasks_help' => 'Arrondir les temps des tâches vers le haut ou vers le bas',
     'direction' => 'Direction',
     'round_up' => 'Arrondir à hausse',
     'round_down' => 'Arrondir à la baisse',
     'task_round_to_nearest' => 'Arrondir au plus près',
+    'task_round_to_nearest_help' => 'Intervalle d\'arrondi des tâches',
     'bulk_updated' => 'Les données ont été mises à jour',
     'bulk_update' => 'Mise à jour groupée',
     'calculate' => 'Calculer',
@@ -5325,9 +5327,11 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'disconnected' => 'Déconnecté',
     'reconnect' => 'Reconnecté',
     'e_invoice_settings' => 'Paramètres E-Facture',
+    'btcpay_refund_subject' => 'Remboursement de votre facture via BTCPay',
+    'btcpay_refund_body' => 'Un remboursement qui vous est destiné a été émis. Pour le réclamer via BTCPay, veuillez cliquer sur ce lien :',
     'currency_mauritanian_ouguiya' => 'Ouguiya mauritanien',
     'currency_bhutan_ngultrum' => 'Ngultrum Bhoutan',
-    
+    'end_of_month' => 'Fin de mois'
 );
 
 return $lang;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a1bbd8c63e7c792674843dc50a435d86",
+    "content-hash": "a52dad71889f0bfe78dca5f02e7373c5",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.311.1",
+            "version": "3.311.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "90218b9372469babf294f97bdd764c9d47ec8a57"
+                "reference": "731cd73062909594c5f7443413c4c4c40ed1c25c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/90218b9372469babf294f97bdd764c9d47ec8a57",
-                "reference": "90218b9372469babf294f97bdd764c9d47ec8a57",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/731cd73062909594c5f7443413c4c4c40ed1c25c",
+                "reference": "731cd73062909594c5f7443413c4c4c40ed1c25c",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.311.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.311.2"
             },
-            "time": "2024-06-06T18:05:50+00:00"
+            "time": "2024-06-07T18:05:33+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4630,16 +4630,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.53",
+            "version": "v1.0.54",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "939e93ab2e84ec476735e5957f4db7e7d58880c3"
+                "reference": "91547c8aee9d8da22568b90d7cedfaba15373ebe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/939e93ab2e84ec476735e5957f4db7e7d58880c3",
-                "reference": "939e93ab2e84ec476735e5957f4db7e7d58880c3",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/91547c8aee9d8da22568b90d7cedfaba15373ebe",
+                "reference": "91547c8aee9d8da22568b90d7cedfaba15373ebe",
                 "shasum": ""
             },
             "require": {
@@ -4699,9 +4699,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.53"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.54"
             },
-            "time": "2024-06-05T16:49:22+00:00"
+            "time": "2024-06-07T07:47:18+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -5076,12 +5076,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "1b9a488d65715272941f1ae6ddfe2d94ad25c2c1"
+                "reference": "d77f090f8a5e954ee27e3dd02a1e071a40639978"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/1b9a488d65715272941f1ae6ddfe2d94ad25c2c1",
-                "reference": "1b9a488d65715272941f1ae6ddfe2d94ad25c2c1",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/d77f090f8a5e954ee27e3dd02a1e071a40639978",
+                "reference": "d77f090f8a5e954ee27e3dd02a1e071a40639978",
                 "shasum": ""
             },
             "require": {
@@ -5123,7 +5123,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-06-07T04:32:09+00:00"
+            "time": "2024-06-07T10:37:13+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -16395,73 +16395,6 @@
             "time": "2022-06-03T18:03:27+00:00"
         },
         {
-            "name": "webpatser/laravel-countries",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/webpatser/laravel-countries.git",
-                "reference": "75992ad"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/webpatser/laravel-countries/zipball/75992ad",
-                "reference": "75992ad",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "default-branch": true,
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Webpatser\\Countries\\CountriesServiceProvider"
-                    ],
-                    "aliases": {
-                        "Countries": "Webpatser\\Countries\\CountriesFacade"
-                    }
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Webpatser\\Countries": "src/"
-                },
-                "classmap": [
-                    "src/commands"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christoph Kempen",
-                    "email": "christoph@downsized.nl",
-                    "homepage": "http://downsized.nl/",
-                    "role": "developer"
-                },
-                {
-                    "name": "Paul Kievits",
-                    "role": "developer"
-                }
-            ],
-            "description": "Laravel Countries is a bundle for Laravel, providing Almost ISO 3166_2, 3166_3, currency, Capital and more for all countries.",
-            "homepage": "https://github.com/webpatser/laravel-countries",
-            "keywords": [
-                "countries",
-                "iso_3166_2",
-                "iso_3166_3",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/webpatser/laravel-countries/issues",
-                "source": "https://github.com/webpatser/laravel-countries"
-            },
-            "time": "2023-02-08T11:09:34+00:00"
-        },
-        {
             "name": "wildbit/postmark-php",
             "version": "v4.0.5",
             "source": {
@@ -20732,8 +20665,7 @@
     "stability-flags": {
         "horstoeko/orderx": 20,
         "invoiceninja/einvoice": 20,
-        "socialiteproviders/apple": 20,
-        "webpatser/laravel-countries": 20
+        "socialiteproviders/apple": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
