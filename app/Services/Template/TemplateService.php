@@ -11,6 +11,7 @@
 
 namespace App\Services\Template;
 
+use App\Exceptions\PreviewHtmlException;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Credit;
@@ -298,7 +299,6 @@ class TemplateService
         $contents = $this->document->getElementsByTagName('ninja');
 
         foreach ($contents as $content) {
-
             $template = $content->ownerDocument->saveHTML($content);
 
             try {
@@ -414,8 +414,28 @@ class TemplateService
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
-        return $this;
+        // the reason we init twig again: 
+        // it yells about extensions being loaded twice, throwing an exception.
 
+        // todo: check with Dave on security and sandboxing of this.
+
+        $loader = new \Twig\Loader\ArrayLoader();
+        $twig = new \Twig\Environment($loader);
+
+        foreach ($partials['design'] as $partial => $value) {
+            try {
+                $twig->createTemplate(
+                    $value ?? '',
+                );
+            } catch(SyntaxError $e) {
+                throw new PreviewHtmlException(
+                    message: sprintf('L%s: %s', $e->getTemplateLine(), $e->getRawMessage()),
+                    partial: $partial,
+                );
+            }
+        }
+
+        return $this;
     }
 
     /**
