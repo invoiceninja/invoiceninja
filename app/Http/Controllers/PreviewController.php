@@ -138,7 +138,6 @@ class PreviewController extends BaseController
      */
     public function show(ShowPreviewRequest $request)
     {
-
         if($request->input('design.is_template')) {
             return $this->template();
         }
@@ -292,14 +291,18 @@ class PreviewController extends BaseController
         $company = $user->company();
 
         $design_object = json_decode(json_encode(request()->input('design')), 1);
-
-        $ts = (new TemplateService());
+        
+        $ts = new TemplateService();
 
         try {
             $ts->setCompany($company)
                 ->setTemplate($design_object)
                 ->mock();
         } catch(SyntaxError $e) {
+            return Response::json([
+                'message' => $e->getRawMessage(),
+                'line' => $e->getLine(),
+            ], status: 422);
         }
 
         if (request()->query('html') == 'true') {
