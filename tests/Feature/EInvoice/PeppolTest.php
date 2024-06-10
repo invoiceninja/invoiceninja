@@ -117,10 +117,10 @@ class PeppolTest extends TestCase
 
         $invoice->service()->markSent()->save();
 
-        $fat = new Peppol($invoice);
-        $fat->run();
+        $peppol = new Peppol($invoice);
+        $peppol->run();
 
-        $fe = $fat->getInvoice();
+        $fe = $peppol->getInvoice();
 
         $this->assertNotNull($fe);
 
@@ -149,6 +149,6 @@ class PeppolTest extends TestCase
 
         $this->assertCount(0, $errors);
 
-
+        nlog(json_encode($fe, JSON_PRETTY_PRINT));
     }
 }
