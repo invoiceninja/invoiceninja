@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\PreviewHtmlException;
 use App\Utils\Ninja;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -298,10 +299,23 @@ class PreviewController extends BaseController
             $ts->setCompany($company)
                 ->setTemplate($design_object)
                 ->mock();
+        } catch(PreviewHtmlException $e) {
+            return Response::json([
+                'message' => ctrans('texts.templates_error_title'),
+                'errors' => [
+                    'syntax' => [
+                        sprintf('%s: %s', ctrans("texts.{$e->partial}"), $e->getMessage()),
+                    ],
+                ],
+            ], status: 422);    
         } catch(SyntaxError $e) {
             return Response::json([
-                'message' => $e->getRawMessage(),
-                'line' => $e->getLine(),
+                'message' => ctrans('texts.templates_error_title'),
+                'errors' => [
+                    'syntax' => [
+                        sprintf('L%s: %s', $e->getTemplateLine(), $e->getRawMessage()),
+                    ],
+                ],
             ], status: 422);
         }
 
