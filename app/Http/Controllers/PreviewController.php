@@ -155,7 +155,6 @@ class PreviewController extends BaseController
                 return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
             }
 
-            // $entity = ucfirst(request()->input('entity'));
             $entity = Str::camel(request()->input('entity'));
 
             $class = "App\Models\\$entity";
