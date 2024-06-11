@@ -13,42 +13,95 @@
 
 namespace App\Http\Controllers\Gateways;
 
+use App\DataMapper\FeesAndLimits;
+use App\Factory\CompanyGatewayFactory;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GoCardless\OAuthConnectConfirmRequest;
 use App\Http\Requests\GoCardless\OAuthConnectRequest;
+use App\Models\CompanyGateway;
+use App\Models\GatewayType;
 use Illuminate\Support\Facades\Http;
 
 class GoCardlessOAuthController extends Controller
 {
-    public function connect(OAuthConnectRequest $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
+    public function connect(OAuthConnectRequest $request): \Illuminate\Http\RedirectResponse
     {
+        /** @var \App\Models\Company $company */
+        $company = $request->getCompany();
+
         $params = [
             'client_id' => config('services.gocardless.client_id'),
-            'redirect_uri' => route('gocardless.oauth.confirm'),
+            'redirect_uri' => config('services.gocardless.redirect_uri'),
             'scope' => 'read_write',
             'response_type' => 'code',
-            'prefill[email]' => 'ben@invoiceninja.com',
-            'prefill[given_name]' => 'Ben',
-            'prefill[family_name]' => 'The Ninja',
-            'prefill[organisation_name]' => 'Fishing Store',
-            'prefill[country_code]' => 'GB',
+            'state' => $company->company_key,
+            'prefill[email]' => $company->settings->email,
+            'prefill[organisation_name]' => $company->settings->name,
+            'prefill[country_code]' => $company->country()->iso_3166_2,
         ];
 
+        $url = config('services.gocardless.environment') === 'production'
+            ? 'https://connect.gocardless.com/oauth/authorize?%s'
+            : 'https://connect-sandbox.gocardless.com/oauth/authorize?%s';
+
+
         return redirect()->to(
-            sprintf('https://connect-sandbox.gocardless.com/oauth/authorize?%s', http_build_query($params))
+            sprintf($url, http_build_query($params))
         );
     }
 
-    public function confirm(OAuthConnectRequest $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
+    public function confirm(OAuthConnectConfirmRequest $request): \Illuminate\Http\RedirectResponse|\Illuminate\View\View
     {
-        $code = $request->query('code');
+        /** @var \App\Models\Company $company */
+        $company = $request->getCompany();
 
-        $response = Http::post('https://connect-sandbox.gocardless.com/oauth/access_token', [
+        // LBo0v_561xgFGnFUae6uEQEfrWoSEMnZ&state=5O2O85C8dPv1Gp1UPVq0xs4FVTZdq5dO
+        // https://invoicing.co/gocardless/oauth/connect/confirm?code=sH55_xb-2s1JtuEw-j7W0hT0Z1sFkM7l
+
+        $url = config('services.gocardless.environment') === 'production'
+            ? 'https://connect.gocardless.com/oauth/access_token'
+            : 'https://connect-sandbox.gocardless.com/oauth/access_token';
+
+        $response = Http::post($url, [
             'client_id' => config('services.gocardless.client_id'),
             'client_secret' => config('services.gocardless.client_secret'),
             'grant_type' => 'authorization_code',
-            'code' => $code,
+            'code' => $request->query('code'),
+            'redirect_uri' => config('services.gocardless.redirect_uri'),
         ]);
 
-        dd($response->body());
+        if ($response->failed()) {
+            return view('auth.gocardless_connect.access_denied');
+        }
+
+        $company_gateway = CompanyGateway::query()
+            ->where('gateway_key', 'b9886f9257f0c6ee7c302f1c74475f6c')
+            ->where('company_id', $company->id)
+            ->first();
+
+        if ($company_gateway === null) {
+            $company_gateway = CompanyGatewayFactory::create($company->id, $company->owner()->id);
+            $fees_and_limits = new \stdClass();
+            $fees_and_limits->{GatewayType::INSTANT_BANK_PAY} = new FeesAndLimits();
+            $company_gateway->gateway_key = 'b9886f9257f0c6ee7c302f1c74475f6c';
+            $company_gateway->fees_and_limits = $fees_and_limits;
+            $company_gateway->setConfig([]);
+            $company_gateway->token_billing = 'always'; // @todo: Double check
+        }
+
+        $response = $response->json();
+
+        $payload = [
+            'account_id' => $response['organisation_id'],
+            'token_type' => $response['token_type'],
+            'scope' => $response['scope'],
+            'livemode' => $response['active'],
+            'access_token' => $response['access_token'],
+        ];
+
+        $company_gateway->setConfig($payload);
+        $company_gateway->save();
+
+        return view('auth.gocardless_connect.completed');
     }
 }
