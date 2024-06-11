@@ -125,5 +125,6 @@ return [
         'client_id' => env('GOCARDLESS_CLIENT_ID', null),
         'client_secret' => env('GOCARDLESS_CLIENT_SECRET', null),
         'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
+        'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', 'https://invoicing.co/gocardless/oauth/connect/confirm'),
     ]
 ];
