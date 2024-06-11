@@ -29,18 +29,19 @@ class OAuthConnectConfirmRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'state' => ['required', 'string'],
+            'code' => ['required','string'],
         ];
     }
 
     public function getCompany(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel
     {
         MultiDB::findAndSetDbByCompanyKey(
-            $this->company_key,
+            $this->query('state'),
         );
 
         return Company::query()
-            ->where('company_key', $this->company_key)
+            ->where('company_key', $this->query('state'))
             ->firstOrFail();
     }
 }
