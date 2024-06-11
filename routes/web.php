@@ -51,5 +51,5 @@ Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Mol
 Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', [GoCardlessController::class, 'ibpRedirect'])->middleware('domain_db')->name('gocardless.ibp_redirect');
 Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePayDomainController::class, 'showAppleMerchantId']);
 
-Route::get('gocardless/oauth/connect/{company_key}', [GoCardlessOAuthController::class, 'connect']);
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
+Route::get('gocardless/oauth/connect/{company_key}', [GoCardlessOAuthController::class, 'connect']);
