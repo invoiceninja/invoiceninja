@@ -36,7 +36,7 @@ class ImportEDocument implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return string
+     * @return Expense
      */
     public function handle(): Expense
     {

@@ -15,16 +15,14 @@ use App\Factory\ExpenseFactory;
 use App\Factory\VendorFactory;
 use App\Jobs\Util\UploadFile;
 use App\Models\Currency;
-use App\Models\Document;
 use App\Models\Expense;
+use App\Models\Vendor;
 use App\Repositories\VendorRepository;
 use App\Services\AbstractService;
 use App\Utils\TempFile;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ZugferdEDocument extends AbstractService {
     public ZugferdDocumentReader|string $document;
@@ -40,7 +38,7 @@ class ZugferdEDocument extends AbstractService {
     /**
      * @throws Exception
      */
-    public function run(): string
+    public function run(): Expense
     {
         $user = auth()->user();
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument->file('documents')[0]->get());
@@ -89,10 +87,10 @@ class ZugferdEDocument extends AbstractService {
                 $taxid = $taxtype["VA"];
             }
             // TODO find vendor
-            $vendors_registration = new VendorRepository();
-            $vendors = $vendors_registration->all();
-            // Find vendor by vatid or email
-            $vendor = $vendors->firstWhere('vatid', $taxid) ?? $vendors->firstWhere('email', $contact_email);
+            $vendor = Vendor::whereHas('contacts', function ($q) use($contact_email, $taxid) {
+                $q->where('email',$contact_email)->where('vat_number', $taxid);
+            })->first();
+
 
             if ($vendor) {
                 // Vendor found
@@ -101,9 +99,9 @@ class ZugferdEDocument extends AbstractService {
                 $vendor = VendorFactory::create($user->company()->id, $user->id);
                 $vendor->name = $name;
                 if ($taxid != null) {
-                    $vendor->vatid = $taxid;
+                    $vendor->vat_number = $taxid;
                 }
-                $vendor->email = $contact_email;
+                #$vendor->email = $contact_email;
 
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;
