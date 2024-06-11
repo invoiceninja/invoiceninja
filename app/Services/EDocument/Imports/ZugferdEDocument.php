@@ -13,22 +13,26 @@ namespace App\Services\EDocument\Imports;
 
 use App\Factory\ExpenseFactory;
 use App\Factory\VendorFactory;
+use App\Jobs\Util\UploadFile;
 use App\Models\Currency;
+use App\Models\Document;
 use App\Models\Expense;
 use App\Repositories\VendorRepository;
 use App\Services\AbstractService;
+use App\Utils\TempFile;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class ZugferdEDocument extends AbstractService
-{
+class ZugferdEDocument extends AbstractService {
     public ZugferdDocumentReader|string $document;
 
     /**
      * @throws Exception
      */
-    public function __construct(public string $tempdocument, public string $documentname)
+    public function __construct(public object $tempdocument, public string $documentname)
     {
         # curl -X POST http://localhost:8000/api/v1/edocument/upload -H "Content-Type: multipart/form-data" -H "X-API-TOKEN: 7tdDdkz987H3AYIWhNGXy8jTjJIoDhkAclCDLE26cTCj1KYX7EBHC66VEitJwWhn" -H "X-Requested-With: XMLHttpRequest" -F _method=PUT -F documents[]=@einvoice.xml
     }
@@ -39,19 +43,11 @@ class ZugferdEDocument extends AbstractService
     public function run(): string
     {
         $user = auth()->user();
-        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
+        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument->file('documents')[0]->get());
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
-        $expenses = Expense::all();
-        // Check if the document already exists as an expense
-        $existingExpense = $expenses->first(function ($expense) use ($documentno, $grandTotalAmount, $documentdate) {
-            return $expense->transaction_reference == $documentno && $expense->amount == $grandTotalAmount && $expense->date == $documentdate;
-        });
-
-        if ($existingExpense) {
-            // The document already exists as an expense
-            return $existingExpense;
-        } else {
+        $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->where("date", $documentdate)->first();
+        if (!$expense) {
             // The document does not exist as an expense
             // Handle accordingly
             $visualizer = new ZugferdVisualizer($this->document);
@@ -62,13 +58,16 @@ class ZugferdEDocument extends AbstractService
             $expense = ExpenseFactory::create($user->company()->id, $user->id);
             $expense->date = $documentdate;
             $expense->user_id = $user->id;
-            $expense->company_id = $user->company()->id;
+            $expense->company_id = $user->company->id;
             $expense->public_notes = $documentno;
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
             $expense->save();
-            # todo: save visualized xinvoice pdf
-            #$expense->documents()->create(["content" => $visualizer->renderPdf()]);
-            if ($taxCurrency != $invoiceCurrency){
+
+            (new UploadFile($this->tempdocument->file('documents'), UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
+            $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
+            (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
+            $expense->save();
+            if ($taxCurrency != $invoiceCurrency) {
                 $expense->private_notes = "Tax currency is different from invoice currency";
             }
             $expense->uses_inclusive_taxes = false;
@@ -110,11 +109,11 @@ class ZugferdEDocument extends AbstractService
                 $expense->vendor_id = $vendor->id;
                 // Vendor not found
                 // Handle accordingly
-                }
+            }
             $expense->transaction_reference = $documentno;
             $expense->save();
-            return $expense;
-        }
+            }
+    return $expense;
     }
 }
 
