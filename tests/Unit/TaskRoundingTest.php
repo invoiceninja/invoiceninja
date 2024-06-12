@@ -50,6 +50,20 @@ class TaskRoundingTest extends TestCase
         Model::reguard();
     }
 
+    public function testRoundDownToMinute()
+    {
+        $start_time = 1718071646;
+        $end_time = 1718078906;
+        $this->task_round_to_nearest = 60;
+        $this->task_round_up = false;
+
+        $rounded = $start_time + 7260;
+
+        $this->assertEquals($rounded, $end_time);
+        $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
+
+    }
+
     public function testRoundUp()
     {
         $start_time = 1714942800;
@@ -66,8 +80,6 @@ class TaskRoundingTest extends TestCase
     public function testRoundUp2()
     {
         
-
-
         $start_time = 1715237056;
         $end_time = $start_time + 60*7; 
         $this->task_round_to_nearest = 600;
@@ -194,18 +206,36 @@ $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
     }
 
+    // public function roundTimeLog(int $start_time, int $end_time): int
+    // {
+    //     if($this->task_round_to_nearest == 1)
+    //         return $end_time;
+
+    //     $interval = $end_time - $start_time;
+
+    //     if($this->task_round_up)
+    //         return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
+
+    //     return $start_time - (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+
+    // }
+
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1)
+        if($this->task_round_to_nearest == 1 || $end_time == 0)
             return $end_time;
 
         $interval = $end_time - $start_time;
-
+        
         if($this->task_round_up)
             return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
 
-        return $start_time - (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+        if($interval <= $this->task_round_to_nearest)
+            return $start_time;
+        
+        return $start_time + (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
+
 
 }
