@@ -14,16 +14,16 @@ namespace App\Services\EDocument\Imports;
 use App\Factory\ExpenseFactory;
 use App\Factory\VendorFactory;
 use App\Jobs\Util\UploadFile;
+use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Vendor;
-use App\Repositories\VendorRepository;
 use App\Services\AbstractService;
 use App\Utils\TempFile;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
+use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
-use function PHPUnit\Framework\isNull;
 
 class ZugferdEDocument extends AbstractService {
     public ZugferdDocumentReader|string $document;
@@ -52,8 +52,10 @@ class ZugferdEDocument extends AbstractService {
             // Handle accordingly
             $visualizer = new ZugferdVisualizer($this->document);
             $visualizer->setDefaultTemplate();
+            $visualizer->setRenderer(app(ZugferdVisualizerLaravelRenderer::class));
             $visualizer->setPdfFontDefault("arial");
             $visualizer->setPdfPaperSize('A4-P');
+            $visualizer->setTemplate('edocument.xinvoice');
 
             $expense = ExpenseFactory::create($user->company()->id, $user->id);
             $expense->date = $documentdate;
@@ -71,7 +73,7 @@ class ZugferdEDocument extends AbstractService {
             if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
                 $expense->private_notes = ctrans("texts.tax_currency_mismatch");
             }
-            $expense->uses_inclusive_taxes = false;
+            $expense->uses_inclusive_taxes = True;
             $expense->amount = $grandTotalAmount;
             $counter = 1;
             if ($this->document->firstDocumentTax()) {
@@ -84,18 +86,15 @@ class ZugferdEDocument extends AbstractService {
             }
             $this->document->getDocumentSeller($name, $buyer_id, $buyer_description);
             $this->document->getDocumentSellerContact($person_name, $person_department, $contact_phone, $contact_fax, $contact_email);
+            $this->document->getDocumentSellerAddress($address_1, $address_2, $address_3, $postcode, $city, $country, $subdivision);
             $this->document->getDocumentSellerTaxRegistration($taxtype);
             $taxid = null;
             if (array_key_exists("VA", $taxtype)) {
                 $taxid = $taxtype["VA"];
             }
-            // TODO find vendor
-            $vendor = Vendor::whereHas('contacts', function ($q) use($contact_email, $taxid) {
-                $q->where('email',$contact_email)->where('vat_number', $taxid);
-            })->first();
+            $vendor = Vendor::where('vat_number', $taxid)->first();
 
-
-            if ($vendor) {
+            if (!empty($vendor)) {
                 // Vendor found
                 $expense->vendor_id = $vendor->id;
             } else {
@@ -104,12 +103,16 @@ class ZugferdEDocument extends AbstractService {
                 if ($taxid != null) {
                     $vendor->vat_number = $taxid;
                 }
-                #$vendor->email = $contact_email;
+                $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+                $vendor->phone = $contact_phone;
+                $vendor->address1 = $address_1;
+                $vendor->address2 = $address_2;
+                $vendor->city = $city;
+                $vendor->postal_code = $postcode;
+                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id;
 
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;
-                // Vendor not found
-                // Handle accordingly
             }
             $expense->transaction_reference = $documentno;
         }
