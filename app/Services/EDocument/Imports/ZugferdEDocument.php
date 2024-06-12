@@ -30,7 +30,7 @@ class ZugferdEDocument extends AbstractService {
     /**
      * @throws Exception
      */
-    public function __construct(public object $tempdocument, public string $documentname)
+    public function __construct(public string $tempdocument, public string $documentname)
     {
         # curl -X POST http://localhost:8000/api/v1/edocument/upload -H "Content-Type: multipart/form-data" -H "X-API-TOKEN: 7tdDdkz987H3AYIWhNGXy8jTjJIoDhkAclCDLE26cTCj1KYX7EBHC66VEitJwWhn" -H "X-Requested-With: XMLHttpRequest" -F _method=PUT -F documents[]=@einvoice.xml
     }
@@ -41,7 +41,7 @@ class ZugferdEDocument extends AbstractService {
     public function run(): Expense
     {
         $user = auth()->user();
-        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument->file('documents')[0]->get());
+        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
         $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->where("date", $documentdate)->first();
@@ -61,7 +61,8 @@ class ZugferdEDocument extends AbstractService {
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
             $expense->save();
 
-            (new UploadFile($this->tempdocument->file('documents'), UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
+            $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml");
+            (new UploadFile($origin_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
             $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
             (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
             $expense->save();

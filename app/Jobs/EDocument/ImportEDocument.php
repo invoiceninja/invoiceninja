@@ -13,6 +13,7 @@ namespace App\Jobs\EDocument;
 
 use App\Models\Expense;
 use App\Services\EDocument\Imports\ZugferdEDocument;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Queue\SerializesModels;
@@ -28,21 +29,36 @@ class ImportEDocument implements ShouldQueue
     use SerializesModels;
 
     public $deleteWhenMissingModels = true;
+    private string $file_name;
+    private readonly string $file_content;
 
-    public function __construct(private object $request)
+    public function __construct(string $file_content, string $file_name)
     {
+        $this->file_content = $file_content;
+        $this->file_name = $file_name;
     }
 
     /**
      * Execute the job.
      *
      * @return Expense
+     * @throws \Exception
      */
     public function handle(): Expense
     {
-     nlog($this->request->file('documents')[0]);
-        // TODO: check type of file. For now only ZuGFerD
-       return (new ZugferdEDocument($this->request, ""))->run();
+        if (str_contains($this->file_name, ".xml")){
+            switch (true) {
+                case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
+                case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
+                case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
+                    return (new ZugferdEDocument($this->file_content, $this->file_name))->run();
+                default:
+                    throw new Exception("E-Invoice standard not supported");
+            }
+        }
+        else {
+            throw new Exception("File type not supported");
+        }
 
     }
 }
