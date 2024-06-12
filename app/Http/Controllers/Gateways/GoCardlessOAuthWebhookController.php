@@ -10,22 +10,44 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-// @todo: Double check if this should be in admin module
-
 namespace App\Http\Controllers\Gateways;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\GoCardless\WebhookRequest;
+use App\Models\CompanyGateway;
+use App\Repositories\CompanyRepository;
+use Illuminate\Support\Arr;
 
-class GoCardlessOAuthController extends Controller
-{  
-    public function __invoke(Request $request)
+class GoCardlessOAuthWebhookController extends Controller
+{
+    public function __construct(
+        protected CompanyRepository $company_repository,
+    ) {
+    }
+
+    public function __invoke(WebhookRequest $request)
     {
         foreach ($request->events as $event) {
-            match ($event['details']['cause']) {
-                'app_disconnected' => info($event),
-                default => nlog('Not acting on this event type: ' . $event['details']['cause']),
-            };
+            nlog($event['action']);
+
+            $e = Arr::dot($event);
+
+            if ($event['action'] === 'disconnected') {
+
+                /** @var \App\Models\CompanyGateway $company_gateway */
+                $company_gateway = CompanyGateway::query()
+                    ->whereJsonCotains('config->account_id', $e['links.organisation'])
+                    ->firstOrFail();
+
+                $current = $company_gateway->getConfig('__current');
+
+                if ($current) {
+                    $company_gateway->setConfig($current);
+                    $company_gateway->save();
+                }
+
+                $this->company_repository->archive($company_gateway);
+            }
         }
     }
 }
