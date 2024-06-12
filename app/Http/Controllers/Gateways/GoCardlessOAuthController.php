@@ -86,12 +86,12 @@ class GoCardlessOAuthController extends Controller
             $company_gateway->gateway_key = 'b9886f9257f0c6ee7c302f1c74475f6c';
             $company_gateway->fees_and_limits = $fees_and_limits;
             $company_gateway->setConfig([]);
-            $company_gateway->token_billing = 'always'; // @todo: Double check
         }
 
         $response = $response->json();
 
         $payload = [
+            '__current' => $company_gateway->getConfig(),
             'account_id' => $response['organisation_id'],
             'token_type' => $response['token_type'],
             'scope' => $response['scope'],
