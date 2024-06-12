@@ -184,10 +184,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('client_statement', [ClientStatementController::class, 'statement'])->name('client.statement');
 
-
-Route::post('companies/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
-
-    Route::post('companies/current', [CompanyController::class, 'current'])->name('companies.current');
+    Route::post('companies/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
     Route::resource('companies', CompanyController::class); // name = (companies. index / create / show / update / destroy / edit
 
@@ -230,8 +227,8 @@ Route::post('companies/purge/{company}', [MigrationController::class, 'purgeComp
     Route::resource('expenses', ExpenseController::class); // name = (expenses. index / create / show / update / destroy / edit
     Route::put('expenses/{expense}/upload', [ExpenseController::class, 'upload']);
     Route::post('expenses/bulk', [ExpenseController::class, 'bulk'])->name('expenses.bulk');
-
     Route::post('export', [ExportController::class, 'index'])->name('export.index');
+    Route::put('edocument/upload', [ExpenseController::class, "edocument"])->name("expenses.edocument");
 
     Route::resource('expense_categories', ExpenseCategoryController::class); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', [ExpenseCategoryController::class, 'bulk'])->name('expense_categories.bulk');
@@ -415,7 +412,7 @@ Route::post('companies/purge/{company}', [MigrationController::class, 'purgeComp
 
     Route::get('subscriptions/steps', [SubscriptionStepsController::class, 'index']);
     Route::post('subscriptions/steps/check', [SubscriptionStepsController::class, 'check']);
-    
+
     Route::resource('subscriptions', SubscriptionController::class);
 
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
