@@ -48,6 +48,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
         if (! config('ninja.db.multi_db_enabled')) {
             Invoice::query()
                     ->withTrashed()
+                    ->where('status_id', Invoice::STATUS_SENT)
                     ->where('is_proforma', 1)
                     ->where('created_at', '<', now()->subHour())
                     ->cursor()

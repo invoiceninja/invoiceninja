@@ -25,7 +25,16 @@ class ZugferdEDokument extends AbstractService
 {
     public ZugferdDocumentBuilder $xdocument;
 
-    public function __construct(public object $document, private readonly bool $returnObject = false, private array $tax_map = [])
+        
+    /**
+     * __construct
+     *
+     * \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document
+     * @param  bool $returnObject
+     * @param  array $tax_map
+     * @return void
+     */
+    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document, private readonly bool $returnObject = false, private array $tax_map = [])
     {
     }
 

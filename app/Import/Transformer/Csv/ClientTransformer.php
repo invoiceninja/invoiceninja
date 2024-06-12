@@ -28,7 +28,7 @@ class ClientTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (isset($data->name) && $this->getString($data, 'client.name')) {
+        if (isset($data['client.name']) && $this->hasClient($data['client.name'])) {
             throw new ImportException('Client already exists');
         }
 

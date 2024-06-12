@@ -74,6 +74,7 @@ class Peppol extends AbstractService
 
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
     {
+        //@todo - need to process this and remove null values
         return $this->p_invoice;
 
     }

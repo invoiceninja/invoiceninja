@@ -75,7 +75,7 @@ class WePayPaymentDriver extends BaseDriver
      * Setup the gateway
      *
      * @param  array $data user_id + company
-     * @return \Illuminate\View\View
+     * @return void
      */
     public function setup(array $data)
     {

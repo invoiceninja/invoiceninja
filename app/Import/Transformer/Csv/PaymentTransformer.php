@@ -26,6 +26,7 @@ class PaymentTransformer extends BaseTransformer
      */
     public function transform($data)
     {
+        nlog($data);
         $client_id = $this->getClient(
             $this->getString($data, 'payment.client_id'),
             $this->getString($data, 'payment.client_id')
