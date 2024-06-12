@@ -48,6 +48,7 @@ class ImportEDocument implements ShouldQueue
     {
         if (str_contains($this->file_name, ".xml")){
             switch (true) {
+                case stristr($this->file_content, "urn:cen.eu:en16931:2017"):
                 case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
                 case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
                 case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):

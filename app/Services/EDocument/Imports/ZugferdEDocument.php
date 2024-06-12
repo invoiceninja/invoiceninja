@@ -23,6 +23,7 @@ use App\Utils\TempFile;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
+use function PHPUnit\Framework\isNull;
 
 class ZugferdEDocument extends AbstractService {
     public ZugferdDocumentReader|string $document;
@@ -44,8 +45,9 @@ class ZugferdEDocument extends AbstractService {
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
-        $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->where("date", $documentdate)->first();
-        if (!$expense) {
+
+        $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
+        if (empty($expense)) {
             // The document does not exist as an expense
             // Handle accordingly
             $visualizer = new ZugferdVisualizer($this->document);
@@ -66,11 +68,11 @@ class ZugferdEDocument extends AbstractService {
             $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
             (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
             $expense->save();
-            if ($taxCurrency != $invoiceCurrency) {
-                $expense->private_notes = "Tax currency is different from invoice currency";
+            if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
+                $expense->private_notes = ctrans("texts.tax_currency_mismatch");
             }
             $expense->uses_inclusive_taxes = false;
-            $expense->amount = $lineTotalAmount;
+            $expense->amount = $grandTotalAmount;
             $counter = 1;
             if ($this->document->firstDocumentTax()) {
                 do {
@@ -110,9 +112,15 @@ class ZugferdEDocument extends AbstractService {
                 // Handle accordingly
             }
             $expense->transaction_reference = $documentno;
-            $expense->save();
-            }
-    return $expense;
+        }
+        else {
+            // The document exists as an expense
+            // Handle accordingly
+            nlog("Document already exists");
+            $expense->private_notes = $expense->private_notes . ctrans("texts.edocument_import_already_exists", ["date" => time()]);
+        }
+        $expense->save();
+        return $expense;
     }
 }
 

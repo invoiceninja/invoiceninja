@@ -5297,6 +5297,9 @@ $lang = array(
     'rappen_rounding_help' => 'Round amount to 5 cents',
     'assign_group' => 'Assign group',
     'paypal_advanced_cards' => 'Advanced Card Payments',
+    'tax_currency_mismatch' => 'Tax currency is different from invoice currency',
+    'edocument_import_already_exists' => '\nThe invoice has already been imported on :date',
+
 );
 
 return $lang;
