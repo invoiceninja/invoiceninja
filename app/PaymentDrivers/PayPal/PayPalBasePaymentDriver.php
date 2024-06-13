@@ -180,6 +180,38 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
 
+    public function getClientHash()
+    {
+        nlog($this->client->present()->name());
+        
+        /** @var \App\Models\ClientGatewayToken $cgt */
+        $cgt = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id)
+                                 ->where('client_id', $this->client->id)
+                                 ->first();
+        if(!$cgt)
+            return '';
+        
+        $client_reference = $cgt->gateway_customer_reference;
+
+        $secret = $this->company_gateway->getConfigField('secret');
+        $client_id = $this->company_gateway->getConfigField('clientId');
+
+         $response = Http::withBasicAuth($client_id, $secret)
+                                    ->withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])
+                                    ->withQueryParameters(['grant_type' => 'client_credentials','response_type' => 'id_token', 'target_customer_id' => $client_reference])
+                                    ->post("{$this->api_endpoint_url}/v1/oauth2/token");
+
+        if($response->successful()) {
+        
+            $data =$response->json();
+
+            return $data['id_token'] ?? '';
+
+        }
+
+        return '';
+    }
+
     public function handleDuplicateInvoiceId(string $orderID)
     {
 

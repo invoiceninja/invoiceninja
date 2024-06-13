@@ -100,6 +100,8 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
         $data['currency'] = $this->client->currency()->code;
         $data['guid'] = $this->risk_guid;
+        $data['identifier'] = "s:INN_".$this->company_gateway->getConfigField('merchantId')."_CHCK";
+        $data['pp_client_reference'] = $this->getClientHash();
 
         if($this->gateway_type_id == 29)
             return render('gateways.paypal.ppcp.card', $data);
@@ -249,7 +251,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         })->implode("\n");
 
         $order = [
-
                 "intent" => "CAPTURE",
                 "payment_source" => $this->getPaymentSource(),
                 "purchase_units" => [

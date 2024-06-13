@@ -78,21 +78,27 @@
 <script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
     {
         "f":"{{ $guid }}",
-        "s":"paypal.card"        // unique ID for each web page
+        "s":"{{ $identifier }}"        // unique ID for each web page
     }
 </script>
 
 <script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
 
 @if(isset($merchantId))
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields,buttons" data-user-id-token="{!! $pp_client_reference !!}" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @else
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields,buttons" data-user-id-token="{!! $pp_client_reference !!}" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @endif
 <script>
 
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
+
+    const buttons = paypal.Buttons();
+    
+    @if(strlen($pp_client_reference) > 1)
+        buttons.render('#paypal-button-container');
+    @endif
 
     const cardField = paypal.CardFields({
         client: clientId,

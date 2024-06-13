@@ -46,6 +46,12 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['currency'] = $this->client->currency()->code;
         $data['guid'] = $this->risk_guid;
+        $data['identifier'] = "s:INN_ACDC_CHCK";
+        $data['pp_client_reference'] = $this->getClientHash();
+
+        nlog($data['guid']);
+        nlog($data['order_id']);
+
 
         if($this->gateway_type_id == 29)
             return render('gateways.paypal.ppcp.card', $data);
@@ -270,6 +276,23 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         nlog($r->json());
         $response = $r->json();
 
+        
+        if($r->status() == 422) {
+            //handle conditions where the client may need to try again.
+
+            $_invoice = collect($this->payment_hash->data->invoices)->first();
+            $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
+            $new_invoice_number = $invoice->number."_".Str::random(5);
+
+            $order['purchase_units'][0]['invoice_id'] = $new_invoice_number;
+
+            $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
+
+            nlog($r->json());
+            $response = $r->json();
+
+        }
+
         if(!isset($response['id']))
             $this->handleProcessingFailure($response);
 
@@ -304,6 +327,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $orderId = $response['orderID'];
         $r = $this->gatewayRequest("/v1/checkout/orders/{$orderId}/", 'delete', ['body' => '']);
 
+        nlog("token payyy");
+        nlog($r->body());
+
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
             "card" => [
@@ -318,8 +344,38 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         
         $orderId = $this->createOrder($data);
         
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+        // $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
         
+        try {
+
+            $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+            if($r->status() == 422) {
+                //handle conditions where the client may need to try again.
+                nlog("hit 422");
+                $r = $this->handleDuplicateInvoiceId($orderId);
+
+
+            }
+
+        } catch(\Exception $e) {
+
+            //Rescue for duplicate invoice_id
+            if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false) {
+
+
+                nlog("hit 422 in exception");
+
+                $r = $this->handleDuplicateInvoiceId($orderId);
+
+            }
+
+        }
+
+
+
+
+
         $response = $r->json();
         
         $data = [
