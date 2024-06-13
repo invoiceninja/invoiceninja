@@ -265,7 +265,7 @@ class TaskRepository extends BaseRepository
         if($interval <= $this->task_round_to_nearest)
             return $start_time;
         
-        return $start_time - (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+        return $start_time + (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
 
