@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
@@ -84,6 +85,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
      */
     public function processPaymentView($data)
     {
+
         $this->init()->checkPaymentsReceivable();
 
         $data['gateway'] = $this;
@@ -97,6 +99,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data['gateway_type_id'] = $this->gateway_type_id;
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
         $data['currency'] = $this->client->currency()->code;
+        $data['guid'] = $this->risk_guid;
 
         if($this->gateway_type_id == 29)
             return render('gateways.paypal.ppcp.card', $data);
@@ -109,7 +112,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
      * Processes the payment response
      *
      * @param  mixed $request
-     * @return void
      */
     public function processPaymentResponse($request)
     {
@@ -366,4 +368,73 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
     }
+
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    {
+        $data = [];
+        $this->payment_hash = $payment_hash;
+
+        $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
+        $data["payment_source"] = [
+            "card" => [
+                "vault_id" => $cgt->token,
+                "stored_credential" => [
+                    "payment_initiator" => "MERCHANT",
+                    "payment_type" => "UNSCHEDULED",
+                    "usage" => "SUBSEQUENT",
+                ],
+            ],
+        ];
+
+        $orderId = $this->createOrder($data);
+
+        $r = false;
+
+        try {
+
+            $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+            if($r->status() == 422) {
+                //handle conditions where the client may need to try again.
+
+                $r = $this->handleDuplicateInvoiceId($orderId);
+
+
+            }
+
+        } catch(\Exception $e) {
+
+            //Rescue for duplicate invoice_id
+            if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false) {
+
+
+                $r = $this->handleDuplicateInvoiceId($orderId);
+
+            }
+
+        }
+
+        $response = $r->json();
+
+        $data = [
+            'payment_type' => $this->getPaymentMethod((string)$cgt->gateway_type_id),
+            'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+            'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
+            'gateway_type_id' => $this->gateway_type_id,
+        ];
+
+        $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+        SystemLogger::dispatch(
+            ['response' => $response, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_PAYPAL_PPCP,
+            $this->client,
+            $this->client->company,
+        );
+
+
+    }
+    
 }

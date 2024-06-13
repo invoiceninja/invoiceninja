@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use App\Models\Invoice;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
@@ -29,6 +30,8 @@ use App\PaymentDrivers\PayPal\PayPalWebhook;
 class PayPalBasePaymentDriver extends BaseDriver
 {
     use MakesHash;
+
+    public string $risk_guid;
 
     public $token_billing = true;
 
@@ -106,6 +109,7 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     public function init()
     {
+        $this->risk_guid = Str::random(32);
 
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
@@ -432,6 +436,7 @@ class PayPalBasePaymentDriver extends BaseDriver
             'Accept-Language' => 'en_US',
             'PayPal-Partner-Attribution-Id' => 'invoiceninja_SP_PPCP',
             'PayPal-Request-Id' => Str::uuid()->toString(),
+            'PAYPAL-CLIENT-METADATA-ID' => $this->risk_guid,
         ], $headers);
     }
 
@@ -479,5 +484,5 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
     }
-    
+ 
 }
