@@ -109,6 +109,7 @@ class LoginController extends BaseController
 
         if ($this->attemptLogin($request)) {
             LightLogs::create(new LoginSuccess())
+                ->increment()
                 ->batch();
 
             LightLogs::create(new LoginMeta($request->email, $request->ip, 'success'))
@@ -163,7 +164,6 @@ class LoginController extends BaseController
                 ->batch();
 
             LightLogs::create(new LoginMeta($request->email, $request->ip, 'failure'))
-                ->increment()
                 ->batch();
 
             $this->incrementLoginAttempts($request);
