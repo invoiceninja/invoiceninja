@@ -13,6 +13,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\DataMapper\Analytics\LoginFailure;
+use App\DataMapper\Analytics\LoginMeta;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
@@ -111,6 +112,10 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
+            LightLogs::create(new LoginMeta($request->email, $request->ip, 'success'))
+                ->increment()
+                ->batch();
+
             /** @var \App\Models\User $user */
             $user = $this->guard()->user();
 
@@ -156,6 +161,10 @@ class LoginController extends BaseController
             return $this->timeConstrainedResponse($cu);
         } else {
             LightLogs::create(new LoginFailure())
+                ->increment()
+                ->batch();
+
+            LightLogs::create(new LoginMeta($request->email, $request->ip, 'failure'))
                 ->increment()
                 ->batch();
 
@@ -651,7 +660,9 @@ class LoginController extends BaseController
         }
 
         if(request()->hasHeader('X-REACT') || request()->query('react')) {
-            Cache::put("react_redir:".auth()->user()?->account->key, 'true', 300);
+            /**@var \App\Models\User $user */
+            $user = auth()->user();
+            Cache::put("react_redir:".$user?->account->key, 'true', 300);
         }
 
         if (request()->has('code')) {
