@@ -20,6 +20,9 @@ use App\Models\GatewayType;
 use Omnipay\Rotessa\Gateway;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\BaseDriver;
+use App\PaymentDrivers\Rotessa\Bacs;
+use App\PaymentDrivers\Rotessa\Acss;
+use App\PaymentDrivers\Rotessa\DirectDebit;
 use App\PaymentDrivers\Rotessa\BankTransfer;
 
 class RotessaPaymentDriver extends BaseDriver
@@ -38,9 +41,9 @@ class RotessaPaymentDriver extends BaseDriver
 
     public static $methods = [
         GatewayType::BANK_TRANSFER => BankTransfer::class,
-        GatewayType::BACS => BankTransfer::class,
-        GatewayType::ACSS => BankTransfer::class,
-        GatewayType::DIRECT_DEBIT => BankTransfer::class
+        GatewayType::BACS => Bacs::class,
+        GatewayType::ACSS => Acss::class,
+        GatewayType::DIRECT_DEBIT => DirectDebit::class
     ];
 
     public function init(): self
