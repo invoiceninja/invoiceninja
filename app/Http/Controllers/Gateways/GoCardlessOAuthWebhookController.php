@@ -36,7 +36,7 @@ class GoCardlessOAuthWebhookController extends Controller
 
                 /** @var \App\Models\CompanyGateway $company_gateway */
                 $company_gateway = CompanyGateway::query()
-                    ->whereJsonCotains('config->account_id', $e['links.organisation'])
+                    ->whereJsonContains('config->account_id', $e['links.organisation'])
                     ->firstOrFail();
 
                 $current = $company_gateway->getConfig('__current');
