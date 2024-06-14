@@ -7,15 +7,16 @@ parameters:
     paths:
         - app
     excludePaths:
-        - 'vendor/*'
-        - 'resources/*/*.php'
-        - 'app/Jobs/Ninja/*'
-        - 'app/Models/Presenters/*'
-        - 'app/Console/Commands/*'
-        - 'app/DataMapper/Analytics/*'
-        - 'app/PaymentDrivers/Authorize/*'
-        - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
-        - 'app/Utils/Traits/*'
+        analyseAndScan:
+            - 'vendor'
+            - 'resources'
+            - 'app/Jobs/Ninja/*'
+            - 'app/Models/Presenters/*'
+            - 'app/Console/Commands/*'
+            - 'app/DataMapper/Analytics/*'
+            - 'app/PaymentDrivers/Authorize/*'
+            - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
+            - 'app/Utils/Traits/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits

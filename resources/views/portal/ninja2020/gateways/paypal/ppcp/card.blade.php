@@ -85,114 +85,14 @@
 <script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
 
 @if(isset($merchantId))
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields,buttons" data-user-id-token="{!! $pp_client_reference !!}" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @else
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields,buttons" data-user-id-token="{!! $pp_client_reference !!}" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @endif
 <script>
 
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
-
-    const buttons = paypal.Buttons({
-        client: clientId,
-        createOrder: function(data, actions) {
-            return orderId;  
-        },
-        onApprove: function(data, actions) {
-
-            const { liabilityShift, orderID } = data;
-             if(liabilityShift) {
-              
-              /* Handle liability shift. More information in 3D Secure response parameters */
-              if(liabilityShift == 'NO') {
-
-                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed, Please try a different payment method.`;
-                document.getElementById('errors').hidden = false;
-
-                return;
-              }
-
-            }
-
-            let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
-
-            if (storeCard) {
-                document.getElementById("store_card").value = storeCard.value;
-            }
-
-            document.getElementById("gateway_response").value =JSON.stringify( data );  
-            
-            formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
-
-            fetch('{{ route('client.payments.response') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    "X-Requested-With": "XMLHttpRequest",
-                    "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: formData,
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-
-                var errorDetail = Array.isArray(data.details) && data.details[0];
-
-                if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
-                    return actions.restart();
-                }
-
-                if(data.redirect){
-                    window.location.href = data.redirect;
-                    return;
-                }
-
-                document.getElementById("gateway_response").value =JSON.stringify( data );
-                document.getElementById("server_response").submit();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                
-                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
-                document.getElementById('errors').hidden = false;
-
-            });
-
-        },
-        onCancel: function() {
-
-            window.location.href = "/client/invoices/";
-        },
-        // onError: function(error) {
-
-
-        // console.log("submit catch");
-        // const errorM = parseError(error);
-
-        // console.log(errorM);
-
-        // const msg = handle422Error(errorM);
-
-        //     document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${msg.description}`;
-        //     document.getElementById('errors').hidden = false;
-
-        // },
-        onClick: function (){
-           
-        }
-    
-
-    });
-    
-    @if(strlen($pp_client_reference) > 1)
-        buttons.render('#paypal-button-container');
-    @endif
 
     const cardField = paypal.CardFields({
         client: clientId,
@@ -209,7 +109,6 @@
 
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed, Please try a different payment method.`;
                 document.getElementById('errors').hidden = false;
-
                 return;
               }
 

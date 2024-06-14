@@ -180,10 +180,11 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
 
+    //@todo turn this back on when PayPal.....
     public function getClientHash()
     {
-        nlog($this->client->present()->name());
-        
+        return '';
+
         /** @var \App\Models\ClientGatewayToken $cgt */
         $cgt = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id)
                                  ->where('client_id', $this->client->id)
