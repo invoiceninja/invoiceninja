@@ -120,6 +120,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
     {
 
         nlog("response");
+        $this->init();
         $r = false;
 
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
@@ -181,27 +182,9 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         if(isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 
-            $data = [
-                'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
-                'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
-                'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
-                'gateway_type_id' => GatewayType::PAYPAL,
-            ];
 
-            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+            return $this->createNinjaPayment($request, $response);
 
-            SystemLogger::dispatch(
-                ['response' => $response, 'data' => $data],
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
-                SystemLog::TYPE_PAYPAL_PPCP,
-                $this->client,
-                $this->client->company,
-            );
-
-            return response()->json(['redirect' => route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)], false)]);
-
-            // return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         } else {
 
@@ -346,7 +329,33 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         $orderId = $this->createOrder($data);
 
-        $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+        // $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+        
+        try {
+
+            $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
+
+            if($r->status() == 422) {
+                //handle conditions where the client may need to try again.
+                nlog("hit 422");
+                $r = $this->handleDuplicateInvoiceId($orderId);
+
+
+            }
+
+        } catch(\Exception $e) {
+
+            //Rescue for duplicate invoice_id
+            if(stripos($e->getMessage(), 'DUPLICATE_INVOICE_ID') !== false) {
+
+
+                nlog("hit 422 in exception");
+
+                $r = $this->handleDuplicateInvoiceId($orderId);
+
+            }
+
+        }
 
         $response = $r->json();
 

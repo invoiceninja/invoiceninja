@@ -518,4 +518,60 @@ class PayPalBasePaymentDriver extends BaseDriver
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
     }
 
+    public function createNinjaPayment($request, $response)
+    {
+
+        $data = [
+            'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
+            'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+            'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
+            'gateway_type_id' => GatewayType::PAYPAL,
+        ];
+
+        $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+
+        if ($request->has('store_card') && $request->input('store_card') === true) {
+            $payment_source = $response->json()['payment_source'] ?? false;
+
+            if(isset($payment_source['card']) && ($payment_source['card']['attributes']['vault']['status'] ?? false) && $payment_source['card']['attributes']['vault']['status'] == 'VAULTED') {
+
+                $last4 = $payment_source['card']['last_digits'];
+                $expiry = $payment_source['card']['expiry']; //'2025-01'
+                $expiry_meta = explode('-', $expiry);
+                $brand = $payment_source['card']['brand'];
+
+                $payment_meta = new \stdClass();
+                $payment_meta->exp_month = $expiry_meta[1] ?? '';
+                $payment_meta->exp_year = $expiry_meta[0] ?? $expiry;
+                $payment_meta->brand = $brand;
+                $payment_meta->last4 = $last4;
+                $payment_meta->type = GatewayType::CREDIT_CARD;
+
+                $token = $payment_source['card']['attributes']['vault']['id']; // 09f28652d01257021
+                $gateway_customer_reference = $payment_source['card']['attributes']['vault']['customer']['id']; //rbTHnLsZqE;
+
+                $data['token'] = $token;
+                $data['payment_method_id'] = GatewayType::PAYPAL_ADVANCED_CARDS;
+                $data['payment_meta'] = $payment_meta;
+
+                $additional['gateway_customer_reference'] = $gateway_customer_reference;
+
+                $this->storeGatewayToken($data, $additional);
+
+            }
+        }
+
+        SystemLogger::dispatch(
+            ['response' => $response->json(), 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_PAYPAL,
+            $this->client,
+            $this->client->company,
+        );
+
+        return response()->json(['redirect' => route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)], false)]);
+
+    }
+
 }
