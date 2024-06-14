@@ -51,7 +51,7 @@ class UpdateProjectRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -75,7 +75,7 @@ class UpdateProjectRequest extends Request
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';
         }
-        
+
         if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
             $input['budgeted_hours'] = 0;
         }

@@ -69,22 +69,24 @@ class TaskExport extends BaseExport
         $query = Task::query()
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
         $query = $this->addDateRange($query);
-        
+
         $clients = &$this->input['client_id'];
 
-        if($clients)
+        if($clients) {
             $query = $this->addClientFilter($query, $clients);
+        }
 
         $document_attachments = &$this->input['document_email_attachment'];
 
-        if($document_attachments) 
+        if($document_attachments) {
             $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -224,7 +226,7 @@ class TaskExport extends BaseExport
         }
 
     }
-    
+
     /**
      * Add Task Status Filter
      *
@@ -234,7 +236,7 @@ class TaskExport extends BaseExport
      */
     protected function addTaskStatusFilter(Builder $query, string $status): Builder
     {
-    
+
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {

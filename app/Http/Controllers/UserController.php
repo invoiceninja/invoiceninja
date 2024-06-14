@@ -260,7 +260,7 @@ class UserController extends BaseController
         /** @var \App\Models\User $logged_in_user */
         $logged_in_user = auth()->user();
 
-        $company_user = CompanyUser::where('user_id',$user->id)
+        $company_user = CompanyUser::where('user_id', $user->id)
                                     ->where('company_id', $logged_in_user->companyId())
                                     ->withTrashed()
                                     ->first();

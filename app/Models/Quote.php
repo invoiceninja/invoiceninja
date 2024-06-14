@@ -198,10 +198,10 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-//    public function getDueDateAttribute($value)
-//    {
-//        return $value ? $this->dateMutator($value) : null;
-//    }
+    //    public function getDueDateAttribute($value)
+    //    {
+    //        return $value ? $this->dateMutator($value) : null;
+    //    }
 
     // public function getPartialDueDateAttribute($value)
     // {

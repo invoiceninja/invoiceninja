@@ -90,7 +90,7 @@ class InvoiceService
         if ($company_currency != $client_currency) {
             $exchange_rate = new CurrencyApi();
 
-            $this->invoice->exchange_rate = 1/$exchange_rate->exchangeRate($client_currency, $company_currency, now());
+            $this->invoice->exchange_rate = 1 / $exchange_rate->exchangeRate($client_currency, $company_currency, now());
         }
 
         return $this;
@@ -208,7 +208,7 @@ class InvoiceService
     {
         return $this->getEInvoice($contact);
     }
-    
+
     public function sendEmail($contact = null)
     {
         $send_email = new SendEmail($this->invoice, null, $contact);
@@ -488,7 +488,8 @@ class InvoiceService
 
     /*When a reminder is sent we want to touch the dates they were sent*/
     public function touchReminder(string $reminder_template)
-    {   nrlog(now()->format('Y-m-d h:i:s') . " INV #{$this->invoice->number} : Touching Reminder => {$reminder_template}");
+    {
+        nrlog(now()->format('Y-m-d h:i:s') . " INV #{$this->invoice->number} : Touching Reminder => {$reminder_template}");
         switch ($reminder_template) {
             case 'reminder1':
                 $this->invoice->reminder1_sent = now();

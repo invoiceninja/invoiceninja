@@ -250,22 +250,22 @@ class ClientController extends BaseController
             return response()->json(['message' => $hash_or_response], 200);
         }
 
-        if($action == 'assign_group' && $user->can('edit', $clients->first())){
+        if($action == 'assign_group' && $user->can('edit', $clients->first())) {
 
             $this->client_repo->assignGroup($clients, $request->group_settings_id);
-            
+
             return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
 
         }
 
-        if($action == 'bulk_update' && $user->can('edit', $clients->first())){
+        if($action == 'bulk_update' && $user->can('edit', $clients->first())) {
 
             $clients = Client::withTrashed()
                     ->company()
                     ->whereIn('id', $request->ids);
 
             $this->client_repo->bulkUpdate($clients, $request->column, $request->new_value);
-            
+
             return $this->listResponse(Client::query()->withTrashed()->company()->whereIn('id', $request->ids));
 
         }
@@ -351,9 +351,10 @@ class ClientController extends BaseController
             return response()->json(['message' => "Client not found"], 400);
         }
 
-        if($m_client->id == $client->id) 
+        if($m_client->id == $client->id) {
             return response()->json(['message' => "Attempting to merge the same client is not possible."], 400);
-        
+        }
+
         $merged_client = $client->service()->merge($m_client)->save();
 
         return $this->itemResponse($merged_client);

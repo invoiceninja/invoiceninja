@@ -341,12 +341,12 @@ class RecurringInvoice extends BaseModel
             return $this->status_id;
         }
     }
-    
+
     /**
      * CalculateStatus
      *
      * Calculates the status of the Recurring Invoice.
-     * 
+     *
      * We only apply the pending status on new models, we never revert an invoice back to
      * pending.
      * @param  bool $new_model
@@ -355,15 +355,16 @@ class RecurringInvoice extends BaseModel
     public function calculateStatus(bool $new_model = false) //15-02-2024 - $new_model needed
     {
 
-        if($this->remaining_cycles == 0) 
+        if($this->remaining_cycles == 0) {
             return self::STATUS_COMPLETED;
-        elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
+        } elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) {
             return self::STATUS_PENDING;
-        elseif($this->remaining_cycles != 0 && ($this->status_id == self::STATUS_COMPLETED))
+        } elseif($this->remaining_cycles != 0 && ($this->status_id == self::STATUS_COMPLETED)) {
             return self::STATUS_ACTIVE;
+        }
 
         return $this->status_id;
-        
+
     }
 
     public function nextSendDate(): ?Carbon

@@ -647,7 +647,7 @@ class Company extends BaseModel
         // }
 
         return $countries->first(function ($item) {
-            
+
             /** @var \stdClass $item */
             return $item->id == $this->getSetting('country_id');
         });

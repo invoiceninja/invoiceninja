@@ -428,8 +428,7 @@ class MolliePaymentDriver extends BaseDriver
         try {
             $p = $this->gateway->payments->page();
             return true;
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
         }
 

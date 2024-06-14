@@ -47,7 +47,7 @@ class CreditService
     {
         return $this->getECredit($contact);
     }
-    
+
     /**
      * Applies the invoice number.
      * @return $this InvoiceService object

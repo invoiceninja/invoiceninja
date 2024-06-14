@@ -715,18 +715,16 @@ class CompanyController extends BaseController
         $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
         $headers = ['Content-Disposition' => 'inline'];
 
-        try{
+        try {
             $response = \Illuminate\Support\Facades\Http::get($logo);
 
             if ($response->successful()) {
                 $logo = $response->body();
-            }
-            else {
+            } else {
                 $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
             }
 
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
             $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
 

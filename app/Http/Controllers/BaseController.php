@@ -460,7 +460,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.tasks' => function ($query) use ($updated_at, $user) {
-                    $query->where('updated_at', '>=', $updated_at)->with('project','documents');
+                    $query->where('updated_at', '>=', $updated_at)->with('project', 'documents');
 
                     if (! $user->hasPermission('view_task')) {
                         $query->whereNested(function ($query) use ($user) {
@@ -798,7 +798,7 @@ class BaseController extends Controller
                     }
                 },
                 'company.tasks' => function ($query) use ($created_at, $user) {
-                    $query->where('created_at', '>=', $created_at)->with('project.documents','documents');
+                    $query->where('created_at', '>=', $created_at)->with('project.documents', 'documents');
 
                     if (! $user->hasPermission('view_task')) {
                         $query->whereNested(function ($query) use ($user) {
@@ -995,7 +995,7 @@ class BaseController extends Controller
 
                 $response_data = Statics::company($user->getCompany()->getLocale());
 
-                if(request()->has('einvoice')){
+                if(request()->has('einvoice')) {
 
                     $ro = new Schema();
                     $response_data['einvoice_schema'] = $ro('Peppol');
@@ -1003,7 +1003,7 @@ class BaseController extends Controller
                 }
 
                 $response['static'] = $response_data;
-                
+
             }
         }
 

@@ -37,8 +37,6 @@ class TwigLint implements ValidationRule
 
         }
 
-        
+
     }
 }
-
-

@@ -65,7 +65,7 @@ class BaseTransformer
             return $parsed_date;
         }
     }
-    
+
     public function parseDateOrNull($data, $field)
     {
         $date = &$data[$field];
@@ -345,10 +345,10 @@ class BaseTransformer
     {
         if (array_key_exists($field, $data)) {
             return Number::parseFloat($data[$field]);
-        } 
-        
+        }
+
         return 0;
-        
+
     }
 
     /**

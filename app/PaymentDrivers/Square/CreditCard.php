@@ -238,5 +238,5 @@ class CreditCard implements MethodInterface
         return false;
     }
 
-    
+
 }

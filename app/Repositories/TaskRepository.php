@@ -111,8 +111,7 @@ class TaskRepository extends BaseRepository
         $key_values = array_column($time_log, 0);
         array_multisort($key_values, SORT_ASC, $time_log);
 
-        foreach($time_log as $key => $value)
-        {
+        foreach($time_log as $key => $value) {
             $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
         }
 
@@ -254,25 +253,28 @@ class TaskRepository extends BaseRepository
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1 || $end_time == 0)
+        if($this->task_round_to_nearest == 1 || $end_time == 0) {
             return $end_time;
+        }
 
         $interval = $end_time - $start_time;
-        
-        if($this->task_round_up)
-            return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
 
-        if($interval <= $this->task_round_to_nearest)
+        if($this->task_round_up) {
+            return $start_time + (int)ceil($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
+        }
+
+        if($interval <= $this->task_round_to_nearest) {
             return $start_time;
-        
-        return $start_time + (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+        }
+
+        return $start_time + (int)floor($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
 
     public function stop(Task $task)
     {
         $this->init($task);
-        
+
         $log = json_decode($task->time_log, true);
 
         $last = end($log);
@@ -305,7 +307,7 @@ class TaskRepository extends BaseRepository
 
     private function init(Task $task): self
     {
-        
+
         $this->task_round_up = $task->client ? $task->client->getSetting('task_round_up') : $task->company->getSetting('task_round_up');
         $this->task_round_to_nearest = $task->client ? $task->client->getSetting('task_round_to_nearest') : $task->company->getSetting('task_round_to_nearest');
 

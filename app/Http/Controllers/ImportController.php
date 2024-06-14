@@ -276,7 +276,7 @@ class ImportController extends Controller
 
         return $data;
     }
-    
+
 
     /**
      * Returns the best delimiter
@@ -302,7 +302,7 @@ class ImportController extends Controller
             }
 
         }
-        
+
         /** @phpstan-ignore-next-line **/
         return $bestDelimiter ?? ',';
 

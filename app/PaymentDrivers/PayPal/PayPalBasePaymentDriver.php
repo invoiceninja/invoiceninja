@@ -71,8 +71,8 @@ class PayPalBasePaymentDriver extends BaseDriver
     public function gatewayTypes()
     {
 
-        $funding_options = 
-            
+        $funding_options =
+
         collect($this->company_gateway->fees_and_limits)
             ->filter(function ($fee) {
                 return $fee->is_enabled;
@@ -81,10 +81,11 @@ class PayPalBasePaymentDriver extends BaseDriver
             })->toArray();
 
         /** Parse funding options and remove card option if advanced cards is enabled. */
-        if(in_array(1, $funding_options) && in_array(29, $funding_options)){
+        if(in_array(1, $funding_options) && in_array(29, $funding_options)) {
 
-            if (($key = array_search(1, $funding_options)) !== false) 
+            if (($key = array_search(1, $funding_options)) !== false) {
                 unset($funding_options[$key]);
+            }
 
         }
 
@@ -141,7 +142,7 @@ class PayPalBasePaymentDriver extends BaseDriver
      * getFundingOptions
      *
      * Hosted fields requires this.
-     * 
+     *
      * @return string
      */
     public function getFundingOptions(): string
@@ -189,22 +190,23 @@ class PayPalBasePaymentDriver extends BaseDriver
         $cgt = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id)
                                  ->where('client_id', $this->client->id)
                                  ->first();
-        if(!$cgt)
+        if(!$cgt) {
             return '';
-        
+        }
+
         $client_reference = $cgt->gateway_customer_reference;
 
         $secret = $this->company_gateway->getConfigField('secret');
         $client_id = $this->company_gateway->getConfigField('clientId');
 
-         $response = Http::withBasicAuth($client_id, $secret)
-                                    ->withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])
-                                    ->withQueryParameters(['grant_type' => 'client_credentials','response_type' => 'id_token', 'target_customer_id' => $client_reference])
-                                    ->post("{$this->api_endpoint_url}/v1/oauth2/token");
+        $response = Http::withBasicAuth($client_id, $secret)
+                                   ->withHeaders(['Content-Type' => 'application/x-www-form-urlencoded'])
+                                   ->withQueryParameters(['grant_type' => 'client_credentials','response_type' => 'id_token', 'target_customer_id' => $client_reference])
+                                   ->post("{$this->api_endpoint_url}/v1/oauth2/token");
 
         if($response->successful()) {
-        
-            $data =$response->json();
+
+            $data = $response->json();
 
             return $data['id_token'] ?? '';
 
@@ -233,7 +235,7 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         return $r;
     }
-    
+
     public function getShippingAddress(): ?array
     {
         return $this->company_gateway->require_shipping_address ?
@@ -269,7 +271,7 @@ class PayPalBasePaymentDriver extends BaseDriver
                 "country_code" => $this->client->country->iso_3166_2,
             ];
     }
-    
+
     public function getPaymentSource(): array
     {
         //@todo - roll back here for advanced payments vs hosted card fields.
@@ -293,7 +295,7 @@ class PayPalBasePaymentDriver extends BaseDriver
                         // "payment_initiator" => "MERCHANT", //"CUSTOMER" who initiated the transaction?
                         "payment_initiator" => "CUSTOMER", //"" who initiated the transaction?
                         "payment_type" => "UNSCHEDULED", //UNSCHEDULED
-                        "usage"=> "DERIVED",
+                        "usage" => "DERIVED",
                     ],
                 ],
             ];
@@ -329,15 +331,13 @@ class PayPalBasePaymentDriver extends BaseDriver
                     "postal_code" => $this->client->shipping_postal_code,
                     "country_code" => $this->client->present()->shipping_country_code(),
             ];
-        }
-        elseif(
+        } elseif(
             strlen($this->client->address1 ?? '') > 2 &&
             strlen($this->client->city ?? '') > 2 &&
             strlen($this->client->state ?? '') >= 2 &&
             strlen($this->client->postal_code ?? '') > 2 &&
             strlen($this->client->country->iso_3166_2 ?? '') >= 2
-        )
-        {
+        ) {
             $order['paypal']['address'] = [
                     "address_line_1" => $this->client->address1,
                     "address_line_2" => $this->client->address2,
@@ -351,7 +351,7 @@ class PayPalBasePaymentDriver extends BaseDriver
         return $order;
 
     }
-    
+
     /**
      * Payment method setter
      *
@@ -402,8 +402,8 @@ class PayPalBasePaymentDriver extends BaseDriver
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
 
-        if($r->status() <= 422){
-        // if($r->successful()) {
+        if($r->status() <= 422) {
+            // if($r->successful()) {
             return $r;
         }
 
@@ -420,13 +420,13 @@ class PayPalBasePaymentDriver extends BaseDriver
             $this->client->company ?? $this->company_gateway->company,
         );
 
-        
+
         return response()->json(['message' => "Gateway failure - {$r->body()}"], 401);
 
         // throw new PaymentFailed("Gateway failure - {$r->body()}", 401);
 
     }
-    
+
     public function handleProcessingFailure(array $response)
     {
 
@@ -443,14 +443,15 @@ class PayPalBasePaymentDriver extends BaseDriver
             case 'NOT_AUTHORIZED':
                 throw new PaymentFailed("There was a permissions issue processing this payment, please contact the merchant. ", 401);
                 break;
-            
+
             default:
                 throw new PaymentFailed("Unknown error occurred processing payment. Please contact merchant.", 500);
                 break;
         }
     }
 
-    public function handleRetry($response, $request) {
+    public function handleRetry($response, $request)
+    {
         return response()->json($response->json());
     }
 
@@ -497,8 +498,7 @@ class PayPalBasePaymentDriver extends BaseDriver
         try {
             $this->init()->getClientToken();
             return true;
-        }
-        catch(\Exception $e) {
+        } catch(\Exception $e) {
 
         }
 
@@ -508,7 +508,7 @@ class PayPalBasePaymentDriver extends BaseDriver
     public function importCustomers()
     {
         return true;
-    }  
+    }
 
     public function processWebhookRequest(Request $request)
     {
@@ -517,5 +517,5 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
     }
- 
+
 }

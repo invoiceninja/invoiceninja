@@ -171,7 +171,7 @@ class InvoiceSumInclusive
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
         }
-        
+
         return $this;
     }
 
@@ -279,10 +279,9 @@ class InvoiceSumInclusive
     private function setCalculatedAttributes()
     {
         /* If amount != balance then some money has been paid on the invoice, need to subtract this difference from the total to set the new balance */
-        if($this->invoice->status_id == Invoice::STATUS_CANCELLED){
+        if($this->invoice->status_id == Invoice::STATUS_CANCELLED) {
             $this->invoice->balance = 0;
-        }
-        elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
+        } elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
                 $this->invoice->balance = $this->formatValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date;
             } else {
@@ -302,8 +301,8 @@ class InvoiceSumInclusive
 
         return $this;
     }
-    
-    function roundRappen($value): float
+
+    public function roundRappen($value): float
     {
         return round($value / .05, 0) * .05;
     }
@@ -373,7 +372,7 @@ class InvoiceSumInclusive
 
             $this->total_taxes += $total_line_tax;
         }
-        
+
         return $this;
     }
 

@@ -44,11 +44,11 @@ class StorePaymentRequest extends Request
         $user = auth()->user();
 
         $rules = [
-            'client_id' => ['bail','required',Rule::exists('clients','id')->where('company_id',$user->company()->id)->where('is_deleted', 0)],
+            'client_id' => ['bail','required',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail','sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required'],
-            'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
-            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits','id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
+            'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
+            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule(), 'max:99999999999999'],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
@@ -59,7 +59,7 @@ class StorePaymentRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 

@@ -30,7 +30,7 @@ class PaymentEmailEngine extends BaseEmailEngine
 {
     use MakesDates;
     use MakesHash;
-    
+
     public $client;
 
     /** @var \App\Models\Payment $payment */
@@ -102,7 +102,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
 
             $template_in_use = false;
-            
+
             if($this->is_refund && \App\Models\Design::where('id', $this->decodePrimaryKey($this->payment->client->getSetting('payment_refund_design_id')))->where('is_template', true)->exists()) {
                 $pdf = (new TemplateAction(
                     [$this->payment->hashed_id],

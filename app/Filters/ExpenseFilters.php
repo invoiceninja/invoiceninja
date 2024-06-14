@@ -111,8 +111,8 @@ class ExpenseFilters extends QueryFilters
                 });
             }
 
-            if(in_array('uncategorized', $status_parameters)){
-                $query->orWhere(function ($query){
+            if(in_array('uncategorized', $status_parameters)) {
+                $query->orWhere(function ($query) {
                     $query->whereNull('category_id');
                 });
             }

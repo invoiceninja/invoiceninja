@@ -30,26 +30,26 @@ use App\PaymentDrivers\PayPal\PayPalBasePaymentDriver;
 class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 {
     use MakesHash;
-    
-///v1/customer/partners/merchant-accounts/{merchant_id}/capabilities - test if advanced cards is available.
-//     {
-//     "capabilities": [
-//         {
-//             "name": "ADVANCED_CARD_PAYMENTS",
-//             "status": "ENABLED"
-//         },
-//         {
-//             "name": "VAULTING",
-//             "status": "ENABLED"
-//         }
-//     ]
-// }
+
+    ///v1/customer/partners/merchant-accounts/{merchant_id}/capabilities - test if advanced cards is available.
+    //     {
+    //     "capabilities": [
+    //         {
+    //             "name": "ADVANCED_CARD_PAYMENTS",
+    //             "status": "ENABLED"
+    //         },
+    //         {
+    //             "name": "VAULTING",
+    //             "status": "ENABLED"
+    //         }
+    //     ]
+    // }
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_PAYPAL_PPCP;
-    
+
     /**
      * Checks whether payments are enabled on the merchant account
-     * 
+     *
      * @return self
      */
     private function checkPaymentsReceivable(): self
@@ -81,7 +81,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
      * Presents the Payment View to the client
      *
      * @param  array $data
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View 
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function processPaymentView($data)
     {
@@ -103,10 +103,11 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data['identifier'] = "s:INN_".$this->company_gateway->getConfigField('merchantId')."_CHCK";
         $data['pp_client_reference'] = $this->getClientHash();
 
-        if($this->gateway_type_id == 29)
+        if($this->gateway_type_id == 29) {
             return render('gateways.paypal.ppcp.card', $data);
-        else
+        } else {
             return render('gateways.paypal.ppcp.pay', $data);
+        }
 
     }
 
@@ -120,7 +121,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         nlog("response");
         $r = false;
-        
+
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
 
@@ -159,7 +160,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
             if($r->status() == 422) {
                 //handle conditions where the client may need to try again.
                 // return $this->handleRetry($r, $request);
-                
+
                 $r = $this->handleDuplicateInvoiceId($orderID);
 
             }
@@ -197,7 +198,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 $this->client,
                 $this->client->company,
             );
-       
+
             return response()->json(['redirect' => route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)], false)]);
 
             // return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
@@ -301,7 +302,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
         $this->payment_hash->withData("orderID", $r->json()['id']);
-        
+
         return $r->json()['id'];
 
     }
@@ -309,18 +310,19 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
     /**
      * processTokenPayment
      *
-     * With PayPal and token payments, the order needs to be 
+     * With PayPal and token payments, the order needs to be
      * deleted and then created with the payment source that
      * has been selected by the client.
-     * 
-     * This method handle the deletion of the current paypal order, 
+     *
+     * This method handle the deletion of the current paypal order,
      * and the automatic payment of the order with the selected payment source.
-     * 
+     *
      * @param  mixed $request
      * @param  array $response
      * @return void
      */
-    public function processTokenPayment($request, array $response) {
+    public function processTokenPayment($request, array $response)
+    {
 
         /** @var \App\Models\ClientGatewayToken $cgt */
         $cgt = ClientGatewayToken::where('client_id', $this->client->id)
@@ -336,18 +338,18 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 "vault_id" => $cgt->token,
                 "stored_credential" => [
                     "payment_initiator" => "MERCHANT",
-                    "payment_type" => "UNSCHEDULED", 
+                    "payment_type" => "UNSCHEDULED",
                     "usage" => "SUBSEQUENT",
                 ],
             ],
         ];
-        
+
         $orderId = $this->createOrder($data);
-        
+
         $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
-        
+
         $response = $r->json();
-        
+
         $data = [
             'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
             'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
@@ -437,5 +439,5 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
 
     }
-    
+
 }

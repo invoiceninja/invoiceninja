@@ -65,18 +65,18 @@ class GmailTransport extends AbstractTransport
         $body->setRaw($this->base64_encode($bcc_list.$message->toString()));
 
         // try {
-            $service->users_messages->send('me', $body, []);
+        $service->users_messages->send('me', $body, []);
         // } catch(\Google\Service\Exception $e) {
         //     /* Need to slow down */
         //     if ($e->getCode() == '429') {
         //         nlog("429 google - retrying ");
 
         //         sleep(rand(3,8));
-                
+
         //         try {
         //             $service->users_messages->send('me', $body, []);
         //         } catch(\Google\Service\Exception $e) {
-                
+
         //         }
 
         //     }

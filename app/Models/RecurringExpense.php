@@ -221,7 +221,7 @@ class RecurringExpense extends BaseModel
         return $this->belongsTo(User::class, 'assigned_user_id', 'id');
     }
 
-    public function company():\Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Company::class);
     }

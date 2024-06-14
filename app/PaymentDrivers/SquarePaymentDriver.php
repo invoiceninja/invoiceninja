@@ -450,65 +450,67 @@ class SquarePaymentDriver extends BaseDriver
 
     public function importCustomers()
     {
-        
+
         $limit = 100;
 
         $api_response = $this->init()
                     ->square
                     ->getCustomersApi()
-                    ->listCustomers(null,
+                    ->listCustomers(
+                        null,
                         $limit,
                         'DEFAULT',
                         'DESC'
                     );
 
         if ($api_response->isSuccess()) {
-        
-         while ($api_response->getResult()->getCustomers()) {
 
-            $customers = $api_response->getResult()->getCustomers();
+            while ($api_response->getResult()->getCustomers()) {
 
-            $client_repo = new ClientRepository(new ClientContactRepository());
+                $customers = $api_response->getResult()->getCustomers();
 
-            foreach($customers as $customer)
-            {
+                $client_repo = new ClientRepository(new ClientContactRepository());
 
-                $data = (new SquareCustomerFactory())->convertToNinja($customer, $this->company_gateway->company);
-                $client = ClientContact::where('company_id', $this->company_gateway->company_id)->where('email', $customer->getEmailAddress())->first()->client ?? false;
+                foreach($customers as $customer) {
 
-                if(!$client)
-                    $client = $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
+                    $data = (new SquareCustomerFactory())->convertToNinja($customer, $this->company_gateway->company);
+                    $client = ClientContact::where('company_id', $this->company_gateway->company_id)->where('email', $customer->getEmailAddress())->first()->client ?? false;
 
-                $this->client = $client;
+                    if(!$client) {
+                        $client = $client_repo->save($data, ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id));
+                    }
 
-                foreach($data['cards'] as $card) {
-                 
-                    if(ClientGatewayToken::where('company_id', $this->company_gateway->company_id)->where('token', $card['token'])->exists())
-                        continue;
+                    $this->client = $client;
 
-                    $this->storeGatewayToken($card);
+                    foreach($data['cards'] as $card) {
 
+                        if(ClientGatewayToken::where('company_id', $this->company_gateway->company_id)->where('token', $card['token'])->exists()) {
+                            continue;
+                        }
+
+                        $this->storeGatewayToken($card);
+
+                    }
                 }
-            }
-        
-            $c = $api_response->getCursor();
-            if ($c) {
 
-                $api_response = $this->init()
-                    ->square
-                    ->getCustomersApi()
-                    ->listCustomers(
+                $c = $api_response->getCursor();
+                if ($c) {
+
+                    $api_response = $this->init()
+                        ->square
+                        ->getCustomersApi()
+                        ->listCustomers(
                             $c,
                             $limit,
                             'DEFAULT',
                             'DESC'
                         );
-            } else {
-                break;
+                } else {
+                    break;
+                }
+
+
             }
-
-
-        }
 
         }
     }
@@ -558,8 +560,9 @@ class SquarePaymentDriver extends BaseDriver
 
     public function findOrCreateClient()
     {
-        if($customer_id = $this->findClient())
+        if($customer_id = $this->findClient()) {
             return $customer_id;
+        }
 
         return $this->createClient();
     }

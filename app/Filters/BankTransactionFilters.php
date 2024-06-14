@@ -115,7 +115,7 @@ class BankTransactionFilters extends QueryFilters
         return $this->builder;
     }
 
-    
+
     /**
      * Filters the list based on Bank Accounts.
      *
@@ -124,11 +124,12 @@ class BankTransactionFilters extends QueryFilters
      */
     public function bank_integration_ids(string $ids = ''): Builder
     {
-        if(strlen($ids) == 0)
+        if(strlen($ids) == 0) {
             return $this->builder;
+        }
 
         $ids = $this->transformKeys(explode(",", $ids));
-        
+
         $this->builder->where(function ($query) use ($ids) {
             $query->whereIn('bank_integration_id', $ids);
         });

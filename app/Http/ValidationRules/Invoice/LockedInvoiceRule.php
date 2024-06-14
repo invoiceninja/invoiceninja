@@ -69,10 +69,11 @@ class LockedInvoiceRule implements Rule
 
                 return true;
 
-            //if now is greater than the end of month the invoice was dated - do not modify
+                //if now is greater than the end of month the invoice was dated - do not modify
             case 'end_of_month':
-                if(\Carbon\Carbon::parse($this->invoice->date)->setTimezone($this->invoice->company->timezone()->name)->endOfMonth()->lte(now()))
+                if(\Carbon\Carbon::parse($this->invoice->date)->setTimezone($this->invoice->company->timezone()->name)->endOfMonth()->lte(now())) {
                     return false;
+                }
 
                 return true;
             default:

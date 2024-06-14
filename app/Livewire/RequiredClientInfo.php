@@ -232,11 +232,13 @@ class RequiredClientInfo extends Component
             $this->invoice_terms = $invoice->terms;
         }
 
-        if(!$this->company_gateway->always_show_required_fields || $this->is_subscription)
+        if(!$this->company_gateway->always_show_required_fields || $this->is_subscription) {
             $this->checkFields();
+        }
 
-        if($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription))
+        if($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription)) {
             $this->show_form = true;
+        }
     }
 
     #[Computed]

@@ -47,7 +47,7 @@ class StoreInvoiceRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -80,7 +80,7 @@ class StoreInvoiceRequest extends Request
         $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
         $rules['partial_due_date'] = ['bail', 'sometimes', 'exclude_if:partial,0', Rule::requiredIf(fn () => $this->partial > 0), 'date'];
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
-        
+
         // $rules['amount'] = ['sometimes', 'bail', 'max:99999999999999'];
         // $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
 
@@ -122,8 +122,9 @@ class StoreInvoiceRequest extends Request
         if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || (empty($input['due_date']) && empty($this->invoice->due_date)))) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
 
-            if($client)
+            if($client) {
                 $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays($client->getSetting('payment_terms'))->format('Y-m-d');
+            }
         }
 
         $this->replace($input);

@@ -146,8 +146,7 @@ class PreviewController extends BaseController
         if (request()->has('entity') &&
             request()->has('entity_id') &&
             ! empty(request()->input('entity')) &&
-            ! empty(request()->input('entity_id')))
-            {
+            ! empty(request()->input('entity_id'))) {
 
             $design_object = json_decode(json_encode(request()->input('design')));
 
@@ -172,10 +171,9 @@ class PreviewController extends BaseController
             App::setLocale($entity_obj->client->preferredLocale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
-            if($entity_obj->client){
+            if($entity_obj->client) {
                 $html = new HtmlEngine($entity_obj->invitations()->first());
-            }
-            else {
+            } else {
                 $html = new VendorHtmlEngine($entity_obj->invitations()->first());
             }
 
