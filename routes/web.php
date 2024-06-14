@@ -54,4 +54,4 @@ Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePa
 
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
 Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');
-Route::get('gocardless/oauth/connect/{company_key}', [GoCardlessOAuthController::class, 'connect']);
+Route::get('gocardless/oauth/connect/{token}', [GoCardlessOAuthController::class, 'connect']);
