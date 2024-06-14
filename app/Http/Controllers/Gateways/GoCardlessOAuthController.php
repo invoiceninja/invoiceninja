@@ -98,6 +98,7 @@ class GoCardlessOAuthController extends Controller
             'active' => $response['active'],
             'accessToken' => $response['access_token'],
             'testMode' => $company_gateway->getConfigField('testMode'),
+            'oauth2' => true,
         ];
 
         $company_gateway->setConfig($payload);
