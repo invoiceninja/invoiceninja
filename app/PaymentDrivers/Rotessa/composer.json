@@ -1,0 +1,61 @@
+{
+    "name": "karneaud/invoiceninja-rotessa",
+    "description": "Invoice Ninja with Rotessa gateway",
+    "type":"laravel-module",
+    "keywords": [
+        "invoice ninja",
+        "laravel",
+        "rotessa"
+    ],
+    "license": ["Attribution Assurance License","Proprietary License","BSD 3-Clause License"],
+    "authors": [
+        {
+            "name": "Kendall Arneaud",
+            "email": "kendall.arneaud@gmail.com"
+        }
+    ],
+    "autoload": {
+        "classmap": ["./View/Components/Components.php"],
+        "psr-4": {
+           "App\\PaymentDrivers\\Rotessa\\":"./",
+           "App\\PaymentDrivers\\Rotessa\\View\\Components\\":"./View/Components/",
+           "App\\PaymentDrivers\\Rotessa\\Database\\Seeders\\": "Database/Seeders/"
+        },
+        "files": [
+            "./View/Composers/Composer.php"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "karneaud/omnipay-rotessa",
+                "source": {
+                    "url": "https://github.com/karneaud/omnipay-rotessa.git",
+                    "type": "git",
+                    "reference": "master"
+                },
+                "version": "1.0.0-beta",
+                "dist": {
+                    "url": "https://github.com/karneaud/omnipay-rotessa/archive/refs/tags/v1.0.0-beta.zip",
+                    "type": "zip"
+                },
+                "autoload": {
+                    "psr-4": {
+                        "Omnipay\\Rotessa\\":"./src/Omnipay/Rotessa/",
+                        "Omnipay\\Rotessa\\Exception\\":"./src/Omnipay/Rotessa/Exception/"
+                    },
+                    "classmap": ["./src/Omnipay/Rotessa/Exception/Exceptions.php"]
+                }
+            }
+        }
+    ],
+    "require": {
+        "karneaud/omnipay-rotessa": "v1.0.0-beta"
+    }
+}

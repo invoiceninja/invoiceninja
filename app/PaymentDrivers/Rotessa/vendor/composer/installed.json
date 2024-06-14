@@ -1,0 +1,32 @@
+{
+    "packages": [
+        {
+            "name": "karneaud/omnipay-rotessa",
+            "version": "1.0.0-beta",
+            "version_normalized": "1.0.0.0-beta",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/karneaud/omnipay-rotessa.git",
+                "reference": "master"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/karneaud/omnipay-rotessa/archive/refs/tags/v1.0.0-beta.zip"
+            },
+            "type": "library",
+            "installation-source": "source",
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Rotessa\\": "./src/Omnipay/Rotessa/",
+                    "Omnipay\\Rotessa\\Exception\\": "./src/Omnipay/Rotessa/Exception/"
+                },
+                "classmap": [
+                    "./src/Omnipay/Rotessa/Exception/Exceptions.php"
+                ]
+            },
+            "install-path": "../karneaud/omnipay-rotessa"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}
