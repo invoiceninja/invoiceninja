@@ -15,6 +15,7 @@ namespace App\Http\Requests\GoCardless;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Cache;
 
 class OAuthConnectRequest extends FormRequest
 {
@@ -35,12 +36,16 @@ class OAuthConnectRequest extends FormRequest
 
     public function getCompany(): \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\App\Models\BaseModel
     {
+        $data = Cache::get(
+            key: $this->token,
+        );
+
         MultiDB::findAndSetDbByCompanyKey(
-            $this->company_key,
+            company_key: $data['company_key'],
         );
 
         return Company::query()
-            ->where('company_key', $this->company_key)
+            ->where('company_key', $data['company_key'])
             ->firstOrFail();
     }
 }
