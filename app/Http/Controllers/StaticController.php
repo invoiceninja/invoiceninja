@@ -20,7 +20,7 @@ class StaticController extends BaseController
     /**
      * Show the list of Invoices.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/statics",

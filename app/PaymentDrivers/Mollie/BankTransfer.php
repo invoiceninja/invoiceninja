@@ -54,7 +54,7 @@ class BankTransfer implements MethodInterface
      * Handle the authorization for bank transfer.
      *
      * @param Request $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
@@ -65,7 +65,7 @@ class BankTransfer implements MethodInterface
      * Show the payment page for bank transfer.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
      */
     public function paymentView(array $data)
     {
@@ -168,7 +168,7 @@ class BankTransfer implements MethodInterface
      *
      * @param ResourcesPayment $payment
      * @param string $status
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processSuccessfulPayment(ResourcesPayment $payment, $status = 'paid'): RedirectResponse
     {
@@ -200,7 +200,7 @@ class BankTransfer implements MethodInterface
      * Handle 'open' payment status for bank transfer.
      *
      * @param ResourcesPayment $payment
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processOpenPayment(ResourcesPayment $payment): RedirectResponse
     {

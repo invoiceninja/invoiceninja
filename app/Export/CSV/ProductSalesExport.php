@@ -328,9 +328,9 @@ class ProductSalesExport extends BaseExport
      * getProduct
      *
      * @param  string $product_key
-     * @return ?\App\Models\Product
+     * @return ?\Illuminate\Database\Eloquent\Model
      */
-    private function getProduct(string $product_key): ?\App\Models\Product
+    private function getProduct(string $product_key)
     {
         return $this->products->firstWhere('product_key', $product_key);
     }

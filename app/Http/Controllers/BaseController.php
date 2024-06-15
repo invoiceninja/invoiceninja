@@ -262,7 +262,7 @@ class BaseController extends Controller
 
     /**
      * 404 for the client portal.
-     * @return Response 404 response
+     * @return Response| \Illuminate\Http\JsonResponse 404 response
      */
     public function notFoundClient()
     {
@@ -279,7 +279,7 @@ class BaseController extends Controller
      *
      * @param string|array    $message        The return error message
      * @param int       $httpErrorCode  404/401/403 etc
-     * @return Response                 The JSON response
+     * @return Response| \Illuminate\Http\JsonResponse                 The JSON response
      * @throws BindingResolutionException
      */
     protected function errorResponse($message, $httpErrorCode = 400)
@@ -297,7 +297,7 @@ class BaseController extends Controller
      * Refresh API response with latest cahnges
      *
      * @param  Builder           $query
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     protected function refreshResponse($query)
     {
@@ -969,7 +969,7 @@ class BaseController extends Controller
      * Sorts the response by keys
      *
      * @param  mixed $response
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     protected function response($response)
     {
@@ -1020,7 +1020,7 @@ class BaseController extends Controller
      * Item Response
      *
      * @param  mixed $item
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     protected function itemResponse($item)
     {

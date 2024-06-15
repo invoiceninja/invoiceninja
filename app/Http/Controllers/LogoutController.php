@@ -52,7 +52,7 @@ class LogoutController extends BaseController
      *       ),
      *     )
      * @param Request $request
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(Request $request)
     {

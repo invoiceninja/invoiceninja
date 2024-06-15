@@ -389,7 +389,7 @@ class StripePaymentDriver extends BaseDriver
      * Proxy method to pass the data into payment method authorizeView().
      *
      * @param array $data
-     * @return RedirectResponse|mixed
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function authorizeView(array $data)
     {
@@ -400,7 +400,7 @@ class StripePaymentDriver extends BaseDriver
      * Processes the gateway response for credit card authorization.
      *
      * @param \Illuminate\Http\Request $request
-     * @return RedirectResponse|mixed
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function authorizeResponse($request)
     {
@@ -411,7 +411,7 @@ class StripePaymentDriver extends BaseDriver
      * Process the payment with gateway.
      *
      * @param array $data
-     * @return RedirectResponse|mixed
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function processPaymentView(array $data)
     {

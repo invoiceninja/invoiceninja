@@ -21,7 +21,7 @@ class ContactHashLoginController extends Controller
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
-     * @return Redirect
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function login(string $contact_key)
     {
@@ -50,7 +50,7 @@ class ContactHashLoginController extends Controller
     /**
      * Generic error page for client portal.
      *
-     * @return void
+     * @return \Illuminate\View\View
      */
     public function errorPage()
     {

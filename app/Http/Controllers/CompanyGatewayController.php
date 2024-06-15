@@ -72,7 +72,7 @@ class CompanyGatewayController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -119,7 +119,7 @@ class CompanyGatewayController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateCompanyGatewayRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -168,7 +168,7 @@ class CompanyGatewayController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreCompanyGatewayRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -248,7 +248,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param ShowCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -302,7 +302,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param EditCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -356,7 +356,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param UpdateCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -437,7 +437,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param DestroyCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -494,7 +494,7 @@ class CompanyGatewayController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(

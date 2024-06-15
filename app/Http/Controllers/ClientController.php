@@ -89,7 +89,7 @@ class ClientController extends BaseController
     /**
      *
      * @param ClientFilters $filters
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function index(ClientFilters $filters)
@@ -106,7 +106,7 @@ class ClientController extends BaseController
      *
      * @param ShowClientRequest $request
      * @param Client $client
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function show(ShowClientRequest $request, Client $client)
@@ -119,7 +119,7 @@ class ClientController extends BaseController
      *
      * @param EditClientRequest $request
      * @param Client $client
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function edit(EditClientRequest $request, Client $client)
@@ -132,7 +132,7 @@ class ClientController extends BaseController
      *
      * @param UpdateClientRequest $request
      * @param Client $client
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function update(UpdateClientRequest $request, Client $client)
@@ -157,7 +157,7 @@ class ClientController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateClientRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function create(CreateClientRequest $request)
@@ -174,7 +174,7 @@ class ClientController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreClientRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function store(StoreClientRequest $request)
@@ -203,7 +203,7 @@ class ClientController extends BaseController
      *
      * @param DestroyClientRequest $request
      * @param Client $client
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @throws \Exception
      */
@@ -217,7 +217,7 @@ class ClientController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function bulk(BulkClientRequest $request)
@@ -284,7 +284,7 @@ class ClientController extends BaseController
      *
      * @param UploadClientRequest $request
      * @param Client $client
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function upload(UploadClientRequest $request, Client $client)

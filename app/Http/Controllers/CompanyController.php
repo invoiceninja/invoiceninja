@@ -78,7 +78,7 @@ class CompanyController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/companies",
@@ -136,7 +136,7 @@ class CompanyController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateCompanyRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -186,7 +186,7 @@ class CompanyController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreCompanyRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -272,7 +272,7 @@ class CompanyController extends BaseController
      *
      * @param ShowCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -326,7 +326,7 @@ class CompanyController extends BaseController
      *
      * @param EditCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -380,7 +380,7 @@ class CompanyController extends BaseController
      *
      * @param UpdateCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -457,7 +457,7 @@ class CompanyController extends BaseController
      *
      * @param DestroyCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -573,7 +573,7 @@ class CompanyController extends BaseController
      *
      * @param UploadCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -636,7 +636,7 @@ class CompanyController extends BaseController
      *
      * @param DefaultCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -706,6 +706,11 @@ class CompanyController extends BaseController
         return $this->itemResponse($company->fresh());
     }
 
+    /**
+     * 
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse
+     */
     public function logo()
     {
 

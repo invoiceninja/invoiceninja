@@ -60,7 +60,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param \App\Filters\PurchaseOrderFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/purchase_orders",
@@ -105,7 +105,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param CreatePurchaseOrderRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -153,7 +153,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param StorePurchaseOrderRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -208,7 +208,7 @@ class PurchaseOrderController extends BaseController
      * @param ShowPurchaseOrderRequest $request  The request
      * @param PurchaseOrder $purchase_order  The purchase order
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -262,7 +262,7 @@ class PurchaseOrderController extends BaseController
      * @param EditPurchaseOrderRequest $request The request
      * @param PurchaseOrder $purchase_order The purchase order
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/purchase_orders/{id}/edit",
@@ -314,7 +314,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param UpdatePurchaseOrderRequest $request The request
      * @param PurchaseOrder $purchase_order
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \ReflectionException
@@ -434,7 +434,7 @@ class PurchaseOrderController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      * @OA\Post(
      *      path="/api/v1/purchase_orders/bulk",
@@ -726,7 +726,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param UploadPurchaseOrderRequest $request
      * @param PurchaseOrder $purchase_order
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

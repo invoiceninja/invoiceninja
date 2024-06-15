@@ -67,7 +67,7 @@ class UserController extends BaseController
      * Display a listing of the resource.
      *
      * @param UserFilters $filters
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function index(UserFilters $filters)
@@ -81,7 +81,7 @@ class UserController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateUserRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function create(CreateUserRequest $request)
@@ -95,7 +95,7 @@ class UserController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreUserRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function store(StoreUserRequest $request)
@@ -126,7 +126,7 @@ class UserController extends BaseController
      *
      * @param ShowUserRequest $request
      * @param User $user
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function show(ShowUserRequest $request, User $user)
@@ -139,7 +139,7 @@ class UserController extends BaseController
      *
      * @param EditUserRequest $request
      * @param User $user
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function edit(EditUserRequest $request, User $user)
@@ -152,7 +152,7 @@ class UserController extends BaseController
      *
      * @param UpdateUserRequest $request
      * @param User $user
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function update(UpdateUserRequest $request, User $user)
     {
@@ -214,7 +214,7 @@ class UserController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function bulk(BulkUserRequest $request)

@@ -184,7 +184,7 @@ class PdfMock
     /**
      * getTaxMap
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     private function getTaxMap(): \Illuminate\Support\Collection
     {

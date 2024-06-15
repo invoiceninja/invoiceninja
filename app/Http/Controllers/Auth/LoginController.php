@@ -488,7 +488,7 @@ class LoginController extends BaseController
      * send login response to oauthed users
      *
      * @param \App\Models\User $existing_user
-     * @return Response | JsonResponse
+     * @return Response| \Illuminate\Http\JsonResponse | JsonResponse
      */
     private function existingOauthUser($existing_user)
     {

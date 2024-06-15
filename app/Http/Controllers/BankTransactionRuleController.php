@@ -85,7 +85,7 @@ class BankTransactionRuleController extends BaseController
      *       ),
      *     )
      * @param BankTransactionRuleFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(BankTransactionRuleFilters $filters)
     {
@@ -424,7 +424,7 @@ class BankTransactionRuleController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      * @OA\Post(
      *      path="/api/v1/bank_transation_rules/bulk",

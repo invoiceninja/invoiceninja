@@ -86,7 +86,7 @@ class LoginController extends BaseController
      * Redirect the user to the provider authentication page.
      *
      * @param string $provider
-     * @return void
+     * @return mixed
      */
     public function redirectToProvider(string $provider)
     {
