@@ -2692,7 +2692,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'no_assets' => 'Aucune image, glisser-déposer pour la téléverser',
     'add_image' => 'Ajouter une image',
     'select_image' => 'Sélectionner une image',
-    'upgrade_to_upload_images' => 'Passer au plan Entreprise pour téléverser des images',
+    'upgrade_to_upload_images' => 'Passer au plan Entreprise pour téléverser des images et des fichiers',
     'delete_image' => 'Supprimer une image',
     'delete_image_help' => 'Avertissement: la suppression de cette image va la supprimer de toutes les propositions.',
     'amount_variable_help' => 'Note: le champ $amount de la facture utilisera le champ partiel/dépôt. Il utilisera le solde de la facture, si spécifié autrement.',

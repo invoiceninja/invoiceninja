@@ -310,7 +310,7 @@ class YodleeController extends BaseController
 
     private function transformSummary($summary): array
     {
-        $dto = new \stdClass;
+        $dto = new \stdClass();
         $dto->id = $summary['id'] ?? 0;
         $dto->account_type = $summary['CONTAINER'] ?? '';
 

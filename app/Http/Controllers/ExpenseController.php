@@ -98,7 +98,7 @@ class ExpenseController extends BaseController
      *       ),
      *     )
      * @param ExpenseFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(ExpenseFilters $filters)
     {
@@ -112,7 +112,7 @@ class ExpenseController extends BaseController
      *
      * @param ShowExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -166,7 +166,7 @@ class ExpenseController extends BaseController
      *
      * @param EditExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -220,7 +220,7 @@ class ExpenseController extends BaseController
      *
      * @param UpdateExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -286,7 +286,7 @@ class ExpenseController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -334,7 +334,7 @@ class ExpenseController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -387,7 +387,7 @@ class ExpenseController extends BaseController
      *
      * @param DestroyExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -441,7 +441,7 @@ class ExpenseController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -524,7 +524,7 @@ class ExpenseController extends BaseController
      *
      * @param UploadExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

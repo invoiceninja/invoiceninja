@@ -25,10 +25,12 @@ class ClientPortalEnabled
      */
     public function handle($request, Closure $next)
     {
-        /** @var \App\Models\ClientContact $client_contact */
-        $client_contact = auth()->user();
 
-        if ($client_contact->client->getSetting('enable_client_portal') === false) {
+        auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }]);
+
+        if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal') === false) {
             return redirect()->route('client.error')->with(['title' => ctrans('texts.client_portal'), 'notification' => 'This section of the app has been disabled by the administrator.']);
         }
 

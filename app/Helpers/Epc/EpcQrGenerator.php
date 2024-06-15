@@ -105,7 +105,7 @@ class EpcQrGenerator
         return implode("\n", $data);
 
     }
-    
+
 
     //            substr("{$this->invoice->number} {$this->invoice->client->number}", 0,139),
 

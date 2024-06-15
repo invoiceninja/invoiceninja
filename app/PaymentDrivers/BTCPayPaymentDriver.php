@@ -43,7 +43,7 @@ class BTCPayPaymentDriver extends BaseDriver
         GatewayType::CRYPTO => BTCPay::class, //maps GatewayType => Implementation class
     ];
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
     public $btcpay_url  = "";
     public $api_key  = "";

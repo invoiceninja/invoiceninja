@@ -113,7 +113,7 @@ class CreateRawPdf
         } catch (\Exception) {
             throw new FilePermissionsFailure('Unable to generate the raw PDF');
         }
-        if ($this->entity_string == "invoice" && $this->entity->client->getSetting("merge_e_invoice_to_pdf")){
+        if ($this->entity_string == "invoice" && $this->entity->client->getSetting("merge_e_invoice_to_pdf")) {
             $pdf = (new MergeEDocument($this->entity, $pdf))->handle();
         }
         return $pdf;

@@ -36,7 +36,7 @@ class AutoBillInvoice extends AbstractService
     private Client $client;
 
     private array $used_credit = [];
-    
+
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
 
@@ -262,10 +262,10 @@ class AutoBillInvoice extends AbstractService
                     ->workFlow() //07-06-2024 - run the workflow if paid!
                     ->save();
     }
-    
+
     /**
      * If the client has unapplied payments on file
-     * we will use these prior to charging a 
+     * we will use these prior to charging a
      * payment method on file.
      *
      * This needs to be wrapped in a transaction.
@@ -282,11 +282,11 @@ class AutoBillInvoice extends AbstractService
                                   ->where('amount', '>', 0)
                                   ->orderBy('created_at')
                                   ->get();
-        
+
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
-        
+
         nlog("available unapplied balance = {$available_unapplied_balance}");
-        
+
         if ((int) $available_unapplied_balance == 0) {
             return $this;
         }
@@ -296,7 +296,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         $payment_repo = new PaymentRepository(new CreditRepository());
-        
+
         foreach ($unapplied_payments as $key => $payment) {
             $payment_balance = $payment->amount - $payment->applied;
 
@@ -305,7 +305,7 @@ class AutoBillInvoice extends AbstractService
                 if ($payment_balance > $this->invoice->partial) {
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
                     $payment_repo->save($payload, $payment);
-                
+
                     $this->invoice = $this->invoice->fresh();
 
                     return $this;
@@ -316,16 +316,16 @@ class AutoBillInvoice extends AbstractService
             } else {
                 //more than needed
                 if ($payment_balance > $this->invoice->balance) {
-                    
+
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
                     $payment_repo->save($payload, $payment);
 
                     $this->invoice = $this->invoice->fresh();
 
                     return $this;
-                    
+
                 } else {
-                    
+
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
 

@@ -48,8 +48,7 @@ class StoreClientRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }
-        else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -133,11 +132,9 @@ class StoreClientRequest extends Request
             } else {
                 $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
             }
-        } 
-        elseif (! array_key_exists('currency_id', $input['settings'])) {
+        } elseif (! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
-        }
-        elseif (empty($input['settings']['currency_id']) ?? true) {
+        } elseif (empty($input['settings']['currency_id']) ?? true) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 

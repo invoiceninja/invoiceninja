@@ -30,7 +30,7 @@ class Cart extends Component
     public function showOptionalProductsLabel()
     {
         $optional = [
-            ...$this->context['bundle']['optional_recurring_products'] ?? [], 
+            ...$this->context['bundle']['optional_recurring_products'] ?? [],
             ...$this->context['bundle']['optional_one_time_products'] ?? [],
         ];
 

@@ -38,7 +38,7 @@ class ProfileController extends Controller
      *
      * @param UpdateContactRequest $request
      * @param ClientContact $client_contact
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdateContactRequest $request, ClientContact $client_contact)
     {

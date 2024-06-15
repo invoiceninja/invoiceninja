@@ -29,7 +29,7 @@ class ClientFactory
         $client->balance = 0;
         $client->paid_to_date = 0;
         $client->country_id = null;
-        $client->is_deleted = 0;
+        $client->is_deleted = false;
         $client->client_hash = Str::random(40);
         $client->settings = ClientSettings::defaults();
         $client->classification = '';

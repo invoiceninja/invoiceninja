@@ -13,7 +13,7 @@ namespace App\DataMapper\Analytics;
 
 use Turbo124\Beacon\ExampleMetric\GenericMixedMetric;
 
-class DbQuery extends GenericMixedMetric
+class LoginMeta extends GenericMixedMetric
 {
     /**
      * The type of Sample.
@@ -30,7 +30,7 @@ class DbQuery extends GenericMixedMetric
      * The name of the counter.
      * @var string
      */
-    public $name = 'db.queries';
+    public $name = 'login.meta';
 
     /**
      * The datetime of the counter measurement.
@@ -46,34 +46,16 @@ class DbQuery extends GenericMixedMetric
      *
      * @var string
      */
-    public $string_metric5 = 'method';
+    public $string_metric5 = 'email';
+    public $string_metric6 = 'ip';
+    public $string_metric7 = 'result';
 
-    public $string_metric6 = 'url';
-
-    public $string_metric7 = 'ip_address';
-
-    public $string_metric8 = 'client_version';
-
-    public $string_metric9 = 'platform';
-
-    /**
-     * The counter
-     * set to 1.
-     *
-     * @var int
-     */
     public $int_metric1 = 1;
 
-    public $double_metric2 = 1;
-
-    public function __construct($string_metric5, $string_metric6, $int_metric1, $double_metric2, $string_metric7, $string_metric8, $string_metric9)
+    public function __construct($string_metric5, $string_metric6, $string_metric7)
     {
-        $this->int_metric1 = $int_metric1;
-        $this->string_metric5 = $string_metric5;
-        $this->string_metric6 = $string_metric6;
-        $this->double_metric2 = $double_metric2;
         $this->string_metric7 = $string_metric7;
-        $this->string_metric8 = $string_metric8;
-        $this->string_metric9 = $string_metric9;
+        $this->string_metric6 = $string_metric6;
+        $this->string_metric5 = $string_metric5;
     }
 }

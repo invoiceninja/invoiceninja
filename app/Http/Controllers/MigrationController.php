@@ -80,7 +80,7 @@ class MigrationController extends BaseController
      *       ),
      *     )
      * @param Company $company
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      * @throws \Exception
      */
     public function purgeCompany(Company $company)
@@ -171,7 +171,7 @@ class MigrationController extends BaseController
      *     )
      * @param Request $request
      * @param Company $company
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function purgeCompanySaveSettings(Request $request, Company $company)
     {
@@ -255,7 +255,7 @@ class MigrationController extends BaseController
      *       ),
      *     )
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse|void
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|void
      */
     public function startMigration(Request $request)
     {

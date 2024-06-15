@@ -32,8 +32,10 @@ class CheckClientExistence
             return $next($request);
         }
 
+        auth()->guard('contact')->user()->loadMissing(['company']); // @phpstan-ignore method.notFound
+
         $multiple_contacts = ClientContact::query()
-            ->with('client.gateway_tokens', 'company')
+            // ->with('client.gateway_tokens', 'company')
             ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
@@ -56,6 +58,11 @@ class CheckClientExistence
 
         if (count($multiple_contacts) == 1 && ! Auth::guard('contact')->check()) {
             Auth::guard('contact')->loginUsingId($multiple_contacts[0]->id, true);
+
+            auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {
+                $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+            }]);
+
         }
 
         session()->put('multiple_contacts', $multiple_contacts);

@@ -29,6 +29,17 @@
 @endsection
 
 @push('footer')
+
+<script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
+    {
+        "f":"{{ $guid }}",
+        "s":"paypal.pay"        // unique ID for each web page
+    }
+</script>
+
+<script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
+
+
 <style type="text/css">
 .loader {
 width: 48px;
@@ -66,7 +77,6 @@ inset: 6px;
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 
 <script>
-
 //&buyer-country=US&currency=USD&enable-funding=venmo
     const fundingSource = "{!! $funding_source !!}";
     const clientId = "{{ $client_id }}";

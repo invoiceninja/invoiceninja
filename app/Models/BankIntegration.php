@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $bank_account_status
  * @property string|null $bank_account_type
  * @property float $balance
- * @property int|null $currency
+ * @property string|null $currency
  * @property string $nickname
  * @property string $nordigen_account_id
  * @property string $nordigen_institution_id

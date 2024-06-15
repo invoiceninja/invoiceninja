@@ -182,7 +182,7 @@ class InvoiceItemSum
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
-            
+
             if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
                 return $this;
             }

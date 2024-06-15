@@ -34,7 +34,7 @@ class StaticServiceProvider extends ServiceProvider
     public function register()
     {
 
-            
+
         app()->singleton('currencies', function ($app) {
             return Currency::query()->orderBy('name')->get();
         });

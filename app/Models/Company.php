@@ -59,7 +59,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property \App\DataMapper\CompanySettings $settings
+ * @property \App\DataMapper\CompanySettings|\stdClass $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -647,7 +647,7 @@ class Company extends BaseModel
         // }
 
         return $countries->first(function ($item) {
-            
+
             /** @var \stdClass $item */
             return $item->id == $this->getSetting('country_id');
         });

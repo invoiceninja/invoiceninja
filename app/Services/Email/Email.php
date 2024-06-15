@@ -250,8 +250,9 @@ class Email implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark']))
+        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
+        }
     }
 
     /**
@@ -302,21 +303,18 @@ class Email implements ShouldQueue
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        }
-        catch(\Google\Service\Exception $e){
+        } catch(\Google\Service\Exception $e) {
 
             if ($e->getCode() == '429') {
-            
+
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
                 $this->logMailError($message, $this->company->clients()->first());
                 sleep(rand(1, 2));
                 $this->release(900);
                 $message = null;
             }
-        
-        } 
-        
-        catch (\Exception | \RuntimeException $e) {
+
+        } catch (\Exception | \RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -332,7 +330,7 @@ class Email implements ShouldQueue
 
                 return;
             }
-            
+
             if(stripos($e->getMessage(), 'Dsn') !== false) {
 
                 nlog("Incorrectly configured mail server - setting to default mail driver.");
@@ -374,7 +372,7 @@ class Email implements ShouldQueue
                 $this->fail();
                 $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
-                
+
                 return;
             }
 
@@ -648,8 +646,8 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable
             ->from($sending_email, $sending_user);
@@ -756,8 +754,8 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable
             ->from($sending_email, $sending_user);
@@ -778,8 +776,8 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable
             ->from($sending_email, $sending_user);
@@ -800,8 +798,8 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable
             ->from($sending_email, $sending_user);
@@ -934,7 +932,7 @@ class Email implements ShouldQueue
     {
         $expiry = $user->oauth_user_token_expiry ?: now()->subDay();
         $token = false;
-        
+
         if ($expiry->lt(now())) {
             $guzzle = new \GuzzleHttp\Client();
             $url = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
@@ -949,8 +947,7 @@ class Email implements ShouldQueue
                         'refresh_token' => $user->oauth_user_refresh_token
                     ],
                 ])->getBody()->getContents());
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 nlog("Problem getting new Microsoft token for User: {$user->email}");
             }
 

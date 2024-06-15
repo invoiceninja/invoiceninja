@@ -117,7 +117,7 @@
         "larastan/larastan": "^2",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
-        "phpstan/phpstan": "^1.9",
+        "phpstan/phpstan": "^1.11",
         "phpunit/phpunit": "^10",
         "spatie/laravel-ignition": "^2.0",
         "spaze/phpstan-stripe": "^3.0"

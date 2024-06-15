@@ -380,7 +380,7 @@ class BaseRepository
         return $model->fresh();
     }
 
-    public function bulkUpdate(\Illuminate\Database\Eloquent\Builder $model, string $column, mixed $new_value) :void
+    public function bulkUpdate(\Illuminate\Database\Eloquent\Builder $model, string $column, mixed $new_value): void
     {
         $model->update([$column => $new_value]);
     }

@@ -21,7 +21,7 @@ class PaytraceCustomerFactory
         return
             collect([
                 'name' => $customer->billing_address->name ?? $customer->shipping_address->name,
-                'contacts' => [    
+                'contacts' => [
                     [
                         'first_name' => $customer->billing_address->name ?? $customer->shipping_address->name,
                         'last_name' => '',
@@ -55,5 +55,5 @@ class PaytraceCustomerFactory
             ->toArray();
 
     }
-   
+
 }

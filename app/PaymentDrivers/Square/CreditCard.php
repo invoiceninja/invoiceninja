@@ -55,7 +55,7 @@ class CreditCard implements MethodInterface
      * Handle authorization for credit card.
      *
      * @param Request $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse($request): RedirectResponse
     {
@@ -238,5 +238,5 @@ class CreditCard implements MethodInterface
         return false;
     }
 
-    
+
 }

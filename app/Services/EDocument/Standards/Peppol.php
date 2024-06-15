@@ -43,7 +43,6 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
 
 class Peppol extends AbstractService
 {
-    
     private array $InvoiceTypeCodes = [
         "380" => "Commercial invoice",
         "381" => "Credit note",
@@ -68,7 +67,7 @@ class Peppol extends AbstractService
      */
     public function __construct(public Invoice $invoice)
     {
-        $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice;
+        $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         $this->calc = $this->invoice->calc();
     }
 
@@ -90,45 +89,45 @@ class Peppol extends AbstractService
         $this->p_invoice->TaxTotal = $this->getTotalTaxes();
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
-// $payeeFinancialAccount = (new PayeeFinancialAccount())
-//     ->setBankId($company->settings->custom_value1)
-//     ->setBankName($company->settings->custom_value2);
+        // $payeeFinancialAccount = (new PayeeFinancialAccount())
+        //     ->setBankId($company->settings->custom_value1)
+        //     ->setBankName($company->settings->custom_value2);
 
-// $paymentMeans = (new PaymentMeans())
-// ->setPaymentMeansCode($invoice->custom_value1)
-// ->setPayeeFinancialAccount($payeeFinancialAccount);
-// $ubl_invoice->setPaymentMeans($paymentMeans);
+        // $paymentMeans = (new PaymentMeans())
+        // ->setPaymentMeansCode($invoice->custom_value1)
+        // ->setPayeeFinancialAccount($payeeFinancialAccount);
+        // $ubl_invoice->setPaymentMeans($paymentMeans);
 
     }
 
     private function getLegalMonetaryTotal(): LegalMonetaryTotal
-    {   
+    {
         $taxable = $this->getTaxable();
 
-        $lmt = new LegalMonetaryTotal;
-        
-        $lea = new LineExtensionAmount;
+        $lmt = new LegalMonetaryTotal();
+
+        $lea = new LineExtensionAmount();
         $lea->currencyID = $this->invoice->client->currency()->code;
         $lea->amount = $taxable;
         $lmt->LineExtensionAmount = $lea;
 
-        $tea = new TaxExclusiveAmount;
+        $tea = new TaxExclusiveAmount();
         $tea->currencyID = $this->invoice->client->currency()->code;
         $tea->amount = $taxable;
         $lmt->TaxExclusiveAmount = $tea;
 
-        $tia = new TaxInclusiveAmount;
+        $tia = new TaxInclusiveAmount();
         $tia->currencyID = $this->invoice->client->currency()->code;
         $tia->amount = $this->invoice->amount;
         $lmt->TaxInclusiveAmount = $tia;
 
-        $pa = new PayableAmount;
+        $pa = new PayableAmount();
         $pa->currencyID = $this->invoice->client->currency()->code;
         $pa->amount = $this->invoice->amount;
         $lmt->PayableAmount = $pa;
 
         return $lmt;
-    }   
+    }
 
     private function getTotalTaxes(): array
     {
@@ -136,24 +135,23 @@ class Peppol extends AbstractService
 
         $type_id = $this->invoice->line_items[0]->type_id;
 
-        if( strlen($this->invoice->tax_name1 ?? '') > 1)
-        {
-            
+        if(strlen($this->invoice->tax_name1 ?? '') > 1) {
+
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1),2);
+            $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1), 2);
 
-$tax_subtotal = new TaxSubtotal();
-$tax_subtotal->TaxAmount = $tax_amount;
-
-
-$taxable_amount = new TaxableAmount();
-$taxable_amount->currencyID = $this->invoice->client->currency()->code;
-$taxable_amount->amount = $this->invoice->amount;
-$tax_subtotal->TaxableAmount = $taxable_amount;
+            $tax_subtotal = new TaxSubtotal();
+            $tax_subtotal->TaxAmount = $tax_amount;
 
 
-            
+            $taxable_amount = new TaxableAmount();
+            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+            $taxable_amount->amount = $this->invoice->amount;
+            $tax_subtotal->TaxableAmount = $taxable_amount;
+
+
+
             $tc = new TaxCategory();
             $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $this->invoice->tax_rate1;
@@ -162,13 +160,13 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
-            $tax_total = new TaxTotal;
+            $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
             $tax_total->TaxSubtotal = $tax_subtotal;
 
             $taxes[] = $tax_total;
         }
-        
+
 
         if(strlen($this->invoice->tax_name2 ?? '') > 1) {
 
@@ -176,17 +174,17 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate2), 2);
 
-$tax_subtotal = new TaxSubtotal();
-$tax_subtotal->TaxAmount = $tax_amount;
+            $tax_subtotal = new TaxSubtotal();
+            $tax_subtotal->TaxAmount = $tax_amount;
 
-$taxable_amount = new TaxableAmount();
-$taxable_amount->currencyID = $this->invoice->client->currency()->code;
-$taxable_amount->amount = $this->invoice->amount;
-$tax_subtotal->TaxableAmount = $taxable_amount;
+            $taxable_amount = new TaxableAmount();
+            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+            $taxable_amount->amount = $this->invoice->amount;
+            $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
             $tc = new TaxCategory();
-            $tc->ID = $type_id == '2' ? 'HUR' : 'C62';  
+            $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $this->invoice->tax_rate2;
             $ts = new PeppolTaxScheme();
             $ts->ID = $this->invoice->tax_name2;
@@ -208,13 +206,13 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1), 2);
 
-$tax_subtotal = new TaxSubtotal();
-$tax_subtotal->TaxAmount = $tax_amount;
+            $tax_subtotal = new TaxSubtotal();
+            $tax_subtotal->TaxAmount = $tax_amount;
 
-$taxable_amount = new TaxableAmount();
-$taxable_amount->currencyID = $this->invoice->client->currency()->code;
-$taxable_amount->amount = $this->invoice->amount;
-$tax_subtotal->TaxableAmount = $taxable_amount;
+            $taxable_amount = new TaxableAmount();
+            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+            $taxable_amount->amount = $this->invoice->amount;
+            $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
             $tc = new TaxCategory();
@@ -242,18 +240,17 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
     {
         $lines = [];
 
-        foreach($this->invoice->line_items as $key => $item)
-        {
+        foreach($this->invoice->line_items as $key => $item) {
 
-            $_item = new Item;
+            $_item = new Item();
             $_item->Name = $item->product_key;
             $_item->Description = $item->notes;
 
-            $line = new InvoiceLine;
-            $line->ID = $key+1;
+            $line = new InvoiceLine();
+            $line->ID = $key + 1;
             $line->InvoicedQuantity = $item->quantity;
 
-            $lea = new LineExtensionAmount;
+            $lea = new LineExtensionAmount();
             $lea->currencyID = $this->invoice->client->currency()->code;
             $lea->amount = $item->line_total;
             $line->LineExtensionAmount = $lea;
@@ -265,16 +262,17 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
             // $tt->TaxAmount = $ta;
             $item_taxes = $this->getItemTaxes($item);
 
-            if(count($item_taxes) > 0)
+            if(count($item_taxes) > 0) {
                 $line->TaxTotal = $item_taxes;
+            }
 
-            $price = new Price;
-            $pa = new PriceAmount;
+            $price = new Price();
+            $pa = new PriceAmount();
             $pa->currencyID = $this->invoice->client->currency()->code;
             $pa->amount = $this->costWithDiscount($item);
             $price->PriceAmount = $pa;
-            
-            $line->Price = $price; 
+
+            $line->Price = $price;
 
             $lines[] = $line;
         }
@@ -301,32 +299,31 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
     {
         $item_taxes = [];
 
-        if(strlen($item->tax_name1 ?? '') > 1)
-        {
+        if(strlen($item->tax_name1 ?? '') > 1) {
 
-            $tax_amount = new TaxAmount;
+            $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1/$item->tax_rate1)),2);
-            $tax_subtotal = new TaxSubtotal;
+            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate1)), 2);
+            $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
 
-            $taxable_amount = new TaxableAmount;
+            $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
             $taxable_amount->amount = $item->line_total;
             $tax_subtotal->TaxableAmount = $taxable_amount;
-                $tc = new TaxCategory;
+            $tc = new TaxCategory();
             $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
             $tc->Percent = $item->tax_rate1;
-                $ts = new PeppolTaxScheme; 
-                $ts->ID = $item->tax_name1;
+            $ts = new PeppolTaxScheme();
+            $ts->ID = $item->tax_name1;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
-            
 
-$tax_total = new TaxTotal();
-$tax_total->TaxAmount = $tax_amount;
-$tax_total->TaxSubtotal[] = $tax_subtotal;
-$item_taxes[] = $tax_total;
+
+            $tax_total = new TaxTotal();
+            $tax_total->TaxAmount = $tax_amount;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
+            $item_taxes[] = $tax_total;
 
         }
 
@@ -335,15 +332,15 @@ $item_taxes[] = $tax_total;
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate2)),2);
+            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate2)), 2);
 
-$tax_subtotal = new TaxSubtotal();
-$tax_subtotal->TaxAmount = $tax_amount;
+            $tax_subtotal = new TaxSubtotal();
+            $tax_subtotal->TaxAmount = $tax_amount;
 
-$taxable_amount = new TaxableAmount();
-$taxable_amount->currencyID = $this->invoice->client->currency()->code;
-$taxable_amount->amount = $item->line_total;
-$tax_subtotal->TaxableAmount = $taxable_amount;
+            $taxable_amount = new TaxableAmount();
+            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+            $taxable_amount->amount = $item->line_total;
+            $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
             $tc = new TaxCategory();
@@ -355,10 +352,10 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
             $tax_subtotal->TaxCategory = $tc;
 
 
-$tax_total = new TaxTotal();
-$tax_total->TaxAmount = $tax_amount;
-$tax_total->TaxSubtotal[] = $tax_subtotal;
-$item_taxes[] = $tax_total;
+            $tax_total = new TaxTotal();
+            $tax_total->TaxAmount = $tax_amount;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
+            $item_taxes[] = $tax_total;
 
 
         }
@@ -368,15 +365,15 @@ $item_taxes[] = $tax_total;
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate3)),2);
+            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate3)), 2);
 
-$tax_subtotal = new TaxSubtotal();
-$tax_subtotal->TaxAmount = $tax_amount;
+            $tax_subtotal = new TaxSubtotal();
+            $tax_subtotal->TaxAmount = $tax_amount;
 
-$taxable_amount = new TaxableAmount();
-$taxable_amount->currencyID = $this->invoice->client->currency()->code;
-$taxable_amount->amount = $item->line_total;
-$tax_subtotal->TaxableAmount = $taxable_amount;
+            $taxable_amount = new TaxableAmount();
+            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+            $taxable_amount->amount = $item->line_total;
+            $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
             $tc = new TaxCategory();
@@ -387,10 +384,10 @@ $tax_subtotal->TaxableAmount = $taxable_amount;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
-$tax_total = new TaxTotal();
-$tax_total->TaxAmount = $tax_amount;
-$tax_total->TaxSubtotal[] = $tax_subtotal;
-$item_taxes[] = $tax_total;
+            $tax_total = new TaxTotal();
+            $tax_total->TaxAmount = $tax_amount;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
+            $item_taxes[] = $tax_total;
 
 
         }
@@ -404,7 +401,7 @@ $item_taxes[] = $tax_total;
         $asp = new AccountingSupplierParty();
 
         $party = new Party();
-        $party_name = new PartyName;
+        $party_name = new PartyName();
         $party_name->Name = $this->invoice->company->present()->name();
         $party->PartyName[] = $party_name;
 
@@ -417,7 +414,7 @@ $item_taxes[] = $tax_total;
         // $address->CountrySubentityCode = $this->invoice->company->settings->state;
 
         $country = new Country();
-        $country->IdentificationCode = $this->invoice->company->country()->iso_3166_2;        
+        $country->IdentificationCode = $this->invoice->company->country()->iso_3166_2;
         $address->Country = $country;
 
         $party->PostalAddress = $address;
@@ -439,7 +436,7 @@ $item_taxes[] = $tax_total;
         $acp = new AccountingCustomerParty();
 
         $party = new Party();
-        
+
         $party_name = new PartyName();
         $party_name->Name = $this->invoice->client->present()->name();
         $party->PartyName[] = $party_name;
@@ -459,7 +456,7 @@ $item_taxes[] = $tax_total;
 
         $party->PostalAddress = $address;
         $party->PhysicalLocation = $address;
-        
+
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->client->present()->email();
 

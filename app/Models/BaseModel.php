@@ -78,7 +78,7 @@ class BaseModel extends Model
     use UserSessionAttributes;
     use HasFactory;
     use Excludable;
-    
+
     public int $max_attachment_size = 3000000;
 
     protected $appends = [
@@ -340,7 +340,7 @@ class BaseModel extends Model
         return strtr($section, $variables['values']);
 
     }
-    
+
     /**
      * Merged PDFs associated with the entity / company
      * into a single document

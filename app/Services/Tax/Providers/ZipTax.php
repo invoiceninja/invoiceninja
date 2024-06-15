@@ -57,7 +57,7 @@ class ZipTax implements TaxProviderInterface
      * callApi
      *
      * @param  array $parameters
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     private function callApi(array $parameters): Response
     {

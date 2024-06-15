@@ -68,7 +68,7 @@ class UpdateCalculatedFields
                     $project->current_hours = $this->calculateDuration($project);
                     $project->save();
                 });
-                
+
                 //Clean password resets table
                 \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHour())->delete();
 

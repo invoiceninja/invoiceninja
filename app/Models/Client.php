@@ -421,7 +421,7 @@ class Client extends BaseModel implements HasLocalePreference
         // }
 
         return $date_formats->first(function ($item) {
-      
+
             /** @var \stdClass $item */
             return $item->id == $this->getSetting('date_format_id');
         })->format;
@@ -429,7 +429,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function currency()
     {
-        
+
         /** @var \Illuminate\Support\Collection $currencies */
         $currencies = app('currencies');
         // $currencies = Cache::get('currencies');
@@ -439,8 +439,8 @@ class Client extends BaseModel implements HasLocalePreference
         // }
 
         return $currencies->first(function ($item) {
-            
-        /** @var \stdClass $item */
+
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('currency_id');
         });
     }

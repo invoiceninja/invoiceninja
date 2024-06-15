@@ -60,7 +60,7 @@ class SendingController extends Controller
      *       ),
      *     )
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function __invoke(Request $request)
     {
