@@ -58,7 +58,7 @@ class LoginController extends BaseController
      *
      * @param Request $request The request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      * @throws \Illuminate\Validation\ValidationException
      */
     public function apiLogin(Request $request)

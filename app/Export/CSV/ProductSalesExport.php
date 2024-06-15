@@ -25,6 +25,7 @@ class ProductSalesExport extends BaseExport
 {
     public string $date_key = 'created_at';
 
+    /** @var Collection<\App\Models\Product> $products*/
     protected Collection $products;
 
     public Writer $csv;
@@ -327,9 +328,9 @@ class ProductSalesExport extends BaseExport
      * getProduct
      *
      * @param  string $product_key
-     * @return Product
+     * @return ?\App\Models\Product
      */
-    private function getProduct(string $product_key): ?Product
+    private function getProduct(string $product_key): ?\App\Models\Product
     {
         return $this->products->firstWhere('product_key', $product_key);
     }

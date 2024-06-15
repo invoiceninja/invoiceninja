@@ -305,7 +305,7 @@ class ClientController extends BaseController
      *
      * @param PurgeClientRequest $request
      * @param Client $client
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      */
     public function purge(PurgeClientRequest $request, Client $client)
@@ -333,7 +333,7 @@ class ClientController extends BaseController
          * @param PurgeClientRequest $request
          * @param Client $client
          * @param string $mergeable_client
-         * @return \Illuminate\Http\JsonResponse
+         * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
          *
          */
 
@@ -365,7 +365,7 @@ class ClientController extends BaseController
      *
      * @param  PurgeClientRequest $request
      * @param  Client $client
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function updateTaxData(PurgeClientRequest $request, Client $client)
     {
@@ -381,7 +381,7 @@ class ClientController extends BaseController
      *
      * @param  ReactivateClientEmailRequest $request
      * @param  string $bounce_id //could also be the invitationId
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function reactivateEmail(ReactivateClientEmailRequest $request, string $bounce_id)
     {

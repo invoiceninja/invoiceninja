@@ -99,7 +99,7 @@ class BankTransactionRuleController extends BaseController
      *
      * @param ShowBankTransactionRuleRequest $request
      * @param BankTransactionRule $bank_transaction_rule
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Illuminate\Http\Response
      *
      *
      * @OA\Get(
@@ -154,7 +154,7 @@ class BankTransactionRuleController extends BaseController
      *
      * @param EditBankTransactionRuleRequest $request
      * @param BankTransactionRule $bank_transaction_rule
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      *
      * @OA\Get(
@@ -208,7 +208,7 @@ class BankTransactionRuleController extends BaseController
      *
      * @param UpdateBankTransactionRuleRequest $request
      * @param BankTransactionRule $bank_transaction_rule
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      *
      *
@@ -269,7 +269,7 @@ class BankTransactionRuleController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateBankTransactionRuleRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      *
      *
@@ -317,7 +317,7 @@ class BankTransactionRuleController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreBankTransactionRuleRequest $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      *
      *
@@ -369,7 +369,7 @@ class BankTransactionRuleController extends BaseController
      *
      * @param DestroyBankTransactionRuleRequest $request
      * @param BankTransactionRule $bank_transaction_rule
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      *
      * @throws \Exception

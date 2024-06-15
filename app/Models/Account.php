@@ -71,7 +71,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $account_sms_verification_number
  * @property bool $account_sms_verified
  * @property string|null $bank_integration_account_id
- * @property int $is_trial
+ * @property bool $is_trial
  * @property-read int|null $bank_integrations_count
  * @property-read int|null $companies_count
  * @property-read int|null $company_users_count

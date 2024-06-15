@@ -37,7 +37,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $city
  * @property string|null $state
  * @property string|null $postal_code
- * @property string|null $country_id
+ * @property int|null $country_id
  * @property string|null $phone
  * @property string|null $private_notes
  * @property string|null $website
@@ -53,7 +53,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $id_number
- * @property string|null $language_id
+ * @property int|null $language_id
  * @property int|null $last_login
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count

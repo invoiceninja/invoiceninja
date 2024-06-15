@@ -191,7 +191,7 @@ class UserController extends BaseController
      *
      * @param DestroyUserRequest $request
      * @param User $user
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      */
     public function destroy(DestroyUserRequest $request, User $user)
@@ -253,7 +253,7 @@ class UserController extends BaseController
      *
      * @param DetachCompanyUserRequest $request
      * @param User $user
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function detach(DetachCompanyUserRequest $request, User $user)
     {
@@ -283,7 +283,7 @@ class UserController extends BaseController
      *
      * @param ReconfirmUserRequest $request
      * @param User $user
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function invite(ReconfirmUserRequest $request, User $user)
     {
@@ -301,7 +301,7 @@ class UserController extends BaseController
      *
      * @param ReconfirmUserRequest $request
      * @param User $user
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      */
     public function reconfirm(ReconfirmUserRequest $request, User $user)
     {

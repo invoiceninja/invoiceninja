@@ -26,7 +26,7 @@ class VendorFactory
         $vendor->private_notes = '';
         $vendor->public_notes = '';
         $vendor->country_id = 4;
-        $vendor->is_deleted = 0;
+        $vendor->is_deleted = false;
         $vendor->vendor_hash = Str::random(40);
         // $vendor->classification = '';
 

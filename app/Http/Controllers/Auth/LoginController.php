@@ -179,7 +179,7 @@ class LoginController extends BaseController
      * Refreshes the data feed with the current Company User.
      *
      * @param Request $request
-     * @return Response|JsonResponse
+     * @return \Illuminate\Http\Response|JsonResponse
      */
     public function refresh(Request $request)
     {

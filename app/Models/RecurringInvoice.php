@@ -40,7 +40,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property mixed $line_items
+ * @property array $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
@@ -72,17 +72,17 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $auto_bill_enabled
  * @property int|null $design_id
  * @property bool $uses_inclusive_taxes
- * @property string|null $custom_surcharge1
- * @property string|null $custom_surcharge2
- * @property string|null $custom_surcharge3
- * @property string|null $custom_surcharge4
+ * @property float|null $custom_surcharge1
+ * @property float|null $custom_surcharge2
+ * @property float|null $custom_surcharge3
+ * @property float|null $custom_surcharge4
  * @property bool $custom_surcharge_tax1
  * @property bool $custom_surcharge_tax2
  * @property bool $custom_surcharge_tax3
  * @property bool $custom_surcharge_tax4
  * @property string|null $due_date_days
  * @property string|null $partial_due_date
- * @property string $exchange_rate
+ * @property float $exchange_rate
  * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property string|null $next_send_date_client
