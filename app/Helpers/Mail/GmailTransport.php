@@ -34,7 +34,7 @@ class GmailTransport extends AbstractTransport
         $message = MessageConverter::toEmail($message->getOriginalMessage());
 
         /** @phpstan-ignore-next-line **/
-        $token = $message->getHeaders()->get('gmailtoken')->getValue();
+        $token = $message->getHeaders()->get('gmailtoken')->getValue(); // @phpstan-ignore-line
         $message->getHeaders()->remove('gmailtoken');
 
         $client = new Client();
@@ -53,9 +53,8 @@ class GmailTransport extends AbstractTransport
         if ($bccs) {
             $bcc_list = 'Bcc: ';
 
+            foreach ($bccs->getAddresses() as $address) { 
 
-            /** @phpstan-ignore-next-line **/
-            foreach ($bccs->getAddresses() as $address) {
                 $bcc_list .= $address->getAddress() .',';
             }
 
