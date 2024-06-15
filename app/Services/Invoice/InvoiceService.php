@@ -175,6 +175,11 @@ class InvoiceService
 
     public function markSent($fire_event = false)
     {
+
+        $this->invoice->loadMissing(['client' => function ($q) {
+            $q->without('documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }]);
+
         $this->invoice = (new MarkSent($this->invoice->client, $this->invoice))->run($fire_event);
 
         $this->setExchangeRate();

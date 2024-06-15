@@ -41,8 +41,8 @@ class PaymentMethod
     public function run()
     {
         $this->getGateways()
-             ->getMethods()
-             ->buildUrls();
+             ->getMethods();
+            //  ->buildUrls();
 
         return $this->getPaymentUrls();
     }
@@ -154,6 +154,19 @@ class PaymentMethod
         //** Plucks the remaining keys into its own collection
         $this->payment_methods = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
 
+        //@15-06-2024
+        foreach($this->payment_methods as $key => $type)
+        {
+            foreach ($type as $gateway_id => $gateway_type_id)
+            {
+            $gate = $this->gateways->where('id',$gateway_id)->first();
+            $this->buildUrl($gate, $gateway_type_id);
+            }
+        }
+        
+        //@15-06-2024
+        $this->payment_methods =[];
+
         /* Loop through custom gateways if any exist and append them to the methods collection*/
         $this->getCustomGateways();
 
@@ -162,10 +175,14 @@ class PaymentMethod
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) {
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
-                        $this->payment_methods[] = [$gateway->id => $type];
+                        // $this->payment_methods[] = [$gateway->id => $type];
+                        //@15-06-2024
+                        $this->buildUrl($gateway, $type);
                     }
                 } else {
-                    $this->payment_methods[] = [$gateway->id => null];
+                    // $this->payment_methods[] = [$gateway->id => null];
+                    //@15-06-2024
+                    $this->buildUrl($gateway, null);
                 }
             }
         }
@@ -173,6 +190,30 @@ class PaymentMethod
         return $this;
     }
 
+    
+    //@15-06-2024
+    private function buildUrl(CompanyGateway $gateway, ?int $type = null)
+    {
+                
+        $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client, $type);
+
+        if (! $type || (GatewayType::CUSTOM == $type)) {
+            $this->payment_urls[] = [
+                'label' => $gateway->getConfigField('name').$fee_label,
+                'company_gateway_id'  => $gateway->id,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+            ];
+        } else {
+            $this->payment_urls[] = [
+                'label' => $gateway->getTypeAlias($type).$fee_label,
+                'company_gateway_id'  => $gateway->id,
+                'gateway_type_id' => $type,
+            ];
+        }
+
+    }
+
+    //@deprecated as buildUrl() supercedes
     private function buildUrls()
     {
         foreach ($this->payment_methods as $key => $child_array) {

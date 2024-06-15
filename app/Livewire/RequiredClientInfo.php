@@ -194,10 +194,14 @@ class RequiredClientInfo extends Component
 
     public function mount()
     {
+
         MultiDB::setDb($this->db);
-        $contact = ClientContact::withTrashed()->find($this->contact_id);
-        $company = $contact->company;
-        $this->company_gateway = CompanyGateway::withTrashed()->find($this->company_gateway_id);
+        $contact = ClientContact::withTrashed()->with(['client' => function ($query) {
+                $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+            }])->find($this->contact_id);
+
+        $this->company_gateway = CompanyGateway::withTrashed()->with('company')->find($this->company_gateway_id);
+        $company = $this->company_gateway->company;
 
         $this->client_name = $contact->client->name;
         $this->contact_first_name = $contact->first_name;
@@ -268,7 +272,10 @@ class RequiredClientInfo extends Component
     {
 
         MultiDB::setDb($this->db);
-        $contact = ClientContact::withTrashed()->find($this->contact_id);
+
+        $contact = ClientContact::withTrashed()->with(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }])->find($this->contact_id);
 
         $rules = [];
 
@@ -310,7 +317,11 @@ class RequiredClientInfo extends Component
 
 
         MultiDB::setDb($this->db);
-        $_contact = ClientContact::withTrashed()->find($this->contact_id);
+        // $_contact = ClientContact::withTrashed()->with('client')->find($this->contact_id);
+
+        $_contact = ClientContact::withTrashed()->with(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }])->find($this->contact_id);
 
 
         foreach ($data as $field => $value) {
