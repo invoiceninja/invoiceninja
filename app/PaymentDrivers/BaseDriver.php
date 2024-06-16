@@ -572,8 +572,7 @@ class BaseDriver extends AbstractPaymentDriver
         $nmo->company = $this->client->company;
         $nmo->settings = $this->client->company->settings;
 
-        if($this->payment_hash)
-        {
+        if($this->payment_hash) {
             $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
@@ -583,7 +582,7 @@ class BaseDriver extends AbstractPaymentDriver
                 }
             });
         }
-        
+
         $message = [
             'server_response' => $response,
             'data' => $this->payment_hash->data,
@@ -815,6 +814,6 @@ class BaseDriver extends AbstractPaymentDriver
 
     public function importCustomers()
     {
-        
+
     }
 }

@@ -24,9 +24,10 @@ use App\Services\Email\Email;
 use App\Models\BankIntegration;
 use App\Services\Email\EmailObject;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Mail\Mailables\Address;
 use App\Helpers\Bank\Nordigen\Transformer\AccountTransformer;
 use App\Helpers\Bank\Nordigen\Transformer\TransactionTransformer;
-use Illuminate\Mail\Mailables\Address;
 
 class Nordigen
 {
@@ -99,7 +100,7 @@ class Nordigen
         } catch (\Exception $e) {
 
             nlog("Nordigen getAccount() failed => {$account_id} => " . $e->getMessage());
-            
+
             return false;
 
         }
@@ -149,6 +150,11 @@ class Nordigen
 
     public function disabledAccountEmail(BankIntegration $bank_integration): void
     {
+        $cache_key = "email_quota:{$bank_integration->company->company_key}:{$bank_integration->id}";
+
+        if(Cache::has($cache_key)) {
+            return;
+        }
 
         App::setLocale($bank_integration->company->getLocale());
 
@@ -164,6 +170,7 @@ class Nordigen
 
         Email::dispatch($mo, $bank_integration->company);
 
+        Cache::put($cache_key, true, 60 * 60 * 24);
 
     }
 

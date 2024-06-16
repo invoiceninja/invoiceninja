@@ -83,7 +83,7 @@ class ProductController extends BaseController
      *       ),
      *     )
      * @param ProductFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(ProductFilters $filters)
     {
@@ -96,7 +96,7 @@ class ProductController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateProductRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -145,7 +145,7 @@ class ProductController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreProductRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -195,7 +195,7 @@ class ProductController extends BaseController
      *
      * @param ShowProductRequest $request
      * @param Product $product
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -249,7 +249,7 @@ class ProductController extends BaseController
      *
      * @param EditProductRequest $request
      * @param Product $product
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/products/{id}/edit",
@@ -302,7 +302,7 @@ class ProductController extends BaseController
      *
      * @param UpdateProductRequest $request
      * @param Product $product
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -362,7 +362,7 @@ class ProductController extends BaseController
      *
      * @param DestroyProductRequest $request
      * @param Product $product
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -416,7 +416,7 @@ class ProductController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -498,7 +498,7 @@ class ProductController extends BaseController
      *
      * @param UploadProductRequest $request
      * @param Product $product
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

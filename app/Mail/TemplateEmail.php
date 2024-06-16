@@ -154,7 +154,11 @@ class TemplateEmail extends Mailable
             }
         }
 
-        if ($this->invitation && $this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+        if(!$this->invitation) {
+            return $this;
+        }
+
+        if ($this->invitation->invoice && $settings->ubl_email_attachment && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $ubl_string = (new CreateUbl($this->invitation->invoice))->handle();
 
             if ($ubl_string) {
@@ -162,8 +166,9 @@ class TemplateEmail extends Mailable
             }
 
         }
+
         if ($this->invitation->invoice) {
-            if ($this->invitation && $this->invitation->invoice && $this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            if ($this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
 
                 if ($xml_string) {
@@ -171,9 +176,8 @@ class TemplateEmail extends Mailable
                 }
 
             }
-        }
-        elseif ($this->invitation->credit){
-            if ($this->invitation && $this->invitation->credit && $this->invitation->credit->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+        } elseif ($this->invitation->credit) {
+            if ($this->invitation->credit->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->credit->service()->getECredit($this->invitation->contact);
 
                 if ($xml_string) {
@@ -181,9 +185,8 @@ class TemplateEmail extends Mailable
                 }
 
             }
-        }
-        elseif ($this->invitation->quote){
-            if ($this->invitation && $this->invitation->quote && $this->invitation->quote->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+        } elseif ($this->invitation->quote) {
+            if ($this->invitation->quote->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->quote->service()->getEQuote($this->invitation->contact);
 
                 if ($xml_string) {
@@ -191,9 +194,8 @@ class TemplateEmail extends Mailable
                 }
 
             }
-        }
-        elseif ($this->invitation->purchase_order){
-            if ($this->invitation && $this->invitation->purchase_order && $this->invitation->purchase_order->client->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+        } elseif ($this->invitation->purchase_order) {
+            if ($this->invitation->purchase_order->vendor->getSetting('enable_e_invoice') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->purchase_order->service()->getEPurchaseOrder($this->invitation->contact);
 
                 if ($xml_string) {

@@ -150,6 +150,8 @@ class SystemLog extends Model
 
     public const TYPE_PAYPAL_PPCP = 323;
 
+    public const TYPE_BTC_PAY = 324;
+
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;

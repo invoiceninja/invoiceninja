@@ -34,7 +34,7 @@ class OneTimeTokenController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param OneTimeTokenRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
      *      path="/api/v1/one_time_token",

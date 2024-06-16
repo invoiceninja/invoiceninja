@@ -13,6 +13,7 @@ namespace Database\Factories;
 
 use App\DataMapper\ClientSettings;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Str;
 
 class ClientFactory extends Factory
 {
@@ -49,6 +50,7 @@ class ClientFactory extends Factory
             'shipping_country_id' => 4,
             'settings' => ClientSettings::defaults(),
             'client_hash' => \Illuminate\Support\Str::random(40),
+            'routing_id' => rand(100000,200000),
         ];
     }
 }

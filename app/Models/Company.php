@@ -59,7 +59,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property \App\DataMapper\CompanySettings $settings
+ * @property \App\DataMapper\CompanySettings|\stdClass $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -364,6 +364,7 @@ class Company extends BaseModel
         'smtp_encryption',
         'smtp_local_domain',
         'smtp_verify_peer',
+        'e_invoice',
     ];
 
     protected $hidden = [
@@ -388,6 +389,7 @@ class Company extends BaseModel
         'e_invoice_certificate_passphrase' => EncryptedCast::class,
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
+        'e_invoice' => 'object',
     ];
 
     protected $with = [];
@@ -634,17 +636,21 @@ class Company extends BaseModel
 
     public function country()
     {
-        $companies = Cache::get('countries');
+        $countries = app('countries');
 
-        if (! $companies) {
-            $this->buildCache(true);
+        // $countries = Cache::get('countries');
 
-            $companies = Cache::get('countries');
-        }
+        // if (! $companies) {
+        //     $this->buildCache(true);
 
-        return $companies->filter(function ($item) {
+        //     $companies = Cache::get('countries');
+        // }
+
+        return $countries->first(function ($item) {
+
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('country_id');
-        })->first();
+        });
 
         //        return $this->belongsTo(Country::class);
         // return Country::find($this->settings->country_id);
@@ -657,15 +663,18 @@ class Company extends BaseModel
 
     public function timezone()
     {
-        $timezones = Cache::get('timezones');
+        // $timezones = Cache::get('timezones');
 
-        if (! $timezones) {
-            $this->buildCache(true);
-        }
+        $timezones = app('timezones');
 
-        return $timezones->filter(function ($item) {
+        // if (! $timezones) {
+        //     $this->buildCache(true);
+        // }
+
+        return $timezones->first(function ($item) {
+            /** @var \stdClass $item */
             return $item->id == $this->settings->timezone_id;
-        })->first();
+        });
 
         // return Timezone::find($this->settings->timezone_id);
     }

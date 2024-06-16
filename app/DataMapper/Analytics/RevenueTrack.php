@@ -30,7 +30,7 @@ class RevenueTrack extends GenericMixedMetric
      * The name of the counter.
      * @var string
      */
-    public $name = 'app.revenue';
+    public $name = 'app.cac';
 
     /**
      * The datetime of the counter measurement.
@@ -59,14 +59,14 @@ class RevenueTrack extends GenericMixedMetric
      *
      * @var string
      */
-    public $string_metric7 = 'product';
+    public $string_metric7 = 'plan';
 
     /**
      * Gateway Reference
      *
      * @var string
      */
-    public $string_metric8 = 'gateway_reference';
+    public $string_metric8 = 'plan_term';
 
     public $string_metric9 = 'entity_reference';
 

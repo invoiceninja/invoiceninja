@@ -100,7 +100,7 @@ class TaskController extends BaseController
      *       ),
      *     )
      * @param TaskFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(TaskFilters $filters)
     {
@@ -114,7 +114,7 @@ class TaskController extends BaseController
      *
      * @param ShowTaskRequest $request
      * @param Task $task
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -168,7 +168,7 @@ class TaskController extends BaseController
      *
      * @param EditTaskRequest $request
      * @param Task $task
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -222,7 +222,7 @@ class TaskController extends BaseController
      *
      * @param UpdateTaskRequest $request
      * @param Task $task
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -294,7 +294,7 @@ class TaskController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateTaskRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -342,7 +342,7 @@ class TaskController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreTaskRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -397,7 +397,7 @@ class TaskController extends BaseController
      *
      * @param DestroyTaskRequest $request
      * @param Task $task
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -452,7 +452,7 @@ class TaskController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -538,21 +538,11 @@ class TaskController extends BaseController
     }
 
     /**
-     * Returns a client statement.
-     *
-     * @return void [type] [description]
-     */
-    public function statement()
-    {
-        //todo
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param UploadTaskRequest $request
      * @param Task $task
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -614,7 +604,7 @@ class TaskController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param SortTaskRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

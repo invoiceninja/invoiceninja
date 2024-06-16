@@ -65,9 +65,7 @@ class RecurringInvoiceTransformer extends BaseTransformer
             'next_send_date_client' => isset($invoice_data['invoice.next_send_date'])
                 ? $this->parseDate($invoice_data['invoice.next_send_date'])
                 : now()->format('Y-m-d'),
-            'due_date' => isset($invoice_data['invoice.due_date'])
-                ? $this->parseDate($invoice_data['invoice.due_date'])
-                : null,
+            'due_date' => isset($invoice_data['invoice.due_date']) ? $this->parseDate($invoice_data['invoice.due_date']) : null,
             'terms' => $this->getString($invoice_data, 'invoice.terms'),
             'due_date_days' => 'terms',
             'public_notes' => $this->getString(
@@ -101,11 +99,8 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 'invoice.custom_value4'
             ),
             'footer' => $this->getString($invoice_data, 'invoice.footer'),
-            'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ?: null,
-            'partial_due_date' => $this->getString(
-                $invoice_data,
-                'invoice.partial_due_date'
-            ),
+            'partial' => $this->getFloat($invoice_data, 'invoice.partial') > 0 ? $this->getFloat($invoice_data, 'invoice.partial') : null,
+            'partial_due_date' => isset($invoice_data['invoice.partial_due_date']) ? $this->parseDate($invoice_data['invoice.partial_due_date']) : null,
             'custom_surcharge1' => $this->getString(
                 $invoice_data,
                 'invoice.custom_surcharge1'

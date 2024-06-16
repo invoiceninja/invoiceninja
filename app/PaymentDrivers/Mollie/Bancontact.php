@@ -51,7 +51,7 @@ class Bancontact implements MethodInterface
      * Handle the authorization for Bancontact.
      *
      * @param Request $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
@@ -62,7 +62,7 @@ class Bancontact implements MethodInterface
      * Show the payment page for Bancontact.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
      */
     public function paymentView(array $data)
     {
@@ -171,7 +171,7 @@ class Bancontact implements MethodInterface
      *
      * @param string $status
      * @param ResourcesPayment $payment
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, string $status = 'paid'): RedirectResponse
     {
@@ -203,7 +203,7 @@ class Bancontact implements MethodInterface
      * Handle 'open' payment status for Bancontact.
      *
      * @param ResourcesPayment $payment
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
     {

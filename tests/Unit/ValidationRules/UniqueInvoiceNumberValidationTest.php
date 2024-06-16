@@ -11,12 +11,13 @@
 
 namespace Tests\Unit\ValidationRules;
 
-use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use Tests\TestCase;
 use App\Models\Invoice;
+use Tests\MockAccountData;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
  * @test

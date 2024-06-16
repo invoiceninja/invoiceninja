@@ -11,19 +11,20 @@
 
 namespace App\Services\Email;
 
-use App\DataMapper\EmailTemplateDefaults;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Invoice\CreateUbl;
+use App\Models\Task;
+use App\Utils\Ninja;
+use App\Models\Quote;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\Task;
-use App\Utils\Ninja;
+use App\Jobs\Invoice\CreateUbl;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Mail\Mailables\Address;
+use App\Jobs\Entity\CreateRawPdf;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Mail\Mailables\Address;
+use App\DataMapper\EmailTemplateDefaults;
 use League\CommonMark\CommonMarkConverter;
 
 class EmailDefaults
@@ -125,7 +126,7 @@ class EmailDefaults
      */
     private function setFrom(): self
     {
-        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method,['default', 'mailgun'])) {
+        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method, ['default', 'mailgun'])) {
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {
@@ -166,9 +167,9 @@ class EmailDefaults
     private function setBody(): self
     {
 
-        if (strlen($this->email->email_object->body) > 3) {
+        if (strlen($this->email->email_object->body ?? '') > 3) {
             // A Custom Message has been set in the email screen.
-        } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body}) > 3) {
+        } elseif (strlen($this->email->email_object->settings?->{$this->email->email_object->email_template_body} ?? '') > 3) {
             // A body has been saved in the settings.
             $this->email->email_object->body = $this->email->email_object->settings?->{$this->email->email_object->email_template_body};
         } else {
@@ -179,7 +180,7 @@ class EmailDefaults
         $breaks = ["<br />","<br>","<br/>"];
         $this->email->email_object->text_body = str_ireplace($breaks, "\r\n", $this->email->email_object->body);
         $this->email->email_object->text_body = strip_tags($this->email->email_object->text_body);
-        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], '$view_url', $this->email->email_object->text_body);
+        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n".'$view_url'."\r\n", $this->email->email_object->text_body);
 
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
@@ -308,6 +309,11 @@ class EmailDefaults
         /** Purchase Order / Invoice / Credit / Quote PDF  */
         if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
+
+            if($this->email->email_object->settings->embed_documents && ($this->email->email_object->entity->documents()->where('is_public', true)->count() > 0 || $this->email->email_object->entity->company->documents()->where('is_public', true)->count() > 0)) {
+                $pdf = $this->email->email_object->entity->documentMerge($pdf);
+            }
+
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }
 
@@ -388,6 +394,7 @@ class EmailDefaults
     {
         if ($this->email->email_object->invitation_key) {
             $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key]);
+            // $this->email->email_object->headers = array_merge($this->email->email_object->headers, ['x-invitation' => $this->email->email_object->invitation_key,'List-Unsubscribe' =>  URL::signedRoute('client.email_preferences', ['entity' => $this->email->email_object->invitation->getEntityString(), 'invitation_key' => $this->email->email_object->invitation->key])]);
         }
 
         return $this;

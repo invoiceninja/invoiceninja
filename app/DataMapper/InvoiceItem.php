@@ -64,9 +64,9 @@ class InvoiceItem
     public $task_id = '';
 
     public $expense_id = '';
-    
+
     public $unit_code = 'C62';
-    
+
     public static $casts = [
         'task_id' => 'string',
         'expense_id' => 'string',

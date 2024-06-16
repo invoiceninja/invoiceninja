@@ -78,7 +78,7 @@ class ResetPasswordController extends Controller
      * Reset the given user's password.
      *
      * @param Request $request
-     * @return RedirectResponse|JsonResponse
+     * @return \Illuminate\Http\RedirectResponse | \Illuminate\Http\RedirectResponse|JsonResponse
      * @throws \Illuminate\Validation\ValidationException
      */
     public function reset(Request $request)

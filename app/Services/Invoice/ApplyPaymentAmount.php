@@ -101,7 +101,7 @@ class ApplyPaymentAmount extends AbstractService
         /* Update Invoice balance */
 
         $payment->ledger()
-                ->updatePaymentBalance($payment->amount * -1);
+                ->updatePaymentBalance($payment->amount * -1, "ApplyPaymentInvoice-");
 
         $this->invoice->service()->workFlow()->save();
 

@@ -58,7 +58,7 @@ class LoginController extends BaseController
      *
      * @param Request $request The request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      * @throws \Illuminate\Validation\ValidationException
      */
     public function apiLogin(Request $request)
@@ -86,7 +86,7 @@ class LoginController extends BaseController
      * Redirect the user to the provider authentication page.
      *
      * @param string $provider
-     * @return void
+     * @return mixed
      */
     public function redirectToProvider(string $provider)
     {

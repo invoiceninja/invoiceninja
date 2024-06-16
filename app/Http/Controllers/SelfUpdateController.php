@@ -26,8 +26,6 @@ class SelfUpdateController extends BaseController
     use ClientGroupSettingsSaver;
     use AppSetup;
 
-    // private bool $use_zip = false;
-
     private string $filename = 'invoiceninja.tar';
 
     private array $purge_file_list = [
@@ -64,6 +62,10 @@ class SelfUpdateController extends BaseController
 
         $file_headers = @get_headers($this->getDownloadUrl());
 
+        if(!is_array($file_headers)) {
+            return response()->json(['message' => 'There was a problem reaching the update server, please try again in a little while.'], 410);
+        }
+
         if (stripos($file_headers[0], "404 Not Found") > 0  || (stripos($file_headers[0], "302 Found") > 0 && stripos($file_headers[7], "404 Not Found") > 0)) {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
         }
@@ -97,6 +99,10 @@ class SelfUpdateController extends BaseController
             if (file_exists($purge_file)) {
                 unlink($purge_file);
             }
+        }
+
+        if(Storage::disk('base')->directoryExists('resources/lang')) {
+            Storage::disk('base')->deleteDirectory('resources/lang');
         }
 
         nlog('Removing cache files');

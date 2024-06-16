@@ -167,6 +167,43 @@ class TemplateTest extends TestCase
             </ninja>
         ';
 
+    private string $broken_twig_template = '
+    <tbody>
+                    {% for invoice in invoices %}
+                        <tr class="border-b dark:border-neutral-500">
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.number }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.date }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.due_date }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.amount }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.balance }}</td>
+                        </tr>
+
+                        {% for payment in invoice.payments|filter(payment => payment.is_deleted == false) %}
+                        
+                            {% for pivot in payment.paymentables %}
+
+                            <tr class="border-b dark:border-neutral-500">
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.number }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.date }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">
+                                {% if pivot.amount_raw >
+                                    {{ pivot.amount }} - {{ payment.type.name }}
+                                {% else %}
+                                    ({{ pivot.refunded }})
+                                {% endif
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                            </tr>
+
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor%}
+                    </tbody>
+    ';
+
     private string $stack = '<html><div id="company-details" labels="true"></div></html>';
 
     protected function setUp() :void
@@ -181,6 +218,37 @@ class TemplateTest extends TestCase
         
     }
 
+    public function testLintingSuccess()
+    {
+        
+        $ts = new TemplateService();
+        $twig = $ts->twig;
+
+        try {
+            $twig->parse($twig->tokenize(new \Twig\Source($this->payments_body, '')));
+            $this->assertTrue(true);
+            echo json_encode(['status' => 'ok']);
+        } catch (\Twig\Error\SyntaxError $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+
+    }
+
+    public function testLintingFailure()
+    {
+        
+        $ts = new TemplateService();
+        $twig = $ts->twig;
+
+        try {
+            $twig->parse($twig->tokenize(new \Twig\Source($this->broken_twig_template, '')));
+            echo json_encode(['status' => 'ok']);
+        } catch (\Twig\Error\SyntaxError $e) {
+            $this->assertTrue(true);
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+
+    }
 
     public function testPurchaseOrderDataParse()
     {

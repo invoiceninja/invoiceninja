@@ -36,7 +36,10 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class ProcessBrevoWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 

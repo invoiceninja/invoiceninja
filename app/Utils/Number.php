@@ -89,8 +89,9 @@ class Number
     public static function parseFloat($value)
     {
 
-        if(!$value)
+        if(!$value) {
             return 0;
+        }
 
         //remove everything except for numbers, decimals, commas and hyphens
         $value = preg_replace('/[^0-9.,-]+/', '', $value);
@@ -98,10 +99,17 @@ class Number
         $decimal = strpos($value, '.');
         $comma = strpos($value, ',');
 
-        if($comma === false) //no comma must be a decimal number already
+        if($comma === false) { //no comma must be a decimal number already
             return (float) $value;
+        }
 
-        if($decimal < $comma){ //decimal before a comma = euro
+        if(!$decimal && substr($value, -3, 1) != ",") {
+            $value = $value.".00";
+        }
+
+        $decimal = strpos($value, '.');
+
+        if($decimal < $comma) { //decimal before a comma = euro
             $value = str_replace(['.',','], ['','.'], $value);
             return (float) $value;
         }
@@ -113,6 +121,7 @@ class Number
 
 
     }
+
     /**
      * Formats a given value based on the clients currency
      * BACK to a float.
@@ -123,13 +132,15 @@ class Number
     public static function parseFloatXX($value)
     {
 
-        if(!$value)
+        if(!$value) {
             return 0;
+        }
 
         $multiplier = false;
 
-        if(substr($value, 0,1) == '-')
+        if(substr($value, 0, 1) == '-') {
             $multiplier = -1;
+        }
 
         $s = str_replace(',', '.', $value);
 
@@ -141,13 +152,14 @@ class Number
 
         $s = str_replace('.', '', substr($s, 0, -3)).substr($s, -3);
 
-        if($multiplier)
-            $s = floatval($s)*-1;
+        if($multiplier) {
+            $s = floatval($s) * -1;
+        }
 
         return (float) $s;
     }
 
-    
+
     //next iteration of float parsing
     public static function parseFloat2($value)
     {
@@ -191,8 +203,8 @@ class Number
         return (float)$value;
 
     }
-    
-    
+
+
     public static function parseStringFloat($value)
     {
         $value = preg_replace('/[^0-9-.]+/', '', $value);
@@ -227,9 +239,6 @@ class Number
         $precision = $currency->precision;
         $code = $currency->code;
         $swapSymbol = $currency->swap_currency_symbol;
-
-        // App\Models\Client::country() returns instance of BelongsTo.
-        // App\Models\Company::country() returns record for the country, that's why we check for the instance.
 
         if ($entity instanceof Company) {
             $country = $entity->country();

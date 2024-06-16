@@ -27,8 +27,10 @@ class SubscriptionCalculator
 {
     use MakesHash;
 
-    public function __construct(public Subscription $subscription){}
-    
+    public function __construct(public Subscription $subscription)
+    {
+    }
+
     /**
      * BuildPurchaseInvoice
      *
@@ -55,12 +57,12 @@ class SubscriptionCalculator
         return $invoice_repo->save([], $invoice);
 
     }
-    
+
     /**
      * Build Line Items
-     * 
+     *
      * @param array $context
-     * 
+     *
      * @return array
      */
     private function buildItems(array $context): array
@@ -74,9 +76,10 @@ class SubscriptionCalculator
         $items = [];
 
         foreach($recurring as $item) {
-            
-            if($item['quantity'] < 1)
+
+            if($item['quantity'] < 1) {
                 continue;
+            }
 
             $line_item = new InvoiceItem();
             $line_item->product_key = $item['product']['product_key'];
@@ -191,7 +194,9 @@ class SubscriptionCalculator
         return $this->subscription->price;
     }
 
-    public function executeUpgradePlan() {}
+    public function executeUpgradePlan()
+    {
+    }
 
     private function getRefundInvoice(Invoice $invoice)
     {

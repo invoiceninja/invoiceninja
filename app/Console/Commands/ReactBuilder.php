@@ -20,7 +20,7 @@ class ReactBuilder extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:react';
+    protected $signature = 'ninja:react {--type=}';
 
     /**
      * The console command description.
@@ -46,31 +46,39 @@ class ReactBuilder extends Command
      */
     public function handle()
     {
-        // $includes = '';
+        if($this->option('type') == 'local') {
 
-        // $directoryIterator = false;
 
-        // try {
-        //     $directoryIterator = new \RecursiveDirectoryIterator(public_path('react/v'.config('ninja.app_version').'/'), \RecursiveDirectoryIterator::SKIP_DOTS);
-        // } catch (\Exception $e) {
-        //     $this->error('React files not found');
-        //     return;
-        // }
 
-        // foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-        //     if ($file->getExtension() == 'js') {
-        //         if (str_contains($file->getFileName(), 'index-')) {
-        //             $includes .= '<script type="module" crossorigin src="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'"></script>'."\n";
-        //         } else {
-        //             $includes .= '<link rel="modulepreload" href="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'">'."\n";
-        //         }
-        //     }
+            $includes = '';
 
-        //     if (str_contains($file->getFileName(), '.css')) {
-        //         $includes .= '<link rel="stylesheet" href="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'">'."\n";
-        //     }
-        // }
+            $directoryIterator = false;
 
-        // file_put_contents(resource_path('views/react/head.blade.php'), $includes);
+            try {
+                $directoryIterator = new \RecursiveDirectoryIterator(public_path('react/v'.config('ninja.app_version').'/'), \RecursiveDirectoryIterator::SKIP_DOTS);
+            } catch (\Exception $e) {
+                $this->error('React files not found');
+                return;
+            }
+
+            foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
+                if ($file->getExtension() == 'js') {
+                    if (str_contains($file->getFileName(), 'index-')) {
+                        $includes .= '<script type="module" crossorigin src="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'"></script>'."\n";
+                    } else {
+                        $includes .= '<link rel="modulepreload" href="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'">'."\n";
+                    }
+                }
+
+                if (str_contains($file->getFileName(), '.css')) {
+                    $includes .= '<link rel="stylesheet" href="/react/v'.config('ninja.app_version').'/'.$file->getFileName().'">'."\n";
+                }
+            }
+
+            file_put_contents(resource_path('views/react/head.blade.php'), $includes);
+
+        }
+
+
     }
 }

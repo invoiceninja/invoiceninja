@@ -277,7 +277,7 @@ class RandomDataSeeder extends Seeder
 
                 event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars()));
 
-                // $payment->service()->updateInvoicePayment($payment_hash);
+                // $payment->service()->update_invoicePayment($payment_hash);
 
             }
         });

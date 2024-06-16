@@ -172,18 +172,18 @@ class CheckData extends Command
         CompanyUser::query()->cursor()->each(function ($cu) {
 
             if (CompanyToken::where('user_id', $cu->user_id)->where('company_id', $cu->company_id)->where('is_system', 1)->doesntExist()) {
-                
+
 
                 if ($cu->company && $cu->user) {
                     $this->logMessage("Creating missing company token for user # {$cu->user_id} for company id # {$cu->company_id}");
                     (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-                } 
-                
+                }
+
                 if (!$cu->user) {
                     $this->logMessage("No user found for company user - removing company user");
                     $cu->forceDelete();
                 }
-                    
+
             }
         });
     }
@@ -208,7 +208,7 @@ class CheckData extends Command
                 ->cursor()
                 ->each(function ($client) {
                     if ($client->recurring_invoices()->where('is_deleted', 0)->where('deleted_at', null)->count() > 1) {
-                        $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1}");
+                        $this->logMessage("Duplicate Recurring Invoice => {$client->custom_value1} || {$client->id}}");
                     }
                 });
         }
@@ -477,14 +477,13 @@ class CheckData extends Command
                         }
                     } else {
                         $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
-                        
-                        try{
-                        $entity->service()->createInvitations()->save();
-                        }
-                        catch(\Exception $e){
+
+                        try {
+                            $entity->service()->createInvitations()->save();
+                        } catch(\Exception $e) {
 
                         }
-                        
+
                     }
 
                     try {
@@ -949,12 +948,12 @@ class CheckData extends Command
 
             });
 
-            Company::whereDoesntHave('company_users', function ($query){
-            $query->where('is_owner', 1);
+            Company::whereDoesntHave('company_users', function ($query) {
+                $query->where('is_owner', 1);
             })
             ->cursor()
             ->when(Ninja::isHosted())
-            ->each(function ($c){
+            ->each(function ($c) {
 
                 $this->logMessage("Orphan Account # {$c->account_id}");
 
@@ -963,8 +962,8 @@ class CheckData extends Command
             CompanyUser::whereDoesntHave('tokens')
             ->cursor()
             ->when(Ninja::isHosted())
-            ->each(function ($cu){
-                
+            ->each(function ($cu) {
+
                 $this->logMessage("Missing tokens for Company User # {$cu->id}");
 
             });

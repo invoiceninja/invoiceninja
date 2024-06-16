@@ -83,7 +83,7 @@ class QuoteController extends BaseController
      * Display a listing of the resource.
      *
      * @param QuoteFilters $filters
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -128,7 +128,7 @@ class QuoteController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateQuoteRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -178,7 +178,7 @@ class QuoteController extends BaseController
      *
      * @param StoreQuoteRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -235,7 +235,7 @@ class QuoteController extends BaseController
      * @param ShowQuoteRequest $request  The request
      * @param Quote $quote  The quote
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -290,7 +290,7 @@ class QuoteController extends BaseController
      * @param EditQuoteRequest $request  The request
      * @param Quote $quote  The quote
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -345,7 +345,7 @@ class QuoteController extends BaseController
      * @param UpdateQuoteRequest $request  The request
      * @param Quote $quote  The quote
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -465,7 +465,7 @@ class QuoteController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -692,7 +692,7 @@ class QuoteController extends BaseController
      * @param ActionQuoteRequest $request
      * @param Quote $quote
      * @param $action
-     * @return \Illuminate\Http\JsonResponse|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|Response|mixed|\Symfony\Component\HttpFoundation\StreamedResponse
      */
     public function action(ActionQuoteRequest $request, Quote $quote, $action)
     {
@@ -901,7 +901,7 @@ class QuoteController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse|\Illuminate\Http\JsonResponse
      */
     public function downloadEQuote($invitation_key)
     {
@@ -934,7 +934,7 @@ class QuoteController extends BaseController
      *
      * @param UploadQuoteRequest $request
      * @param Quote $quote
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

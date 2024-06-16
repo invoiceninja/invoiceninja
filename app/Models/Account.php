@@ -31,6 +31,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Account
  *
  * @property int $id
+ * @property int $email_quota
  * @property string|null $plan
  * @property string|null $plan_term
  * @property string|null $plan_started
@@ -65,12 +66,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $inapp_transaction_id
  * @property bool $set_react_as_default_ap
  * @property bool $is_flagged
- * @property int $is_verified_account
+ * @property bool $is_verified_account
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
  * @property bool $account_sms_verified
  * @property string|null $bank_integration_account_id
- * @property int $is_trial
+ * @property bool $is_trial
  * @property-read int|null $bank_integrations_count
  * @property-read int|null $companies_count
  * @property-read int|null $company_users_count
@@ -492,6 +493,10 @@ class Account extends BaseModel
     {
         if ($this->is_flagged) {
             return 0;
+        }
+
+        if($this->email_quota) {
+            return (int)$this->email_quota;
         }
 
         if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 1) {

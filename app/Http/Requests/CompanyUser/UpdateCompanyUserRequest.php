@@ -35,4 +35,15 @@ class UpdateCompanyUserRequest extends Request
     {
         return [];
     }
+
+    public function prepareForValidation()
+    {
+        $input = $this->all();
+
+        if(isset($input['company_user']['user'])) {
+            unset($input['company_user']['user']);
+        }
+
+        $this->replace($input);
+    }
 }

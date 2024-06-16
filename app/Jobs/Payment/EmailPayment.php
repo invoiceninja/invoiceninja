@@ -116,13 +116,17 @@ class EmailPayment implements ShouldQueue
 
         $invoice->invitations->each(function ($invite) use ($email_builder) {
 
+
+            $cloned_mailable = unserialize(serialize($email_builder));
+
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new TemplateEmail($email_builder, $invite->contact, $invite);
+            $nmo->mailable = new TemplateEmail($cloned_mailable, $invite->contact, $invite);
             $nmo->to_user = $invite->contact;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
             $nmo->entity = $this->payment;
             (new NinjaMailerJob($nmo))->handle();
+            $nmo = null;
 
             event(new PaymentWasEmailed($this->payment, $this->payment->company, $invite->contact, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 

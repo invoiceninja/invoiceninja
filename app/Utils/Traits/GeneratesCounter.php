@@ -411,7 +411,7 @@ trait GeneratesCounter
      *
      * @param      string $pattern
      * @param      string $prefix
-     * @return     string The padded and prefixed entity number
+     * @return     string The padded, prefixed and unique entity number
      */
     private function checkEntityNumber($class, $entity, $counter, $padding, $pattern, $prefix = ''): string
     {
@@ -419,11 +419,7 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-            $number = $this->padCounter($counter, $padding);
-
-            $number = $this->applyNumberPattern($entity, $number, $pattern);
-
-            $number = $this->prefixCounter($number, $prefix);
+            $number = $this->getFormattedEntityNumber($entity, $counter, $padding, $pattern);
 
             $check = $class::where('company_id', $entity->company_id)->where('number', $number)->withTrashed()->exists();
 
@@ -440,6 +436,26 @@ trait GeneratesCounter
         $this->update_counter = $counter--;
 
         return $number;
+    }
+
+    /**
+     * Formats the entity number according to pattern, prefix and padding.
+     *
+     * @param Collection $entity The entity ie App\Models\Client, Invoice, Quote etc
+     * @param int $counter The counter
+     * @param int $padding The padding
+     * @param      string $pattern
+     * @param      string $prefix
+     *
+     * @return     string The padded and prefixed entity number
+     */
+    public function getFormattedEntityNumber($entity, $counter, $padding, $pattern, $prefix = ''): string
+    {
+        $number = $this->padCounter($counter, $padding);
+
+        $number = $this->applyNumberPattern($entity, $number, $pattern);
+
+        return $this->prefixCounter($number, $prefix);
     }
 
     /*Check if a number is available for use. */

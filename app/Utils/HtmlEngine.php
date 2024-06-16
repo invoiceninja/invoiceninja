@@ -323,7 +323,7 @@ class HtmlEngine
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' => ''];
 
         $data['$entity_number'] = &$data['$number'];
-        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: ' ', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').' '.$this->entity->discount.'%'];
+        $data['$invoice.discount'] = ['value' => Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->client) ?: ' ', 'label' => ($this->entity->is_amount_discount) ? ctrans('texts.discount') : ctrans('texts.discount').' '.(float)$this->entity->discount.'%'];
         $data['$discount'] = &$data['$invoice.discount'];
         $data['$subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getSubTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.subtotal')];
         $data['$gross_subtotal'] = ['value' => Number::formatMoney($this->entity_calc->getGrossSubTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.subtotal')];
@@ -397,7 +397,7 @@ class HtmlEngine
         $data['$balance'] = ['value' => Number::formatMoney($this->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.balance')];
         $data['$credit.balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
         $data['$client.credit_balance'] = &$data['$credit.balance'];
-        
+
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
@@ -561,10 +561,20 @@ class HtmlEngine
 
         $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance, $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client)), 'label' => ''];
 
-        $logo = $this->company->present()->logo_base64($this->settings);
+        if(Ninja::isHosted()) {
+            $logo = $this->company->present()->logo($this->settings);
+        } else {
+            $logo = $this->company->present()->logo_base64($this->settings);
+        }
+
+        $logo_url = $this->company->present()->logo($this->settings);
+
 
         $data['$company.logo'] = ['value' => $logo ?: ' ', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
+
+        $data['$company.logo_url'] = ['value' => $logo_url ?: ' ', 'label' => ctrans('texts.logo')];
+
         $data['$company1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
         $data['$company2'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company2', $this->settings->custom_value2, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company2')];
         $data['$company3'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company3', $this->settings->custom_value3, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company3')];
@@ -651,10 +661,12 @@ class HtmlEngine
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
             $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+            $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
 
         } else {
             $data['$contact.signature'] = ['value' => '', 'label' => ''];
             $data['$contact.signature_date'] = ['value' => '', 'label' => ctrans('texts.date')];
+            $data['$contact.signature_ip'] = ['value' => '', 'label' => ctrans('texts.address')];
         }
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
@@ -720,7 +732,7 @@ class HtmlEngine
         $data['$payment.date'] = ['value' => '', 'label' => ctrans('texts.payment_date')];
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
-
+        $data['$payment.refunded'] = ['value' => '', 'label' => ctrans('texts.refund')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
@@ -742,6 +754,7 @@ class HtmlEngine
             $data['$payment.date'] = ['value' => $this->formatDate($payment->date, $this->client->date_format()), 'label' => ctrans('texts.payment_date')];
             $data['$payment.number'] = ['value' => $payment->number, 'label' => ctrans('texts.payment_number')];
             $data['$payment.transaction_reference'] = ['value' => $payment->transaction_reference, 'label' => ctrans('texts.transaction_reference')];
+            $data['$payment.refunded'] = ['value' => $this->getPaymentMeta($payment), 'label' => ctrans('texts.refund')];
 
         }
 
@@ -755,6 +768,37 @@ class HtmlEngine
         return $data;
     }
 
+    private function getPaymentMeta(\App\Models\Payment $payment)
+    {
+
+        if(!is_array($payment->refund_meta)) {
+            return '';
+        }
+
+        return
+        collect($payment->refund_meta)
+                ->map(function ($refund) use ($payment) {
+
+                    $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
+                    $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
+                    $entity = ctrans('texts.invoice');
+
+                    $map = [];
+
+                    foreach($refund['invoices'] as $refunded_invoice) {
+                        $invoice = \App\Models\Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
+                        $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
+                        $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
+
+                        array_push($map, "{$date} {$entity} #{$invoice->number} {$notes}\n");
+
+                    }
+
+                    return $map;
+
+                })->flatten()->implode("\n");
+
+    }
     /**
      * Returns a localized string for tax compliance purposes
      *

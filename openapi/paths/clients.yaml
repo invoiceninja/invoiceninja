@@ -3,6 +3,17 @@
       tags:
         - clients
       summary: 'List clients'
+      x-code-samples:
+      - lang: go
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->clients->all();
+      x-custom-element:
+            type: markdown
+            value: |
+              ### Custom Response Description
+              This is a custom description for the response returned by the `/example` endpoint.
       description: |
             When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
               

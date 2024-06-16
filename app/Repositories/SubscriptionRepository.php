@@ -118,25 +118,26 @@ class SubscriptionRepository extends BaseRepository
 
         return $line_items;
     }
-    
+
     /**
      * ConvertV3Bundle
      *
      * Removing the nested keys of the items array
-     * 
+     *
      * @param  array $bundle
      * @return array
      */
     private function convertV3Bundle($bundle): array
     {
-        if(is_object($bundle))
-            $bundle = json_decode(json_encode($bundle),1);
+        if(is_object($bundle)) {
+            $bundle = json_decode(json_encode($bundle), 1);
+        }
 
         $items = [];
 
         foreach($bundle['recurring_products'] as $key => $value) {
 
-            $line_item = new \stdClass;
+            $line_item = new \stdClass();
             $line_item->product_key = $value['product']['product_key'];
             $line_item->qty = (float) $value['quantity'];
             $line_item->unit_cost = (float) $value['product']['price'];
@@ -147,7 +148,7 @@ class SubscriptionRepository extends BaseRepository
 
         foreach($bundle['recurring_products'] as $key => $value) {
 
-            $line_item = new \stdClass;
+            $line_item = new \stdClass();
             $line_item->product_key = $value['product']['product_key'];
             $line_item->qty = (float) $value['quantity'];
             $line_item->unit_cost = (float) $value['product']['price'];
@@ -163,8 +164,9 @@ class SubscriptionRepository extends BaseRepository
     public function generateBundleLineItems($bundle, $is_recurring = false, $is_credit = false)
     {
 
-        if(isset($bundle->recurring_products))
+        if(isset($bundle->recurring_products)) {
             $bundle = $this->convertV3Bundle($bundle);
+        }
 
         $multiplier = $is_credit ? -1 : 1;
 

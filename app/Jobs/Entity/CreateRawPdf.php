@@ -12,6 +12,7 @@
 namespace App\Jobs\Entity;
 
 use App\Exceptions\FilePermissionsFailure;
+use App\Jobs\EDocument\MergeEDocument;
 use App\Models\Credit;
 use App\Models\CreditInvitation;
 use App\Models\Invoice;
@@ -95,6 +96,9 @@ class CreateRawPdf
 
     }
 
+    /**
+     * @throws FilePermissionsFailure
+     */
     public function handle()
     {
         /** Testing this override to improve PDF generation performance */
@@ -104,11 +108,15 @@ class CreateRawPdf
             "{$this->entity_string}s" => [$this->entity],
         ]);
 
-        $pdf = $ps->boot()->getPdf();
-        nlog("pdf timer = ". $ps->execution_time);
+        try {
+            $pdf = $ps->boot()->getPdf();
+        } catch (\Exception) {
+            throw new FilePermissionsFailure('Unable to generate the raw PDF');
+        }
+        if ($this->entity_string == "invoice" && $this->entity->client->getSetting("merge_e_invoice_to_pdf")) {
+            $pdf = (new MergeEDocument($this->entity, $pdf))->handle();
+        }
         return $pdf;
-
-        throw new FilePermissionsFailure('Unable to generate the raw PDF');
     }
 
     public function failed($e)

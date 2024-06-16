@@ -26,7 +26,15 @@ class OrderXDocument extends AbstractService
 {
     public OrderDocumentBuilder $orderxdocument;
 
-    public function __construct(public object $document, private readonly bool $returnObject = false, private array $tax_map = [])
+    /**
+     * __construct
+     *
+     * @param  \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document
+     * @param  bool $returnObject
+     * @param  array $tax_map
+     * @return void
+     */
+    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit  $document, private readonly bool $returnObject = false, private array $tax_map = [])
     {
     }
 
@@ -51,7 +59,7 @@ class OrderXDocument extends AbstractService
             ->setDocumentSellerAddress($company->getSetting("address1"), $company->getSetting("address2"), "", $company->getSetting("postal_code"), $company->getSetting("city"), $company->country()->iso_3166_2, $company->getSetting("state"))
             ->setDocumentSellerContact($this->document->user->present()->getFullName(), "", $this->document->user->present()->phone(), "", $this->document->user->email)
             ->setDocumentBuyer($settings_entity->present()->name(), $settings_entity->number)
-            ->setDocumentBuyerAddress($settings_entity->address1, "", "", $settings_entity->postal_code, $settings_entity->city, $settings_entity->country->iso_3166_2, $settings_entity->state)
+            ->setDocumentBuyerAddress($settings_entity->address1, "", "", $settings_entity->postal_code, $settings_entity->city, $settings_entity->country->iso_3166_2 ?? $company->country()->iso_3166_2, $settings_entity->state)
             ->setDocumentBuyerContact($settings_entity->present()->primary_contact_name(), "", $settings_entity->present()->phone(), "", $settings_entity->present()->email())
             ->addDocumentPaymentTerm(ctrans("texts.xinvoice_payable", ['payeddue' => date_create($this->document->date ?? now()->format('Y-m-d'))->diff(date_create($this->document->due_date ?? now()->format('Y-m-d')))->format("%d"), 'paydate' => $this->document->due_date]));
 
@@ -60,7 +68,7 @@ class OrderXDocument extends AbstractService
         }
         // Document type
         $document_class = get_class($this->document);
-        switch ($document_class){
+        switch ($document_class) {
             case Quote::class:
                 // Probably wrong file code https://github.com/horstoeko/zugferd/blob/master/src/codelists/ZugferdInvoiceType.php
                 if (empty($this->document->number)) {
@@ -121,12 +129,12 @@ class OrderXDocument extends AbstractService
                     $this->orderxdocument->setDocumentPositionProductDetails("no product name defined");
                 }
             }
-// TODO: add item classification (kg, m^3, ...)
-//            if (isset($item->task_id)) {
-//                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "HUR");
-//            } else {
-//                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "H87");
-//            }
+            // TODO: add item classification (kg, m^3, ...)
+            //            if (isset($item->task_id)) {
+            //                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "HUR");
+            //            } else {
+            //                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "H87");
+            //            }
             $linenetamount = $item->line_total;
             if ($item->discount > 0) {
                 if ($this->document->is_amount_discount) {
@@ -173,7 +181,17 @@ class OrderXDocument extends AbstractService
             }
         }
 
-        $this->orderxdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
+        $this->orderxdocument->setDocumentSummation(
+            $this->document->amount,
+            $this->document->balance,
+            $invoicing_data->getSubTotal(),
+            $invoicing_data->getTotalSurcharges(),
+            // $invoicing_data->getTotalDiscount(),
+            $invoicing_data->getSubTotal(),
+            $invoicing_data->getItemTotalTaxes(),
+            // 0.0,
+            // ($this->document->amount - $this->document->balance)
+        );
 
         foreach ($this->tax_map as $item) {
             $this->orderxdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100);

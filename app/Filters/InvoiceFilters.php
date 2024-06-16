@@ -227,7 +227,12 @@ class InvoiceFilters extends QueryFilters
         if (is_numeric($date)) {
             $date = Carbon::createFromTimestamp((int)$date);
         } else {
-            $date = Carbon::parse($date);
+
+            try {
+                $date = Carbon::parse($date);
+            } catch(\Exception $e) {
+                return $this->builder;
+            }
         }
 
         return $this->builder->where('date', '>=', $date);
@@ -333,7 +338,7 @@ class InvoiceFilters extends QueryFilters
             // return $this->builder->orderByRaw('CAST(number AS UNSIGNED), number ' . $dir);
             // return $this->builder->orderByRaw("number REGEXP '^[A-Za-z]+$',CAST(number as SIGNED INTEGER),CAST(REPLACE(number,'-','')AS SIGNED INTEGER) ,number");
             // return $this->builder->orderByRaw('ABS(number) ' . $dir);
-               return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

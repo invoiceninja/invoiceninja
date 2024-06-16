@@ -65,8 +65,14 @@ class QuoteItemExport extends BaseExport
 
         $query = Quote::query()
                             ->withTrashed()
-                            ->with('client')->where('company_id', $this->company->id)
-                            ->where('is_deleted', $this->input['include_deleted'] ?? false);
+                            ->whereHas('client', function ($q) {
+                                $q->where('is_deleted', false);
+                            })
+                            ->with('client')->where('company_id', $this->company->id);
+
+        if(!$this->input['include_deleted'] ?? false) {
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 
@@ -118,6 +124,7 @@ class QuoteItemExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $query = $this->init();
 

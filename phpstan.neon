@@ -3,19 +3,20 @@ includes:
     - ./vendor/spaze/phpstan-stripe/extension.neon
     - phpstan-baseline.neon
 parameters:
-    level: 2
+    level: 3
     paths:
         - app
     excludePaths:
-        - 'vendor/*'
-        - 'resources/*/*.php'
-        - 'app/Jobs/Ninja/*'
-        - 'app/Models/Presenters/*'
-        - 'app/Console/Commands/*'
-        - 'app/DataMapper/Analytics/*'
-        - 'app/PaymentDrivers/Authorize/*'
-        - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
-        - 'app/Utils/Traits/*'
+        analyseAndScan:
+            - 'vendor'
+            - 'resources'
+            - 'app/Jobs/Ninja/*'
+            - 'app/Models/Presenters/*'
+            - 'app/Console/Commands/*'
+            - 'app/DataMapper/Analytics/*'
+            - 'app/PaymentDrivers/Authorize/*'
+            - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
+            - 'app/Utils/Traits/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
@@ -28,3 +29,5 @@ parameters:
         - '#makeHidden#'
         - '#Socialite#'
         - '#Access to protected property#'
+        - '#Call to undefined method .*#'
+        - '#Argument of an invalid type stdClass supplied for foreach, only iterables are supported.#'

@@ -17,7 +17,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class ProfitLossRequest extends Request
 {
-
     private string $error_message = '';
 
     /**
@@ -54,14 +53,14 @@ class ProfitLossRequest extends Request
         $this->replace($input);
     }
 
-        private function checkAuthority()
+    private function checkAuthority()
     {
         $this->error_message = ctrans('texts.authorization_failure');
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
-        if(Ninja::isHosted() && $user->account->isFreeHostedClient()){
+
+        if(Ninja::isHosted() && $user->account->isFreeHostedClient()) {
             $this->error_message = ctrans('texts.upgrade_to_view_reports');
             return false;
         }

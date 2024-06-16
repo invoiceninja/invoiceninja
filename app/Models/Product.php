@@ -208,7 +208,7 @@ class Product extends BaseModel
 
     public static function markdownHelp(string $notes = '')
     {
-                
+
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
             'renderer' => [

@@ -30,7 +30,7 @@ class InstantBankPay implements MethodInterface
      * Authorization page for Instant Bank Pay.
      *
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      * @throws BindingResolutionException
      */
     public function authorizeView(array $data): RedirectResponse
@@ -42,7 +42,7 @@ class InstantBankPay implements MethodInterface
      * Handle authorization for Instant Bank Pay.
      *
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      * @throws BindingResolutionException
      */
     public function authorizeResponse(Request $request): RedirectResponse
@@ -131,7 +131,7 @@ class InstantBankPay implements MethodInterface
      *
      * @param \GoCardlessPro\Resources\Payment $payment
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {
@@ -164,7 +164,7 @@ class InstantBankPay implements MethodInterface
      *
      * @param \GoCardlessPro\Resources\Payment $payment
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processSuccessfulPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {

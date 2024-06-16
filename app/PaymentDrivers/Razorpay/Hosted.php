@@ -52,7 +52,7 @@ class Hosted implements MethodInterface
      * Handle the authorization page for Razorpay.
      *
      * @param Request $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
@@ -127,7 +127,7 @@ class Hosted implements MethodInterface
      * Handle the successful payment for Razorpay.
      *
      * @param string $payment_id
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processSuccessfulPayment(string $payment_id): RedirectResponse
     {

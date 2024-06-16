@@ -145,7 +145,7 @@ class UpdatePaymentMethods
 
     public function importBankAccounts($customer, $client)
     {
-        $sources = $customer->sources;
+        $sources = $customer->sources ?? false;
 
         if (!$customer || is_null($sources) || !property_exists($sources, 'data')) {
             return;

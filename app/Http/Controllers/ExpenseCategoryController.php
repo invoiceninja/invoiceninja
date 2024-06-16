@@ -78,7 +78,7 @@ class ExpenseCategoryController extends BaseController
      *
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function index(ExpenseCategoryFilters $filters)
     {
@@ -93,7 +93,7 @@ class ExpenseCategoryController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateExpenseCategoryRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -142,7 +142,7 @@ class ExpenseCategoryController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreExpenseCategoryRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -192,7 +192,7 @@ class ExpenseCategoryController extends BaseController
      *
      * @param ShowExpenseCategoryRequest $request
      * @param ExpenseCategory $expense_category
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -245,7 +245,7 @@ class ExpenseCategoryController extends BaseController
      *
      * @param EditExpenseCategoryRequest $request
      * @param ExpenseCategory $expense_category
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -298,7 +298,7 @@ class ExpenseCategoryController extends BaseController
      *
      * @param UpdateExpenseCategoryRequest $request
      * @param ExpenseCategory $expense_category
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -355,7 +355,7 @@ class ExpenseCategoryController extends BaseController
      *
      * @param DestroyExpenseCategoryRequest $request
      * @param ExpenseCategory $expense_category
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -410,7 +410,7 @@ class ExpenseCategoryController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
