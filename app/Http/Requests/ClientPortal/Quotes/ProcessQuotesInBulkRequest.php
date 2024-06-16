@@ -24,7 +24,7 @@ class ProcessQuotesInBulkRequest extends FormRequest
         
         auth()->guard('contact')->user()->loadMissing(['company']);
 
-        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES;
+        return (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES);
     }
 
     public function rules()

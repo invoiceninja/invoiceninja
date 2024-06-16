@@ -669,7 +669,7 @@ class NinjaMailerJob implements ShouldQueue
          *  just for this request.
          */
 
-        $token = $user->oauth_user_token->access_token;
+        $token = $user->oauth_user_token->access_token; /** @phpstan-ignore-line */
 
         if (!$token) {
             $this->company->account->gmailCredentialNotification();

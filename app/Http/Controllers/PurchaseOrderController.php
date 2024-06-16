@@ -434,7 +434,7 @@ class PurchaseOrderController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\BinaryFileResponse
      *
      * @OA\Post(
      *      path="/api/v1/purchase_orders/bulk",
@@ -826,7 +826,7 @@ class PurchaseOrderController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadPdf($invitation_key)
     {
@@ -891,7 +891,7 @@ class PurchaseOrderController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadEPurchaseOrder($invitation_key)
     {

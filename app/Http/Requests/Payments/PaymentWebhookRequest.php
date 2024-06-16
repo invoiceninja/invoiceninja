@@ -45,19 +45,21 @@ class PaymentWebhookRequest extends Request
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
+        /** @var \App\Models\CompanyGateway */
         return CompanyGateway::withTrashed()->find($this->decodePrimaryKey($this->company_gateway_id));
     }
 
     /**
      * Resolve payment hash.
      *
-     * @return null|\App\Models\PaymentHash
+     * @return null|bool|\App\Models\PaymentHash
      */
     public function getPaymentHash()
     {
         if ($this->query('hash')) {
             MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
+            /** @var \App\Models\PaymentHash */
             return PaymentHash::where('hash', $this->query('hash'))->firstOrFail();
         }
 
@@ -72,7 +74,8 @@ class PaymentWebhookRequest extends Request
     public function getCompany(): ?Company
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
-
+    
+        /** @var \App\Models\Company */
         return Company::where('company_key', $this->company_key)->firstOrFail();
     }
 }

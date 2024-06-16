@@ -167,17 +167,17 @@ class ContactLoginController extends Controller
     {
         if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === true) {
             $this->redirectTo = '/client/dashboard';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)) {
             $this->redirectTo = '/client/invoices';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)) {
             $this->redirectTo = '/client/recurring_invoices';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)) {
             $this->redirectTo = '/client/quotes';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)) {
             $this->redirectTo = '/client/credits';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)) {
             $this->redirectTo = '/client/tasks';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)) {
             $this->redirectTo = '/client/expenses';
         }
     }

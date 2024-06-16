@@ -54,7 +54,7 @@ class PreviewPurchaseOrderController extends BaseController
     /**
      * Returns a template filled with entity variables.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\BinaryFileResponse
      *
      * @OA\Post(
      *      path="/api/v1/preview/purchase_order",

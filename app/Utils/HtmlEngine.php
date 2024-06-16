@@ -51,7 +51,7 @@ class HtmlEngine
     /** @var \App\Models\Company $company */
     public $company;
 
-    /** @var \App\DataMapper\CompanySettings $settings **/
+    /** @var \App\DataMapper\CompanySettings|\stdClass $settings **/
     public $settings;
 
     public $entity_calc;

@@ -458,7 +458,7 @@ class CreditController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      *
      * @OA\Post(
      *      path="/api/v1/credits/bulk",
@@ -700,7 +700,7 @@ class CreditController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadPdf($invitation_key)
     {
@@ -768,7 +768,7 @@ class CreditController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadECredit($invitation_key)
     {

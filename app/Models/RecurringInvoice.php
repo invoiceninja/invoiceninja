@@ -41,7 +41,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $due_date
  * @property bool $is_deleted
  * @property array $line_items
- * @property object|null $backup
+ * @property object|string|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes

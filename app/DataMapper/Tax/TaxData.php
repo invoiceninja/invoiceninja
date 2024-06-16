@@ -24,6 +24,7 @@ class TaxData
 
     public function __construct(public Response $origin)
     {
+        // @phpstan-ignore-next-line
         foreach($origin as $key => $value) {
             $this->{$key} = $value;
         }

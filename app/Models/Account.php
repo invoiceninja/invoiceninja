@@ -59,7 +59,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $trial_duration
  * @property int $is_onboarding
  * @property object|null $onboarding
- * @property int $is_migrated
+ * @property bool $is_migrated
  * @property string|null $platform
  * @property int|null $hosted_client_count
  * @property int|null $hosted_company_count
