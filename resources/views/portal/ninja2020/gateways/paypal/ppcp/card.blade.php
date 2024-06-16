@@ -75,36 +75,26 @@
 @endsection
 
 @push('footer')
-<link  rel="stylesheet" type="text/css" href=https://www.paypalobjects.com/webstatic/en_US/developer/docs/css/cardfields.css />
+<script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
+    {
+        "f":"{{ $guid }}",
+        "s":"{{ $identifier }}"        // unique ID for each web page
+    }
+</script>
+
+<script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
 
 @if(isset($merchantId))
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @else
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @endif
 <script>
 
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
 
-    const cardStyle = {
-        'input': {
-            'font-size': '16px',
-            'font-family': 'courier, monospace',
-            'font-weight': 'lighter',
-            'color': '#ccc',
-        },
-        '.invalid': {
-            'color': 'purple',
-        },
-        '.expcvv': {
-          'display': 'grid',
-          'grid-template-columns': 'auto'
-        }
-    };
-
     const cardField = paypal.CardFields({
-        // style: cardStyle,
         client: clientId,
         createOrder: function(data, actions) {
             return orderId;  
@@ -119,15 +109,9 @@
 
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed, Please try a different payment method.`;
                 document.getElementById('errors').hidden = false;
-
                 return;
               }
 
-            }
-
-            var errorDetail = Array.isArray(data.details) && data.details[0];
-                if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
-                return actions.restart();
             }
 
             let storeCard = document.querySelector('input[name=token-billing-checkbox]:checked');
@@ -136,21 +120,68 @@
                 document.getElementById("store_card").value = storeCard.value;
             }
 
-            document.getElementById("gateway_response").value = JSON.stringify( data );
-            document.getElementById("server_response").submit();
+            document.getElementById("gateway_response").value =JSON.stringify( data );  
+            
+            formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
 
+            fetch('{{ route('client.payments.response') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData,
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+
+                var errorDetail = Array.isArray(data.details) && data.details[0];
+
+                if (errorDetail && ['INSTRUMENT_DECLINED', 'PAYER_ACTION_REQUIRED'].includes(errorDetail.issue)) {
+                    return actions.restart();
+                }
+
+                if(data.redirect){
+                    window.location.href = data.redirect;
+                    return;
+                }
+
+                document.getElementById("gateway_response").value =JSON.stringify( data );
+                document.getElementById("server_response").submit();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
+                document.getElementById('errors').hidden = false;
+
+            });
 
         },
         onCancel: function() {
 
             window.location.href = "/client/invoices/";
         },
-        onError: function(error) {
+        // onError: function(error) {
 
-            document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
-            document.getElementById('errors').hidden = false;
 
-        },
+        // console.log("submit catch");
+        // const errorM = parseError(error);
+
+        // console.log(errorM);
+
+        // const msg = handle422Error(errorM);
+
+        //     document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${msg.description}`;
+        //     document.getElementById('errors').hidden = false;
+
+        // },
         onClick: function (){
            
         }
@@ -160,13 +191,12 @@
   // Render each field after checking for eligibility
   if (cardField.isEligible()) {
       
-      const nameField = cardField.NameField();
-      nameField.render("#card-name-field-container");
+    //   const nameField = cardField.NameField();
+    //   nameField.render("#card-name-field-container");
 
       const numberField = cardField.NumberField({
         inputEvents: {
             onChange: (event)=> {
-                // console.log("returns a stateObject", event);
             }
         },
       });
@@ -176,7 +206,6 @@
       const cvvField = cardField.CVVField({
         inputEvents: {
             onChange: (event)=> {
-                // console.log("returns a stateObject", event);
             }
         },
       });
@@ -185,7 +214,6 @@
       const expiryField = cardField.ExpiryField({
         inputEvents: {
             onChange: (event)=> {
-                // console.log("returns a stateObject", event);
             }
         },
       });
@@ -204,9 +232,19 @@
 
         document.querySelector('#pay-now > span').classList.add('hidden');
 
-        cardField.submit().then((response) => {
+        cardField.submit().then(() => {
 
         }).catch((error) => {
+
+            console.log(error);
+            
+            let msg;
+
+            if(!['INVALID_NUMBER','INVALID_CVV','INVALID_EXPIRY'].includes(error.message))
+            {
+                const errorM = parseError(error.message);
+                msg = handle422Error(errorM);
+            }
 
             document.getElementById('pay-now').disabled = false;
             document.querySelector('#pay-now > svg').classList.add('hidden');
@@ -221,7 +259,9 @@
             else if(error.message == 'INVALID_EXPIRY') {
               document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_cvv') }}";
             }
-
+            else if(msg.description){
+                document.getElementById('errors').textContent = msg?.description;
+            }
             document.getElementById('errors').hidden = false;
 
         });
@@ -232,6 +272,39 @@
   else {
 
   }
+
+    function handle422Error(errorData) {
+        const errorDetails = errorData.details || [];
+        const detail = errorDetails[0];        
+        return detail;
+    }
+
+
+    function parseError(errorMessage)
+    {
+        try {
+            JSON.parse(errorMessage);
+            return errorMessage;
+        } catch (e) {
+            
+        }
+
+        const startIndex = errorMessage.indexOf('{');
+        const endIndex = errorMessage.lastIndexOf('}');
+        
+        if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+            const jsonString = errorMessage.substring(startIndex, endIndex + 1);
+            try {
+                const json = JSON.parse(jsonString);
+                return json;
+            } catch (error) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+
+    }
 
 </script>
 
@@ -257,7 +330,6 @@
   if (payWithCreditCardToggle) {
       payWithCreditCardToggle
           .addEventListener('click', () => {
-            console.log("Cc");
               document
                   .getElementById('save-card--container').style.display = 'grid';
              document
@@ -280,6 +352,18 @@
             if (token) {
                 document.getElementById("token").value = token.value;
             }
+
+                document.getElementById('errors').textContent = '';
+                document.getElementById('errors').hidden = true;
+                
+                document.getElementById('pay-now-token').disabled = true;
+                document.querySelector('#pay-now-token > svg').classList.remove('hidden');
+                document.querySelector('#pay-now-token > svg').classList.add('justify-center');
+
+                document.querySelector('#pay-now-token > svg').classList.add('mx-auto');
+                document.querySelector('#pay-now-token > svg').classList.add('item-center');
+
+                document.querySelector('#pay-now-token > span').classList.add('hidden');
 
             document.getElementById("gateway_response").value = JSON.stringify( {token: token.value, orderID: "{!! $order_id !!}"} );
             document.getElementById("server_response").submit();

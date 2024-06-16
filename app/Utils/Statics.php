@@ -130,7 +130,7 @@ class Statics
         $data['bulk_updates'] = [
             'client' => \App\Models\Client::$bulk_update_columns,
         ];
-        
+
         return $data;
     }
 }

@@ -51,6 +51,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $last_login
  * @property int|null $industry_id
  * @property int|null $size_id
+ * @property object|null $e_invoice
  * @property string|null $address1
  * @property string|null $address2
  * @property string|null $city
@@ -109,7 +110,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string $payment_balance
  * @property mixed $tax_data
  * @property int $is_tax_exempt
- * @property int $has_valid_vat_number
+ * @property bool $has_valid_vat_number
  * @mixin \Eloquent
  */
 class Client extends BaseModel implements HasLocalePreference
@@ -185,6 +186,7 @@ class Client extends BaseModel implements HasLocalePreference
         'deleted_at' => 'timestamp',
         'last_login' => 'timestamp',
         'tax_data' => 'object',
+        'e_invoice' => 'object',
     ];
 
     protected $touches = [];
@@ -376,15 +378,17 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function language()
     {
-        $languages = Cache::get('languages');
+        $languages = app('languages');
+        // $languages = Cache::get('languages');
 
-        if (! $languages) {
-            $this->buildCache(true);
-        }
+        // if (! $languages) {
+        //     $this->buildCache(true);
+        // }
 
-        return $languages->filter(function ($item) {
+        return $languages->first(function ($item) {
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('language_id');
-        })->first();
+        });
     }
 
     public function industry(): BelongsTo
@@ -408,28 +412,37 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function date_format()
     {
-        $date_formats = Cache::get('date_formats');
+        /** @var \Illuminate\Support\Collection $date_formats */
+        $date_formats = app('date_formats');
+        // $date_formats = Cache::get('date_formats');
 
-        if (! $date_formats) {
-            $this->buildCache(true);
-        }
+        // if (! $date_formats) {
+        //     $this->buildCache(true);
+        // }
 
-        return $date_formats->filter(function ($item) {
+        return $date_formats->first(function ($item) {
+
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('date_format_id');
-        })->first()->format;
+        })->format;
     }
 
     public function currency()
     {
-        $currencies = Cache::get('currencies');
 
-        if (! $currencies) {
-            $this->buildCache(true);
-        }
+        /** @var \Illuminate\Support\Collection $currencies */
+        $currencies = app('currencies');
+        // $currencies = Cache::get('currencies');
 
-        return $currencies->filter(function ($item) {
+        // if (! $currencies) {
+        //     $this->buildCache(true);
+        // }
+
+        return $currencies->first(function ($item) {
+
+            /** @var \stdClass $item */
             return $item->id == $this->getSetting('currency_id');
-        })->first();
+        });
     }
 
     public function service(): ClientService
@@ -737,15 +750,17 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function preferredLocale()
     {
-        $languages = Cache::get('languages');
+        $this->language()->locale ?? 'en';
+        // $languages = app('languages');
+        // $languages = Cache::get('languages');
 
-        if (! $languages) {
-            $this->buildCache(true);
-        }
+        // if (! $languages) {
+        //     $this->buildCache(true);
+        // }
 
-        return $languages->filter(function ($item) {
-            return $item->id == $this->getSetting('language_id');
-        })->first()->locale;
+        // return $languages->first(function ($item) {
+        //     return $item->id == $this->getSetting('language_id');
+        // })->locale;
     }
 
     public function backup_path(): string

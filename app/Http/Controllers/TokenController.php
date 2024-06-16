@@ -87,7 +87,7 @@ class TokenController extends BaseController
      *       ),
      *     )
      * @param TokenFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(TokenFilters $filters)
     {
@@ -103,7 +103,7 @@ class TokenController extends BaseController
      *
      * @param ShowTokenRequest $request
      * @param CompanyToken $token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -157,7 +157,7 @@ class TokenController extends BaseController
      *
      * @param EditTokenRequest $request
      * @param CompanyToken $token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -213,7 +213,7 @@ class TokenController extends BaseController
      *
      * @param UpdateTokenRequest $request
      * @param CompanyToken $token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -275,7 +275,7 @@ class TokenController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateTokenRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -324,7 +324,7 @@ class TokenController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreTokenRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -376,7 +376,7 @@ class TokenController extends BaseController
      *
      * @param DestroyTokenRequest $request
      * @param CompanyToken $token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -433,7 +433,7 @@ class TokenController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(

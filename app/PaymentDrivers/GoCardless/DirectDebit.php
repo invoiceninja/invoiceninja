@@ -46,7 +46,7 @@ class DirectDebit implements MethodInterface
      * Handle authorization for Direct Debit.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse|void
      */
     public function authorizeView(array $data)
     {
@@ -138,7 +138,7 @@ class DirectDebit implements MethodInterface
      * Handle authorization response for Direct Debit.
      *
      * @param Request $request
-     * @return RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function authorizeResponse(Request $request)
     {
@@ -272,7 +272,7 @@ class DirectDebit implements MethodInterface
      *
      * @param ResourcesPayment $payment
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {

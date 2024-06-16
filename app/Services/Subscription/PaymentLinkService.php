@@ -171,7 +171,7 @@ class PaymentLinkService
         }
 
         if (!$this->subscription->trial_enabled) {
-            return new \Exception("Trials are disabled for this product");
+            throw new \Exception("Trials are disabled for this product");
         }
 
         //create recurring invoice with start date = trial_duration + 1 day

@@ -94,7 +94,7 @@ class QuoteTransformer extends BaseTransformer
             ),
             'footer' => $this->getString($quote_data, 'quote.footer'),
             'partial' => $this->getFloat($quote_data, 'quote.partial'),
-            'partial_due_date' =>  isset($invoice_data['quote.partial_due_date']) ? $this->parseDate($quote_data['quote.partial_due_date']) : null,
+            'partial_due_date' =>  isset($quote_data['quote.partial_due_date']) ? $this->parseDate($quote_data['quote.partial_due_date']) : null,
             'custom_surcharge1' => $this->getString(
                 $quote_data,
                 'quote.custom_surcharge1'

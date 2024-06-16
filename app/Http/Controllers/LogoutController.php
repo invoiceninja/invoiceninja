@@ -52,7 +52,7 @@ class LogoutController extends BaseController
      *       ),
      *     )
      * @param Request $request
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(Request $request)
     {
@@ -64,11 +64,11 @@ class LogoutController extends BaseController
                     ->tokens()
                     ->where('is_system', true)
                     ->cursor()
-                    ->each(function ($ct){
+                    ->each(function ($ct) {
                         $ct->token = \Illuminate\Support\Str::random(64);
                         $ct->save();
                     });
-                    
+
         return response()->json(['message' => 'All tokens deleted'], 200);
     }
 }

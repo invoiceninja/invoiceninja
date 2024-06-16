@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $client_id
  * @property int|null $vendor_id
  * @property int|null $category_id
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at

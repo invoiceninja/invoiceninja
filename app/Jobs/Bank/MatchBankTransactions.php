@@ -289,6 +289,8 @@ class MatchBankTransactions implements ShouldQueue
 
     private function createPayment($invoices, float $amount): void
     {
+
+        $this->attachable_invoices = [];
         $this->available_balance = $amount;
 
         \DB::connection(config('database.default'))->transaction(function () use ($invoices) {

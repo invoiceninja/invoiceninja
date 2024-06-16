@@ -44,6 +44,9 @@ class ExpenseFilters extends QueryFilters
                 })
                 ->orWhereHas('vendor', function ($q) use ($filter) {
                     $q->where('name', 'like', '%'.$filter.'%');
+                })
+                ->orWhereHas('client', function ($q) use ($filter) {
+                    $q->where('name', 'like', '%'.$filter.'%');
                 });
         });
     }
@@ -108,8 +111,8 @@ class ExpenseFilters extends QueryFilters
                 });
             }
 
-            if(in_array('uncategorized', $status_parameters)){
-                $query->orWhere(function ($query){
+            if(in_array('uncategorized', $status_parameters)) {
+                $query->orWhere(function ($query) {
                     $query->whereNull('category_id');
                 });
             }

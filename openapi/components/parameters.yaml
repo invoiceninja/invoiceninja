@@ -123,16 +123,16 @@
       examples:
         user:
           value: user
-          summary: include=user will include the user object in the response
+          summary: include=user will include the Cser object in the response
         company:
           value: company
-          summary: include=company will include the company object in the response
+          summary: include=company will include the Company object in the response
         token:
           value: token
-          summary: include=token will include the token object in the response
+          summary: include=token will include the Company Token object in the response
         account:
           value: account
-          summary: include=account will include the account object in the response
+          summary: include=account will include the Account object in the response
     per_page_meta:
       name: per_page
       in: query
@@ -160,7 +160,15 @@
     include_static:
       name: include_static
       in: query
-      description: 'Returns static variables'
+      description: |
+        Static variables include:
+          - Currencies
+          - Countries 
+          - Languages
+          - Payment Types
+          - Email Templatees
+          - Industries
+
       required: false
       schema:
         type: string
@@ -168,7 +176,11 @@
     clear_cache:
       name: clear_cache
       in: query
-      description: 'Clears the static cache'
+      description: |
+        Clears cache
+
+        Sometimes after a system update where the static variables have been updated, it may be necessary to clear the cache so that the static variables repopulate  
+
       required: false
       schema:
         type: string

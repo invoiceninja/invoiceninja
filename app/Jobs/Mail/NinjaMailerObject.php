@@ -38,7 +38,7 @@ class NinjaMailerObject
 
     public $template = false;
 
-    /* @var bool | App\Models\Invoice | App\Models\Quote | App\Models\Credit | App\Models\RecurringInvoice | App\Models\PurchaseOrder  | App\Models\Payment $entity */
+    /* @var \bool | App\Models\Invoice | App\Models\Quote | App\Models\Credit | App\Models\RecurringInvoice | App\Models\PurchaseOrder  | App\Models\Payment $entity */
     public $entity = false;
 
     public $reminder_template = '';

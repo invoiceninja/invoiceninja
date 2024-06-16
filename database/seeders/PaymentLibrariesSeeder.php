@@ -87,7 +87,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 59, 'name' => 'Forte', 'provider' => 'Forte', 'is_offsite' => false, 'sort_order' => 21, 'key' => 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs', 'fields' => '{"testMode":false,"apiLoginId":"","apiAccessId":"","secureKey":"","authOrganizationId":"","organizationId":"","locationId":""}'],
             ['id' => 60, 'name' => 'PayPal REST', 'provider' => 'PayPal_Rest', 'key' => '80af24a6a691230bbec33e930ab40665', 'fields' => '{"clientId":"","secret":"","signature":"","testMode":false}'],
             ['id' => 61, 'name' => 'PayPal Platform', 'provider' => 'PayPal_PPCP', 'key' => '80af24a6a691230bbec33e930ab40666', 'fields' => '{"testMode":false}'],
-            ['id' => 62, 'name' => 'BTCPay', 'provider' => 'BTCPay', 'key' => 'vpyfbmdrkqcicpkjqdusgjfluebftuva', 'fields' => '{"btcpayUrl":"", "apiKey:"", "storeId":"", "webhookSecret":""}'],
+            ['id' => 62, 'name' => 'BTCPay', 'provider' => 'BTCPay', 'key' => 'vpyfbmdrkqcicpkjqdusgjfluebftuva', 'fields' => '{"btcpayUrl":"", "apiKey":"", "storeId":"", "webhookSecret":""}'],
         ];
 
         foreach ($gateways as $gateway) {

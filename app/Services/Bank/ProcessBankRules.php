@@ -57,7 +57,7 @@ class ProcessBankRules extends AbstractService
                                 ->get();
 
         $invoice = $this->invoices->first(function ($value, $key) {
-            return str_contains($this->bank_transaction->description, $value->number);
+            return str_contains($this->bank_transaction->description, $value->number) || str_contains(str_replace("\n", "", $this->bank_transaction->description), $value->number);
         });
 
         if ($invoice) {

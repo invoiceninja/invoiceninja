@@ -12,7 +12,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: 8.2
           extensions: mysql, mysqlnd, sqlite3, bcmath, gd, curl, zip, openssl, mbstring, xml
 
       - name: Checkout code
@@ -44,6 +44,7 @@ jobs:
           git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
           cd ui
           git checkout develop
+          cp ../vite.config.ts.react ./vite.config.js
           npm i
           npm run build
           cp -r dist/* ../public/
@@ -60,7 +61,8 @@ jobs:
           sudo rm -rf node_modules
           sudo rm -rf .git
           sudo rm .env
-
+          sudo rm -rf ui
+          
       - name: Build project
         run: |
           shopt -s dotglob

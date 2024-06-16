@@ -38,7 +38,7 @@ class StoreVendorRequest extends Request
         $user = auth()->user();
 
         $rules = [];
-
+        $rules['name'] = 'bail|required|string';
         $rules['contacts'] = 'bail|array';
         $rules['contacts.*.email'] = 'bail|nullable|distinct|sometimes|email';
         $rules['contacts.*.password'] = [
@@ -64,7 +64,7 @@ class StoreVendorRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 

@@ -136,7 +136,7 @@ class Project extends BaseModel
     {
         return $this->hasMany(Quote::class);
     }
-    
+
 
     public function translate_entity()
     {

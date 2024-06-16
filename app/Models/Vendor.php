@@ -30,14 +30,14 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
- * @property string|null $currency_id
+ * @property int|null $currency_id
  * @property string|null $name
  * @property string|null $address1
  * @property string|null $address2
  * @property string|null $city
  * @property string|null $state
  * @property string|null $postal_code
- * @property string|null $country_id
+ * @property int|null $country_id
  * @property string|null $phone
  * @property string|null $private_notes
  * @property string|null $website
@@ -53,7 +53,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $vendor_hash
  * @property string|null $public_notes
  * @property string|null $id_number
- * @property string|null $language_id
+ * @property int|null $language_id
  * @property int|null $last_login
  * @property string|null $invoicing_email
  * @property string|null $invoicing_domain

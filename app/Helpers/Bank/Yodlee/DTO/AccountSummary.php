@@ -16,6 +16,7 @@ use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Data;
 
 /**
+ * @deprecated
  * [
     "account": [
       [

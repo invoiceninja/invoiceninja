@@ -36,9 +36,8 @@ return new class extends Migration
             $table->mediumText('e_invoice')->nullable();
         });
 
-
         Schema::table('accounts', function (Blueprint $table) {
-            $table->integer('email_quota')->default(20)->nullable();
+            $table->integer('email_quota')->nullable();
         });
 
     }

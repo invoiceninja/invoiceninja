@@ -107,7 +107,7 @@ class CompanyUserController extends BaseController
      *     )
      * @param UpdateCompanyUserRequest $request
      * @param User $user
-     * @return Response|mixed|void
+     * @return Response| \Illuminate\Http\JsonResponse|mixed|void
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {

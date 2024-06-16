@@ -62,7 +62,7 @@ class UpdateExpenseRequest extends Request
 
     public function prepareForValidation()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

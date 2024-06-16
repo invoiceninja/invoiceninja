@@ -71,7 +71,7 @@ class TransactionTransformer implements BankRevenueInterface
 
     private Company $company;
 
-    function __construct(Company $company)
+    public function __construct(Company $company)
     {
         $this->company = $company;
     }
@@ -148,7 +148,7 @@ class TransactionTransformer implements BankRevenueInterface
             'description' => $description,
             'participant' => $participant,
             'participant_name' => $participant_name,
-            'base_type' => (int) $transaction["transactionAmount"]["amount"] <= 0 ? 'DEBIT' : 'CREDIT',
+            'base_type' => $amount < 0 ? 'DEBIT' : 'CREDIT',
         ];
 
     }
@@ -192,7 +192,7 @@ class TransactionTransformer implements BankRevenueInterface
         }
 
         try {
-           return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
+            return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
         } catch (\Exception $e) {
             return $input;
         }

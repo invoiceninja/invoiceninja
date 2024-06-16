@@ -33,7 +33,7 @@ class ClientStatementController extends BaseController
      * Update the specified resource in storage.
      *
      * @param CreateStatementRequest $request
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse
      */
     public function statement(CreateStatementRequest $request)
     {

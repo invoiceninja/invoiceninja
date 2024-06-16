@@ -36,7 +36,10 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class ProcessBrevoWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -52,6 +55,8 @@ class ProcessBrevoWebhook implements ShouldQueue
         'events' => [],
     ];
 
+    
+    /** @var ?\App\Models\Company $company*/
     private ?Company $company = null;
 
     /**
@@ -83,11 +88,12 @@ class ProcessBrevoWebhook implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return void
      */
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['tags'][0]);
+
+        /** @phpstan-ignore-next-line */
         $this->company = Company::where('company_key', $this->request['tags'][0])->first();
 
         $this->invitation = $this->discoverInvitation($this->request['message-id']);

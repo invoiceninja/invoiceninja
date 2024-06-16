@@ -39,7 +39,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function includeActivities(Vendor $vendor)
     {
@@ -51,7 +51,7 @@ class VendorTransformer extends EntityTransformer
     /**
      * @param Vendor $vendor
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function includeContacts(Vendor $vendor)
     {

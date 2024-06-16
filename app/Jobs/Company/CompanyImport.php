@@ -350,11 +350,13 @@ class CompanyImport implements ShouldQueue
             }
         }
 
-        if(file_exists($tmp_file))
+        if(file_exists($tmp_file)) {
             unlink($tmp_file);
+        }
 
-        if(Storage::exists($this->file_location))
+        if(Storage::exists($this->file_location)) {
             unlink(Storage::path($this->file_location));
+        }
     }
 
     //
@@ -415,7 +417,7 @@ class CompanyImport implements ShouldQueue
      * import to start if there are users > plan number
      * due to entity user_id dependencies
      *
-     * @return bool
+     * @return self
      */
     private function checkUserCount()
     {
@@ -513,8 +515,7 @@ class CompanyImport implements ShouldQueue
         $settings->email_style_custom = str_replace(['{!!','!!}','{{','}}','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</s','<s','html;base64'], '', $settings->email_style_custom);
         $settings->company_logo = (strlen($settings->company_logo) > 2 && stripos($settings->company_logo, 'http') !== false) ? $settings->company_logo : "https://{$settings->company_logo}";
 
-        foreach($this->protected_input as $protected_var)
-        {
+        foreach($this->protected_input as $protected_var) {
             $settings->{$protected_var} = str_replace("script", "", $settings->{$protected_var});
         }
 

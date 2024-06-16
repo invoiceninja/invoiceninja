@@ -25,7 +25,7 @@ class ContactDecorator implements DecoratorInterface
             $contact = $entity->contacts()->first();
         } elseif($entity->client) {
             $contact = $entity->client->primary_contact->first() ?? $entity->client->contacts()->whereNotNull('email')->first();
-        } elseif($entity->vendor) { 
+        } elseif($entity->vendor) {
             $contact = $entity->vendor->primary_contact->first() ?? $entity->vendor->contacts()->whereNotNull('email')->first();
         }
 

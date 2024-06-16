@@ -11,13 +11,14 @@
 
 namespace Tests\Feature;
 
-use App\Models\CompanyGateway;
+use Tests\TestCase;
+use Tests\MockAccountData;
 use App\Models\GatewayType;
+use App\Models\CompanyGateway;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\MockAccountData;
-use Tests\TestCase;
 
 /**
  * @test
@@ -29,6 +30,9 @@ class ClientGatewayTokenApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    protected $faker;
+    protected CompanyGateway $cg;
+    
     protected function setUp() :void
     {
         parent::setUp();

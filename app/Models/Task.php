@@ -43,8 +43,8 @@ use Illuminate\Support\Carbon;
  * @property bool $is_running
  * @property string|null $time_log
  * @property string|null $number
- * @property string $rate
- * @property int $invoice_documents
+ * @property float $rate
+ * @property bool $invoice_documents
  * @property int $is_date_based
  * @property int|null $status_order
  * @property-read \App\Models\User|null $assigned_user

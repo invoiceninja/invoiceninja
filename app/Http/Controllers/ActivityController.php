@@ -105,6 +105,14 @@ class ActivityController extends BaseController
 
     }
 
+        
+    /**
+     * downloadHistoricalEntity
+     *
+     * @param  DownloadHistoricalEntityRequest $request
+     * @param  Activity $activity
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse
+     */
     public function downloadHistoricalEntity(DownloadHistoricalEntityRequest $request, Activity $activity)
     {
         $backup = $activity->backup;

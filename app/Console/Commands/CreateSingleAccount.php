@@ -1016,7 +1016,7 @@ class CreateSingleAccount extends Command
             $cg->fees_and_limits = $fees_and_limits;
             $cg->save();
         }
-        
+
         if (config('ninja.testvars.eway') && ($this->gateway == 'all' || $this->gateway == 'eway')) {
             $cg = new CompanyGateway();
             $cg->company_id = $company->id;
@@ -1038,12 +1038,12 @@ class CreateSingleAccount extends Command
             $cg->save();
         }
 
-        
+
         if (config('ninja.testvars.gocardless') && ($this->gateway == 'all' || $this->gateway == 'gocardless')) {
 
             $c_settings = ClientSettings::defaults();
             $c_settings->currency_id = '2';
-            
+
             $client = Client::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $company->id,

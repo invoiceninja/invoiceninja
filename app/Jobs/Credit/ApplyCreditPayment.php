@@ -78,7 +78,7 @@ class ApplyCreditPayment implements ShouldQueue
         $item->cost = $this->amount * -1;
         $item->notes = "{$item_date} - " . ctrans('texts.credit_payment', ['invoice_number' => $invoice_numbers]) . " ". Number::formatMoney($this->amount, $this->payment->client);
         $item->type_id = "1";
-        
+
         $line_items = $this->credit->line_items;
         $line_items[] = $item;
         $this->credit->line_items = $line_items;
@@ -106,7 +106,7 @@ class ApplyCreditPayment implements ShouldQueue
              ->client
              ->service()
              ->adjustCreditBalance($this->amount * -1)
-             ->save();      
+             ->save();
 
         /* Update Payment Applied Amount*/
         $this->payment->save();

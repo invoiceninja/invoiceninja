@@ -73,8 +73,12 @@ class ProductExport extends BaseExport
 
         $query = Product::query()
                         ->withTrashed()
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('company_id', $this->company->id);
+
+
+        if(!$this->input['include_deleted'] ?? false) {
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 
@@ -129,16 +133,16 @@ class ProductExport extends BaseExport
         // return $this->decorateAdvancedFields($product, $entity);
     }
 
-    private function decorateAdvancedFields(Product $product, array $entity): array
-    {
-        if (in_array('vendor_id', $this->input['report_keys'])) {
-            $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
-        }
+    // private function decorateAdvancedFields(Product $product, array $entity): array
+    // {
+    //     if (in_array('vendor_id', $this->input['report_keys'])) {
+    //         $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
+    //     }
 
-        // if (array_key_exists('project_id', $this->input['report_keys'])) {
-        //     $entity['project'] = $product->project()->exists() ? $product->project->name : '';
-        // }
+    //     // if (array_key_exists('project_id', $this->input['report_keys'])) {
+    //     //     $entity['project'] = $product->project()->exists() ? $product->project->name : '';
+    //     // }
 
-        return $entity;
-    }
+    //     return $entity;
+    // }
 }

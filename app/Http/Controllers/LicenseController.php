@@ -28,7 +28,7 @@ class LicenseController extends BaseController
     /**
      * Claim a white label license.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/claim_license",

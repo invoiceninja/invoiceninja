@@ -54,7 +54,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $tax_name3
  * @property float $tax_rate3
  * @property float $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $reminder1_sent
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent

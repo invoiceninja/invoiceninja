@@ -251,7 +251,7 @@ class CreditCard
      * Handle authorization response.
      *
      * @param mixed $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse($request): RedirectResponse
     {

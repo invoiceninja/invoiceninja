@@ -64,7 +64,7 @@ class StripeConnectController extends BaseController
         if ($request->has('error') && $request->error == 'access_denied') {
             return view('auth.connect.access_denied');
         }
-        
+
         $response = false;
 
         try {
@@ -91,7 +91,7 @@ class StripeConnectController extends BaseController
 
         } catch (\Exception $e) {
 
-           
+
         }
 
         if(!$response) {
@@ -154,7 +154,7 @@ class StripeConnectController extends BaseController
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);
-        
+
     }
 
 }
