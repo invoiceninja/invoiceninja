@@ -103,7 +103,7 @@ class PaymentController extends Controller
      * and invoice ids for reference.
      *
      * @param Request $request
-     * @return RedirectResponse|mixed
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function process(Request $request)
     {
@@ -157,7 +157,7 @@ class PaymentController extends Controller
      * Pay for invoice/s using credits only.
      *
      * @param Request $request The request object
-     * @return \Response         The response view
+     * @return \Illuminate\Http\RedirectResponse        The response view
      */
     public function credit_response(Request $request)
     {

@@ -68,18 +68,18 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function init()
     {
-        try {
-            $this->payfast = new \Payfast\PayFastPayment(
-                [
-                    'merchantId' => $this->company_gateway->getConfigField('merchantId'),
-                    'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
-                    'passPhrase' => $this->company_gateway->getConfigField('passphrase'),
-                    'testMode' => $this->company_gateway->getConfigField('testMode'),
-                ]
-            );
-        } catch (\Exception $e) {
-            nlog('##PAYFAST## There was an exception: '.$e->getMessage());
-        }
+        // try {
+        //     $this->payfast = new \Payfast\PayFastPayment(
+        //         [
+        //             'merchantId' => $this->company_gateway->getConfigField('merchantId'),
+        //             'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
+        //             'passPhrase' => $this->company_gateway->getConfigField('passphrase'),
+        //             'testMode' => $this->company_gateway->getConfigField('testMode'),
+        //         ]
+        //     );
+        // } catch (\Exception $e) {
+        //     nlog('##PAYFAST## There was an exception: '.$e->getMessage());
+        // }
 
         return $this;
     }
@@ -211,7 +211,6 @@ class PayFastPaymentDriver extends BaseDriver
 
                     return response()->json([], 200);
 
-                    break;
 
                 default:
 
@@ -223,7 +222,6 @@ class PayFastPaymentDriver extends BaseDriver
 
                     return response()->json([], 200);
 
-                    break;
             }
         }
 

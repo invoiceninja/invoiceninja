@@ -23,6 +23,7 @@ class CompanyGatewayFactory
         $company_gateway->require_billing_address = false;
         $company_gateway->require_shipping_address = false;
         $company_gateway->config = encrypt(json_encode(new \stdClass()));
+        $company_gateway->always_show_required_fields = true;
 
         return $company_gateway;
     }

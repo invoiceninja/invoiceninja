@@ -27,6 +27,7 @@ use Laracasts\Presenter\PresentableTrait;
  * App\Models\Quote
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int $client_id
  * @property int $user_id
  * @property int|null $assigned_user_id
@@ -47,20 +48,20 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
- * @property object|null $line_items
+ * @property array|null $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
+ * @property float $tax_rate3
  * @property string $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -77,7 +78,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
- * @property string|null $partial_due_date
+ * @property \Carbon\Carbon|null $partial_due_date
  * @property string|null $last_viewed
  * @property int|null $created_at
  * @property int|null $updated_at
@@ -86,7 +87,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent
  * @property string|null $reminder_last_sent
- * @property string $paid_to_date
+ * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property \App\Models\User|null $assigned_user
  * @property \App\Models\Client $client
@@ -164,6 +165,7 @@ class Quote extends BaseModel
 
     protected $casts = [
         // 'date' => 'date:Y-m-d',
+        'tax_data' => 'object',
         'due_date' => 'date:Y-m-d',
         'partial_due_date' => 'date:Y-m-d',
         'line_items' => 'object',
@@ -173,6 +175,7 @@ class Quote extends BaseModel
         'deleted_at' => 'timestamp',
         'is_deleted' => 'boolean',
         'is_amount_discount' => 'bool',
+        'e_invoice' => 'object',
     ];
 
     public const STATUS_DRAFT = 1;
@@ -195,10 +198,10 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-    public function getDueDateAttribute($value)
-    {
-        return $value ? $this->dateMutator($value) : null;
-    }
+    //    public function getDueDateAttribute($value)
+    //    {
+    //        return $value ? $this->dateMutator($value) : null;
+    //    }
 
     // public function getPartialDueDateAttribute($value)
     // {

@@ -176,9 +176,9 @@ class Document extends BaseModel
 
     public function generateRoute($absolute = false)
     {
-        try{
-        return route('api.documents.show', ['document' => $this->hashed_id]).'/download';
-        }catch(\Exception $e){
+        try {
+            return route('api.documents.show', ['document' => $this->hashed_id]).'/download';
+        } catch(\Exception $e) {
             return '';
         }
     }

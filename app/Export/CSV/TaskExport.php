@@ -68,20 +68,25 @@ class TaskExport extends BaseExport
 
         $query = Task::query()
                         ->withTrashed()
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
+                        ->where('company_id', $this->company->id);
+
+        if(!$this->input['include_deleted'] ?? false) {
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
-        
+
         $clients = &$this->input['client_id'];
 
-        if($clients)
+        if($clients) {
             $query = $this->addClientFilter($query, $clients);
+        }
 
         $document_attachments = &$this->input['document_email_attachment'];
 
-        if($document_attachments) 
+        if($document_attachments) {
             $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -94,6 +99,7 @@ class TaskExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());
@@ -220,7 +226,7 @@ class TaskExport extends BaseExport
         }
 
     }
-    
+
     /**
      * Add Task Status Filter
      *
@@ -230,7 +236,7 @@ class TaskExport extends BaseExport
      */
     protected function addTaskStatusFilter(Builder $query, string $status): Builder
     {
-    
+
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {

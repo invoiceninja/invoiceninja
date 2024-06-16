@@ -31,7 +31,7 @@ class TemplateController extends BaseController
     /**
      * Returns a template filled with entity variables.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
      *      path="/api/v1/templates",

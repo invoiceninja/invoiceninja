@@ -171,15 +171,10 @@ class SquareCreditCard {
                 document.querySelector('input[name=token]').value = '';
             });
 
-        // let toggleWithToken = document.querySelector(
-        //     '.toggle-payment-with-token'
-        // );
-
-        // if (!toggleWithToken) {
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('payment-list').classList.remove('hidden');
             document.getElementById('toggle-payment-with-credit-card')?.click();
-        // }
+
     });
 
     }

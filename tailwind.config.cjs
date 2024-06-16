@@ -1,27 +1,27 @@
-const defaultTheme = require("tailwindcss/defaultTheme");
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
-    purge: [
+    content: [
         './resources/views/portal/ninja2020/**/*.blade.php',
         './resources/views/email/template/**/*.blade.php',
         './resources/views/email/components/**/*.blade.php',
         './resources/views/themes/ninja2020/**/*.blade.php',
         './resources/views/auth/**/*.blade.php',
         './resources/views/setup/**/*.blade.php',
-        './resources/views/billing-portal/**/*.blade.php',
+        './resources/views/billing-portal/**/*.blade.php'
     ],
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Open Sans", ...defaultTheme.fontFamily.sans]
+                sans: ['Open Sans', ...defaultTheme.fontFamily.sans],
+            },
+            transitionProperty: {
+                'height': 'height'
             }
-        }
+        },
     },
-    variants: {},
     plugins: [
-        require('@tailwindcss/line-clamp'),
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
-    ]
-
+    ],
 };

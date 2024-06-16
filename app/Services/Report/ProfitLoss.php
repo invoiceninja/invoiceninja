@@ -288,8 +288,9 @@ class ProfitLoss
                                 if ($pivot->paymentable_type == 'invoices') {
                                     $invoice = Invoice::query()->withTrashed()->find($pivot->paymentable_id);
 
-                                    if(!$invoice)
+                                    if(!$invoice) {
                                         continue;
+                                    }
 
                                     $pivot_diff = $pivot->amount - $pivot->refunded;
                                     $amount_payment_paid += $pivot_diff;
@@ -301,10 +302,10 @@ class ProfitLoss
                                     }
 
                                 }
-                                
-                                    if(!$invoice) {
-                                        continue;
-                                    }
+
+                                if(!$invoice) {
+                                    continue;
+                                }
 
                                 if ($pivot->paymentable_type == 'credits') {
                                     $amount_credit_paid += $pivot->amount - $pivot->refunded;
@@ -399,7 +400,7 @@ class ProfitLoss
         $csv->insertOne(['']);
         $csv->insertOne(['']);
 
-        
+
         $csv->insertOne(['--------------------']);
         $csv->insertOne([ctrans('texts.revenue')]);
         $csv->insertOne(['--------------------']);
@@ -414,7 +415,7 @@ class ProfitLoss
         $csv->insertOne(['--------------------']);
         $csv->insertOne([ctrans('texts.expenses')]);
         $csv->insertOne(['--------------------']);
-        foreach($this->expenses as $expense){
+        foreach($this->expenses as $expense) {
             $csv->insertOne([$expense->currency, ($expense->total - $expense->foreign_tax_amount), $expense->foreign_tax_amount]);
         }
 
@@ -450,10 +451,10 @@ class ProfitLoss
     private function expenseData()
     {
         $expenses = Expense::query()->where('company_id', $this->company->id)
-                           ->where(function ($query){
-                                $query->whereNull('client_id')->orWhereHas('client', function ($q){
-                                    $q->where('is_deleted', 0);
-                                });
+                           ->where(function ($query) {
+                               $query->whereNull('client_id')->orWhereHas('client', function ($q) {
+                                   $q->where('is_deleted', 0);
+                               });
                            })
                            ->where('is_deleted', 0)
                            ->withTrashed()
@@ -618,13 +619,13 @@ class ProfitLoss
                 break;
 
             case 'this_quarter':
-                $this->start_date = (new \Carbon\Carbon('-3 months'))->firstOfQuarter();
-                $this->end_date = (new \Carbon\Carbon('-3 months'))->lastOfQuarter();
+                $this->start_date = (new \Carbon\Carbon('0 months'))->startOfQuarter();
+                $this->end_date = (new \Carbon\Carbon('0 months'))->endOfQuarter();
                 break;
 
             case 'last_quarter':
-                $this->start_date = (new \Carbon\Carbon('-6 months'))->firstOfQuarter();
-                $this->end_date = (new \Carbon\Carbon('-6 months'))->lastOfQuarter();
+                $this->start_date = (new \Carbon\Carbon('-3 months'))->startOfQuarter();
+                $this->end_date = (new \Carbon\Carbon('-3 months'))->endOfQuarter();
                 break;
 
             case 'this_year':

@@ -32,7 +32,7 @@ class ProductController extends BaseController
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function index(Request $request)
     {

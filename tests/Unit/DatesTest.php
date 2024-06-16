@@ -31,6 +31,29 @@ class DatesTest extends TestCase
         // $this->makeTestData();
     }
 
+    public function testDateNotGreaterThanMonthsEnd()
+    {
+        $this->travelTo(now()->createFromDate(2024, 6, 20));
+        $date = '2024-05-20';
+        
+        $this->assertTrue(\Carbon\Carbon::parse($date)->endOfMonth()->lte(now()));
+
+        $this->travelBack();
+
+    }
+
+    public function testDatLessThanMonthsEnd()
+    {
+        $this->travelTo(now()->createFromDate(2024, 5, 30));
+        $date = '2024-05-20';
+        
+        $this->assertFalse(\Carbon\Carbon::parse($date)->endOfMonth()->lte(now()));
+
+        $this->travelBack();
+
+    }
+
+    
     public function testLastFinancialYear3()
     {
         $this->travelTo(now()->createFromDate(2020, 6, 30));

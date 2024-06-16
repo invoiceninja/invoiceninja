@@ -89,7 +89,7 @@ class ClientGatewayTokenController extends BaseController
      *       ),
      *     )
      * @param ListClientGatewayTokenRequest $request
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(ListClientGatewayTokenRequest $request)
     {
@@ -103,7 +103,7 @@ class ClientGatewayTokenController extends BaseController
      *
      * @param ShowClientGatewayTokenRequest $request
      * @param ClientGatewayToken $client_gateway_token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -157,7 +157,7 @@ class ClientGatewayTokenController extends BaseController
      *
      * @param EditClientGatewayTokenRequest $request
      * @param ClientGatewayToken $client_gateway_token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -211,7 +211,7 @@ class ClientGatewayTokenController extends BaseController
      *
      * @param UpdateClientGatewayTokenRequest $request
      * @param ClientGatewayToken $client_gateway_token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -267,7 +267,7 @@ class ClientGatewayTokenController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateClientGatewayTokenRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -317,7 +317,7 @@ class ClientGatewayTokenController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreClientGatewayTokenRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -369,7 +369,7 @@ class ClientGatewayTokenController extends BaseController
      *
      * @param DestroyClientGatewayTokenRequest $request
      * @param ClientGatewayToken $client_gateway_token
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception

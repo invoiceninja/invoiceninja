@@ -21,7 +21,7 @@ class DashboardController extends Controller
     {
         if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === false) {
             return redirect()->route('client.invoices.index');
-        } 
+        }
 
         $total_invoices = Invoice::withTrashed()
             ->where('client_id', auth()->guard('contact')->user()->client_id)

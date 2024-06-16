@@ -67,7 +67,7 @@ class AuthorizePaymentDriver extends BaseDriver
     public function getClientRequiredFields(): array
     {
         $data = [
-            ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
+            // ['name' => 'client_name', 'label' => ctrans('texts.name'), 'type' => 'text', 'validation' => 'required|min:2'],
             ['name' => 'client_phone', 'label' => ctrans('texts.phone'), 'type' => 'text', 'validation' => 'required'],
             ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required|email:rfc'],
             ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'],
@@ -194,7 +194,7 @@ class AuthorizePaymentDriver extends BaseDriver
     public function import()
     {
         $this->init();
-        
+
         nlog("starting import auth.net");
 
         return (new AuthorizeCustomer($this))->importCustomers();

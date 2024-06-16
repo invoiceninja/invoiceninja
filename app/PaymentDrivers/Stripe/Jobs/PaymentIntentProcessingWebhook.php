@@ -64,17 +64,28 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
         $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
-            if (array_key_exists('payment_intent', $transaction)) {
-                $payment = Payment::query()
-                    ->where('company_id', $company->id)
-                    ->where('transaction_reference', $transaction['payment_intent'])
-                    ->first();
-            } else {
-                $payment = Payment::query()
-                   ->where('company_id', $company->id)
-                   ->where('transaction_reference', $transaction['id'])
-                   ->first();
-            }
+
+
+            $payment = Payment::query()
+                ->where('company_id', $company->id)
+                ->where(function ($query) use ($transaction) {
+
+                    if(isset($transaction['payment_intent'])) {
+                        $query->where('transaction_reference', $transaction['payment_intent']);
+                    }
+
+                    if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                        $query->orWhere('transaction_reference', $transaction['id']);
+                    }
+
+                    if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
+                        $query->where('transaction_reference', $transaction['id']);
+                    }
+
+                })
+                ->first();
+
+
 
             if ($payment) {
                 $payment->status_id = Payment::STATUS_PENDING;

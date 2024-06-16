@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $auto_bill
  * @property string|null $promo_code
  * @property float $promo_discount
- * @property int $is_amount_discount
+ * @property bool $is_amount_discount
  * @property int $allow_cancellation
  * @property int $per_seat_enabled
  * @property int $min_seats_limit

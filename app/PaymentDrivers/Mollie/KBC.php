@@ -51,7 +51,7 @@ class KBC implements MethodInterface
      * Handle the authorization for KBC.
      *
      * @param Request $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
@@ -62,7 +62,7 @@ class KBC implements MethodInterface
      * Show the payment page for KBC.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
      */
     public function paymentView(array $data)
     {
@@ -166,7 +166,7 @@ class KBC implements MethodInterface
      * Handle the successful payment for KBC.
      *
      * @param ResourcesPayment $payment
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
     {

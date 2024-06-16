@@ -86,7 +86,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
             $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
 
             sleep(5);
-            
+
             throw $e;
         }
         if (!$this->nordigen_account) {

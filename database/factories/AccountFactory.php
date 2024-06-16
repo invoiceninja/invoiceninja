@@ -27,6 +27,7 @@ class AccountFactory extends Factory
             'default_company_id' => 1,
             'key' => Str::random(32),
             'report_errors' => 1,
+            'referral_code' => Str::lower(Str::random(32)),
         ];
     }
 }

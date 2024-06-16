@@ -26,7 +26,6 @@ class BankTransactionRepository extends BaseRepository
             $bank_transaction->bank_integration_id = $data['bank_integration_id'];
         }
 
-
         $bank_transaction->fill($data);
         $bank_transaction->save();
 

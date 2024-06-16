@@ -82,7 +82,7 @@ class StoreTaskRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -91,7 +91,6 @@ class StoreTaskRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->fileValidation();
         }
-
 
         return $this->globalRules($rules);
     }

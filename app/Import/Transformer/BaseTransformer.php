@@ -65,7 +65,7 @@ class BaseTransformer
             return $parsed_date;
         }
     }
-    
+
     public function parseDateOrNull($data, $field)
     {
         $date = &$data[$field];
@@ -115,7 +115,7 @@ class BaseTransformer
         return isset($data[$field]) && $data[$field] ? $data[$field] : null;
     }
 
-    public function getCurrencyByCode($data, $key = 'client.currency_id')
+    public function getCurrencyByCode(array $data, string $key = 'client.currency_id')
     {
         $code = array_key_exists($key, $data) ? $data[$key] : false;
 
@@ -345,10 +345,10 @@ class BaseTransformer
     {
         if (array_key_exists($field, $data)) {
             return Number::parseFloat($data[$field]);
-        } 
-        
+        }
+
         return 0;
-        
+
     }
 
     /**

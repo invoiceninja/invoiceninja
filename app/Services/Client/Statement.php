@@ -63,10 +63,12 @@ class Statement
 
         $variables = [];
         $variables = $html->generateLabelsAndValues();
-        
+
         $option_template = &$this->options['template'];
 
-        if($this->client->getSetting('statement_design_id') != '' || $option_template && $option_template != '') {
+        $custom_statement_template = \App\Models\Design::where('id', $this->decodePrimaryKey($this->client->getSetting('statement_design_id')))->where('is_template', true)->first();
+
+        if($custom_statement_template || $option_template && $option_template != '') {
 
             $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
             $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
@@ -101,13 +103,6 @@ class Statement
             ], \App\Services\PdfMaker\Design::STATEMENT),
             'variables' => $variables,
             'options' => [
-                // 'client' => $this->client,
-                // 'entity' => $this->entity,
-                // 'variables' => $variables,
-                // 'invoices' => $this->getInvoices()->cursor(),
-                // 'payments' => $this->getPayments()->cursor(),
-                // 'credits' => $this->getCredits()->cursor(),
-                // 'aging' => $this->getAging(),
             ],
             'process_markdown' => $this->entity->client->company->markdown_enabled,
         ];
@@ -380,7 +375,8 @@ class Statement
             ->whereIn('status_id', [Credit::STATUS_SENT, Credit::STATUS_PARTIAL, Credit::STATUS_APPLIED])
             ->whereBetween('date', [Carbon::parse($this->options['start_date']), Carbon::parse($this->options['end_date'])])
             ->where(function ($query) {
-                $query->whereDate('due_date', '>=', $this->options['end_date'])
+                // $query->whereDate('due_date', '>=', $this->options['end_date'])
+                $query->whereDate('due_date', '>=', now())
                       ->orWhereNull('due_date');
             })
             ->orderBy('date', 'ASC');

@@ -48,7 +48,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function includeActivities(Client $client)
     {
@@ -67,7 +67,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function includeContacts(Client $client)
     {
@@ -164,6 +164,7 @@ class ClientTransformer extends EntityTransformer
             'routing_id' => (string) $client->routing_id,
             'tax_info' => $client->tax_data ?: new \stdClass(),
             'classification' => $client->classification ?: '',
+            'e_invoice' => $client->e_invoice ?: new \stdClass(),
         ];
     }
 }

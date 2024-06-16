@@ -59,7 +59,7 @@ class StoreCompanyRequest extends Request
         $rules['smtp_host'] = 'sometimes|string|nullable';
         $rules['smtp_port'] = 'sometimes|integer|nullable';
         $rules['smtp_encryption'] = 'sometimes|string';
-        $rules['smtp_local_domain'] = 'sometimes|string|nullable';        
+        $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         $rules['smtp_encryption'] = 'sometimes|string|nullable';
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
 
@@ -100,8 +100,9 @@ class StoreCompanyRequest extends Request
             $input['smtp_port'] = (int) $input['smtp_port'];
         }
 
-        if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer']))
+        if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
+        }
 
         $this->replace($input);
     }

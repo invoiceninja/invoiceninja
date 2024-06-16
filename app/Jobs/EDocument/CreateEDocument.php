@@ -59,13 +59,14 @@ class CreateEDocument implements ShouldQueue
         App::setLocale($settings_entity->locale());
 
         /* Set customized translations _NOW_ */
-        $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
+        if($this->document->client ?? false) {
+            $t->replace(Ninja::transformTranslations($this->document->client->getMergedSettings()));
+        }
 
         $e_document_type = strlen($settings_entity->getSetting('e_invoice_type')) > 2 ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
         $e_quote_type = strlen($settings_entity->getSetting('e_quote_type')) > 2 ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
-nlog($e_document_type);
 
-        if ($this->document instanceof Invoice){
+        if ($this->document instanceof Invoice) {
             switch ($e_document_type) {
                 case "FACT1":
                     return (new RoEInvoice($this->document))->generateXml();
@@ -95,9 +96,8 @@ nlog($e_document_type);
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
 
             }
-        }
-        elseif ($this->document instanceof Quote){
-            switch ($e_quote_type){
+        } elseif ($this->document instanceof Quote) {
+            switch ($e_quote_type) {
                 case "OrderX_Basic":
                 case "OrderX_Comfort":
                 case "OrderX_Extended":
@@ -107,9 +107,8 @@ nlog($e_document_type);
                     $orderx = (new OrderXDocument($this->document))->run();
                     return $this->returnObject ? $orderx->orderxdocument : $orderx->getXml();
             }
-        }
-        elseif ($this->document instanceof PurchaseOrder){
-            switch ($e_quote_type){
+        } elseif ($this->document instanceof PurchaseOrder) {
+            switch ($e_quote_type) {
                 case "OrderX_Basic":
                 case "OrderX_Comfort":
                 case "OrderX_Extended":
@@ -119,8 +118,7 @@ nlog($e_document_type);
                     $orderx = (new OrderXDocument($this->document))->run();
                     return $this->returnObject ? $orderx->orderxdocument : $orderx->getXml();
             }
-        }
-        elseif ($this->document instanceof Credit) {
+        } elseif ($this->document instanceof Credit) {
             switch ($e_document_type) {
                 case "EN16931":
                 case "XInvoice_3_0":
@@ -138,8 +136,7 @@ nlog($e_document_type);
                     $zugferd = (new ZugferdEDokument($this->document))->run();
                     return $this->returnObject ? $zugferd : $zugferd->getXml();
             }
-        }
-        else{
+        } else {
             return "";
         }
     }

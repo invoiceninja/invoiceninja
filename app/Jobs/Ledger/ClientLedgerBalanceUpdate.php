@@ -47,7 +47,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle(): void
     {
-       
+
         MultiDB::setDb($this->company->db);
 
         CompanyLedger::query()
@@ -61,7 +61,8 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                                                     ->where('id', '<', $company_ledger->id)
                                                     ->where('client_id', $company_ledger->client_id)
                                                     ->where('company_id', $company_ledger->company_id)
-                                                    ->where('balance', '!=', 0)
+                                                    ->whereNotNull('balance')
+                                                    // ->where('balance', '!=', 0)
                                                     ->orderBy('id', 'DESC')
                                                     ->first();
 

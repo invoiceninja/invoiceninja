@@ -59,6 +59,7 @@ class DeletePayment
         $this->payment->delete();
 
         BankTransaction::query()->where('payment_id', $this->payment->id)->cursor()->each(function ($bt) {
+            $bt->invoice_ids = null;
             $bt->payment_id = null;
             $bt->status_id = 1;
             $bt->save();
@@ -70,7 +71,6 @@ class DeletePayment
     /** @return $this  */
     private function deletePaymentables()
     {
-        // $this->payment->paymentables()->update(['deleted_at' => now()]);
 
         $this->payment->paymentables()
                 ->each(function ($pp) {
@@ -156,7 +156,7 @@ class DeletePayment
 
                 $paymentable_credit->service()
                                    ->updateBalance($paymentable_credit->pivot->amount * $multiplier * -1)
-                                   ->updatePaidToDate($paymentable_credit->pivot->amount * $multiplier)
+                                   ->updatePaidToDate($paymentable_credit->pivot->amount * $multiplier * -1)
                                    ->setStatus(Credit::STATUS_SENT)
                                    ->save();
 

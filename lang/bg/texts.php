@@ -5296,6 +5296,8 @@ $lang = array(
     'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
+    'always_show_required_fields' => 'Always display required fields',
+    'always_show_required_fields_help' => 'Will show the form regards if the fields are filled or not'
 );
 
 return $lang;

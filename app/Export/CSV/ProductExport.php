@@ -73,8 +73,12 @@ class ProductExport extends BaseExport
 
         $query = Product::query()
                         ->withTrashed()
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', 0);
+                        ->where('company_id', $this->company->id);
+
+
+        if(!$this->input['include_deleted'] ?? false) {
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 
@@ -93,6 +97,7 @@ class ProductExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

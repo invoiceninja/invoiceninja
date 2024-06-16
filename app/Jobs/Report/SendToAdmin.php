@@ -11,17 +11,18 @@
 
 namespace App\Jobs\Report;
 
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
+use App\Models\User;
+use App\Models\Company;
 use App\Libraries\MultiDB;
 use App\Mail\DownloadReport;
-use App\Models\Company;
 use Illuminate\Bus\Queueable;
+use App\Jobs\Mail\NinjaMailerJob;
+use App\Jobs\Mail\NinjaMailerObject;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Queue\SerializesModels;
 
 class SendToAdmin implements ShouldQueue
 {
@@ -54,12 +55,17 @@ class SendToAdmin implements ShouldQueue
         MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
         $csv = $export->run();
+        $user = $this->company->owner();
+
+        if(isset($this->request['user_id'])) {
+            $user = User::find($this->request['user_id']) ?? $this->company->owner();
+        }
 
         $nmo = new NinjaMailerObject();
         $nmo->mailable = new DownloadReport($this->company, $csv, $this->file_name);
         $nmo->company = $this->company;
         $nmo->settings = $this->company->settings;
-        $nmo->to_user = $this->company->owner();
+        $nmo->to_user = $user;
 
         NinjaMailerJob::dispatch($nmo);
     }

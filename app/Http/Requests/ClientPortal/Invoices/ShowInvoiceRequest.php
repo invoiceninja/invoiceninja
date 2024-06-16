@@ -23,6 +23,9 @@ class ShowInvoiceRequest extends Request
      */
     public function authorize(): bool
     {
+        
+        auth()->guard('contact')->user()->loadMissing(['company']);
+
         return (int) auth()->guard('contact')->user()->client_id === (int) $this->invoice->client_id
             && auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
     }

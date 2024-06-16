@@ -70,7 +70,7 @@ class DocumentController extends BaseController
      *       ),
      *     )
      * @param DocumentFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(DocumentFilters $filters)
     {
@@ -105,7 +105,7 @@ class DocumentController extends BaseController
      *
      * @param ShowDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function show(ShowDocumentRequest $request, Document $document)
     {
@@ -121,7 +121,8 @@ class DocumentController extends BaseController
         }
 
         return response()->streamDownload(function () use ($document) {
-            echo file_get_contents($document->generateUrl());
+            // echo file_get_contents($document->generateUrl());
+            echo $document->getFile();
         }, basename($document->generateUrl()), $headers);
     }
 
@@ -130,7 +131,7 @@ class DocumentController extends BaseController
      *
      * @param EditDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function edit(EditDocumentRequest $request, Document $document)
     {
@@ -142,7 +143,7 @@ class DocumentController extends BaseController
      *
      * @param UpdateDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function update(UpdateDocumentRequest $request, Document $document)
     {
@@ -157,7 +158,7 @@ class DocumentController extends BaseController
      *
      * @param DestroyDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function destroy(DestroyDocumentRequest $request, Document $document)
     {

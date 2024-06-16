@@ -74,6 +74,7 @@ class ARDetailReport extends BaseExport
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
@@ -90,7 +91,7 @@ class ARDetailReport extends BaseExport
 
         $query = Invoice::query()
                 ->withTrashed()
-                ->whereHas('client', function ($query){
+                ->whereHas('client', function ($query) {
                     $query->where('is_deleted', 0);
                 })
                 ->where('company_id', $this->company->id)

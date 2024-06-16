@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<Invoice>
+    <UBLVersionID>2.1</UBLVersionID>
+    <CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1</CustomizationID>
+    <ID>ABC 0020</ID>
+    <IssueDate>2024-01-01</IssueDate>
+    <DueDate>2024-01-15</DueDate>
+    <InvoiceTypeCode>384</InvoiceTypeCode>
+    <DocumentCurrencyCode>RON</DocumentCurrencyCode>
+    <TaxCurrencyCode>RON</TaxCurrencyCode>
+    <AccountingSupplierParty>
+        <Party>
+            <PartyIdentification>
+                <ID>234234234</ID>
+            </PartyIdentification>
+            <PostalAddress>
+                <StreetName>This can be the full address , not just the street and street nr.</StreetName>
+                <CityName>SECTOR2</CityName>
+                <CountrySubentity>RO-B</CountrySubentity>
+                <Country>
+                    <IdentificationCode>RO</IdentificationCode>
+                </Country>
+            </PostalAddress>
+            <PartyTaxScheme>
+                <CompanyID>RO234234234</CompanyID>
+                <TaxScheme>
+                    <ID>VAT</ID>
+                </TaxScheme>
+            </PartyTaxScheme>
+            <PartyLegalEntity>
+                <RegistrationName>Some Copany Name</RegistrationName>
+                <CompanyID>J40/2222/2009</CompanyID>
+            </PartyLegalEntity>
+            <Contact>
+                <Name>Someone</Name>
+                <Telephone>88282819832</Telephone>
+                <ElectronicMail>some@email.com</ElectronicMail>
+            </Contact>
+        </Party>
+    </AccountingSupplierParty>
+    <AccountingCustomerParty>
+        <Party>
+            <PartyIdentification>
+                <ID>646546549</ID>
+            </PartyIdentification>
+            <PostalAddress>
+                <StreetName>This can be the full address , not just the street and street nr.</StreetName>
+                <CityName>SECTOR3</CityName>
+                <CountrySubentity>RO-B</CountrySubentity>
+                <Country>
+                    <IdentificationCode>RO</IdentificationCode>
+                </Country>
+            </PostalAddress>
+            <PartyLegalEntity>
+                <RegistrationName>Some Comapny</RegistrationName>
+                <CompanyID>646546549</CompanyID>
+            </PartyLegalEntity>
+            <Contact>
+                <Name>Someone</Name>
+                <Telephone>88282819832</Telephone>
+                <ElectronicMail>some@email.com</ElectronicMail>
+            </Contact>
+        </Party>
+    </AccountingCustomerParty>
+    <PaymentMeans>
+        <PaymentMeansCode>42</PaymentMeansCode>
+        <PayeeFinancialAccount>
+            <ID>some account nr</ID>
+            <Name>Bank name</Name>
+        </PayeeFinancialAccount>
+    </PaymentMeans>
+    <TaxTotal>
+        <TaxAmount currencyID="RON">63.65</TaxAmount>
+        <TaxSubtotal>
+            <TaxableAmount currencyID="RON">335.00</TaxableAmount>
+            <TaxAmount currencyID="RON">63.65</TaxAmount>
+            <TaxCategory>
+                <ID>S</ID> // this is a speciffic identifier for the VAT type <Percent>
+                    19</Percent>
+                <TaxScheme>
+                    <ID>VAT</ID>
+                </TaxScheme>
+            </TaxCategory>
+        </TaxSubtotal>
+    </TaxTotal>
+    <LegalMonetaryTotal>
+        <LineExtensionAmount currencyID="RON">335.00</LineExtensionAmount>
+        <TaxExclusiveAmount currencyID="RON">335.00</TaxExclusiveAmount>
+        <TaxInclusiveAmount currencyID="RON">398.65</TaxInclusiveAmount>
+        <AllowanceTotalAmount currencyID="RON">0.00</AllowanceTotalAmount>
+        <PayableAmount currencyID="RON">398.65</PayableAmount>
+    </LegalMonetaryTotal>
+    <InvoiceLine>
+        <ID>1</ID>
+        <InvoicedQuantity unitCode="H87">1</InvoicedQuantity> // unitcode is a speciffic identifier for the type of product 
+        <LineExtensionAmount currencyID="RON">335.00</LineExtensionAmount>
+        <Item>
+            <Description>Some Description</Description>
+            <Name>Some product</Name>
+            <ClassifiedTaxCategory>
+                <ID>S</ID> // this is a speciffic identifier for the VAT type 
+                <Percent>19</Percent>
+                <TaxScheme>
+                    <ID>VAT</ID>
+                </TaxScheme>
+            </ClassifiedTaxCategory>
+        </Item>
+        <Price>
+            <PriceAmount currencyID="RON">335</PriceAmount>
+        </Price>
+    </InvoiceLine>
+</Invoice>

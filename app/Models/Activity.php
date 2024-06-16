@@ -259,6 +259,9 @@ class Activity extends StaticModel
 
     public const VENDOR_NOTIFICATION_EMAIL = 139;
 
+    public const EMAIL_STATEMENT = 140;
+
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -469,6 +472,8 @@ class Activity extends StaticModel
             ':adjustment' => $translation =  [substr($variable, 1) => [ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client ?? $this->company) ?? '', 'hashed_id' => '']],
             ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
             ':contact' => $translation = $this->resolveContact(),
+            ':notes' => $translation = [ 'notes' => $this->notes ?? ''],
+
             default => $translation = [],
         };
 

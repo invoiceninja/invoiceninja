@@ -73,7 +73,7 @@ class ApplyPayment extends AbstractService
 
         $this->payment
              ->ledger()
-             ->updatePaymentBalance($amount_paid);
+             ->updatePaymentBalance($amount_paid, "ApplyPaymentInvoice");
 
         $this->invoice
              ->client

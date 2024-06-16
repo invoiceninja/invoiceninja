@@ -37,18 +37,18 @@ class StripeConnectController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
-        $company_gateway = CompanyGateway::query()
-            ->where('gateway_key', 'd14dd26a47cecc30fdd65700bfb67b34')
-            ->where('company_id', $request->getCompany()->id)
-            ->first();
+        // $company_gateway = CompanyGateway::query()
+        //     ->where('gateway_key', 'd14dd26a47cecc30fdd65700bfb67b34')
+        //     ->where('company_id', $request->getCompany()->id)
+        //     ->first();
 
-        if ($company_gateway) {
-            $config = $company_gateway->getConfig();
+        // if ($company_gateway) {
+        //     $config = $company_gateway->getConfig();
 
-            if (property_exists($config, 'account_id') && strlen($config->account_id) > 5) {
-                return view('auth.connect.existing');
-            }
-        }
+        //     if (property_exists($config, 'account_id') && strlen($config->account_id) > 5) {
+        //         return view('auth.connect.existing');
+        //     }
+        // }
 
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
         $redirect_uri = config('ninja.app_url').'/stripe/completed';
@@ -64,7 +64,7 @@ class StripeConnectController extends BaseController
         if ($request->has('error') && $request->error == 'access_denied') {
             return view('auth.connect.access_denied');
         }
-        
+
         $response = false;
 
         try {
@@ -91,7 +91,7 @@ class StripeConnectController extends BaseController
 
         } catch (\Exception $e) {
 
-           
+
         }
 
         if(!$response) {
@@ -127,7 +127,6 @@ class StripeConnectController extends BaseController
             'refresh_token' => $response->refresh_token,
             'access_token' => $response->access_token,
             'appleDomainVerification' => '',
-            // "statementDescriptor" => "",
         ];
 
         $company_gateway->setConfig($payload);
@@ -145,9 +144,6 @@ class StripeConnectController extends BaseController
             nlog("could not harvest stripe company name");
         }
 
-        // nlog("Stripe Connect Redirect URI = {$redirect_uri}");
-
-        // StripeWebhook::dispatch($company->company_key, $company_gateway->id);
         if(isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react']) {
             $redirect_uri = config('ninja.react_url').'/#/settings/online_payments';
         } else {
@@ -158,7 +154,7 @@ class StripeConnectController extends BaseController
 
         //response here
         return view('auth.connect.completed', ['url' => $redirect_uri]);
-        // return redirect($redirect_uri);
+
     }
 
 }

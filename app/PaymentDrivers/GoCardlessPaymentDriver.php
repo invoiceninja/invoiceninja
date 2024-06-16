@@ -564,8 +564,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         try {
             $customers = $this->init()->gateway->customers()->list();
             return true;
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
         }
 

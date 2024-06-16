@@ -13,13 +13,14 @@ namespace App\Http\Controllers;
 
 use App\Utils\Statics;
 use Illuminate\Http\Response;
+use InvoiceNinja\EInvoice\Decoder\Schema;
 
 class StaticController extends BaseController
 {
     /**
      * Show the list of Invoices.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/statics",
@@ -56,8 +57,15 @@ class StaticController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $response = Statics::company($user->getLocale() ?? $user->company()->getLocale());
+        $response_data = Statics::company($user->getLocale() ?? $user->company()->getLocale());
 
-        return response()->json($response, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        if(request()->has('einvoice')) {
+
+            $schema = new Schema();
+            $response_data['einvoice_schema'] = $schema('Peppol');
+
+        }
+
+        return response()->json($response_data, 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
     }
 }

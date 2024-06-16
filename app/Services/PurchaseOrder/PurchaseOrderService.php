@@ -86,7 +86,7 @@ class PurchaseOrderService
     {
         return $this->getEPurchaseOrder($contact);
     }
-    
+
     public function deleteEPurchaseOrder()
     {
         $this->purchase_order->load('invitations');

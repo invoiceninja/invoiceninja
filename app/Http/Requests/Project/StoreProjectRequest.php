@@ -54,7 +54,7 @@ class StoreProjectRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -75,8 +75,9 @@ class StoreProjectRequest extends Request
             $input['color'] = '';
         }
 
-        if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours']))
+        if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
             $input['budgeted_hours'] = 0;
+        }
 
         $this->replace($input);
     }

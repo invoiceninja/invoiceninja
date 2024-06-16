@@ -45,7 +45,7 @@ class InstantPayment
     public function run()
     {
         nlog($this->request->all());
-        
+
         /** @var \App\Models\ClientContact $cc */
 
         $cc = auth()->guard('contact')->user();
@@ -207,11 +207,6 @@ class InstantPayment
         $first_invoice = $invoices->first();
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
-
-        /* Schedule a job to check the gateway fees for this invoice*/
-        // if (Ninja::isHosted()) {
-        //     CheckGatewayFee::dispatch($first_invoice->id, $client->company->db)->delay(800);
-        // }
 
         if ($gateway) {
             $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();

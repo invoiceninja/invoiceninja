@@ -26,7 +26,7 @@ class GenericReportRequest extends Request
      */
     public function authorize(): bool
     {
-        return $this->checkAuthority();
+        return true;
     }
 
     public function rules()
@@ -68,27 +68,25 @@ class GenericReportRequest extends Request
 
         $input['user_id'] = auth()->user()->id;
 
+        if(!$this->checkAuthority()) {
+            $input['date_range'] = '';
+            $input['start_date'] = '';
+            $input['end_date'] = '';
+            $input['send_email'] = true;
+            $input['report_keys'] = [];
+            $input['document_email_attachment'] = false;
+        }
+
         $this->replace($input);
     }
 
     private function checkAuthority()
     {
-        $this->error_message = ctrans('texts.authorization_failure');
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
-        if(Ninja::isHosted() && $user->account->isFreeHostedClient()){
-            $this->error_message = ctrans('texts.upgrade_to_view_reports');
-            return false;
-        }
 
         return $user->isAdmin() || $user->hasPermission('view_reports');
 
-    }
-
-    protected function failedAuthorization()
-    {
-        throw new AuthorizationException($this->error_message);
     }
 }

@@ -146,14 +146,14 @@ class RecurringExpenseFilters extends QueryFilters
             return $this->builder
                     ->orderByRaw('ISNULL(client_id), client_id '. $sort_col[1])
                     ->orderBy(\App\Models\Client::select('name')
-                    ->whereColumn('clients.id', 'expenses.client_id'), $sort_col[1]);
+                    ->whereColumn('clients.id', 'recurring_expenses.client_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'vendor_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
                     ->orderByRaw('ISNULL(vendor_id), vendor_id '. $sort_col[1])
                     ->orderBy(\App\Models\Vendor::select('name')
-                    ->whereColumn('vendors.id', 'expenses.vendor_id'), $sort_col[1]);
+                    ->whereColumn('vendors.id', 'recurring_expenses.vendor_id'), $sort_col[1]);
 
         }
 
@@ -161,7 +161,7 @@ class RecurringExpenseFilters extends QueryFilters
             return $this->builder
                     ->orderByRaw('ISNULL(category_id), category_id '. $sort_col[1])
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
-                    ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
+                    ->whereColumn('expense_categories.id', 'recurring_expenses.category_id'), $sort_col[1]);
         }
 
         if($sort_col[0] == 'number') {

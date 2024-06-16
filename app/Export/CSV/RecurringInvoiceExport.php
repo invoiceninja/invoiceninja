@@ -56,8 +56,14 @@ class RecurringInvoiceExport extends BaseExport
         $query = RecurringInvoice::query()
                         ->withTrashed()
                         ->with('client')
-                        ->where('company_id', $this->company->id)
-                        ->where('is_deleted', $this->input['include_deleted'] ?? false);
+                        ->whereHas('client', function ($q) {
+                            $q->where('is_deleted', false);
+                        })
+                        ->where('company_id', $this->company->id);
+
+        if(!$this->input['include_deleted'] ?? false) {
+            $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 
@@ -80,6 +86,7 @@ class RecurringInvoiceExport extends BaseExport
 
         //load the CSV document from a string
         $this->csv = Writer::createFromString();
+        \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
         $this->csv->insertOne($this->buildHeader());

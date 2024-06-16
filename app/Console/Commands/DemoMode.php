@@ -110,7 +110,9 @@ class DemoMode extends Command
 
         $this->info('Creating Small Account and Company');
 
-        $account = Account::factory()->create();
+        $account = Account::factory()->create([
+            "set_react_as_default_ap" => 0,
+        ]);
         $company = Company::factory()->create([
             'account_id' => $account->id,
             'slack_webhook_url' => config('ninja.notification.slack'),

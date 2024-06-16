@@ -266,6 +266,42 @@ class ReportCsvGenerationTest extends TestCase
 
     }
 
+    public function testContactProps()
+    {
+        Invoice::factory()->count(5)->create(
+            [
+                'client_id'=> $this->client->id,
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id
+            ]
+        );
+        
+        $data = [
+            'date_range' => 'all',
+            'report_keys' => ['invoice.number','client.name', 'contact.email'],
+            'send_email' => false,
+            'client_id' => $this->client->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/reports/invoices', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $hash = $arr['message'];
+
+        $response = $this->poll($hash);
+
+        $csv = $response->body();
+
+        $this->assertEquals('john@doe.com', $this->getFirstValueByColumn($csv, 'Contact Email'));
+
+    }
+
     public function testForcedInsertionOfMandatoryColumns()
     {
         $forced = ['client.name'];

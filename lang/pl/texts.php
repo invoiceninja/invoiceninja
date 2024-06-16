@@ -2195,7 +2195,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'mailgun_private_key' => 'Klucz prywatny Mailgun',
     'brevo_domain' => 'Brevo Domain',
     'brevo_private_key' => 'Brevo Private Key',
-    'send_test_email' => 'Wyślij wiadomość testową',
+    'send_test_email' => 'Send Test Email',
     'select_label' => 'Wybierz etykietę',
     'label' => 'Etykieta',
     'service' => 'Usługa',
@@ -4168,7 +4168,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'one_time_purchases' => 'One time purchases',
     'recurring_purchases' => 'Recurring purchases',
     'you_might_be_interested_in_following' => 'You might be interested in the following',
-    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved.',
+    'quotes_with_status_sent_can_be_approved' => 'Only quotes with "Sent" status can be approved. Expired quotes cannot be approved.',
     'no_quotes_available_for_download' => 'Brak ofert do pobrania.',
     'copyright' => 'Copyright',
     'user_created_user' => ':user created :created_user at :time',
@@ -5293,6 +5293,8 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'flutter_web_warning' => 'We recommend using the new web app or the desktop app for the best performance',
     'rappen_rounding' => 'Rappen Rounding',
     'rappen_rounding_help' => 'Round amount to 5 cents',
+    'assign_group' => 'Assign group',
+    'paypal_advanced_cards' => 'Advanced Card Payments',
 );
 
 return $lang;

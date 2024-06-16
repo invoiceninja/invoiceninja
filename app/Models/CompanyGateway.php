@@ -47,12 +47,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $require_custom_value2
  * @property bool $require_custom_value3
  * @property bool $require_custom_value4
+ * @property bool $always_show_required_fields
  * @property-read int|null $client_gateway_tokens_count
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Gateway $gateway
  * @property-read mixed $hashed_id
  * @method getConfigField(string $field)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway newQuery()
@@ -77,6 +77,7 @@ class CompanyGateway extends BaseModel
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
+        'always_show_required_fields' => 'bool',
     ];
 
     protected $with = [
@@ -107,6 +108,7 @@ class CompanyGateway extends BaseModel
         'custom_value4',
         'token_billing',
         'label',
+        'always_show_required_fields',
     ];
 
     public static $credit_cards = [
@@ -152,6 +154,7 @@ class CompanyGateway extends BaseModel
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321, //GoCardless
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
+        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTPay
     ];
 
     protected $touches = [];

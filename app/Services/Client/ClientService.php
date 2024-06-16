@@ -11,6 +11,7 @@
 
 namespace App\Services\Client;
 
+use App\Utils\Ninja;
 use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
@@ -23,6 +24,7 @@ use App\Services\Email\EmailObject;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Database\QueryException;
+use App\Events\Statement\StatementWasEmailed;
 
 class ClientService
 {
@@ -275,6 +277,9 @@ class ClientService
 
         $email_object = $this->buildStatementMailableData($pdf);
         Email::dispatch($email_object, $this->client->company);
+
+        event(new StatementWasEmailed($this->client, $this->client->company, $this->client_end_date, Ninja::eventVars()));
+
     }
 
     /**
@@ -307,8 +312,8 @@ class ClientService
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;
         $email_object->entity_class = Invoice::class;
-        $email_object->entity_id = $invoice->id ?? null;
-        $email_object->invitation_id = $invoice->invitations->first()->id ?? null;
+        $email_object->entity_id = $invoice?->id ?? null;
+        $email_object->invitation_id = $invoice?->invitations?->first()?->id ?? null;
         $email_object->email_template_subject = 'email_subject_statement';
         $email_object->email_template_body = 'email_template_statement';
         $email_object->variables = [

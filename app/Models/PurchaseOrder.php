@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * App\Models\PurchaseOrder
  *
  * @property int $id
+ * @property object|null $e_invoice
  * @property int|null $client_id
  * @property int $user_id
  * @property int|null $assigned_user_id
@@ -53,7 +54,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $tax_name3
  * @property float $tax_rate3
  * @property float $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $reminder1_sent
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent
@@ -187,7 +188,7 @@ class PurchaseOrder extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_amount_discount' => 'bool',
-
+        'e_invoice' => 'object',
     ];
 
     public const STATUS_DRAFT = 1;

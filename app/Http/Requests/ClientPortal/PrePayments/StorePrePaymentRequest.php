@@ -15,6 +15,13 @@ class StorePrePaymentRequest extends FormRequest
      */
     public function authorize()
     {
+        
+        auth()->guard('contact')->user()->loadMissing(['company']);
+
+        auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }]);
+
         return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
     }
 

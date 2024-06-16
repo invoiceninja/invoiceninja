@@ -172,7 +172,7 @@
 
         @elseif($bank_details['currency'] == 'eur')
 
-            <dt class="text-sm font-medium leading-5 text-gray-500">
+                <dt class="text-sm font-medium leading-5 text-gray-500">
                     {{ ctrans('texts.account_name') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
@@ -214,7 +214,57 @@
                     {{ ctrans('texts.stripe_direct_debit_details') }}
                 </dd>
 
-            @endif
+        @elseif($bank_details['currency'] == 'usd')
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                    {{ ctrans('texts.bank_name') }}
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ $bank_details['bank_name'] }}
+                </dd>
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                    {{ ctrans('texts.account_number') }}
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ $bank_details['account_number'] }}
+                </dd>
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                    {{ ctrans('texts.routing_number') }}
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ $bank_details['sort_code'] }}
+                </dd>
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                    {{ ctrans('texts.reference') }}
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ $bank_details['reference'] }}
+                </dd>
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                    Network
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    ACH / Domestic Wire US
+                </dd>
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                    {{ ctrans('texts.balance_due') }}
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ $bank_details['amount'] }}
+                </dd>
+
+                <dt class="text-sm font-medium leading-5 text-gray-500">
+                </dt>
+                <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ ctrans('texts.stripe_direct_debit_details') }}
+                </dd>
+
+        @endif
                 
             </div>
         </div>

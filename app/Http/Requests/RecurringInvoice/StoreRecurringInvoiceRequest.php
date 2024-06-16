@@ -49,7 +49,7 @@ class StoreRecurringInvoiceRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -78,6 +78,8 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['due_date_days'] = 'bail|sometimes|string';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['next_send_date'] = 'bail|required|date|after:yesterday';
+
+        $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
 
         return $rules;
     }
@@ -145,6 +147,7 @@ class StoreRecurringInvoiceRequest extends Request
         }
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
