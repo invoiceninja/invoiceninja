@@ -114,14 +114,16 @@ class InvitationController extends Controller
                             'invitation_key' => $invitation_key
                         ]);
             }
+            
+            if(!auth()->guard('contact')->check()){
+                $this->middleware('auth:contact');
+                return redirect()->route('client.login', ['intended' => route('client.'.$entity.'.show', [$entity => $this->encodePrimaryKey($invitation->{$key}), 'silent' => $is_silent])]);
+            }
 
-            $this->middleware('auth:contact');
-            return redirect()->route('client.login');
         } else {
             request()->session()->invalidate();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
-
 
         if (auth()->guard('contact')->user() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
