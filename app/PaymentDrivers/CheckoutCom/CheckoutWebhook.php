@@ -46,7 +46,7 @@ class CheckoutWebhook implements ShouldQueue
 
     public function handle()
     {
-        nlog("Checkout Webhook");
+        // nlog("Checkout Webhook");
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 

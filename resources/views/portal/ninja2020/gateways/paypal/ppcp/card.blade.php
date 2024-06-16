@@ -14,7 +14,10 @@
     
 @endphp
 @section('gateway_head')
-
+    <meta http-equiv="Content-Security-Policy" content="
+        img-src 'self' https://c.paypal.com https://b.stats.paypal.com; 
+        frame-src 'self' https://c.paypal.com; 
+        script-src 'self' https://c.paypal.com;">
 @endsection
 
 @section('gateway_content')

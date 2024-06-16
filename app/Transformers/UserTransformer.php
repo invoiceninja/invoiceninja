@@ -63,8 +63,9 @@ class UserTransformer extends EntityTransformer
             'has_password' => (bool) empty($user->password) ? false : true,
             'oauth_user_token' => empty($user->oauth_user_token) ? '' : '***',
             'verified_phone_number' => (bool) $user->verified_phone_number,
-            'language_id' => (string) $user->language_id ?? '',
+            'language_id' => (string) $user->language_id ?: '',
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
+            'referral_code' => (string) $user->referral_code,
         ];
     }
 
