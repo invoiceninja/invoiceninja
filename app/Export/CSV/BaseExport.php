@@ -971,9 +971,10 @@ class BaseExport
     protected function addPaymentStatusFilters(Builder $query, string $status): Builder
     {
 
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if(in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if((count($status_parameters) == 0) || in_array('all', $status_parameters)) {
             return $query;
         }
 
@@ -1028,6 +1029,7 @@ class BaseExport
     protected function addRecurringInvoiceStatusFilter(Builder $query, string $status): Builder
     {
 
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
@@ -1132,6 +1134,7 @@ class BaseExport
     protected function addPurchaseOrderStatusFilter(Builder $query, string $status): Builder
     {
 
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
@@ -1179,7 +1182,8 @@ class BaseExport
      */
     protected function addInvoiceStatusFilter(Builder $query, string $status): Builder
     {
-
+               
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if(in_array('all', $status_parameters) || count($status_parameters) == 0) {

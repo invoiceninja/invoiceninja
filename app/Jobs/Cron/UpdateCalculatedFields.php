@@ -96,7 +96,7 @@ class UpdateCalculatedFields
 
         });
 
-        return round(($duration / 60 / 60), 0);
+        return (int) round(($duration / 60 / 60), 0);
 
     }
 }

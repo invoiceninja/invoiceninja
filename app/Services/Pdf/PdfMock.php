@@ -114,38 +114,40 @@ class PdfMock
             case 'invoice':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Invoice::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
-                $entity->invitation = InvoiceInvitation::factory()->make();
+                $entity->invitation = InvoiceInvitation::factory()->make(); //@phpstan-ignore-line
                 break;
             case 'quote':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Quote::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
-                $entity->invitation = QuoteInvitation::factory()->make();
+                $entity->invitation = QuoteInvitation::factory()->make(); //@phpstan-ignore-line
                 break;
             case 'credit':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Credit::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
-                $entity->invitation = CreditInvitation::factory()->make();
+                $entity->invitation = CreditInvitation::factory()->make(); //@phpstan-ignore-line
                 break;
             case 'purchase_order':
 
                 /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
                 // $entity->client = Client::factory()->make(['settings' => $settings]);
-                $entity->vendor = Vendor::factory()->make();
+                $entity->vendor = Vendor::factory()->make(); /** @phpstan-ignore-line */
                 $entity->vendor->setRelation('company', $this->company);
-                $entity->invitation = PurchaseOrderInvitation::factory()->make();
+                $entity->invitation = PurchaseOrderInvitation::factory()->make();/** @phpstan-ignore-line */
+
                 break;
             case PurchaseOrder::class:
                 /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
-                $entity->vendor = Vendor::factory()->make();
+                $entity->vendor = Vendor::factory()->make(); /** @phpstan-ignore-line */
+
                 $entity->invitation->setRelation('company', $this->company);
                 break;
             default:
@@ -184,7 +186,7 @@ class PdfMock
     /**
      * getTaxMap
      *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @return  \Illuminate\Support\Collection
      */
     private function getTaxMap(): \Illuminate\Support\Collection
     {

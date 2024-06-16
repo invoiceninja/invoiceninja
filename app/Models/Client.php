@@ -110,7 +110,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string $payment_balance
  * @property mixed $tax_data
  * @property int $is_tax_exempt
- * @property int $has_valid_vat_number
+ * @property bool $has_valid_vat_number
  * @mixin \Eloquent
  */
 class Client extends BaseModel implements HasLocalePreference

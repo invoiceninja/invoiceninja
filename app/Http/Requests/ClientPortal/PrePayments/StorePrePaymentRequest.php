@@ -22,7 +22,7 @@ class StorePrePaymentRequest extends FormRequest
             $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
         }]);
 
-        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
+        return (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES);
     }
 
     /**

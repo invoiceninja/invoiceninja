@@ -50,21 +50,25 @@ class IbpRequest extends FormRequest
 
     public function getCompany(): ?Company
     {
+        /** @var \App\Models\Company */
         return Company::where('company_key', $this->company_key)->first();
     }
 
     public function getCompanyGateway(): ?CompanyGateway
     {
+        /** @var \App\Models\CompanyGateway */
         return CompanyGateway::find($this->decodePrimaryKey($this->company_gateway_id));
     }
 
     public function getPaymentHash(): ?PaymentHash
     {
+        /** @var \App\Models\PaymentHash */
         return PaymentHash::where('hash', $this->hash)->firstOrFail();
     }
 
     public function getClient(): ?Client
     {
+        /** @var \App\Models\Client */
         return Client::find($this->getPaymentHash()->data->client_id);
     }
 }

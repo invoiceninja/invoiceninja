@@ -417,7 +417,7 @@ class CompanyImport implements ShouldQueue
      * import to start if there are users > plan number
      * due to entity user_id dependencies
      *
-     * @return bool
+     * @return self
      */
     private function checkUserCount()
     {

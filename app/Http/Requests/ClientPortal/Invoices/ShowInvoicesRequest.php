@@ -22,7 +22,7 @@ class ShowInvoicesRequest extends FormRequest
         
         auth()->guard('contact')->user()->loadMissing(['company']);
 
-        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES;
+        return (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES);
     }
 
     public function rules()

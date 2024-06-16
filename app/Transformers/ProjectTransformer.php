@@ -54,7 +54,7 @@ class ProjectTransformer extends EntityTransformer
         return null;
     }
 
-    public function includeClient(Project $project): \League\Fractal\Resource\Item
+    public function includeClient(Project $project): ?\League\Fractal\Resource\Item
     {
 
         if (!$project->client) {

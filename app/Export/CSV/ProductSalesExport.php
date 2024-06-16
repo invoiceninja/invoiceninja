@@ -66,11 +66,11 @@ class ProductSalesExport extends BaseExport
         'custom_value4' => 'custom_value4',
     ];
 
-    private array $decorate_keys = [
-        'client',
-        'currency',
-        'date',
-    ];
+    // private array $decorate_keys = [
+    //     'client',
+    //     'currency',
+    //     'date',
+    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -330,8 +330,8 @@ class ProductSalesExport extends BaseExport
      * @param  string $product_key
      * @return ?\Illuminate\Database\Eloquent\Model
      */
-    private function getProduct(string $product_key)
-    {
-        return $this->products->firstWhere('product_key', $product_key);
-    }
+    // private function getProduct(string $product_key)
+    // {
+    //     return $this->products->firstWhere('product_key', $product_key);
+    // }
 }

@@ -126,10 +126,10 @@ class TaskRepository extends BaseRepository
                 $time_log[count($time_log) - 1][1] = time();
                 $task->is_running = false;
             } elseif ($data['action'] == 'offline') {
-                $task->is_running = $data['is_running'] ? 1 : 0;
+                $task->is_running = $data['is_running'] ? true : false;
             }
         } elseif (isset($data['is_running'])) {
-            $task->is_running = $data['is_running'] ? 1 : 0;
+            $task->is_running = $data['is_running'] ? true : false;
         }
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);

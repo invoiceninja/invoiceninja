@@ -30,7 +30,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
- * @property string|null $currency_id
+ * @property int|null $currency_id
  * @property string|null $name
  * @property string|null $address1
  * @property string|null $address2

@@ -155,7 +155,7 @@ class ContactExport extends BaseExport
         }
 
         if (in_array('client.user_id', $this->input['report_keys'])) {
-            $entity['client.user_id'] = $client->user ? $client->user->present()->name() : '';
+            $entity['client.user_id'] = $client->user ? $client->user->present()->name() : '';// @phpstan-ignore-line
         }
 
         if (in_array('client.assigned_user_id', $this->input['report_keys'])) {
