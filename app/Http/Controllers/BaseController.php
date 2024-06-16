@@ -997,9 +997,10 @@ class BaseController extends Controller
 
                 if(request()->has('einvoice')) {
 
-                    $ro = new Schema();
-                    $response_data['einvoice_schema'] = $ro('Peppol');
-
+                    if(class_exists(Schema::class)){
+                        $ro = new Schema();
+                        $response_data['einvoice_schema'] = $ro('Peppol');
+                    }
                 }
 
                 $response['static'] = $response_data;

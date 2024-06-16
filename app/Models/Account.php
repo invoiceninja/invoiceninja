@@ -66,7 +66,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $inapp_transaction_id
  * @property bool $set_react_as_default_ap
  * @property bool $is_flagged
- * @property int $is_verified_account
+ * @property bool $is_verified_account
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
  * @property bool $account_sms_verified
