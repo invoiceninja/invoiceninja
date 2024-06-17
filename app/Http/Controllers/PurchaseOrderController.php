@@ -717,7 +717,7 @@ class PurchaseOrderController extends BaseController
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                break;
+
         }
     }
 

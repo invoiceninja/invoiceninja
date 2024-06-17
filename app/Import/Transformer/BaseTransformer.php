@@ -653,11 +653,11 @@ class BaseTransformer
     /**
      * @param $name
      *
-     * @return int|null
+     * @return int
      */
     public function getExpenseCategoryId($name)
     {
-        /** @var \App\Models\ExpenseCategory $ec */
+        /** @var ?\App\Models\ExpenseCategory $ec */
         $ec = ExpenseCategory::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
@@ -673,7 +673,7 @@ class BaseTransformer
         $ec->name = $name;
         $ec->save();
 
-        return $ec ? $ec->id : null;
+        return $ec->id;
     }
 
     public function getOrCreateExpenseCategry($name)

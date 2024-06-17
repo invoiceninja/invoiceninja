@@ -62,6 +62,38 @@ class PaymentTest extends TestCase
         );
     }
 
+    public function testIdempotencyTrigger()
+    {
+        
+        $data = [
+            'amount' => 5,
+            'client_id' => $this->client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => 5,
+                ],
+            ],
+            'date' => '2020/12/11',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
+
+        $response->assertStatus(200);
+                
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
+
+        $response->assertStatus(422);
+
+    }
+
+
     public function testInvoicesValidationProp()
     {
         

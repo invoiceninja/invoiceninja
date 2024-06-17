@@ -264,6 +264,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
+        // @phpstan-ignore-next-line
         if ($this->company) {
             return $this->company;
         } elseif ($truth->getCompany()) {

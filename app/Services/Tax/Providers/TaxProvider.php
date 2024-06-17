@@ -227,7 +227,7 @@ class TaxProvider
 
         // $this->provider = EuTax::class;
 
-        return $this;
+        // return $this;
     }
 
     /**

@@ -194,7 +194,7 @@ class PayPalBasePaymentDriver extends BaseDriver
     {
         return '';
 
-        /** @var \App\Models\ClientGatewayToken $cgt */
+        /** @var ?\App\Models\ClientGatewayToken $cgt */
         $cgt = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id)
                                  ->where('client_id', $this->client->id)
                                  ->first();
