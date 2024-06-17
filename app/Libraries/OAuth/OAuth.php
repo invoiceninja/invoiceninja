@@ -130,7 +130,6 @@ class OAuth
                 return $this;
             default:
                 return null;
-                break;
         }
     }
 

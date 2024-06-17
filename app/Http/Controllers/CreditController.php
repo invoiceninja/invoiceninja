@@ -594,13 +594,11 @@ class CreditController extends BaseController
                 $credit->service()->markPaid()->save();
 
                 return $this->itemResponse($credit);
-                break;
 
             case 'clone_to_credit':
                 $credit = CloneCreditFactory::create($credit, auth()->user()->id);
 
                 return $this->itemResponse($credit);
-                break;
             case 'history':
                 // code...
                 break;
@@ -617,7 +615,7 @@ class CreditController extends BaseController
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
                 }, $credit->numberFormatter() . '.pdf', ['Content-Type' => 'application/pdf']);
-                break;
+                
             case 'archive':
                 $this->credit_repository->archive($credit);
 
@@ -655,7 +653,6 @@ class CreditController extends BaseController
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                break;
         }
     }
 

@@ -354,7 +354,6 @@ class BraintreePaymentDriver extends BaseDriver
             return false;
         }
 
-        return false;
     }
 
     private function findTokens(string $gateway_customer_reference)

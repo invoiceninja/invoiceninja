@@ -693,7 +693,7 @@ class CompanyController extends BaseController
     public function updateOriginTaxData(DefaultCompanyRequest $request, Company $company)
     {
 
-        if($company->settings->country_id == "840" && !$company?->account->isFreeHostedClient()) {
+        if($company->settings->country_id == "840" && !$company->account->isFreeHostedClient()) {
             try {
                 (new CompanyTaxRate($company))->handle();
             } catch(\Exception $e) {

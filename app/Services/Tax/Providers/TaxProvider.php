@@ -225,7 +225,7 @@ class TaxProvider
     {
         throw new \Exception("No tax region defined for this country");
 
-        $this->provider = EuTax::class;
+        // $this->provider = EuTax::class;
 
         return $this;
     }

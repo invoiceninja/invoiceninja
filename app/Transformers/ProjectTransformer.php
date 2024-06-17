@@ -47,7 +47,7 @@ class ProjectTransformer extends EntityTransformer
     {
         $transformer = new DocumentTransformer($this->serializer);
 
-        if($project->documents) {
+        if($project->documents->count() > 0) {
             return $this->includeCollection($project->documents, $transformer, Document::class);
         }
 

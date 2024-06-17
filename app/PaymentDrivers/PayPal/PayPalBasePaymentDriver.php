@@ -450,11 +450,11 @@ class PayPalBasePaymentDriver extends BaseDriver
         switch ($response['name']) {
             case 'NOT_AUTHORIZED':
                 throw new PaymentFailed("There was a permissions issue processing this payment, please contact the merchant. ", 401);
-                break;
+               
 
             default:
                 throw new PaymentFailed("Unknown error occurred processing payment. Please contact merchant.", 500);
-                break;
+               
         }
     }
 

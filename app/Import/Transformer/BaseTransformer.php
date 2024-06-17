@@ -658,7 +658,6 @@ class BaseTransformer
     public function getExpenseCategoryId($name)
     {
         /** @var \App\Models\ExpenseCategory $ec */
-
         $ec = ExpenseCategory::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
