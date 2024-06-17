@@ -277,7 +277,7 @@ class InvoiceTransformer extends BaseTransformer
             if($key == 0) {
                 continue;
             }
-
+            /** @var array $row */
             if(is_array($row[5])) {
                 $csv = str_getcsv($row[5][0], ";");
                 $row[5] = array_combine(explode(",", $csv[0]), explode(",", $csv[1]));

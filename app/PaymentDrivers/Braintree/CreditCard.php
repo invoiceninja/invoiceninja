@@ -53,7 +53,7 @@ class CreditCard
      * Credit card payment page.
      *
      * @param array $data
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return array
      */
 
     private function threeDParameters(array $data)

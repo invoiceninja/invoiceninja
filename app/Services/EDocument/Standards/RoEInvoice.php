@@ -405,7 +405,7 @@ class RoEInvoice extends AbstractService
     /**
      * @param $item
      * @param $invoice_total
-     * @return float|int
+     * @return float
      */
     private function getItemTaxable($item, $invoice_total)
     {

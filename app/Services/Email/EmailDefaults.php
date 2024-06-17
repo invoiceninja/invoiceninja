@@ -406,7 +406,7 @@ class EmailDefaults
      * @param  string $markdown The body to convert
      * @return string           The parsed markdown response
      */
-    private function parseMarkdownToHtml(string $markdown): ?string
+    private function parseMarkdownToHtml(string $markdown): string
     {
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,

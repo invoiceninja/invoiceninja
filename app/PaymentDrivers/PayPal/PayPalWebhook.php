@@ -307,7 +307,7 @@ class PayPalWebhook implements ShouldQueue
 
             });
 
-        return $gateway ?? false;
+        return $gateway ?? null;
     }
 
     //--------------------------------------------------------------------------------------//
