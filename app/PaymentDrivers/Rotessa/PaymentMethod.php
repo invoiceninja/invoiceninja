@@ -54,12 +54,12 @@ class PaymentMethod implements MethodInterface
     {
         $data['contact'] = collect($data['client']->contacts->firstWhere('is_primary', 1)->toArray())->merge([
             'home_phone' => $data['client']->phone, 
-            'custom_identifier' => $data['client']->number . substr(uniqid(),0,4),
+            'custom_identifier' => $data['client']->number,
             'name' => $data['client']->name,
             'id' => null
         ] )->all();
         $data['gateway'] = $this->rotessa;
-        $data['gateway_type_id'] = (int) request('method');
+        $data['gateway_type_id'] =  $data['client']->country->iso_3166_2 == 'US' ?  GatewayType::BANK_TRANSFER : (  $data['client']->country->iso_3166_2 == 'CA' ? GatewayType::ACSS : (int) request('method'));
         $data['account'] = [
             'routing_number' => $data['client']->routing_id,
             'country' => $data['client']->country->iso_3166_2
@@ -68,54 +68,6 @@ class PaymentMethod implements MethodInterface
         
         return view('rotessa::bank_transfer.authorize', $data);
     }
-
-    protected function findOrCreateCustomer(Request $request)
-    {
-        $result = null;  $data = []; 
-        $customer = new Customer(
-            $request->merge(['id' => $request->input('id') ] +
-            ['address' => $request->only('address_1','address_2','city','postal_code','province_code','country') ])->all() 
-        );
-        try {
-            $existing = ClientGatewayToken::query()
-                ->where('company_gateway_id', $this->rotessa->company_gateway->id)
-                ->where('client_id', $this->rotessa->client->id)
-                ->first();
-            $data = array_filter(Arr::except($customer->jsonSerialize(),['custom_identifier']));
-            if ($existing && $existing->token == encrypt($data)) return $existing->gateway_customer_reference;
-
-            $result = $this->rotessa->gateway->authorize($customer->resolve())->send();
-            if ($result->isSuccessful()) {
-                $customer = new Customer($result->getData());
-                $data = array_filter(Arr::except($customer->jsonSerialize(),['custom_identifier']));
-                $this->rotessa->storeGatewayToken( [
-                    'payment_meta' => $customer->resolve() + ['brand' => 'Rotessa'],
-                    'token' => encrypt($data),
-                    'payment_method_id' => (int) $request->input("gateway_type_id"),
-                ], ['gateway_customer_reference' => 
-                        $result->getParameter('id') 
-                    , 'routing_number' =>  $result->getParameter('routing_number') ?? $result->getParameter('transit_number')]);
-                
-                return $result->getParameter('id');
-            }
-            
-            throw new \Exception($result->getMessage(), (int) $result->getCode());
-
-        } catch (\Throwable $th) {
-            $data = [
-                'transaction_reference' => null,
-                'transaction_response' => $th->getMessage(),
-                'success' => false,
-                'description' => $th->getMessage(),
-                'code' =>(int) $th->getCode()
-            ];
-
-            SystemLogger::dispatch(['server_response' => is_null($result) ? '' : $result->getData(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->rotessa->client, $this->rotessa->client->company);
-            
-            throw $th;
-        }
-    }
-
     /**
      * Handle the authorization page for Rotessa.
      *
@@ -147,7 +99,11 @@ class PaymentMethod implements MethodInterface
                 'custom_identifier'=>['required_without:customer_id'],
                 'customer_id'=>['required_without:custom_identifier','integer'],
             ]);
-            $this->findOrCreateCustomer($request);
+            $customer = new Customer(
+                $request->merge(['custom_identifier' => $request->input('id') ] +
+                ['address' => $request->only('address_1','address_2','city','postal_code','province_code','country') ])->all() 
+            );
+            $this->rotessa->findOrCreateCustomer($customer->resolve());
             
             return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
 
