@@ -129,9 +129,9 @@ class StorePaymentRequest extends Request
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
         }
 
-        // if (! isset($input['idempotency_key'])) {
+        if (! isset($input['idempotency_key'])) {
             $input['idempotency_key'] = substr(time()."{$input['date']}{$input['amount']}{$credits_total}{$this->client_id}{$user->company()->company_key}", 0, 64);
-        // }
+        }
 
         $this->replace($input);
     }
