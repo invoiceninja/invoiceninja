@@ -144,7 +144,7 @@ class RecurringExpenseToExpenseFactory
                 continue;
             }
 
-            if (Str::contains($match, '|')) {
+            // if (Str::contains($match, '|')) {
                 $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
 
                 $left = substr($parts[0], 1); // 'MONTH'
@@ -182,7 +182,7 @@ class RecurringExpenseToExpenseFactory
                     $value,
                     1
                 );
-            }
+            // }
         }
 
         // Second case with more common calculations.

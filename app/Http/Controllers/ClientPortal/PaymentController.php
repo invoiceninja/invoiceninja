@@ -77,6 +77,7 @@ class PaymentController extends Controller
                     'EUR' => $data = $bt->formatDataforEur($payment_intent),
                     'JPY' => $data = $bt->formatDataforJp($payment_intent),
                     'GBP' => $data = $bt->formatDataforUk($payment_intent),
+                    default => $data = $bt->formatDataforUk($payment_intent),
                 };
 
                 $gateway = $stripe;

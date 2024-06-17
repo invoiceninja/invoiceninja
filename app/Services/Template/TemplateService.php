@@ -124,7 +124,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency','map', 'join', 'first', 'date','sum'];
+        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date','sum'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -620,8 +620,6 @@ class TemplateService
     private function transformPayment(Payment $payment): array
     {
 
-        $data = [];
-
         $this->payment = $payment;
 
         $credits = $payment->credits->map(function ($credit) use ($payment) {
@@ -693,8 +691,6 @@ class TemplateService
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-
-        return $data;
 
     }
 
@@ -1196,6 +1192,7 @@ class TemplateService
             'company-details' => $this->companyDetails($stack['labels'] == 'true'),
             'company-address' => $this->companyAddress($stack['labels'] == 'true'),
             'shipping-details' => $this->shippingDetails($stack['labels'] == 'true'),
+            default => $this->entityDetails(),
         };
 
         $this->save();
