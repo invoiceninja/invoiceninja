@@ -166,6 +166,7 @@ class MultiPaymentDeleteTest extends TestCase
                 ],
             ],
             'date' => '2019/12/12',
+            'idempotency_key' => md5(time()),
         ];
 
         $response = $this->withHeaders([
