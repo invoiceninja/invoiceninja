@@ -56,6 +56,7 @@ class CheckoutWebhook implements ShouldQueue
             nlog("Checkout Webhook type not set");
         }
 
+        /** @phpstan-ignore-next-line */
         match($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
         };

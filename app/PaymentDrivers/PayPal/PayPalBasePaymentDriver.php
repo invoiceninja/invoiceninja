@@ -103,6 +103,7 @@ class PayPalBasePaymentDriver extends BaseDriver
             "25" => $method = PaymentType::VENMO,
             "28" => $method = PaymentType::PAY_LATER,
             "29" => $method = PaymentType::CREDIT_CARD_OTHER,
+            default => $method = PaymentType::PAYPAL,
         };
 
         return $method;
