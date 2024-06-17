@@ -220,7 +220,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(162, $invoice->client->fresh()->balance);
         $this->assertEquals(163, $invoice->client->fresh()->paid_to_date);
 
-        usleep(800);
+        sleep(1);
         // Pay 162 again and create payment #3
 
         $data = [
