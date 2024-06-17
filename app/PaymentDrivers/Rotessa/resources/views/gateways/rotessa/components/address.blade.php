@@ -49,10 +49,13 @@
             Country
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input type="radio" id="us" name="country" value="US" required @checked(old('country', $country) == 'US')>
-            <label for="us">United States</label><br>
-            <input type="radio" id="ca" name="country" value="CA" required @checked(old('country', $country) == 'CA')>
-            <label for="ca">Canada</label><br>
+            @if('US' == $country)
+                <input type="radio" id="us" name="country" value="US" required @checked(old('country', $country) == 'US')>
+                <label for="us">United States</label><br>
+            @else
+                <input type="radio" id="ca" name="country" value="CA" required @checked(old('country', $country) == 'CA')>
+                <label for="ca">Canada</label><br>
+            @endif
         </dd>
     </div>
 
