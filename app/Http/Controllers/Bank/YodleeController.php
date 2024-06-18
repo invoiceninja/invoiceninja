@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers\Bank;
 
-use App\Helpers\Bank\Yodlee\DTO\AccountSummary;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Yodlee\YodleeAdminRequest;
@@ -301,8 +300,6 @@ class YodleeController extends BaseController
 
         $summary = $yodlee->getAccountSummary($account_number);
 
-        //@todo remove laravel-data
-        // $transformed_summary = AccountSummary::from($summary[0]);
         $transformed_summary = $this->transformSummary($summary[0]);
 
         return response()->json($transformed_summary, 200);

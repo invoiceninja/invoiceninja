@@ -100,6 +100,7 @@ class TaxProvider
             }
 
         } catch(\Exception $e) {
+            nlog("Exception:: TaxProvider::" . $e->getMessage());
             nlog("Could not updated company tax data: " . $e->getMessage());
         }
 

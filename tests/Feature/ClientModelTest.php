@@ -38,12 +38,15 @@ class ClientModelTest extends TestCase
         if (! config('ninja.testvars.stripe')) {
             $this->markTestSkipped('Skip test no company gateways installed');
         }
+
+        if(CompanyGateway::count() == 0)
+            $this->markTestSkipped('Skip test no company gateways installed');
+
     }
 
     public function testPaymentMethodsWithCreditsEnforced()
     {
-        $amount = 40;
-
+        
         $payment_methods = $this->client->service()->getPaymentMethods(40);
 
         $this->assertGreaterThan(0, CompanyGateway::count());
