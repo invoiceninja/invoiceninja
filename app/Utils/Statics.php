@@ -143,6 +143,11 @@ class Statics
                 return $currency->name;
             })->values();
 
+            $data['sizes'] = app('sizes');
+            $data['datetime_formats'] = app('datetime_formats');
+            $data['gateways'] = app('gateways');
+            $dat['timezones'] = app('timezones');
+            
             $data['templates'] = app('templates');
         }
 
