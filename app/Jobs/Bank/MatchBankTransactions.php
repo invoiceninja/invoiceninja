@@ -312,8 +312,11 @@ class MatchBankTransactions implements ShouldQueue
                 if ($_amount) {
                     $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
 
+                    $this->invoice->next_send_date = null;
+
                     $this->invoice
                         ->service()
+                        ->applyNumber()
                         ->setExchangeRate()
                         ->updateBalance($_amount * -1)
                         ->updatePaidToDate($_amount)
@@ -364,14 +367,6 @@ class MatchBankTransactions implements ShouldQueue
 
         event('eloquent.created: App\Models\Payment', $payment);
 
-        $this->invoice->next_send_date = null;
-
-        $this->invoice
-            ->service()
-            ->applyNumber()
-            ->deletePdf()
-            ->save();
-
         $payment->ledger()
             ->updatePaymentBalance($amount * -1);
 
@@ -390,7 +385,13 @@ class MatchBankTransactions implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->bt->invoice_ids = $invoices->get()->pluck('hashed_id')->implode(',');
+        $hashed_keys = [];
+
+        foreach($this->attachable_invoices as $attachable_invoice){
+            $hashed_keys[] = $this->encodePrimaryKey($attachable_invoice['id']);
+        }
+
+        $this->bt->invoice_ids = implode(",", $hashed_keys);
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->payment_id = $payment->id;
         $this->bt->save();

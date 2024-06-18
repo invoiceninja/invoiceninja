@@ -21,6 +21,7 @@ use App\Models\Language;
 use App\Models\Timezone;
 use App\Models\DateFormat;
 use App\Models\PaymentTerm;
+use App\Models\PaymentType;
 use App\Models\DatetimeFormat;
 use Illuminate\Support\ServiceProvider;
 use App\DataMapper\EmailTemplateDefaults;
@@ -49,9 +50,9 @@ class StaticServiceProvider extends ServiceProvider
             return Country::query()->orderBy('name')->get();
         });
 
-        /** @return \Illuminate\Support\Collection<PaymentTerm> */
+        /** @return \Illuminate\Support\Collection<PaymentType> */
         app()->singleton('payment_types', function ($app) {
-            return PaymentTerm::query()->orderBy('num_days')->get();
+            return PaymentType::query()->orderBy('id')->get();
         });
 
         /** @return \Illuminate\Support\Collection<Industry> */
