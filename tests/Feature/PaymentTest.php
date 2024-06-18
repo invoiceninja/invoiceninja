@@ -75,6 +75,7 @@ class PaymentTest extends TestCase
                 ],
             ],
             'date' => '2020/12/11',
+            'idempotency_key' => 'xx',
         ];
 
         $response = $this->withHeaders([
@@ -83,7 +84,9 @@ class PaymentTest extends TestCase
         ])->postJson('/api/v1/payments/', $data);
 
         $response->assertStatus(200);
-                
+        
+        sleep(1);
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -1876,6 +1879,8 @@ class PaymentTest extends TestCase
         ])->postJson('/api/v1/payments', $data);
 
         $response->assertStatus(200);
+
+sleep(1);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
