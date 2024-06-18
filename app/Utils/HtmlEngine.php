@@ -918,39 +918,30 @@ class HtmlEngine
 
     private function getCountryName(): string
     {
-        $countries = Cache::get('countries');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-        if (! $countries) {
-            $this->buildCache(true);
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
 
-            $countries = Cache::get('countries');
-        }
-
-        if ($countries) {
-            $country = $countries->filter(function ($item) {
-                return $item->id == $this->settings->country_id;
-            })->first();
-        } else {
-            $country = Country::find($this->settings->country_id);
-        }
-
-        if ($country) {
-            return ctrans('texts.country_' . $country->name);
-        }
-
-        return ' ';
+        return $country ? ctrans('texts.country_' . $country->name) : ctrans('texts.country_' . $countries->first()->name);
     }
 
 
     private function getCountryCode(): string
     {
-        $country = Country::find($this->settings->country_id);
 
-        if ($country) {
-            return $country->iso_3166_2;
-        }
 
-        return ' ';
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
+
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
+
+        return $country ? $country->iso_3166_2 : ' ';
     }
     /**
      * Due to the way we are compiling the blade template we

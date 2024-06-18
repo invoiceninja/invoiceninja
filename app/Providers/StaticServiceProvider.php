@@ -33,56 +33,61 @@ class StaticServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
-
+        /** @return \Illuminate\Support\Collection<Currency> */
         app()->singleton('currencies', function ($app) {
             return Currency::query()->orderBy('name')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Language> */
         app()->singleton('languages', function ($app) {
             return Language::query()->orderBy('name')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Country> */
         app()->singleton('countries', function ($app) {
             return Country::query()->orderBy('name')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<PaymentTerm> */
         app()->singleton('payment_types', function ($app) {
             return PaymentTerm::query()->orderBy('num_days')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Industry> */
         app()->singleton('industries', function ($app) {
             return Industry::query()->orderBy('name')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Bank> */
         app()->singleton('banks', function ($app) {
             return Bank::query()->orderBy('name')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<DateFormat> */
         app()->singleton('date_formats', function ($app) {
             return DateFormat::query()->orderBy('id')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Timezone> */
         app()->singleton('timezones', function ($app) {
             return Timezone::query()->orderBy('id')->get();
         });
-
+        
+        /** @return \Illuminate\Support\Collection<Gateway> */
         app()->singleton('gateways', function ($app) {
             return Gateway::query()->orderBy('id')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Industry> */
         app()->singleton('industries', function ($app) {
             return Industry::query()->orderBy('id')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<Size> */
         app()->singleton('sizes', function ($app) {
             return Size::query()->orderBy('id')->get();
         });
 
-        /** @deprecated */
-        app()->singleton('banks', function ($app) {
-            return Bank::query()->orderBy('id')->get();
-        });
 
         app()->singleton('templates', function ($app) {
             return [

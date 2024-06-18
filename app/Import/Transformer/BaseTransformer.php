@@ -119,17 +119,18 @@ class BaseTransformer
     {
         $code = array_key_exists($key, $data) ? $data[$key] : false;
 
-        $currencies = Cache::get('currencies');
+        if(!$code)
+            return $this->company->settings->currency_id;
 
-        $currency = $currencies
-            ->filter(function ($item) use ($code) {
-                return $item->code == $code;
-            })
-            ->first();
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
-        return $currency
-            ? $currency->id
-            : $this->company->settings->currency_id;
+        $currency = $currencies->first(function ($item) use ($code) {
+            return $item->code == $code;
+        });
+
+        return $currency ? (string) $currency->id : $this->company->settings->currency_id;
+
     }
 
     public function getFrequency($frequency = RecurringInvoice::FREQUENCY_MONTHLY): int
