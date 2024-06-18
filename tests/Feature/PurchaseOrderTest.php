@@ -37,7 +37,7 @@ class PurchaseOrderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->markTestSkipped('no travis');
+        
         $this->faker = \Faker\Factory::create();
 
         $this->makeTestData();
