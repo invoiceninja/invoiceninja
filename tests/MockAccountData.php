@@ -203,32 +203,32 @@ trait MockAccountData
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        /* Warm up the cache !*/
-        $cached_tables = config('ninja.cached_tables');
+        // /* Warm up the cache !*/
+        // $cached_tables = config('ninja.cached_tables');
 
-        Artisan::call('db:seed', [
-        '--force' => true
-        ]);
+        // Artisan::call('db:seed', [
+        // '--force' => true
+        // ]);
 
-        foreach ($cached_tables as $name => $class) {
-            // check that the table exists in case the migration is pending
-            if (! Schema::hasTable((new $class())->getTable())) {
-                continue;
-            }
-            if ($name == 'payment_terms') {
-                $orderBy = 'num_days';
-            } elseif ($name == 'fonts') {
-                $orderBy = 'sort_order';
-            } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                $orderBy = 'name';
-            } else {
-                $orderBy = 'id';
-            }
-            $tableData = $class::orderBy($orderBy)->get();
-            if ($tableData->count()) {
-                Cache::forever($name, $tableData);
-            }
-        }
+        // foreach ($cached_tables as $name => $class) {
+        //     // check that the table exists in case the migration is pending
+        //     if (! Schema::hasTable((new $class())->getTable())) {
+        //         continue;
+        //     }
+        //     if ($name == 'payment_terms') {
+        //         $orderBy = 'num_days';
+        //     } elseif ($name == 'fonts') {
+        //         $orderBy = 'sort_order';
+        //     } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
+        //         $orderBy = 'name';
+        //     } else {
+        //         $orderBy = 'id';
+        //     }
+        //     $tableData = $class::orderBy($orderBy)->get();
+        //     if ($tableData->count()) {
+        //         Cache::forever($name, $tableData);
+        //     }
+        // }
 
         $this->faker = \Faker\Factory::create();
         $fake_email = $this->faker->email();
@@ -808,7 +808,7 @@ trait MockAccountData
 
         if (config('ninja.testvars.stripe')) {
             $data = [];
-            $data[1]['min_limit'] = 234;
+            $data[1]['min_limit'] = 22;
             $data[1]['max_limit'] = 65317;
             $data[1]['fee_amount'] = 0.00;
             $data[1]['fee_percent'] = 0.000;
