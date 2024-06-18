@@ -21,6 +21,7 @@ use App\Models\Language;
 use App\Models\Timezone;
 use App\Models\DateFormat;
 use App\Models\PaymentTerm;
+use App\Models\DatetimeFormat;
 use Illuminate\Support\ServiceProvider;
 use App\DataMapper\EmailTemplateDefaults;
 
@@ -88,6 +89,10 @@ class StaticServiceProvider extends ServiceProvider
             return Size::query()->orderBy('id')->get();
         });
 
+        /** @return \Illuminate\Support\Collection<DatetimeFormat> */
+        app()->singleton('datetime_formats', function ($app) {
+            return DatetimeFormat::query()->orderBy('id')->get();
+        });
 
         app()->singleton('templates', function ($app) {
             return [
