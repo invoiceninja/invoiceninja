@@ -1880,8 +1880,6 @@ class PaymentTest extends TestCase
 
         $response->assertStatus(200);
 
-sleep(1);
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

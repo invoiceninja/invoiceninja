@@ -97,7 +97,9 @@ class PurchaseOrderTest extends TestCase
 
     public function testPurchaseOrderBulkActions()
     {
-        $i = $this->purchase_order->invitations->first();
+        $this->purchase_order->service()->createInvitations()->save();
+
+        $i = $this->purchase_order->fresh()->invitations->first();
 
         $data = [
             'ids' =>[$this->purchase_order->hashed_id],
