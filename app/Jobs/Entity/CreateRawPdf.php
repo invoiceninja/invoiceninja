@@ -111,7 +111,9 @@ class CreateRawPdf
 
         try {
             $pdf = $ps->boot()->getPdf();
-        } catch (\Exception) {
+        } catch (\Exception $e) {
+            echo "EXCEPTION::".PHP_EOL;
+            echo $e->getMessage().PHP_EOL;
             throw new FilePermissionsFailure('Unable to generate the raw PDF');
         }
 
