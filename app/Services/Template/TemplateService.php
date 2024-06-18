@@ -306,9 +306,6 @@ class TemplateService
             } catch(SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
-            } catch(Error $e) {
-                nlog("error = " . $e->getMessage());
-                throw ($e);
             } catch(RuntimeError $e) {
                 nlog("runtime = " . $e->getMessage());
                 throw ($e);
@@ -318,8 +315,11 @@ class TemplateService
             } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
                 throw ($e);
+            } catch(Error $e) {
+                nlog("error = " . $e->getMessage());
+                throw ($e);
             }
-
+            
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
