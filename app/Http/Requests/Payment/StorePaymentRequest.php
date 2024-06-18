@@ -79,7 +79,6 @@ class StorePaymentRequest extends Request
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
 
         if(\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('amount', 0)."|".$this->input('client_id', '')."|".$user->company()->company_key))
             throw new DuplicatePaymentException('Duplicate request.', 429);
