@@ -25,7 +25,7 @@ class UpdateProductRequest extends Request
      */
     public function authorize(): bool
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -38,7 +38,7 @@ class UpdateProductRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 

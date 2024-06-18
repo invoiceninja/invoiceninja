@@ -126,7 +126,7 @@ class ClientRepository extends BaseRepository
             ClientFactory::create($user->company()->id, $user->id)
         );
     }
-    
+
     /**
      * Bulk assign clients to a group.
      *
@@ -144,7 +144,7 @@ class ClientRepository extends BaseRepository
 
     public function purge($client)
     {
-        
+
         nlog("Purging client id => {$client->id}");
 
         $client->contacts()->forceDelete();

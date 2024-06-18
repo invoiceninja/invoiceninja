@@ -255,8 +255,9 @@ class BaseImport
 
             unset($record['']);
 
-            if(!is_array($record))
+            if(!is_array($record)) {
                 continue;
+            }
 
             try {
                 $entity = $this->transformer->transform($record);
@@ -313,7 +314,7 @@ class BaseImport
         $count = 0;
 
         foreach ($data as $key => $record) {
-            
+
             if(!is_array($record)) {
                 continue;
             }
@@ -380,7 +381,7 @@ class BaseImport
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
         foreach ($invoices as $raw_invoice) {
-            
+
             if(!is_array($raw_invoice)) {
                 continue;
             }
@@ -472,7 +473,7 @@ class BaseImport
 
         foreach ($tasks as $raw_task) {
             $task_data = [];
-            
+
             if(!is_array($raw_task)) {
                 continue;
             }
@@ -545,7 +546,7 @@ class BaseImport
         $invoices = $this->groupInvoices($invoices, $invoice_number_key);
 
         foreach ($invoices as $raw_invoice) {
-            
+
             if(!is_array($raw_invoice)) {
                 continue;
             }
@@ -765,7 +766,7 @@ class BaseImport
         $quotes = $this->groupInvoices($quotes, $quote_number_key);
 
         foreach ($quotes as $raw_quote) {
-            
+
             if(!is_array($raw_quote)) {
                 continue;
             }
@@ -976,5 +977,5 @@ class BaseImport
 
         return $data;
     }
-    
+
 }

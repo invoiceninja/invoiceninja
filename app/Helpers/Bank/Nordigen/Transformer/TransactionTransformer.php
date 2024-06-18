@@ -71,7 +71,7 @@ class TransactionTransformer implements BankRevenueInterface
 
     private Company $company;
 
-    function __construct(Company $company)
+    public function __construct(Company $company)
     {
         $this->company = $company;
     }
@@ -156,22 +156,16 @@ class TransactionTransformer implements BankRevenueInterface
     private function convertCurrency(string $code)
     {
 
-        $currencies = Cache::get('currencies');
+        $currencies = app('currencies');
 
-        if (!$currencies) {
-            $this->buildCache(true);
-        }
-
-        $currency = $currencies->filter(function ($item) use ($code) {
+        $currency = $currencies->first(function ($item) use ($code) {
+            /** @var \App\Models\Currency $item */
             return $item->code == $code;
-        })->first();
+        });
 
-        if ($currency) {
-            return $currency->id;
-        }
-
-        return 1;
-
+        /** @var \App\Models\Currency $currency */
+        return $currency ? $currency->id : 1; //@phpstan-ignore-line
+        
     }
 
     private function formatDate(string $input)
@@ -192,7 +186,7 @@ class TransactionTransformer implements BankRevenueInterface
         }
 
         try {
-           return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
+            return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
         } catch (\Exception $e) {
             return $input;
         }

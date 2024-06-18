@@ -194,10 +194,14 @@ class RequiredClientInfo extends Component
 
     public function mount()
     {
+
         MultiDB::setDb($this->db);
-        $contact = ClientContact::withTrashed()->find($this->contact_id);
-        $company = $contact->company;
-        $this->company_gateway = CompanyGateway::withTrashed()->find($this->company_gateway_id);
+        $contact = ClientContact::withTrashed()->with(['client' => function ($query) {
+                $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+            }])->find($this->contact_id);
+
+        $this->company_gateway = CompanyGateway::withTrashed()->with('company')->find($this->company_gateway_id);
+        $company = $this->company_gateway->company;
 
         $this->client_name = $contact->client->name;
         $this->contact_first_name = $contact->first_name;
@@ -232,11 +236,13 @@ class RequiredClientInfo extends Component
             $this->invoice_terms = $invoice->terms;
         }
 
-        if(!$this->company_gateway->always_show_required_fields || $this->is_subscription)
+        if(!$this->company_gateway->always_show_required_fields || $this->is_subscription) {
             $this->checkFields();
+        }
 
-        if($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription))
+        if($this->unfilled_fields > 0 || ($this->company_gateway->always_show_required_fields || $this->is_subscription)) {
             $this->show_form = true;
+        }
     }
 
     #[Computed]
@@ -266,7 +272,10 @@ class RequiredClientInfo extends Component
     {
 
         MultiDB::setDb($this->db);
-        $contact = ClientContact::withTrashed()->find($this->contact_id);
+
+        $contact = ClientContact::withTrashed()->with(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }])->find($this->contact_id);
 
         $rules = [];
 
@@ -308,7 +317,11 @@ class RequiredClientInfo extends Component
 
 
         MultiDB::setDb($this->db);
-        $_contact = ClientContact::withTrashed()->find($this->contact_id);
+        // $_contact = ClientContact::withTrashed()->with('client')->find($this->contact_id);
+
+        $_contact = ClientContact::withTrashed()->with(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }])->find($this->contact_id);
 
 
         foreach ($data as $field => $value) {
@@ -402,7 +415,7 @@ class RequiredClientInfo extends Component
         if ($this->unfilled_fields === 0 && (!$this->company_gateway->always_show_required_fields || $this->is_subscription)) {
             $this->dispatch(
                 'passed-required-fields-check',
-                client_postal_code: $this->contact->client->postal_code
+                client_postal_code: $_contact->client->postal_code
             );
         }
 

@@ -19,7 +19,11 @@ class TranslationHelper
 {
     public static function getIndustries()
     {
-        return Cache::get('industries')->each(function ($industry) {
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $industries = app('industries');
+
+        return $industries->each(function ($industry) {
             $industry->name = ctrans('texts.industry_'.$industry->name);
         })->sortBy(function ($industry) {
             return $industry->name;
@@ -28,7 +32,11 @@ class TranslationHelper
 
     public static function getCountries()
     {
-        return Cache::get('countries')->each(function ($country) {
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
+
+        return $countries->each(function ($country) {
             $country->name = ctrans('texts.country_'.$country->name);
         })->sortBy(function ($country) {
             return $country->iso_3166_2;
@@ -37,7 +45,11 @@ class TranslationHelper
 
     public static function getPaymentTypes()
     {
-        return Cache::get('payment_types')->each(function ($pType) {
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
+        $payment_types = app('payment_types');
+
+        return $payment_types->each(function ($pType) {
             $pType->name = ctrans('texts.payment_type_'.$pType->name);
         })->sortBy(function ($pType) {
             return $pType->name;
@@ -46,7 +58,11 @@ class TranslationHelper
 
     public static function getLanguages()
     {
-        return Cache::get('languages')->each(function ($lang) {
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
+
+        return $languages->each(function ($lang) {
             $lang->name = ctrans('texts.lang_'.$lang->name);
         })->sortBy(function ($lang) {
             return $lang->name;
@@ -55,7 +71,11 @@ class TranslationHelper
 
     public static function getCurrencies()
     {
-        return Cache::get('currencies')->each(function ($currency) {
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
+
+        return $currencies->each(function ($currency) {
             $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
         })->sortBy(function ($currency) {
             return $currency->name;

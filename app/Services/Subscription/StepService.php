@@ -18,9 +18,9 @@ class StepService
 {
     public static function mapToClassNames(string $steps): array
     {
-        $classes = collect(Purchase::$dependencies)->mapWithKeys(fn($dependency, $class) => [$dependency['id'] => $class])->toArray();
+        $classes = collect(Purchase::$dependencies)->mapWithKeys(fn ($dependency, $class) => [$dependency['id'] => $class])->toArray();
 
-        return array_map(fn($step) => $classes[$step], explode(',', $steps));
+        return array_map(fn ($step) => $classes[$step], explode(',', $steps));
     }
 
     public static function check(array $steps): array
@@ -35,7 +35,7 @@ class StepService
             if (!empty($dependent) && !array_intersect($dependent, $steps)) {
                 $errors[] = ctrans('texts.step_dependency_fail', [
                     'step' => ctrans('texts.' . self::mapClassNameToString($step)),
-                    'dependencies' => implode(', ', array_map(fn($dependency) => ctrans('texts.' . self::mapClassNameToString($dependency)), $dependent)),
+                    'dependencies' => implode(', ', array_map(fn ($dependency) => ctrans('texts.' . self::mapClassNameToString($dependency)), $dependent)),
                 ]);
             }
 
@@ -43,7 +43,7 @@ class StepService
                 if (in_array($dependency, $steps) && $step_order[$dependency] > $step_order[$step]) {
                     $errors[] = ctrans('texts.step_dependency_order_fail', [
                         'step' => ctrans('texts.' . self::mapClassNameToString($step)),
-                        'dependency' => implode(', ', array_map(fn($dependency) => ctrans('texts.' . self::mapClassNameToString($dependency)), $dependent)),
+                        'dependency' => implode(', ', array_map(fn ($dependency) => ctrans('texts.' . self::mapClassNameToString($dependency)), $dependent)),
                     ]);
                 }
             }
@@ -63,7 +63,7 @@ class StepService
 
     public static function mapClassNameToString(string $class): string
     {
-        $classes = collect(Purchase::$dependencies)->mapWithKeys(fn($dependency, $class) => [$class => $dependency['id']])->toArray();
+        $classes = collect(Purchase::$dependencies)->mapWithKeys(fn ($dependency, $class) => [$class => $dependency['id']])->toArray();
 
         return $classes[$class];
     }

@@ -49,7 +49,7 @@ class GenerateDeliveryNote
         if($design && $design->is_template) {
 
             $ts = new TemplateService($design);
-            
+
             $pdf = $ts->setCompany($this->invoice->company)
             ->build([
                 'invoices' => collect([$this->invoice]),
@@ -82,8 +82,8 @@ class GenerateDeliveryNote
         }
 
         $variables = $html->generateLabelsAndValues();
-        $variables['labels']['$entity_label']= ctrans('texts.delivery_note');
-        
+        $variables['labels']['$entity_label'] = ctrans('texts.delivery_note');
+
         $state = [
             'template' => $template->elements([
                 'client' => $this->invoice->client,

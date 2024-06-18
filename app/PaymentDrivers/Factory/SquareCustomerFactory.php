@@ -17,7 +17,6 @@ use App\Models\GatewayType;
 
 class SquareCustomerFactory
 {
-
     /*
 {
       "id": "A537H7KAQWSAF8M8EM1Y23E16M",
@@ -83,9 +82,9 @@ class SquareCustomerFactory
         $cards = [];
 
 
-        foreach($customer->getCards() ?? [] as $card){
-            
-            $meta = new \stdClass;
+        foreach($customer->getCards() ?? [] as $card) {
+
+            $meta = new \stdClass();
             $meta->exp_month = $card->getExpMonth();
             $meta->exp_year = $card->getExpYear();
             $meta->last4 = $card->getLast4();
@@ -101,7 +100,7 @@ class SquareCustomerFactory
         }
 
         $address = $customer->getAddress();
-        
+
         return
             collect([
                 'name' => $customer->getCompanyName() ?? ($customer->getGivenName() ?? '' ." " . $customer->getFamilyName() ?? ''),

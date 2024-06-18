@@ -46,7 +46,7 @@ class BrowserPay implements MethodInterface
      * Authorization page for browser pay.
      *
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeView(array $data): RedirectResponse
     {
@@ -57,7 +57,7 @@ class BrowserPay implements MethodInterface
      * Handle the authorization for browser pay.
      *
      * @param Request $request
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeResponse(Request $request): RedirectResponse
     {
@@ -100,7 +100,7 @@ class BrowserPay implements MethodInterface
      * Handle payment response for browser pay.
      *
      * @param PaymentResponseRequest $request
-     * @return RedirectResponse|App\PaymentDrivers\Stripe\never
+     * @return \Illuminate\Http\RedirectResponse|App\PaymentDrivers\Stripe\never
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -120,7 +120,7 @@ class BrowserPay implements MethodInterface
     /**
      * Handle successful payment for browser pay.
      *
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     protected function processSuccessfulPayment()
     {

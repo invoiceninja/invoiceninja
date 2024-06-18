@@ -31,7 +31,7 @@ class CompanyLedgerController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param ShowCompanyLedgerRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/company_ledger",

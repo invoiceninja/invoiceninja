@@ -82,7 +82,7 @@ class InventoryManagementTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/invoices/', $invoice_array)
-            ->assertStatus(200);
+        ->assertStatus(200);
 
         $product = $product->fresh();
 

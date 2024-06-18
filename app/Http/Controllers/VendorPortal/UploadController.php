@@ -29,7 +29,7 @@ class UploadController extends Controller
      * Main logic behind uploading the files.
      *
      * @param StoreUploadRequest $request
-     * @return Response|ResponseFactory
+     * @return Response| \Illuminate\Http\JsonResponse|ResponseFactory
      */
     public function upload(StoreUploadRequest $request, PurchaseOrder $purchase_order)
     {

@@ -120,9 +120,9 @@ class ApplyPayment
              ->credits()
              ->attach($this->credit->id, ['amount' => $this->amount_applied]);
 
-        $this->payment
-                 ->ledger()
-                 ->updatePaymentBalance($this->amount_applied * -1, "ApplyPaymentCredit");
+        // $this->payment
+        //          ->ledger()
+        //          ->updatePaymentBalance($this->amount_applied * -1, "ApplyPaymentCredit"); // this duplicated the company ledger paid to date amount.
 
         $this->payment
                  ->client

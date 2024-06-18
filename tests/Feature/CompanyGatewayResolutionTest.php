@@ -54,7 +54,9 @@ class CompanyGatewayResolutionTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        CompanyGateway::whereNotNull('id')->delete();
+        CompanyGateway::query()->withTrashed()->cursor()->each(function ($cg){
+            $cg->forceDelete();
+        });
 
         $data = [];
         $data[1]['min_limit'] = -1;
@@ -123,11 +125,14 @@ class CompanyGatewayResolutionTest extends TestCase
     {
         $amount = 10;
 
+        $this->client->country_id = 840;
+        $this->client->save();
+
         $this->assertInstanceOf('\\stdClass', $this->cg->fees_and_limits);
         // $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
         $this->assertNotNull($this->cg->fees_and_limits->{1}->min_limit);
         $payment_methods = $this->client->service()->getPaymentMethods($amount);
-
+        
         $this->assertEquals(2, count($payment_methods));
     }
 
@@ -135,7 +140,9 @@ class CompanyGatewayResolutionTest extends TestCase
     {
         $amount = 10;
 
-        CompanyGateway::whereNotNull('id')->delete();
+        CompanyGateway::query()->withTrashed()->cursor()->each(function ($cg) {
+            $cg->forceDelete();
+        });
 
         $data = [];
         $data[1]['min_limit'] = -1;
@@ -181,9 +188,10 @@ class CompanyGatewayResolutionTest extends TestCase
         $this->cg->fees_and_limits = $data;
         $this->cg->save();
 
-        // nlog($this->client->service()->getPaymentMethods($amount));
+        $this->client->country_id = 840;
+        $this->client->save();
 
-        $this->assertEquals(2, count($this->client->service()->getPaymentMethods($amount)));
+        $this->assertEquals(1, count($this->client->service()->getPaymentMethods($amount)));
     }
 
     public function testEnableFeeAdjustment()

@@ -21,7 +21,7 @@ class ContactHashLoginController extends Controller
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
-     * @return Redirect
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function login(string $contact_key)
     {
@@ -50,7 +50,7 @@ class ContactHashLoginController extends Controller
     /**
      * Generic error page for client portal.
      *
-     * @return void
+     * @return \Illuminate\View\View
      */
     public function errorPage()
     {
@@ -66,15 +66,15 @@ class ContactHashLoginController extends Controller
     {
         if (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES) {
             return '/client/invoices';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)) {
             return '/client/recurring_invoices';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)) {
             return '/client/quotes';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)) {
             return '/client/credits';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)) {
             return '/client/tasks';
-        } elseif (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES) {
+        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)) {
             return '/client/expenses';
         }
     }

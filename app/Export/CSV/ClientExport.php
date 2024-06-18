@@ -127,8 +127,9 @@ class ClientExport extends BaseExport
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id);
 
-        if(!$this->input['include_deleted'] ?? false)
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
+        }
 
         $query = $this->addDateRange($query);
 
@@ -242,16 +243,16 @@ class ClientExport extends BaseExport
         return $entity;
     }
 
-    private function calculateStatus($client)
-    {
-        if ($client->is_deleted) {
-            return ctrans('texts.deleted');
-        }
+    // private function calculateStatus($client)
+    // {
+    //     if ($client->is_deleted) {
+    //         return ctrans('texts.deleted');
+    //     }
 
-        if ($client->deleted_at) {
-            return ctrans('texts.archived');
-        }
+    //     if ($client->deleted_at) {
+    //         return ctrans('texts.archived');
+    //     }
 
-        return ctrans('texts.active');
-    }
+    //     return ctrans('texts.active');
+    // }
 }

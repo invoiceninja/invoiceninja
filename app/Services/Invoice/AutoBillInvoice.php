@@ -11,29 +11,32 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Libraries\MultiDB;
+use Carbon\Carbon;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientGatewayToken;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use Illuminate\Support\Str;
+use App\DataMapper\InvoiceItem;
+use App\Factory\PaymentFactory;
+use App\Services\AbstractService;
+use App\Models\ClientGatewayToken;
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Services\AbstractService;
-use App\Utils\Ninja;
-use Illuminate\Support\Str;
+use App\Events\Payment\PaymentWasCreated;
 
 class AutoBillInvoice extends AbstractService
 {
     private Client $client;
 
     private array $used_credit = [];
-    
+
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
 
@@ -205,11 +208,27 @@ class AutoBillInvoice extends AbstractService
 
             info("adjusting credit balance {$current_credit->balance} by this amount ".$credit['amount']);
 
+
+            $item_date = Carbon::parse($payment->date)->format($payment->client->date_format());
+            $invoice_numbers = $this->invoice->number;
+
+            $item = new InvoiceItem();
+            $item->quantity = 0;
+            $item->cost = $credit['amount'] * -1;
+            $item->notes = "{$item_date} - " . ctrans('texts.credit_payment', ['invoice_number' => $invoice_numbers]) . " ". Number::formatMoney($credit['amount'], $payment->client);
+            $item->type_id = "1";
+
+            $line_items = $current_credit->line_items;
+            $line_items[] = $item;
+            $current_credit->line_items = $line_items;
+
+
             $current_credit->service()
                            ->adjustBalance($credit['amount'] * -1)
                            ->updatePaidToDate($credit['amount'])
                            ->setCalculatedStatus()
                            ->save();
+
         }
 
         $payment->ledger()
@@ -240,12 +259,13 @@ class AutoBillInvoice extends AbstractService
         return $this->invoice
                     ->service()
                     ->setCalculatedStatus()
+                    ->workFlow() //07-06-2024 - run the workflow if paid!
                     ->save();
     }
-    
+
     /**
      * If the client has unapplied payments on file
-     * we will use these prior to charging a 
+     * we will use these prior to charging a
      * payment method on file.
      *
      * This needs to be wrapped in a transaction.
@@ -262,11 +282,11 @@ class AutoBillInvoice extends AbstractService
                                   ->where('amount', '>', 0)
                                   ->orderBy('created_at')
                                   ->get();
-        
+
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
-        
+
         nlog("available unapplied balance = {$available_unapplied_balance}");
-        
+
         if ((int) $available_unapplied_balance == 0) {
             return $this;
         }
@@ -276,7 +296,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         $payment_repo = new PaymentRepository(new CreditRepository());
-        
+
         foreach ($unapplied_payments as $key => $payment) {
             $payment_balance = $payment->amount - $payment->applied;
 
@@ -285,7 +305,7 @@ class AutoBillInvoice extends AbstractService
                 if ($payment_balance > $this->invoice->partial) {
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
                     $payment_repo->save($payload, $payment);
-                
+
                     $this->invoice = $this->invoice->fresh();
 
                     return $this;
@@ -296,16 +316,16 @@ class AutoBillInvoice extends AbstractService
             } else {
                 //more than needed
                 if ($payment_balance > $this->invoice->balance) {
-                    
+
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
                     $payment_repo->save($payload, $payment);
 
                     $this->invoice = $this->invoice->fresh();
 
                     return $this;
-                    
+
                 } else {
-                    
+
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
 

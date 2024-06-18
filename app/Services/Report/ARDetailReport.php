@@ -91,7 +91,7 @@ class ARDetailReport extends BaseExport
 
         $query = Invoice::query()
                 ->withTrashed()
-                ->whereHas('client', function ($query){
+                ->whereHas('client', function ($query) {
                     $query->where('is_deleted', 0);
                 })
                 ->where('company_id', $this->company->id)

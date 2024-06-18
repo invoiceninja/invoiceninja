@@ -52,7 +52,6 @@ class CreateUbl implements ShouldQueue
 
     /**
      * Execute the job
-     * @return ?string
      */
     public function handle()
     {
@@ -193,7 +192,7 @@ class CreateUbl implements ShouldQueue
     /**
      * @param $item
      * @param $invoice_total
-     * @return float|int
+     * @return float
      */
     private function getItemTaxable($item, $invoice_total)
     {

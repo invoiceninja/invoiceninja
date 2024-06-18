@@ -50,7 +50,7 @@ class ContactRegisterController extends Controller
     public function register(RegisterRequest $request)
     {
         $request->merge(['company' => $request->company()]);
-        
+
         $service = new ClientRegisterService(
             company: $request->company(),
         );

@@ -1455,30 +1455,23 @@ class Import implements ShouldQueue
         switch ($status_id) {
             case 1:
                 return $payment;
-                break;
             case 2:
                 return $payment->service()->deletePayment();
-                break;
             case 3:
                 return $payment->service()->deletePayment();
-                break;
             case 4:
                 return $payment;
-                break;
             case 5:
                 $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;
             case 6:
                 $payment->status_id = Payment::STATUS_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;
 
             default:
                 return $payment;
-                break;
         }
     }
 
@@ -1529,7 +1522,7 @@ class Import implements ShouldQueue
             }
 
             $entity = false;
-            
+
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
                 $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();
@@ -1740,7 +1733,7 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
             $modified['is_deleted'] = isset($modified['is_deleted']) ? (bool)$modified['is_deleted'] : false;
-             
+
             /** @var \App\Models\ExpenseCategory $expense_category **/
             $expense_category = ExpenseCategory::create($modified);
 

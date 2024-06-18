@@ -49,7 +49,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $failed_logins
  * @property string|null $referral_code
  * @property string|null $oauth_user_id
- * @property object|null $oauth_user_token
+ * @property object|array|null $oauth_user_token
  * @property string|null $oauth_provider_id
  * @property string|null $google_2fa_secret
  * @property string|null $accepted_terms_version
@@ -60,7 +60,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_deleted
  * @property string|null $last_login
  * @property string|null $signature
- * @property string $password
+ * @property string|null $password
  * @property string $language_id
  * @property string|null $remember_token
  * @property string|null $custom_value1
@@ -69,7 +69,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_value4
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int|null $deleted_at
+ * @property int|null|Carbon $deleted_at
  * @property string|null $oauth_user_refresh_token
  * @property string|null $last_confirmed_email_address
  * @property bool $has_password
@@ -264,6 +264,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
+        // @phpstan-ignore-next-line
         if ($this->company) {
             return $this->company;
         } elseif ($truth->getCompany()) {

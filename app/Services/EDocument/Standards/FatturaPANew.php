@@ -13,24 +13,24 @@ namespace App\Services\EDocument\Standards;
 
 use App\Models\Invoice;
 use App\Services\AbstractService;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronica;
-use Invoiceninja\Einvoice\Models\FatturaPA\IndirizzoType\Sede;
-use Invoiceninja\Einvoice\Models\FatturaPA\AnagraficaType\Anagrafica;
-use Invoiceninja\Einvoice\Models\FatturaPA\IdFiscaleType\IdFiscaleIVA;
-use Invoiceninja\Einvoice\Models\FatturaPA\IdFiscaleType\IdTrasmittente;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiGeneraliType\DatiGenerali;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiPagamentoType\DatiPagamento;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiRiepilogoType\DatiRiepilogo;
-use Invoiceninja\Einvoice\Models\FatturaPA\DettaglioLineeType\DettaglioLinee;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiBeniServiziType\DatiBeniServizi;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiTrasmissioneType\DatiTrasmissione;
-use Invoiceninja\Einvoice\Models\FatturaPA\CedentePrestatoreType\CedentePrestatore;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiAnagraficiCedenteType\DatiAnagrafici;
-use Invoiceninja\Einvoice\Models\FatturaPA\DettaglioPagamentoType\DettaglioPagamento;
-use Invoiceninja\Einvoice\Models\FatturaPA\DatiGeneraliDocumentoType\DatiGeneraliDocumento;
-use Invoiceninja\Einvoice\Models\FatturaPA\CessionarioCommittenteType\CessionarioCommittente;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
-use Invoiceninja\Einvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
+use InvoiceNinja\EInvoice\Models\FatturaPA\IndirizzoType\Sede;
+use InvoiceNinja\EInvoice\Models\FatturaPA\AnagraficaType\Anagrafica;
+use InvoiceNinja\EInvoice\Models\FatturaPA\IdFiscaleType\IdFiscaleIVA;
+use InvoiceNinja\EInvoice\Models\FatturaPA\IdFiscaleType\IdTrasmittente;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiGeneraliType\DatiGenerali;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiPagamentoType\DatiPagamento;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiRiepilogoType\DatiRiepilogo;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DettaglioLineeType\DettaglioLinee;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiBeniServiziType\DatiBeniServizi;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiTrasmissioneType\DatiTrasmissione;
+use InvoiceNinja\EInvoice\Models\FatturaPA\CedentePrestatoreType\CedentePrestatore;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiAnagraficiCedenteType\DatiAnagrafici;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DettaglioPagamentoType\DettaglioPagamento;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiGeneraliDocumentoType\DatiGeneraliDocumento;
+use InvoiceNinja\EInvoice\Models\FatturaPA\CessionarioCommittenteType\CessionarioCommittente;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
+use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
 
 class FatturaPANew extends AbstractService
 {
@@ -90,7 +90,7 @@ class FatturaPANew extends AbstractService
     }
 
 
-    private function setIdTrasmittente():self
+    private function setIdTrasmittente(): self
     {
         $this->IdTrasmittente->IdPaese = $this->invoice->company->country()->iso_3166_2;
         $this->IdTrasmittente->IdCodice = $this->invoice->company->settings->vat_number;
@@ -98,11 +98,11 @@ class FatturaPANew extends AbstractService
         return $this;
     }
 
-    private function setCedentePrestatore():self
+    private function setCedentePrestatore(): self
     {
         $this->CedentePrestatore->DatiAnagrafici = $this->DatiAnagrafici;
 
-        $sede = new Sede;
+        $sede = new Sede();
         $sede->Indirizzo = $this->invoice->company->settings->address1;
         $sede->CAP = (int)$this->invoice->company->settings->postal_code;
         $sede->Comune = $this->invoice->company->settings->city;
@@ -115,7 +115,7 @@ class FatturaPANew extends AbstractService
         return $this;
     }
 
-    private function setDatiAnagrafici():self
+    private function setDatiAnagrafici(): self
     {
         $this->DatiAnagrafici->RegimeFiscale = "RF01";
         $this->DatiAnagrafici->Anagrafica = $this->Anagrafica;
@@ -124,7 +124,7 @@ class FatturaPANew extends AbstractService
         return $this;
     }
 
-    private function setClientDetails():self
+    private function setClientDetails(): self
     {
 
         $datiAnagrafici = new DatiAnagrafici();
@@ -132,20 +132,20 @@ class FatturaPANew extends AbstractService
         $anagrafica->Denominazione =  $this->invoice->client->present()->name();
         $datiAnagrafici->Anagrafica = $anagrafica;
 
-        $idFiscale = new IdFiscaleIVA;
-        $idFiscale->IdCodice= $this->invoice->client->vat_number;
+        $idFiscale = new IdFiscaleIVA();
+        $idFiscale->IdCodice = $this->invoice->client->vat_number;
         $idFiscale->IdPaese = $this->invoice->client->country->iso_3166_2;
 
         $datiAnagrafici->IdFiscaleIVA = $idFiscale;
-        
-        $sede = new Sede;
+
+        $sede = new Sede();
         $sede->Indirizzo =  $this->invoice->client->address1;
         $sede->CAP =  (int)$this->invoice->client->postal_code;
         $sede->Comune =  $this->invoice->client->city;
         $sede->Provincia =  $this->invoice->client->state;
         $sede->Nazione = $this->invoice->client->country->iso_3166_2;
 
-        $cessionarioCommittente = new CessionarioCommittente;
+        $cessionarioCommittente = new CessionarioCommittente();
         $cessionarioCommittente->DatiAnagrafici = $datiAnagrafici;
         $cessionarioCommittente->Sede = $sede;
 
@@ -154,7 +154,7 @@ class FatturaPANew extends AbstractService
         return $this;
     }
 
-    private function setIdFiscaleIVA():self
+    private function setIdFiscaleIVA(): self
     {
 
         $this->IdFiscaleIVA->IdPaese = $this->invoice->company->country()->iso_3166_2;
@@ -164,42 +164,42 @@ class FatturaPANew extends AbstractService
     }
 
     //this is a choice, need to switch based on values here.
-    private function setAnagrafica():self
+    private function setAnagrafica(): self
     {
         $this->Anagrafica->Denominazione = $this->invoice->company->present()->name();
 
         return $this;
     }
 
-    private function setDatiGeneraliDocumento():self
+    private function setDatiGeneraliDocumento(): self
     {
 
         $this->DatiGeneraliDocumento->TipoDocumento = "TD01";
         $this->DatiGeneraliDocumento->Divisa = $this->invoice->client->currency()->code;
         $this->DatiGeneraliDocumento->Data = new \DateTime($this->invoice->date);
         $this->DatiGeneraliDocumento->Numero = $this->invoice->number;
-        $this->DatiGeneraliDocumento->Causale[] = substr($this->invoice->public_notes ?? '',0, 200); //unsure..
+        $this->DatiGeneraliDocumento->Causale[] = substr($this->invoice->public_notes ?? ' ', 0, 200); //unsure..
 
         return $this;
     }
 
-    private function setDatiGenerali():self
+    private function setDatiGenerali(): self
     {
         $this->DatiGenerali->DatiGeneraliDocumento = $this->DatiGeneraliDocumento;
 
         $this->FatturaElettronicaBody->DatiGenerali = $this->DatiGenerali;
-        
+
         return $this;
     }
 
-    private function setDettaglioPagamento():self
+    private function setDettaglioPagamento(): self
     {
 
         $this->DettaglioPagamento->ModalitaPagamento =  "MP01"; //String
         $this->DettaglioPagamento->DataScadenzaPagamento =  new \DateTime($this->invoice->due_date ?? $this->invoice->date);
         $this->DettaglioPagamento->ImportoPagamento =  (string) sprintf('%0.2f', $this->invoice->balance);
 
-        $DatiPagamento = new DatiPagamento;
+        $DatiPagamento = new DatiPagamento();
         $DatiPagamento->CondizioniPagamento = "TP02";
         $DatiPagamento->DettaglioPagamento[] = $this->DettaglioPagamento;
 
@@ -219,14 +219,14 @@ class FatturaPANew extends AbstractService
         foreach ($this->invoice->line_items as $key => $item) {
 
             $numero = $key + 1;
-            $dettaglioLinee = new DettaglioLinee;
+            $dettaglioLinee = new DettaglioLinee();
             $dettaglioLinee->NumeroLinea =  "{$numero}";
             $dettaglioLinee->Descrizione =  $item->notes ?? 'Descrizione';
             $dettaglioLinee->Quantita =  sprintf('%0.2f', $item->quantity);
             $dettaglioLinee->PrezzoUnitario =  sprintf('%0.2f', $item->cost);
             $dettaglioLinee->PrezzoTotale =  sprintf('%0.2f', $item->line_total);
             $dettaglioLinee->AliquotaIVA =  sprintf('%0.2f', $item->tax_rate1);
-            
+
 
             $datiBeniServizi->DettaglioLinee[] = $dettaglioLinee;
 
@@ -244,7 +244,7 @@ class FatturaPANew extends AbstractService
         $subtotal = sprintf('%0.2f', $calc->getSubTotal());
         $taxes = sprintf('%0.2f', $calc->getTotalTaxes());
 
-        $datiRiepilogo = new DatiRiepilogo;
+        $datiRiepilogo = new DatiRiepilogo();
         $datiRiepilogo->AliquotaIVA = "{$tax_rate_level}";
         $datiRiepilogo->ImponibileImporto = "{$subtotal}";
         $datiRiepilogo->Imposta = "{$taxes}";
@@ -269,19 +269,19 @@ class FatturaPANew extends AbstractService
     private function init(): self
     {
 
-        $this->FatturaElettronica = new FatturaElettronica;
-        $this->FatturaElettronicaBody = new FatturaElettronicaBody;
-        $this->FatturaElettronicaHeader = new FatturaElettronicaHeader;
-        $this->DatiTrasmissione = new DatiTrasmissione;
-        $this->IdTrasmittente = new IdTrasmittente;
-        $this->CedentePrestatore = new CedentePrestatore;
-        $this->DatiAnagrafici = new DatiAnagrafici;
-        $this->IdFiscaleIVA = new IdFiscaleIVA;
-        $this->Anagrafica = new Anagrafica;
-        $this->DatiGeneraliDocumento = new DatiGeneraliDocumento;
-        $this->DatiGenerali = new DatiGenerali;
-        $this->DettaglioPagamento = new DettaglioPagamento;
-        
+        $this->FatturaElettronica = new FatturaElettronica();
+        $this->FatturaElettronicaBody = new FatturaElettronicaBody();
+        $this->FatturaElettronicaHeader = new FatturaElettronicaHeader();
+        $this->DatiTrasmissione = new DatiTrasmissione();
+        $this->IdTrasmittente = new IdTrasmittente();
+        $this->CedentePrestatore = new CedentePrestatore();
+        $this->DatiAnagrafici = new DatiAnagrafici();
+        $this->IdFiscaleIVA = new IdFiscaleIVA();
+        $this->Anagrafica = new Anagrafica();
+        $this->DatiGeneraliDocumento = new DatiGeneraliDocumento();
+        $this->DatiGenerali = new DatiGenerali();
+        $this->DettaglioPagamento = new DettaglioPagamento();
+
         return $this;
 
     }

@@ -27,7 +27,7 @@ class StoreSchedulerRequest extends Request
                         'logged',
                         'partial',
                         'applied',
-                        'active', 
+                        'active',
                         'paused',
                         'completed',
                         'approved',

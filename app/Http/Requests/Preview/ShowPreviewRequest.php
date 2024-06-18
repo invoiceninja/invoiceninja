@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Preview;
 
 use App\Http\Requests\Request;
+use App\Http\ValidationRules\Design\TwigLint;
 use App\Utils\Traits\MakesHash;
 
 class ShowPreviewRequest extends Request
@@ -31,6 +32,7 @@ class ShowPreviewRequest extends Request
     public function rules()
     {
         $rules = [
+            'design.design.body' => ['sometimes', 'required_if:design.design.is_template,true',  new TwigLint()],
         ];
 
         return $rules;

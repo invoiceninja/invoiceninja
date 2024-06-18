@@ -184,7 +184,7 @@ class ReminderTest extends TestCase
         $settings->schedule_reminder1 = 'after_invoice_date';
         $settings->schedule_reminder2 = 'after_invoice_date';
         $settings->schedule_reminder3 = 'after_invoice_date';
-
+        $settings->lock_invoices = true;
         $settings->num_days_reminder1 = 5;
         $settings->num_days_reminder2 = 10;
         $settings->num_days_reminder3 = 15;
@@ -230,7 +230,6 @@ class ReminderTest extends TestCase
             $x = (bool)$invoice->reminder1_sent;
         }
         while($x === false);
-
 
         $this->assertNotNull($invoice->reminder_last_sent);
 

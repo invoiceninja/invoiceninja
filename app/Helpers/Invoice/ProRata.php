@@ -58,12 +58,12 @@ class ProRata
      * Prepares the line items of an invoice
      * to be pro rata refunded.
      *
-     * @param Invoice $invoice
+     * @param ?Invoice $invoice
      * @param bool $is_credit
      * @return array
      * @throws Exception
      */
-    public function refundItems(Invoice $invoice, $is_credit = false): array
+    public function refundItems(?Invoice $invoice, $is_credit = false): array
     {
         if (! $invoice) {
             return [];

@@ -97,15 +97,15 @@ class Helpers
         switch ($custom_field) {
             case 'date':
                 return is_null($entity) ? $value : $this->translateDate($value, $entity->date_format(), $entity->locale());
-                break;
+                
 
             case 'switch':
                 return trim($value ?? '') == 'yes' ? ctrans('texts.yes') : ctrans('texts.no');
-                break;
+                
 
             default:
                 return is_null($value) ? '' : $this->processReservedKeywords($value, $entity);
-                break;
+                
         }
     }
 
@@ -252,7 +252,7 @@ class Helpers
                 continue;
             }
 
-            if (Str::contains($match, '|')) {
+            // if (Str::contains($match, '|')) {
                 $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
 
                 $left = substr($parts[0], 1); // 'MONTH'
@@ -290,7 +290,7 @@ class Helpers
                     $value,
                     1
                 );
-            }
+            // }
         }
 
         // Second case with more common calculations.

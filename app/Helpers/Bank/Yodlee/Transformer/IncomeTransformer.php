@@ -171,20 +171,16 @@ class IncomeTransformer implements BankRevenueInterface
 
     private function convertCurrency(string $code)
     {
-        $currencies = Cache::get('currencies');
 
-        if (! $currencies) {
-            $this->buildCache(true);
-        }
+        $currencies = app('currencies');
 
-        $currency = $currencies->filter(function ($item) use ($code) {
+        $currency = $currencies->first(function ($item) use ($code) {
+            /** @var \App\Models\Currency $item */
             return $item->code == $code;
-        })->first();
+        });
 
-        if ($currency) {
-            return $currency->id;
-        }
+        /** @var \App\Models\Currency $currency */
+        return $currency ? $currency->id : 1; //@phpstan-ignore-line
 
-        return 1;
     }
 }

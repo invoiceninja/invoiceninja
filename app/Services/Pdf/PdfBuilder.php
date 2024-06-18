@@ -993,6 +993,7 @@ class PdfBuilder
             PdfService::DELIVERY_NOTE => $this->getDeliveryNoteSections(),
             PdfService::STATEMENT => $this->getStatementSections(),
             PdfService::PURCHASE_ORDER => $this->getPurchaseOrderSections(),
+            default => $this->getProductSections(),
         };
     }
 

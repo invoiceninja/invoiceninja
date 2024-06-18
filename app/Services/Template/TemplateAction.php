@@ -102,6 +102,7 @@ class TemplateAction implements ShouldQueue
             Expense::class => $resource->with('client'),
             Payment::class => $resource->with('invoices', 'client'),
             Client::class => $resource,
+            default => $resource,
         };
 
         $result = $resource->withTrashed()
@@ -114,43 +115,44 @@ class TemplateAction implements ShouldQueue
 
         /** Lets be clever and sniff out Statements */
         if($first_entity instanceof Client && stripos(json_encode($template->design), '##statement##') !== false) {
-            
-                $options = [
-                    'show_payments_table' => true, 
-                    'show_aging_table' => true, 
-                    'status' => 'all', 
-                    'show_credits_table' => false,
-                    'template' => $this->template,
-                ];
 
-                $pdfs = [];
+            $options = [
+                'show_payments_table' => true,
+                'show_aging_table' => true,
+                'status' => 'all',
+                'show_credits_table' => false,
+                'template' => $this->template,
+            ];
 
-                foreach($result as $client) {
-                    $pdfs[] = $client->service()->statement($options);
-                }
+            $pdfs = [];
 
-                if(count($pdfs) == 1) {
-                    $pdf = $pdfs[0];
-                } else {
-                    $pdf = (new PdfMerge($pdfs))->run();
-                }
-                
-                if($this->send_email) {
-                    $this->sendEmail($pdf, $template);
-                } else {
-                    $filename = "templates/{$this->hash}.pdf";
-                    Storage::disk(config('filesystems.default'))->put($filename, $pdf);
-                    return $pdf;
-                }
+            foreach($result as $client) {
+                $pdfs[] = $client->service()->statement($options);
+            }
+
+            if(count($pdfs) == 1) {
+                $pdf = $pdfs[0];
+            } else {
+                $pdf = (new PdfMerge($pdfs))->run();
+            }
+
+            if($this->send_email) {
+                $this->sendEmail($pdf, $template);
+            } else {
+                $filename = "templates/{$this->hash}.pdf";
+                Storage::disk(config('filesystems.default'))->put($filename, $pdf);
+                return $pdf;
+            }
 
         }
 
-        if($first_entity instanceof Client)
+        if($first_entity instanceof Client) {
             $currency_code = $first_entity->currency()->code;
-        elseif($first_entity->client)
+        } elseif($first_entity->client) {
             $currency_code = $first_entity->client->currency()->code;
-        else
+        } else {
             $currency_code = $this->company->currency()->code;
+        }
 
         if($result->count() <= 1) {
             $data[$key] = collect($result);
@@ -218,6 +220,7 @@ class TemplateAction implements ShouldQueue
             Project::class => 'projects',
             Client::class => 'clients',
             Vendor::class => 'vendors',
+            default =>'invoices',
         };
     }
 

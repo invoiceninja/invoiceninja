@@ -35,7 +35,7 @@ class MergeEDocument implements ShouldQueue
 
         $e_document_type = strlen($settings_entity->getSetting('e_invoice_type')) > 2 ? $settings_entity->getSetting('e_invoice_type') : "XInvoice_3_0";
 
-        if ($this->document instanceof Invoice){
+        if ($this->document instanceof Invoice) {
             switch ($e_document_type) {
                 case "EN16931":
                 case "XInvoice_3_0":
@@ -53,10 +53,8 @@ class MergeEDocument implements ShouldQueue
                     return $this->pdf_file;
 
             }
-        }
-        else{
+        } else {
             return $this->pdf_file;
         }
     }
 }
-

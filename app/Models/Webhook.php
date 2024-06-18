@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $company_id
  * @property int|null $user_id
  * @property int|null $event_id
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property string $target_url
  * @property string $format
  * @property int|null $created_at

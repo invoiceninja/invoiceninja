@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Client> $clients
  * @property-read int|null $clients_count
  * @property-read \App\Models\Company $company

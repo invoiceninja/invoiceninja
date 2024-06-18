@@ -92,7 +92,6 @@
         "setasign/fpdi": "^2.3",
         "socialiteproviders/apple": "dev-master",
         "socialiteproviders/microsoft": "^4.1",
-        "spatie/laravel-data": "^3.6",
         "sprain/swiss-qr-bill": "^4.3",
         "square/square": "30.0.0.*",
         "stripe/stripe-php": "^12",
@@ -104,7 +103,6 @@
         "twig/intl-extra": "^3.7",
         "twig/twig": "^3",
         "twilio/sdk": "^6.40",
-        "webpatser/laravel-countries": "dev-master#75992ad",
         "wildbit/postmark-php": "^4.0"
     },
     "require-dev": {
