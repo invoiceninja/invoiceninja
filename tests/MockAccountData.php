@@ -600,11 +600,6 @@ trait MockAccountData
             'purchase_order_id' => $this->purchase_order->id,
         ]);
 
-        $purchase_order_invitations = PurchaseOrderInvitation::whereCompanyId($this->purchase_order->company_id)
-            ->wherePurchaseOrderId($this->purchase_order->id);
-
-        $this->purchase_order->setRelation('invitations', $purchase_order_invitations);
-
         $this->purchase_order->service()->markSent();
 
         $this->purchase_order->setRelation('vendor', $this->vendor);

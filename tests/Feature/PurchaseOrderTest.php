@@ -99,7 +99,19 @@ class PurchaseOrderTest extends TestCase
     {
         $this->purchase_order->service()->createInvitations()->save();
 
-        $i = $this->purchase_order->fresh()->invitations->first();
+        $i = $this->purchase_order->invitations->first();
+
+        $data = [
+            'ids' => [$this->purchase_order->hashed_id],
+            'action' => 'download',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/purchase_orders/bulk", $data)
+        ->assertStatus(200);
+
 
         $data = [
             'ids' =>[$this->purchase_order->hashed_id],
@@ -146,16 +158,6 @@ class PurchaseOrderTest extends TestCase
         ])->post("/api/v1/purchase_orders/bulk", $data)
         ->assertStatus(200);
 
-        $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
-            'action' => 'download',
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post("/api/v1/purchase_orders/bulk", $data)
-        ->assertStatus(200);
 
         $data = [
             'ids' =>[],
