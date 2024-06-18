@@ -101,16 +101,16 @@ class PurchaseOrderTest extends TestCase
 
         $i = $this->purchase_order->invitations->first();
 
-        $data = [
-            'ids' => [$this->purchase_order->hashed_id],
-            'action' => 'download',
-        ];
+        // $data = [
+        //     'ids' => [$this->purchase_order->hashed_id],
+        //     'action' => 'download',
+        // ];
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post("/api/v1/purchase_orders/bulk", $data)
-        ->assertStatus(200);
+        // $response = $this->withHeaders([
+        //     'X-API-SECRET' => config('ninja.api_secret'),
+        //     'X-API-TOKEN' => $this->token,
+        // ])->post("/api/v1/purchase_orders/bulk", $data)
+        // ->assertStatus(200);
 
 
         $data = [

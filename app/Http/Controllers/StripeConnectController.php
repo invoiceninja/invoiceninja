@@ -141,6 +141,7 @@ class StripeConnectController extends BaseController
                 $company_gateway->save();
             }
         } catch(\Exception $e) {
+            nlog("Exception:: StripeConnectController::" . $e->getMessage());
             nlog("could not harvest stripe company name");
         }
 

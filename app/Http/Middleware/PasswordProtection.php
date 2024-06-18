@@ -93,6 +93,7 @@ class PasswordProtection
                 try {
                     $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', request()->header('X-API-OAUTH-PASSWORD'))[1]))));
                 } catch(\Exception $e) {
+                    nlog("Exception:: PasswordProtection::" . $e->getMessage());
                     nlog("could not decode microsoft response");
                     return response()->json(['message' => 'Could not decode the response from Microsoft'], 412);
                 }
