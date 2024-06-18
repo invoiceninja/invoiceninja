@@ -607,7 +607,7 @@ trait MockAccountData
 
         $this->purchase_order->service()->markSent();
 
-        $this->purchase_order->setRelation('client', $this->client);
+        $this->purchase_order->setRelation('vendor', $this->vendor);
         $this->purchase_order->setRelation('company', $this->company);
 
         $this->purchase_order->save();
