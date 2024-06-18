@@ -39,7 +39,8 @@ class StripeCreditCard {
             hidePostalCode: document.querySelector('meta[name=stripe-require-postal-code]')?.content === "0",
             value: {
                 postalCode: document.querySelector('meta[name=client-postal-code]').content,
-            }
+            },
+            hideIcon: false,
         });
 
         return this;
