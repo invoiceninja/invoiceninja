@@ -103,6 +103,7 @@ class PayPalBasePaymentDriver extends BaseDriver
             "25" => $method = PaymentType::VENMO,
             "28" => $method = PaymentType::PAY_LATER,
             "29" => $method = PaymentType::CREDIT_CARD_OTHER,
+            default => $method = PaymentType::PAYPAL,
         };
 
         return $method;
@@ -114,8 +115,16 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
-        $secret = $this->company_gateway->getConfigField('secret');
-        $client_id = $this->company_gateway->getConfigField('clientId');
+                if(\App\Utils\Ninja::isHosted()) {
+                $secret = config('ninja.paypal.secret');
+                $client_id = config('ninja.paypal.client_id');
+        
+        }
+        else {
+
+            $secret = $this->company_gateway->getConfigField('secret');
+            $client_id = $this->company_gateway->getConfigField('clientId');
+        }
 
         if($this->access_token && $this->token_expiry && $this->token_expiry->isFuture()) {
             return $this;
@@ -186,7 +195,7 @@ class PayPalBasePaymentDriver extends BaseDriver
     {
         return '';
 
-        /** @var \App\Models\ClientGatewayToken $cgt */
+        /** @var ?\App\Models\ClientGatewayToken $cgt */
         $cgt = ClientGatewayToken::where('company_gateway_id', $this->company_gateway->id)
                                  ->where('client_id', $this->client->id)
                                  ->first();
@@ -442,11 +451,11 @@ class PayPalBasePaymentDriver extends BaseDriver
         switch ($response['name']) {
             case 'NOT_AUTHORIZED':
                 throw new PaymentFailed("There was a permissions issue processing this payment, please contact the merchant. ", 401);
-                break;
+               
 
             default:
                 throw new PaymentFailed("Unknown error occurred processing payment. Please contact merchant.", 500);
-                break;
+               
         }
     }
 

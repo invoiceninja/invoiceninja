@@ -31,11 +31,11 @@ class QuoteExport extends BaseExport
 
     private Decorator $decorator;
 
-    private array $decorate_keys = [
-        'client',
-        'currency',
-        'invoice',
-    ];
+    // private array $decorate_keys = [
+    //     'client',
+    //     'currency',
+    //     'invoice',
+    // ];
 
     public function __construct(Company $company, array $input)
     {

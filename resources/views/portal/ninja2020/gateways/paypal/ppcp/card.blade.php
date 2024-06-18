@@ -14,7 +14,10 @@
     
 @endphp
 @section('gateway_head')
-
+    <meta http-equiv="Content-Security-Policy" content="
+        img-src 'self' https://c.paypal.com https://b.stats.paypal.com; 
+        frame-src 'self' https://c.paypal.com; 
+        script-src 'self' https://c.paypal.com;">
 @endsection
 
 @section('gateway_content')
@@ -85,7 +88,7 @@
 <script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
 
 @if(isset($merchantId))
-<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchantId={!! $merchantId !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchant-id={!! $merchantId !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @else
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 @endif

@@ -281,17 +281,25 @@ class BillingPortalPurchase extends Component
         }
 
         if (array_key_exists('currency_id', $this->request_data)) {
-            $currency = Cache::get('currencies')->filter(function ($item) {
+            
+            /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+            $currencies = app('currencies');
+
+            $currency = $currencies->first(function ($item) {
                 return $item->id == $this->request_data['currency_id'];
-            })->first();
+            });
 
             if ($currency) {
                 $data['settings']->currency_id = $currency->id;
             }
         } elseif ($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
-            $currency = Cache::get('currencies')->filter(function ($item) {
+
+            /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+            $currencies = app('currencies');
+
+            $currency = $currencies->first(function ($item) {
                 return $item->id == $this->subscription->group_settings->settings->currency_id;
-            })->first();
+            });
 
             if ($currency) {
                 $data['settings']->currency_id = $currency->id;
@@ -300,10 +308,12 @@ class BillingPortalPurchase extends Component
 
         if (array_key_exists('locale', $this->request_data)) {
             $request = $this->request_data;
-
-            $record = Cache::get('languages')->filter(function ($item) use ($request) {
+            
+            /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+            $languages = app('languages');
+            $record = $languages->first(function ($item) use ($request) {
                 return $item->locale == $request['locale'];
-            })->first();
+            });
 
             if ($record) {
                 $data['settings']['language_id'] = (string)$record->id;

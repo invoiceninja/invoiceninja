@@ -344,8 +344,6 @@ class ACH
 
                     return redirect()->route('client.payment_methods.verification', ['payment_method' => $cgt->hashed_id, 'method' => GatewayType::BANK_TRANSFER]);
 
-                    $data['message'] = 'Invalid parameters were supplied to Stripe\'s API';
-                    break;
                 case $e instanceof AuthenticationException:
                     $data['message'] = 'Authentication with Stripe\'s API failed';
                     break;

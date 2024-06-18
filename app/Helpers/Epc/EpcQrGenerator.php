@@ -26,15 +26,15 @@ use BaconQrCode\Writer;
  */
 class EpcQrGenerator
 {
-    private array $sepa = [
-        'serviceTag' => 'BCD',
-        'version' => 2,
-        'characterSet' => 1,
-        'identification' => 'SCT',
-        'bic' => '',
-        'purpose' => '',
+    // private array $sepa = [
+    //     'serviceTag' => 'BCD',
+    //     'version' => 2,
+    //     'characterSet' => 1,
+    //     'identification' => 'SCT',
+    //     'bic' => '',
+    //     'purpose' => '',
 
-    ];
+    // ];
 
     public function __construct(protected Company $company, protected Invoice|RecurringInvoice $invoice, protected float $amount)
     {
@@ -61,13 +61,7 @@ class EpcQrGenerator
         } catch(\Throwable $e) {
             nlog("EPC QR failure => ".$e->getMessage());
             return '';
-        } catch(\Exception $e) {
-            nlog("EPC QR failure => ".$e->getMessage());
-            return '';
-        } catch(InvalidArgumentException $e) {
-            nlog("EPC QR failure => ".$e->getMessage());
-            return '';
-        }
+        } 
 
     }
 

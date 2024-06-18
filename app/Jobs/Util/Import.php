@@ -1455,30 +1455,23 @@ class Import implements ShouldQueue
         switch ($status_id) {
             case 1:
                 return $payment;
-                break;
             case 2:
                 return $payment->service()->deletePayment();
-                break;
             case 3:
                 return $payment->service()->deletePayment();
-                break;
             case 4:
                 return $payment;
-                break;
             case 5:
                 $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;
             case 6:
                 $payment->status_id = Payment::STATUS_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;
 
             default:
                 return $payment;
-                break;
         }
     }
 

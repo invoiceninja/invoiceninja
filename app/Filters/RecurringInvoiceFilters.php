@@ -162,9 +162,10 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
+        /** @var array $key_parameters */
         $key_parameters = explode(',', $value);
 
-        if (count($key_parameters)) {
+        if (count($key_parameters) > 0) {
             return $this->builder->where(function ($query) use ($key_parameters) {
                 foreach ($key_parameters as $key) {
                     $query->orWhereJsonContains('line_items', ['product_key' => $key]);
@@ -183,6 +184,7 @@ class RecurringInvoiceFilters extends QueryFilters
      */
     public function next_send_between(string $range = ''): Builder
     {
+        /** @var array $parts */
         $parts = explode('|', $range);
 
         if (!isset($parts[0]) || !isset($parts[1])) {

@@ -60,7 +60,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_deleted
  * @property string|null $last_login
  * @property string|null $signature
- * @property string $password
+ * @property string|null $password
  * @property string $language_id
  * @property string|null $remember_token
  * @property string|null $custom_value1
@@ -264,6 +264,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
+        // @phpstan-ignore-next-line
         if ($this->company) {
             return $this->company;
         } elseif ($truth->getCompany()) {

@@ -139,32 +139,28 @@ class UpdateClientRequest extends Request
 
     private function getCountryCode($country_code)
     {
-        $countries = Cache::get('countries');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-        $country = $countries->filter(function ($item) use ($country_code) {
+        $country = $countries->first(function ($item) use ($country_code) {
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
-        })->first();
+        });
 
-        if ($country) {
-            return (string) $country->id;
-        }
-
-        return '';
+        return $country ? (string) $country->id : '';
     }
 
     private function getLanguageId($language_code)
     {
-        $languages = Cache::get('languages');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        $language = $languages->filter(function ($item) use ($language_code) {
+        $language = $languages->first(function ($item) use ($language_code) {
             return $item->locale == $language_code;
-        })->first();
+        });
 
-        if ($language) {
-            return (string) $language->id;
-        }
-
-        return '';
+        return $language ? (string) $language->id : '';
     }
 
     /**

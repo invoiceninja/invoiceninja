@@ -141,7 +141,7 @@ class ClientController extends BaseController
             return $request->disallowUpdate();
         }
 
-        /** @var \App\Models\User $user */
+        /** @var ?\App\Models\User $user */
         $user = auth()->user();
 
         $client = $this->client_repo->save($request->all(), $client);
@@ -426,7 +426,7 @@ class ClientController extends BaseController
 
         try {
 
-            /** @var \Postmark\Models\DynamicResponseModel $response */
+            /** @var ?\Postmark\Models\DynamicResponseModel $response */
             $response = $postmark->activateBounce((int)$bounce_id);
 
             if($response && $response?->Message == 'OK' && !$response->Bounce->Inactive && $response->Bounce->Email) {

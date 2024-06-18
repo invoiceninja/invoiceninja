@@ -69,62 +69,81 @@ class Statics
     {
         $data = [];
 
-        foreach (config('ninja.cached_tables') as $name => $class) {
-            if (! Cache::has($name)) {
-                // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class())->getTable())) {
-                    continue;
-                }
-                if ($name == 'payment_terms') {
-                    $orderBy = 'num_days';
-                } elseif ($name == 'fonts') {
-                    $orderBy = 'sort_order';
-                } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                    $orderBy = 'name';
-                } else {
-                    $orderBy = 'id';
-                }
-                $tableData = $class::orderBy($orderBy)->get();
-                if ($tableData->count()) {
-                    Cache::forever($name, $tableData);
-                }
-            }
+        // foreach (config('ninja.cached_tables') as $name => $class) {
+        //     if (! Cache::has($name)) {
+        //         // check that the table exists in case the migration is pending
+        //         if (! Schema::hasTable((new $class())->getTable())) {
+        //             continue;
+        //         }
+        //         if ($name == 'payment_terms') {
+        //             $orderBy = 'num_days';
+        //         } elseif ($name == 'fonts') {
+        //             $orderBy = 'sort_order';
+        //         } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
+        //             $orderBy = 'name';
+        //         } else {
+        //             $orderBy = 'id';
+        //         }
+        //         $tableData = $class::orderBy($orderBy)->get();
+        //         if ($tableData->count()) {
+        //             Cache::forever($name, $tableData);
+        //         }
+        //     }
 
-            $data[$name] = Cache::get($name);
-        }
+        //     $data[$name] = app($name);
+        // }
 
         if ($locale) {
-            $data['industries'] = Cache::get('industries')->each(function ($industry) {
+            
+            /** @var \Illuminate\Support\Collection<\App\Models\Industry> */
+            $industries = app('industries');
+
+            $data['industries'] = $industries->each(function ($industry) {
                 $industry->name = ctrans('texts.industry_'.$industry->name);
             })->sortBy(function ($industry) {
                 return $industry->name;
             })->values();
 
-            $data['countries'] = Cache::get('countries')->each(function ($country) {
+            /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+            $countries = app('countries');
+
+            $data['countries'] = $countries->each(function ($country) {
                 $country->name = ctrans('texts.country_'.$country->name);
             })->sortBy(function ($country) {
                 return $country->name;
             })->values();
 
-            $data['payment_types'] = Cache::get('payment_types')->each(function ($pType) {
+
+            /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
+            $payment_types = app('payment_types');
+            
+            $data['payment_types'] = $payment_types->each(function ($pType) {
                 $pType->name = ctrans('texts.payment_type_'.$pType->name);
             })->sortBy(function ($pType) {
                 return $pType->name;
             })->values();
 
-            $data['languages'] = Cache::get('languages')->each(function ($lang) {
+            
+            /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+            $payment_types = app('languages');
+
+            $data['languages'] = $payment_types->each(function ($lang) {
                 $lang->name = ctrans('texts.lang_'.$lang->name);
             })->sortBy(function ($lang) {
                 return $lang->name;
             })->values();
 
-            $data['currencies'] = Cache::get('currencies')->each(function ($currency) {
+            
+            /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+            $currencies = app('currencies');
+
+            $data['currencies'] = $currencies->each(function ($currency) {
                 $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
             })->sortBy(function ($currency) {
                 return $currency->name;
             })->values();
 
-            $data['templates'] = Cache::get('templates');
+            $data['templates'] = app('templates');
         }
 
         $data['bulk_updates'] = [

@@ -1035,7 +1035,7 @@ class BaseController extends Controller
 
         $resource = new Item($item, $transformer, $this->entity_type);
 
-        /** @var \App\Models\User $user */
+        /** @var ?\App\Models\User $user */
         $user = auth()->user();
 
         if ($user && request()->include_static) {

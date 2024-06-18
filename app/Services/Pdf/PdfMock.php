@@ -174,7 +174,8 @@ class PdfMock
         match ($this->request['settings_type']) {
             'group' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'client' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
-            'company' => $settings = (object)$this->request['settings']
+            'company' => $settings = (object)$this->request['settings'],
+            default => $settings = (object)$this->request['settings'],
         };
 
         $settings = CompanySettings::setProperties($settings);

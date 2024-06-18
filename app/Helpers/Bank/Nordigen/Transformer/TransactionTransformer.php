@@ -156,22 +156,16 @@ class TransactionTransformer implements BankRevenueInterface
     private function convertCurrency(string $code)
     {
 
-        $currencies = Cache::get('currencies');
+        $currencies = app('currencies');
 
-        if (!$currencies) {
-            $this->buildCache(true);
-        }
-
-        $currency = $currencies->filter(function ($item) use ($code) {
+        $currency = $currencies->first(function ($item) use ($code) {
+            /** @var \App\Models\Currency $item */
             return $item->code == $code;
-        })->first();
+        });
 
-        if ($currency) {
-            return $currency->id;
-        }
-
-        return 1;
-
+        /** @var \App\Models\Currency $currency */
+        return $currency ? $currency->id : 1; //@phpstan-ignore-line
+        
     }
 
     private function formatDate(string $input)

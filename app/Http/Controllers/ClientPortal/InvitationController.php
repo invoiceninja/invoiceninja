@@ -146,6 +146,7 @@ class InvitationController extends Controller
 
     }
 
+    
     private function fireEntityViewedEvent($invitation, $entity_string)
     {
         switch ($entity_string) {

@@ -80,7 +80,7 @@ class BankTransfer
      */
     private function resolveBankType()
     {
-        return match ($this->stripe->client->currency()->code) {
+        return match ($this->stripe->client->currency()->code) { //@phpstan-ignore-line
             'GBP' =>  ['type' => 'gb_bank_transfer'],
             'EUR' => ['type' => 'eu_bank_transfer', 'eu_bank_transfer' => ['country' => $this->stripe->client->country->iso_3166_2]],
             'JPY' => ['type' => 'jp_bank_transfer'],
@@ -128,8 +128,8 @@ class BankTransfer
             }
 
             /*  Create a pending payment */
-            if ($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') {
-                match ($pi->next_action->display_bank_transfer_instructions->currency) {
+            if ($pi->status == 'requires_action' && $pi->next_action->type == 'display_bank_transfer_instructions') { //@phpstan-ignore-line
+                match ($pi->next_action->display_bank_transfer_instructions->currency) { //@phpstan-ignore-line
                     'mxn' => $data['bank_details'] = $this->formatDataforMx($pi),
                     'gbp' => $data['bank_details'] = $this->formatDataforUk($pi),
                     'eur' => $data['bank_details'] = $this->formatDataforEur($pi),

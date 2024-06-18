@@ -1385,16 +1385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.314.1",
+            "version": "3.314.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "85207a1f342443f40711ac8fe246120821370f11"
+                "reference": "1f5ccf9c73a66fb85c7c5de8f11ed69e44c636ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/85207a1f342443f40711ac8fe246120821370f11",
-                "reference": "85207a1f342443f40711ac8fe246120821370f11",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1f5ccf9c73a66fb85c7c5de8f11ed69e44c636ef",
+                "reference": "1f5ccf9c73a66fb85c7c5de8f11ed69e44c636ef",
                 "shasum": ""
             },
             "require": {
@@ -1474,9 +1474,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.2"
             },
-            "time": "2024-06-13T18:07:00+00:00"
+            "time": "2024-06-14T18:11:34+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3602,16 +3602,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.359.0",
+            "version": "v0.360.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "e975e6d0efa47f7e49280c4ea7fd6a93b6d7e338"
+                "reference": "e48813050e660c7dcbe48cb6556461efe6381a54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/e975e6d0efa47f7e49280c4ea7fd6a93b6d7e338",
-                "reference": "e975e6d0efa47f7e49280c4ea7fd6a93b6d7e338",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/e48813050e660c7dcbe48cb6556461efe6381a54",
+                "reference": "e48813050e660c7dcbe48cb6556461efe6381a54",
                 "shasum": ""
             },
             "require": {
@@ -3640,9 +3640,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.359.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.360.0"
             },
-            "time": "2024-06-10T01:02:17+00:00"
+            "time": "2024-06-17T01:06:20+00:00"
         },
         {
             "name": "google/auth",
@@ -4630,16 +4630,16 @@
         },
         {
             "name": "horstoeko/zugferd",
-            "version": "v1.0.54",
+            "version": "v1.0.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/horstoeko/zugferd.git",
-                "reference": "91547c8aee9d8da22568b90d7cedfaba15373ebe"
+                "reference": "ae34e6450d125850c5c001100b459d46e9b37150"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/91547c8aee9d8da22568b90d7cedfaba15373ebe",
-                "reference": "91547c8aee9d8da22568b90d7cedfaba15373ebe",
+                "url": "https://api.github.com/repos/horstoeko/zugferd/zipball/ae34e6450d125850c5c001100b459d46e9b37150",
+                "reference": "ae34e6450d125850c5c001100b459d46e9b37150",
                 "shasum": ""
             },
             "require": {
@@ -4699,9 +4699,9 @@
             ],
             "support": {
                 "issues": "https://github.com/horstoeko/zugferd/issues",
-                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.54"
+                "source": "https://github.com/horstoeko/zugferd/tree/v1.0.56"
             },
-            "time": "2024-06-07T07:47:18+00:00"
+            "time": "2024-06-15T05:49:47+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -5472,16 +5472,16 @@
         },
         {
             "name": "josemmo/facturae-php",
-            "version": "v1.8.0",
+            "version": "v1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/josemmo/Facturae-PHP.git",
-                "reference": "102edbb00b883d41da7306abf78a1695f7df406c"
+                "reference": "c7f01f5d00a82bcaa1bdb9cfe7029cc7d8296fc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/josemmo/Facturae-PHP/zipball/102edbb00b883d41da7306abf78a1695f7df406c",
-                "reference": "102edbb00b883d41da7306abf78a1695f7df406c",
+                "url": "https://api.github.com/repos/josemmo/Facturae-PHP/zipball/c7f01f5d00a82bcaa1bdb9cfe7029cc7d8296fc4",
+                "reference": "c7f01f5d00a82bcaa1bdb9cfe7029cc7d8296fc4",
                 "shasum": ""
             },
             "require": {
@@ -5523,9 +5523,9 @@
             ],
             "support": {
                 "issues": "https://github.com/josemmo/Facturae-PHP/issues",
-                "source": "https://github.com/josemmo/Facturae-PHP/tree/v1.8.0"
+                "source": "https://github.com/josemmo/Facturae-PHP/tree/v1.8.1"
             },
-            "time": "2024-05-11T18:17:09+00:00"
+            "time": "2024-06-16T10:13:36+00:00"
         },
         {
             "name": "kelunik/certificate",
@@ -17354,16 +17354,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.58.1",
+            "version": "v3.59.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "04e9424025677a86914b9a4944dbbf4060bb0aff"
+                "reference": "30ba9ecc2b0e5205e578fe29973c15653d9bfd29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/04e9424025677a86914b9a4944dbbf4060bb0aff",
-                "reference": "04e9424025677a86914b9a4944dbbf4060bb0aff",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/30ba9ecc2b0e5205e578fe29973c15653d9bfd29",
+                "reference": "30ba9ecc2b0e5205e578fe29973c15653d9bfd29",
                 "shasum": ""
             },
             "require": {
@@ -17393,16 +17393,16 @@
                 "symfony/stopwatch": "^5.4 || ^6.0 || ^7.0"
             },
             "require-dev": {
-                "facile-it/paraunit": "^1.3 || ^2.0",
-                "infection/infection": "^0.27.11",
+                "facile-it/paraunit": "^1.3 || ^2.3",
+                "infection/infection": "^0.29.5",
                 "justinrainbow/json-schema": "^5.2",
                 "keradus/cli-executor": "^2.1",
                 "mikey179/vfsstream": "^1.6.11",
                 "php-coveralls/php-coveralls": "^2.7",
                 "php-cs-fixer/accessible-object": "^1.1",
-                "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.4",
-                "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.4",
-                "phpunit/phpunit": "^9.6 || ^10.5.5 || ^11.0.2",
+                "php-cs-fixer/phpunit-constraint-isidenticalstring": "^1.5",
+                "php-cs-fixer/phpunit-constraint-xmlmatchesxsd": "^1.5",
+                "phpunit/phpunit": "^9.6.19 || ^10.5.21 || ^11.2",
                 "symfony/var-dumper": "^5.4 || ^6.0 || ^7.0",
                 "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
             },
@@ -17417,7 +17417,10 @@
             "autoload": {
                 "psr-4": {
                     "PhpCsFixer\\": "src/"
-                }
+                },
+                "exclude-from-classmap": [
+                    "src/Fixer/Internal/*"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -17442,7 +17445,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.58.1"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.59.3"
             },
             "funding": [
                 {
@@ -17450,7 +17453,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-29T16:39:07+00:00"
+            "time": "2024-06-16T14:17:03+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -18558,16 +18561,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.20",
+            "version": "10.5.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "547d314dc24ec1e177720d45c6263fb226cc2ae3"
+                "reference": "ac837816fa52078f7a5e17ed774f256a72a51af6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/547d314dc24ec1e177720d45c6263fb226cc2ae3",
-                "reference": "547d314dc24ec1e177720d45c6263fb226cc2ae3",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ac837816fa52078f7a5e17ed774f256a72a51af6",
+                "reference": "ac837816fa52078f7a5e17ed774f256a72a51af6",
                 "shasum": ""
             },
             "require": {
@@ -18639,7 +18642,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.20"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.21"
             },
             "funding": [
                 {
@@ -18655,7 +18658,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-24T06:32:35+00:00"
+            "time": "2024-06-15T09:13:15+00:00"
         },
         {
             "name": "react/cache",
@@ -20752,5 +20755,5 @@
     "platform-dev": {
         "php": "^8.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }
