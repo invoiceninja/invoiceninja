@@ -126,13 +126,12 @@ class MatchBankTransactions implements ShouldQueue
     {
         $collection = collect();
 
+        /** @array $invoices */
         $invoices = explode(",", $invoice_hashed_ids);
 
-        if (count($invoices) >= 1) {
-            foreach ($invoices as $invoice) {
-                if (is_string($invoice) && strlen($invoice) > 1) {
-                    $collection->push($this->decodePrimaryKey($invoice));
-                }
+        foreach ($invoices as $invoice) {
+            if (is_string($invoice) && strlen($invoice) > 1) {
+                $collection->push($this->decodePrimaryKey($invoice));
             }
         }
 
@@ -189,7 +188,7 @@ class MatchBankTransactions implements ShouldQueue
     private function coalesceExpenses($expense): string
     {
 
-        if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
+        if (!$this->bt->expense_id || strlen($this->bt->expense_id ?? '') < 2) {
             return $expense;
         }
 
@@ -233,11 +232,12 @@ class MatchBankTransactions implements ShouldQueue
         $_invoices = Invoice::query()
             ->withTrashed()
             ->where('company_id', $this->bt->company_id)
-            ->whereIn('id', $this->getInvoices($input['invoice_ids']));
+            ->whereIn('id', $this->getInvoices($input['invoice_ids']))
+            ->get();
 
         $amount = $this->bt->amount;
 
-        if ($_invoices && $this->checkPayable($_invoices)) {
+        if ($_invoices->count() >0 && $this->checkPayable($_invoices)) {
             $this->createPayment($_invoices, $amount);
 
             $this->bts->push($this->bt->id);
@@ -323,6 +323,7 @@ class MatchBankTransactions implements ShouldQueue
             });
         }, 2);
 
+        // @phpstan-ignore-next-line
         if (!$this->invoice) {
             return;
         }
@@ -355,7 +356,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->setExchangeRate($payment);
 
         /* Create a payment relationship to the invoice entity */
-        foreach ($this->attachable_invoices as $attachable_invoice) {
+        foreach ($this->attachable_invoices as $attachable_invoice) { // @phpstan-ignore-line
             $payment->invoices()->attach($attachable_invoice['id'], [
                 'amount' => $attachable_invoice['amount'],
             ]);
