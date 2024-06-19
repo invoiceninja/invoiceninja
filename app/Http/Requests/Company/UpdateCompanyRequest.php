@@ -11,12 +11,15 @@
 
 namespace App\Http\Requests\Company;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\Company\ValidSubdomain;
-use App\Http\ValidationRules\ValidSettingsRule;
 use App\Utils\Ninja;
+use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\CompanySettings;
+use InvoiceNinja\EInvoice\EInvoice;
+use App\Http\ValidationRules\ValidSettingsRule;
+use InvoiceNinja\EInvoice\Models\Peppol\Invoice;
+use App\Http\ValidationRules\EInvoice\ValidScheme;
+use App\Http\ValidationRules\Company\ValidSubdomain;
 
 class UpdateCompanyRequest extends Request
 {
@@ -64,6 +67,7 @@ class UpdateCompanyRequest extends Request
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
 
+        $rules['e_invoice'] = ['sometimes','nullable', new ValidScheme()];
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'bail|nullable|sometimes|url';
@@ -112,11 +116,6 @@ class UpdateCompanyRequest extends Request
         if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }
-
-        // if(isset($input['e_invoice'])){
-        //     nlog("am i set?");
-        //     $r = FatturaElettronica::validate($input['e_invoice']);
-        // }
 
         $this->replace($input);
     }
