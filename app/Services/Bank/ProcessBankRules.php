@@ -50,6 +50,13 @@ class ProcessBankRules extends AbstractService
         }
     }
 
+    // $payment.amount => "Payment Amount", float
+    // $payment.transaction_reference => "Payment Transaction Reference", string
+    // $invoice.amount => "Invoice Amount", float
+    // $invoice.number => "Invoice Number", string
+    // $client.id_number => "Client ID Number", string
+    // $client.email => "Client Email", string
+    // $invoice.po_number => "Invoice Purchase Order Number", string
     private function matchCredit()
     {
         $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
@@ -94,6 +101,20 @@ class ProcessBankRules extends AbstractService
 
                     if($invoiceNumber)
                         $matches++;
+
+                }
+
+                if ($rule['search_key'] == '$invoice.po_number') {
+
+                    $invoicePONumbers = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
+                                            ->whereIn('status_id', [1,2,3])
+                                            ->where('is_deleted', 0)
+                                            ->where('po_number', $this->bank_transaction->description)
+                                            ->get();
+
+                    if($invoicePONumbers->count() > 0) {
+                        $matches++;
+                    }
 
                 }
 
