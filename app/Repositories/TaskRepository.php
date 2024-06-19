@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Factory\TaskFactory;
+use App\Jobs\Task\TaskAssigned;
 use App\Models\Task;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
@@ -43,6 +44,10 @@ class TaskRepository extends BaseRepository
     {
         if ($task->id) {
             $this->new_task = false;
+        }
+
+        if(isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id){
+            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
         }
 
         $task->fill($data);
