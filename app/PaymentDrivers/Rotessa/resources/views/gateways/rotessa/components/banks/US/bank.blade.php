@@ -5,7 +5,7 @@
             Routing Number
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input class="input w-full" id="routing_number" name="routing_number" type="text" placeholder="Phone" required value="{{ old('routing_number',$routing_number) }}">
+            <input class="input w-full" id="routing_number" name="routing_number" type="text" placeholder="Routing Number" required value="{{ old('routing_number',$routing_number) }}">
         </dd>
     </div>
 
