@@ -155,6 +155,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::get('activities', [ActivityController::class, 'index']);
     Route::post('activities/entity', [ActivityController::class, 'entityActivity']);
+    Route::post('activities/notes', [ActivityController::class, 'note']);
     Route::get('activities/download_entity/{activity}', [ActivityController::class, 'downloadHistoricalEntity']);
 
     Route::post('charts/totals', [ChartController::class, 'totals'])->name('chart.totals');

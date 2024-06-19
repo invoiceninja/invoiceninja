@@ -962,6 +962,7 @@ class CompanySettings extends BaseSettings
                 '$invoice.due_date',
                 '$invoice.total',
                 '$invoice.balance_due',
+                '$invoice.project',
             ],
             'quote_details' => [
                 '$quote.number',
@@ -969,6 +970,7 @@ class CompanySettings extends BaseSettings
                 '$quote.date',
                 '$quote.valid_until',
                 '$quote.total',
+                '$quote.project',
             ],
             'credit_details' => [
                 '$credit.number',

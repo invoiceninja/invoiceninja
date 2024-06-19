@@ -222,6 +222,7 @@ class HtmlEngine
             if ($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
+                $data['$quote.project'] = &$data['$project.name'];
             }
 
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
@@ -276,8 +277,10 @@ class HtmlEngine
             $data['$credit.custom4'] = &$data['$quote.custom4'];
 
             if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
+                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];                
                 $data['$invoice.project'] = &$data['$project.name'];
+                $data['$quote.project'] = &$data['$project.name'];
+
             }
 
             if ($this->entity->vendor) {

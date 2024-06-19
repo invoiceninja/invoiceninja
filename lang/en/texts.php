@@ -2364,7 +2364,7 @@ $lang = array(
     'currency_gold_troy_ounce' => 'Gold Troy Ounce',
     'currency_nicaraguan_córdoba' => 'Nicaraguan Córdoba',
     'currency_malagasy_ariary' => 'Malagasy ariary',
-    "currency_tongan_pa_anga" => "Tongan Pa'anga",
+    "currency_tongan_paanga" => "Tongan Pa'anga",
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -5269,6 +5269,7 @@ $lang = array(
     'merge_e_invoice_to_pdf' => 'Merge E-Invoice and PDF',
     'task_assigned_subject' => 'New task assignment [Task :task] [ :date ]',
     'task_assigned_body' => 'You have been assigned task :task <br><br> Description: :description <br><br> Client: :client',
+    'activity_141' => 'User :user entered note: :notes',
 );
 
 return $lang;
