@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\Rotessa;
 
 use Carbon\Carbon;
+use App\Models\Client;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use Illuminate\View\View;
@@ -24,9 +25,9 @@ use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
 use App\Models\ClientGatewayToken;
 use Illuminate\Http\RedirectResponse;
-use App\PaymentDrivers\Rotessa\Resources\Customer;
 use App\PaymentDrivers\RotessaPaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\Rotessa\Resources\Customer;
 use App\PaymentDrivers\Rotessa\Resources\Transaction;
 use App\PaymentDrivers\Rotessa\DataProviders\Frequencies;
 use Omnipay\Common\Exception\InvalidRequestException;
@@ -99,10 +100,7 @@ class PaymentMethod implements MethodInterface
                 'custom_identifier'=>['required_without:customer_id'],
                 'customer_id'=>['required_without:custom_identifier','integer'],
             ]);
-            $customer = new Customer(
-                $request->merge(['custom_identifier' => $request->input('id') ] +
-                ['address' => $request->only('address_1','address_2','city','postal_code','province_code','country') ])->all() 
-            );
+            $customer = new Customer(  ['address' => $request->only('address_1','address_2','city','postal_code','province_code','country'), 'custom_identifier' => $request->input('custom_identifier') ] + $request->all());
             $this->rotessa->findOrCreateCustomer($customer->resolve());
             
             return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
