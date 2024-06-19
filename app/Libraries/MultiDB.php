@@ -449,6 +449,23 @@ class MultiDB
         return false;
     }
 
+
+    public static function findUserByReferralCode(string $referral_code): ?User
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            if ($user = User::on($db)->where('referral_code', $referral_code)->first()) {
+                self::setDb($db);
+                return $user;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return false;
+    }
+
     public static function findAndSetDbByClientId($client_id): ?Client
     {
         $current_db = config('database.default');
