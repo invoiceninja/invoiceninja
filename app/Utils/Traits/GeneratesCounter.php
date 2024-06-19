@@ -419,7 +419,7 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-            $number = $this->getFormattedEntityNumber($entity, $counter, $padding, $pattern);
+            $number = $this->getFormattedEntityNumber($entity, $counter, $padding, $pattern, $prefix);
 
             $check = $class::where('company_id', $entity->company_id)->where('number', $number)->withTrashed()->exists();
 
