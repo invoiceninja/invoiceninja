@@ -1,0 +1,41 @@
+{
+    "require-dev": {
+        "omnipay/tests":"*",
+        "oomphinc/composer-installers-extender": "*",
+        "http-interop/http-factory-guzzle": "dev-master",
+        "guzzlehttp/guzzle": "7.9.x-dev"
+    },
+    "name":"karneaud/omnipay-rotessa",
+    "minimum-stability": "dev",
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "composer/installers": true,
+            "oomphinc/composer-installers-extender": true
+        }
+    },
+    "require": {
+        "php": ">=8.0",
+        "php-http/discovery": "*",
+	    "omnipay/common":"*"
+    },
+    "scripts": {
+        "generate": [
+            "generate"
+        ],
+        "tests": [
+            "phpunit"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "Omnipay\\Rotessa\\": "src/Omnipay/Rotessa/"
+        },
+        "classmap": ["src/Omnipay/Rotessa/Exception/Exceptions.php"]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Omnipay\\Rotessa\\Test\\": "tests/"
+        }
+    }
+}

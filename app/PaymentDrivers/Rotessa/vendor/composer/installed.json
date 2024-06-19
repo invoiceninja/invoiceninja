@@ -27,6 +27,6 @@
             "install-path": "../karneaud/omnipay-rotessa"
         }
     ],
-    "dev": true,
+    "dev": false,
     "dev-package-names": []
 }

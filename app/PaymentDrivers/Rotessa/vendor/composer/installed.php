@@ -7,7 +7,7 @@
         'type' => 'laravel-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'dev' => true,
+        'dev' => false,
     ),
     'versions' => array(
         'karneaud/invoiceninja-rotessa' => array(
