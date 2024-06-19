@@ -16,6 +16,7 @@ use App\Factory\ExpenseFactory;
 use App\Models\BankTransaction;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Carbon;
@@ -70,18 +71,115 @@ class ProcessBankRules extends AbstractService
         $this->credit_rules = $this->bank_transaction->company->credit_rules();
 
         //stub for credit rules
-        foreach ($this->credit_rules as $rule) {
-            //   $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
+        foreach ($this->credit_rules as $bank_transaction_rule) {
+        $matches = 0;
+
+            if (!is_array($bank_transaction_rule['rules'])) {
+                continue;
+            }
+
+            foreach ($bank_transaction_rule['rules'] as $rule) {
+                $rule_count = count($bank_transaction_rule['rules']);
+
+                if ($rule['search_key'] == '$invoice.number') {
+
+                    $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
+                                            ->whereIn('status_id', [1,2,3])
+                                            ->where('is_deleted', 0)
+                                            ->get();
+
+                    $invoiceNumber = $this->invoices->first(function ($value, $key) {
+                        return str_contains($this->bank_transaction->description, $value->number) || str_contains(str_replace("\n", "", $this->bank_transaction->description), $value->number);
+                    });
+
+                    if($invoiceNumber)
+                        $matches++;
+
+                }
+
+                if ($rule['search_key'] == '$invoice.amount') {
+
+                    $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
+                                                                ->whereIn('status_id', [1,2,3])
+                                                                ->where('is_deleted', 0)
+                                                                ->where('amount', $rule['operator'], $this->bank_transaction->amount)
+                                                                ->get();
+
+                    $invoiceAmounts = $this->invoices;
+
+                    if($invoiceAmounts->count() > 0) {
+                        $matches++;
+                    }
+
+                }
+
+                if ($rule['search_key'] == '$payment.amount') {
+
+
+                    $paymentAmounts = Payment::query()->where('company_id', $this->bank_transaction->company_id)
+                                            ->whereIn('status_id', [1,4])
+                                            ->where('is_deleted', 0)
+                                            ->whereNull('transaction_id')
+                                            ->where('amount', $rule['operator'], $this->bank_transaction->amount)
+                                            ->get();
+
+                    
+
+                    if($paymentAmounts->count() > 0) {
+                        $matches++;
+                    }
+
+                }
+
+
+                if ($rule['search_key'] == '$payment.transaction_reference') {
+
+                    $ref_search = $this->bank_transaction->description;
+
+                    switch ($rule['operator']) {
+                        case 'is':
+                            $operator = '=';
+                            break;
+                        case 'contains':
+                            $ref_search = "%".$ref_search."%";
+                            $operator = 'LIKE';
+                            break;
+
+                        default:
+                            $operator = '=';
+                            break;
+                    }
+
+                    $paymentReferences = Payment::query()->where('company_id', $this->bank_transaction->company_id)
+                                            ->whereIn('status_id', [1,4])
+                                            ->where('is_deleted', 0)
+                                            ->whereNull('transaction_id')
+                                            ->where('transaction_reference', $operator, $ref_search)
+                                            ->get();
+
+
+
+                    if($paymentReferences->count() > 0) {
+                        $matches++;
+                    }
+
+                }
+
+
+
+            }
+
         }
+
     }
+
+
 
     private function matchDebit()
     {
         $this->debit_rules = $this->bank_transaction->company->debit_rules();
 
         $this->categories = collect(Cache::get('bank_categories'));
-
-
 
         foreach ($this->debit_rules as $bank_transaction_rule) {
             $matches = 0;
@@ -142,7 +240,7 @@ class ProcessBankRules extends AbstractService
     private function coalesceExpenses($expense): string
     {
 
-        if (!$this->bank_transaction->expense_id || strlen($this->bank_transaction->expense_id) < 1) {
+        if (!$this->bank_transaction->expense_id || strlen($this->bank_transaction->expense_id ?? '') < 2) {
             return $expense;
         }
 
