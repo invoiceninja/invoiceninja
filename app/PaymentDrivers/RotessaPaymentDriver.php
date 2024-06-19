@@ -12,6 +12,7 @@
 namespace App\PaymentDrivers;
 
 use Omnipay\Omnipay;
+use App\Models\Client;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\PaymentHash;
@@ -24,6 +25,7 @@ use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\BaseDriver;
 use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\Rotessa\Acss;
+use Illuminate\Database\Eloquent\Builder;
 use App\PaymentDrivers\Rotessa\BankTransfer;
 use App\PaymentDrivers\Rotessa\Resources\Customer;
 
@@ -77,7 +79,7 @@ class RotessaPaymentDriver extends BaseDriver
             && in_array($this->client->country->iso_3166_2, ['CA'])) {
             $types[] = GatewayType::ACSS;
         }
-
+        
         return $types;
     }
 
@@ -111,18 +113,28 @@ class RotessaPaymentDriver extends BaseDriver
     }
 
     public function importCustomers() {
+        $this->init();
         try {
-            $customers = collect($this->gateway->getCustomers()->getData())->pluck('email','id');
+            $result = $this->gateway->getCustomers()->send();
+            if(!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
+            
+            $customers = collect($result->getData())->unique('email');
             $client_emails = $customers->pluck('email')->all();
             $company_id = $this->company_gateway->company->id;
-            $client_contacts = ClientContact::select('email','id','client_id',)->where('company_id', $companY_id)->whereIn('email', $client_emails )->whereNull('deleted_at')->where('is_deleted', false)->get();
+            $client_contacts = ClientContact::where('company_id', $company_id)->whereIn('email', $client_emails )->where('is_primary', 1 )->whereNull('deleted_at')->get();
+            $client_contacts = $client_contacts->map(function($item, $key) use ($customers) {
+                return  array_merge([], (array) $customers->firstWhere("email", $item->email) , ['custom_identifier' => $item->client->number, 'identifier' => $item->client->number ]);
+            }  );
             $client_contacts->each(
                 function($contact) use ($customers) {
-                    $result = $this->gateway->postCustomersShowWithCustomIdentifier(['custom_identifier' => $contact->id ]);
-                    $customer = new Customer($result->getData());
-                    $this->findOrCreateCustomer(array_filter($customer->toArray()));
+                    sleep(10);
+                    $result = $this->gateway->getCustomersId(['id' => ($contact = (object) $contact)->id])->send();
+                    $this->client = Client::find($contact->custom_identifier);
+                    $customer = (new Customer($result->getData()))->additional(['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ] );
+                    $this->findOrCreateCustomer($customer->additional + $customer->jsonSerialize());
                 }
             );
+
         } catch (\Throwable $th) {
             $data = [
                 'transaction_reference' => null,
@@ -132,7 +144,7 @@ class RotessaPaymentDriver extends BaseDriver
                 'code' =>(int) $th->getCode()
             ];
 
-            SystemLogger::dispatch(['server_response' => $th->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->client->company);
+            SystemLogger::dispatch(['server_response' => $th->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client , $this->company_gateway->company);
             
 
             throw $th;
@@ -141,39 +153,38 @@ class RotessaPaymentDriver extends BaseDriver
         return true;
     }
     
-    protected function findOrCreateCustomer(array $customer)
+    public function findOrCreateCustomer(array $data)
     {
-        $result = null;  $data = []; $id = null; 
-       
+        $result = null; 
         try {
            
-            $id = $data['id'] ?? null;
             $existing = ClientGatewayToken::query()
                 ->where('company_gateway_id', $this->company_gateway->id)
                 ->where('client_id', $this->client->id)
-                ->orWhere(function (Builder $query) use ($data, $id) {
-                    $uqery->where('token', encrypt($data))
-                    ->where('gateway_customer_reference', $id);
+                ->orWhere(function (Builder $query) use ($data) {
+                    $query->where('token', encrypt(join(".", Arr::only($data, 'id','custom_identifier')))  )
+                    ->where('gateway_customer_reference', Arr::only($data,'id'));
                 })
                 ->exists();
-            if ($existing) return $existing->gateway_customer_reference;
-            else if(is_null($id)) {
+            if ($existing) return true;
+            else if(!Arr::has($data,'id')) {
                 $result = $this->gateway->authorize($data)->send();
-                if ($result->isSuccessful()) {
-                    $customer = new Customer($result->getData());
-                    $data = array_filter($customer->toArray());
-                }
-            }
+                if (!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
 
-            $this->storeGatewayToken( [
-                'payment_meta' => $data + ['brand' => 'Rotessa'],
-                'token' => encrypt($data),
-                'payment_method_id' => (int) $request->input("gateway_type_id"),
-            ], ['gateway_customer_reference' => 
-                    $result->getParameter('id') 
-                , 'routing_number' =>  $result->getParameter('routing_number') ?? $result->getParameter('transit_number')]);
+                $customer = new Customer($result->getData());
+                $data = array_filter($customer->resolve());
+            }
             
-            return $result->getParameter('id');
+            $payment_method_id = Arr::has($data,'address.postal_code') && ((int) $data['address']['postal_code'])? GatewayType::BANK_TRANSFER: GatewayType::ACSS; 
+            $gateway_token = $this->storeGatewayToken( [
+                'payment_meta' => $data + ['brand' => 'Rotessa'],
+                'token' => encrypt(join(".", Arr::only($data, 'id','custom_identifier'))),
+                'payment_method_id' => $payment_method_id ,
+            ], ['gateway_customer_reference' => 
+                    $data['id'] 
+                , 'routing_number' => Arr::has($data,'routing_number') ? $data['routing_number'] : $data['transit_number'] ]);
+            
+            return $data['id'];
             
             throw new \Exception($result->getMessage(), (int) $result->getCode());
 
