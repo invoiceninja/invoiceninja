@@ -463,7 +463,7 @@ class MultiDB
 
         self::setDB($current_db);
 
-        return false;
+        return null;
     }
 
     public static function findAndSetDbByClientId($client_id): ?Client
@@ -555,7 +555,7 @@ class MultiDB
 
         $current_db = config('database.default');
 
-        if(SMSNumbers::hasNumber($phone)) {
+        if(SMSNumbers::hasNumber($phone)) { // @phpstan-ignore-line
             return true;
         }
 
