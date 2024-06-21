@@ -31,11 +31,13 @@ class RedisVsDatabaseTest extends TestCase
     {
         $start = microtime(true);
 
+        app('currencies');
+
         $currencies = Cache::get('currencies');
 
-        $currencies->filter(function ($item) {
+        $currencies->first(function ($item) {
             return $item->id == 17;
-        })->first();
+        });
 
         nlog(microtime(true) - $start);
 
