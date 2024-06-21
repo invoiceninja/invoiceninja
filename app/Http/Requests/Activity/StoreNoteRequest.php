@@ -33,9 +33,9 @@ class StoreNoteRequest extends Request
         $user = auth()->user();
 
         $rules = [
-            'entity' => 'required|in:invoices,quotes,credits,recurring_invoices,clients,vendors,credits,payments,projects,tasks,expenses,recurring_expenses,bank_transactions,purchase_orders',
+            'entity' => 'required|bail|in:invoices,quotes,credits,recurring_invoices,clients,vendors,credits,payments,projects,tasks,expenses,recurring_expenses,bank_transactions,purchase_orders',
             'entity_id' => ['required','bail', Rule::exists($this->entity, 'id')->where('company_id', $user->company()->id)],
-            'notes' => 'required',
+            'notes' => 'required|bail',
         ];
 
         return $rules;
@@ -68,6 +68,9 @@ class StoreNoteRequest extends Request
 
     public function getEntity()
     {
+        if(!$this->entity)
+            return false;
+
         $class = "\\App\\Models\\".ucfirst(Str::camel(rtrim($this->entity, 's')));
         return $class::withTrashed()->find(is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) :  $this->entity_id);
 
