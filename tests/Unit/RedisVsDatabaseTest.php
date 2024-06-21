@@ -29,9 +29,9 @@ class RedisVsDatabaseTest extends TestCase
 
     public function testRedisSpeed()
     {
-        $start = microtime(true);
-
         app('currencies');
+
+        $start = microtime(true);
 
         $currencies = Cache::get('currencies');
 
