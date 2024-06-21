@@ -332,7 +332,7 @@ class InvoiceItemSum
 
     public function setLineTotal($total)
     {
-        $this->item->line_total = $total;
+        $this->item->line_total = (float)$total;
 
         return $this;
     }

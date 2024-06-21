@@ -61,7 +61,7 @@ class UpdateTaskRequest extends Request
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
-        $rules['rate'] = 'bail|numeric';
+
         $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
             if(is_string($values)) {
@@ -136,9 +136,6 @@ class UpdateTaskRequest extends Request
         if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}') {
             $input['time_log'] = json_encode([]);
         }
-
-        
-        $input['rate'] = isset($input['rate']) ? $input['rate'] : 0;
 
         $this->replace($input);
     }
