@@ -5270,6 +5270,13 @@ $lang = array(
     'task_assigned_subject' => 'New task assignment [Task :task] [ :date ]',
     'task_assigned_body' => 'You have been assigned task :task <br><br> Description: :description <br><br> Client: :client',
     'activity_141' => 'User :user entered note: :notes',
+    'quote_reminder_subject' => 'Reminder: Quote :quote from :company',
+    'quote_reminder_message' => 'Reminder for quote :number for :amount',
+    'quote_reminder1' => 'First Quote Reminder',
+    'before_valid_until_date' => 'Before the valid until date',
+    'after_valid_until_date' => 'After the valid until date',
+    'after_quote_date' => 'After the quote date',
+    'remind_quote' => 'Remind Quote',
 );
 
 return $lang;

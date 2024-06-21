@@ -17,6 +17,7 @@ use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Services\Invoice\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Storage;
@@ -133,7 +134,6 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                //  ->deletePdf()
                  ->save();
         }
 
@@ -255,6 +255,13 @@ class QuoteService
                 nlog($e->getMessage());
             }
         });
+
+        return $this;
+    }
+
+    public function setReminder($settings = null)
+    {
+        $this->quote = (new UpdateReminder($this->quote, $settings))->run();
 
         return $this;
     }

@@ -115,12 +115,32 @@ class EmailTemplateDefaults
             case 'email_vendor_notification_body':
                 return self::emailVendorNotificationBody();
 
+            case 'email_quote_template_reminder1':
+                return self::emailQuoteReminder1Body();
+
+            case 'email_quote_subject_reminder1':
+                return self::emailQuoteReminder1Subject();
+                
             default:
                 return self::emailInvoiceTemplate();
 
         }
     }
 
+    public static function emailQuoteReminder1Subject()
+    {
+        return ctrans('texts.quote_reminder_subject', ['quote' => '$number', 'company' => '$company.name']);
+    }
+    
+    public static function emailQuoteReminder1Body()
+    {
+
+        $invoice_message = '<p>$client<br><br>'.self::transformText('quote_reminder_message').'</p><div class="center">$view_button</div>';
+
+        return $invoice_message;
+
+    }
+    
     public static function emailVendorNotificationSubject()
     {
         return self::transformText('vendor_notification_subject');
