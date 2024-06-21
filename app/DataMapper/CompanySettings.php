@@ -520,7 +520,7 @@ class CompanySettings extends BaseSettings
 
     public static $casts = [
         'enable_quote_reminder1'             => 'bool',
-        'quote_num_days_reminder1'           => 'string',
+        'quote_num_days_reminder1'           => 'int',
         'quote_schedule_reminder1'           => 'string',
         'quote_late_fee_amount1'             => 'float',
         'quote_late_fee_percent1'            => 'float',
