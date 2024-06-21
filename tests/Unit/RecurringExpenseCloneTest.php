@@ -33,8 +33,6 @@ class RecurringExpenseCloneTest extends TestCase
     {
         parent::setUp();
         $this->faker = \Faker\Factory::create();
-        $this->buildCache(true);
-
     }
 
     public function testBadBase64String()

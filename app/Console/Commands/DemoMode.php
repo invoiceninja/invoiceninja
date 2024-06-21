@@ -90,9 +90,9 @@ class DemoMode extends Command
         Artisan::call('migrate:fresh --force');
 
         $this->info('Seeding');
-        Artisan::call('db:seed --force');
 
-        $this->buildCache(true);
+        Artisan::call('db:seed --force');
+        Artisan::call('cache:clear');
 
         $this->info('Seeding Random Data');
         $this->createSmallAccount();

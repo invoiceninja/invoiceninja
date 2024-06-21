@@ -86,8 +86,7 @@ class PostUpdate extends Command
 
         info('queue restarted');
 
-        $this->buildCache(true);
-
+        Artisan::call('cache:clear');
         VersionCheck::dispatch();
 
         info('Sent for version check');

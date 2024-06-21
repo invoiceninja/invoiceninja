@@ -203,6 +203,7 @@ class ActivityController extends BaseController
         $activity->notes = $request->notes;
         $activity->user_id = $user->id;
         $activity->ip = $request->ip();
+        $activity->activity_type_id = Activity::USER_NOTE;
         
         switch (get_class($entity)) {
             case Invoice::class:
