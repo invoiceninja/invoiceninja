@@ -50,7 +50,7 @@ class TaskRepository extends BaseRepository
             TaskAssigned::dispatch($task, $task->company->db)->delay(2);
         }
 
-        if(!$task->rate || !isset($data['rate']))
+        if(!is_numeric($task->rate) && !isset($data['rate']))
             $data['rate'] = 0;
         
         $task->fill($data);

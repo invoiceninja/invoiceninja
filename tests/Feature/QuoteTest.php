@@ -53,7 +53,6 @@ class QuoteTest extends TestCase
             ThrottleRequests::class
         );
 
-        $this->markTestSkipped('22-06-2024');
     }
 
     public function testQuoteDueDateInjectionValidationLayer()
