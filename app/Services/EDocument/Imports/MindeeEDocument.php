@@ -13,7 +13,6 @@ namespace App\Services\EDocument\Imports;
 
 use App\Factory\ExpenseFactory;
 use App\Factory\VendorFactory;
-use App\Jobs\Util\UploadFile;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
@@ -29,7 +28,6 @@ use Illuminate\Http\UploadedFile;
 class MindeeEDocument extends AbstractService
 {
     use SavesDocuments;
-    public ZugferdDocumentReader|string $document;
 
     /**
      * @throws Exception
@@ -62,19 +60,21 @@ class MindeeEDocument extends AbstractService
         $inputSource = $mindeeClient->sourceFromFile($this->file);
 
         // Parse the file
-        $apiResponse = $mindeeClient->parse(InvoiceV4::class, $inputSource);
+        $result = $mindeeClient->parse(InvoiceV4::class, $inputSource);
+
+        /** @var \Mindee\Product\Invoice\InvoiceV4Document $prediction */
+        $prediction = $result->document->inference->prediction;
+
+        $grandTotalAmount = $prediction->totalAmount->value;
+        $documentno = $prediction->invoiceNumber->value;
+        $documentdate = $prediction->date->value;
+        $invoiceCurrency = $prediction->locale->currency;
+        $country = $prediction->locale->country;
 
         $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
         if (empty($expense)) {
             // The document does not exist as an expense
             // Handle accordingly
-            $visualizer = new ZugferdVisualizer($this->document);
-            $visualizer->setDefaultTemplate();
-            $visualizer->setRenderer(app(ZugferdVisualizerLaravelRenderer::class));
-            $visualizer->setPdfFontDefault("arial");
-            $visualizer->setPdfPaperSize('A4-P');
-            $visualizer->setTemplate('edocument.xinvoice');
-
             $expense = ExpenseFactory::create($user->company()->id, $user->id);
             $expense->date = $documentdate;
             $expense->user_id = $user->id;
@@ -83,11 +83,7 @@ class MindeeEDocument extends AbstractService
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
             $expense->save();
 
-            $documents = [];
-            array_push($documents, $this->file);
-            if ($this->file->getExtension() == "xml")
-                array_push($documents, TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno . "_visualiser.pdf", "application/pdf"));
-            $this->saveDocuments($documents, $expense);
+            $this->saveDocument($this->file, $expense);
             $expense->saveQuietly();
 
             if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
@@ -104,10 +100,6 @@ class MindeeEDocument extends AbstractService
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }
-            $this->document->getDocumentSeller($name, $buyer_id, $buyer_description);
-            $this->document->getDocumentSellerContact($person_name, $person_department, $contact_phone, $contact_fax, $contact_email);
-            $this->document->getDocumentSellerAddress($address_1, $address_2, $address_3, $postcode, $city, $country, $subdivision);
-            $this->document->getDocumentSellerTaxRegistration($taxtype);
             $taxid = null;
             if (array_key_exists("VA", $taxtype)) {
                 $taxid = $taxtype["VA"];
@@ -124,12 +116,12 @@ class MindeeEDocument extends AbstractService
                     $vendor->vat_number = $taxid;
                 }
                 $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
-                $vendor->phone = $contact_phone;
-                $vendor->address1 = $address_1;
+                $vendor->phone = $prediction->supplierPhoneNumber;
+                $vendor->address1 = $address_1; // TODO: we only have the full address string
                 $vendor->address2 = $address_2;
                 $vendor->city = $city;
                 $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id;
+                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id; // could be 2 or 3 length
 
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0c032698a2cafaf6d112d0fb27cb010",
+    "content-hash": "bea0d5e6d14872ba2000632b2b8d287d",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -6571,6 +6571,52 @@
                 "source": "https://github.com/microsoftgraph/msgraph-sdk-php/tree/1.110.0"
             },
             "time": "2024-01-15T18:49:30+00:00"
+        },
+        {
+            "name": "mindee/mindee",
+            "version": "v1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mindee/mindee-api-php.git",
+                "reference": "cf7de6c6e23fa81372f1f1d314bbf93e1f811953"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mindee/mindee-api-php/zipball/cf7de6c6e23fa81372f1f1d314bbf93e1f811953",
+                "reference": "cf7de6c6e23fa81372f1f1d314bbf93e1f811953",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-fileinfo": "*",
+                "ext-json": "*",
+                "php": ">=7.4",
+                "symfony/console": ">=5.4"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.38",
+                "phpunit/phpunit": "^9.6",
+                "squizlabs/php_codesniffer": "^3.7"
+            },
+            "bin": [
+                "bin/mindee"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mindee\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Mindee Client Library for PHP",
+            "support": {
+                "issues": "https://github.com/mindee/mindee-api-php/issues",
+                "source": "https://github.com/mindee/mindee-api-php/tree/v1.8.0"
+            },
+            "time": "2024-05-31T15:24:47+00:00"
         },
         {
             "name": "mollie/mollie-api-php",
@@ -19770,10 +19816,10 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2",
+        "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
-        "ext-libxml": "*",
-        "ext-curl": "*"
+        "ext-libxml": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "2.6.0"

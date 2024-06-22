@@ -206,11 +206,11 @@ class InboundMailEngine
             if (!$expense)
                 $expense = ExpenseFactory::create($company->id, $company->owner()->id);
 
-            if (!$expense->public_notes)
-                $expense->public_notes = $email->subject;
+            if ($is_imported_by_parser)
+                $expense->public_notes = $expense->public_notes . $email->subject;
 
-            if (!$expense->private_notes)
-                $expense->private_notes = $email->text_body;
+            if ($is_imported_by_parser)
+                $expense->private_notes = $expense->private_notes . $email->text_body;
 
             if (!$expense->date)
                 $expense->date = $email->date;
