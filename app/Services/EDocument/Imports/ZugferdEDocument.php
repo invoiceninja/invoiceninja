@@ -20,12 +20,15 @@ use App\Models\Expense;
 use App\Models\Vendor;
 use App\Services\AbstractService;
 use App\Utils\TempFile;
+use App\Utils\Traits\SavesDocuments;
 use Exception;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
 
-class ZugferdEDocument extends AbstractService {
+class ZugferdEDocument extends AbstractService
+{
+    use SavesDocuments;
     public ZugferdDocumentReader|string $document;
 
     /**
@@ -66,10 +69,10 @@ class ZugferdEDocument extends AbstractService {
             $expense->save();
 
             $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml");
-            (new UploadFile($origin_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
-            $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
-            (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
+            $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno . "_visualiser.pdf", "application/pdf");
+            $this->saveDocuments([$origin_file, $uploaded_file], $expense);
             $expense->save();
+
             if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
                 $expense->private_notes = ctrans("texts.tax_currency_mismatch");
             }
@@ -115,8 +118,7 @@ class ZugferdEDocument extends AbstractService {
                 $expense->vendor_id = $vendor->id;
             }
             $expense->transaction_reference = $documentno;
-        }
-        else {
+        } else {
             // The document exists as an expense
             // Handle accordingly
             nlog("Document already exists");
