@@ -12,13 +12,14 @@
 namespace App\Services\Invoice;
 
 use App\Models\Invoice;
+use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Services\AbstractService;
 use Carbon\Carbon;
 
 class UpdateReminder extends AbstractService
 {
-    public function __construct(public Invoice $invoice, public mixed $settings = null)
+    public function __construct(public Invoice | Quote $invoice, public mixed $settings = null)
     {
     }
 

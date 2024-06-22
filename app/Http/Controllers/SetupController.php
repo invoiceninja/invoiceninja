@@ -159,8 +159,6 @@ class SetupController extends Controller
 
             (new VersionCheck())->handle();
 
-            $this->buildCache(true);
-
             return redirect('/');
         } catch (Exception $e) {
             nlog($e->getMessage());
@@ -287,8 +285,7 @@ class SetupController extends Controller
 
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
-
-        $this->buildCache(true);
+        Artisan::call('cache:clear');
 
         (new SchedulerCheck())->handle();
 

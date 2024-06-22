@@ -842,7 +842,6 @@ class Company extends BaseModel
                           ->get();
     }
 
-
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $this->decodePrimaryKey($value))

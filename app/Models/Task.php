@@ -11,10 +11,11 @@
 
 namespace App\Models;
 
-use App\Utils\Traits\MakesHash;
 use Carbon\CarbonInterval;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\Task
@@ -332,4 +333,11 @@ class Task extends BaseModel
         })->toArray();
     }
 
+    public function assignedCompanyUser()
+    {
+        if(!$this->assigned_user_id)
+            return false;
+
+        return CompanyUser::where('company_id', $this->company_id)->where('user_id', $this->assigned_user_id)->first();
+    }
 }

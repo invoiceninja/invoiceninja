@@ -67,6 +67,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
+ * @property object|null $referral_meta
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null|Carbon $deleted_at
@@ -181,6 +182,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'created_at'       => 'timestamp',
         'deleted_at'       => 'timestamp',
         'oauth_user_token_expiry' => 'datetime',
+        'referral_meta' => 'object',
     ];
 
     public function name()
@@ -680,4 +682,5 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return ctrans('texts.user');
     }
+
 }

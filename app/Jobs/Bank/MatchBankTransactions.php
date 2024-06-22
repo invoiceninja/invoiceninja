@@ -387,7 +387,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $hashed_keys = [];
 
-        foreach($this->attachable_invoices as $attachable_invoice){
+        foreach($this->attachable_invoices as $attachable_invoice){ //@phpstan-ignore-line
             $hashed_keys[] = $this->encodePrimaryKey($attachable_invoice['id']);
         }
 

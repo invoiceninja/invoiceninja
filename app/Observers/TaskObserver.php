@@ -54,7 +54,6 @@ class TaskObserver
             $event = Webhook::EVENT_DELETE_TASK;
         }
 
-
         $subscriptions = Webhook::where('company_id', $task->company_id)
                                     ->where('event_id', $event)
                                     ->exists();

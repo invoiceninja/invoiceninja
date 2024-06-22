@@ -261,7 +261,10 @@ class Activity extends StaticModel
 
     public const EMAIL_STATEMENT = 140;
 
-
+    public const USER_NOTE = 141;
+    
+    public const QUOTE_REMINDER1_SENT = 142;
+    
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

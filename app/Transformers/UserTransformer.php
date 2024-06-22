@@ -66,6 +66,7 @@ class UserTransformer extends EntityTransformer
             'language_id' => (string) $user->language_id ?: '',
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
             'referral_code' => (string) $user->referral_code,
+            'referral_meta' => $user->referral_meta ? (object)$user->referral_meta : new \stdClass,
         ];
     }
 

@@ -70,9 +70,9 @@ class ProRata
         }
 
         /** @var \App\Models\RecurringInvoice $recurring_invoice **/
-        $recurring_invoice = RecurringInvoice::find($invoice->recurring_id)->first();
+        $recurring_invoice = RecurringInvoice::find($invoice->recurring_id);
 
-        if (! $recurring_invoice) {
+        if (! $recurring_invoice) { // @phpstan-ignore-line
             throw new \Exception("Invoice isn't attached to a recurring invoice");
         }
 
