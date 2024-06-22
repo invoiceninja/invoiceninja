@@ -65,6 +65,9 @@ class MindeeEDocument extends AbstractService
         /** @var \Mindee\Product\Invoice\InvoiceV4Document $prediction */
         $prediction = $result->document->inference->prediction;
 
+        if ($prediction->documentType !== 'INVOICE')
+            throw new Exception('Unsupported document type');
+
         $grandTotalAmount = $prediction->totalAmount->value;
         $documentno = $prediction->invoiceNumber->value;
         $documentdate = $prediction->date->value;
@@ -86,42 +89,38 @@ class MindeeEDocument extends AbstractService
             $this->saveDocument($this->file, $expense);
             $expense->saveQuietly();
 
-            if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
-                $expense->private_notes = ctrans("texts.tax_currency_mismatch");
-            }
+            // if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
+            //     $expense->private_notes = ctrans("texts.tax_currency_mismatch");
+            // }
             $expense->uses_inclusive_taxes = True;
             $expense->amount = $grandTotalAmount;
             $counter = 1;
-            if ($this->document->firstDocumentTax()) {
-                do {
-                    $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
-                    $expense->{"tax_amount$counter"} = $calculatedAmount;
-                    $expense->{"tax_rate$counter"} = $rateApplicablePercent;
-                    $counter++;
-                } while ($this->document->nextDocumentTax());
+            foreach ($prediction->taxes as $taxesElem) {
+                $expense->{"tax_amount$counter"} = $taxesElem->amount;
+                $expense->{"tax_rate$counter"} = $taxesElem->rate;
+                $counter++;
             }
             $taxid = null;
             if (array_key_exists("VA", $taxtype)) {
                 $taxid = $taxtype["VA"];
             }
-            $vendor = Vendor::where('vat_number', $taxid)->first();
+            $vendor = Vendor::where('email', $prediction->supplierEmail)->first();
 
             if (!empty($vendor)) {
                 // Vendor found
                 $expense->vendor_id = $vendor->id;
             } else {
                 $vendor = VendorFactory::create($user->company()->id, $user->id);
-                $vendor->name = $name;
-                if ($taxid != null) {
-                    $vendor->vat_number = $taxid;
-                }
+                $vendor->name = $prediction->supplierName;
+                $vendor->email = $prediction->supplierEmail;
+
                 $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
                 $vendor->phone = $prediction->supplierPhoneNumber;
-                $vendor->address1 = $address_1; // TODO: we only have the full address string
-                $vendor->address2 = $address_2;
-                $vendor->city = $city;
-                $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id; // could be 2 or 3 length
+                // $vendor->address1 = $address_1; // TODO: we only have the full address string
+                // $vendor->address2 = $address_2;
+                // $vendor->city = $city;
+                // $vendor->postal_code = $postcode;
+                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id || Country::where('iso_3166_3', $country)->first()->id; // could be 2 or 3 length
 
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;
