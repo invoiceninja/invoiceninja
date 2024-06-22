@@ -14,6 +14,7 @@ namespace App\Services\EDocument\Imports;
 use App\Models\Expense;
 use App\Services\AbstractService;
 use Exception;
+use Illuminate\Http\UploadedFile;
 
 class ParseEDocument extends AbstractService
 {
@@ -21,32 +22,50 @@ class ParseEDocument extends AbstractService
     /**
      * @throws Exception
      */
-    public function __construct(private string $file_content, private string $file_name)
+    public function __construct(private UploadedFile $file)
     {
 
     }
 
     /**
      * Execute the service.
+     * the service will parse the file with all available libraries of the system and will return an expense, when possible
      *
      * @return Expense
      * @throws \Exception
      */
     public function run(): Expense
     {
-        if (str_contains($this->file_name, ".xml")) {
-            switch (true) {
-                case stristr($this->file_content, "urn:cen.eu:en16931:2017"):
-                case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
-                case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
-                case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
-                    return (new ZugferdEDocument($this->file_content, $this->file_name))->run();
-                default:
-                    throw new Exception("E-Invoice standard not supported");
-            }
-        } else {
-            throw new Exception("File type not supported");
+
+        $expense = null;
+
+        // try to parse via Zugferd lib
+        $zugferd_exception = null;
+        try {
+            $expense = (new ZugferdEDocument($this->file))->run();
+        } catch (Exception $e) {
+            $zugferd_exception = $e;
         }
+
+        // try to parse via mindee lib
+        $mindee_exception = null;
+        try {
+            $expense = (new MindeeEDocument($this->file))->run();
+        } catch (Exception $e) {
+            // ignore not available exceptions
+            $mindee_exception = $e;
+        }
+
+        // return expense, when available and supress any errors occured before
+        if ($expense)
+            return $expense;
+
+        // log exceptions and throw error
+        if ($zugferd_exception)
+            nlog("Zugferd Exception: " . $zugferd_exception->getMessage());
+        if ($mindee_exception)
+            nlog("Mindee Exception: " . $zugferd_exception->getMessage());
+        throw new Exception("File type not supported or issue while parsing");
     }
 }
 

@@ -22,12 +22,11 @@ use App\Services\AbstractService;
 use App\Utils\TempFile;
 use App\Utils\Traits\SavesDocuments;
 use Exception;
-use horstoeko\zugferd\ZugferdDocumentReader;
-use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
-use horstoeko\zugferdvisualizer\ZugferdVisualizer;
+use Mindee\Client;
+use Mindee\Product\Invoice\InvoiceV4;
 use Illuminate\Http\UploadedFile;
 
-class ZugferdEDocument extends AbstractService
+class MindeeEDocument extends AbstractService
 {
     use SavesDocuments;
     public ZugferdDocumentReader|string $document;
@@ -46,9 +45,24 @@ class ZugferdEDocument extends AbstractService
     public function run(): Expense
     {
         $user = auth()->user();
-        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->file->get());
-        $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
-        $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
+
+        $api_key = config('services.mindee.api_key');
+
+        if (!$api_key)
+            throw new Exception('Mindee API key not configured');
+
+        // check global contingent
+        // TODO: add contingent for each company
+
+
+        $mindeeClient = new Client($api_key);
+
+
+        // Load a file from disk
+        $inputSource = $mindeeClient->sourceFromFile($this->file);
+
+        // Parse the file
+        $apiResponse = $mindeeClient->parse(InvoiceV4::class, $inputSource);
 
         $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
         if (empty($expense)) {

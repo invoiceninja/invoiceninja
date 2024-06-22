@@ -13,6 +13,7 @@ namespace App\Jobs\EDocument;
 
 use App\Models\Expense;
 use App\Services\EDocument\Imports\ParseEDocument;
+use App\Utils\TempFile;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +30,7 @@ class ImportEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private readonly string $file_content, private string $file_name)
+    public function __construct(private readonly string $file_content, private string $file_name, private string $file_mime_type)
     {
 
     }
@@ -42,6 +43,10 @@ class ImportEDocument implements ShouldQueue
      */
     public function handle(): Expense
     {
-        return (new ParseEDocument($this->file_content, $this->file_name))->run();
+
+        $file = TempFile::UploadedFileFromRaw($this->file_content, $this->file_name, $this->file_mime_type);
+
+        return (new ParseEDocument($file))->run();
+
     }
 }

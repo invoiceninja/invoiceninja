@@ -497,7 +497,7 @@ class ExpenseController extends BaseController
 
         $expenses = Expense::withTrashed()->find($request->ids);
 
-        if($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
+        if ($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
             $this->expense_repo->categorize($expenses, $request->category_id);
             $expenses = collect([]);
         }
@@ -573,7 +573,7 @@ class ExpenseController extends BaseController
      */
     public function upload(UploadExpenseRequest $request, Expense $expense)
     {
-        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
         }
 
@@ -587,9 +587,8 @@ class ExpenseController extends BaseController
     public function edocument(EDocumentRequest $request): string
     {
         if ($request->hasFile("documents")) {
-            return (new ImportEDocument($request->file("documents")[0]->get(), $request->file("documents")[0]->getClientOriginalName()))->handle();
-        }
-        else {
+            return (new ImportEDocument($request->file("documents")[0]->get(), $request->file("documents")[0]->getClientOriginalName(), $request->file("documents")[0]->getMimeType()))->handle();
+        } else {
             return "No file found";
         }
 

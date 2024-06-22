@@ -181,13 +181,12 @@ class InboundMailEngine
             // check if document can be parsed to an expense
             try {
 
-                $expense = (new ParseEDocument($document->get(), $document->getFilename()))->run();
+                $expense = (new ParseEDocument($document))->run();
 
                 // check if expense was already matched within this job and skip if true
-                if (array_search($expense->id, $parsed_expense_ids)) {
-                    $this->saveDocument($document, $expense);
+                if (array_search($expense->id, $parsed_expense_ids))
                     continue;
-                }
+
                 array_push($parsed_expenses, $expense->id);
 
             } catch (\Exception $err) {
@@ -200,6 +199,8 @@ class InboundMailEngine
                         throw $err;
                 }
             }
+
+            $is_imported_by_parser = array_search($expense->id, $parsed_expense_ids);
 
             // populate missing data with data from email
             if (!$expense)
@@ -217,17 +218,21 @@ class InboundMailEngine
             if (!$expense->vendor_id && $expense_vendor)
                 $expense->vendor_id = $expense_vendor->id;
 
-            // handle documents
+            // save document only, when not imported by parser
             $documents = [];
-            array_push($documents, $document);
+            if ($is_imported_by_parser)
+                array_push($documents, $document);
 
-            // handle email document
+            // email document
             if ($email->body_document !== null)
                 array_push($documents, $email->body_document);
 
-            $expense->saveQuietly();
-
             $this->saveDocuments($documents, $expense);
+
+            if ($is_imported_by_parser)
+                $expense->saveQuietly();
+            else
+                $expense->save();
 
         }
     }

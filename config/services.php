@@ -51,6 +51,13 @@ return [
         'redirect' => env('MICROSOFT_REDIRECT_URI'),
     ],
 
+    'mindee' => [
+        'api_key' => env('MINDEE_API_KEY'),
+        'global_contingent_month' => env('MINDEE_GLOBAL_CONTINGENT_MONTH', 1000),
+        'company_contingent_month' => env('MINDEE_COMPANY_CONTINGENT_MONTH', 500),
+        'company_contingent_month_enterprise' => env('MINDEE_COMPANY_CONTINGENT_MONTH', 500),
+    ],
+
     'apple' => [
         'client_id' => env('APPLE_CLIENT_ID'),
         'client_secret' => env('APPLE_CLIENT_SECRET'),
