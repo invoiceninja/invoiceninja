@@ -124,7 +124,7 @@ class ARDetailReport extends BaseExport
             $client->present()->name(),
             $client->number,
             $client->id_number,
-            Carbon::parse($invoice->due_date)->diffInDays(now()),
+            intval(abs(Carbon::parse($invoice->due_date)->diffInDays(now()))),
             Number::formatMoney($invoice->amount, $client),
             Number::formatMoney($invoice->balance, $client),
         ];

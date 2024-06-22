@@ -2913,6 +2913,13 @@ $lang = array(
     'mime_types' => 'Mime types',
     'mime_types_placeholder' => '.pdf , .docx, .jpg',
     'mime_types_help' => 'Comma separated list of allowed mime types, leave blank for all',
+    'ticket_number_start_help' => 'Ticket number must be greater than the current ticket number',
+    'new_ticket_template_id' => 'New ticket',
+    'new_ticket_autoresponder_help' => 'Selecting a template will send an auto response to a client/contact when a new ticket is created',
+    'update_ticket_template_id' => 'Updated ticket',
+    'update_ticket_autoresponder_help' => 'Selecting a template will send an auto response to a client/contact when a ticket is updated',
+    'close_ticket_template_id' => 'Closed ticket',
+    'close_ticket_autoresponder_help' => 'Selecting a template will send an auto response to a client/contact when a ticket is closed',
     'default_priority' => 'Default priority',
     'alert_new_comment_id' => 'New comment',
     'update_ticket_notification_list' => 'Additional new comment notifications',
@@ -5277,6 +5284,9 @@ $lang = array(
     'after_valid_until_date' => 'After the valid until date',
     'after_quote_date' => 'After the quote date',
     'remind_quote' => 'Remind Quote',
+    'end_of_month' => 'End Of Month',
+    'tax_currency_mismatch' => 'Tax currency is different from invoice currency',
+    'edocument_import_already_exists' => '\nThe invoice has already been imported on :date'
 );
 
 return $lang;
