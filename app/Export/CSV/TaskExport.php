@@ -184,13 +184,13 @@ class TaskExport extends BaseExport
 
         foreach ($logs as $key => $item) {
             if (in_array('task.start_date', $this->input['report_keys']) || in_array('start_date', $this->input['report_keys'])) {
-                $carbon_object = Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name);
+                $carbon_object = Carbon::createFromTimeStamp((int)$item[0])->setTimezone($timezone_name);
                 $entity['task.start_date'] = $carbon_object->format($date_format_default);
                 $entity['task.start_time'] = $carbon_object->format('H:i:s');
             }
 
             if ((in_array('task.end_date', $this->input['report_keys']) || in_array('end_date', $this->input['report_keys'])) && $item[1] > 0) {
-                $carbon_object = Carbon::createFromTimeStamp($item[1])->setTimezone($timezone_name);
+                $carbon_object = Carbon::createFromTimeStamp((int)$item[1])->setTimezone($timezone_name);
                 $entity['task.end_date'] = $carbon_object->format($date_format_default);
                 $entity['task.end_time'] = $carbon_object->format('H:i:s');
             }

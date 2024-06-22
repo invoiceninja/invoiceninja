@@ -208,7 +208,7 @@ class Task extends BaseModel
         $parts = json_decode($this->time_log) ?: [];
 
         if (count($parts)) {
-            return Carbon::createFromTimeStamp($parts[0][0])->timestamp;
+            return Carbon::createFromTimeStamp((int)$parts[0][0])->timestamp;
         } else {
             return null;
         }
@@ -281,11 +281,11 @@ class Task extends BaseModel
             $parent_entity = $this->client ?? $this->company;
 
             if($log[0]) {
-                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:i:s');
+                $log[0] = Carbon::createFromTimestamp((int)$log[0])->format($parent_entity->date_format().' H:i:s');
             }
 
             if($log[1] && $log[1] != 0) {
-                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:i:s');
+                $log[1] = Carbon::createFromTimestamp((int)$log[1])->format($parent_entity->date_format().' H:i:s');
             } else {
                 $log[1] = ctrans('texts.running');
             }
@@ -313,11 +313,11 @@ class Task extends BaseModel
             if($log[0]) {
                 $logged['start_date_raw'] = $log[0];
             }
-            $logged['start_date'] = Carbon::createFromTimestamp($log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+            $logged['start_date'] = Carbon::createFromTimestamp((int)$log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
 
             if($log[1] && $log[1] != 0) {
                 $logged['end_date_raw'] = $log[1];
-                $logged['end_date'] = Carbon::createFromTimestamp($log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+                $logged['end_date'] = Carbon::createFromTimestamp((int)$log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
             } else {
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
