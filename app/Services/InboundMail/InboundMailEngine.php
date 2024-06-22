@@ -166,22 +166,29 @@ class InboundMailEngine
             return;
         }
 
-        /** @var \App\Models\Expense $expense */
-        $expense = null;
+        // prepare data
+        $expense_vendor = $this->getVendor($company, $email);
+        $this->processHtmlBodyToDocument($email);
 
-        // check documents for EDocument xml
+        $parsed_expense_ids = []; // used to check if an expense was already matched within this job
+
+        // check documents => optimal when parsed from any source => else create an expense for each document
         foreach ($email->documents as $document) {
+
+            /** @var \App\Models\Expense $expense */
+            $expense = null;
 
             // check if document can be parsed to an expense
             try {
 
-                $expense_obj = (new ParseEDocument($document->get(), $document->getFilename()))->run();
+                $expense = (new ParseEDocument($document->get(), $document->getFilename()))->run();
 
-                // throw error, when multiple parseable files are registered
-                if ($expense && $expense_obj)
-                    throw new \Exception('Multiple parseable Invoice documents found in email. Please use only one Invoice document per email.');
-
-                $expense = $expense_obj;
+                // check if expense was already matched within this job and skip if true
+                if (array_search($expense->id, $parsed_expense_ids)) {
+                    $this->saveDocument($document, $expense);
+                    continue;
+                }
+                array_push($parsed_expenses, $expense->id);
 
             } catch (\Exception $err) {
                 // throw error, only, when its not expected
@@ -194,41 +201,35 @@ class InboundMailEngine
                 }
             }
 
-        }
+            // populate missing data with data from email
+            if (!$expense)
+                $expense = ExpenseFactory::create($company->id, $company->owner()->id);
 
-        // populate missing data with data from email
-        if (!$expense)
-            $expense = ExpenseFactory::create($company->id, $company->owner()->id);
+            if (!$expense->public_notes)
+                $expense->public_notes = $email->subject;
 
-        if (!$expense->public_notes)
-            $expense->public_notes = $email->subject;
+            if (!$expense->private_notes)
+                $expense->private_notes = $email->text_body;
 
-        if (!$expense->private_notes)
-            $expense->private_notes = $email->text_body;
+            if (!$expense->date)
+                $expense->date = $email->date;
 
-        if (!$expense->date)
-            $expense->date = $email->date;
-
-        if (!$expense->vendor_id) {
-            $expense_vendor = $this->getVendor($company, $email);
-
-            if ($expense_vendor)
+            if (!$expense->vendor_id && $expense_vendor)
                 $expense->vendor_id = $expense_vendor->id;
+
+            // handle documents
+            $documents = [];
+            array_push($documents, $document);
+
+            // handle email document
+            if ($email->body_document !== null)
+                array_push($documents, $email->body_document);
+
+            $expense->saveQuietly();
+
+            $this->saveDocuments($documents, $expense);
+
         }
-
-        // handle documents
-        $documents = [];
-        array_push($documents, $document);
-
-        // handle email document
-        $this->processHtmlBodyToDocument($email);
-        if ($email->body_document !== null)
-            array_push($documents, $email->body_document);
-
-        $expense->saveQuietly();
-
-        $this->saveDocuments($documents, $expense);
-
     }
 
     // HELPERS
