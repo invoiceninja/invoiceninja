@@ -535,16 +535,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.314.3",
+            "version": "3.314.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c9e8a31cfa07f47b7ab9ecc741845a3a9d50fc61"
+                "reference": "fd1261a60495a7aeb2661d8b7eecfd5fc16abd41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c9e8a31cfa07f47b7ab9ecc741845a3a9d50fc61",
-                "reference": "c9e8a31cfa07f47b7ab9ecc741845a3a9d50fc61",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/fd1261a60495a7aeb2661d8b7eecfd5fc16abd41",
+                "reference": "fd1261a60495a7aeb2661d8b7eecfd5fc16abd41",
                 "shasum": ""
             },
             "require": {
@@ -624,9 +624,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.314.4"
             },
-            "time": "2024-06-17T18:13:22+00:00"
+            "time": "2024-06-18T18:13:34+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1752,6 +1752,68 @@
                 }
             ],
             "time": "2024-02-05T11:56:58+00:00"
+        },
+        {
+            "name": "dompdf/dompdf",
+            "version": "v2.0.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dompdf/dompdf.git",
+                "reference": "c20247574601700e1f7c8dab39310fca1964dc52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/c20247574601700e1f7c8dab39310fca1964dc52",
+                "reference": "c20247574601700e1f7c8dab39310fca1964dc52",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "masterminds/html5": "^2.0",
+                "phenx/php-font-lib": ">=0.5.4 <1.0.0",
+                "phenx/php-svg-lib": ">=0.5.2 <1.0.0",
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "ext-zip": "*",
+                "mockery/mockery": "^1.3",
+                "phpunit/phpunit": "^7.5 || ^8 || ^9",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "suggest": {
+                "ext-gd": "Needed to process images",
+                "ext-gmagick": "Improves image processing performance",
+                "ext-imagick": "Improves image processing performance",
+                "ext-zlib": "Needed for pdf stream compression"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Dompdf\\": "src/"
+                },
+                "classmap": [
+                    "lib/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "The Dompdf Community",
+                    "homepage": "https://github.com/dompdf/dompdf/blob/master/AUTHORS.md"
+                }
+            ],
+            "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
+            "homepage": "https://github.com/dompdf/dompdf",
+            "support": {
+                "issues": "https://github.com/dompdf/dompdf/issues",
+                "source": "https://github.com/dompdf/dompdf/tree/v2.0.8"
+            },
+            "time": "2024-04-29T13:06:17+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -3621,6 +3683,7 @@
             "time": "2024-06-15T05:49:47+00:00"
         },
         {
+
             "name": "hyvor/php-json-exporter",
             "version": "0.0.3",
             "source": {
@@ -3935,12 +3998,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "c26ae46a132b00d9cba5b047218f530ae660ccc7"
+                "reference": "468a2a3696e76b1216a129e79177eb7c16ea9bdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/c26ae46a132b00d9cba5b047218f530ae660ccc7",
-                "reference": "c26ae46a132b00d9cba5b047218f530ae660ccc7",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/468a2a3696e76b1216a129e79177eb7c16ea9bdb",
+                "reference": "468a2a3696e76b1216a129e79177eb7c16ea9bdb",
                 "shasum": ""
             },
             "require": {
@@ -3982,7 +4045,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-06-12T06:01:18+00:00"
+            "time": "2024-06-19T00:29:39+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -4692,16 +4755,16 @@
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.1.23",
+            "version": "v0.1.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "9bc4df7c699b0452c6b815e64a2d84b6d7f99400"
+                "reference": "409b0b4305273472f3754826e68f4edbd0150149"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/9bc4df7c699b0452c6b815e64a2d84b6d7f99400",
-                "reference": "9bc4df7c699b0452c6b815e64a2d84b6d7f99400",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/409b0b4305273472f3754826e68f4edbd0150149",
+                "reference": "409b0b4305273472f3754826e68f4edbd0150149",
                 "shasum": ""
             },
             "require": {
@@ -4744,9 +4807,9 @@
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
                 "issues": "https://github.com/laravel/prompts/issues",
-                "source": "https://github.com/laravel/prompts/tree/v0.1.23"
+                "source": "https://github.com/laravel/prompts/tree/v0.1.24"
             },
-            "time": "2024-05-27T13:53:20+00:00"
+            "time": "2024-06-17T13:58:22+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -4875,16 +4938,16 @@
         },
         {
             "name": "laravel/socialite",
-            "version": "v5.14.0",
+            "version": "v5.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/socialite.git",
-                "reference": "c7b0193a3753a29aff8ce80aa2f511917e6ed68a"
+                "reference": "c8234bfb286a8210df8d62f94562c71bfda4a446"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/socialite/zipball/c7b0193a3753a29aff8ce80aa2f511917e6ed68a",
-                "reference": "c7b0193a3753a29aff8ce80aa2f511917e6ed68a",
+                "url": "https://api.github.com/repos/laravel/socialite/zipball/c8234bfb286a8210df8d62f94562c71bfda4a446",
+                "reference": "c8234bfb286a8210df8d62f94562c71bfda4a446",
                 "shasum": ""
             },
             "require": {
@@ -4943,7 +5006,7 @@
                 "issues": "https://github.com/laravel/socialite/issues",
                 "source": "https://github.com/laravel/socialite"
             },
-            "time": "2024-05-03T20:31:38+00:00"
+            "time": "2024-06-11T13:33:20+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -5942,16 +6005,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.5.0",
+            "version": "v3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "72e900825c560f0e4e620185b26c5441a8914435"
+                "reference": "da044261bb5c5449397f18fda3409f14acf47c0a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/72e900825c560f0e4e620185b26c5441a8914435",
-                "reference": "72e900825c560f0e4e620185b26c5441a8914435",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/da044261bb5c5449397f18fda3409f14acf47c0a",
+                "reference": "da044261bb5c5449397f18fda3409f14acf47c0a",
                 "shasum": ""
             },
             "require": {
@@ -6006,7 +6069,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.5.0"
+                "source": "https://github.com/livewire/livewire/tree/v3.5.1"
             },
             "funding": [
                 {
@@ -6014,7 +6077,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-05-21T13:39:04+00:00"
+            "time": "2024-06-18T11:10:42+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -6203,6 +6266,73 @@
                 "source": "https://github.com/MarkBaker/PHPMatrix/tree/3.0.1"
             },
             "time": "2022-12-02T22:17:43+00:00"
+        },
+        {
+            "name": "masterminds/html5",
+            "version": "2.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Masterminds/html5-php.git",
+                "reference": "f5ac2c0b0a2eefca70b2ce32a5809992227e75a6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/f5ac2c0b0a2eefca70b2ce32a5809992227e75a6",
+                "reference": "f5ac2c0b0a2eefca70b2ce32a5809992227e75a6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.7-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Masterminds\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Matt Butcher",
+                    "email": "technosophos@gmail.com"
+                },
+                {
+                    "name": "Matt Farina",
+                    "email": "matt@mattfarina.com"
+                },
+                {
+                    "name": "Asmir Mustafic",
+                    "email": "goetas@gmail.com"
+                }
+            ],
+            "description": "An HTML5 parser and serializer.",
+            "homepage": "http://masterminds.github.io/html5-php",
+            "keywords": [
+                "HTML5",
+                "dom",
+                "html",
+                "parser",
+                "querypath",
+                "serializer",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Masterminds/html5-php/issues",
+                "source": "https://github.com/Masterminds/html5-php/tree/2.9.0"
+            },
+            "time": "2024-03-31T07:05:07+00:00"
         },
         {
             "name": "microsoft/microsoft-graph",
@@ -6538,6 +6668,179 @@
             "time": "2024-04-12T21:02:21+00:00"
         },
         {
+            "name": "mpdf/mpdf",
+            "version": "v8.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mpdf/mpdf.git",
+                "reference": "9e3ff91606fed11cd58a130eabaaf60e56fdda88"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/9e3ff91606fed11cd58a130eabaaf60e56fdda88",
+                "reference": "9e3ff91606fed11cd58a130eabaaf60e56fdda88",
+                "shasum": ""
+            },
+            "require": {
+                "ext-gd": "*",
+                "ext-mbstring": "*",
+                "mpdf/psr-http-message-shim": "^1.0 || ^2.0",
+                "mpdf/psr-log-aware-trait": "^2.0 || ^3.0",
+                "myclabs/deep-copy": "^1.7",
+                "paragonie/random_compat": "^1.4|^2.0|^9.99.99",
+                "php": "^5.6 || ^7.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0",
+                "psr/http-message": "^1.0 || ^2.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0",
+                "setasign/fpdi": "^2.1"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.3.0",
+                "mpdf/qrcode": "^1.1.0",
+                "squizlabs/php_codesniffer": "^3.5.0",
+                "tracy/tracy": "~2.5",
+                "yoast/phpunit-polyfills": "^1.0"
+            },
+            "suggest": {
+                "ext-bcmath": "Needed for generation of some types of barcodes",
+                "ext-xml": "Needed mainly for SVG manipulation",
+                "ext-zlib": "Needed for compression of embedded resources, such as fonts"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Mpdf\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Matěj Humpál",
+                    "role": "Developer, maintainer"
+                },
+                {
+                    "name": "Ian Back",
+                    "role": "Developer (retired)"
+                }
+            ],
+            "description": "PHP library generating PDF files from UTF-8 encoded HTML",
+            "homepage": "https://mpdf.github.io",
+            "keywords": [
+                "pdf",
+                "php",
+                "utf-8"
+            ],
+            "support": {
+                "docs": "http://mpdf.github.io",
+                "issues": "https://github.com/mpdf/mpdf/issues",
+                "source": "https://github.com/mpdf/mpdf"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/mpdf",
+                    "type": "custom"
+                }
+            ],
+            "time": "2024-06-14T16:06:41+00:00"
+        },
+        {
+            "name": "mpdf/psr-http-message-shim",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mpdf/psr-http-message-shim.git",
+                "reference": "3206e6b80b6d2479e148ee497e9f2bebadc919db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mpdf/psr-http-message-shim/zipball/3206e6b80b6d2479e148ee497e9f2bebadc919db",
+                "reference": "3206e6b80b6d2479e148ee497e9f2bebadc919db",
+                "shasum": ""
+            },
+            "require": {
+                "psr/http-message": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mpdf\\PsrHttpMessageShim\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Dorison",
+                    "email": "mark@chromatichq.com"
+                },
+                {
+                    "name": "Kristofer Widholm",
+                    "email": "kristofer@chromatichq.com"
+                },
+                {
+                    "name": "Nigel Cunningham",
+                    "email": "nigel.cunningham@technocrat.com.au"
+                }
+            ],
+            "description": "Shim to allow support of different psr/message versions.",
+            "support": {
+                "issues": "https://github.com/mpdf/psr-http-message-shim/issues",
+                "source": "https://github.com/mpdf/psr-http-message-shim/tree/1.0.0"
+            },
+            "time": "2023-09-01T05:59:47+00:00"
+        },
+        {
+            "name": "mpdf/psr-log-aware-trait",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mpdf/psr-log-aware-trait.git",
+                "reference": "a633da6065e946cc491e1c962850344bb0bf3e78"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mpdf/psr-log-aware-trait/zipball/a633da6065e946cc491e1c962850344bb0bf3e78",
+                "reference": "a633da6065e946cc491e1c962850344bb0bf3e78",
+                "shasum": ""
+            },
+            "require": {
+                "psr/log": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mpdf\\PsrLogAwareTrait\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Dorison",
+                    "email": "mark@chromatichq.com"
+                },
+                {
+                    "name": "Kristofer Widholm",
+                    "email": "kristofer@chromatichq.com"
+                }
+            ],
+            "description": "Trait to allow support of different psr/log versions.",
+            "support": {
+                "issues": "https://github.com/mpdf/psr-log-aware-trait/issues",
+                "source": "https://github.com/mpdf/psr-log-aware-trait/tree/v3.0.0"
+            },
+            "time": "2023-05-03T06:19:36+00:00"
+        },
+        {
             "name": "mtdowling/jmespath.php",
             "version": "2.7.0",
             "source": {
@@ -6602,6 +6905,66 @@
                 "source": "https://github.com/jmespath/jmespath.php/tree/2.7.0"
             },
             "time": "2023-08-25T10:54:48+00:00"
+        },
+        {
+            "name": "myclabs/deep-copy",
+            "version": "1.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/DeepCopy.git",
+                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1 || ^8.0"
+            },
+            "conflict": {
+                "doctrine/collections": "<1.6.8",
+                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
+            },
+            "require-dev": {
+                "doctrine/collections": "^1.6.8",
+                "doctrine/common": "^2.13.3 || ^3.2.2",
+                "phpspec/prophecy": "^1.10",
+                "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/DeepCopy/deep_copy.php"
+                ],
+                "psr-4": {
+                    "DeepCopy\\": "src/DeepCopy/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Create deep copies (clones) of your objects",
+            "keywords": [
+                "clone",
+                "copy",
+                "duplicate",
+                "object",
+                "object graph"
+            ],
+            "support": {
+                "issues": "https://github.com/myclabs/DeepCopy/issues",
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
+            },
+            "funding": [
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-06-12T14:39:25+00:00"
         },
         {
             "name": "nelexa/zip",
@@ -9687,6 +10050,71 @@
                 "source": "https://github.com/WordPress/Requests"
             },
             "time": "2024-03-25T10:48:46+00:00"
+        },
+        {
+            "name": "sabberworm/php-css-parser",
+            "version": "v8.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MyIntervals/PHP-CSS-Parser.git",
+                "reference": "4a3d572b0f8b28bb6fd016ae8bbfc445facef152"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MyIntervals/PHP-CSS-Parser/zipball/4a3d572b0f8b28bb6fd016ae8bbfc445facef152",
+                "reference": "4a3d572b0f8b28bb6fd016ae8bbfc445facef152",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "php": ">=5.6.20"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7.27"
+            },
+            "suggest": {
+                "ext-mbstring": "for parsing UTF-8 CSS"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "9.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Sabberworm\\CSS\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Raphael Schweikert"
+                },
+                {
+                    "name": "Oliver Klee",
+                    "email": "github@oliverklee.de"
+                },
+                {
+                    "name": "Jake Hotson",
+                    "email": "jake.github@qzdesign.co.uk"
+                }
+            ],
+            "description": "Parser for CSS Files written in PHP",
+            "homepage": "https://www.sabberworm.com/blog/2010/6/10/php-css-parser",
+            "keywords": [
+                "css",
+                "parser",
+                "stylesheet"
+            ],
+            "support": {
+                "issues": "https://github.com/MyIntervals/PHP-CSS-Parser/issues",
+                "source": "https://github.com/MyIntervals/PHP-CSS-Parser/tree/v8.5.1"
+            },
+            "time": "2024-02-15T16:41:13+00:00"
         },
         {
             "name": "sabre/uri",
@@ -16011,66 +16439,6 @@
                 "source": "https://github.com/mockery/mockery"
             },
             "time": "2024-05-16T03:13:13+00:00"
-        },
-        {
-            "name": "myclabs/deep-copy",
-            "version": "1.12.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
-                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1 || ^8.0"
-            },
-            "conflict": {
-                "doctrine/collections": "<1.6.8",
-                "doctrine/common": "<2.13.3 || >=3 <3.2.2"
-            },
-            "require-dev": {
-                "doctrine/collections": "^1.6.8",
-                "doctrine/common": "^2.13.3 || ^3.2.2",
-                "phpspec/prophecy": "^1.10",
-                "phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/DeepCopy/deep_copy.php"
-                ],
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Create deep copies (clones) of your objects",
-            "keywords": [
-                "clone",
-                "copy",
-                "duplicate",
-                "object",
-                "object graph"
-            ],
-            "support": {
-                "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
-            },
-            "funding": [
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2024-06-12T14:39:25+00:00"
         },
         {
             "name": "nunomaduro/collision",

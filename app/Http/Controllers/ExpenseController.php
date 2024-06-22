@@ -19,10 +19,12 @@ use App\Http\Requests\Expense\BulkExpenseRequest;
 use App\Http\Requests\Expense\CreateExpenseRequest;
 use App\Http\Requests\Expense\DestroyExpenseRequest;
 use App\Http\Requests\Expense\EditExpenseRequest;
+use App\Http\Requests\Expense\EDocumentRequest;
 use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Http\Requests\Expense\UploadExpenseRequest;
+use App\Jobs\EDocument\ImportEDocument;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
@@ -580,5 +582,16 @@ class ExpenseController extends BaseController
         }
 
         return $this->itemResponse($expense->fresh());
+    }
+
+    public function edocument(EDocumentRequest $request): string
+    {
+        if ($request->hasFile("documents")) {
+            return (new ImportEDocument($request->file("documents")[0]->get(), $request->file("documents")[0]->getClientOriginalName()))->handle();
+        }
+        else {
+            return "No file found";
+        }
+
     }
 }

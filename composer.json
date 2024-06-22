@@ -57,6 +57,7 @@
         "hedii/laravel-gelf-logger": "^9",
         "horstoeko/orderx": "dev-master",
         "horstoeko/zugferd": "^1",
+        "horstoeko/zugferdvisualizer":"^1",
         "hyvor/php-json-exporter": "^0.0.3",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",

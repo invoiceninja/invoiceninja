@@ -270,7 +270,7 @@ class BankIntegrationController extends BaseController
 
         $nordigen = new Nordigen();
 
-        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
+        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('account_id', $user->account_id)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $is_account_active = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
 

@@ -37,6 +37,7 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
 
     Route::get('profile/{vendor_contact}/edit', [VendorContactController::class, 'edit'])->name('profile.edit');
     Route::put('profile/{vendor_contact}/edit', [VendorContactController::class, 'update'])->name('profile.update');
+    Route::get('purchase_order/{invitation_key}/download_e_purchase_order', [App\Http\Controllers\PurchaseOrderController::class, 'downloadEPurchaseOrder'])->name('purchase_order.download_e_purchase_order')->middleware('token_auth');
 
     Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
     Route::get('logout', [VendorContactLoginController::class, 'logout'])->name('logout');
@@ -50,6 +51,5 @@ Route::group(['middleware' => ['auth:vendor', 'vendor_locale', 'domain_db'], 'pr
     
 });
 
-Route::get('purchase_order/{invitation_key}/download_e_purchase_order', [App\Http\Controllers\PurchaseOrderController::class, 'downloadEPurchaseOrder'])->name('purchase_order.download_e_purchase_order')->middleware('token_auth');
 
 Route::fallback([BaseController::class, 'notFoundVendor']);
