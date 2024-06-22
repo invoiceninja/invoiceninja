@@ -43,13 +43,13 @@ class StoreQuoteRequest extends Request
 
         $rules = [];
 
-        $rules['client_id'] = ['required', 'bail', Rule::exists('clients','id')->where('company_id', $user->company()->id)];
+        $rules['client_id'] = ['required', 'bail', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -77,7 +77,7 @@ class StoreQuoteRequest extends Request
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
@@ -98,12 +98,13 @@ class StoreQuoteRequest extends Request
             $input['partial_due_date'] = null;
         }
 
-        if(!isset($input['date']))
+        if(!isset($input['date'])) {
             $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
+        }
 
-        if(isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <=1 )) {
+        if(isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <= 1)) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
-            $valid_days = ($client && strlen($client->getSetting('valid_until')) >= 1) ? $client->getSetting('valid_until') : 7; 
+            $valid_days = ($client && strlen($client->getSetting('valid_until')) >= 1) ? $client->getSetting('valid_until') : 7;
             $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays($valid_days)->format('Y-m-d');
         }
 

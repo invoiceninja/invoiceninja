@@ -19,7 +19,7 @@ class ShowCreditsRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS;
+        return (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS);
     }
 
     public function rules()

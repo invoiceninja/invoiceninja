@@ -48,7 +48,7 @@ class CompanyFactory
         $company->markdown_email_enabled = true;
         $company->markdown_enabled = false;
         $company->tax_data = new TaxModel();
-        $company->first_month_of_year = 1;
+        $company->first_month_of_year = '1';
         $company->smtp_encryption = 'tls';
         $company->smtp_host = '';
         $company->smtp_local_domain = '';
@@ -56,7 +56,7 @@ class CompanyFactory
         $company->smtp_port = '';
         $company->smtp_username = '';
         $company->smtp_verify_peer = true;
-        
+
         return $company;
     }
 }

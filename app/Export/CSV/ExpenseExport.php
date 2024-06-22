@@ -83,9 +83,9 @@ class ExpenseExport extends BaseExport
                         ->with('client')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
-        
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
@@ -220,17 +220,17 @@ class ExpenseExport extends BaseExport
         //     $entity['expense.client'] = $expense->client ? $expense->client->present()->name() : '';
         // }
 
-        // if (in_array('expense.invoice_id', $this->input['report_keys'])) {
-        //     $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
-        // }
+        if (in_array('expense.invoice_id', $this->input['report_keys'])) {
+            $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
+        }
 
         // if (in_array('expense.category', $this->input['report_keys'])) {
         //     $entity['expense.category'] = $expense->category ? $expense->category->name : '';
         // }
 
-        // if (in_array('expense.vendor_id', $this->input['report_keys'])) {
-        //     $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
-        // }
+        if (in_array('expense.vendor_id', $this->input['report_keys'])) {
+            $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
+        }
 
         // if (in_array('expense.payment_type_id', $this->input['report_keys'])) {
         //     $entity['expense.payment_type_id'] = $expense->payment_type ? $expense->payment_type->name : '';

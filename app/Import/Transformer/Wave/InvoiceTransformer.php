@@ -50,7 +50,7 @@ class InvoiceTransformer extends BaseTransformer
             'client_id'   => $this->getClient($customer_name = $this->getString($invoice_data, $customer_key), null),
             'number'      => $invoice_number = $this->getString($invoice_data, 'Invoice Number'),
             'date'        => $this->parseDate($invoice_data[$date_key]) ?: now()->format('Y-m-d'), //27-01-2022
-            'currency_id' => $this->getCurrencyByCode($invoice_data, 'Currency'),
+            // 'currency_id' => $this->getCurrencyByCode($invoice_data, 'Currency'),
             'status_id'   => Invoice::STATUS_SENT,
             'due_date'	  => array_key_exists('Due Date', $invoice_data) ? $this->parseDate($invoice_data['Due Date']) : null,
         ];

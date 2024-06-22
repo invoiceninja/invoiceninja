@@ -94,7 +94,7 @@ class TemplateService
         $this->twig = new \Twig\Environment($loader, [
                 'debug' => true,
         ]);
-        
+
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
@@ -124,7 +124,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency','map', 'join', 'first', 'date','sum'];
+        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date','sum'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -170,7 +170,7 @@ class TemplateService
 
     public function setGlobals(): self
     {
-        
+
         foreach($this->global_vars as $key => $value) {
             $this->twig->addGlobal($key, $value);
         }
@@ -251,7 +251,7 @@ class TemplateService
      */
     public function getPdf(): string
     {
-        
+
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
         } else {
@@ -306,9 +306,6 @@ class TemplateService
             } catch(SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
-            } catch(Error $e) {
-                nlog("error = " . $e->getMessage());
-                throw ($e);
             } catch(RuntimeError $e) {
                 nlog("runtime = " . $e->getMessage());
                 throw ($e);
@@ -318,8 +315,11 @@ class TemplateService
             } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
                 throw ($e);
+            } catch(Error $e) {
+                nlog("error = " . $e->getMessage());
+                throw ($e);
             }
-
+            
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
@@ -564,7 +564,7 @@ class TemplateService
                             'credit_balance' => $invoice->client->credit_balance,
                             'vat_number' => $invoice->client->vat_number ?? '',
                             'currency' => $invoice->client->currency()->code ?? 'USD',
-                            'locale' => substr($invoice->client->locale(),0,2),
+                            'locale' => substr($invoice->client->locale(), 0, 2),
                         ],
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
@@ -619,8 +619,6 @@ class TemplateService
      */
     private function transformPayment(Payment $payment): array
     {
-
-        $data = [];
 
         $this->payment = $payment;
 
@@ -694,8 +692,6 @@ class TemplateService
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
 
-        return $data;
-
     }
 
     /**
@@ -721,9 +717,10 @@ class TemplateService
     private function getPaymentRefundActivity(Payment $payment): array
     {
 
-        if(!is_array($payment->refund_meta))
+        if(!is_array($payment->refund_meta)) {
             return [];
-        
+        }
+
         return collect($payment->refund_meta)
         ->map(function ($refund) use ($payment) {
 
@@ -1195,6 +1192,7 @@ class TemplateService
             'company-details' => $this->companyDetails($stack['labels'] == 'true'),
             'company-address' => $this->companyAddress($stack['labels'] == 'true'),
             'shipping-details' => $this->shippingDetails($stack['labels'] == 'true'),
+            default => $this->entityDetails(),
         };
 
         $this->save();

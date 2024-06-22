@@ -133,7 +133,11 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
-        if($sort_col[0] == 'next_send_datetime'){
+        if($sort_col[0] == 'status_id'){
+            return $this->builder->orderBy('status_id', $dir)->orderBy('last_sent_date', $dir);
+        }
+
+        if($sort_col[0] == 'next_send_datetime') {
             $sort_col[0] = 'next_send_date';
         }
 
@@ -162,9 +166,10 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
+        /** @var array $key_parameters */
         $key_parameters = explode(',', $value);
 
-        if (count($key_parameters)) {
+        if (count($key_parameters) > 0) {
             return $this->builder->where(function ($query) use ($key_parameters) {
                 foreach ($key_parameters as $key) {
                     $query->orWhereJsonContains('line_items', ['product_key' => $key]);
@@ -183,6 +188,7 @@ class RecurringInvoiceFilters extends QueryFilters
      */
     public function next_send_between(string $range = ''): Builder
     {
+        /** @var array $parts */
         $parts = explode('|', $range);
 
         if (!isset($parts[0]) || !isset($parts[1])) {

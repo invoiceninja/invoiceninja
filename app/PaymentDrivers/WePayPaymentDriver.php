@@ -53,7 +53,7 @@ class WePayPaymentDriver extends BaseDriver
         throw new \Exception("Gateway no longer supported", 500);
 
 
-        return $this;
+        // return $this;
     }
 
     /**
@@ -75,7 +75,7 @@ class WePayPaymentDriver extends BaseDriver
      * Setup the gateway
      *
      * @param  array $data user_id + company
-     * @return \Illuminate\View\View
+     * @return void
      */
     public function setup(array $data)
     {

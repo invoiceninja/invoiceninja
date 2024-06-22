@@ -32,7 +32,7 @@ class CopyDocs implements ShouldQueue
     public $tries = 1;
 
     /**
-     * 
+     *
      */
     public function __construct(private \Illuminate\Support\Collection $document_ids, private $entity, private string $db)
     {
@@ -49,14 +49,14 @@ class CopyDocs implements ShouldQueue
 
         Document::whereIn('id', $this->document_ids)
                 ->where('company_id', $this->entity->company_id)
-                ->each(function ($document){
+                ->each(function ($document) {
 
                     $file = $document->getFile();
-                    
-                     $extension = pathinfo($document->name, PATHINFO_EXTENSION);
+
+                    $extension = pathinfo($document->name, PATHINFO_EXTENSION);
 
                     $new_hash = \Illuminate\Support\Str::random(32) . "." . $extension;
- 
+
                     Storage::disk($document->disk)->put(
                         "{$this->entity->company->company_key}/documents/{$new_hash}",
                         $file,
@@ -76,7 +76,7 @@ class CopyDocs implements ShouldQueue
                     $new_doc->width = $document->width;
                     $new_doc->height = $document->height;
                     $new_doc->is_public = $document->is_public;
-                    
+
                     $this->entity->documents()->save($new_doc);
 
                 });

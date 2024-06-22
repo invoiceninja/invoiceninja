@@ -24,7 +24,6 @@ class PreviewPurchaseOrderRequest extends Request
     use CleanLineItems;
 
     private ?Vendor $vendor = null;
-    private string $entity_plural = '';
 
     /**
      * Determine if the user is authorized to make this request.
@@ -72,7 +71,7 @@ class PreviewPurchaseOrderRequest extends Request
     {
         $invitation = false;
 
-        if(! $this->entity_id ?? false) {
+        if(! isset($this->entity_id)) {
             return $this->stubInvitation();
         }
 
@@ -130,12 +129,5 @@ class PreviewPurchaseOrderRequest extends Request
         return $entity;
     }
 
-    private function convertEntityPlural(string $entity): self
-    {
-
-        $this->entity_plural = 'purchase_orders';
-
-        return $this;
-    }
 
 }

@@ -21,6 +21,9 @@ use App\Models\Language;
 use App\Models\Timezone;
 use App\Models\DateFormat;
 use App\Models\PaymentTerm;
+use App\Models\PaymentType;
+use App\Models\DatetimeFormat;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 use App\DataMapper\EmailTemplateDefaults;
 
@@ -33,55 +36,176 @@ class StaticServiceProvider extends ServiceProvider
      */
     public function register()
     {
-
-            
+        /** @return \Illuminate\Support\Collection<Currency> */
         app()->singleton('currencies', function ($app) {
-            return Currency::query()->orderBy('name')->get();
+
+            if($resource = Cache::get('currencies')) {
+                return $resource;
+            }
+
+            $resource = Currency::query()->orderBy('name')->get();
+
+            Cache::forever('currencies', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<Language> */
         app()->singleton('languages', function ($app) {
-            return Language::query()->orderBy('name')->get();
+
+            if($resource = Cache::get('languages')) {
+                return $resource;
+            }
+
+            $resource = Language::query()->orderBy('name')->get();
+
+            Cache::forever('languages', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<Country> */
         app()->singleton('countries', function ($app) {
-            return Country::query()->orderBy('name')->get();
+
+            if($resource = Cache::get('countries')) {
+                return $resource;
+            }
+
+            $resource = Country::query()->orderBy('name')->get();
+
+            Cache::forever('countries', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<PaymentType> */
         app()->singleton('payment_types', function ($app) {
-            return PaymentTerm::query()->orderBy('num_days')->get();
+
+            if($resource = Cache::get('payment_types')) {
+                return $resource;
+            }
+
+            $resource = PaymentType::query()->orderBy('id')->get();
+
+            Cache::forever('payment_types', $resource);
+
+            return $resource;
+
         });
 
-        app()->singleton('industries', function ($app) {
-            return Industry::query()->orderBy('name')->get();
-        });
 
+        /** @return \Illuminate\Support\Collection<Bank> */
         app()->singleton('banks', function ($app) {
-            return Bank::query()->orderBy('name')->get();
+
+
+            if($resource = Cache::get('banks')) {
+                return $resource;
+            }
+
+            $resource = Bank::query()->orderBy('name')->get();
+
+            Cache::forever('banks', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<DateFormat> */
         app()->singleton('date_formats', function ($app) {
-            return DateFormat::query()->orderBy('id')->get();
+
+
+            if($resource = Cache::get('date_formats')) {
+                return $resource;
+            }
+
+            $resource = DateFormat::query()->orderBy('id')->get();
+
+            Cache::forever('date_formats', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<Timezone> */
         app()->singleton('timezones', function ($app) {
-            return Timezone::query()->orderBy('id')->get();
+
+
+            if($resource = Cache::get('timezones')) {
+                return $resource;
+            }
+
+            $resource = Timezone::query()->orderBy('id')->get();
+
+            Cache::forever('timezones', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<Gateway> */
         app()->singleton('gateways', function ($app) {
-            return Gateway::query()->orderBy('id')->get();
+
+            if($resource = Cache::get('gateways')) {
+                return $resource;
+            }
+
+            $resource = Gateway::query()->orderBy('id')->get();
+
+            Cache::forever('gateways', $resource);
+
+            return $resource;
+
+
         });
 
+        /** @return \Illuminate\Support\Collection<Industry> */
         app()->singleton('industries', function ($app) {
-            return Industry::query()->orderBy('id')->get();
+
+
+            if($resource = Cache::get('industries')) {
+                return $resource;
+            }
+
+            $resource = Industry::query()->orderBy('id')->get();
+
+            Cache::forever('industries', $resource);
+
+            return $resource;
+
         });
 
+        /** @return \Illuminate\Support\Collection<Size> */
         app()->singleton('sizes', function ($app) {
-            return Size::query()->orderBy('id')->get();
+
+
+            if($resource = Cache::get('sizes')) {
+                return $resource;
+            }
+
+            $resource = Size::query()->orderBy('id')->get();
+
+            Cache::forever('sizes', $resource);
+
+            return $resource;
+
         });
 
-        /** @deprecated */
-        app()->singleton('banks', function ($app) {
-            return Bank::query()->orderBy('id')->get();
+        /** @return \Illuminate\Support\Collection<DatetimeFormat> */
+        app()->singleton('datetime_formats', function ($app) {
+
+            if($resource = Cache::get('datetime_formats')) {
+                return $resource;
+            }
+
+            $resource = DatetimeFormat::query()->orderBy('id')->get();
+
+            Cache::forever('datetime_formats', $resource);
+
+            return $resource;
+
         });
 
         app()->singleton('templates', function ($app) {
@@ -97,6 +221,10 @@ class StaticServiceProvider extends ServiceProvider
                 'payment' => [
                     'subject' => EmailTemplateDefaults::emailPaymentSubject(),
                     'body' => EmailTemplateDefaults::emailPaymentTemplate(),
+                ],
+                'quote_reminder1' => [
+                    'subject' => EmailTemplateDefaults::emailQuoteReminder1Subject(),
+                    'body' => EmailTemplateDefaults::emailQuoteReminder1Body(),
                 ],
                 'reminder1' => [
                     'subject' => EmailTemplateDefaults::emailReminder1Subject(),

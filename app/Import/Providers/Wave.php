@@ -232,7 +232,7 @@ class Wave extends BaseImport implements ImportInterface
         $expenses = $this->groupExpenses($data);
 
         foreach ($expenses as $raw_expense) {
-                    
+
             if(!is_array($raw_expense)) {
                 continue;
             }

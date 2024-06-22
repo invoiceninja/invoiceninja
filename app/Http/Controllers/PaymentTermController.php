@@ -94,7 +94,7 @@ class PaymentTermController extends BaseController
      *
      * @param CreatePaymentTermRequest $request The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -142,7 +142,7 @@ class PaymentTermController extends BaseController
      *
      * @param StorePaymentTermRequest $request The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -236,7 +236,7 @@ class PaymentTermController extends BaseController
      *     )
      * @param ShowPaymentTermRequest $request
      * @param PaymentTerm $payment_term
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function show(ShowPaymentTermRequest $request, PaymentTerm $payment_term)
     {
@@ -286,7 +286,7 @@ class PaymentTermController extends BaseController
      *     )
      * @param EditPaymentTermRequest $request
      * @param PaymentTerm $payment_term
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function edit(EditPaymentTermRequest $request, PaymentTerm $payment_term)
     {
@@ -299,7 +299,7 @@ class PaymentTermController extends BaseController
      * @param UpdatePaymentTermRequest $request  The request
      * @param PaymentTerm $payment_term   The payment term
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -411,7 +411,7 @@ class PaymentTermController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(

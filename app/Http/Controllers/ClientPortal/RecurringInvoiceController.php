@@ -66,7 +66,7 @@ class RecurringInvoiceController extends Controller
      * @param  RequestCancellationRequest $request           [description]
      * @param  RecurringInvoice           $recurring_invoice [description]
      *
-     * @return \Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
     public function requestCancellation(RequestCancellationRequest $request, RecurringInvoice $recurring_invoice)
     {

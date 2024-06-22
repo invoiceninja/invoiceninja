@@ -43,6 +43,102 @@ class CreditTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testPaidToDateAdjustments()
+    {
+
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'balance' => 0,
+        ]);
+
+        $ii = new InvoiceItem();
+        $ii->cost = 100;
+        $ii->quantity = 1;
+        $ii->product_key = 'xx';
+        $ii->notes = 'yy';
+
+        $i = \App\Models\Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $c->id,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'discount' => 0,
+            'line_items' => [
+                $ii
+            ],
+            'status_id' => 1,
+        ]);
+
+        $i = $i->calc()->getInvoice();
+
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(100, $i->amount);
+
+        $i->service()->markSent()->save();
+
+        $this->assertEquals(100, $i->balance);
+        
+        $i->service()->markPaid()->save();
+        $i = $i->fresh();
+        $c = $c->fresh();
+
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(0, $c->balance);
+
+        $this->assertEquals(100, $c->paid_to_date);
+        
+        $i->service()->handleReversal()->save();
+        
+        
+        $data = $i->toArray(); 
+        $data['invoice_id'] = $i->hashed_id;
+        $data['user_id'] = $this->encodePrimaryKey($i->user_id);
+        $data['client_id'] = $this->encodePrimaryKey($i->client_id);
+        $data['status_id'] = 1;
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson("/api/v1/credits?mark_sent=true", $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $cr_id = $arr['data']['id'];
+
+        $i = $i->fresh();
+        $c = $c->fresh();
+
+        $credit = $i->credits()->first();
+
+        $this->assertNotNull($credit);
+
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(100, $c->credit_balance);
+        $this->assertEquals(0, $c->paid_to_date);
+    
+        $credit->service()->deleteCredit()->save();
+
+        $c = $c->fresh();
+
+        $this->assertEquals(100, $c->paid_to_date);
+        $this->assertEquals(0, $c->credit_balance);
+
+        $credit->service()->restoreCredit()->save();
+
+        $c = $c->fresh();
+
+        $this->assertEquals(0, $c->paid_to_date);
+        $this->assertEquals(100, $c->credit_balance);
+
+    }
+
     public function testCreditPaymentsPaidToDates()
     {
         $c = Client::factory()->create([

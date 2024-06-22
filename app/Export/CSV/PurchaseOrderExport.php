@@ -58,12 +58,12 @@ class PurchaseOrderExport extends BaseExport
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')
-                        ->whereHas('vendor', function ($q){
+                        ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id);
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
@@ -72,8 +72,9 @@ class PurchaseOrderExport extends BaseExport
 
         $clients = &$this->input['client_id'];
 
-        if($clients)
+        if($clients) {
             $query = $this->addClientFilter($query, $clients);
+        }
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
 

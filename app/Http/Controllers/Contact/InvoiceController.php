@@ -36,7 +36,7 @@ class InvoiceController extends BaseController
      *
      * @param InvoiceFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function index(InvoiceFilters $filters)
     {

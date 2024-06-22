@@ -72,7 +72,7 @@ class TwoFactorController extends BaseController
             return response()->json(['message' => ctrans('texts.enabled_two_factor')], 200);
         } elseif (! $secret || ! $google2fa->verifyKey($secret, $oneTimePassword)) {
             return response()->json(['message' => ctrans('texts.invalid_one_time_password')], 400);
-        }elseif (! $user->phone) {
+        } elseif (! $user->phone) {
             return response()->json(['message' => ctrans('texts.set_phone_for_two_factor')], 400);
         } elseif (! $user->isVerified()) {
             return response()->json(['message' => 'Please confirm your account first'], 400);

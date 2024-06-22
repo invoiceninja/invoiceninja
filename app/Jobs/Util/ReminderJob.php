@@ -173,43 +173,43 @@ class ReminderJob implements ShouldQueue
         //2024-06-07 this early return prevented any reminders from sending for users who enabled lock_invoices.
         if ($amount > 0 || $percent > 0) {
             // return;
-                
-                $fee = $amount;
 
-                if ($over_due_invoice->partial > 0) {
-                    $fee += round($over_due_invoice->partial * $percent / 100, 2);
-                } else {
-                    $fee += round($over_due_invoice->balance * $percent / 100, 2);
-                }
+            $fee = $amount;
 
-                /** @var \App\Models\Invoice $invoice */
-                $invoice = InvoiceFactory::create($over_due_invoice->company_id, $over_due_invoice->user_id);
-                $invoice->client_id = $over_due_invoice->client_id;
-                $invoice->date = now()->format('Y-m-d');
-                $invoice->due_date = now()->format('Y-m-d');
+            if ($over_due_invoice->partial > 0) {
+                $fee += round($over_due_invoice->partial * $percent / 100, 2);
+            } else {
+                $fee += round($over_due_invoice->balance * $percent / 100, 2);
+            }
 
-                $invoice_item = new InvoiceItem();
-                $invoice_item->type_id = '5';
-                $invoice_item->product_key = trans('texts.fee');
-                $invoice_item->notes = ctrans('texts.late_fee_added_locked_invoice', ['invoice' => $over_due_invoice->number, 'date' => $this->translateDate(now()->startOfDay(), $over_due_invoice->client->date_format(), $over_due_invoice->client->locale())]);
-                $invoice_item->quantity = 1;
-                $invoice_item->cost = $fee;
+            /** @var \App\Models\Invoice $invoice */
+            $invoice = InvoiceFactory::create($over_due_invoice->company_id, $over_due_invoice->user_id);
+            $invoice->client_id = $over_due_invoice->client_id;
+            $invoice->date = now()->format('Y-m-d');
+            $invoice->due_date = now()->format('Y-m-d');
 
-                $invoice_items = [];
-                $invoice_items[] = $invoice_item;
+            $invoice_item = new InvoiceItem();
+            $invoice_item->type_id = '5';
+            $invoice_item->product_key = trans('texts.fee');
+            $invoice_item->notes = ctrans('texts.late_fee_added_locked_invoice', ['invoice' => $over_due_invoice->number, 'date' => $this->translateDate(now()->startOfDay(), $over_due_invoice->client->date_format(), $over_due_invoice->client->locale())]);
+            $invoice_item->quantity = 1;
+            $invoice_item->cost = $fee;
 
-                $invoice->line_items = $invoice_items;
+            $invoice_items = [];
+            $invoice_items[] = $invoice_item;
 
-                /**Refresh Invoice values*/
-                $invoice = $invoice->calc()->getInvoice();
-                $invoice->service()
-                        ->createInvitations()
-                        ->applyNumber()
-                        ->markSent()
-                        ->save();
+            $invoice->line_items = $invoice_items;
+
+            /**Refresh Invoice values*/
+            $invoice = $invoice->calc()->getInvoice();
+            $invoice->service()
+                    ->createInvitations()
+                    ->applyNumber()
+                    ->markSent()
+                    ->save();
         }
 
-        if(!$invoice){
+        if(!$invoice) {
             $invoice = $over_due_invoice;
         }
 

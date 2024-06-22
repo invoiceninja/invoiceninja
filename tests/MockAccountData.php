@@ -203,33 +203,6 @@ trait MockAccountData
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        /* Warm up the cache !*/
-        $cached_tables = config('ninja.cached_tables');
-
-        Artisan::call('db:seed', [
-        '--force' => true
-        ]);
-
-        foreach ($cached_tables as $name => $class) {
-            // check that the table exists in case the migration is pending
-            if (! Schema::hasTable((new $class())->getTable())) {
-                continue;
-            }
-            if ($name == 'payment_terms') {
-                $orderBy = 'num_days';
-            } elseif ($name == 'fonts') {
-                $orderBy = 'sort_order';
-            } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                $orderBy = 'name';
-            } else {
-                $orderBy = 'id';
-            }
-            $tableData = $class::orderBy($orderBy)->get();
-            if ($tableData->count()) {
-                Cache::forever($name, $tableData);
-            }
-        }
-
         $this->faker = \Faker\Factory::create();
         $fake_email = $this->faker->email();
 
@@ -600,14 +573,9 @@ trait MockAccountData
             'purchase_order_id' => $this->purchase_order->id,
         ]);
 
-        $purchase_order_invitations = PurchaseOrderInvitation::whereCompanyId($this->purchase_order->company_id)
-            ->wherePurchaseOrderId($this->purchase_order->id);
-
-        $this->purchase_order->setRelation('invitations', $purchase_order_invitations);
-
         $this->purchase_order->service()->markSent();
 
-        $this->purchase_order->setRelation('client', $this->client);
+        $this->purchase_order->setRelation('vendor', $this->vendor);
         $this->purchase_order->setRelation('company', $this->company);
 
         $this->purchase_order->save();
@@ -813,7 +781,7 @@ trait MockAccountData
 
         if (config('ninja.testvars.stripe')) {
             $data = [];
-            $data[1]['min_limit'] = 234;
+            $data[1]['min_limit'] = 22;
             $data[1]['max_limit'] = 65317;
             $data[1]['fee_amount'] = 0.00;
             $data[1]['fee_percent'] = 0.000;

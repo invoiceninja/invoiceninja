@@ -96,7 +96,7 @@ class NinjaMailerJob implements ShouldQueue
             }
 
             $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
-        } elseif (isset ($this->nmo->invitation->user)) {
+        } elseif (isset($this->nmo->invitation->user)) {
             $this->nmo->mailable->replyTo($this->nmo->invitation->user->email, $this->nmo->invitation->user->present()->name());
         } else {
             $this->nmo->mailable->replyTo($this->company->owner()->email, $this->company->owner()->present()->name());
@@ -153,34 +153,30 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                 ->send();
 
-        } 
-        catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
+        } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        } 
-        catch (\Symfony\Component\Mime\Exception\LogicException $e) {
+        } catch (\Symfony\Component\Mime\Exception\LogicException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        }
-        catch(\Google\Service\Exception $e){
+        } catch(\Google\Service\Exception $e) {
 
             if ($e->getCode() == '429') {
-            
+
                 $message = "Google rate limiting triggered, we are queueing based on Gmail requirements.";
                 $this->logMailError($message, $this->company->clients()->first());
                 sleep(rand(1, 2));
                 $this->release(900);
 
             }
-        
-        } 
-        catch (\Exception $e) {
+
+        } catch (\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -194,7 +190,7 @@ class NinjaMailerJob implements ShouldQueue
 
                 $this->fail();
                 $this->logMailError($e->getMessage(), $this->company->clients()->first());
-                
+
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
@@ -204,8 +200,8 @@ class NinjaMailerJob implements ShouldQueue
                 return;
             }
 
-            if(stripos($e->getMessage(), 'Dsn') !== false){
-                
+            if(stripos($e->getMessage(), 'Dsn') !== false) {
+
                 nlog("Incorrectly configured mail server - setting to default mail driver.");
                 $this->nmo->settings->email_sending_method = 'default';
                 return $this->setMailDriver();
@@ -220,7 +216,7 @@ class NinjaMailerJob implements ShouldQueue
 
                 $this->fail();
                 $this->logMailError($message, $this->company->clients()->first());
-                
+
                 if ($this->nmo->entity) {
                     $this->entityEmailFailed($message);
                 }
@@ -258,8 +254,9 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark']))
+        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
+        }
 
     }
     /**
@@ -400,8 +397,7 @@ class NinjaMailerJob implements ShouldQueue
         if(strlen($smtp_host) <= 1 ||
         strlen($smtp_username) <= 1 ||
         strlen($smtp_password) <= 1
-        )
-        {
+        ) {
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -428,7 +424,7 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         $user = $this->resolveSendingUser();
-        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
 
         $this->nmo
             ->mailable
@@ -546,8 +542,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
         $this->nmo
             ->mailable
@@ -569,8 +565,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
         $this->nmo
             ->mailable
@@ -592,8 +588,8 @@ class NinjaMailerJob implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset ($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
-        $sending_user = (isset ($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+        $sending_email = (isset($this->nmo->settings->custom_sending_email) && stripos($this->nmo->settings->custom_sending_email, "@")) ? $this->nmo->settings->custom_sending_email : $user->email;
+        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
 
         $this->nmo
             ->mailable
@@ -673,7 +669,7 @@ class NinjaMailerJob implements ShouldQueue
          *  just for this request.
          */
 
-        $token = $user->oauth_user_token->access_token;
+        $token = $user->oauth_user_token->access_token; /** @phpstan-ignore-line */
 
         if (!$token) {
             $this->company->account->gmailCredentialNotification();
@@ -802,7 +798,7 @@ class NinjaMailerJob implements ShouldQueue
             if (!$user->oauth_user_refresh_token || $user->oauth_user_refresh_token == '') {
                 return false;
             }
-            
+
             try {
                 $token = json_decode($guzzle->post($url, [
                     'form_params' => [
@@ -813,8 +809,7 @@ class NinjaMailerJob implements ShouldQueue
                         'refresh_token' => $user->oauth_user_refresh_token
                     ],
                 ])->getBody()->getContents());
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
                 nlog("Problem getting new Microsoft token for User: {$user->email}");
             }
 

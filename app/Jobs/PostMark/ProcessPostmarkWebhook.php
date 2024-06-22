@@ -83,13 +83,11 @@ class ProcessPostmarkWebhook implements ShouldQueue
     /**
      * Execute the job.
      *
-     *
-     * @return void
      */
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
-        $this->company = Company::where('company_key', $this->request['Tag'])->first();
+        $this->company = Company::where('company_key', $this->request['Tag'])->first(); /** @phpstan-ignore-line */
 
         $this->invitation = $this->discoverInvitation($this->request['MessageID']);
 
@@ -405,8 +403,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
             try {
                 $messageDetail = $postmark->getOutboundMessageDetails($this->request['MessageID']);
-            }
-            catch(\Exception $e){
+            } catch(\Exception $e) {
 
                 $postmark_secret = config('services.postmark-outlook.token');
                 $postmark = new PostmarkClient($postmark_secret);

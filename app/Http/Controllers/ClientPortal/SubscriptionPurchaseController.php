@@ -90,15 +90,20 @@ class SubscriptionPurchaseController extends Controller
      * Set locale for incoming request.
      *
      * @param string $locale
+     * @return string
      */
-    private function setLocale(string $locale): void
+    private function setLocale(string $locale): string
     {
-        $record = Cache::get('languages')->filter(function ($item) use ($locale) {
-            return $item->locale == $locale;
-        })->first();
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        if ($record) {
-            App::setLocale($record->locale);
-        }
+        $record = $languages->first(function ($item) use ($locale) {
+            /** @var \App\Models\Language $item */
+            return $item->locale == $locale;
+        });
+
+        return $record ? $record->locale : 'en';
+        
     }
 }

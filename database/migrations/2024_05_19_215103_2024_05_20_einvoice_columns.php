@@ -37,7 +37,7 @@ return new class extends Migration
         });
 
         Schema::table('accounts', function (Blueprint $table) {
-            $table->integer('email_quota')->default(20)->nullable();
+            $table->integer('email_quota')->nullable();
         });
 
     }

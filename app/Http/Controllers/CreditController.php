@@ -69,7 +69,7 @@ class CreditController extends BaseController
      *
      * @param CreditFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/credits",
@@ -115,7 +115,7 @@ class CreditController extends BaseController
      *
      * @param CreateCreditRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -164,7 +164,7 @@ class CreditController extends BaseController
      *
      * @param StoreCreditRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -226,7 +226,7 @@ class CreditController extends BaseController
      * @param ShowCreditRequest $request  The request
      * @param Credit $credit  The credit
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -281,7 +281,7 @@ class CreditController extends BaseController
      * @param EditCreditRequest $request The request
      * @param Credit $credit The credit
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/credits/{id}/edit",
@@ -334,7 +334,7 @@ class CreditController extends BaseController
      *
      * @param UpdateCreditRequest $request The request
      * @param Credit $credit
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \ReflectionException
@@ -458,7 +458,7 @@ class CreditController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      *
      * @OA\Post(
      *      path="/api/v1/credits/bulk",
@@ -594,13 +594,11 @@ class CreditController extends BaseController
                 $credit->service()->markPaid()->save();
 
                 return $this->itemResponse($credit);
-                break;
 
             case 'clone_to_credit':
                 $credit = CloneCreditFactory::create($credit, auth()->user()->id);
 
                 return $this->itemResponse($credit);
-                break;
             case 'history':
                 // code...
                 break;
@@ -617,7 +615,7 @@ class CreditController extends BaseController
                 return response()->streamDownload(function () use ($file) {
                     echo $file;
                 }, $credit->numberFormatter() . '.pdf', ['Content-Type' => 'application/pdf']);
-                break;
+                
             case 'archive':
                 $this->credit_repository->archive($credit);
 
@@ -655,7 +653,6 @@ class CreditController extends BaseController
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                break;
         }
     }
 
@@ -700,7 +697,7 @@ class CreditController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadPdf($invitation_key)
     {
@@ -768,7 +765,7 @@ class CreditController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadECredit($invitation_key)
     {
@@ -801,7 +798,7 @@ class CreditController extends BaseController
      *
      * @param UploadCreditRequest $request
      * @param Credit $credit
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

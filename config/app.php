@@ -183,7 +183,6 @@ return [
         /*
          * Dependency Service Providers
          */
-        'Webpatser\Countries\CountriesServiceProvider',
 
         /*
          * Package Service Providers...
@@ -218,7 +217,6 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Collector' => Turbo124\Beacon\CollectorFacade::class,
-        // 'Countries' => 'Webpatser\Countries\CountriesFacade',
         'CustomMessage' => App\Utils\ClientPortal\CustomMessage\CustomMessageFacade::class,
         'Redis'        => Illuminate\Support\Facades\Redis::class,
     ])->toArray(),

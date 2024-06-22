@@ -68,6 +68,7 @@ class CompanyService
             }
 
         } catch(\Exception $e) {
+            nlog("Exception:: CompanyService::" . $e->getMessage());
             nlog($e->getMessage());
         }
 

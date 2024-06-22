@@ -91,7 +91,7 @@ class ARDetailReport extends BaseExport
 
         $query = Invoice::query()
                 ->withTrashed()
-                ->whereHas('client', function ($query){
+                ->whereHas('client', function ($query) {
                     $query->where('is_deleted', 0);
                 })
                 ->where('company_id', $this->company->id)
@@ -124,7 +124,7 @@ class ARDetailReport extends BaseExport
             $client->present()->name(),
             $client->number,
             $client->id_number,
-            Carbon::parse($invoice->due_date)->diffInDays(now()),
+            intval(abs(Carbon::parse($invoice->due_date)->diffInDays(now()))),
             Number::formatMoney($invoice->amount, $client),
             Number::formatMoney($invoice->balance, $client),
         ];

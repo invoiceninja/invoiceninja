@@ -127,7 +127,7 @@ class PaymentMethodController extends Controller
      * Remove the specified resource from storage.
      *
      * @param ClientGatewayToken $payment_method
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(ClientGatewayToken $payment_method)
     {

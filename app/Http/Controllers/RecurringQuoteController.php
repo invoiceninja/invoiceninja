@@ -66,7 +66,7 @@ class RecurringQuoteController extends BaseController
      *
      * @param RecurringQuoteFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -113,7 +113,7 @@ class RecurringQuoteController extends BaseController
      *
      * @param CreateRecurringQuoteRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -161,7 +161,7 @@ class RecurringQuoteController extends BaseController
      *
      * @param StoreRecurringQuoteRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -210,7 +210,7 @@ class RecurringQuoteController extends BaseController
      * @param ShowRecurringQuoteRequest $request  The request
      * @param RecurringQuote $recurring_quote  The RecurringQuote
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -265,7 +265,7 @@ class RecurringQuoteController extends BaseController
      * @param EditRecurringQuoteRequest $request  The request
      * @param RecurringQuote $recurring_quote  The RecurringQuote
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -320,7 +320,7 @@ class RecurringQuoteController extends BaseController
      * @param UpdateRecurringQuoteRequest $request  The request
      * @param RecurringQuote $recurring_quote  The RecurringQuote
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -435,7 +435,7 @@ class RecurringQuoteController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(

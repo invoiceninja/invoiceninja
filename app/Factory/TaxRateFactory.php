@@ -20,7 +20,7 @@ class TaxRateFactory
         $tax_rate = new TaxRate();
 
         $tax_rate->name = '';
-        $tax_rate->rate = '';
+        $tax_rate->rate = 0;
         $tax_rate->company_id = $company_id;
         $tax_rate->user_id = $user_id;
 

@@ -48,6 +48,9 @@ class PrePaymentController extends Controller
             'allows_recurring' => true,
             'minimum' => $minimum,
             'minimum_amount' =>  $minimum_amount,
+            'notes' => request()->has('notes') ? request()->input('notes') : "",
+            'amount' => request()->has('amount') ? request()->input('amount') : "",
+            'show' => request()->has('is_recurring') ? "true" : "false",
         ];
 
         return $this->render('pre_payments.index', $data);
@@ -105,7 +108,7 @@ class PrePaymentController extends Controller
             return $invoice;
         });
 
-        
+
         $variables = false;
 
         if(($invitation = $invoices->first()->invitations()->first() ?? false) && $invoice->client->getSetting('show_accept_invoice_terms')) {

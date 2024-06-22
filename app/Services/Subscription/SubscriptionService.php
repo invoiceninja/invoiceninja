@@ -416,7 +416,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_of_subscription_used = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = intval(abs($start_date->diffInDays($current_date)));
 
         $days_in_frequency = $this->getDaysInFrequency();
 
@@ -441,7 +441,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_of_subscription_used = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = intval(abs($start_date->diffInDays($current_date)));
 
         if ($subscription) {
             $days_in_frequency = $subscription->service()->getDaysInFrequency();
@@ -481,7 +481,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_of_subscription_used = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = intval(abs($start_date->diffInDays($current_date)));
 
         $days_in_frequency = $invoice->subscription->service()->getDaysInFrequency();
 
@@ -543,7 +543,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_to_charge = $start_date->diffInDays($current_date);
+        $days_to_charge = intval(abs($start_date->diffInDays($current_date)));
 
         $days_in_frequency = $this->getDaysInFrequency();
 
@@ -1363,23 +1363,23 @@ class SubscriptionService
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
                 return 14;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                return now()->diffInDays(now()->addWeeks(4));
+                return intval(abs(now()->diffInDays(now()->addWeeks(4))));
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                return now()->diffInDays(now()->addMonthNoOverflow());
+                return intval(abs(now()->diffInDays(now()->addMonthNoOverflow())));
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(2));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(2))));
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(3));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(3))));
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(4));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(4))));
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(6));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(6))));
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                return now()->diffInDays(now()->addYear());
+                return intval(abs(now()->diffInDays(now()->addYear())));
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                return now()->diffInDays(now()->addYears(2));
+                return intval(abs(now()->diffInDays(now()->addYears(2))));
             case RecurringInvoice::FREQUENCY_THREE_YEARS:
-                return now()->diffInDays(now()->addYears(3));
+                return intval(abs(now()->diffInDays(now()->addYears(3))));
             default:
                 return 0;
         }

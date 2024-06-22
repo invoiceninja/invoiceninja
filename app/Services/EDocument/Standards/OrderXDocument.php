@@ -26,17 +26,22 @@ class OrderXDocument extends AbstractService
 {
     public OrderDocumentBuilder $orderxdocument;
 
-    /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document */
-    
-    public function __construct(public mixed $document, private readonly bool $returnObject = false, private array $tax_map = [])
+    /**
+     * __construct
+     *
+     * @param  \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit $document
+     * @param  bool $returnObject
+     * @param  array $tax_map
+     * @return void
+     */
+    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit  $document, private readonly bool $returnObject = false, private array $tax_map = [])
     {
     }
 
     public function run(): self
     {
-        
+
         $company = $this->document->company;
-        /** @var \App\Models\Client | \App\Models\Vendor $settings_entity */
         $settings_entity = ($this->document instanceof PurchaseOrder) ? $this->document->vendor : $this->document->client;
         $profile = $settings_entity->getSetting('e_quote_type') ? $settings_entity->getSetting('e_quote_type') : "OrderX_Extended";
 
@@ -63,7 +68,7 @@ class OrderXDocument extends AbstractService
         }
         // Document type
         $document_class = get_class($this->document);
-        switch ($document_class){
+        switch ($document_class) {
             case Quote::class:
                 // Probably wrong file code https://github.com/horstoeko/zugferd/blob/master/src/codelists/ZugferdInvoiceType.php
                 if (empty($this->document->number)) {
@@ -124,12 +129,12 @@ class OrderXDocument extends AbstractService
                     $this->orderxdocument->setDocumentPositionProductDetails("no product name defined");
                 }
             }
-// TODO: add item classification (kg, m^3, ...)
-//            if (isset($item->task_id)) {
-//                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "HUR");
-//            } else {
-//                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "H87");
-//            }
+            // TODO: add item classification (kg, m^3, ...)
+            //            if (isset($item->task_id)) {
+            //                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "HUR");
+            //            } else {
+            //                $this->orderxdocument->setDocumentPositionQuantity($item->quantity, "H87");
+            //            }
             $linenetamount = $item->line_total;
             if ($item->discount > 0) {
                 if ($this->document->is_amount_discount) {
@@ -176,7 +181,17 @@ class OrderXDocument extends AbstractService
             }
         }
 
-        $this->orderxdocument->setDocumentSummation($this->document->amount, $this->document->balance, $invoicing_data->getSubTotal(), $invoicing_data->getTotalSurcharges(), $invoicing_data->getTotalDiscount(), $invoicing_data->getSubTotal(), $invoicing_data->getItemTotalTaxes(), 0.0, $this->document->amount - $this->document->balance);
+        $this->orderxdocument->setDocumentSummation(
+            $this->document->amount,
+            $this->document->balance,
+            $invoicing_data->getSubTotal(),
+            $invoicing_data->getTotalSurcharges(),
+            // $invoicing_data->getTotalDiscount(),
+            $invoicing_data->getSubTotal(),
+            $invoicing_data->getItemTotalTaxes(),
+            // 0.0,
+            // ($this->document->amount - $this->document->balance)
+        );
 
         foreach ($this->tax_map as $item) {
             $this->orderxdocument->addDocumentTax($item["tax_type"], "VAT", $item["net_amount"], $item["tax_rate"] * $item["net_amount"], $item["tax_rate"] * 100);

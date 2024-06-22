@@ -45,13 +45,13 @@ class HtmlEngine
     /** @var \App\Models\Client $client */
     public $client;
 
-    /** @var \App\Models\ClientContact $contact */
+    /** @var ?\App\Models\ClientContact $contact */
     public $contact;
 
     /** @var \App\Models\Company $company */
     public $company;
 
-    /** @var \App\DataMapper\CompanySettings $settings **/
+    /** @var \App\DataMapper\CompanySettings|\stdClass $settings **/
     public $settings;
 
     public $entity_calc;
@@ -120,7 +120,7 @@ class HtmlEngine
     {
         if (! $this->client->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
-            exit;
+            // exit;
         }
 
         App::forgetInstance('translator');
@@ -132,10 +132,10 @@ class HtmlEngine
 
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
-        $data['$show_shipping_address'] = ['value' => $this->settings?->show_shipping_address ? 'flex' : 'none', 'label' => ''];
-        $data['$show_shipping_address_block'] = ['value' => $this->settings?->show_shipping_address ? 'block' : 'none', 'label' => ''];
+        $data['$show_shipping_address'] = ['value' => $this->settings->show_shipping_address ? 'flex' : 'none', 'label' => ''];
+        $data['$show_shipping_address_block'] = ['value' => $this->settings->show_shipping_address ? 'block' : 'none', 'label' => ''];
         // $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 'visible' : 'hidden', 'label' => ''];
-        $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 1 : 0, 'label' => ''];
+        $data['$show_shipping_address_visibility'] = ['value' => $this->settings->show_shipping_address ? 1 : 0, 'label' => ''];
 
         $data['$order_number'] = ['value' => '', 'label' => ctrans('texts.order_number')];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -222,11 +222,12 @@ class HtmlEngine
             if ($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
                 $data['$invoice.project'] = &$data['$project.name'];
+                $data['$quote.project'] = &$data['$project.name'];
             }
 
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
 
-            $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings?->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
+            $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
 
             if ($this->entity->vendor) {
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
@@ -276,8 +277,10 @@ class HtmlEngine
             $data['$credit.custom4'] = &$data['$quote.custom4'];
 
             if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
+                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];                
                 $data['$invoice.project'] = &$data['$project.name'];
+                $data['$quote.project'] = &$data['$project.name'];
+
             }
 
             if ($this->entity->vendor) {
@@ -397,7 +400,7 @@ class HtmlEngine
         $data['$balance'] = ['value' => Number::formatMoney($this->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.balance')];
         $data['$credit.balance'] = ['value' => Number::formatMoney($this->entity_calc->getBalance(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
         $data['$client.credit_balance'] = &$data['$credit.balance'];
-        
+
         $data['$invoice.balance'] = &$data['$balance'];
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
@@ -561,17 +564,18 @@ class HtmlEngine
 
         $data['$spc_qr_code'] = ['value' => $this->company->present()->getSpcQrCode($this->client->currency()->code, $this->entity->number, $this->entity->balance, $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client)), 'label' => ''];
 
-        if(Ninja::isHosted())
+        if(Ninja::isHosted()) {
             $logo = $this->company->present()->logo($this->settings);
-        else
+        } else {
             $logo = $this->company->present()->logo_base64($this->settings);
+        }
 
         $logo_url = $this->company->present()->logo($this->settings);
 
 
         $data['$company.logo'] = ['value' => $logo ?: ' ', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
-        
+
         $data['$company.logo_url'] = ['value' => $logo_url ?: ' ', 'label' => ctrans('texts.logo')];
 
         $data['$company1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
@@ -767,33 +771,34 @@ class HtmlEngine
         return $data;
     }
 
-    private function getPaymentMeta(\App\Models\Payment $payment) {
+    private function getPaymentMeta(\App\Models\Payment $payment)
+    {
 
-        if(!is_array($payment->refund_meta))
+        if(!is_array($payment->refund_meta)) {
             return '';
+        }
 
-        return 
-        collect($payment->refund_meta)
+        return collect($payment->refund_meta)
                 ->map(function ($refund) use ($payment) {
 
-           $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
-           $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
-           $entity = ctrans('texts.invoice');
+                    $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
+                    $date = $this->translateDate($date, $payment->client->date_format(), $payment->client->locale());
+                    $entity = ctrans('texts.invoice');
 
-           $map = [];
+                    $map = [];
 
-           foreach($refund['invoices'] as $refunded_invoice) {
-               $invoice = \App\Models\Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
-               $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
-               $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
+                    foreach($refund['invoices'] as $refunded_invoice) {
+                        $invoice = \App\Models\Invoice::withTrashed()->find($refunded_invoice['invoice_id']);
+                        $amount = Number::formatMoney($refunded_invoice['amount'], $payment->client);
+                        $notes = ctrans('texts.status_partially_refunded_amount', ['amount' => $amount]);
 
-               array_push($map, "{$date} {$entity} #{$invoice->number} {$notes}\n");
+                        array_push($map, "{$date} {$entity} #{$invoice->number} {$notes}\n");
 
-           }
+                    }
 
-           return $map;
+                    return $map;
 
-       })->flatten()->implode("\n");
+                })->flatten()->implode("\n");
 
     }
     /**
@@ -916,39 +921,30 @@ class HtmlEngine
 
     private function getCountryName(): string
     {
-        $countries = Cache::get('countries');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-        if (! $countries) {
-            $this->buildCache(true);
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
 
-            $countries = Cache::get('countries');
-        }
-
-        if ($countries) {
-            $country = $countries->filter(function ($item) {
-                return $item->id == $this->settings->country_id;
-            })->first();
-        } else {
-            $country = Country::find($this->settings->country_id);
-        }
-
-        if ($country) {
-            return ctrans('texts.country_' . $country->name);
-        }
-
-        return ' ';
+        return $country ? ctrans('texts.country_' . $country->name) : ctrans('texts.country_' . $countries->first()->name);
     }
 
 
     private function getCountryCode(): string
     {
-        $country = Country::find($this->settings->country_id);
 
-        if ($country) {
-            return $country->iso_3166_2;
-        }
 
-        return ' ';
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
+
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
+
+        return $country ? $country->iso_3166_2 : ' ';
     }
     /**
      * Due to the way we are compiling the blade template we
@@ -959,20 +955,20 @@ class HtmlEngine
      * @return string a collection of <tr> rows with line item
      * aggregate data
      */
-    private function makeLineTaxes(): string
-    {
-        $tax_map = $this->entity_calc->getTaxMap();
+    // private function makeLineTaxes(): string
+    // {
+    //     $tax_map = $this->entity_calc->getTaxMap();
 
-        $data = '';
+    //     $data = '';
 
-        foreach ($tax_map as $tax) {
-            $data .= '<tr class="line_taxes">';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
-        }
+    //     foreach ($tax_map as $tax) {
+    //         $data .= '<tr class="line_taxes">';
+    //         $data .= '<td>'.$tax['name'].'</td>';
+    //         $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
+    //     }
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
     private function lineTaxValues(): string
     {
@@ -987,30 +983,30 @@ class HtmlEngine
         return $data;
     }
 
-    private function makeTotalTaxes(): string
-    {
-        $data = '';
+    // private function makeTotalTaxes(): string
+    // {
+    //     $data = '';
 
-        if (! $this->entity_calc->getTotalTaxMap()) {
-            return $data;
-        }
+    //     if (! $this->entity_calc->getTotalTaxMap()) {
+    //         return $data;
+    //     }
 
-        foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<tr>';
-            $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
-        }
+    //     foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
+    //         $data .= '<tr>';
+    //         $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
+    //         $data .= '<td>'.$tax['name'].'</td>';
+    //         $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
+    //     }
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
-    private function parseLabelsAndValues($labels, $values, $section): string
-    {
-        $section = strtr($section, $labels);
+    // private function parseLabelsAndValues($labels, $values, $section): string
+    // {
+    //     $section = strtr($section, $labels);
 
-        return strtr($section, $values);
-    }
+    //     return strtr($section, $values);
+    // }
 
     /*
     | Ensures the URL doesn't have duplicated trailing slash
@@ -1026,98 +1022,98 @@ class HtmlEngine
      * of Repeating headers and footers on the PDF.
      * @return string The css string
      */
-    private function generateCustomCSS(): string
-    {
-        $header_and_footer = '
-.header, .header-space {
-  height: 160px;
-}
+//     private function generateCustomCSS(): string
+//     {
+//         $header_and_footer = '
+// .header, .header-space {
+//   height: 160px;
+// }
 
-.footer, .footer-space {
-  height: 160px;
-}
+// .footer, .footer-space {
+//   height: 160px;
+// }
 
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
+// .footer {
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+// }
 
-.header {
-  position: fixed;
-  top: 0mm;
-  width: 100%;
-}
+// .header {
+//   position: fixed;
+//   top: 0mm;
+//   width: 100%;
+// }
 
-@media print {
-   thead {display: table-header-group;}
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';
+// @media print {
+//    thead {display: table-header-group;}
+//    tfoot {display: table-footer-group;}
+//    button {display: none;}
+//    body {margin: 0;}
+// }';
 
-        $header = '
-.header, .header-space {
-  height: 160px;
-}
+//         $header = '
+// .header, .header-space {
+//   height: 160px;
+// }
 
-.header {
-  position: fixed;
-  top: 0mm;
-  width: 100%;
-}
+// .header {
+//   position: fixed;
+//   top: 0mm;
+//   width: 100%;
+// }
 
-@media print {
-   thead {display: table-header-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';
+// @media print {
+//    thead {display: table-header-group;}
+//    button {display: none;}
+//    body {margin: 0;}
+// }';
 
-        $footer = '
+//         $footer = '
 
-.footer, .footer-space {
-  height: 160px;
-}
+// .footer, .footer-space {
+//   height: 160px;
+// }
 
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
+// .footer {
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+// }
 
-@media print {
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';
-        $css = '';
+// @media print {
+//    tfoot {display: table-footer-group;}
+//    button {display: none;}
+//    body {margin: 0;}
+// }';
+//         $css = '';
 
-        if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
-            $css .= $header_and_footer;
-        } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
-            $css .= $header;
-        } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
-            $css .= $footer;
-        }
+//         if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
+//             $css .= $header_and_footer;
+//         } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
+//             $css .= $header;
+//         } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
+//             $css .= $footer;
+//         }
 
-        $css .= '
-.page {
-  page-break-after: always;
-}
+//         $css .= '
+// .page {
+//   page-break-after: always;
+// }
 
-@page {
-  margin: 0mm
-}
+// @page {
+//   margin: 0mm
+// }
 
-html {
-        ';
+// html {
+//         ';
 
-        $css .= 'font-size:'.$this->settings->font_size.'px;';
+//         $css .= 'font-size:'.$this->settings->font_size.'px;';
 
-        $css .= '}';
+//         $css .= '}';
 
-        return $css;
-    }
+//         return $css;
+//     }
 
     /**
      * Generate markup for HTML images on entity.
@@ -1197,14 +1193,14 @@ html {
         ';
 
 
-        return '
-            <table border="0" cellspacing="0" cellpadding="0" align="center">
-                <tr style="border: 0 !important; ">
-                    <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
-                    <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
-                    </td>
-                </tr>
-            </table>
-        ';
+        // return '
+        //     <table border="0" cellspacing="0" cellpadding="0" align="center">
+        //         <tr style="border: 0 !important; ">
+        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+        //             <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
+        //             </td>
+        //         </tr>
+        //     </table>
+        // ';
     }
 }

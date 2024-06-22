@@ -25,12 +25,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $company_gateway_id
  * @property string|null $gateway_customer_reference
  * @property int $gateway_type_id
- * @property int $is_default
+ * @property bool $is_default
  * @property object|null $meta
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property-read \App\Models\Client|null $client
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\CompanyGateway|null $gateway

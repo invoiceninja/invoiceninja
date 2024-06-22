@@ -63,7 +63,6 @@ class CompanyExport implements ShouldQueue
     /**
      * Execute the job.
      *
-     * @return void
      */
     public function handle()
     {
@@ -468,10 +467,10 @@ class CompanyExport implements ShouldQueue
         $x->addItems($this->export_data['subscriptions']);
         $this->export_data = null;
 
+        
         $this->export_data['system_logs'] = $this->company->system_logs->map(function ($log) {
-            $log->client_id = $this->encodePrimaryKey($log->client_id);
-            $log->company_id = $this->encodePrimaryKey($log->company_id);
-
+            $log->client_id = $this->encodePrimaryKey($log->client_id);/** @phpstan-ignore-line */
+            $log->company_id = $this->encodePrimaryKey($log->company_id);/** @phpstan-ignore-line */
             return $log;
         })->makeHidden(['id'])->all();
 
@@ -496,9 +495,9 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['task_statuses'] = $this->company->task_statuses->map(function ($status) {
-            $status->id = $this->encodePrimaryKey($status->id);
-            $status->user_id = $this->encodePrimaryKey($status->user_id);
-            $status->company_id = $this->encodePrimaryKey($status->company_id);
+            $status->id = $this->encodePrimaryKey($status->id); /** @phpstan-ignore-line */
+            $status->user_id = $this->encodePrimaryKey($status->user_id);/** @phpstan-ignore-line */
+            $status->company_id = $this->encodePrimaryKey($status->company_id); /** @phpstan-ignore-line */
 
             return $status;
         })->all();
@@ -511,8 +510,9 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['tax_rates'] = $this->company->tax_rates->map(function ($rate) {
-            $rate->company_id = $this->encodePrimaryKey($rate->company_id);
-            $rate->user_id = $this->encodePrimaryKey($rate->user_id);
+            $rate->company_id = $this->encodePrimaryKey($rate->company_id); /** @phpstan-ignore-line */
+            $rate->user_id = $this->encodePrimaryKey($rate->user_id); /** @phpstan-ignore-line */
+
 
             return $rate;
         })->makeHidden(['id'])->all();
@@ -550,9 +550,8 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['webhooks'] = $this->company->webhooks->map(function ($hook) {
-            $hook->user_id = $this->encodePrimaryKey($hook->user_id);
-            $hook->company_id = $this->encodePrimaryKey($hook->company_id);
-
+            $hook->user_id = $this->encodePrimaryKey($hook->user_id);/** @phpstan-ignore-line */
+            $hook->company_id = $this->encodePrimaryKey($hook->company_id);/** @phpstan-ignore-line */
             return $hook;
         })->makeHidden(['id'])->all();
 

@@ -19,10 +19,12 @@ use App\Http\Requests\Expense\BulkExpenseRequest;
 use App\Http\Requests\Expense\CreateExpenseRequest;
 use App\Http\Requests\Expense\DestroyExpenseRequest;
 use App\Http\Requests\Expense\EditExpenseRequest;
+use App\Http\Requests\Expense\EDocumentRequest;
 use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Http\Requests\Expense\UploadExpenseRequest;
+use App\Jobs\EDocument\ImportEDocument;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
@@ -98,7 +100,7 @@ class ExpenseController extends BaseController
      *       ),
      *     )
      * @param ExpenseFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(ExpenseFilters $filters)
     {
@@ -112,7 +114,7 @@ class ExpenseController extends BaseController
      *
      * @param ShowExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -166,7 +168,7 @@ class ExpenseController extends BaseController
      *
      * @param EditExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -220,7 +222,7 @@ class ExpenseController extends BaseController
      *
      * @param UpdateExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -286,7 +288,7 @@ class ExpenseController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -334,7 +336,7 @@ class ExpenseController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -387,7 +389,7 @@ class ExpenseController extends BaseController
      *
      * @param DestroyExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -441,7 +443,7 @@ class ExpenseController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -524,7 +526,7 @@ class ExpenseController extends BaseController
      *
      * @param UploadExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -580,5 +582,16 @@ class ExpenseController extends BaseController
         }
 
         return $this->itemResponse($expense->fresh());
+    }
+
+    public function edocument(EDocumentRequest $request): string
+    {
+        if ($request->hasFile("documents")) {
+            return (new ImportEDocument($request->file("documents")[0]->get(), $request->file("documents")[0]->getClientOriginalName()))->handle();
+        }
+        else {
+            return "No file found";
+        }
+
     }
 }

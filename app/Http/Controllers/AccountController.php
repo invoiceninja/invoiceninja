@@ -61,7 +61,7 @@ class AccountController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param CreateAccountRequest $request
-     * @return Response
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      */
     public function store(CreateAccountRequest $request)

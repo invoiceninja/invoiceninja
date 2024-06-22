@@ -20,7 +20,7 @@ class PingController extends BaseController
     /**
      * Get a ping response from the system.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/ping",
@@ -55,7 +55,7 @@ class PingController extends BaseController
     /**
      * Get a health check of the system.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/health_check",

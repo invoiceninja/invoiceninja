@@ -25,6 +25,16 @@
 
 @push('footer')
 
+<script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
+    {
+        "f":"{{ $guid }}",
+        "s":"paypal.ppcp.pay"        // unique ID for each web page
+    }
+</script>
+
+<script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
+
+
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 <script>
 

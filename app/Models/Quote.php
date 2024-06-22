@@ -48,20 +48,20 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null|Carbon $due_date
  * @property string|null $next_send_date
  * @property bool $is_deleted
- * @property object|null $line_items
+ * @property array|null $line_items
  * @property object|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
  * @property string|null $terms
  * @property string|null $tax_name1
- * @property string $tax_rate1
+ * @property float $tax_rate1
  * @property string|null $tax_name2
- * @property string $tax_rate2
+ * @property float $tax_rate2
  * @property string|null $tax_name3
- * @property string $tax_rate3
+ * @property float $tax_rate3
  * @property string $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -87,7 +87,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent
  * @property string|null $reminder_last_sent
- * @property string $paid_to_date
+ * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property \App\Models\User|null $assigned_user
  * @property \App\Models\Client $client
@@ -198,10 +198,10 @@ class Quote extends BaseModel
         return $this->dateMutator($value);
     }
 
-//    public function getDueDateAttribute($value)
-//    {
-//        return $value ? $this->dateMutator($value) : null;
-//    }
+    //    public function getDueDateAttribute($value)
+    //    {
+    //        return $value ? $this->dateMutator($value) : null;
+    //    }
 
     // public function getPartialDueDateAttribute($value)
     // {
@@ -399,4 +399,26 @@ class Quote extends BaseModel
     {
         return $entity_string;
     }
+
+        
+    /**
+     * isPayable - proxy for matching Invoice status as
+     * to whether the quote is still valid, allows 
+     * reuse of UpdateReminder class
+     *
+     * @return bool
+     */
+    public function isPayable(): bool
+    {
+        if ($this->status_id == self::STATUS_SENT && $this->is_deleted == false && $this->due_date->gte(now()->addSeconds($this->timezone_offset()))) {
+            return true;
+        } elseif ($this->status_id == self::STATUS_DRAFT || $this->is_deleted) {
+            return false;
+        } elseif (in_array($this->status_id, [self::STATUS_APPROVED, self::STATUS_CONVERTED])) {
+            return false;
+        } else {
+            return false;
+        }
+    }
+
 }

@@ -72,7 +72,7 @@ class CompanyGatewayController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -119,7 +119,7 @@ class CompanyGatewayController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateCompanyGatewayRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -168,7 +168,7 @@ class CompanyGatewayController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreCompanyGatewayRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -232,7 +232,7 @@ class CompanyGatewayController extends BaseController
         } elseif($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
         } elseif($company_gateway->gateway_key == $this->forte_key) {
-             
+
             dispatch(function () use ($company_gateway) {
                 MultiDB::setDb($company_gateway->company->db);
                 $company_gateway->driver()->updateFees();
@@ -248,7 +248,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param ShowCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -302,7 +302,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param EditCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -356,7 +356,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param UpdateCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -420,8 +420,8 @@ class CompanyGatewayController extends BaseController
 
         if($company_gateway->gateway_key == $this->checkout_key) {
             CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
-        }elseif($company_gateway->gateway_key == $this->forte_key){
-            
+        } elseif($company_gateway->gateway_key == $this->forte_key) {
+
             dispatch(function () use ($company_gateway) {
                 MultiDB::setDb($company_gateway->company->db);
                 $company_gateway->driver()->updateFees();
@@ -437,7 +437,7 @@ class CompanyGatewayController extends BaseController
      *
      * @param DestroyCompanyGatewayRequest $request
      * @param CompanyGateway $company_gateway
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -494,7 +494,7 @@ class CompanyGatewayController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -565,12 +565,13 @@ class CompanyGatewayController extends BaseController
 
     public function importCustomers(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-        
-        //Throttle here
-        if (Cache::has("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}")) 
-            return response()->json(['message' => 'Please wait whilst your previous attempts complete.'], 200);
 
-        dispatch(function () use($company_gateway) {
+        //Throttle here
+        if (Cache::has("throttle_polling:import_customers:{$company_gateway->company->company_key}:{$company_gateway->hashed_id}")) {
+            return response()->json(['message' => 'Please wait whilst your previous attempts complete.'], 200);
+        }
+
+        dispatch(function () use ($company_gateway) {
             MultiDB::setDb($company_gateway->company->db);
             $company_gateway->driver()->importCustomers();
         })->afterResponse();

@@ -151,7 +151,7 @@ class Login extends Component
         ]);
 
         if ($attempt) {
-            
+
             $this->dispatch('purchase.context', property: 'contact', value: auth()->guard('contact')->user());
             $this->dispatch('purchase.next');
         }

@@ -258,10 +258,13 @@ class Activity extends StaticModel
     public const PAYMENT_EMAILED = 138;
 
     public const VENDOR_NOTIFICATION_EMAIL = 139;
-    
+
     public const EMAIL_STATEMENT = 140;
 
-
+    public const USER_NOTE = 141;
+    
+    public const QUOTE_REMINDER1_SENT = 142;
+    
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -473,7 +476,7 @@ class Activity extends StaticModel
             ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
             ':contact' => $translation = $this->resolveContact(),
             ':notes' => $translation = [ 'notes' => $this->notes ?? ''],
-            
+
             default => $translation = [],
         };
 

@@ -28,7 +28,7 @@ trait VerifiesUserEmail
     use MakesHash;
 
     /**
-     * @return RedirectResponse
+     * @return \Illuminate\View\View
      */
     public function confirm()
     {

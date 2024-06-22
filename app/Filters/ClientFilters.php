@@ -160,8 +160,9 @@ class ClientFilters extends QueryFilters
             return $this->builder;
         }
 
-        if($sort_col[0] == 'documents')
+        if($sort_col[0] == 'documents') {
             return $this->builder;
+        }
 
         if ($sort_col[0] == 'display_name') {
             $sort_col[0] = 'name';

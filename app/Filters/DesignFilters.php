@@ -58,10 +58,11 @@ class DesignFilters extends QueryFilters
 
     public function entities(string $entities = ''): Builder
     {
-    
-        if(stripos($entities, 'statement') !== false)
+
+        if(stripos($entities, 'statement') !== false) {
             $entities = 'client';
-     
+        }
+
         if (strlen($entities) == 0 || str_contains($entities, ',')) {
             return $this->builder;
         }
