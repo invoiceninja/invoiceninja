@@ -80,7 +80,7 @@
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
-        "nwidart/laravel-modules": "^10.0",
+        "nwidart/laravel-modules": "^11.0",
         "omnipay/paypal": "^3.0",
         "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
@@ -125,8 +125,7 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/",
-            "Modules\\": "Modules/"
+            "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
             "app/Helpers/TranslationHelper.php",
@@ -142,6 +141,11 @@
     "extra": {
         "laravel": {
             "dont-discover": []
+        },
+        "merge-plugin": {
+            "include": [
+                "Modules/*/composer.json"
+            ]
         }
     },
     "scripts": {
@@ -170,7 +174,8 @@
         "sort-packages": true,
         "optimize-autoloader": true,
         "allow-plugins": {
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "repositories": [

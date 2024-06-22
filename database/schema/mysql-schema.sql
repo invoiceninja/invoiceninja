@@ -1,3 +1,4 @@
+/*!999999\- enable the sandbox mode */ 
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -49,7 +50,7 @@ CREATE TABLE `accounts` (
   `account_sms_verified` tinyint(1) NOT NULL DEFAULT 0,
   `bank_integration_account_id` text DEFAULT NULL,
   `is_trial` tinyint(1) NOT NULL DEFAULT 0,
-  `email_quota` int(11) DEFAULT 20,
+  `email_quota` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `accounts_payment_id_index` (`payment_id`),
   KEY `accounts_key_index` (`key`)
@@ -446,6 +447,7 @@ CREATE TABLE `clients` (
   `is_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
   `has_valid_vat_number` tinyint(1) NOT NULL DEFAULT 0,
   `classification` varchar(191) DEFAULT NULL,
+  `e_invoice` mediumtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `clients_company_id_number_unique` (`company_id`,`number`),
   KEY `clients_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -2291,6 +2293,7 @@ CREATE TABLE `users` (
   `shopify_user_id` bigint(20) unsigned DEFAULT NULL,
   `language_id` varchar(191) DEFAULT NULL,
   `user_logged_in_notification` tinyint(1) NOT NULL DEFAULT 1,
+  `referral_meta` mediumtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`),
   UNIQUE KEY `users_oauth_user_id_oauth_provider_id_unique` (`oauth_user_id`,`oauth_provider_id`),
@@ -2428,6 +2431,7 @@ CREATE TABLE `webhooks` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+/*!999999\- enable the sandbox mode */ 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (1,'2014_10_12_100000_create_password_resets_table',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (2,'2014_10_13_000000_create_users_table',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (3,'2019_11_10_115926_create_failed_jobs_table',1);
@@ -2664,3 +2668,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (233,'2024_05_02_03
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (234,'2024_05_03_145535_btcpay_gateway',2);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (235,'2024_05_19_215103_2024_05_20_einvoice_columns',2);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (236,'2024_05_26_210407_2024_05_28_kwd_precision',2);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (237,'2024_06_02_083543_2024_06_01_add_einvoice_to_client_table',2);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (238,'2024_06_04_123926_2024_06_04_fixes_for_btc_migration',2);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (239,'2024_06_08_043343_2024_06_08__i_s_k_currency_precision',2);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (240,'2024_06_19_015127_2024_06_19_referral_meta_data',2);
