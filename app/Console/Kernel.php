@@ -129,7 +129,6 @@ class Kernel extends ConsoleKernel
 
             $schedule->command('queue:restart')->everyFiveMinutes()->withoutOverlapping();
         }
-
     }
 
     /**
