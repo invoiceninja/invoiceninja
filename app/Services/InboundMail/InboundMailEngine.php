@@ -11,7 +11,6 @@
 
 namespace App\Services\InboundMail;
 
-use App\Events\Expense\ExpenseWasCreated;
 use App\Factory\ExpenseFactory;
 use App\Jobs\Util\SystemLogger;
 use App\Libraries\MultiDB;
@@ -19,8 +18,8 @@ use App\Models\ClientContact;
 use App\Models\Company;
 use App\Models\SystemLog;
 use App\Models\VendorContact;
+use App\Services\EDocument\Imports\ParseEDocument;
 use App\Services\InboundMail\InboundMail;
-use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
@@ -167,78 +166,69 @@ class InboundMailEngine
             return;
         }
 
-        // handle vendor assignment
-        $expense_vendor = $this->getVendor($company, $email);
+        /** @var \App\Models\Expense $expense */
+        $expense = null;
 
-        // handle documents
-        $this->processHtmlBodyToDocument($email);
-
-        // handle documents seperatly
+        // check documents for EDocument xml
         foreach ($email->documents as $document) {
 
-            /** @var \App\Models\Expense $expense */
-            $expense = null;
+            // check if document can be parsed to an expense
+            try {
 
-            // TODO: check if document is a ZugferdEDocument and can be handled that way
-            if ($document->extension() === 'pdf' || $document->extension() === 'xml') {
-                try {
+                $expense_obj = (new ParseEDocument($document->get(), $document->getFilename()))->run();
 
-                    $expense = (new ZugferdEDocument($document->get()))->run();
+                // throw error, when multiple parseable files are registered
+                if ($expense && $expense_obj)
+                    throw new \Exception('Multiple parseable Invoice documents found in email. Please use only one Invoice document per email.');
 
-                } catch (\Exception $err) {
+                $expense = $expense_obj;
 
-                    // throw error, when its not the DocumentNotFoundError
-                    if (!($exception instanceof \horstoeko\zugferd\exception\ZugferdFileNotFoundException)) {
-                        nlog("An error occured while processing InboundEmail document with ZugferdEDocument: {$err}");
+            } catch (\Exception $err) {
+                // throw error, only, when its not expected
+                switch (true) {
+                    case ($err->getMessage() === 'E-Invoice standard not supported'):
+                    case ($err->getMessage() === 'File type not supported'):
+                        break;
+                    default:
                         throw $err;
-                    }
-
-                }
-
-                // save additional context of the email to the document
-                if ($expense) {
-
-                    if (!$expense->vendor_id && $expense_vendor)
-                        $expense->vendor_id = $expense_vendor->id;
-
-                    $documents = [];
-                    if ($email->body_document !== null)
-                        array_push($documents, $email->body_document);
-
-                    $expense->saveQuietly();
-
-                    $this->saveDocuments($documents, $expense);
-
-                    continue;
-
                 }
             }
 
-            // TODO: check if document can be handled by OCR solution
+        }
 
-            // create expense just from document
+        // populate missing data with data from email
+        if (!$expense)
             $expense = ExpenseFactory::create($company->id, $company->owner()->id);
 
+        if (!$expense->public_notes)
             $expense->public_notes = $email->subject;
+
+        if (!$expense->private_notes)
             $expense->private_notes = $email->text_body;
+
+        if (!$expense->date)
             $expense->date = $email->date;
+
+        if (!$expense->vendor_id) {
+            $expense_vendor = $this->getVendor($company, $email);
 
             if ($expense_vendor)
                 $expense->vendor_id = $expense_vendor->id;
-
-            $documents = [];
-            array_push($documents, $document);
-            if ($email->body_document !== null)
-                array_push($documents, $email->body_document);
-
-            $expense->saveQuietly();
-
-            $this->saveDocuments($documents, $expense);
-
-            event(new ExpenseWasCreated($expense, $expense->company, Ninja::eventVars(null))); // @turbo124 please check, I copied from API-Controller
-            event('eloquent.created: App\Models\Expense', $expense); // @turbo124 please check, I copied from API-Controller
-
         }
+
+        // handle documents
+        $documents = [];
+        array_push($documents, $document);
+
+        // handle email document
+        $this->processHtmlBodyToDocument($email);
+        if ($email->body_document !== null)
+            array_push($documents, $email->body_document);
+
+        $expense->saveQuietly();
+
+        $this->saveDocuments($documents, $expense);
+
     }
 
     // HELPERS
