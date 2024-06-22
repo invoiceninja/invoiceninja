@@ -166,6 +166,7 @@ class MultiPaymentDeleteTest extends TestCase
                 ],
             ],
             'date' => '2019/12/12',
+            'idempotency_key' => md5(time()),
         ];
 
         $response = $this->withHeaders([
@@ -219,6 +220,7 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(162, $invoice->client->fresh()->balance);
         $this->assertEquals(163, $invoice->client->fresh()->paid_to_date);
 
+        sleep(1);
         // Pay 162 again and create payment #3
 
         $data = [
@@ -232,6 +234,7 @@ class MultiPaymentDeleteTest extends TestCase
                 ],
             ],
             'date' => '2019/12/12',
+            'idempotency_key' => md5(time()),
         ];
 
         $response = $this->withHeaders([

@@ -71,6 +71,7 @@ class AdjustEmailQuota implements ShouldQueue
                 try {
                     LightLogs::create(new EmailCount($email_count, $account->key))->send(); // this runs syncronously
                 } catch(\Exception $e) {
+                    nlog("Exception:: AdjustEmailQuota::" . $e->getMessage());
                     nlog($e->getMessage());
                 }
             }

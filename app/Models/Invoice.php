@@ -130,7 +130,6 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\InvoiceInvitation> $invitations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @property object|null $tax_data
  * @mixin \Eloquent
  */

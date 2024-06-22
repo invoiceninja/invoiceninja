@@ -378,15 +378,11 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function language()
     {
-        $languages = app('languages');
-        // $languages = Cache::get('languages');
 
-        // if (! $languages) {
-        //     $this->buildCache(true);
-        // }
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
         return $languages->first(function ($item) {
-            /** @var \stdClass $item */
             return $item->id == $this->getSetting('language_id');
         });
     }
@@ -412,17 +408,10 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function date_format()
     {
-        /** @var \Illuminate\Support\Collection $date_formats */
+        /** @var \Illuminate\Support\Collection<DateFormat> */
         $date_formats = app('date_formats');
-        // $date_formats = Cache::get('date_formats');
-
-        // if (! $date_formats) {
-        //     $this->buildCache(true);
-        // }
 
         return $date_formats->first(function ($item) {
-
-            /** @var \stdClass $item */
             return $item->id == $this->getSetting('date_format_id');
         })->format;
     }
@@ -430,17 +419,10 @@ class Client extends BaseModel implements HasLocalePreference
     public function currency()
     {
 
-        /** @var \Illuminate\Support\Collection $currencies */
+        /** @var \Illuminate\Support\Collection<Currency> */
         $currencies = app('currencies');
-        // $currencies = Cache::get('currencies');
-
-        // if (! $currencies) {
-        //     $this->buildCache(true);
-        // }
 
         return $currencies->first(function ($item) {
-
-            /** @var \stdClass $item */
             return $item->id == $this->getSetting('currency_id');
         });
     }
@@ -751,16 +733,6 @@ class Client extends BaseModel implements HasLocalePreference
     public function preferredLocale()
     {
         $this->language()->locale ?? 'en';
-        // $languages = app('languages');
-        // $languages = Cache::get('languages');
-
-        // if (! $languages) {
-        //     $this->buildCache(true);
-        // }
-
-        // return $languages->first(function ($item) {
-        //     return $item->id == $this->getSetting('language_id');
-        // })->locale;
     }
 
     public function backup_path(): string

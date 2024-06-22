@@ -489,11 +489,7 @@ class StripePaymentDriver extends BaseDriver
     {
         $customer = Customer::retrieve($customer_id, $this->stripe_connect_auth);
 
-        if ($customer) {
-            return $customer;
-        }
-
-        return null;
+        return $customer ?? null;
     }
 
     /**

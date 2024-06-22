@@ -181,19 +181,17 @@ class Vendor extends BaseModel
 
     public function currency()
     {
-        $currencies = Cache::get('currencies');
 
-        if (!$currencies) {
-            $this->buildCache(true);
-        }
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
         if (!$this->currency_id) {
             return $this->company->currency();
         }
 
-        return $currencies->filter(function ($item) {
+        return $currencies->first(function ($item) {
             return $item->id == $this->currency_id;
-        })->first();
+        });
     }
 
     public function timezone()

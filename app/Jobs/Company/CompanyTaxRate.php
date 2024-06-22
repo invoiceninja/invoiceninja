@@ -61,6 +61,7 @@ class CompanyTaxRate implements ShouldQueue
                 try {
                     $calculated_state = USStates::getState($this->company->settings->postal_code);
                 } catch(\Exception $e) {
+                    nlog("Exception:: CompanyTaxRate::" . $e->getMessage());
                     nlog("could not calculate state from postal code => {$this->company->settings->postal_code} or from state {$this->company->settings->state}");
                 }
 

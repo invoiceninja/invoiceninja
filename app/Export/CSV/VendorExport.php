@@ -171,16 +171,16 @@ class VendorExport extends BaseExport
         return $entity;
     }
 
-    private function calculateStatus($vendor)
-    {
-        if ($vendor->is_deleted) {
-            return ctrans('texts.deleted');
-        }
+    // private function calculateStatus($vendor)
+    // {
+    //     if ($vendor->is_deleted) {
+    //         return ctrans('texts.deleted');
+    //     }
 
-        if ($vendor->deleted_at) {
-            return ctrans('texts.archived');
-        }
+    //     if ($vendor->deleted_at) {
+    //         return ctrans('texts.archived');
+    //     }
 
-        return ctrans('texts.active');
-    }
+    //     return ctrans('texts.active');
+    // }
 }

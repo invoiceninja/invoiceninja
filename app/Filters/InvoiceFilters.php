@@ -271,6 +271,7 @@ class InvoiceFilters extends QueryFilters
         if (count($parts) != 2) {
             return $this->builder;
         }
+
         try {
 
             $start_date = Carbon::parse($parts[0]);
@@ -281,7 +282,6 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder;
     }
 
     /**
@@ -307,7 +307,6 @@ class InvoiceFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder;
     }
 
 

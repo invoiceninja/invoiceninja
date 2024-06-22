@@ -46,7 +46,7 @@ class CheckoutWebhook implements ShouldQueue
 
     public function handle()
     {
-        nlog("Checkout Webhook");
+        // nlog("Checkout Webhook");
 
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
@@ -56,6 +56,7 @@ class CheckoutWebhook implements ShouldQueue
             nlog("Checkout Webhook type not set");
         }
 
+        /** @phpstan-ignore-next-line */
         match($this->webhook_array['type']) {
             'payment_approved' => $this->paymentApproved(),
         };

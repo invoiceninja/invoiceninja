@@ -27,6 +27,7 @@ use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
+use App\Jobs\Util\QuoteReminderJob;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\UpdateExchangeRates;
@@ -54,6 +55,9 @@ class Kernel extends ConsoleKernel
 
         /* Send reminders */
         $schedule->job(new ReminderJob())->hourly()->withoutOverlapping()->name('reminder-job')->onOneServer();
+
+        /* Send quote reminders */
+        $schedule->job(new QuoteReminderJob())->hourly()->withoutOverlapping()->name('quote-reminder-job')->onOneServer();
 
         /* Sends recurring invoices*/
         $schedule->job(new RecurringInvoicesCron())->hourly()->withoutOverlapping()->name('recurring-invoice-job')->onOneServer();

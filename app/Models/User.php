@@ -60,13 +60,14 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_deleted
  * @property string|null $last_login
  * @property string|null $signature
- * @property string $password
+ * @property string|null $password
  * @property string $language_id
  * @property string|null $remember_token
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
  * @property string|null $custom_value4
+ * @property object|null $referral_meta
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null|Carbon $deleted_at
@@ -181,6 +182,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'created_at'       => 'timestamp',
         'deleted_at'       => 'timestamp',
         'oauth_user_token_expiry' => 'datetime',
+        'referral_meta' => 'object',
     ];
 
     public function name()
@@ -264,6 +266,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         $truth = app()->make(TruthSource::class);
 
+        // @phpstan-ignore-next-line
         if ($this->company) {
             return $this->company;
         } elseif ($truth->getCompany()) {
@@ -679,4 +682,5 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return ctrans('texts.user');
     }
+
 }

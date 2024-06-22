@@ -137,8 +137,8 @@ class ResetPasswordController extends Controller
             return redirect('/#/login');
         }
 
-        return redirect($this->redirectPath())
-                            ->with('status', trans($response));
+        // return redirect($this->redirectPath())
+        //                     ->with('status', trans($response));
     }
 
 }

@@ -79,7 +79,7 @@ class ExpenseFilters extends QueryFilters
         $this->builder->where(function ($query) use ($status_parameters) {
             if (in_array('logged', $status_parameters)) {
                 $query->orWhere(function ($query) {
-                    $query->where('amount', '>', 0)
+                    $query->where('amount', '>=', 0)
                           ->whereNull('invoice_id')
                           ->whereNull('payment_date')
                           ->where('should_be_invoiced', false);

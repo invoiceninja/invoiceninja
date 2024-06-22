@@ -20,7 +20,6 @@ use Illuminate\Http\Request;
  */
 class BrevoController extends BaseController
 {
-    private $invitation;
 
     public function __construct()
     {

@@ -164,4 +164,9 @@ trait UserNotifies
 
         return count(array_intersect($required_notification, $company_user->notifications->email)) >= 1;
     }
+
+    public function findEntityAssignedNotification(\App\Models\CompanyUser $company_user, string $entity)
+    {
+        return count(array_intersect(["{$entity}_assigned"], $company_user->notifications->email)) >= 1;
+    }
 }

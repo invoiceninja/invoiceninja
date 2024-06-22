@@ -46,9 +46,9 @@ class EmailReport
     use MakesHash;
     use MakesDates;
 
-    private Client $client;
+    // private Client $client;
 
-    private bool $multiple_clients = false;
+    // private bool $multiple_clients = false;
 
     private string $file_name = 'file.csv';
 
@@ -66,6 +66,7 @@ class EmailReport
         $data['end_date'] = $start_end_dates[1];
         $data['date_range'] = $data['date_range'] ?? 'all';
         $data['report_keys'] = $data['report_keys'] ?? [];
+        $data['include_deleted'] = $data['include_deleted'] ?? false;
 
         $export = false;
 

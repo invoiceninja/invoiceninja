@@ -70,16 +70,18 @@ class ClientTransformer extends BaseTransformer
             'custom_value2' => $this->getString($data, 'client.custom_value2'),
             'custom_value3' => $this->getString($data, 'client.custom_value3'),
             'custom_value4' => $this->getString($data, 'client.custom_value4'),
-            'balance' => preg_replace(
-                '/[^0-9,.]+/',
-                '',
-                $this->getFloat($data, 'client.balance')
-            ),
-            'paid_to_date' => preg_replace(
-                '/[^0-9,.]+/',
-                '',
-                $this->getFloat($data, 'client.paid_to_date')
-            ),
+            // 'balance' => preg_replace(
+            //     '/[^0-9,.]+/',
+            //     '',
+            //     $this->getFloat($data, 'client.balance')
+            // ),
+            // 'paid_to_date' => preg_replace(
+            //     '/[^0-9,.]+/',
+            //     '',
+            //     $this->getFloat($data, 'client.paid_to_date')
+            // ),
+            'paid_to_date' => 0,
+            'balance' => 0,
             'credit_balance' => 0,
             'settings' => $settings,
             'client_hash' => Str::random(40),

@@ -119,8 +119,6 @@ class CompanyUserController extends BaseController
 
         if (! $company_user) {
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
-
-            return;
         }
 
         if ($auth_user->isAdmin()) {
@@ -152,7 +150,6 @@ class CompanyUserController extends BaseController
 
         if (! $company_user) {
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
-            return;
         }
 
         $this->entity_type = User::class;

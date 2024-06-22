@@ -77,7 +77,7 @@ class RefundCancelledAccount implements ShouldQueue
         $end_date = Carbon::parse($plan_expires);
         $now = Carbon::now();
 
-        $days_left = $now->diffInDays($end_date);
+        $days_left = intval(abs($now->diffInDays($end_date)));
 
         $pro_rata_ratio = $days_left / 365;
 

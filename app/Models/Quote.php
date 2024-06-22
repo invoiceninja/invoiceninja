@@ -399,4 +399,26 @@ class Quote extends BaseModel
     {
         return $entity_string;
     }
+
+        
+    /**
+     * isPayable - proxy for matching Invoice status as
+     * to whether the quote is still valid, allows 
+     * reuse of UpdateReminder class
+     *
+     * @return bool
+     */
+    public function isPayable(): bool
+    {
+        if ($this->status_id == self::STATUS_SENT && $this->is_deleted == false && $this->due_date->gte(now()->addSeconds($this->timezone_offset()))) {
+            return true;
+        } elseif ($this->status_id == self::STATUS_DRAFT || $this->is_deleted) {
+            return false;
+        } elseif (in_array($this->status_id, [self::STATUS_APPROVED, self::STATUS_CONVERTED])) {
+            return false;
+        } else {
+            return false;
+        }
+    }
+
 }

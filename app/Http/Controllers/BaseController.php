@@ -1035,7 +1035,7 @@ class BaseController extends Controller
 
         $resource = new Item($item, $transformer, $this->entity_type);
 
-        /** @var \App\Models\User $user */
+        /** @var ?\App\Models\User $user */
         $user = auth()->user();
 
         if ($user && request()->include_static) {
@@ -1157,8 +1157,6 @@ class BaseController extends Controller
             $data['user_agent'] = request()->server('HTTP_USER_AGENT');
 
             $data['path'] = $this->setBuild();
-
-            $this->buildCache();
 
             if (Ninja::isSelfHost() && $account->set_react_as_default_ap) {
                 return response()->view('react.index', $data)->header('X-Frame-Options', 'SAMEORIGIN', false);

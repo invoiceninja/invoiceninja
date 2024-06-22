@@ -65,9 +65,9 @@ class SubscriptionCron
     //Requires the crons to be updated and set to hourly @ 00:01
     private function timezoneAware()
     {
-        $grouped_company_ids =
-
-        Invoice::select('company_id')
+        
+        Invoice::query()
+                ->with('company')
                 ->where('is_deleted', 0)
                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->where('balance', '>', 0)
@@ -77,10 +77,11 @@ class SubscriptionCron
                 ->whereNotNull('subscription_id')
                 ->groupBy('company_id')
                 ->cursor()
-                ->each(function ($company_id) {
+                ->each(function ($invoice) {
 
                     /** @var \App\Models\Company $company */
-                    $company = Company::find($company_id);
+                    // $company = Company::find($invoice->company_id);
+                    $company = $invoice->company;
 
                     $timezone_now = now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway');
 

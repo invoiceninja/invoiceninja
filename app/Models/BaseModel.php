@@ -374,7 +374,12 @@ class BaseModel extends Model
 
         $files->push($company_docs);
 
-        $pdf = (new PdfMerge($files->flatten()->toArray()))->run();
+        try{
+            $pdf = (new PdfMerge($files->flatten()->toArray()))->run();
+        }
+        catch(\Exception $e){
+            nlog("Exception:: BaseModel:: PdfMerge::" . $e->getMessage());
+        }
 
         return $pdf;
     }

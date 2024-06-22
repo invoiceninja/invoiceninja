@@ -55,7 +55,7 @@ class ContactLoginController extends Controller
             $company = Company::where('company_key', $company_key)->first();
         }
 
-        /** @var \App\Models\Company $company **/
+        /** @var ?\App\Models\Company $company **/
         if ($company) {
             $account = $company->account;
         } elseif (! $company && strpos($request->getHost(), config('ninja.app_domain')) !== false) {
