@@ -53,9 +53,10 @@ return [
 
     'mindee' => [
         'api_key' => env('MINDEE_API_KEY'),
-        'global_contingent_month' => env('MINDEE_GLOBAL_CONTINGENT_MONTH', 1000),
-        'company_contingent_month' => env('MINDEE_COMPANY_CONTINGENT_MONTH', 500),
-        'company_contingent_month_enterprise' => env('MINDEE_COMPANY_CONTINGENT_MONTH', 500),
+        'daily_limit' => env('MINDEE_DAILY_LIMIT', 100),
+        'monthly_limit' => env('MINDEE_MONTHLY_LIMIT', 250),
+        'account_daily_limit' => env('MINDEE_ACCOUNT_DAILY_LIMIT', 0),
+        'account_monthly_limit' => env('MINDEE_ACCOUNT_MONTHLY_LIMIT', 0),
     ],
 
     'apple' => [

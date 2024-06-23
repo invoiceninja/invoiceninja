@@ -69,8 +69,7 @@ class ZugferdEDocument extends AbstractService
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
             $expense->save();
 
-            $documents = [];
-            array_push($documents, $this->file);
+            $documents = [$this->file];
             if ($this->file->getExtension() == "xml")
                 array_push($documents, TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno . "_visualiser.pdf", "application/pdf"));
             $this->saveDocuments($documents, $expense);

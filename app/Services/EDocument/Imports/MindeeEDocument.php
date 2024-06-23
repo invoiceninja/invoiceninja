@@ -20,6 +20,7 @@ use App\Models\Vendor;
 use App\Services\AbstractService;
 use App\Utils\TempFile;
 use App\Utils\Traits\SavesDocuments;
+use Cache;
 use Exception;
 use Mindee\Client;
 use Mindee\Product\Invoice\InvoiceV4;
@@ -45,22 +46,15 @@ class MindeeEDocument extends AbstractService
         $user = auth()->user();
 
         $api_key = config('services.mindee.api_key');
-
         if (!$api_key)
             throw new Exception('Mindee API key not configured');
+        $this->checkLimits();
 
-        // check global contingent
-        // TODO: add contingent for each company
-
-
+        // perform parsing
         $mindeeClient = new Client($api_key);
-
-
-        // Load a file from disk
         $inputSource = $mindeeClient->sourceFromFile($this->file);
-
-        // Parse the file
         $result = $mindeeClient->parse(InvoiceV4::class, $inputSource);
+        $this->incrementRequestCounts();
 
         /** @var \Mindee\Product\Invoice\InvoiceV4Document $prediction */
         $prediction = $result->document->inference->prediction;
@@ -86,12 +80,12 @@ class MindeeEDocument extends AbstractService
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
             $expense->save();
 
-            $this->saveDocument($this->file, $expense);
+            $this->saveDocuments([
+                $this->file,
+                TempFile::UploadedFileFromRaw(strval($result->document), $documentno . "_mindee_orc_result.txt", "text/plain")
+            ], $expense);
             $expense->saveQuietly();
 
-            // if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
-            //     $expense->private_notes = ctrans("texts.tax_currency_mismatch");
-            // }
             $expense->uses_inclusive_taxes = True;
             $expense->amount = $grandTotalAmount;
             $counter = 1;
@@ -100,10 +94,7 @@ class MindeeEDocument extends AbstractService
                 $expense->{"tax_rate$counter"} = $taxesElem->rate;
                 $counter++;
             }
-            $taxid = null;
-            if (array_key_exists("VA", $taxtype)) {
-                $taxid = $taxtype["VA"];
-            }
+
             $vendor = Vendor::where('email', $prediction->supplierEmail)->first();
 
             if (!empty($vendor)) {
@@ -114,13 +105,13 @@ class MindeeEDocument extends AbstractService
                 $vendor->name = $prediction->supplierName;
                 $vendor->email = $prediction->supplierEmail;
 
-                $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+                $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()?->id;
                 $vendor->phone = $prediction->supplierPhoneNumber;
-                // $vendor->address1 = $address_1; // TODO: we only have the full address string
+                // $vendor->address1 = $address_1; // TODO: we only have the full address string from mindee returned
                 // $vendor->address2 = $address_2;
                 // $vendor->city = $city;
                 // $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id || Country::where('iso_3166_3', $country)->first()->id; // could be 2 or 3 length
+                $vendor->country_id = Country::where('iso_3166_2', $country)->first()?->id || Country::where('iso_3166_3', $country)->first()?->id || null; // could be 2 or 3 length
 
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;
@@ -134,6 +125,34 @@ class MindeeEDocument extends AbstractService
         }
         $expense->save();
         return $expense;
+    }
+
+    private function checkLimits()
+    {
+        $user = auth()->user();
+
+        Cache::add('mindeeTotalDailyRequests', 0, now()->endOfDay());
+        Cache::add('mindeeTotalMonthlyRequests', 0, now()->endOfMonth());
+        Cache::add('mindeeAccountDailyRequests' . $user->company->account->id, 0, now()->endOfDay());
+        Cache::add('mindeeAccountMonthlyRequests' . $user->company->account->id, 0, now()->endOfMonth());
+        if (config('services.mindee.daily_limit') != 0 && Cache::get('mindeeTotalDailyRequests') > config('services.mindee.daily_limit'))
+            throw new Exception('Mindee daily limit reached');
+        if (config('services.mindee.monthly_limit') != 0 && Cache::get('mindeeTotalMonthlyRequests') > config('services.mindee.monthly_limit'))
+            throw new Exception('Mindee monthly limit reached');
+        if (config('services.mindee.account_daily_limit') != 0 && Cache::get('mindeeAccountDailyRequests' . $user->company->account->id) > config('services.mindee.account_daily_limit'))
+            throw new Exception('Mindee daily limit reached for account: ' . $user->company->account->id);
+        if (config('services.mindee.account_monthly_limit') != 0 && Cache::get('mindeeAccountMonthlyRequests' . $user->company->account->id) > config('services.mindee.account_monthly_limit'))
+            throw new Exception('Mindee monthly limit reached for account: ' . $user->company->account->id);
+    }
+
+    private function incrementRequestCounts()
+    {
+        $user = auth()->user();
+
+        Cache::increment('mindeeTotalDailyRequests');
+        Cache::increment('mindeeTotalMonthlyRequests');
+        Cache::increment('mindeeAccountDailyRequests' . $user->company->account->id);
+        Cache::increment('mindeeAccountMonthlyRequests' . $user->company->account->id);
     }
 }
 
