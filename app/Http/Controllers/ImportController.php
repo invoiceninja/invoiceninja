@@ -192,6 +192,7 @@ class ImportController extends Controller
                 $contents = file_get_contents($file->getPathname());
                 // Store the csv in cache with an expiry of 10 minutes
                 Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
+                nlog($hash.'-'.$entityType);
             }
         }
 
