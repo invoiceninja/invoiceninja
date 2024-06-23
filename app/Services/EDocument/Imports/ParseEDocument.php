@@ -42,7 +42,14 @@ class ParseEDocument extends AbstractService
         // try to parse via Zugferd lib
         $zugferd_exception = null;
         try {
-            $expense = (new ZugferdEDocument($this->file))->run();
+            switch (true) {
+                case $this->file->getExtension() == 'pdf':
+                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
+                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
+                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
+                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
+                    $expense = (new ZugferdEDocument($this->file))->run();
+            }
         } catch (Exception $e) {
             $zugferd_exception = $e;
         }
