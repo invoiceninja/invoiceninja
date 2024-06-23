@@ -221,9 +221,11 @@ class HtmlEngine
 
             if ($this->entity->project) {
                 $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
-                $data['$invoice.project'] = &$data['$project.name'];
-                $data['$quote.project'] = &$data['$project.name'];
+            } else {
+                $data['$project.name'] = ['value' => '', 'label' => ''];
             }
+            $data['$invoice.project'] = &$data['$project.name'];
+            $data['$quote.project'] = &$data['$project.name'];
 
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
 
@@ -231,6 +233,8 @@ class HtmlEngine
 
             if ($this->entity->vendor) {
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
+            } else {
+                $data['$invoice.vendor'] = ['value' => '', 'label' => ''];
             }
 
             if (strlen($this->company->getSetting('qr_iban')) > 5) {
@@ -277,14 +281,17 @@ class HtmlEngine
             $data['$credit.custom4'] = &$data['$quote.custom4'];
 
             if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];                
-                $data['$invoice.project'] = &$data['$project.name'];
-                $data['$quote.project'] = &$data['$project.name'];
-
+                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
+            } else {
+                $data['$project.name'] = ['value' => '', 'label' => ''];
             }
+            $data['$invoice.project'] = &$data['$project.name'];
+            $data['$quote.project'] = &$data['$project.name'];
 
             if ($this->entity->vendor) {
                 $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
+            } else {
+                $data['$invoice.vendor'] = ['value' => '', 'label' => ''];
             }
         }
 
