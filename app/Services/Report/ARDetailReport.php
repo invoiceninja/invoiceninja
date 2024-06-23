@@ -100,7 +100,7 @@ class ARDetailReport extends BaseExport
                 ->orderBy('due_date', 'ASC')
                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $query = $this->filterByClients($query);
 

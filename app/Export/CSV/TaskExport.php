@@ -74,7 +74,7 @@ class TaskExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'tasks');
 
         $clients = &$this->input['client_id'];
 

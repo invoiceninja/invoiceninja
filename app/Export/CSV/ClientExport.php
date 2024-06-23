@@ -131,7 +131,7 @@ class ClientExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query,' clients');
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);

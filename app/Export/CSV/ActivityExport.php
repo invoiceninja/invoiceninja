@@ -109,7 +109,7 @@ class ActivityExport extends BaseExport
         $query = Activity::query()
                         ->where('company_id', $this->company->id);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'activities');
 
         return $query;
     }
