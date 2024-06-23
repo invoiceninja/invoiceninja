@@ -1243,6 +1243,7 @@ class BaseExport
      * Add Date Range
      *
      * @param  Builder $query
+     * @param ?string $table_name
      * @return Builder
      */
     protected function addDateRange(Builder $query, ?string $table_name = null): Builder
@@ -1251,7 +1252,7 @@ class BaseExport
 
         $date_range = $this->input['date_range'];
 
-        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($this->table_name && $this->columnExists($table_name, $this->input['date_key']))) {
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
             $this->date_key = $this->input['date_key'];
         }
 

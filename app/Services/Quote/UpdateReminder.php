@@ -9,17 +9,16 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Invoice;
+namespace App\Services\Quote;
 
-use App\Models\Invoice;
 use App\Models\Quote;
-use App\Models\RecurringInvoice;
 use App\Services\AbstractService;
+use App\Models\RecurringInvoice;
 use Carbon\Carbon;
 
 class UpdateReminder extends AbstractService
 {
-    public function __construct(public Invoice $invoice, public mixed $settings = null)
+    public function __construct(public Quote $quote, public mixed $settings = null)
     {
     }
 
@@ -27,37 +26,37 @@ class UpdateReminder extends AbstractService
     public function run()
     {
         if (! $this->settings) {
-            $this->settings = $this->invoice->client->getMergedSettings();
+            $this->settings = $this->quote->client->getMergedSettings();
         }
 
-        if (! $this->invoice->isPayable() || $this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice->next_send_date = null;
-            $this->invoice->saveQuietly();
+        if (! $this->quote->isRemindable()) {
+            $this->quote->next_send_date = null;
+            $this->quote->saveQuietly();
 
-            return $this->invoice; //exit early
+            return $this->quote; //exit early
         }
 
-        if ($this->invoice->next_send_date) {
-            $this->invoice->next_send_date = null;
+        if ($this->quote->next_send_date) {
+            $this->quote->next_send_date = null;
         }
 
-        $offset = $this->invoice->client->timezone_offset();
+        $offset = $this->quote->client->timezone_offset();
 
         $date_collection = collect();
 
-        if (is_null($this->invoice->reminder1_sent) &&
-            $this->settings->schedule_reminder1 == 'after_invoice_date') {
-            $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder1);
+        if (is_null($this->quote->reminder1_sent) &&
+            $this->settings->schedule_reminder1 == 'after_quote_date') {
+            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder1);
 
             if ($reminder_date->gt(now())) {
                 $date_collection->push($reminder_date);
             }
         }
 
-        if (is_null($this->invoice->reminder1_sent) &&
-            ($this->invoice->partial_due_date || $this->invoice->due_date) &&
-            $this->settings->schedule_reminder1 == 'before_due_date') {
-            $partial_or_due_date = ($this->invoice->partial > 0 && isset($this->invoice->partial_due_date)) ? $this->invoice->partial_due_date : $this->invoice->due_date;
+        if (is_null($this->quote->reminder1_sent) &&
+            ($this->quote->partial_due_date || $this->quote->due_date) &&
+            $this->settings->schedule_reminder1 == 'before_valid_until_date') {
+            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
             $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder1);
             // nlog("1. {$reminder_date->format('Y-m-d')}");
 
@@ -66,11 +65,11 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->invoice->reminder1_sent) &&
-            ($this->invoice->partial_due_date || $this->invoice->due_date) &&
-            $this->settings->schedule_reminder1 == 'after_due_date') {
+        if (is_null($this->quote->reminder1_sent) &&
+            ($this->quote->partial_due_date || $this->quote->due_date) &&
+            $this->settings->schedule_reminder1 == 'after_valid_until_date') {
 
-            $partial_or_due_date = ($this->invoice->partial > 0 && isset($this->invoice->partial_due_date)) ? $this->invoice->partial_due_date : $this->invoice->due_date;
+            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
             $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder1);
             // nlog("2. {$reminder_date->format('Y-m-d')}");
 
@@ -79,20 +78,20 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->invoice->reminder2_sent) &&
-            $this->settings->schedule_reminder2 == 'after_invoice_date') {
-            $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder2);
+        if (is_null($this->quote->reminder2_sent) &&
+            $this->settings->schedule_reminder2 == 'after_valid_until_date') {
+            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder2);
 
             if ($reminder_date->gt(now())) {
                 $date_collection->push($reminder_date);
             }
         }
 
-        if (is_null($this->invoice->reminder2_sent) &&
-            ($this->invoice->partial_due_date || $this->invoice->due_date) &&
-            $this->settings->schedule_reminder2 == 'before_due_date') {
+        if (is_null($this->quote->reminder2_sent) &&
+            ($this->quote->partial_due_date || $this->quote->due_date) &&
+            $this->settings->schedule_reminder2 == 'before_valid_until_date') {
 
-            $partial_or_due_date = ($this->invoice->partial > 0 && isset($this->invoice->partial_due_date)) ? $this->invoice->partial_due_date : $this->invoice->due_date;
+            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
             $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder2);
             // nlog("3. {$reminder_date->format('Y-m-d')}");
 
@@ -101,11 +100,11 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->invoice->reminder2_sent) &&
-            ($this->invoice->partial_due_date || $this->invoice->due_date) &&
-            $this->settings->schedule_reminder2 == 'after_due_date') {
+        if (is_null($this->quote->reminder2_sent) &&
+            ($this->quote->partial_due_date || $this->quote->due_date) &&
+            $this->settings->schedule_reminder2 == 'after_valid_until_date') {
 
-            $partial_or_due_date = ($this->invoice->partial > 0 && isset($this->invoice->partial_due_date)) ? $this->invoice->partial_due_date : $this->invoice->due_date;
+            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
             $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder2);
             // nlog("4. {$reminder_date->format('Y-m-d')}");
 
@@ -114,20 +113,20 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->invoice->reminder3_sent) &&
-            $this->settings->schedule_reminder3 == 'after_invoice_date') {
-            $reminder_date = Carbon::parse($this->invoice->date)->startOfDay()->addDays($this->settings->num_days_reminder3);
+        if (is_null($this->quote->reminder3_sent) &&
+            $this->settings->schedule_reminder3 == 'after_valid_until_date') {
+            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder3);
 
             if ($reminder_date->gt(now())) {
                 $date_collection->push($reminder_date);
             }
         }
 
-        if (is_null($this->invoice->reminder3_sent) &&
-            ($this->invoice->partial_due_date || $this->invoice->due_date) &&
-            $this->settings->schedule_reminder3 == 'before_due_date') {
+        if (is_null($this->quote->reminder3_sent) &&
+            ($this->quote->partial_due_date || $this->quote->due_date) &&
+            $this->settings->schedule_reminder3 == 'before_valid_until_date') {
 
-            $partial_or_due_date = ($this->invoice->partial > 0 && isset($this->invoice->partial_due_date)) ? $this->invoice->partial_due_date : $this->invoice->due_date;
+            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
             $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder3);
             // nlog("5. {$reminder_date->format('Y-m-d')}");
 
@@ -136,11 +135,11 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->invoice->reminder3_sent) &&
-            ($this->invoice->partial_due_date || $this->invoice->due_date) &&
-            $this->settings->schedule_reminder3 == 'after_due_date') {
+        if (is_null($this->quote->reminder3_sent) &&
+            ($this->quote->partial_due_date || $this->quote->due_date) &&
+            $this->settings->schedule_reminder3 == 'after_valid_until_date') {
 
-            $partial_or_due_date = ($this->invoice->partial > 0 && isset($this->invoice->partial_due_date)) ? $this->invoice->partial_due_date : $this->invoice->due_date;
+            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
             $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder3);
             // nlog("6. {$reminder_date->format('Y-m-d')}");
 
@@ -149,12 +148,12 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if ($this->invoice->last_sent_date &&
+        if ($this->quote->last_sent_date &&
             $this->settings->enable_reminder_endless &&
-            ($this->invoice->reminder1_sent || $this->settings->schedule_reminder1 == "" || !$this->settings->enable_reminder1) &&
-            ($this->invoice->reminder2_sent || $this->settings->schedule_reminder2 == "" || !$this->settings->enable_reminder2) &&
-            ($this->invoice->reminder3_sent || $this->settings->schedule_reminder3 == "" || !$this->settings->enable_reminder3)) {
-            $reminder_date = $this->addTimeInterval($this->invoice->last_sent_date, (int) $this->settings->endless_reminder_frequency_id);
+            ($this->quote->reminder1_sent || $this->settings->schedule_reminder1 == "" || !$this->settings->enable_reminder1) &&
+            ($this->quote->reminder2_sent || $this->settings->schedule_reminder2 == "" || !$this->settings->enable_reminder2) &&
+            ($this->quote->reminder3_sent || $this->settings->schedule_reminder3 == "" || !$this->settings->enable_reminder3)) {
+            $reminder_date = $this->addTimeInterval($this->quote->last_sent_date, (int) $this->settings->endless_reminder_frequency_id);
 
             if ($reminder_date) {
                 if ($reminder_date->gt(now())) {
@@ -164,12 +163,12 @@ class UpdateReminder extends AbstractService
         }
 
         if ($date_collection->count() >= 1 && $date_collection->sort()->first()->gte(now())) {
-            $this->invoice->next_send_date = $date_collection->sort()->first()->addSeconds($offset);
+            $this->quote->next_send_date = $date_collection->sort()->first()->addSeconds($offset);
         } else {
-            $this->invoice->next_send_date = null;
+            $this->quote->next_send_date = null;
         }
 
-        return $this->invoice;
+        return $this->quote;
     }
 
     private function addTimeInterval($date, $endless_reminder_frequency_id): ?Carbon
