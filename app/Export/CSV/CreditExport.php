@@ -108,7 +108,7 @@ class CreditExport extends BaseExport
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'credits');
 
         $clients = &$this->input['client_id'];
 

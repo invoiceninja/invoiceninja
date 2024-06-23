@@ -104,6 +104,8 @@ class BaseImport
             return null;
         }
 
+        nlog("found {$entity_type}");
+        
         $csv = base64_decode($base64_encoded_csv);
         $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 

@@ -549,7 +549,7 @@ class RecurringQuote extends BaseModel
             case 'terms':
                 return $this->calculateDateFromTerms($date);
             default:
-                return $this->setDayOfMonth($date, $this->due_date_days);
+                return $this->setDayOfMonth($date, ($this->due_date_days ?? 1));
         }
     }
 
