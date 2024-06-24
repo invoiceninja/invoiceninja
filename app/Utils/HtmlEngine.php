@@ -732,7 +732,7 @@ class HtmlEngine
             $payment_list = '<br><br>';
 
             foreach ($this->entity->net_payments as $payment) {
-                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". GatewayType::getAlias($payment->gateway_type_id) . "<br>";
+                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". $payment->translatedType() . "<br>";
             }
 
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
