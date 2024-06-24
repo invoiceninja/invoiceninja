@@ -169,6 +169,9 @@ class HtmlEngine
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: ' ', 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
         $data['$po_number'] = &$data['$invoice.po_number'];
+
+        $data['$project.name'] = ['value' => $this->entity->project?->name ?: '', 'label' => ctrans('texts.project')];
+
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format()), 'label' => ctrans('texts.date')];
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
@@ -219,11 +222,6 @@ class HtmlEngine
             $data['$credit.custom3'] = &$data['$invoice.custom3'];
             $data['$credit.custom4'] = &$data['$invoice.custom4'];
 
-            if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
-            } else {
-                $data['$project.name'] = ['value' => '', 'label' => ''];
-            }
             $data['$invoice.project'] = &$data['$project.name'];
             $data['$quote.project'] = &$data['$project.name'];
 
@@ -231,11 +229,7 @@ class HtmlEngine
 
             $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
 
-            if ($this->entity->vendor) {
-                $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
-            } else {
-                $data['$invoice.vendor'] = ['value' => '', 'label' => ''];
-            }
+            $data['$invoice.vendor'] = ['value' => $this->entity->vendor?->present()->name() ?: '', 'label' => ctrans('texts.vendor_name')];
 
             if (strlen($this->company->getSetting('qr_iban')) > 5) {
                 try {
@@ -280,19 +274,10 @@ class HtmlEngine
             $data['$credit.custom3'] = &$data['$quote.custom3'];
             $data['$credit.custom4'] = &$data['$quote.custom4'];
 
-            if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
-            } else {
-                $data['$project.name'] = ['value' => '', 'label' => ''];
-            }
             $data['$invoice.project'] = &$data['$project.name'];
             $data['$quote.project'] = &$data['$project.name'];
 
-            if ($this->entity->vendor) {
-                $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
-            } else {
-                $data['$invoice.vendor'] = ['value' => '', 'label' => ''];
-            }
+            $data['$invoice.vendor'] = ['value' => $this->entity->vendor?->present()->name() ?: '', 'label' => ctrans('texts.vendor_name')];
         }
 
         if ($this->entity_string == 'credit') {
@@ -928,7 +913,7 @@ class HtmlEngine
 
     private function getCountryName(): string
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
@@ -1180,7 +1165,7 @@ class HtmlEngine
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
@@ -1203,7 +1188,7 @@ class HtmlEngine
         // return '
         //     <table border="0" cellspacing="0" cellpadding="0" align="center">
         //         <tr style="border: 0 !important; ">
-        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
+        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center">
         //             <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
         //             </td>
         //         </tr>
