@@ -12,11 +12,13 @@
 namespace App\Services\EDocument\Imports;
 
 use App\Factory\ExpenseFactory;
+use App\Factory\VendorContactFactory;
 use App\Factory\VendorFactory;
 use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Services\AbstractService;
 use App\Utils\TempFile;
 use App\Utils\Traits\SavesDocuments;
@@ -52,14 +54,14 @@ class MindeeEDocument extends AbstractService
 
         // perform parsing
         $mindeeClient = new Client($api_key);
-        $inputSource = $mindeeClient->sourceFromFile($this->file);
+        $inputSource = $mindeeClient->sourceFromBytes($this->file->get(), $this->file->getClientOriginalName());
         $result = $mindeeClient->parse(InvoiceV4::class, $inputSource);
         $this->incrementRequestCounts();
 
         /** @var \Mindee\Product\Invoice\InvoiceV4Document $prediction */
         $prediction = $result->document->inference->prediction;
 
-        if ($prediction->documentType !== 'INVOICE')
+        if ($prediction->documentType->value !== 'INVOICE')
             throw new Exception('Unsupported document type');
 
         $grandTotalAmount = $prediction->totalAmount->value;
@@ -95,15 +97,20 @@ class MindeeEDocument extends AbstractService
                 $counter++;
             }
 
-            $vendor = Vendor::where('email', $prediction->supplierEmail)->first();
+            $vendor = null;
+            $vendor_contact = VendorContact::where("company_id", $user->company()->id)->where("email", $prediction->supplierEmail)->first();
+            if ($vendor_contact)
+                return $vendor = $vendor_contact->vendor;
 
-            if (!empty($vendor)) {
+            if ($vendor)
+                $vendor = Vendor::where("company_id", $user->company()->id)->where("name", $prediction->supplierName)->first();
+
+            if ($vendor) {
                 // Vendor found
                 $expense->vendor_id = $vendor->id;
             } else {
                 $vendor = VendorFactory::create($user->company()->id, $user->id);
                 $vendor->name = $prediction->supplierName;
-                $vendor->email = $prediction->supplierEmail;
 
                 $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()?->id;
                 $vendor->phone = $prediction->supplierPhoneNumber;
@@ -111,9 +118,19 @@ class MindeeEDocument extends AbstractService
                 // $vendor->address2 = $address_2;
                 // $vendor->city = $city;
                 // $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()?->id || Country::where('iso_3166_3', $country)->first()?->id || null; // could be 2 or 3 length
+                $country = Country::where('iso_3166_2', $country)->first()?->id || Country::where('iso_3166_3', $country)->first()?->id || null;
+                if ($country)
+                    $vendor->country_id = Country::where('iso_3166_2', $country)->first()?->id || Country::where('iso_3166_3', $country)->first()?->id || null; // could be 2 or 3 length
 
                 $vendor->save();
+
+                if ($prediction->supplierEmail) {
+                    $vendor_contact = VendorContactFactory::create($user->company()->id, $user->id);
+                    $vendor_contact->vendor_id = $vendor->id;
+                    $vendor_contact->email = $prediction->supplierEmail;
+                    $vendor_contact->save();
+                }
+
                 $expense->vendor_id = $vendor->id;
             }
             $expense->transaction_reference = $documentno;

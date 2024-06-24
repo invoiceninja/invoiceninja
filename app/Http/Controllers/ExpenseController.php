@@ -587,10 +587,9 @@ class ExpenseController extends BaseController
     public function edocument(EDocumentRequest $request): string
     {
         if ($request->hasFile("documents")) {
-            return (new ImportEDocument($request->file("documents")[0]->get(), $request->file("documents")[0]->getClientOriginalName(), $request->file("documents")[0]->getMimeType()))->handle();
-        } else {
-            return "No file found";
+            return (new ImportEDocument($request->file("documents")->get(), $request->file("documents")->getClientOriginalName(), $request->file("documents")->getMimeType()))->handle();
         }
 
+        return "No file found";
     }
 }
