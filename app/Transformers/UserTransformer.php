@@ -40,6 +40,11 @@ class UserTransformer extends EntityTransformer
 
     public function transform(User $user)
     {
+        $ref = new \stdClass;
+        $ref->free = 0;
+        $ref->pro = 0;
+        $ref->enterprise = 0;
+
         return [
             'id' => $this->encodePrimaryKey($user->id),
             'first_name' => $user->first_name ?: '',
@@ -66,7 +71,7 @@ class UserTransformer extends EntityTransformer
             'language_id' => (string) $user->language_id ?: '',
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
             'referral_code' => (string) $user->referral_code,
-            'referral_meta' => $user->referral_meta ? (object)$user->referral_meta : new \stdClass,
+            'referral_meta' => $user->referral_meta ? (object)$user->referral_meta : $ref,
         ];
     }
 
