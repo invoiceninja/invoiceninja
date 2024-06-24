@@ -56,8 +56,6 @@ class CreateAccount extends Command
     {
         $this->info(date('r').' Create Single Account...');
 
-        $this->warmCache();
-
         $this->createAccount();
     }
 
