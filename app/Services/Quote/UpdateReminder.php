@@ -29,7 +29,7 @@ class UpdateReminder extends AbstractService
             $this->settings = $this->quote->client->getMergedSettings();
         }
 
-        if (! $this->quote->isRemindable()) {
+        if (!$this->quote->canRemind()) {
             $this->quote->next_send_date = null;
             $this->quote->saveQuietly();
 
@@ -45,8 +45,8 @@ class UpdateReminder extends AbstractService
         $date_collection = collect();
 
         if (is_null($this->quote->reminder1_sent) &&
-            $this->settings->schedule_reminder1 == 'after_quote_date') {
-            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder1);
+            $this->settings->quote_schedule_reminder1 == 'after_quote_date') {
+            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->quote_num_days_reminder1);
 
             if ($reminder_date->gt(now())) {
                 $date_collection->push($reminder_date);
@@ -55,9 +55,9 @@ class UpdateReminder extends AbstractService
 
         if (is_null($this->quote->reminder1_sent) &&
             ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->schedule_reminder1 == 'before_valid_until_date') {
+            $this->settings->quote_schedule_reminder1 == 'before_valid_until_date') {
             $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder1);
+            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->quote_num_days_reminder1);
             // nlog("1. {$reminder_date->format('Y-m-d')}");
 
             if ($reminder_date->gt(now())) {
@@ -67,10 +67,10 @@ class UpdateReminder extends AbstractService
 
         if (is_null($this->quote->reminder1_sent) &&
             ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->schedule_reminder1 == 'after_valid_until_date') {
+            $this->settings->quote_schedule_reminder1 == 'after_valid_until_date') {
 
             $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder1);
+            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->quote_num_days_reminder1);
             // nlog("2. {$reminder_date->format('Y-m-d')}");
 
             if ($reminder_date->gt(now())) {
@@ -78,89 +78,89 @@ class UpdateReminder extends AbstractService
             }
         }
 
-        if (is_null($this->quote->reminder2_sent) &&
-            $this->settings->schedule_reminder2 == 'after_valid_until_date') {
-            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder2);
+        // if (is_null($this->quote->reminder2_sent) &&
+        //     $this->settings->schedule_reminder2 == 'after_valid_until_date') {
+        //     $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder2);
 
-            if ($reminder_date->gt(now())) {
-                $date_collection->push($reminder_date);
-            }
-        }
+        //     if ($reminder_date->gt(now())) {
+        //         $date_collection->push($reminder_date);
+        //     }
+        // }
 
-        if (is_null($this->quote->reminder2_sent) &&
-            ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->schedule_reminder2 == 'before_valid_until_date') {
+        // if (is_null($this->quote->reminder2_sent) &&
+        //     ($this->quote->partial_due_date || $this->quote->due_date) &&
+        //     $this->settings->schedule_reminder2 == 'before_valid_until_date') {
 
-            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder2);
-            // nlog("3. {$reminder_date->format('Y-m-d')}");
+        //     $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
+        //     $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder2);
+        //     // nlog("3. {$reminder_date->format('Y-m-d')}");
 
-            if ($reminder_date->gt(now())) {
-                $date_collection->push($reminder_date);
-            }
-        }
+        //     if ($reminder_date->gt(now())) {
+        //         $date_collection->push($reminder_date);
+        //     }
+        // }
 
-        if (is_null($this->quote->reminder2_sent) &&
-            ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->schedule_reminder2 == 'after_valid_until_date') {
+        // if (is_null($this->quote->reminder2_sent) &&
+        //     ($this->quote->partial_due_date || $this->quote->due_date) &&
+        //     $this->settings->schedule_reminder2 == 'after_valid_until_date') {
 
-            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder2);
-            // nlog("4. {$reminder_date->format('Y-m-d')}");
+        //     $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
+        //     $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder2);
+        //     // nlog("4. {$reminder_date->format('Y-m-d')}");
 
-            if ($reminder_date->gt(now())) {
-                $date_collection->push($reminder_date);
-            }
-        }
+        //     if ($reminder_date->gt(now())) {
+        //         $date_collection->push($reminder_date);
+        //     }
+        // }
 
-        if (is_null($this->quote->reminder3_sent) &&
-            $this->settings->schedule_reminder3 == 'after_valid_until_date') {
-            $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder3);
+        // if (is_null($this->quote->reminder3_sent) &&
+        //     $this->settings->schedule_reminder3 == 'after_valid_until_date') {
+        //     $reminder_date = Carbon::parse($this->quote->date)->startOfDay()->addDays($this->settings->num_days_reminder3);
 
-            if ($reminder_date->gt(now())) {
-                $date_collection->push($reminder_date);
-            }
-        }
+        //     if ($reminder_date->gt(now())) {
+        //         $date_collection->push($reminder_date);
+        //     }
+        // }
 
-        if (is_null($this->quote->reminder3_sent) &&
-            ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->schedule_reminder3 == 'before_valid_until_date') {
+        // if (is_null($this->quote->reminder3_sent) &&
+        //     ($this->quote->partial_due_date || $this->quote->due_date) &&
+        //     $this->settings->schedule_reminder3 == 'before_valid_until_date') {
 
-            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder3);
-            // nlog("5. {$reminder_date->format('Y-m-d')}");
+        //     $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
+        //     $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->subDays($this->settings->num_days_reminder3);
+        //     // nlog("5. {$reminder_date->format('Y-m-d')}");
 
-            if ($reminder_date->gt(now())) {
-                $date_collection->push($reminder_date);
-            }
-        }
+        //     if ($reminder_date->gt(now())) {
+        //         $date_collection->push($reminder_date);
+        //     }
+        // }
 
-        if (is_null($this->quote->reminder3_sent) &&
-            ($this->quote->partial_due_date || $this->quote->due_date) &&
-            $this->settings->schedule_reminder3 == 'after_valid_until_date') {
+        // if (is_null($this->quote->reminder3_sent) &&
+        //     ($this->quote->partial_due_date || $this->quote->due_date) &&
+        //     $this->settings->schedule_reminder3 == 'after_valid_until_date') {
 
-            $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
-            $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder3);
-            // nlog("6. {$reminder_date->format('Y-m-d')}");
+        //     $partial_or_due_date = ($this->quote->partial > 0 && isset($this->quote->partial_due_date)) ? $this->quote->partial_due_date : $this->quote->due_date;
+        //     $reminder_date = Carbon::parse($partial_or_due_date)->startOfDay()->addDays($this->settings->num_days_reminder3);
+        //     // nlog("6. {$reminder_date->format('Y-m-d')}");
 
-            if ($reminder_date->gt(now())) {
-                $date_collection->push($reminder_date);
-            }
-        }
+        //     if ($reminder_date->gt(now())) {
+        //         $date_collection->push($reminder_date);
+        //     }
+        // }
 
-        if ($this->quote->last_sent_date &&
-            $this->settings->enable_reminder_endless &&
-            ($this->quote->reminder1_sent || $this->settings->schedule_reminder1 == "" || !$this->settings->enable_reminder1) &&
-            ($this->quote->reminder2_sent || $this->settings->schedule_reminder2 == "" || !$this->settings->enable_reminder2) &&
-            ($this->quote->reminder3_sent || $this->settings->schedule_reminder3 == "" || !$this->settings->enable_reminder3)) {
-            $reminder_date = $this->addTimeInterval($this->quote->last_sent_date, (int) $this->settings->endless_reminder_frequency_id);
+        // if ($this->quote->last_sent_date &&
+        //     $this->settings->enable_reminder_endless &&
+        //     ($this->quote->reminder1_sent || $this->settings->schedule_reminder1 == "" || !$this->settings->enable_reminder1) &&
+        //     ($this->quote->reminder2_sent || $this->settings->schedule_reminder2 == "" || !$this->settings->enable_reminder2) &&
+        //     ($this->quote->reminder3_sent || $this->settings->schedule_reminder3 == "" || !$this->settings->enable_reminder3)) {
+        //     $reminder_date = $this->addTimeInterval($this->quote->last_sent_date, (int) $this->settings->endless_reminder_frequency_id);
 
-            if ($reminder_date) {
-                if ($reminder_date->gt(now())) {
-                    $date_collection->push($reminder_date);
-                }
-            }
-        }
+        //     if ($reminder_date) {
+        //         if ($reminder_date->gt(now())) {
+        //             $date_collection->push($reminder_date);
+        //         }
+        //     }
+        // }
 
         if ($date_collection->count() >= 1 && $date_collection->sort()->first()->gte(now())) {
             $this->quote->next_send_date = $date_collection->sort()->first()->addSeconds($offset);

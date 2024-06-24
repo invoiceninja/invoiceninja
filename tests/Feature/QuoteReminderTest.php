@@ -160,12 +160,9 @@ class QuoteReminderTest extends TestCase
     }
 
 
-    public function testReminderInThePast()
+    public function testNullReminder()
     {
        
-        $translations = new \stdClass;
-        $translations->late_fee_added = "Fee added :date";
-
         $settings = $this->company->settings;
         $settings->enable_quote_reminder1 = false;
         $settings->quote_schedule_reminder1 = '';
@@ -183,6 +180,39 @@ class QuoteReminderTest extends TestCase
         $this->quote = $this->quote->fresh();
 
         $this->assertNull($this->quote->next_send_date);
+
     }
-    
+
+    public function testBeforeValidReminder()
+    {
+       
+        $settings = $this->company->settings;
+        $settings->enable_quote_reminder1 = true;
+        $settings->quote_schedule_reminder1 = 'before_valid_until_date';
+        $settings->quote_num_days_reminder1 = 1;
+        
+        $this->buildData(($settings));
+
+        $this->quote->date = now()->addMonth()->format('Y-m-d');
+        $this->quote->partial_due_date = null;
+        $this->quote->due_date = now()->addMonths(2)->format('Y-m-d');
+        $this->quote->last_sent_date = null;
+        $this->quote->next_send_date = null;
+        $this->quote->save();
+
+
+        $this->assertTrue($this->quote->canRemind());
+
+        $this->quote->service()->setReminder($settings)->save();
+
+        $this->quote = $this->quote->fresh();
+
+        $this->assertNotNull($this->quote->next_send_date);
+
+        nlog($this->quote->next_send_date);
+        $this->assertEquals(now()->addMonths(2)->subDay()->format('Y-m-d'), \Carbon\Carbon::parse($this->quote->next_send_date)->addSeconds($this->quote->client->timezone_offset())->format('Y-m-d'));
+
+    }
+
+
 }

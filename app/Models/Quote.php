@@ -434,7 +434,7 @@ class Quote extends BaseModel
     /**
      * @return bool
      */
-    public function isRemindable(): bool
+    public function canRemind(): bool
     {
         if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED]) || $this->is_deleted) 
             return false;
