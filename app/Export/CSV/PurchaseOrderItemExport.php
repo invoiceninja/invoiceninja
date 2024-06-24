@@ -71,7 +71,7 @@ class PurchaseOrderItemExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'purchase_orders');
 
         $clients = &$this->input['client_id'];
 

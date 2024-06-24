@@ -31,3 +31,4 @@ parameters:
         - '#Access to protected property#'
         - '#Call to undefined method .*#'
         - '#Argument of an invalid type stdClass supplied for foreach, only iterables are supported.#'
+        - '#Comparison operation ">=" between int<1, max> and 1 is always true#'

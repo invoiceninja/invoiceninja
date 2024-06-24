@@ -89,7 +89,7 @@ class ExpenseExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'expenses');
 
         if($this->input['status'] ?? false) {
             $query = $this->addExpenseStatusFilter($query, $this->input['status']);

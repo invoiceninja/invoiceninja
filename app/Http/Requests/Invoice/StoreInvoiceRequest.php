@@ -123,7 +123,7 @@ class StoreInvoiceRequest extends Request
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
 
             if($client) {
-                $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays($client->getSetting('payment_terms'))->format('Y-m-d');
+                $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays((int)$client->getSetting('payment_terms'))->format('Y-m-d');
             }
         }
 

@@ -81,6 +81,8 @@ class ActivityRepository extends BaseRepository
             return;
         }
 
+        $entity = $entity->fresh();
+        
         if (get_class($entity) == Invoice::class
             || get_class($entity) == Quote::class
             || get_class($entity) == Credit::class

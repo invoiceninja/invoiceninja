@@ -1243,15 +1243,16 @@ class BaseExport
      * Add Date Range
      *
      * @param  Builder $query
+     * @param ?string $table_name
      * @return Builder
      */
-    protected function addDateRange(Builder $query): Builder
+    protected function addDateRange(Builder $query, ?string $table_name = null): Builder
     {
         $query = $this->applyProductFilters($query);
 
         $date_range = $this->input['date_range'];
 
-        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1) {
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
             $this->date_key = $this->input['date_key'];
         }
 
@@ -1608,5 +1609,18 @@ class BaseExport
             ZipDocuments::dispatch($documents, $this->company, $user);
         }
     }
-
+    
+    /**
+     * Tests that the column exists
+     * on the table prior to adding it to 
+     * the query builder
+     *
+     * @param  string $table
+     * @param  string $column
+     * @return bool
+     */
+    public function columnExists($table, $column): bool
+    {
+        return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
+    }
 }

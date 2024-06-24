@@ -21,6 +21,7 @@ class UpdateInvoiceActivity implements ShouldQueue
 {
     protected $activity_repo;
 
+    public $delay = 10;
     /**
      * Create the event listener.
      *
@@ -52,5 +53,6 @@ class UpdateInvoiceActivity implements ShouldQueue
         $fields->invoice_id = $event->invoice->id;
 
         $this->activity_repo->save($fields, $event->invoice, $event->event_vars);
+
     }
 }

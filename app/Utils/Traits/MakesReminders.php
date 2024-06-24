@@ -32,13 +32,13 @@ trait MakesReminders
 
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($this->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
+                return Carbon::parse($this->date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
             case 'before_due_date':
                 $partial_or_due_date = ($this->partial > 0 && isset($this->partial_due_date)) ? $this->partial_due_date : $this->due_date;
-                return Carbon::parse($partial_or_due_date)->subDays($num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
+                return Carbon::parse($partial_or_due_date)->subDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
             case 'after_due_date':
                 $partial_or_due_date = ($this->partial > 0 && isset($this->partial_due_date)) ? $this->partial_due_date : $this->due_date;
-                return Carbon::parse($partial_or_due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
+                return Carbon::parse($partial_or_due_date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
             default:
                 return null;
         }
@@ -82,6 +82,9 @@ trait MakesReminders
 
     private function checkEndlessReminder($last_sent_date, $endless_reminder_frequency_id): bool
     {
+        if(!$last_sent_date)
+            return false;
+        
         if (Carbon::now()->startOfDay()->eq($this->addTimeInterval($last_sent_date, $endless_reminder_frequency_id))) {
             return true;
         }

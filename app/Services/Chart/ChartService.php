@@ -88,6 +88,12 @@ class ChartService
             $data[$key]['expenses'] = $this->getExpenseChartQuery($start_date, $end_date, $key);
         }
 
+
+        $data[999]['invoices'] = $this->getAggregateInvoiceChartQuery($start_date, $end_date);
+        $data[999]['outstanding'] = $this->getAggregateOutstandingChartQuery($start_date, $end_date);
+        $data[999]['payments'] = $this->getAggregatePaymentChartQuery($start_date, $end_date);
+        $data[999]['expenses'] = $this->getAggregateExpenseChartQuery($start_date, $end_date);
+
         return $data;
     }
 
@@ -122,6 +128,17 @@ class ChartService
             $data[$key]['expenses'] = $expenses_set !== false ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass();
 
         }
+
+        $aggregate_revenue = $this->getAggregateRevenueQuery($start_date, $end_date);
+        $aggregate_outstanding = $this->getAggregateOutstandingQuery($start_date, $end_date);
+        $aggregate_expenses = $this->getAggregateExpenseQuery($start_date, $end_date);
+        $aggregate_invoices = $this->getAggregateInvoicesQuery($start_date, $end_date);
+
+        $data[999]['invoices'] = $aggregate_invoices !== false ? $aggregate_invoices : new \stdClass();
+        $data[999]['expense'] = $aggregate_expenses !== false ? $aggregate_expenses : new \stdClass();
+        $data[999]['outstanding'] = $aggregate_outstanding !== false ? $aggregate_outstanding : new \stdClass();
+        $data[999]['revenue'] = $aggregate_revenue !== false ? $aggregate_revenue : new \stdClass();
+
 
         return $data;
     }

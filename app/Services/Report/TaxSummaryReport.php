@@ -81,7 +81,7 @@ class TaxSummaryReport extends BaseExport
             ->where('is_deleted', 0)
             ->orderBy('balance', 'desc');
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $this->csv->insertOne([ctrans('texts.tax_summary')]);
         $this->csv->insertOne([ctrans('texts.created_on'),' ',$this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale())]);
