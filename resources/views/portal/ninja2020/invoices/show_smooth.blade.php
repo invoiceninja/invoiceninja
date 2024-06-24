@@ -25,9 +25,6 @@
 @endsection
 
 @section('footer')
-    <!-- @include('portal.ninja2020.invoices.includes.required-fields') -->
-    <!-- @include('portal.ninja2020.invoices.includes.signature') -->
-    <!-- @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$invoice], 'variables' => $variables, 'entity_type' => ctrans('texts.invoice')]) -->
 @endsection
 
 @push('head')
