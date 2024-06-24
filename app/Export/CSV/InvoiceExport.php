@@ -67,7 +67,7 @@ class InvoiceExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $clients = &$this->input['client_id'];
 

@@ -62,7 +62,7 @@ class PaymentExport extends BaseExport
                             ->where('company_id', $this->company->id)
                             ->where('is_deleted', 0);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'payments');
 
         $clients = &$this->input['client_id'];
 

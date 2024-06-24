@@ -68,7 +68,7 @@ class VendorExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'vendors');
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);

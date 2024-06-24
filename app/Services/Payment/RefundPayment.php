@@ -27,10 +27,6 @@ class RefundPayment
 
     private float $credits_used = 0;
 
-    private $gateway_refund_status;
-
-    private $activity_repository;
-
     private bool $refund_failed = false;
 
     private string $refund_failed_message = '';

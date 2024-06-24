@@ -63,7 +63,7 @@ class ContactExport extends BaseExport
                             $q->where('is_deleted', false);
                         });
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'client_contacts');
 
         return $query;
 

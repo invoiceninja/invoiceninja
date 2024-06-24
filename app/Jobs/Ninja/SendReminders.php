@@ -188,13 +188,13 @@ class SendReminders implements ShouldQueue
 
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($invoice->date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset);
+                return Carbon::parse($invoice->date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'before_due_date':
-                return Carbon::parse($invoice->due_date)->subDays($num_days_reminder)->startOfDay()->addSeconds($offset);
+                return Carbon::parse($invoice->due_date)->subDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'after_due_date':
-                return Carbon::parse($invoice->due_date)->addDays($num_days_reminder)->startOfDay()->addSeconds($offset);
+                return Carbon::parse($invoice->due_date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             default:
                 return null;
