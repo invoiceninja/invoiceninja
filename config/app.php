@@ -201,7 +201,7 @@ return [
         App\Providers\ClientPortalServiceProvider::class,
         App\Providers\NinjaTranslationServiceProvider::class,
         App\Providers\StaticServiceProvider::class,
-	App\PaymentDrivers\Rotessa\Providers\ServiceProvider::class
+	    App\Providers\RotessaServiceProvider::class
     ],
 
     /*
