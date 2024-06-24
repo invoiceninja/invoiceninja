@@ -241,10 +241,14 @@
   },
   "resources/sass/app.scss": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
 >>>>>>> 3e760e6cc6 (New payment flow)
+=======
+    "file": "assets/app-26306e87.css",
+>>>>>>> c315911da4 (Payment float)
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
