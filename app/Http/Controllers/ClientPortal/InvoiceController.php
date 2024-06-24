@@ -62,6 +62,7 @@ class InvoiceController extends Controller
 
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
+        // @phpstan-ignore-next-line
         if ($invitation && auth()->guard('contact') && ! session()->get('is_silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
@@ -83,7 +84,7 @@ class InvoiceController extends Controller
             return render('invoices.show-fullscreen', $data);
         }
 
-        return $this->render('invoices.show', $data);
+        return $this->render('invoices.show_smooth', $data);
     }
 
     public function showBlob($hash)
