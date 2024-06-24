@@ -13,6 +13,7 @@ namespace App\Services\EDocument\Imports;
 
 use App\Models\Expense;
 use App\Services\AbstractService;
+use App\Utils\Ninja;
 use Exception;
 use Illuminate\Http\UploadedFile;
 
@@ -56,12 +57,13 @@ class ParseEDocument extends AbstractService
 
         // try to parse via mindee lib
         $mindee_exception = null;
-        try {
-            $expense = (new MindeeEDocument($this->file))->run();
-        } catch (Exception $e) {
-            // ignore not available exceptions
-            $mindee_exception = $e;
-        }
+        if (Ninja::isSelfHost())
+            try {
+                $expense = (new MindeeEDocument($this->file))->run();
+            } catch (Exception $e) {
+                // ignore not available exceptions
+                $mindee_exception = $e;
+            }
 
         // return expense, when available and supress any errors occured before
         if ($expense)
