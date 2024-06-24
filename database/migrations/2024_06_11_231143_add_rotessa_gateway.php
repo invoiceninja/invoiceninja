@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use App\Models\Gateway;
@@ -30,7 +30,7 @@ return new class extends Migration
             $gateway = $record;
         }
 
-        $gateway->id = $count + 4000;
+        $gateway->id = 4002;
         $gateway->name = 'Rotessa'; 
         $gateway->key = Str::lower(Str::random(32)); 
         $gateway->provider = 'Rotessa';
@@ -41,7 +41,7 @@ return new class extends Migration
         $gateway->default_gateway_type_id = 2;
         $gateway->save();
 
- 	Gateway::query()->where('name','=', 'Rotessa')->update(['visible' => 1]);
+ 	    Gateway::query()->where('name','=', 'Rotessa')->update(['visible' => 1]);
 
         \DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
