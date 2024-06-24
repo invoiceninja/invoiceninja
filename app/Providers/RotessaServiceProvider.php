@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider as BaseProvider;
 
-class ServiceProvider extends BaseProvider
+class RotessaServiceProvider extends BaseProvider
 {
     protected string $moduleName = 'Rotessa';
 
@@ -16,9 +16,7 @@ class ServiceProvider extends BaseProvider
      */
     public function boot(): void
     {
-        
-        include_once app_path('PaymentDrivers/Rotessa/vendor/autoload.php');
-
+        include_once app_path('Http/ViewComposers/RotessaComposer.php');
         class_alias("App\\PaymentDrivers\\Rotessa\\PaymentMethod","App\\PaymentDrivers\\Rotessa\\BankTransfer");
         class_alias("App\\PaymentDrivers\\Rotessa\\PaymentMethod","App\\PaymentDrivers\\Rotessa\\Acss");
 
