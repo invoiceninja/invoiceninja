@@ -71,7 +71,7 @@ class SystemMaintenance implements ShouldQueue
         }
 
         Invoice::with('invitations')
-                ->whereBetween('created_at', [now()->subYear(), now()->subDays($delete_pdf_days)])
+                ->whereBetween('created_at', [now()->subYear(), now()->subDays((int)$delete_pdf_days)])
                 ->withTrashed()
                 ->cursor()
                 ->each(function ($invoice) {
@@ -81,7 +81,7 @@ class SystemMaintenance implements ShouldQueue
                 });
 
         Quote::with('invitations')
-                ->whereBetween('created_at', [now()->subYear(), now()->subDays($delete_pdf_days)])
+                ->whereBetween('created_at', [now()->subYear(), now()->subDays((int)$delete_pdf_days)])
                 ->withTrashed()
                 ->cursor()
                 ->each(function ($quote) {
@@ -91,7 +91,7 @@ class SystemMaintenance implements ShouldQueue
                 });
 
         Credit::with('invitations')
-                ->whereBetween('created_at', [now()->subYear(), now()->subDays($delete_pdf_days)])
+                ->whereBetween('created_at', [now()->subYear(), now()->subDays((int)$delete_pdf_days)])
                 ->withTrashed()
                 ->cursor()
                 ->each(function ($credit) {
@@ -107,7 +107,7 @@ class SystemMaintenance implements ShouldQueue
             return;
         }
 
-        Backup::where('created_at', '<', now()->subDays($delete_backup_days))
+        Backup::where('created_at', '<', now()->subDays((int)$delete_backup_days))
                 ->cursor()
                 ->each(function ($backup) {
                     nlog("deleting {$backup->filename}");

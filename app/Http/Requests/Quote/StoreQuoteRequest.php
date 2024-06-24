@@ -105,7 +105,7 @@ class StoreQuoteRequest extends Request
         if(isset($input['partial_due_date']) && (!isset($input['due_date']) || strlen($input['due_date']) <= 1)) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
             $valid_days = ($client && strlen($client->getSetting('valid_until')) >= 1) ? $client->getSetting('valid_until') : 7;
-            $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays($valid_days)->format('Y-m-d');
+            $input['due_date'] = \Carbon\Carbon::parse($input['date'])->addDays((int)$valid_days)->format('Y-m-d');
         }
 
         $this->replace($input);
