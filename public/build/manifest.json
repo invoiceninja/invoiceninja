@@ -240,7 +240,11 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
+=======
+    "file": "assets/app-8e387ada.css",
+>>>>>>> 3e760e6cc6 (New payment flow)
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
