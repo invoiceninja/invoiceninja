@@ -660,7 +660,7 @@ class HtmlEngine
         }
 
         $data['$contact.signature_raw'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
-        $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+        $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date ?? '1970-01-01', $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
         $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
