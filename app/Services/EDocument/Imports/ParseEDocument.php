@@ -41,8 +41,6 @@ class ParseEDocument extends AbstractService
         /** @var \App\Models\Account $account */
         $account = auth()->user()->account;
 
-        $expense = null;
-
         // try to parse via Zugferd lib
         $zugferd_exception = null;
         try {
@@ -52,7 +50,7 @@ class ParseEDocument extends AbstractService
                 case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
                 case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
                 case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
-                    $expense = (new ZugferdEDocument($this->file))->run();
+                    return (new ZugferdEDocument($this->file))->run();
             }
         } catch (Exception $e) {
             $zugferd_exception = $e;
@@ -62,15 +60,11 @@ class ParseEDocument extends AbstractService
         $mindee_exception = null;
         if (config('services.mindee.api_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
             try {
-                $expense = (new MindeeEDocument($this->file))->run();
+                return (new MindeeEDocument($this->file))->run();
             } catch (Exception $e) {
                 // ignore not available exceptions
                 $mindee_exception = $e;
             }
-
-        // return expense, when available and supress any errors occured before
-        if ($expense)
-            return $expense;
 
         // log exceptions and throw error
         if ($zugferd_exception)
