@@ -38,6 +38,9 @@ class ParseEDocument extends AbstractService
     public function run(): Expense
     {
 
+        /** @var \App\Models\Account $account */
+        $account = auth()->user()->account;
+
         $expense = null;
 
         // try to parse via Zugferd lib
@@ -57,7 +60,7 @@ class ParseEDocument extends AbstractService
 
         // try to parse via mindee lib
         $mindee_exception = null;
-        if (Ninja::isSelfHost())
+        if (config('services.mindee.api_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
             try {
                 $expense = (new MindeeEDocument($this->file))->run();
             } catch (Exception $e) {
