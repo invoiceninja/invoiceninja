@@ -121,10 +121,11 @@ class RotessaPaymentDriver extends BaseDriver
             $customers = collect($result->getData())->unique('email');
             $client_emails = $customers->pluck('email')->all();
             $company_id = $this->company_gateway->company->id;
-            $client_contacts = ClientContact::where('company_id', $company_id)->whereIn('email', $client_emails )->where('is_primary', 1 )->whereNull('deleted_at')->get();
+            $client_contacts = ClientContact::where('company_id', $company_id)->whereIn('email', $client_emails )->whereNull('deleted_at')->get();
             $client_contacts = $client_contacts->map(function($item, $key) use ($customers) {
                 return  array_merge([], (array) $customers->firstWhere("email", $item->email) , ['custom_identifier' => $item->client->number, 'identifier' => $item->client->number ]);
             }  );
+            
             $client_contacts->each(
                 function($contact) use ($customers) {
                     sleep(10);
