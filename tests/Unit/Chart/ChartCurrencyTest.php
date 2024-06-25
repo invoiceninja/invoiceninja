@@ -11,13 +11,16 @@
 
 namespace Tests\Unit\Chart;
 
-use App\DataMapper\ClientSettings;
+use Tests\TestCase;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Currency;
+use Tests\MockAccountData;
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Services\Chart\ChartService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\MockAccountData;
-use Tests\TestCase;
 
 /**
  * @test
@@ -35,12 +38,104 @@ class ChartCurrencyTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testAggregateRevenues()
+    {
+        
+        $settings = CompanySettings::defaults();
+
+        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+        $settings->website = 'www.invoiceninja.com';
+        $settings->address1 = 'Address 1';
+        $settings->address2 = 'Address 2';
+        $settings->city = 'City';
+        $settings->state = 'State';
+        $settings->postal_code = 'Postal Code';
+        $settings->phone = '555-343-2323';
+        $settings->email = '';
+        $settings->country_id = '840';
+        $settings->vat_number = 'vat number';
+        $settings->id_number = 'id number';
+        $settings->use_credits_payment = 'always';
+        $settings->timezone_id = '1';
+        $settings->entity_send_time = 0;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
+ 
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = '1'; //USD
+
+        $usd = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'settings' => $settings,
+        ]);
+
+        Currency::query()->where('id', 1)->update(['exchange_rate' => 1]);
+        Currency::query()->where('id', 2)->update(['exchange_rate' => 0.5]);
+
+        $settings = ClientSettings::defaults();
+        $settings->currency_id = '2'; //GBP
+
+        $gbp = Client::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'settings' => $settings,
+        ]);
+
+
+        Invoice::factory()->create([
+            'client_id' => $usd->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'amount' => 100,
+            'balance' => 0,
+            'paid_to_date' => 100,
+            'status_id' => 4,
+            'date' => now(),
+            'due_date' => now()
+        ]);
+
+        Invoice::factory()->create([
+            'client_id' => $gbp->id,
+            'user_id' => $this->user->id,
+            'company_id' => $company->id,
+            'amount' => 100,
+            'balance' => 0,
+            'paid_to_date' => 100,
+            'status_id' => 4,
+            'date' => now(),
+            'due_date' => now()
+        ]);
+
+
+        $cs = new ChartService($company, $this->user, true);
+        $results = $cs->totals('1970-01-01', '2050-01-01');
+
+        $this->assertCount(2, $results['currencies']);
+
+        nlog($results);
+
+        $this->assertEquals('USD', $results['currencies'][1]);
+        $this->assertEquals('GBP', $results['currencies'][2]);
+
+
+        nlog(array_sum(array_column($results['currencies'][1]['invoices'],'invoiced_amount')));
+        
+        $this->assertEquals(100, array_sum(array_column($results['currencies'][1]['invoices'],'invoiced_amount')));
+
+    }
+
     public function testRevenueValues()
     {
         Invoice::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
+            'amount' => 100,
+            'balance' => 0,
             'paid_to_date' => 100,
             'status_id' => 4,
             'date' => now(),

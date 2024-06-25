@@ -426,7 +426,7 @@ class BaseDriver extends AbstractPaymentDriver
             $invoice_item->product_key = ctrans('texts.surcharge');
             $invoice_item->notes = ctrans('texts.online_payment_surcharge');
             $invoice_item->quantity = 1;
-            $invoice_item->cost = $fee_total;
+            $invoice_item->cost = (float)$fee_total;
 
             $invoice_items = (array) $invoice->line_items;
             $invoice_items[] = $invoice_item;
