@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-                
-        Schema::table('users', function (Blueprint $table) {
-            $table->mediumText('referral_meta')->nullable();
-        });
-
+            
+        if(!in_array('referral_meta', \Illuminate\Support\Facades\Schema::getColumnListing('users')))
+        {
+            Schema::table('users', function (Blueprint $table) {
+                $table->mediumText('referral_meta')->nullable();
+            });
+        }
     }
 
     /**

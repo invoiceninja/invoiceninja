@@ -383,7 +383,6 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        // $this->deletePdf();
         $this->deleteEInvoice();
 
         return $this;
