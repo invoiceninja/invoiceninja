@@ -134,10 +134,10 @@ class ChartService
         $aggregate_expenses = $this->getAggregateExpenseQuery($start_date, $end_date);
         $aggregate_invoices = $this->getAggregateInvoicesQuery($start_date, $end_date);
 
-        $data[999]['invoices'] = $aggregate_invoices !== false ? $aggregate_invoices : new \stdClass();
-        $data[999]['expense'] = $aggregate_expenses !== false ? $aggregate_expenses : new \stdClass();
-        $data[999]['outstanding'] = $aggregate_outstanding !== false ? $aggregate_outstanding : new \stdClass();
-        $data[999]['revenue'] = $aggregate_revenue !== false ? $aggregate_revenue : new \stdClass();
+        $data[999]['invoices'] = $aggregate_invoices !== false ? reset($aggregate_invoices) : new \stdClass();
+        $data[999]['expense'] = $aggregate_expenses !== false ? reset($aggregate_expenses) : new \stdClass();
+        $data[999]['outstanding'] = $aggregate_outstanding !== false ? reset($aggregate_outstanding) : new \stdClass();
+        $data[999]['revenue'] = $aggregate_revenue !== false ? reset($aggregate_revenue) : new \stdClass();
 
 
         return $data;
