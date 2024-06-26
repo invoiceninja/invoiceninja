@@ -32,6 +32,8 @@ class ParseEDocument extends AbstractService
      * Execute the service.
      * the service will parse the file with all available libraries of the system and will return an expense, when possible
      *
+     * @developer the function should be implemented with local first aproach to save costs of external providers (like mindee ocr)
+     *
      * @return Expense
      * @throws \Exception
      */
@@ -41,7 +43,7 @@ class ParseEDocument extends AbstractService
         /** @var \App\Models\Account $account */
         $account = auth()->user()->account;
 
-        // try to parse via Zugferd lib
+        // ZUGFERD - try to parse via Zugferd lib
         $zugferd_exception = null;
         try {
             switch (true) {
@@ -56,7 +58,7 @@ class ParseEDocument extends AbstractService
             $zugferd_exception = $e;
         }
 
-        // try to parse via mindee lib
+        // MINDEE OCR - try to parse via mindee external service
         $mindee_exception = null;
         if (config('services.mindee.api_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
             try {
