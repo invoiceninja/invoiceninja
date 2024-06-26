@@ -66,7 +66,7 @@ class ZugferdEDocument extends AbstractService
             $expense->user_id = $user->id;
             $expense->company_id = $user->company->id;
             $expense->public_notes = $documentno;
-            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()?->id || $user->company->settings->currency_id;
             $expense->save();
 
             $documents = [$this->file];
@@ -114,7 +114,11 @@ class ZugferdEDocument extends AbstractService
                 $vendor->address2 = $address_2;
                 $vendor->city = $city;
                 $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id;
+                $country = app('countries')->first(function ($c) use ($country) {
+                    return $c->iso_3166_2 == $country || $c->iso_3166_3 == $country;
+                });
+                if ($country)
+                    $vendor->country_id = $country->id;
 
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;

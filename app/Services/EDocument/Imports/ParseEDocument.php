@@ -71,7 +71,7 @@ class ParseEDocument extends AbstractService
             nlog("Zugferd Exception: " . $zugferd_exception->getMessage());
         if ($mindee_exception)
             nlog("Mindee Exception: " . $mindee_exception->getMessage());
-        throw new Exception("File type not supported or issue while parsing");
+        throw new Exception("File type not supported or issue while parsing", 409);
     }
 }
 
