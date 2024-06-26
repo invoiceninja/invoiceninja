@@ -12,11 +12,12 @@
 
 namespace App\Livewire;
 
-use App\Livewire\Terms;
+use App\Livewire\Flow2\Terms;
 use Livewire\Component;
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
-use App\Livewire\Signature;
+use App\Livewire\Flow2\PaymentMethod;
+use App\Livewire\Flow2\Signature;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Reactive;
@@ -66,6 +67,8 @@ class InvoicePay extends Component
 
         if(!$this->signature_accepted)
             return Signature::class;
+
+        return PaymentMethod::class;
     }
 
     #[Computed()]

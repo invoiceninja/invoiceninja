@@ -242,6 +242,7 @@
   "resources/sass/app.scss": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
@@ -249,6 +250,9 @@
 =======
     "file": "assets/app-26306e87.css",
 >>>>>>> c315911da4 (Payment float)
+=======
+    "file": "assets/app-4cad835a.css",
+>>>>>>> fd7c28880c (Payment methods)
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
