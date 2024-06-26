@@ -100,9 +100,8 @@ class MindeeEDocument extends AbstractService
             $vendor = null;
             $vendor_contact = VendorContact::where("company_id", $user->company()->id)->where("email", $prediction->supplierEmail)->first();
             if ($vendor_contact)
-                return $vendor = $vendor_contact->vendor;
-
-            if ($vendor)
+                $vendor = $vendor_contact->vendor;
+            if (!$vendor)
                 $vendor = Vendor::where("company_id", $user->company()->id)->where("name", $prediction->supplierName)->first();
 
             if ($vendor) {

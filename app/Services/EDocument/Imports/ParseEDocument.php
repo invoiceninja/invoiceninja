@@ -44,35 +44,29 @@ class ParseEDocument extends AbstractService
         $account = auth()->user()->account;
 
         // ZUGFERD - try to parse via Zugferd lib
-        $zugferd_exception = null;
-        try {
-            switch (true) {
-                case $this->file->getExtension() == 'pdf':
-                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
-                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
-                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
-                case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
+        switch (true) {
+            case $this->file->getExtension() == 'pdf':
+            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
+            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
+            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
+            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
+                try {
                     return (new ZugferdEDocument($this->file))->run();
-            }
-        } catch (Exception $e) {
-            $zugferd_exception = $e;
+                } catch (Exception $e) {
+                    nlog("Zugferd Exception: " . $e->getMessage());
+                }
         }
 
         // MINDEE OCR - try to parse via mindee external service
-        $mindee_exception = null;
         if (config('services.mindee.api_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
             try {
                 return (new MindeeEDocument($this->file))->run();
             } catch (Exception $e) {
-                // ignore not available exceptions
-                $mindee_exception = $e;
+                if (!($e->getMessage() == 'Unsupported document type'))
+                    nlog("Mindee Exception: " . $e->getMessage());
             }
 
-        // log exceptions and throw error
-        if ($zugferd_exception)
-            nlog("Zugferd Exception: " . $zugferd_exception->getMessage());
-        if ($mindee_exception)
-            nlog("Mindee Exception: " . $mindee_exception->getMessage());
+        // NO PARSER OR ERROR
         throw new Exception("File type not supported or issue while parsing", 409);
     }
 }

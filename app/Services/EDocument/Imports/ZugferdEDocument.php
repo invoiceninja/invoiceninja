@@ -18,6 +18,7 @@ use App\Models\Country;
 use App\Models\Currency;
 use App\Models\Expense;
 use App\Models\Vendor;
+use App\Models\VendorContact;
 use App\Services\AbstractService;
 use App\Utils\TempFile;
 use App\Utils\Traits\SavesDocuments;
@@ -46,6 +47,7 @@ class ZugferdEDocument extends AbstractService
     public function run(): Expense
     {
         $user = auth()->user();
+
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->file->get());
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
@@ -93,11 +95,19 @@ class ZugferdEDocument extends AbstractService
             $this->document->getDocumentSellerContact($person_name, $person_department, $contact_phone, $contact_fax, $contact_email);
             $this->document->getDocumentSellerAddress($address_1, $address_2, $address_3, $postcode, $city, $country, $subdivision);
             $this->document->getDocumentSellerTaxRegistration($taxtype);
+
             $taxid = null;
             if (array_key_exists("VA", $taxtype)) {
                 $taxid = $taxtype["VA"];
             }
-            $vendor = Vendor::where('vat_number', $taxid)->first();
+            $vendor = Vendor::where("company_id", $user->company()->id)->where('vat_number', $taxid)->first();
+            if (!$vendor) {
+                $vendor_contact = VendorContact::where("company_id", $user->company()->id)->where("email", $contact_email)->first();
+                if ($vendor_contact)
+                    $vendor = $vendor_contact->vendor;
+            }
+            if (!$vendor)
+                $vendor = Vendor::where("company_id", $user->company()->id)->where("name", $person_name)->first();
 
             if (!empty($vendor)) {
                 // Vendor found
