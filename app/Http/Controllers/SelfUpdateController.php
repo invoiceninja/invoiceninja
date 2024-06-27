@@ -35,6 +35,7 @@ class SelfUpdateController extends BaseController
         'bootstrap/cache/services.php',
         'bootstrap/cache/routes-v7.php',
         'bootstrap/cache/livewire-components.php',
+        'public/index.html',
     ];
 
     public function __construct()
@@ -114,7 +115,7 @@ class SelfUpdateController extends BaseController
         Artisan::call('config:clear');
         Artisan::call('cache:clear');
 
-        $this->runModelChecks();
+        // $this->runModelChecks();
 
         nlog('Called Artisan commands');
 
@@ -159,7 +160,7 @@ class SelfUpdateController extends BaseController
         $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-            if (strpos($file->getPathname(), '.git') !== false) {
+            if (strpos($file->getPathname(), '.git') !== false || strpos($file->getPathname(), 'vendor/') !== false) {
                 continue;
             }
 
