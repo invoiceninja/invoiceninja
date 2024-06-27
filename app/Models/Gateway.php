@@ -105,7 +105,9 @@ class Gateway extends StaticModel
             $link = 'https://www.forte.net/';
         } elseif ($this->id == 62) {
             $link = 'https://docs.btcpayserver.org/InvoiceNinja/';
-        }
+        } elseif ($this->id == 4002) {
+	        $link = 'https://rotessa.com';	
+	      }
 
         return $link;
     }
@@ -224,6 +226,15 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => true, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //BTCPay
+	    case 4002:
+		return [
+                    GatewayType::BANK_TRANSFER => [
+                        'refund' => false,
+                        'token_billing' => true,
+                        'webhooks' => [],
+                        ],  
+                    GatewayType::ACSS => ['refund' => false, 'token_billing' => true, 'webhooks' => []]
+                ]; // Rotessa
             default:
                 return [];
         }
