@@ -28,4 +28,4 @@
 
     <input type="hidden" name="authorization_type" id="authorization_type" value="{{ old('authorization_type',$authorization_type) }}" >
 
-@include("rotessa::components.banks.$country.bank", compact('bank_account_type','routing_number','institution_number','transit_number'))
+@include("portal.ninja2020.gateways.rotessa.components.banks.$country.bank", compact('bank_account_type','routing_number','institution_number','transit_number'))

@@ -67,7 +67,7 @@ class PaymentMethod implements MethodInterface
         ];
         $data['address'] = collect($data['client']->toArray())->merge(['country' => $data['client']->country->iso_3166_2 ])->all();
         
-        return view('rotessa::bank_transfer.authorize', $data);
+        return render('gateways.rotessa.bank_transfer.authorize',  $data );
     }
     /**
      * Handle the authorization page for Rotessa.
@@ -128,7 +128,7 @@ class PaymentMethod implements MethodInterface
         $data['frequency'] = Frequencies::getOnePayment();
         $data['installments'] = 1;
         $data['invoice_nums'] = $data['invoices']->pluck('invoice_number')->join(', '); 
-        return view('rotessa::bank_transfer.pay', $data );
+        return render('gateways.rotessa.bank_transfer.pay', $data );
     }
 
     /**

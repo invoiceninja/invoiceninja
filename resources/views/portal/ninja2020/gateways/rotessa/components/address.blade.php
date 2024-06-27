@@ -59,4 +59,4 @@
         </dd>
     </div>
 
-    @include("rotessa::components.dropdowns.country.$country",compact('province_code'))
+    @include("portal.ninja2020.gateways.rotessa.components.dropdowns.country.$country",compact('province_code'))

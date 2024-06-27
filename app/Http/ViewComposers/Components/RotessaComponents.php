@@ -5,18 +5,24 @@ namespace App\Http\ViewComposers\Components;
 use App\DataProviders\CAProvinces;
 use App\DataProviders\USStates;
 use Illuminate\View\Component;
+use App\Models\ClientContact;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
+
 
 // Contact Component
 class ContactComponent extends Component
 {
 
-    public array $contact;
-
-    public function __construct(array $contact) {
-        $this->contact = $contact;
-        $this->attributes = $this->newAttributeBag(Arr::only($this->contact, $this->fields) );
+    public function __construct(ClientContact $contact) {
+        $contact = collect($contact->client->contacts->firstWhere('is_primary', 1)->toArray())->merge([
+            'home_phone' =>$contact->client->phone, 
+            'custom_identifier' => $contact->client->number,
+            'name' =>$contact->client->name,
+            'id' => null
+        ] )->all();
+        
+        $this->attributes = $this->newAttributeBag(Arr::only($contact, $this->fields) );
     }
 
     private $fields = [
@@ -37,7 +43,7 @@ class ContactComponent extends Component
 
     public function render()
     {
-        return $this->view('rotessa::components.contact', $this->attributes->getAttributes(), $this->defaults );
+        return render('gateways.rotessa.components.contact', array_merge($this->defaults, $this->attributes->getAttributes() ) );
     }
 }
 
@@ -75,8 +81,7 @@ class AddressComponent extends Component
     
     public function render()
     {
-
-        return $this->view('rotessa::components.address', $this->attributes->getAttributes(), $this->defaults );
+        return render('gateways.rotessa.components.address',array_merge(  $this->defaults, $this->attributes->getAttributes() ) );
     }
 }
 
@@ -113,6 +118,6 @@ class AccountComponent extends Component
     
     public function render()
     {
-        return $this->view('rotessa::components.account', $this->attributes->getAttributes(), $this->defaults );
+        return render('gateways.rotessa.components.account', array_merge($this->attributes->getAttributes(), $this->defaults) );
     }
 }
