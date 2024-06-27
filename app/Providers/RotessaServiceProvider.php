@@ -17,31 +17,15 @@ class RotessaServiceProvider extends BaseProvider
     public function boot(): void
     {
         include_once app_path('Http/ViewComposers/RotessaComposer.php');
-        class_alias("App\\PaymentDrivers\\Rotessa\\PaymentMethod","App\\PaymentDrivers\\Rotessa\\BankTransfer");
-        class_alias("App\\PaymentDrivers\\Rotessa\\PaymentMethod","App\\PaymentDrivers\\Rotessa\\Acss");
 
-        $this->registerViews();
+        $this->registerComponent();
     }
 
     /**
      * Register views.
      */
-    public function registerViews(): void
+    public function registerComponent(): void
     {
-        $viewPath = resource_path('views/portal/ninja2020/gateways/'.$this->moduleNameLower);
-        $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$viewPath]), $this->moduleNameLower);
         Blade::componentNamespace('App\\Http\\ViewComposers\\Components', $this->moduleNameLower);
-    }
-
-    private function getPublishableViewPaths(): array
-    {
-        $paths = [];
-        foreach (config('view.paths') as $path) {
-            if (is_dir($path.'/'.$this->moduleNameLower)) {
-                $paths[] = $path.'/'.$this->moduleNameLower;
-            }
-        }
-
-        return $paths;
     }
 }
