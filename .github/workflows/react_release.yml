@@ -48,7 +48,7 @@ jobs:
           npm i
           npm run build
           cp -r dist/* ../public/
-          cp dist/index.html ../resources/views/react/index.blade.php
+          mv dist/index.html ../resources/views/react/index.blade.php
           
       - name: Prepare JS/CSS assets
         run: |
