@@ -179,6 +179,21 @@ class PaymentMethod
                 }
             }
         }
+        
+        if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
+            // Show credits as only payment option if both statements are true. //?this does not really make sense as it does nothing....
+            // if (
+            //     $this->client->service()->getCreditBalance() > $this->amount
+            //     && $this->client->getSetting('use_credits_payment') == 'always') {
+            //     $payment_urls = [];
+            // }
+
+            $this->payment_urls[] = [
+                'label' => ctrans('texts.apply_credit'),
+                'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
+                'gateway_type_id' => GatewayType::CREDIT,
+            ];
+        }
 
         return $this;
     }

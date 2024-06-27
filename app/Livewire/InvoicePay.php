@@ -12,15 +12,16 @@
 
 namespace App\Livewire;
 
-use App\Livewire\Flow2\Terms;
 use Livewire\Component;
 use App\Utils\HtmlEngine;
 use App\Libraries\MultiDB;
-use App\Livewire\Flow2\PaymentMethod;
-use App\Livewire\Flow2\Signature;
 use Livewire\Attributes\On;
+use App\Livewire\Flow2\Terms;
+use App\Livewire\Flow2\Signature;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Reactive;
+use App\Livewire\Flow2\PaymentMethod;
+use App\Livewire\Flow2\ProcessPayment;
 
 class InvoicePay extends Component
 {
@@ -30,13 +31,30 @@ class InvoicePay extends Component
 
     public $settings;
 
-    private $invite;
-
-    private $variables;
-
     public $terms_accepted = false;
     
     public $signature_accepted = false;
+
+    public $payment_method_accepted = false;
+
+    public array $context = [];
+
+    #[On('update.context')]
+    public function handleContext(string $property, $value): self
+    {
+
+        data_set($this->context, $property, $value);
+
+        return $this;
+    }
+
+    #[On('terms-accepted')]
+    public function termsAccepted()
+    {
+        nlog("Terms accepted");
+        // $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
+        $this->terms_accepted =true;
+    }
 
     #[On('signature-captured')]
     public function signatureCaptured($base64)
@@ -44,19 +62,27 @@ class InvoicePay extends Component
         nlog("signature captured");
 
         $this->signature_accepted = true;
-        $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
-        $this->invite->signature_base64 = $base64;
-        $this->invite->signature_date = now()->addSeconds($this->invite->contact->client->timezone_offset());
-        $this->invite->save();
+        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
+        $invite->signature_base64 = $base64;
+        $invite->signature_date = now()->addSeconds($invite->contact->client->timezone_offset());
+        $this->context['signature'] = $base64;
+        $invite->save();
     
     }
 
-    #[On('terms-accepted')]
-    public function termsAccepted()
-    {
-        nlog("Terms accepted");
-        $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
-        $this->terms_accepted =true;
+    #[On('payment-method-selected')]
+    public function paymentMethodSelected($company_gateway_id, $gateway_type_id, $amount)
+    {       
+        $this->context['company_gateway_id'] = $company_gateway_id;
+        $this->context['gateway_type_id'] = $gateway_type_id;
+        $this->context['amount'] = $amount;
+        $this->context['pre_payment'] = false;
+        $this->context['is_recurring'] = false;
+        $this->context['payable_invoices'] = ['invoice_id' => $this->context['invoice']->hashed_id, 'amount' => $this->context['invoice']->balance];
+        $this->context['invitation_id'] = $this->invitation_id;
+        
+        // $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
+        $this->payment_method_accepted =true;
     }
 
     #[Computed()]
@@ -68,7 +94,10 @@ class InvoicePay extends Component
         if(!$this->signature_accepted)
             return Signature::class;
 
-        return PaymentMethod::class;
+        if(!$this->payment_method_accepted)
+            return PaymentMethod::class;
+
+        return ProcessPayment::class;
     }
 
     #[Computed()]
@@ -83,25 +112,19 @@ class InvoicePay extends Component
         MultiDB::setDb($this->db);
 
         // @phpstan-ignore-next-line
-        $this->invite = \App\Models\InvoiceInvitation::with('invoice','contact.client','company')->withTrashed()->find($this->invitation_id);
-        $invoice = $this->invite->invoice;
-        $company = $this->invite->company;
-        $contact = $this->invite->contact;
-        $client = $this->invite->contact->client;
-        $this->variables = ($this->invite && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($this->invite))->generateLabelsAndValues() : false;
-
-        $this->settings = $client->getMergedSettings();
-
+        $invite = \App\Models\InvoiceInvitation::with('invoice','contact.client','company')->withTrashed()->find($this->invitation_id);
+        $client = $invite->contact->client;
+        $variables = ($invite && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invite))->generateLabelsAndValues() : false;
+        $settings = $client->getMergedSettings();
+        $this->context['variables'] = $variables;
+        $this->context['invoice'] = $invite->invoice;
+        $this->context['settings'] = $settings;
     }
 
     public function render()
     {
          return render('components.livewire.invoice-pay', [
-            'context' => [
-                'settings' => $this->settings,
-                'invoice' => $this->invite->invoice,
-                'variables' => $this->variables,
-            ],
+            'context' => $this->context
         ]);
     }
 }
