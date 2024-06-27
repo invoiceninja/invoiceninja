@@ -132,7 +132,7 @@
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
         ],
-        "classmap": ["app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/","app/Http/ViewComposers/Components/RotessaComponents.php"]
+        "classmap": ["app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/"]
     },
     "autoload-dev": {
         "psr-4": {
