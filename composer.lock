@@ -14820,16 +14820,16 @@
         },
         {
             "name": "turbo124/beacon",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/turbo124/beacon.git",
-                "reference": "cc0b6754a1a4ee36a531fe3364d8e5d2b7d5cc7a"
+                "reference": "95f3de3bdcbb786329cd7050f319520588920466"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/turbo124/beacon/zipball/cc0b6754a1a4ee36a531fe3364d8e5d2b7d5cc7a",
-                "reference": "cc0b6754a1a4ee36a531fe3364d8e5d2b7d5cc7a",
+                "url": "https://api.github.com/repos/turbo124/beacon/zipball/95f3de3bdcbb786329cd7050f319520588920466",
+                "reference": "95f3de3bdcbb786329cd7050f319520588920466",
                 "shasum": ""
             },
             "require": {
@@ -14876,9 +14876,9 @@
                 "turbo124"
             ],
             "support": {
-                "source": "https://github.com/turbo124/beacon/tree/v2.0.1"
+                "source": "https://github.com/turbo124/beacon/tree/v2.0.2"
             },
-            "time": "2024-06-27T01:19:25+00:00"
+            "time": "2024-06-27T01:23:05+00:00"
         },
         {
             "name": "twig/intl-extra",
