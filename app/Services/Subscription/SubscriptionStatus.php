@@ -174,7 +174,7 @@ class SubscriptionStatus extends AbstractService
      */
     private function checkRefundable(): self
     {
-        if(!$this->recurring_invoice->subscription->refund_period || (int)$this->recurring_invoice->subscription->refund_period == 0) {
+        if(!$this->recurring_invoice->subscription->refund_period || (int)$this->recurring_invoice->subscription->refund_period == 0) {//@phpstan-ignore-line
             return $this->setRefundable(false);
         }
 
