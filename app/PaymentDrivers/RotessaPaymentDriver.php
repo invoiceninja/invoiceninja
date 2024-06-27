@@ -24,10 +24,10 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\BaseDriver;
 use App\Models\ClientGatewayToken;
-use App\PaymentDrivers\Rotessa\Acss;
 use Illuminate\Database\Eloquent\Builder;
-use App\PaymentDrivers\Rotessa\BankTransfer;
 use App\PaymentDrivers\Rotessa\Resources\Customer;
+use App\PaymentDrivers\Rotessa\PaymentMethod as Acss;
+use App\PaymentDrivers\Rotessa\PaymentMethod as BankTransfer;
 
 class RotessaPaymentDriver extends BaseDriver
 {
