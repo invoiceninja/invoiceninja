@@ -243,6 +243,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
@@ -253,6 +254,9 @@
 =======
     "file": "assets/app-4cad835a.css",
 >>>>>>> fd7c28880c (Payment methods)
+=======
+    "file": "assets/app-8544e4cc.css",
+>>>>>>> c7cc0e084f (updates for html invoice layout)
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
