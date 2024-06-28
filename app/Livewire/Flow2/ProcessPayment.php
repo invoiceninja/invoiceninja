@@ -12,21 +12,37 @@
 
 namespace App\Livewire\Flow2;
 
+use App\Exceptions\PaymentFailed;
 use Livewire\Component;
 use App\Libraries\MultiDB;
+use App\Models\CompanyGateway;
 use App\Models\InvoiceInvitation;
 use App\Services\ClientPortal\InstantPayment;
+use App\Services\ClientPortal\LivewireInstantPayment;
 
 class ProcessPayment extends Component
 {
 
     public $context;
 
+    private string $component_view = '';
+
+    private array $payment_data_payload = [];
+
+    public $isLoading = true;
+
+
+    // public function toJSON()
+    // {
+    //     nlog("why");
+    // }
+
     public function mount()
     {
+        // $this->loadData();
     }
 
-    public function render()
+    public function boot()
     {
 
         MultiDB::setDb($this->context['invoice']->company->db);
@@ -38,15 +54,78 @@ class ProcessPayment extends Component
             'payment_method_id' => $this->context['gateway_type_id'],
             'payable_invoices' => [$this->context['payable_invoices']],
             'signature' => isset($this->context['signature']) ? $this->context['signature'] : false,
-            'contact_first_name' => $invitation->contact->first_name ?? '',
-            'contact_last_name' => $invitation->contact->last_name ?? '',
-            'contact_email' => $invitation->contact->email ?? ''
+            'signature_ip' => isset($this->context['signature_ip']) ? $this->context['signature_ip'] : false,
+            'pre_payment' => false,
+            'frequency_id' => false,
+            'remaining_cycles' => false,
+            'is_recurring' => false,
+            'hash' => false,
         ];
 
-        request()->replace($data);
+        $responder_data = (new LivewireInstantPayment($data))->run();
 
-        return (new InstantPayment(request()))->run();
+        $company_gateway = CompanyGateway::find($this->context['company_gateway_id']);
+        
+        $this->component_view = '';
 
-        // return render($view->view, $view->data);
+        if(!$responder_data['success'])
+            throw new PaymentFailed($responder_data['error'], 400);
+
+        $driver = $company_gateway
+                ->driver($invitation->contact->client)
+                ->setPaymentMethod($data['payment_method_id'])
+                ->setPaymentHash($responder_data['payload']['ph']);
+
+        $payment_data = $driver->processPaymentViewData($responder_data['payload']);
+        $payment_data['client_secret'] = $payment_data['intent']->client_secret;
+
+        unset($payment_data['intent']);
+
+        $token_billing_string = 'true';
+
+        if($company_gateway->token_billing == 'off' || $company_gateway->token_billing == 'optin') {
+            $token_billing_string = 'false';
+        }
+
+        if (isset($data['pre_payment']) && $data['pre_payment'] == '1' && isset($data['is_recurring']) && $data['is_recurring'] == '1') {
+            $token_billing_string = 'true';
+        }
+
+        $payment_data['token_billing_string'] = $token_billing_string;
+        
+        $this->payment_data_payload = $payment_data;
+        // $this->payment_data_payload['company_gateway'] = $company_gateway;
+
+        $this->payment_data_payload =
+        [
+            'stripe_account_id' => $this->payment_data_payload['company_gateway']->getConfigField('account_id'),
+            'publishable_key' => $this->payment_data_payload['company_gateway']->getPublishableKey(),
+            'require_postal_code' => $this->payment_data_payload['company_gateway']->require_postal_code,
+            'gateway' => $this->payment_data_payload['gateway'],
+            'client' => $this->payment_data_payload['client'],
+            'payment_method_id' => $this->payment_data_payload['payment_method_id'],
+            'token_billing_string' => $this->payment_data_payload['token_billing_string'],
+            'tokens' => $this->payment_data_payload['tokens'],
+            'client_secret' => $this->payment_data_payload['client_secret'],
+            'payment_hash' => $this->payment_data_payload['payment_hash'],
+            'total' => $this->payment_data_payload['total'],
+            'invoices' => $this->payment_data_payload['invoices'],
+            'amount_with_fee' => $this->payment_data_payload['amount_with_fee'],
+            'pre_payment' => $this->payment_data_payload['pre_payment'],
+            'is_recurring' => $this->payment_data_payload['is_recurring'],
+            'company_gateway' => $this->payment_data_payload['company_gateway'],
+        ];
+
+        // nlog(array_keys($this->payment_data_payload));
+        
+        $this->isLoading = false;
+
+    }
+
+    public function render()
+    {
+
+        if(!$this->isLoading)
+            return render('gateways.stripe.credit_card.livewire_pay', $this->payment_data_payload);
     }
 }

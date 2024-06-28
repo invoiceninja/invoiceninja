@@ -57,8 +57,16 @@ class CreditCard
         return redirect()->route('client.payment_methods.index');
     }
 
-    public function paymentView(array $data)
+    public function paymentData(array $data)
     {
+        $data = $this->getData($data);
+        
+        return $data;
+    }
+
+    private function getData(array $data): array
+    {
+        
         $description = $this->stripe->getDescription(false);
 
         $payment_intent_data = [
@@ -76,6 +84,13 @@ class CreditCard
 
         $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
         $data['gateway'] = $this->stripe;
+
+        return $data;
+    }
+
+    public function paymentView(array $data)
+    {
+        $data = $this->getData($data);
 
         return render('gateways.stripe.credit_card.pay', $data);
     }

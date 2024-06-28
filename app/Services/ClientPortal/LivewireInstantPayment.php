@@ -305,6 +305,7 @@ class LivewireInstantPayment
         ];
 
         $data = [
+            'ph' => $payment_hash,
             'payment_hash' => $payment_hash->hash,
             'total' => $totals,
             'invoices' => $payable_invoices,

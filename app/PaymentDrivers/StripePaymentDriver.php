@@ -418,6 +418,11 @@ class StripePaymentDriver extends BaseDriver
         return $this->payment_method->paymentView($data);
     }
 
+    public function processPaymentViewData(array $data): array
+    {
+        return $this->payment_method->paymentData($data);
+    }
+
     public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
