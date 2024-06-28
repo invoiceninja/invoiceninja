@@ -120,12 +120,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $inbound_mailbox_whitelist
  * @property string|null $inbound_mailbox_blacklist
  * @property int $deleted_at
- * @property string $smtp_username
- * @property string $smtp_password
- * @property string $smtp_host
- * @property string $smtp_port
- * @property string $smtp_encryption
- * @property string $smtp_local_domain
+ * @property string|null $smtp_username
+ * @property string|null $smtp_password
+ * @property string|null $smtp_host
+ * @property string|null $smtp_port
+ * @property string|null $smtp_encryption
+ * @property string|null $smtp_local_domain
  * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities

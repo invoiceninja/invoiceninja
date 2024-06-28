@@ -131,9 +131,11 @@ class BTCPayPaymentDriver extends BaseDriver
         $this->payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$btcpayRep->metadata->InvoiceNinjaPaymentHash])->firstOrFail();
         $StatusId = Payment::STATUS_PENDING;
         if ($this->payment_hash->payment_id == null) {
-            //$_invoice = collect($this->payment_hash->data->invoices)->first();
-            $_invoice = Invoice::query()->where('number', $btcpayRep->metadata->orderId)->first();
-            $this->client = Client::find($_invoice->client_id);
+            
+            $_invoice = Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
+
+            $this->client = $_invoice->client;
+
             $dataPayment = [
                 'payment_method' => $this->payment_method,
                 'payment_type' => PaymentType::CRYPTO,
@@ -144,7 +146,7 @@ class BTCPayPaymentDriver extends BaseDriver
             $payment = $this->createPayment($dataPayment, $StatusId);
         } else {
             /** @var \App\Models\Payment $payment */
-            $payment = Payment::find($this->payment_hash->payment_id);
+            $payment = Payment::withTrashed()->find($this->payment_hash->payment_id);
             $StatusId =  $payment->status_id;
         }
         switch ($btcpayRep->type) {
