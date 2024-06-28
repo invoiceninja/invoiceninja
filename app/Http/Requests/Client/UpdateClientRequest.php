@@ -170,7 +170,7 @@ class UpdateClientRequest extends Request
      * down to the free plan setting properties which
      * are saveable
      *
-     * @param  \stdClass $settings
+     * @param  mixed $settings
      * @return \stdClass $settings
      */
     private function filterSaveableSettings($settings)

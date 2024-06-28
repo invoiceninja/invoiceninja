@@ -20,7 +20,6 @@ class EntityEmailHistoryRequest extends Request
 {
     use MakesHash;
 
-    private string $error_message = '';
     private string $entity_plural = '';
     /**
      * Determine if the user is authorized to make this request.

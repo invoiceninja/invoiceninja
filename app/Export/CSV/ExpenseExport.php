@@ -85,7 +85,7 @@ class ExpenseExport extends BaseExport
                         ->where('company_id', $this->company->id);
 
 
-        if(!$this->input['include_deleted'] ?? false) {
+        if(!$this->input['include_deleted'] ?? false) { // @phpstan-ignore-line
             $query->where('is_deleted', 0);
         }
 

@@ -46,8 +46,9 @@ class ZugferdEDocument extends AbstractService {
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
 
-        $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
-        if (empty($expense)) {
+        /** @var \App\Models\Expense $expense */
+        $expense = Expense::where("company_id", $user->company()->id)->where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
+        if (!$expense) {
             // The document does not exist as an expense
             // Handle accordingly
             $visualizer = new ZugferdVisualizer($this->document);
@@ -59,13 +60,11 @@ class ZugferdEDocument extends AbstractService {
 
             $expense = ExpenseFactory::create($user->company()->id, $user->id);
             $expense->date = $documentdate;
-            $expense->user_id = $user->id;
-            $expense->company_id = $user->company->id;
             $expense->public_notes = $documentno;
-            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id ?? $user->company()->settings->currency_id;
             $expense->save();
 
-            $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml");
+            $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml"); 
             (new UploadFile($origin_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
             $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
             (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();

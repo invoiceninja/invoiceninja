@@ -122,26 +122,26 @@ class SelfUpdateController extends BaseController
         return response()->json(['message' => 'Update completed'], 200);
     }
 
-    private function runModelChecks()
-    {
-        Company::query()
-               ->cursor()
-               ->each(function ($company) {
+    // private function runModelChecks()
+    // {
+    //     Company::query()
+    //            ->cursor()
+    //            ->each(function ($company) {
 
-                   $settings = $company->settings;
+    //                $settings = $company->settings;
 
-                   if(property_exists($settings->pdf_variables, 'purchase_order_details')) {
-                       return;
-                   }
+    //                if(property_exists($settings->pdf_variables, 'purchase_order_details')) {
+    //                    return;
+    //                }
 
-                   $pdf_variables = $settings->pdf_variables;
-                   $pdf_variables->purchase_order_details = [];
-                   $settings->pdf_variables = $pdf_variables;
-                   $company->settings = $settings;
-                   $company->save();
+    //                $pdf_variables = $settings->pdf_variables;
+    //                $pdf_variables->purchase_order_details = [];
+    //                $settings->pdf_variables = $pdf_variables;
+    //                $company->settings = $settings;
+    //                $company->save();
 
-               });
-    }
+    //            });
+    // }
 
     private function clearCacheDir()
     {
