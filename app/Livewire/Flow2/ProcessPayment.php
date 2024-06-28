@@ -30,6 +30,18 @@ class ProcessPayment extends Component
 
     public $isLoading = true;
 
+    private string $component_view = '';
+
+    private array $payment_data_payload = [];
+
+    public $isLoading = true;
+
+
+    // public function toJSON()
+    // {
+    //     nlog("why");
+    // }
+
     public function mount()
     {
 
