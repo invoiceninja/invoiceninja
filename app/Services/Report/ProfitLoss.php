@@ -265,8 +265,13 @@ class ProfitLoss
                         ->whereIn('status_id', [1, 4, 5])
                         ->where('is_deleted', 0)
                         ->whereBetween('date', [$this->start_date, $this->end_date])
-                        ->whereHas('client', function ($query) {
-                            $query->where('is_deleted', 0);
+                        // ->whereHas('client', function ($query) {
+                        //     $query->where('is_deleted', 0);
+                        // })
+                        ->leftJoin('clients', function ($join) {
+                            $join->on('payments.client_id', '=', 'clients.id')
+                                ->where('clients.is_deleted', 0)
+                                ->whereNull('clients.deleted_at');
                         })
                         ->with(['company', 'client'])
                         ->cursor()

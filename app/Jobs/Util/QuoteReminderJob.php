@@ -61,17 +61,26 @@ class QuoteReminderJob implements ShouldQueue
             nrlog("Sending quote reminders on ".now()->format('Y-m-d h:i:s'));
 
             Quote::query()
-                 ->where('is_deleted', 0)
-                 ->whereIn('status_id', [Invoice::STATUS_SENT])
-                 ->whereNull('deleted_at')
-                 ->where('next_send_date', '<=', now()->toDateTimeString())
-                 ->whereHas('client', function ($query) {
-                     $query->where('is_deleted', 0)
-                           ->where('deleted_at', null);
-                 })
-                 ->whereHas('company', function ($query) {
-                     $query->where('is_disabled', 0);
-                 })
+                 ->where('quotes.is_deleted', 0)
+                 ->whereIn('quotes.status_id', [Invoice::STATUS_SENT])
+                 ->whereNull('quotes.deleted_at')
+                 ->where('quotes.next_send_date', '<=', now()->toDateTimeString())
+                //  ->whereHas('client', function ($query) {
+                //      $query->where('is_deleted', 0)
+                //            ->where('deleted_at', null);
+                //  })
+                //  ->whereHas('company', function ($query) {
+                //      $query->where('is_disabled', 0);
+                //  })
+                ->leftJoin('clients', function ($join) {
+                    $join->on('quotes.client_id', '=', 'clients.id')
+                        ->where('clients.is_deleted', 0)
+                        ->whereNull('clients.deleted_at');
+                })
+                ->leftJoin('companies', function ($join) {
+                    $join->on('quotes.company_id', '=', 'companies.id')
+                        ->where('companies.is_disabled', 0);
+                })
                  ->with('invitations')->chunk(50, function ($quotes) {
                      foreach ($quotes as $quote) {
                          $this->sendReminderForQuote($quote);
@@ -88,17 +97,26 @@ class QuoteReminderJob implements ShouldQueue
                 nrlog("Sending quote reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
 
                 Quote::query()
-                     ->where('is_deleted', 0)
-                     ->whereIn('status_id', [Invoice::STATUS_SENT])
-                     ->whereNull('deleted_at')
-                     ->where('next_send_date', '<=', now()->toDateTimeString())
-                     ->whereHas('client', function ($query) {
-                         $query->where('is_deleted', 0)
-                               ->where('deleted_at', null);
-                     })
-                     ->whereHas('company', function ($query) {
-                         $query->where('is_disabled', 0);
-                     })
+                     ->where('quotes.is_deleted', 0)
+                     ->whereIn('quotes.status_id', [Invoice::STATUS_SENT])
+                     ->whereNull('quotes.deleted_at')
+                     ->where('quotes.next_send_date', '<=', now()->toDateTimeString())
+                    //  ->whereHas('client', function ($query) {
+                    //      $query->where('is_deleted', 0)
+                    //            ->where('deleted_at', null);
+                    //  })
+                    //  ->whereHas('company', function ($query) {
+                    //      $query->where('is_disabled', 0);
+                    //  })
+                    ->leftJoin('clients', function ($join) {
+                        $join->on('quotes.client_id', '=', 'clients.id')
+                            ->where('clients.is_deleted', 0)
+                            ->whereNull('clients.deleted_at');
+                    })
+                    ->leftJoin('companies', function ($join) {
+                        $join->on('quotes.company_id', '=', 'companies.id')
+                            ->where('companies.is_disabled', 0);
+                    })
                      ->with('invitations')->chunk(50, function ($quotes) {
 
                          foreach ($quotes as $quote) {

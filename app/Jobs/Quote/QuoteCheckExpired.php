@@ -49,19 +49,28 @@ class QuoteCheckExpired implements ShouldQueue
     {
         if (! config('ninja.db.multi_db_enabled')) {
             Quote::query()
-                 ->where('status_id', Quote::STATUS_SENT)
-                 ->where('is_deleted', false)
-                 ->whereNull('deleted_at')
-                 ->whereNotNull('due_date')
-                 ->whereHas('client', function ($query) {
-                     $query->where('is_deleted', 0)
-                            ->where('deleted_at', null);
-                 })
-                    ->whereHas('company', function ($query) {
-                        $query->where('is_disabled', 0);
-                    })
-                 // ->where('due_date', '<='. now()->toDateTimeString())
-                 ->whereBetween('due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
+                 ->where('quotes.status_id', Quote::STATUS_SENT)
+                 ->where('quotes.is_deleted', false)
+                 ->whereNull('quotes.deleted_at')
+                 ->whereNotNull('quotes.due_date')
+                //  ->whereHas('client', function ($query) {
+                //      $query->where('is_deleted', 0)
+                //             ->where('deleted_at', null);
+                //  })
+                //     ->whereHas('company', function ($query) {
+                //         $query->where('is_disabled', 0);
+                //     })
+                ->leftJoin('clients', function ($join) {
+                    $join->on('quotes.client_id', '=', 'clients.id')
+                        ->where('clients.is_deleted', 0)
+                        ->whereNull('clients.deleted_at');
+                })
+                ->leftJoin('companies', function ($join) {
+                    $join->on('quotes.company_id', '=', 'companies.id')
+                        ->where('companies.is_disabled', 0);
+                })
+
+                 ->whereBetween('quotes.due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
                  ->cursor()
                  ->each(function ($quote) {
                      $this->queueExpiredQuoteNotification($quote);
@@ -71,19 +80,27 @@ class QuoteCheckExpired implements ShouldQueue
                 MultiDB::setDB($db);
 
                 Quote::query()
-                    ->where('status_id', Quote::STATUS_SENT)
-                    ->where('is_deleted', false)
-                    ->whereNull('deleted_at')
-                    ->whereNotNull('due_date')
-                    ->whereHas('client', function ($query) {
-                        $query->where('is_deleted', 0)
-                               ->where('deleted_at', null);
+                    ->where('quotes.status_id', Quote::STATUS_SENT)
+                    ->where('quotes.is_deleted', false)
+                    ->whereNull('quotes.deleted_at')
+                    ->whereNotNull('quotes.due_date')
+                    // ->whereHas('client', function ($query) {
+                    //     $query->where('is_deleted', 0)
+                    //            ->where('deleted_at', null);
+                    // })
+                    //    ->whereHas('company', function ($query) {
+                    //        $query->where('is_disabled', 0);
+                    //    })
+                    ->leftJoin('clients', function ($join) {
+                        $join->on('quotes.client_id', '=', 'clients.id')
+                            ->where('clients.is_deleted', 0)
+                            ->whereNull('clients.deleted_at');
                     })
-                       ->whereHas('company', function ($query) {
-                           $query->where('is_disabled', 0);
-                       })
-                    // ->where('due_date', '<='. now()->toDateTimeString())
-                    ->whereBetween('due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
+                    ->leftJoin('companies', function ($join) {
+                        $join->on('quotes.company_id', '=', 'companies.id')
+                            ->where('companies.is_disabled', 0);
+                    })
+                    ->whereBetween('quotes.due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
                     ->cursor()
                     ->each(function ($quote) {
                         $this->queueExpiredQuoteNotification($quote);

@@ -62,17 +62,29 @@ class SendRemindersCron extends Command
     public function handle()
     {
         Invoice::where('next_send_date', '<=', now()->toDateTimeString())
-                 ->whereNull('deleted_at')
-                 ->where('is_deleted', 0)
-                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                 ->where('balance', '>', 0)
-                 ->whereHas('client', function ($query) {
-                     $query->where('is_deleted', 0)
-                           ->where('deleted_at', null);
-                 })
-                 ->whereHas('company', function ($query) {
-                     $query->where('is_disabled', 0);
-                 })
+                ->whereNull('invoices.deleted_at')
+                ->where('invoices.is_deleted', 0)
+                ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                ->where('invoices.balance', '>', 0)
+                
+                ->leftJoin('clients', function ($join) {
+                    $join->on('invoices.client_id', '=', 'clients.id')
+                        ->where('clients.is_deleted', 0)
+                        ->whereNull('clients.deleted_at');
+                })
+                ->leftJoin('companies', function ($join) {
+                    $join->on('invoices.company_id', '=', 'companies.id')
+                        ->where('companies.is_disabled', 0);
+                })
+
+                //  ->whereHas('client', function ($query) {
+                //      $query->where('is_deleted', 0)
+                //            ->where('deleted_at', null);
+                //  })
+                //  ->whereHas('company', function ($query) {
+                //      $query->where('is_disabled', 0);
+                //  })
+
                  ->with('invitations')->cursor()->each(function ($invoice) {
                      if ($invoice->isPayable()) {
                          $reminder_template = $invoice->calculateTemplate('invoice');

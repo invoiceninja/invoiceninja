@@ -129,7 +129,19 @@ class BaseModel extends Model
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $query->where('company_id', $user->companyId());
+        $query->where("{$query->getQuery()->from}.company_id", $user->companyId());
+
+        return $query;
+    }
+
+    public function scopeWithoutDeletedClients($query)
+    {
+
+        $query->leftJoin('clients', function ($join) use ($query){
+            $join->on("{$query->getQuery()->from}.client_id", '=', 'clients.id')
+                ->where('clients.is_deleted', 0)
+                ->whereNull('clients.deleted_at');
+        });
 
         return $query;
     }

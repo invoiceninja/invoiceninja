@@ -90,15 +90,20 @@ class ARDetailReport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query = Invoice::query()
+                ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->withTrashed()
-                ->whereHas('client', function ($query) {
-                    $query->where('is_deleted', 0);
+                // ->whereHas('client', function ($query) {
+                //     $query->where('is_deleted', 0);
+                // })
+                ->leftJoin('clients', function ($join) {
+                    $join->on('invoices.client_id', '=', 'clients.id')
+                        ->where('clients.is_deleted', 0)
+                        ->whereNull('clients.deleted_at');
                 })
-                ->where('company_id', $this->company->id)
-                ->where('is_deleted', 0)
-                ->where('balance', '>', 0)
-                ->orderBy('due_date', 'ASC')
-                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
+                ->where('invoices.company_id', $this->company->id)
+                ->where('invoices.is_deleted', 0)
+                ->where('invoices.balance', '>', 0)
+                ->orderBy('invoices.due_date', 'ASC');
 
         $query = $this->addDateRange($query, 'invoices');
 
