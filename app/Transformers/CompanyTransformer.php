@@ -204,7 +204,7 @@ class CompanyTransformer extends EntityTransformer
             'invoice_task_project_header' => (bool) $company->invoice_task_project_header,
             'invoice_task_item_description' => (bool) $company->invoice_task_item_description,
             'origin_tax_data' => $company->origin_tax_data ?: new \stdClass,
-            'expense_mailbox' => (bool) $company->expense_mailbox,
+            'expense_mailbox' => (string) $company->expense_mailbox,
             'expense_mailbox_active' => (bool) $company->expense_mailbox_active,
             'inbound_mailbox_allow_company_users' => (bool) $company->inbound_mailbox_allow_company_users,
             'inbound_mailbox_allow_vendors' => (bool) $company->inbound_mailbox_allow_vendors,

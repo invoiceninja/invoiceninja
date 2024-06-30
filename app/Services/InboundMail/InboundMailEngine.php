@@ -20,6 +20,7 @@ use App\Models\SystemLog;
 use App\Models\VendorContact;
 use App\Services\EDocument\Imports\ParseEDocument;
 use App\Services\InboundMail\InboundMail;
+use App\Utils\Ninja;
 use App\Utils\TempFile;
 use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\SavesDocuments;
@@ -54,6 +55,12 @@ class InboundMailEngine
         $company = MultiDB::findAndSetDbByExpenseMailbox($email->to);
         if (!$company) {
             $this->saveMeta($email->from, $email->to, true);
+            return;
+        }
+
+        // check if company plan matches requirements
+        if (Ninja::isHosted() && !($company->account->isPaid() && $company->account->plan == 'enterprise')) {
+            $this->saveMeta($email->from, $email->to);
             return;
         }
 

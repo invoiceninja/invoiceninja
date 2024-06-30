@@ -58,7 +58,7 @@ class ParseEDocument extends AbstractService
         }
 
         // MINDEE OCR - try to parse via mindee external service
-        if (config('services.mindee.api_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $account->isPaid() && $account->plan == 'enterprise')))
+        if (config('services.mindee.api_key') && !(Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')))
             try {
                 return (new MindeeEDocument($this->file))->run();
             } catch (Exception $e) {
