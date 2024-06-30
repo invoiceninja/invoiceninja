@@ -282,9 +282,8 @@ abstract class QueryFilters
         if($value == 'true')
          {
             return $this->builder->leftJoin('clients', function($join) {
-                    $join->on('invoices.client_id', '=', 'clients.id')
-                        ->where('clients.is_deleted', 0)
-                        ->whereNull('clients.deleted_at');
+                    $join->on("{$this->builder->getQuery()->from}.client_id", '=', 'clients.id')
+                        ->where('clients.is_deleted', 0);
             });
 
          }
