@@ -1,4 +1,4 @@
-<div>
+<div class="bg-white">
 
     @if($stripe_account_id)
         <meta name="stripe-account-id" content="{{ $stripe_account_id }}">
@@ -72,6 +72,225 @@
     <script src="https://js.stripe.com/v3/"></script>
     @endassets
     
-    @vite('resources/js/clients/payments/stripe-credit-card.js')
+    @script
+    <script>
     
+    const publishableKey =
+        document.querySelector('meta[name="stripe-publishable-key"]')?.content ?? '';
+
+    const secret =
+        document.querySelector('meta[name="stripe-secret"]')?.content ?? '';
+
+    const onlyAuthorization =
+        document.querySelector('meta[name="only-authorization"]')?.content ?? '';
+
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+
+
+    var cardElement;
+    var stripe;
+    var elements;
+
+    function setupStripe() {
+
+        if (stripeConnect) {
+
+            stripe = Stripe(publishableKey, {
+                stripeAccount: stripeConnect,
+            });
+
+        }
+        else {
+            stripe = Stripe(publishableKey);
+        }
+
+        elements = stripe.elements();
+
+    }
+
+    function createElement() {
+        cardElement = elements.create('card', {
+            hidePostalCode: document.querySelector('meta[name=stripe-require-postal-code]')?.content === "0",
+            value: {
+                postalCode: document.querySelector('meta[name=client-postal-code]').content,
+            },
+            hideIcon: false,
+        });
+
+    }
+
+    function mountCardElement() {
+        cardElement.mount('#card-element');
+
+    }
+
+    function completePaymentUsingToken() {
+        let token = document.querySelector('input[name=token]').value;
+
+        let payNowButton = document.getElementById('pay-now');
+        payNowButton = payNowButton;
+
+        payNowButton.disabled = true;
+
+        payNowButton.querySelector('svg').classList.remove('hidden');
+        payNowButton.querySelector('span').classList.add('hidden');
+
+        stripe
+            .handleCardPayment(secret, {
+                payment_method: token,
+            })
+            .then((result) => {
+                if (result.error) {
+                    return handleFailure(result.error.message);
+                }
+
+                return handleSuccess(result);
+            });
+    }
+
+    function completePaymentWithoutToken() {
+        let payNowButton = document.getElementById('pay-now');
+        payNowButton = payNowButton;
+
+        payNowButton.disabled = true;
+
+        payNowButton.querySelector('svg').classList.remove('hidden');
+        payNowButton.querySelector('span').classList.add('hidden');
+
+        let cardHolderName = document.getElementById('cardholder-name');
+
+        stripe
+            .handleCardPayment(secret, cardElement, {
+                payment_method_data: {
+                    billing_details: { name: cardHolderName.value },
+                },
+            })
+            .then((result) => {
+                if (result.error) {
+                    return handleFailure(result.error.message);
+                }
+
+                return handleSuccess(result);
+            });
+    }
+
+    function handleSuccess(result) {
+        document.querySelector(
+            'input[name="gateway_response"]'
+        ).value = JSON.stringify(result.paymentIntent);
+
+        let tokenBillingCheckbox = document.querySelector(
+            'input[name="token-billing-checkbox"]:checked'
+        );
+
+        if (tokenBillingCheckbox) {
+            document.querySelector('input[name="store_card"]').value =
+                tokenBillingCheckbox.value;
+        }
+
+        document.getElementById('server-response').submit();
+    }
+
+    function handleFailure(message) {
+        let errors = document.getElementById('errors');
+
+        errors.textContent = '';
+        errors.textContent = message;
+        errors.hidden = false;
+
+        payNowButton.disabled = false;
+        payNowButton.querySelector('svg').classList.add('hidden');
+        payNowButton.querySelector('span').classList.remove('hidden');
+    }
+
+    function handleAuthorization() {
+        let cardHolderName = document.getElementById('cardholder-name');
+
+        let payNowButton = document.getElementById('authorize-card');
+
+        payNowButton = payNowButton;
+        payNowButton.disabled = true;
+
+        payNowButton.querySelector('svg').classList.remove('hidden');
+        payNowButton.querySelector('span').classList.add('hidden');
+
+        stripe
+            .handleCardSetup(secret, cardElement, {
+                payment_method_data: {
+                    billing_details: { name: cardHolderName.value },
+                },
+            })
+            .then((result) => {
+                if (result.error) {
+                    return handleFailure(result.error.message);
+                }
+
+                return handleSuccessfulAuthorization(result);
+            });
+    }
+
+    function handleSuccessfulAuthorization(result) {
+        document.getElementById('gateway_response').value = JSON.stringify(
+            result.setupIntent
+        );
+
+        document.getElementById('server_response').submit();
+    }
+
+        setupStripe();
+
+        if (onlyAuthorization) {
+            createElement();
+            mountCardElement();
+
+            document
+                .getElementById('authorize-card')
+                .addEventListener('click', () => {
+                    return handleAuthorization();
+                });
+        } else {
+            Array
+                .from(document.getElementsByClassName('toggle-payment-with-token'))
+                .forEach((element) => element.addEventListener('click', (element) => {
+                    document.getElementById('stripe--payment-container').classList.add('hidden');
+                    document.getElementById('save-card--container').style.display = 'none';
+                    document.querySelector('input[name=token]').value = element.target.dataset.token;
+                }));
+
+            document
+                .getElementById('toggle-payment-with-credit-card')
+                .addEventListener('click', (element) => {
+                    document.getElementById('stripe--payment-container').classList.remove('hidden');
+                    document.getElementById('save-card--container').style.display = 'grid';
+                    document.querySelector('input[name=token]').value = "";
+                });
+
+            createElement();
+            mountCardElement();
+
+            document
+                .getElementById('pay-now')
+                .addEventListener('click', () => {
+
+                    try {
+                        let tokenInput = document.querySelector('input[name=token]');
+
+                        if (tokenInput.value) {
+                            return completePaymentUsingToken();
+                        }
+
+                        return completePaymentWithoutToken();
+                    } catch (error) {
+                        console.log(error.message);
+                    }
+
+                });
+        }
+    
+
+
+
+    </script>
+    @endscript
 </div>
