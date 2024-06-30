@@ -308,7 +308,7 @@ abstract class QueryFilters
     {
         return $this->builder->where(function ($query) {
             $query->whereHas('client', function ($sub_query) {
-                $sub_query->where('is_deleted', 0)->where('deleted_at', null);
+                $sub_query->where('is_deleted', 0);
             })->orWhere('client_id', null);
         });
     }
