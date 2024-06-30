@@ -129,7 +129,7 @@ class BaseModel extends Model
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $query->where('company_id', $user->companyId());
+        $query->where("{$query->getQuery()->from}.company_id", $user->companyId());
 
         return $query;
     }
