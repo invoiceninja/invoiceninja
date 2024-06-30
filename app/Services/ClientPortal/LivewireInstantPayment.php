@@ -274,8 +274,6 @@ class LivewireInstantPayment
 
         if (isset($this->data['hash'])) {
             $hash_data['billing_context'] = Cache::get($this->data['hash']);
-        } elseif ($this->data['hash']) {
-            $hash_data['billing_context'] = Cache::get($this->data['hash']);
         } elseif ($old_hash = PaymentHash::query()->where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->orderBy('id', 'desc')->first()) {
             if (isset($old_hash->data->billing_context)) {
                 $hash_data['billing_context'] = $old_hash->data->billing_context;

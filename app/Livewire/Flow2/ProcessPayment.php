@@ -59,7 +59,7 @@ class ProcessPayment extends Component
             'frequency_id' => false,
             'remaining_cycles' => false,
             'is_recurring' => false,
-            'hash' => false,
+            // 'hash' => false,
         ];
 
         $responder_data = (new LivewireInstantPayment($data))->run();
