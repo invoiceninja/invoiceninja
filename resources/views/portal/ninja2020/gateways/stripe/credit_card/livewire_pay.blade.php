@@ -1,22 +1,4 @@
-<style>
-    .spinner {
-        /* Simple spinner styling */
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border-left-color: #09f;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-</style>
-
 <div>
-
-
 
     @if($stripe_account_id)
         <meta name="stripe-account-id" content="{{ $stripe_account_id }}">
@@ -85,10 +67,11 @@
     @include('portal.ninja2020.gateways.stripe.includes.card_widget')
     @include('portal.ninja2020.gateways.includes.pay_now')
     
-
-    @script
+    
+    @assets
     <script src="https://js.stripe.com/v3/"></script>
+    @endassets
+    
     @vite('resources/js/clients/payments/stripe-credit-card.js')
-    @endscript
     
 </div>

@@ -5,7 +5,7 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 class StripeCreditCard {
@@ -18,17 +18,17 @@ class StripeCreditCard {
 
     setupStripe() {
 
-        if (this.stripeConnect){
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
         }
-        
+
         this.elements = this.stripe.elements();
 
         return this;
@@ -90,7 +90,7 @@ class StripeCreditCard {
         this.stripe
             .handleCardPayment(this.secret, this.cardElement, {
                 payment_method_data: {
-                    billing_details: {name: cardHolderName.value},
+                    billing_details: { name: cardHolderName.value },
                 },
             })
             .then((result) => {
@@ -145,7 +145,7 @@ class StripeCreditCard {
         this.stripe
             .handleCardSetup(this.secret, this.cardElement, {
                 payment_method_data: {
-                    billing_details: {name: cardHolderName.value},
+                    billing_details: { name: cardHolderName.value },
                 },
             })
             .then((result) => {
@@ -199,41 +199,47 @@ class StripeCreditCard {
                 .getElementById('pay-now')
                 .addEventListener('click', () => {
 
-                try {
-                    let tokenInput = document.querySelector('input[name=token]');
+                    try {
+                        let tokenInput = document.querySelector('input[name=token]');
 
-                    if (tokenInput.value) {
-                        return this.completePaymentUsingToken();
+                        if (tokenInput.value) {
+                            return this.completePaymentUsingToken();
+                        }
+
+                        return this.completePaymentWithoutToken();
+                    } catch (error) {
+                        console.log(error.message);
                     }
-
-                    return this.completePaymentWithoutToken();
-                }catch(error){
-                    console.log(error.message);
-                }
 
                 });
         }
     }
 }
 
-const publishableKey =
-    document.querySelector('meta[name="stripe-publishable-key"]')?.content ?? '';
 
-const secret =
-    document.querySelector('meta[name="stripe-secret"]')?.content ?? '';
+Livewire.hook('component.init', () => {
 
-const onlyAuthorization =
-    document.querySelector('meta[name="only-authorization"]')?.content ?? '';
+    console.log("running now");
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    const publishableKey =
+        document.querySelector('meta[name="stripe-publishable-key"]')?.content ?? '';
 
-let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
+    const secret =
+        document.querySelector('meta[name="stripe-secret"]')?.content ?? '';
 
-s.handle();
+    const onlyAuthorization =
+        document.querySelector('meta[name="only-authorization"]')?.content ?? '';
 
-document.addEventListener('livewire:init', () => {
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
-Livewire.on('passed-required-fields-check', () => s.handle());
+    let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
 
-});
+    s.handle();
+
+    document.addEventListener('livewire:init', () => {
+
+        Livewire.on('passed-required-fields-check', () => s.handle());
+
+    });
+})
