@@ -116,6 +116,10 @@ class InvoicePay extends Component
         $client = $invite->contact->client;
         $variables = ($invite && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invite))->generateLabelsAndValues() : false;
         $settings = $client->getMergedSettings();
+
+        $this->terms_accepted = !$settings->show_accept_invoice_terms;
+        $this->signature_accepted = !$settings->require_invoice_signature;
+        
         $this->context['variables'] = $variables;
         $this->context['invoice'] = $invite->invoice;
         $this->context['settings'] = $settings;
