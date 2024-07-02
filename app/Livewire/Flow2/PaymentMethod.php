@@ -26,7 +26,7 @@ class PaymentMethod extends Component
 
     public $methods = [];
 
-    public $isLoading = false;
+    public $isLoading = true;
 
     public $amount = 0;
 

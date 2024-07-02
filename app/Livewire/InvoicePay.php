@@ -88,7 +88,10 @@ class InvoicePay extends Component
     #[On('payment-method-selected')]
     public function paymentMethodSelected($company_gateway_id, $gateway_type_id, $amount)
     {       
+        nlog("payment method selected inside InvoicePay");
         
+        $this->payment_method_accepted = true;
+
         $this->context['company_gateway_id'] = $company_gateway_id;
         $this->context['gateway_type_id'] = $gateway_type_id;
         $this->context['amount'] = $amount;
@@ -98,8 +101,7 @@ class InvoicePay extends Component
         $this->context['invitation_id'] = $this->invitation_id;
         
         // $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
-        $this->payment_method_accepted =true;
-        
+        $this->component();
 
     }
 
@@ -119,13 +121,16 @@ class InvoicePay extends Component
             return PaymentMethod::class;
 
         // if($this->ready)
+
+        nlog("computed");
+
             return ProcessPayment::class;
     }
 
     #[Computed()]
     public function componentUniqueId(): string
     {
-        return "purchase-".md5(time());
+        return "purchase-".md5(microtime());
     }
 
     public function mount()
