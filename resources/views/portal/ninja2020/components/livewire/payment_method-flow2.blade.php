@@ -29,6 +29,10 @@
             isLoading = false;
         });
 
+        Livewire.on('singlePaymentMethodFound', (event) => {
+            $wire.dispatch('payment-method-selected', {company_gateway_id: event.company_gateway_id, gateway_type_id:  event.gateway_type_id, amount:  event.amount })
+        });
+
         const buttons = document.querySelectorAll('.payment-method');
 
         buttons.forEach(button => {

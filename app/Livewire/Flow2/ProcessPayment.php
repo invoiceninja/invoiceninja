@@ -30,18 +30,6 @@ class ProcessPayment extends Component
 
     public $isLoading = true;
 
-    private string $component_view = '';
-
-    private array $payment_data_payload = [];
-
-    public $isLoading = true;
-
-
-    // public function toJSON()
-    // {
-    //     nlog("why");
-    // }
-
     public function mount()
     {
 
@@ -71,12 +59,12 @@ class ProcessPayment extends Component
         }
 
         $driver = $company_gateway
-            ->driver($invitation->contact->client) // @phpstan-ignore-line
+            ->driver($invitation->contact->client)
             ->setPaymentMethod($data['payment_method_id'])
             ->setPaymentHash($responder_data['payload']['ph']);
 
         $this->payment_data_payload = $driver->processPaymentViewData($responder_data['payload']);
-
+        
         $this->payment_view = $driver->livewirePaymentView(
             $this->payment_data_payload,
         );

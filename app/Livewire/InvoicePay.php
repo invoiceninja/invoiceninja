@@ -22,6 +22,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Reactive;
 use App\Livewire\Flow2\PaymentMethod;
 use App\Livewire\Flow2\ProcessPayment;
+use App\Livewire\Flow2\UnderOverPayment;
+use App\Utils\Number;
 
 class InvoicePay extends Component
 {
@@ -36,6 +38,12 @@ class InvoicePay extends Component
     public $signature_accepted = false;
 
     public $payment_method_accepted = false;
+
+    public $under_over_payment = false;
+
+    public $required_fields = false;
+
+    public $ready = true;
 
     public array $context = [];
 
@@ -70,9 +78,17 @@ class InvoicePay extends Component
     
     }
 
+    #[On('payable-amount')]
+    public function payableAmount($payable_amount)
+    {
+        $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount);
+        $this->under_over_payment = false;
+    }
+
     #[On('payment-method-selected')]
     public function paymentMethodSelected($company_gateway_id, $gateway_type_id, $amount)
     {       
+        
         $this->context['company_gateway_id'] = $company_gateway_id;
         $this->context['gateway_type_id'] = $gateway_type_id;
         $this->context['amount'] = $amount;
@@ -83,6 +99,8 @@ class InvoicePay extends Component
         
         // $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
         $this->payment_method_accepted =true;
+        
+
     }
 
     #[Computed()]
@@ -94,10 +112,14 @@ class InvoicePay extends Component
         if(!$this->signature_accepted)
             return Signature::class;
 
+        if($this->under_over_payment)
+            return UnderOverPayment::class;
+
         if(!$this->payment_method_accepted)
             return PaymentMethod::class;
 
-        return ProcessPayment::class;
+        // if($this->ready)
+            return ProcessPayment::class;
     }
 
     #[Computed()]
@@ -116,13 +138,23 @@ class InvoicePay extends Component
         $client = $invite->contact->client;
         $variables = ($invite && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invite))->generateLabelsAndValues() : false;
         $settings = $client->getMergedSettings();
+        $this->context['settings'] = $settings;
+
+        //under-over / payment
+
+        //required fields
 
         $this->terms_accepted = !$settings->show_accept_invoice_terms;
         $this->signature_accepted = !$settings->require_invoice_signature;
-        
+        $this->under_over_payment = $settings->client_portal_allow_over_payment || $settings->client_portal_allow_under_payment;
+        $this->required_fields = false;
+
         $this->context['variables'] = $variables;
         $this->context['invoice'] = $invite->invoice;
         $this->context['settings'] = $settings;
+        
+        $this->context['payable_invoices'] = ['invoice_id' => $this->context['invoice']->hashed_id, 'amount' => $invite->invoice->partial > 0 ? $invite->invoice->partial : $invite->invoice->balance];
+
     }
 
     public function render()
