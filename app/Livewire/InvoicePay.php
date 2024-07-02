@@ -150,7 +150,8 @@ class InvoicePay extends Component
         $client = $invite->contact->client;
         $settings = $client->getMergedSettings();
         $this->context['settings'] = $settings;
-
+        $this->context['db'] = $this->db;
+        
         $invoices = Invoice::find($this->transformKeys($this->invoices));
         $invoices = $invoices->filter(function ($i){
             
@@ -166,7 +167,6 @@ class InvoicePay extends Component
         //under-over / payment
 
         //required fields
-
         $this->terms_accepted = !$settings->show_accept_invoice_terms;
         $this->signature_accepted = !$settings->require_invoice_signature;
         $this->under_over_payment = $settings->client_portal_allow_over_payment || $settings->client_portal_allow_under_payment;

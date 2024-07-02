@@ -40,17 +40,15 @@ class UnderOverPayment extends Component
 
     public function checkValue(array $payableInvoices)
     {
-        nlog($payableInvoices);
-
         $this->errors = '';
 
         $settings = $this->context['settings'];
         $input_amount = 0;
 
-        foreach($payableInvoices as $invoice)
+        foreach($payableInvoices as $key=>$invoice){
             $input_amount += Number::parseFloat($invoice['formatted_amount']);
-
-        nlog($input_amount);
+            $payableInvoices[$key]['amount'] = $input_amount;
+        }
 
         if($settings->client_portal_allow_under_payment && $settings->client_portal_under_payment_minimum != 0)
         {
@@ -67,8 +65,10 @@ class UnderOverPayment extends Component
 
         }
 
-        if(!$this->errors)
+        if(!$this->errors){
+            $this->context['payable_invoices'] = $payableInvoices;
             $this->dispatch('payable-amount',  payable_amount: $input_amount );
+        }
     }
 
     public function render()

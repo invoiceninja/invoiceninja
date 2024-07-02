@@ -44,14 +44,12 @@ class PaymentMethod extends Component
     public function mount()
     {
 
-        $this->invoice = $this->context['invoice'];
-        $invoice_amount = $this->invoice->partial > 0 ? $this->invoice->partial : $this->invoice->balance;
-
         $this->variables = $this->context['variables'];
-        $this->amount = isset($this->context['payable_invoices']) ? array_sum(array_column($this->context['payable_invoices'], 'amount')) : $invoice_amount;
-        MultiDB::setDb($this->invoice->company->db);
+        $this->amount = array_sum(array_column($this->context['payable_invoices'], 'amount'));
 
-        $this->methods = $this->invoice->client->service()->getPaymentMethods($this->amount);
+        MultiDB::setDb($this->context['db']);
+
+        $this->methods = $this->context['invitation']->contact->client->service()->getPaymentMethods($this->amount);
 
         if(count($this->methods) == 1) {
             $this->dispatch('singlePaymentMethodFound', company_gateway_id: $this->methods[0]['company_gateway_id'], gateway_type_id: $this->methods[0]['gateway_type_id'], amount: $this->amount);

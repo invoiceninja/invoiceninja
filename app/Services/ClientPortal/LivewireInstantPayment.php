@@ -104,84 +104,12 @@ class LivewireInstantPayment
             ->withTrashed()
             ->get();
 
+        $client = $invoices->first()->client;
+
         /* pop non payable invoice from the $payable_invoices array */
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
             return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first();
         });
-
-        /* return early */
-        if ($payable_invoices->count() == 0) {
-            $this->mergeResponder(['success' => false, 'error' => ctrans('texts.no_payable_invoices_selected')]);
-            return $this->getResponder();
-        }
-
-        /** Logic Loops for Under/Overpayments */
-        $invoices = Invoice::query()->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))->withTrashed()->get();
-
-        $client = $invoices->first()->client;
-        $settings = $client->getMergedSettings();
-
-        /* This loop checks for under / over payments and returns the user if a check fails */
-
-        foreach ($payable_invoices as $payable_invoice) {
-
-            /*Match the payable invoice to the Model Invoice*/
-            $invoice = $invoices->first(function ($inv) use ($payable_invoice) {
-                return $payable_invoice['invoice_id'] == $inv->hashed_id;
-            });
-
-            /*
-            * Check if company supports over & under payments.
-            * Determine the payable amount and the max payable. ie either partial or invoice balance
-            */
-
-            $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
-            $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
-
-
-            /*If we don't allow under/over payments force the payable amount - prevents inspect element adjustments in JS*/
-            if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
-                $payable_invoice['amount'] = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
-            }
-
-            if (! $settings->client_portal_allow_under_payment && $payable_amount < $invoice_balance) {
-
-                $this->mergeResponder(['success' => false, 'error' => ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]), 'redirect' => 'client.invoices.index']);
-                return $this->getResponder();
-
-            }
-
-            if ($settings->client_portal_allow_under_payment) {
-                if ($invoice_balance < $settings->client_portal_under_payment_minimum && $payable_amount < $invoice_balance) {
-                
-                    $this->mergeResponder(['success' => false, 'error' => ctrans('texts.minimum_required_payment', ['amount' => $invoice_balance]), 'redirect' => 'client.invoices.index']);
-                    return $this->getResponder();
-
-                }
-
-                if ($invoice_balance < $settings->client_portal_under_payment_minimum) {
-                    // Skip the under payment rule.
-                }
-
-                if ($invoice_balance >= $settings->client_portal_under_payment_minimum && $payable_amount < $settings->client_portal_under_payment_minimum) {
-                            
-                    $this->mergeResponder(['success' => false, 'error' => ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]), 'redirect' => 'client.invoices.index']);
-                    return $this->getResponder();
-
-                }
-            }
-
-            /* If we don't allow over payments and the amount exceeds the balance */
-
-            if (! $settings->client_portal_allow_over_payment && $payable_amount > $invoice_balance) {
-
-                $this->mergeResponder(['success' => false, 'error' => ctrans('texts.over_payments_disabled'), 'redirect' => 'client.invoices.index']);
-                return $this->getResponder();
-
-            }
-        }
-
-        /*Iterate through invoices and add gateway fees and other payment metadata*/
 
         //$payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
         $payable_invoice_collection = collect();

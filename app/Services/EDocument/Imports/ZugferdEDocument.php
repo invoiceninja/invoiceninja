@@ -41,7 +41,9 @@ class ZugferdEDocument extends AbstractService {
      */
     public function run(): Expense
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
+
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
@@ -103,14 +105,19 @@ class ZugferdEDocument extends AbstractService {
                 if ($taxid != null) {
                     $vendor->vat_number = $taxid;
                 }
-                $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+                $vendor->currency_id = app('currencies')->first(function ($currency) use ($invoiceCurrency){
+                    return $currency->code == $invoiceCurrency;
+                })->id;
+                
                 $vendor->phone = $contact_phone;
                 $vendor->address1 = $address_1;
                 $vendor->address2 = $address_2;
                 $vendor->city = $city;
                 $vendor->postal_code = $postcode;
-                $vendor->country_id = Country::where('iso_3166_2', $country)->first()->id;
-
+                $vendor->country_id = app('countries')->first(function ($c) use ($country){
+                    return $c->iso_3166_2 == $country;
+                })->id;
+               
                 $vendor->save();
                 $expense->vendor_id = $vendor->id;
             }

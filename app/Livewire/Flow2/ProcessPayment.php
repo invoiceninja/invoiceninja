@@ -34,14 +34,14 @@ class ProcessPayment extends Component
     public function mount()
     {
          
-        MultiDB::setDb($this->context['invoice']->company->db);
+        MultiDB::setDb($this->context['db']);
 
         $invitation = InvoiceInvitation::find($this->context['invitation_id']);
 
         $data = [
             'company_gateway_id' => $this->context['company_gateway_id'],
             'payment_method_id' => $this->context['gateway_type_id'],
-            'payable_invoices' => [$this->context['payable_invoices']],
+            'payable_invoices' => $this->context['payable_invoices'],
             'signature' => isset($this->context['signature']) ? $this->context['signature'] : false,
             'signature_ip' => isset($this->context['signature_ip']) ? $this->context['signature_ip'] : false,
             'pre_payment' => false,
