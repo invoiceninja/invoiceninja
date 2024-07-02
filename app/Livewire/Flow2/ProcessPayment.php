@@ -33,7 +33,10 @@ class ProcessPayment extends Component
 
     public function mount()
     {
-                
+
+        nlog($this->isLoading);
+
+        nlog("inside Process Payment");           
         MultiDB::setDb($this->context['invoice']->company->db);
 
         $invitation = InvoiceInvitation::find($this->context['invitation_id']);
@@ -114,6 +117,7 @@ class ProcessPayment extends Component
     public function boot()
     {
 
+         nlog($this->isLoading);
 
     }
 
