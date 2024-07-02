@@ -52,18 +52,18 @@ class PaymentMethod extends Component
         if(count($this->methods) == 1) {
             $this->dispatch('payment-method-selected', company_gateway_id: $this->methods[0]['company_gateway_id'], gateway_type_id: $this->methods[0]['gateway_type_id'], amount: $this->invoice->balance);
         }
-
-        $this->isLoading=false;
-
+        else {
+            $this->isLoading = false;
+            $this->dispatch('loadingCompleted');
+        }
+      
     }
 
 
     public function render()
     {
                 
-    
         //If there is only one payment method, skip display and push straight to the form!!
-
         return render('components.livewire.payment_method-flow2', ['methods' => $this->methods, 'amount' => $this->invoice->balance]);
     }
 }
