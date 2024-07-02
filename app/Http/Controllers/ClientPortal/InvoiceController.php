@@ -78,6 +78,7 @@ class InvoiceController extends Controller
             'key' => $invitation ? $invitation->key : false,
             'hash' => $hash,
             'variables' => $variables,
+            'invoices' => [$invoice->hashed_id],
         ];
 
         if ($request->query('mode') === 'fullscreen') {

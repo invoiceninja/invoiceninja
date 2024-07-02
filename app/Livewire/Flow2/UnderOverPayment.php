@@ -28,21 +28,29 @@ class UnderOverPayment extends Component
 
     public $errors = '';
 
+    public $payableInvoices = [];
+
     public function mount()
     {
-        $invoice = $this->context['invoice'];
-        $this->invoice_amount = $invoice->partial > 0 ? $invoice->partial : $invoice->balance;
-        $this->currency = $invoice->client->currency();
-        $this->payableAmount = Number::formatValue($this->invoice_amount, $this->currency);
+        
+        $this->invoice_amount = array_sum(array_column($this->context['payable_invoices'], 'amount'));
+        $this->currency = $this->context['invitation']->contact->client->currency();
+        $this->payableInvoices = $this->context['payable_invoices'];
     }
 
-    public function checkValue($value)
+    public function checkValue(array $payableInvoices)
     {
+        nlog($payableInvoices);
 
         $this->errors = '';
 
         $settings = $this->context['settings'];
-        $input_amount = Number::parseFloat($value);
+        $input_amount = 0;
+
+        foreach($payableInvoices as $invoice)
+            $input_amount += Number::parseFloat($invoice['formatted_amount']);
+
+        nlog($input_amount);
 
         if($settings->client_portal_allow_under_payment && $settings->client_portal_under_payment_minimum != 0)
         {
@@ -60,12 +68,11 @@ class UnderOverPayment extends Component
         }
 
         if(!$this->errors)
-            $this->dispatch('payable-amount',  payable_amount: $value );
+            $this->dispatch('payable-amount',  payable_amount: $input_amount );
     }
 
     public function render()
     {
-        
         return render('components.livewire.under-over-payments',[
             'settings' => $this->context['settings'],
         ]);

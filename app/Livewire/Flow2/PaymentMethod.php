@@ -27,6 +27,8 @@ class PaymentMethod extends Component
 
     public $isLoading = true;
 
+    public $amount = 0;
+
      public function placeholder()
     {
         return <<<'HTML'
@@ -43,14 +45,16 @@ class PaymentMethod extends Component
     {
 
         $this->invoice = $this->context['invoice'];
-        $this->variables = $this->context['variables'];
+        $invoice_amount = $this->invoice->partial > 0 ? $this->invoice->partial : $this->invoice->balance;
 
+        $this->variables = $this->context['variables'];
+        $this->amount = isset($this->context['payable_invoices']) ? array_sum(array_column($this->context['payable_invoices'], 'amount')) : $invoice_amount;
         MultiDB::setDb($this->invoice->company->db);
 
-        $this->methods = $this->invoice->client->service()->getPaymentMethods($this->invoice->balance);
+        $this->methods = $this->invoice->client->service()->getPaymentMethods($this->amount);
 
         if(count($this->methods) == 1) {
-            $this->dispatch('singlePaymentMethodFound', company_gateway_id: $this->methods[0]['company_gateway_id'], gateway_type_id: $this->methods[0]['gateway_type_id'], amount: $this->invoice->balance);
+            $this->dispatch('singlePaymentMethodFound', company_gateway_id: $this->methods[0]['company_gateway_id'], gateway_type_id: $this->methods[0]['gateway_type_id'], amount: $this->amount);
         }
         else {
             $this->isLoading = false;
@@ -61,6 +65,6 @@ class PaymentMethod extends Component
     public function render()
     { 
         //If there is only one payment method, skip display and push straight to the form!!
-        return render('components.livewire.payment_method-flow2', ['methods' => $this->methods, 'amount' => $this->invoice->balance]);
+        return render('components.livewire.payment_method-flow2', ['methods' => $this->methods]);
     }
 }

@@ -102,17 +102,7 @@ class LivewireInstantPayment
         $invoices = Invoice::query()
             ->whereIn('id', $this->transformKeys($payable_invoices->pluck('invoice_id')->toArray()))
             ->withTrashed()
-            ->get()
-            ->filter(function ($invoice){
-
-                $invoice = 
-                $invoice->service()
-                        ->markSent()
-                        ->removeUnpaidGatewayFees()
-                        ->save();
-
-                return $invoice->isPayable();
-            });
+            ->get();
 
         /* pop non payable invoice from the $payable_invoices array */
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {

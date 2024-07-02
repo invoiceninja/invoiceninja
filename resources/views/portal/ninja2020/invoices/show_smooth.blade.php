@@ -17,7 +17,7 @@
     @endif
 
     @if($invoice->isPayable())
-        @livewire('invoice-pay', ['invitation_id' => $invitation->id, 'db' => $invoice->company->db])
+        @livewire('invoice-pay', ['invoices' => $invoices, 'invitation_id' => $invitation->id, 'db' => $invoice->company->db, 'variables' => $variables])
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $invoice])

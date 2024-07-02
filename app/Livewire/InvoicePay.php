@@ -23,11 +23,21 @@ use Livewire\Attributes\Reactive;
 use App\Livewire\Flow2\PaymentMethod;
 use App\Livewire\Flow2\ProcessPayment;
 use App\Livewire\Flow2\UnderOverPayment;
+use App\Models\Invoice;
 use App\Utils\Number;
+use App\Utils\Traits\MakesDates;
+use App\Utils\Traits\MakesHash;
 
 class InvoicePay extends Component
 {
+    use MakesDates;
+    use MakesHash;
+
     public $invitation_id;
+
+    public $invoices;
+
+    public $variables;
 
     public $db;
 
@@ -86,7 +96,7 @@ class InvoicePay extends Component
     #[On('payment-method-selected')]
     public function paymentMethodSelected($company_gateway_id, $gateway_type_id, $amount)
     {       
-        nlog("payment method selected inside InvoicePay");
+        //@TODO only handles single invoice scenario
         
         $this->payment_method_accepted = true;
 
@@ -95,11 +105,11 @@ class InvoicePay extends Component
         $this->context['amount'] = $amount;
         $this->context['pre_payment'] = false;
         $this->context['is_recurring'] = false;
-        $this->context['payable_invoices'] = ['invoice_id' => $this->context['invoice']->hashed_id, 'amount' => $this->context['invoice']->balance];
+
+        // $this->context['payable_invoices'] = ['invoice_id' => $this->context['invoice']->hashed_id, 'amount' => $amount];
+        
         $this->context['invitation_id'] = $this->invitation_id;
         
-        // $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
-        $this->component();
 
     }
 
@@ -136,11 +146,22 @@ class InvoicePay extends Component
         MultiDB::setDb($this->db);
 
         // @phpstan-ignore-next-line
-        $invite = \App\Models\InvoiceInvitation::with('invoice','contact.client','company')->withTrashed()->find($this->invitation_id);
+        $invite = \App\Models\InvoiceInvitation::with('contact.client','company')->withTrashed()->find($this->invitation_id);
         $client = $invite->contact->client;
-        $variables = ($invite && auth()->guard('contact')->user()->client->getSetting('show_accept_invoice_terms')) ? (new HtmlEngine($invite))->generateLabelsAndValues() : false;
         $settings = $client->getMergedSettings();
         $this->context['settings'] = $settings;
+
+        $invoices = Invoice::find($this->transformKeys($this->invoices));
+        $invoices = $invoices->filter(function ($i){
+            
+            $i = $i->service()
+                ->markSent()
+                ->removeUnpaidGatewayFees()
+                ->save();
+
+            return $i->isPayable();
+
+        });
 
         //under-over / payment
 
@@ -151,12 +172,21 @@ class InvoicePay extends Component
         $this->under_over_payment = $settings->client_portal_allow_over_payment || $settings->client_portal_allow_under_payment;
         $this->required_fields = false;
 
-        $this->context['variables'] = $variables;
-        $this->context['invoice'] = $invite->invoice;
+        $this->context['variables'] = $this->variables;
+        $this->context['invoices'] = $invoices;
         $this->context['settings'] = $settings;
-        
-        $this->context['payable_invoices'] = ['invoice_id' => $this->context['invoice']->hashed_id, 'amount' => $invite->invoice->partial > 0 ? $invite->invoice->partial : $invite->invoice->balance];
+        $this->context['invitation'] = $invite;
 
+        $this->context['payable_invoices'] = $invoices->map(function ($i){
+            return [
+                'invoice_id' => $i->hashed_id,
+                'amount' => $i->partial > 0 ? $i->partial : $i->balance,
+                'formatted_amount' => Number::formatValue($i->partial > 0 ? $i->partial : $i->balance, $i->client->currency()),
+                'number' => $i->number,
+                'date' => $i->translateDate($i->date, $i->client->date_format(), $i->client->locale())
+            ];
+        })->toArray();
+        
     }
 
     public function render()
