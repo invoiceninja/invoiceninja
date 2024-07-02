@@ -20,8 +20,6 @@ use Illuminate\Http\Request;
  */
 class MailgunController extends BaseController
 {
-    private $invitation;
-
     public function __construct()
     {
     }
