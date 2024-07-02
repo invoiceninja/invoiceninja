@@ -64,9 +64,9 @@ trait DesignHelpers
 
         $this->document();
 
-        $this->settings_object = $this->vendor ? $this->vendor->company : $this->client;
+        $this->settings_object = $this->vendor ? $this->vendor->company : $this->client; //@phpstan-ignore-line
 
-        $this->company = $this->vendor ? $this->vendor->company : $this->client->company;
+        $this->company = $this->vendor ? $this->vendor->company : $this->client->company; //@phpstan-ignore-line
 
         return $this;
     }
@@ -387,7 +387,7 @@ trait DesignHelpers
             return '';
         }
 
-        if ($this->client->company->custom_fields && ! property_exists($this->client->company->custom_fields, $field)) {
+        if ($this->client->company->custom_fields && ! property_exists($this->client->company->custom_fields, $field)) { //@phpstan-ignore-line
             return '';
         }
 

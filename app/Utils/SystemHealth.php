@@ -85,6 +85,7 @@ class SystemHealth
             'file_permissions' => (string) self::checkFileSystem(),
             'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
             'api_version' => (string) config('ninja.app_version'),
+            'is_docker' => (bool) config('ninja.is_docker'),
         ];
     }
 

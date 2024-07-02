@@ -183,17 +183,17 @@ class ProfitLoss
         return $this;
     }
 
-    private function getForeignIncome(): array
-    {
-        return $this->foreign_income;
-    }
+    // private function getForeignIncome(): array
+    // {
+    //     return $this->foreign_income;
+    // }
 
-    private function filterPaymentIncome()
-    {
-        $payments = $this->paymentIncome();
+    // private function filterPaymentIncome()
+    // {
+    //     $payments = $this->paymentIncome();
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
     /*
         //returns an array of objects
@@ -427,26 +427,26 @@ class ProfitLoss
        +"payments_converted": "12260.870000000000",
        +"currency_id": 1,
      */
-    private function paymentIncome()
-    {
-        return \DB::select('
-             SELECT 
-             SUM(coalesce(payments.amount - payments.refunded,0)) as payments,
-             SUM(coalesce(payments.amount - payments.refunded,0)) * IFNULL(payments.exchange_rate ,1) as payments_converted,
-             payments.currency_id as currency_id
-             FROM clients 
-             INNER JOIN
-             payments ON 
-             clients.id=payments.client_id 
-             WHERE payments.status_id IN (1,4,5,6)
-             AND clients.is_deleted = false
-             AND payments.is_deleted = false
-             AND payments.company_id = :company_id
-             AND (payments.date BETWEEN :start_date AND :end_date)
-             GROUP BY currency_id
-             ORDER BY currency_id;
-        ', ['company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
-    }
+    // private function paymentIncome()
+    // {
+    //     return \DB::select('
+    //          SELECT 
+    //          SUM(coalesce(payments.amount - payments.refunded,0)) as payments,
+    //          SUM(coalesce(payments.amount - payments.refunded,0)) * IFNULL(payments.exchange_rate ,1) as payments_converted,
+    //          payments.currency_id as currency_id
+    //          FROM clients 
+    //          INNER JOIN
+    //          payments ON 
+    //          clients.id=payments.client_id 
+    //          WHERE payments.status_id IN (1,4,5,6)
+    //          AND clients.is_deleted = false
+    //          AND payments.is_deleted = false
+    //          AND payments.company_id = :company_id
+    //          AND (payments.date BETWEEN :start_date AND :end_date)
+    //          GROUP BY currency_id
+    //          ORDER BY currency_id;
+    //     ', ['company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
+    // }
 
     private function expenseData()
     {
@@ -544,18 +544,18 @@ class ProfitLoss
         return round(($amount * $exchange_rate), 2);
     }
 
-    private function expenseCalcWithTax()
-    {
-        return \DB::select('
-            SELECT sum(expenses.amount) as amount,
-            IFNULL(expenses.currency_id, :company_currency) as currency_id
-            FROM expenses
-            WHERE expenses.is_deleted = 0
-            AND expenses.company_id = :company_id
-            AND (expenses.date BETWEEN :start_date AND :end_date)
-            GROUP BY currency_id
-        ', ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
-    }
+    // private function expenseCalcWithTax()
+    // {
+    //     return \DB::select('
+    //         SELECT sum(expenses.amount) as amount,
+    //         IFNULL(expenses.currency_id, :company_currency) as currency_id
+    //         FROM expenses
+    //         WHERE expenses.is_deleted = 0
+    //         AND expenses.company_id = :company_id
+    //         AND (expenses.date BETWEEN :start_date AND :end_date)
+    //         GROUP BY currency_id
+    //     ', ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $this->start_date, 'end_date' => $this->end_date]);
+    // }
 
     private function setBillingReportType()
     {

@@ -102,7 +102,7 @@ class SubscriptionCalculator
             $line_item->quantity = (float) $item['quantity'];
             $line_item->cost = (float) $item['product']['price'];
             $line_item->notes = $item['product']['notes'];
-            $line_item->tax_id = (string)$item['product']['tax_id'] ?? '1';
+            $line_item->tax_id = (string)$item['product']['tax_id'] ?? '1'; //@phpstan-ignore-line
             $items[] = $line_item;
 
         }

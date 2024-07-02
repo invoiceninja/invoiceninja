@@ -1327,6 +1327,7 @@ class TemplateService
     {
         $entity_string = '';
 
+        //@phpstan-ignore-next-line
         match($this->entity) {
             ($this->entity instanceof Invoice) => $entity_string = 'invoice',
             ($this->entity instanceof Quote)  => $entity_string = 'quote',

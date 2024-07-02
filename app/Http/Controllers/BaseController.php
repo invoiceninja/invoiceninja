@@ -937,7 +937,9 @@ class BaseController extends Controller
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
-                $query->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
+                $query->where(function ($q) use ($user){ //grouping these together improves query performance significantly)
+                    $q->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
+                });
             }
         }
 

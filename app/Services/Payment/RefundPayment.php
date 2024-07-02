@@ -33,9 +33,6 @@ class RefundPayment
 
     public function __construct(public Payment $payment, public array $refund_data)
     {
-        $this->gateway_refund_status = false;
-
-        $this->activity_repository = new ActivityRepository();
     }
 
     public function run()
