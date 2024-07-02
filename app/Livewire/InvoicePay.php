@@ -43,8 +43,6 @@ class InvoicePay extends Component
 
     public $required_fields = false;
 
-    public $ready = true;
-
     public array $context = [];
 
     #[On('update.context')]
@@ -122,7 +120,6 @@ class InvoicePay extends Component
 
         // if($this->ready)
 
-        nlog("computed");
 
             return ProcessPayment::class;
     }
