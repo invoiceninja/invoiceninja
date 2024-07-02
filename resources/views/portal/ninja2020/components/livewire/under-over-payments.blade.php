@@ -1,6 +1,6 @@
 <div x-data="{ payableInvoices: @entangle('payableInvoices'), errors: @entangle('errors') }" class="px-4 py-5 bg-white sm:gap-4 sm:px-6">
     
-    <dt class="text-sm font-medium leading-5 text-gray-500">
+    <dt class="text-sm font-medium leading-5 text-gray-500 mb-3">
         {{ ctrans('texts.payment_amount') }}
     </dt>
     <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2 flex flex-col">
@@ -8,10 +8,10 @@
 
     <template x-for="(invoice, index) in payableInvoices" :key="index">
             
-        <div class="flex items-center">
+        <div class="flex items-center mb-2">
             <label>
                 <span x-text="'{{ ctrans('texts.invoice') }} ' + invoice.number" class="mt-2"></span>
-                <span>{{ $currency->code }} ({{ $currency->symbol }})</span>
+                <span class="pr-2">{{ $currency->code }} ({{ $currency->symbol }})</span>
                 <input
                     type="text"
                     class="input mt-0 mr-4 relative"
