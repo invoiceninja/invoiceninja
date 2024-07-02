@@ -20,11 +20,11 @@ class RequiredFields extends Component
 
     public function mount()
     {
-
+        
     }
 
     public function render()
     {
-        return render('components.livewire.required-fields');
+        return render('components.livewire.required-fields', ['contact' => $this->context['contact'], 'fields' => $this->context['fields']]);
     }
 }
