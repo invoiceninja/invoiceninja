@@ -22,7 +22,8 @@ class InvoiceSummary extends Component
 
     public function mount()
     {
-        $this->invoice = $this->context['invoice'];
+        //@TODO for a single invoice - show all details, for multi-invoices, only show the summaries
+        $this->invoice = $this->context['invitation']->invoice;
     }
 
     public function render()
