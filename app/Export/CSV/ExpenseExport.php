@@ -259,10 +259,17 @@ class ExpenseExport extends BaseExport
     {
         $precision = $expense->currency->precision ?? 2;
 
-        $entity['expense.net_amount'] = round($expense->amount, $precision);
-
         if($expense->calculate_tax_by_amount) {
+
             $total_tax_amount = round($expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3, $precision);
+            
+            if($expense->uses_inclusive_taxes) {
+                $entity['expense.net_amount'] = round($expense->amount, $precision) - $total_tax_amount;
+            }
+            else {
+                $entity['expense.net_amount'] = round($expense->amount, $precision);
+            }
+
         } else {
 
             if($expense->uses_inclusive_taxes) {
