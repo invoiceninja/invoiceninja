@@ -164,7 +164,7 @@ class TwilioController extends BaseController
             return response()->json(['message' => 'Please update your first and/or last name in the User Details before verifying your number.'], 400);
         }
 
-        if (!$user->phone || $user->phone == '') {
+        if (!$user->phone || empty($user->phone)) {
             return response()->json(['message' => 'User found, but no valid phone number on file, please contact support.'], 400);
         }
 

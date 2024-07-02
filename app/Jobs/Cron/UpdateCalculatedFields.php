@@ -86,6 +86,9 @@ class UpdateCalculatedFields
 
                 foreach(json_decode($task->time_log) as $log) {
 
+                    if(!is_array($log))
+                        continue;
+                    
                     $start_time = $log[0];
                     $end_time = $log[1] == 0 ? time() : $log[1];
 

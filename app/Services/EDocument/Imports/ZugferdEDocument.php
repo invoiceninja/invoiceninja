@@ -52,8 +52,9 @@ class ZugferdEDocument extends AbstractService
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
 
-        $expense = Expense::where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
-        if (empty($expense)) {
+        /** @var \App\Models\Expense $expense */
+        $expense = Expense::where("company_id", $user->company()->id)->where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
+        if (!$expense) {
             // The document does not exist as an expense
             // Handle accordingly
             $visualizer = new ZugferdVisualizer($this->document);
@@ -65,8 +66,6 @@ class ZugferdEDocument extends AbstractService
 
             $expense = ExpenseFactory::create($user->company()->id, $user->id);
             $expense->date = $documentdate;
-            $expense->user_id = $user->id;
-            $expense->company_id = $user->company->id;
             $expense->public_notes = $documentno;
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()?->id || $user->company->settings->currency_id;
             $expense->save();
@@ -75,7 +74,7 @@ class ZugferdEDocument extends AbstractService
             if ($this->file->getExtension() == "xml")
                 array_push($documents, TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno . "_visualiser.pdf", "application/pdf"));
             $this->saveDocuments($documents, $expense);
-            $expense->saveQuietly();
+            $expense->save();
 
             if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
                 $expense->private_notes = ctrans("texts.tax_currency_mismatch");

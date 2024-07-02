@@ -5288,7 +5288,16 @@ $lang = array(
     'remind_quote' => 'Remind Quote',
     'end_of_month' => 'End Of Month',
     'tax_currency_mismatch' => 'Tax currency is different from invoice currency',
-    'edocument_import_already_exists' => '\nThe invoice has already been imported on :date'
+    'edocument_import_already_exists' => '\nThe invoice has already been imported on :date',
+    'before_valid_until' => 'Before the valid until',
+    'after_valid_until' => 'After the valid until',
+    'task_assigned_notification' => 'Task Assigned Notification',
+    'task_assigned_notification_help' => 'Send an email when a task is assigned',
+    'invoices_locked_end_of_month' => 'Invoices are locked at the end of the month',
+    'referral_url' => 'Referral URL',
+    'add_comment' => 'Add Comment',
+    'added_comment' => 'Successfully saved comment',
+    'tickets' => 'Tickets',
 );
 
 return $lang;

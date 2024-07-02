@@ -78,7 +78,7 @@ class CreditCard
 
             $this->logResponse($response);
 
-            throw new PaymentFailed($response_status['message'] ?? 'Unknown response from gateway, please contact you merchant.', 400);
+            throw new PaymentFailed($response_status['message'] ?? 'Unknown response from gateway, please contact you merchant.', 400); //@phpstan-ignore-line
         }
 
         //success
@@ -135,7 +135,7 @@ class CreditCard
         $invoice_numbers = '';
 
         if ($this->eway_driver->payment_hash->data) {
-            $invoice_numbers = collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+            $invoice_numbers = collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(','); //@phpstan-ignore-line
         }
 
         $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;

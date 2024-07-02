@@ -14,12 +14,17 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Quote;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
 class ChartService
 {
     use ChartQueries;
+    use ChartCalculations;
 
     public function __construct(public Company $company, private User $user, private bool $is_admin)
     {
@@ -71,7 +76,7 @@ class ChartService
 
         return $final_currencies;
     }
-
+    
     /* Chart Data */
     public function chart_summary($start_date, $end_date): array
     {
@@ -207,4 +212,44 @@ class ChartService
 
         return '';
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * calculatedField
+     * 
+     * @param  array $data - 
+     * 
+     * field - list of fields for calculation
+     * period - current/previous
+     * calculation - sum/count/avg
+     *
+     * date_range - this_month
+     * or
+     * start_date - end_date
+     */
+    public function getCalculatedField(array $data)
+    {
+        $results = 0;
+
+        match($data['field']){
+            'active_invoices' => $results = $this->getActiveInvoices($data), 
+            'outstanding_invoices' => $results = 0, 
+            'completed_payments' => $results = 0, 
+            'refunded_payments' => $results = 0, 
+            'active_quotes' => $results = 0, 
+            'unapproved_quotes' => $results = 0, 
+            'logged_tasks' => $results = 0, 
+            'invoiced_tasks' => $results = 0, 
+            'paid_tasks' => $results = 0, 
+            'logged_expenses' => $results = 0, 
+            'pending_expenses' => $results = 0, 
+            'invoiced_expenses' => $results = 0, 
+            'invoice_paid_expenses' => $results = 0,
+            default => $results = 0,
+        };
+
+        return $results;
+    }
+
 }

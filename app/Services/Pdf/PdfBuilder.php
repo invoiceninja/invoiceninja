@@ -1665,7 +1665,7 @@ class PdfBuilder
             if ($child['element'] !== 'script') {
                 if ($this->service->company->markdown_enabled && array_key_exists('content', $child)) {
                     $child['content'] = str_replace('<br>', "\r", ($child['content'] ?? ''));
-                    $child['content'] = $this->commonmark->convert($child['content'] ?? '');
+                    $child['content'] = $this->commonmark->convert($child['content'] ?? ''); //@phpstan-ignore-line
                 }
             }
 
