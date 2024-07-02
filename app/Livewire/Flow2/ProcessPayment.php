@@ -31,20 +31,9 @@ class ProcessPayment extends Component
 
     public $isLoading = true;
 
-
-    // public function toJSON()
-    // {
-    //     nlog("why");
-    // }
-
     public function mount()
     {
-        // $this->loadData();
-    }
-
-    public function boot()
-    {
-
+                
         MultiDB::setDb($this->context['invoice']->company->db);
 
         $invitation = InvoiceInvitation::find($this->context['invitation_id']);
@@ -65,11 +54,12 @@ class ProcessPayment extends Component
         $responder_data = (new LivewireInstantPayment($data))->run();
 
         $company_gateway = CompanyGateway::find($this->context['company_gateway_id']);
-        
+
         $this->component_view = '';
 
-        if(!$responder_data['success'])
+        if(!$responder_data['success']) {
             throw new PaymentFailed($responder_data['error'], 400);
+        }
 
         $driver = $company_gateway
                 ->driver($invitation->contact->client)
@@ -92,7 +82,7 @@ class ProcessPayment extends Component
         }
 
         $payment_data['token_billing_string'] = $token_billing_string;
-        
+
         $this->payment_data_payload = $payment_data;
         // $this->payment_data_payload['company_gateway'] = $company_gateway;
 
@@ -116,9 +106,14 @@ class ProcessPayment extends Component
             'company_gateway' => $this->payment_data_payload['company_gateway'],
         ];
 
-        // nlog(array_keys($this->payment_data_payload));
-        
+
         $this->isLoading = false;
+
+    }
+
+    public function boot()
+    {
+
 
     }
 
