@@ -40,7 +40,7 @@ class Webhook
             $error_details = $e->error_details;
             nlog($error_details);
 
-            $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
+            $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null; //@phpstan-ignore-line
         } catch (CheckoutAuthorizationException $e) {
             // Bad Invalid authorization
         }

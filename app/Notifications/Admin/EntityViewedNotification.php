@@ -136,16 +136,16 @@ class EntityViewedNotification extends Notification
     //     return $data;
     // }
 
-    private function buildSubject()
-    {
-        $subject = ctrans(
-            "texts.notification_{$this->entity_name}_viewed_subject",
-            [
-                'client' => $this->contact->present()->name(),
-                $this->entity_name => $this->entity->number,
-            ]
-        );
+    // private function buildSubject()
+    // {
+    //     $subject = ctrans(
+    //         "texts.notification_{$this->entity_name}_viewed_subject",
+    //         [
+    //             'client' => $this->contact->present()->name(),
+    //             $this->entity_name => $this->entity->number,
+    //         ]
+    //     );
 
-        return $subject;
-    }
+    //     return $subject;
+    // }
 }

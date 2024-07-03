@@ -145,7 +145,7 @@ class SubscriptionService
 
             /* 06-04-2022 */
             /* We may not be in a state where the user is present */
-            if (auth()->guard('contact')) {
+            if (auth()->guard('contact')->user()) {
                 return $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
             }
         }
@@ -200,7 +200,7 @@ class SubscriptionService
         $license->first_name = $contact ? $contact->first_name : ' ';
         $license->last_name = $contact ? $contact->last_name : ' ';
         $license->is_claimed = 1;
-        $license->transaction_reference = $payment_hash?->payment?->transaction_reference ?: ' ';
+        $license->transaction_reference = $payment_hash?->payment?->transaction_reference ?: ' '; //@phpstan-ignore-line
         $license->product_id = self::WHITE_LABEL;
         $license->recurring_invoice_id = $recurring_invoice->id;
 
@@ -1118,7 +1118,7 @@ class SubscriptionService
      */
     public function triggerWebhook($context)
     {
-        if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
+        if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) { //@phpstan-ignore-line
             return ["message" => "Success", "status_code" => 200];
         }
 

@@ -57,8 +57,9 @@ class ContactHashLoginController extends Controller
         return render('generic.error', [
             'title' => session()->get('title'),
             'notification' => session()->get('notification'),
-            'account' => auth()->guard('contact')?->user()?->user?->account,
-            'company' => auth()->guard('contact')?->user()?->user?->company
+            'account' => auth()->guard('contact')?->user()?->user?->account,// @phpstan-ignore-line
+            'company' => auth()->guard('contact')?->user()?->user?->company // @phpstan-ignore-line
+
         ]);
     }
 

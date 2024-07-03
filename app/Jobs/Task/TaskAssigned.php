@@ -47,7 +47,7 @@ class TaskAssigned implements ShouldQueue
 
         $company_user = $this->task->assignedCompanyUser();
 
-        if($this->findEntityAssignedNotification($company_user, 'task'))
+        if($company_user && $this->findEntityAssignedNotification($company_user, 'task'))
         {
             $mo = new EmailObject();
             $mo->subject = ctrans('texts.task_assigned_subject', ['task' => $this->task->number, 'date' => now()->setTimeZone($this->task->company->timezone()->name)->format($this->task->company->date_format()) ]);

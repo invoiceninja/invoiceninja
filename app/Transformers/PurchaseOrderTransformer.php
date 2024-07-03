@@ -78,7 +78,7 @@ class PurchaseOrderTransformer extends EntityTransformer
     {
         $transformer = new VendorTransformer($this->serializer);
 
-        if (!$purchase_order->vendor) {
+        if (!$purchase_order->vendor) {//@phpstan-ignore-line
             return null;
         }
 

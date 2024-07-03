@@ -189,6 +189,22 @@ class TaskApiTest extends TestCase
 
     }
 
+    public function testTaskDivisionByZero()
+    {
+        $data = [
+        "rate" => 0, 
+        "time_log" => '[[1719350900,1719352700,"",true]]', 
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+    }
+
     public function testRequestRuleParsing()
     {
                 

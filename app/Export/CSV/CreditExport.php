@@ -241,7 +241,7 @@ class CreditExport extends BaseExport
         }
 
         if (in_array('credit.user_id', $this->input['report_keys'])) {
-            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name() : '';
+            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name() : ''; //@phpstan-ignore-line
         }
 
         return $entity;

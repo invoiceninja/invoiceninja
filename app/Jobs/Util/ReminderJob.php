@@ -71,7 +71,7 @@ class ReminderJob implements ShouldQueue
                  ->whereHas('company', function ($query) {
                      $query->where('is_disabled', 0);
                  })
-                 ->with('invitations')->chunk(50, function ($invoices) {
+                 ->with('invitations')->chunk(200, function ($invoices) {
                      foreach ($invoices as $invoice) {
                          $this->sendReminderForInvoice($invoice);
                      }
@@ -99,7 +99,7 @@ class ReminderJob implements ShouldQueue
                      ->whereHas('company', function ($query) {
                          $query->where('is_disabled', 0);
                      })
-                     ->with('invitations')->chunk(50, function ($invoices) {
+                     ->with('invitations')->chunk(200, function ($invoices) {
 
                          foreach ($invoices as $invoice) {
                              $this->sendReminderForInvoice($invoice);

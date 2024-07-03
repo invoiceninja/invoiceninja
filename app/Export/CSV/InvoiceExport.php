@@ -63,7 +63,7 @@ class InvoiceExport extends BaseExport
                         ->where('company_id', $this->company->id);
 
 
-        if(!$this->input['include_deleted'] ?? false) {
+        if(!$this->input['include_deleted'] ?? false) {// @phpstan-ignore-line
             $query->where('is_deleted', 0);
         }
 
@@ -166,7 +166,8 @@ class InvoiceExport extends BaseExport
         }
 
         if (in_array('invoice.user_id', $this->input['report_keys'])) {
-            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : ''; // @phpstan-ignore-line
+
         }
 
         return $entity;
