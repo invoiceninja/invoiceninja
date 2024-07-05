@@ -25,7 +25,7 @@ class ProcessPayment extends Component
 {
     use WithSecureContext;
 
-    private string $component_view = '';
+    private ?string $payment_view;
 
     private array $payment_data_payload = [];
 
@@ -55,8 +55,6 @@ class ProcessPayment extends Component
 
         $company_gateway = CompanyGateway::find($this->getContext()['company_gateway_id']);
 
-        $this->component_view = '';
-
         if(!$responder_data['success']) {
             throw new PaymentFailed($responder_data['error'], 400);
         }
@@ -66,9 +64,15 @@ class ProcessPayment extends Component
                 ->setPaymentMethod($data['payment_method_id'])
                 ->setPaymentHash($responder_data['payload']['ph']);
 
-        $payment_data = $driver->processPaymentViewData($responder_data['payload']);
-        $payment_data['client_secret'] = $payment_data['intent']->client_secret;
+        $this->payment_data_payload = $driver->payment_method->paymentData($responder_data['payload']);
+        $this->payment_view = $driver->livewirePaymentView();
 
+        $payment_data = $driver->processPaymentViewData($responder_data['payload']);
+
+        if (array_key_exists('intent', $payment_data)) {
+            $payment_data['client_secret'] = $payment_data['intent']->client_secret;
+        }
+        
         unset($payment_data['intent']);
 
         $token_billing_string = 'true';
@@ -106,7 +110,6 @@ class ProcessPayment extends Component
             'company_gateway' => $this->payment_data_payload['company_gateway'],
         ];
 
-
         $this->isLoading = false;
 
     }
@@ -119,6 +122,6 @@ class ProcessPayment extends Component
         HTML;
         }
 
-        return render('gateways.stripe.credit_card.livewire_pay', $this->payment_data_payload);
+        return render($this->payment_view, $this->payment_data_payload);
     }
 }

@@ -23,6 +23,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
@@ -61,7 +62,7 @@ use Stripe\SetupIntent;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
-class StripePaymentDriver extends BaseDriver
+class StripePaymentDriver extends BaseDriver implements LivewireMethodInterface
 {
     use MakesHash;
     use Utilities;
@@ -1017,5 +1018,10 @@ class StripePaymentDriver extends BaseDriver
 
         return false;
 
+    }
+
+    public function livewirePaymentView(): string 
+    {
+        return $this->payment_method->livewirePaymentView();
     }
 }
