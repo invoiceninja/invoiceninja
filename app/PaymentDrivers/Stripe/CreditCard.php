@@ -19,12 +19,13 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
 use App\PaymentDrivers\StripePaymentDriver;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
 
-class CreditCard
+class CreditCard implements LivewireMethodInterface
 {
     public $stripe;
 
@@ -66,7 +67,6 @@ class CreditCard
 
     private function getData(array $data): array
     {
-        
         $description = $this->stripe->getDescription(false);
 
         $payment_intent_data = [
@@ -93,6 +93,11 @@ class CreditCard
         $data = $this->getData($data);
 
         return render('gateways.stripe.credit_card.pay', $data);
+    }
+
+    public function livewirePaymentView(): string
+    {
+        return 'gateways.stripe.credit_card.livewire_pay';
     }
 
     public function paymentResponse(PaymentResponseRequest $request)
