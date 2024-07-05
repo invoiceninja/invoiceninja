@@ -1,4 +1,4 @@
-<div style="w-full">
+<div class="w-full">
    <div class="rounded-lg border bg-card bg-white text-card-foreground shadow-sm overflow-hidden" x-chunk="An order details card with order details, shipping information, customer information and payment information.">
       <div class="space-y-1.5 p-6 flex flex-row items-start bg-muted/50">
          <div class="grid gap-0.5">
@@ -14,7 +14,7 @@
             </h3>
             <p class="text-sm text-muted-foreground">{{ ctrans('texts.date') }}:  {{ $invoice->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()) }}</p>
          </div>
-         
+
       </div>
       <div class="p-6 text-sm">
          <div class="grid gap-3">

@@ -13,12 +13,13 @@
 namespace App\Livewire\Flow2;
 
 use App\Utils\Number;
+use App\Utils\Traits\WithSecureContext;
 use Livewire\Component;
 
 class UnderOverPayment extends Component
 {
 
-    public $context;
+    use WithSecureContext;
 
     public $payableAmount;
 
@@ -32,17 +33,17 @@ class UnderOverPayment extends Component
 
     public function mount()
     {
-        
-        $this->invoice_amount = array_sum(array_column($this->context['payable_invoices'], 'amount'));
-        $this->currency = $this->context['invitation']->contact->client->currency();
-        $this->payableInvoices = $this->context['payable_invoices'];
+
+        $this->invoice_amount = array_sum(array_column($this->getContext()['payable_invoices'], 'amount'));
+        $this->currency = $this->getContext()['invitation']->contact->client->currency();
+        $this->payableInvoices = $this->getContext()['payable_invoices'];
     }
 
     public function checkValue(array $payableInvoices)
     {
         $this->errors = '';
 
-        $settings = $this->context['settings'];
+        $settings = $this->getContext()['settings'];
         $input_amount = 0;
 
         foreach($payableInvoices as $key=>$invoice){
@@ -66,15 +67,13 @@ class UnderOverPayment extends Component
         }
 
         if(!$this->errors){
-            $this->context['payable_invoices'] = $payableInvoices;
+            $this->getContext()['payable_invoices'] = $payableInvoices;
             $this->dispatch('payable-amount',  payable_amount: $input_amount );
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
-        return render('components.livewire.under-over-payments',[
-            'settings' => $this->context['settings'],
-        ]);
+        return render('flow2.under-over-payments');
     }
 }

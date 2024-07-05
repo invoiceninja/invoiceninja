@@ -12,14 +12,15 @@
 
 namespace App\Livewire\Flow2;
 
+use App\Utils\Traits\WithSecureContext;
 use Livewire\Component;
 use App\Libraries\MultiDB;
 
 class PaymentMethod extends Component
 {
-    public $invoice;
+    use WithSecureContext;
 
-    public $context;
+    public $invoice;
 
     public $variables;
 
@@ -36,7 +37,7 @@ class PaymentMethod extends Component
         <svg class="animate-spin h-10 w-10 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>         
+        </svg>
         </div>
         HTML;
     }
@@ -44,12 +45,12 @@ class PaymentMethod extends Component
     public function mount()
     {
 
-        $this->variables = $this->context['variables'];
-        $this->amount = array_sum(array_column($this->context['payable_invoices'], 'amount'));
+        $this->variables = $this->getContext()['variables'];
+        $this->amount = array_sum(array_column($this->getContext()['payable_invoices'], 'amount'));
 
-        MultiDB::setDb($this->context['db']);
+        MultiDB::setDb($this->getContext()['db']);
 
-        $this->methods = $this->context['invitation']->contact->client->service()->getPaymentMethods($this->amount);
+        $this->methods = $this->getContext()['invitation']->contact->client->service()->getPaymentMethods($this->amount);
 
         if(count($this->methods) == 1) {
             $this->dispatch('singlePaymentMethodFound', company_gateway_id: $this->methods[0]['company_gateway_id'], gateway_type_id: $this->methods[0]['gateway_type_id'], amount: $this->amount);
@@ -60,9 +61,8 @@ class PaymentMethod extends Component
         }
     }
 
-    public function render()
-    { 
-        //If there is only one payment method, skip display and push straight to the form!!
-        return render('components.livewire.payment_method-flow2', ['methods' => $this->methods]);
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    {
+        return render('flow2.payment-method', ['methods' => $this->methods]);
     }
 }

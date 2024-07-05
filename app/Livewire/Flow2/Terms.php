@@ -12,20 +12,21 @@
 
 namespace App\Livewire\Flow2;
 
+use App\Utils\Traits\WithSecureContext;
 use Livewire\Component;
 
 class Terms extends Component
 {
-    public $invoice;
+    use WithSecureContext;
 
-    public $context;
+    public $invoice;
 
     public $variables;
 
     public function mount()
     {
-        $this->invoice = $this->context['invoice'];
-        $this->variables = $this->context['variables'];
+        $this->invoice = $this->getContext()['invoice'];
+        $this->variables = $this->getContext()['variables'];
     }
 
     public function render()

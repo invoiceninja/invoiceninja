@@ -13,6 +13,7 @@
 namespace App\Livewire\Flow2;
 
 use App\Exceptions\PaymentFailed;
+use App\Utils\Traits\WithSecureContext;
 use Livewire\Component;
 use App\Libraries\MultiDB;
 use App\Models\CompanyGateway;
@@ -22,8 +23,7 @@ use App\Services\ClientPortal\LivewireInstantPayment;
 
 class ProcessPayment extends Component
 {
-
-    public $context;
+    use WithSecureContext;
 
     private string $component_view = '';
 
@@ -33,17 +33,17 @@ class ProcessPayment extends Component
 
     public function mount()
     {
-         
-        MultiDB::setDb($this->context['db']);
 
-        $invitation = InvoiceInvitation::find($this->context['invitation_id']);
+        MultiDB::setDb($this->getContext()['db']);
+
+        $invitation = InvoiceInvitation::find($this->getContext()['invitation_id']);
 
         $data = [
-            'company_gateway_id' => $this->context['company_gateway_id'],
-            'payment_method_id' => $this->context['gateway_type_id'],
-            'payable_invoices' => $this->context['payable_invoices'],
-            'signature' => isset($this->context['signature']) ? $this->context['signature'] : false,
-            'signature_ip' => isset($this->context['signature_ip']) ? $this->context['signature_ip'] : false,
+            'company_gateway_id' => $this->getContext()['company_gateway_id'],
+            'payment_method_id' => $this->getContext()['gateway_type_id'],
+            'payable_invoices' => $this->getContext()['payable_invoices'],
+            'signature' => isset($this->getContext()['signature']) ? $this->getContext()['signature'] : false,
+            'signature_ip' => isset($this->getContext()['signature_ip']) ? $this->getContext()['signature_ip'] : false,
             'pre_payment' => false,
             'frequency_id' => false,
             'remaining_cycles' => false,
@@ -53,7 +53,7 @@ class ProcessPayment extends Component
 
         $responder_data = (new LivewireInstantPayment($data))->run();
 
-        $company_gateway = CompanyGateway::find($this->context['company_gateway_id']);
+        $company_gateway = CompanyGateway::find($this->getContext()['company_gateway_id']);
 
         $this->component_view = '';
 
@@ -111,17 +111,14 @@ class ProcessPayment extends Component
 
     }
 
-    public function boot()
+    public function render(): \Illuminate\Contracts\View\Factory|string|\Illuminate\View\View
     {
+        if ($this->isLoading) {
+            return <<<'HTML'
+            <template></template>
+        HTML;
+        }
 
-         nlog($this->isLoading);
-
-    }
-
-    public function render()
-    {
-
-        if(!$this->isLoading)
-            return render('gateways.stripe.credit_card.livewire_pay', $this->payment_data_payload);
+        return render('gateways.stripe.credit_card.livewire_pay', $this->payment_data_payload);
     }
 }
