@@ -125,6 +125,7 @@ class InvoiceSumInclusive
     private function calculateInvoiceTaxes()
     {
         $amount = $this->total;
+        nlog("taxing this amount {$amount}");
 
         if ($this->invoice->discount > 0 && $this->invoice->is_amount_discount) {
             $amount = $this->formatValue(($this->sub_total - $this->invoice->discount), 2);
@@ -134,6 +135,8 @@ class InvoiceSumInclusive
             $amount = $this->formatValue(($this->sub_total - ($this->sub_total * ($this->invoice->discount / 100))), 2);
         }
 
+        $amount += $this->total_custom_values;
+        
         //Handles cases where the surcharge is not taxed
         // if(is_numeric($this->invoice->custom_surcharge1) && $this->invoice->custom_surcharge1 > 0 && !$this->invoice->custom_surcharge_tax1) {
         //     $amount += $this->invoice->custom_surcharge1;
