@@ -187,6 +187,8 @@ class InvoicePay extends Component
                 }
             }
         }
+        
+        return $this->required_fields = false;
 
     }
 
