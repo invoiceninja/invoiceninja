@@ -74,8 +74,8 @@ class InvoiceSumInclusive
     {
         $this->calculateLineItems()
              ->calculateDiscount()
-             ->calculateInvoiceTaxes()
-             ->calculateCustomValues()
+             ->calculateCustomValues() //06-07-2024
+             ->calculateInvoiceTaxes() //shuffle order of invoicetaxes/custom values to include the surcharge taxes in the tax map
              ->setTaxMap()
              ->calculateTotals() //just don't add the taxes!!
              ->calculateBalance()
@@ -118,8 +118,6 @@ class InvoiceSumInclusive
 
         $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
-
-        $this->total += $this->total_custom_values;
 
         return $this;
     }
@@ -171,6 +169,8 @@ class InvoiceSumInclusive
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
         }
+
+        $this->total += $this->total_custom_values; //06-07-2024 add the custom surcharge totals here after the tax calculations.
 
         return $this;
     }
@@ -395,4 +395,5 @@ class InvoiceSumInclusive
     {
         return $this;
     }
+
 }
