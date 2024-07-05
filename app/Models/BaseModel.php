@@ -134,18 +134,6 @@ class BaseModel extends Model
         return $query;
     }
 
-    public function scopeWithoutDeletedClients($query)
-    {
-
-        $query->leftJoin('clients', function ($join) use ($query){
-            $join->on("{$query->getQuery()->from}.client_id", '=', 'clients.id')
-                ->where('clients.is_deleted', 0)
-                ->whereNull('clients.deleted_at');
-        });
-
-        return $query;
-    }
-
     /**
      * @deprecated version
      */

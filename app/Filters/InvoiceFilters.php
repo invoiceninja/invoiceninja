@@ -152,22 +152,22 @@ class InvoiceFilters extends QueryFilters
     {
 
         return $this->builder->where(function ($query) {
-            $query->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
-            ->where('is_deleted', 0)
-            ->where('balance', '>', 0)
-            ->where(function ($query) {
+            $query->whereIn('invoices.status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
+            ->where('invoices.is_deleted', 0)
+            ->where('invoices.balance', '>', 0)
+            ->orWhere(function ($query) {
 
-                $query->whereNull('due_date')
+                $query->whereNull('invoices.due_date')
                     ->orWhere(function ($q) {
-                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
+                        $q->where('invoices.due_date', '>=', now()->startOfDay()->subSecond())->where('invoices.partial', 0);
                     })
                     ->orWhere(function ($q) {
-                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
+                        $q->where('invoices.partial_due_date', '>=', now()->startOfDay()->subSecond())->where('invoices.partial', '>', 0);
                     });
 
             })
-            ->orderByRaw('ISNULL(due_date), due_date ' . 'desc')
-            ->orderByRaw('ISNULL(partial_due_date), partial_due_date ' . 'desc');
+            ->orderByRaw('ISNULL(invoices.due_date), invoices.due_date ' . 'desc')
+            ->orderByRaw('ISNULL(invoices.partial_due_date), invoices.partial_due_date ' . 'desc');
         });
 
     }
@@ -337,10 +337,10 @@ class InvoiceFilters extends QueryFilters
             // return $this->builder->orderByRaw('CAST(number AS UNSIGNED), number ' . $dir);
             // return $this->builder->orderByRaw("number REGEXP '^[A-Za-z]+$',CAST(number as SIGNED INTEGER),CAST(REPLACE(number,'-','')AS SIGNED INTEGER) ,number");
             // return $this->builder->orderByRaw('ABS(number) ' . $dir);
-            return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
+            return $this->builder->orderByRaw("REGEXP_REPLACE(invoices.number,'[^0-9]+','')+0 " . $dir);
         }
 
-        return $this->builder->orderBy($sort_col[0], $dir);
+        return $this->builder->orderBy("{$this->builder->getQuery()->from}.".$sort_col[0], $dir);
     }
 
     /**

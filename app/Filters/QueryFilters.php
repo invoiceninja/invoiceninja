@@ -273,23 +273,11 @@ abstract class QueryFilters
 
     public function filter_deleted_clients($value)
     {
-        // if ($value == 'true') {
-        //     return $this->builder->whereHas('client', function (Builder $query) {
-        //         $query->where('is_deleted', 0);
-        //     });
-        // }
-
-        if($value == 'true')
-         {
-            return $this->builder->leftJoin('clients', function($join) {
-
-                $join->on("{$this->builder->getQuery()->from}.client_id", '=', 'clients.id')
-                    ->where('clients.is_deleted', 0)
-                    ->whereNull('clients.deleted_at');
-                    
+        if ($value == 'true') {
+            return $this->builder->whereHas('client', function (Builder $query) {
+                $query->where('is_deleted', 0);
             });
-
-         }
+        }
 
         return $this->builder;
     }

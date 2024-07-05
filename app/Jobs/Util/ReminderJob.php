@@ -59,28 +59,19 @@ class ReminderJob implements ShouldQueue
             nrlog("Sending invoice reminders on ".now()->format('Y-m-d h:i:s'));
 
             Invoice::query()
-                 ->where('invoices.is_deleted', 0)
-                 ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                 ->whereNull('invoices.deleted_at')
-                 ->where('invoices.balance', '>', 0)
-                 ->where('invoices.next_send_date', '<=', now()->toDateTimeString())
-                //  ->whereHas('client', function ($query) {
-                //      $query->where('is_deleted', 0)
-                //            ->where('deleted_at', null);
-                //  })
-                //  ->whereHas('company', function ($query) {
-                //      $query->where('is_disabled', 0);
-                //  })
-                ->leftJoin('clients', function ($join) {
-                    $join->on('invoices.client_id', '=', 'clients.id')
-                        ->where('clients.is_deleted', 0)
-                        ->whereNull('clients.deleted_at');
-                })
-                ->leftJoin('companies', function ($join) {
-                    $join->on('invoices.company_id', '=', 'companies.id')
-                        ->where('companies.is_disabled', 0);
-                })
-                 ->with('invitations')->chunk(50, function ($invoices) {
+                 ->where('is_deleted', 0)
+                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                 ->whereNull('deleted_at')
+                 ->where('balance', '>', 0)
+                 ->where('next_send_date', '<=', now()->toDateTimeString())
+                 ->whereHas('client', function ($query) {
+                     $query->where('is_deleted', 0)
+                           ->where('deleted_at', null);
+                 })
+                 ->whereHas('company', function ($query) {
+                     $query->where('is_disabled', 0);
+                 })
+                 ->with('invitations')->chunk(200, function ($invoices) {
                      foreach ($invoices as $invoice) {
                          $this->sendReminderForInvoice($invoice);
                      }
@@ -96,28 +87,19 @@ class ReminderJob implements ShouldQueue
                 nrlog("Sending invoice reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
 
                 Invoice::query()
-                     ->where('invoices.is_deleted', 0)
-                     ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
-                     ->whereNull('invoices.deleted_at')
-                     ->where('invoices.balance', '>', 0)
-                     ->where('invoices.next_send_date', '<=', now()->toDateTimeString())
-                    //  ->whereHas('client', function ($query) {
-                    //      $query->where('is_deleted', 0)
-                    //            ->where('deleted_at', null);
-                    //  })
-                    //  ->whereHas('company', function ($query) {
-                    //      $query->where('is_disabled', 0);
-                    //  })
-                    ->leftJoin('clients', function ($join) {
-                        $join->on('invoices.client_id', '=', 'clients.id')
-                            ->where('clients.is_deleted', 0)
-                            ->whereNull('clients.deleted_at');
-                    })
-                    ->leftJoin('companies', function ($join) {
-                        $join->on('invoices.company_id', '=', 'companies.id')
-                            ->where('companies.is_disabled', 0);
-                    })
-                     ->with('invitations')->chunk(50, function ($invoices) {
+                     ->where('is_deleted', 0)
+                     ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                     ->whereNull('deleted_at')
+                     ->where('balance', '>', 0)
+                     ->where('next_send_date', '<=', now()->toDateTimeString())
+                     ->whereHas('client', function ($query) {
+                         $query->where('is_deleted', 0)
+                               ->where('deleted_at', null);
+                     })
+                     ->whereHas('company', function ($query) {
+                         $query->where('is_disabled', 0);
+                     })
+                     ->with('invitations')->chunk(200, function ($invoices) {
 
                          foreach ($invoices as $invoice) {
                              $this->sendReminderForInvoice($invoice);
