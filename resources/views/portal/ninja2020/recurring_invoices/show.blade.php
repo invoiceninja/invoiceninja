@@ -101,18 +101,7 @@
             </dl>
         </div>
 
-
-
-
-
-
-
-
-
-
-        @if($invoice->subscription && $invoice->subscription?->allow_cancellation)
-        {{-- INV2-591 --}}
-        {{-- @if(false) --}}
+        @if($invoice->subscription && $invoice->subscription?->allow_cancellation && $invoice->status_id == 2)
         <div class="bg-white shadow sm:rounded-lg mt-4">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">

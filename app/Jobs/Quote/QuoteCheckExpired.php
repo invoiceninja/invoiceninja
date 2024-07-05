@@ -53,23 +53,14 @@ class QuoteCheckExpired implements ShouldQueue
                  ->where('quotes.is_deleted', false)
                  ->whereNull('quotes.deleted_at')
                  ->whereNotNull('quotes.due_date')
-                //  ->whereHas('client', function ($query) {
-                //      $query->where('is_deleted', 0)
-                //             ->where('deleted_at', null);
-                //  })
-                //     ->whereHas('company', function ($query) {
-                //         $query->where('is_disabled', 0);
-                //     })
-                ->leftJoin('clients', function ($join) {
-                    $join->on('quotes.client_id', '=', 'clients.id')
-                        ->where('clients.is_deleted', 0)
-                        ->whereNull('clients.deleted_at');
-                })
-                ->leftJoin('companies', function ($join) {
-                    $join->on('quotes.company_id', '=', 'companies.id')
-                        ->where('companies.is_disabled', 0);
-                })
-
+                 ->whereHas('client', function ($query) {
+                     $query->where('is_deleted', 0)
+                            ->where('deleted_at', null);
+                 })
+                    ->whereHas('company', function ($query) {
+                        $query->where('is_disabled', 0);
+                    })
+                
                  ->whereBetween('quotes.due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
                  ->cursor()
                  ->each(function ($quote) {
@@ -84,22 +75,14 @@ class QuoteCheckExpired implements ShouldQueue
                     ->where('quotes.is_deleted', false)
                     ->whereNull('quotes.deleted_at')
                     ->whereNotNull('quotes.due_date')
-                    // ->whereHas('client', function ($query) {
-                    //     $query->where('is_deleted', 0)
-                    //            ->where('deleted_at', null);
-                    // })
-                    //    ->whereHas('company', function ($query) {
-                    //        $query->where('is_disabled', 0);
-                    //    })
-                    ->leftJoin('clients', function ($join) {
-                        $join->on('quotes.client_id', '=', 'clients.id')
-                            ->where('clients.is_deleted', 0)
-                            ->whereNull('clients.deleted_at');
+                    ->whereHas('client', function ($query) {
+                        $query->where('is_deleted', 0)
+                               ->where('deleted_at', null);
                     })
-                    ->leftJoin('companies', function ($join) {
-                        $join->on('quotes.company_id', '=', 'companies.id')
-                            ->where('companies.is_disabled', 0);
-                    })
+                       ->whereHas('company', function ($query) {
+                           $query->where('is_disabled', 0);
+                       })
+                    
                     ->whereBetween('quotes.due_date', [now()->subDay()->startOfDay(), now()->startOfDay()->subSecond()])
                     ->cursor()
                     ->each(function ($quote) {

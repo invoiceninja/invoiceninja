@@ -92,13 +92,8 @@ class ARDetailReport extends BaseExport
         $query = Invoice::query()
                 ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->withTrashed()
-                // ->whereHas('client', function ($query) {
-                //     $query->where('is_deleted', 0);
-                // })
-                ->leftJoin('clients', function ($join) {
-                    $join->on('invoices.client_id', '=', 'clients.id')
-                        ->where('clients.is_deleted', 0)
-                        ->whereNull('clients.deleted_at');
+                ->whereHas('client', function ($query) {
+                    $query->where('is_deleted', 0);
                 })
                 ->where('invoices.company_id', $this->company->id)
                 ->where('invoices.is_deleted', 0)
