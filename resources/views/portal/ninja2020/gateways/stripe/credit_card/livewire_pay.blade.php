@@ -1,4 +1,4 @@
-<div class="bg-white">
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4">
     @if($stripe_account_id)
         <meta name="stripe-account-id" content="{{ $stripe_account_id }}">
         <meta name="stripe-publishable-key" content="{{ config('ninja.ninja_stripe_publishable_key') }}">

@@ -244,6 +244,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
@@ -257,6 +258,9 @@
 =======
     "file": "assets/app-8544e4cc.css",
 >>>>>>> c7cc0e084f (updates for html invoice layout)
+=======
+    "file": "assets/app-608daae2.css",
+>>>>>>> 2a1947ea6e (New payment flow (#64))
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
