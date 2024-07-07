@@ -80,9 +80,9 @@ trait CleanLineItems
             if(isset($item['product_key'])) {
                 $item['product_key'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['product_key']);
             }
-            if(isset($item['custom_value1'])){
+            if(isset($item['custom_value1'])) {
                 $item['custom_value1'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value1']);
-            }            
+            }
             if(isset($item['custom_value2'])) {
                 $item['custom_value2'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value2']);
             }
@@ -106,12 +106,9 @@ trait CleanLineItems
     {
         $total = 0;
 
-        foreach($items as $item)
-        {
+        foreach($items as $item) {
             $total += ($item['cost'] * $item['quantity']);
         }
-
-        nlog($total);
 
         return $total;
     }

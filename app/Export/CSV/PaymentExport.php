@@ -56,13 +56,13 @@ class PaymentExport extends BaseExport
 
         $query = Payment::query()
                             ->withTrashed()
-                            ->whereHas('client', function ($q){
+                            ->whereHas('client', function ($q) {
                                 $q->where('is_deleted', false);
                             })
                             ->where('company_id', $this->company->id)
                             ->where('is_deleted', 0);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'payments');
 
         $clients = &$this->input['client_id'];
 
@@ -71,7 +71,7 @@ class PaymentExport extends BaseExport
         }
 
         $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
-        
+
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }

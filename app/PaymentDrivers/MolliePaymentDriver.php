@@ -156,7 +156,7 @@ class MolliePaymentDriver extends BaseDriver
                 return [
                     'transaction_reference' => $refund->id,
                     'transaction_response' => json_encode($refund),
-                    'success' => $refund->status === 'refunded' ? true : false,
+                    'success' => $refund->status === 'refunded' ? true : false, //@phpstan-ignore-line
                     'description' => $refund->description,
                     'code' => 200,
                 ];
@@ -428,8 +428,7 @@ class MolliePaymentDriver extends BaseDriver
         try {
             $p = $this->gateway->payments->page();
             return true;
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
         }
 

@@ -159,8 +159,6 @@ class SetupController extends Controller
 
             (new VersionCheck())->handle();
 
-            $this->buildCache(true);
-
             return redirect('/');
         } catch (Exception $e) {
             nlog($e->getMessage());
@@ -234,24 +232,6 @@ class SetupController extends Controller
         }
     }
 
-    private function testPhantom()
-    {
-        try {
-            $key = config('ninja.phantomjs_key');
-            $url = 'https://www.invoiceninja.org/';
-
-            $phantom_url = "https://phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$url}%22,renderType:%22pdf%22%7D";
-            $pdf = CurlUtils::get($phantom_url);
-
-            Storage::disk(config('filesystems.default'))->put('test.pdf', $pdf);
-            Storage::disk('local')->put('test.pdf', $pdf);
-
-            return response(['url' => Storage::disk('local')->url('test.pdf')], 200);
-        } catch (Exception $e) {
-            return response([], 500);
-        }
-    }
-
     public function clearCompiledCache()
     {
         $cacheCompiled = base_path('bootstrap/cache/compiled.php');
@@ -305,8 +285,7 @@ class SetupController extends Controller
 
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('db:seed', ['--force' => true]);
-
-        $this->buildCache(true);
+        Artisan::call('cache:clear');
 
         (new SchedulerCheck())->handle();
 

@@ -17,6 +17,7 @@ use App\Models\Account;
 use App\Utils\HtmlEngine;
 use Illuminate\Support\Str;
 use App\Jobs\Entity\CreateRawPdf;
+use App\Services\PdfMaker\PdfMerge;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Cache;
@@ -116,6 +117,10 @@ class QuoteEmailEngine extends BaseEmailEngine
 
         if ($this->client->getSetting('pdf_email_attachment') !== false && $this->quote->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
             $pdf = ((new CreateRawPdf($this->invitation))->handle());
+
+            if($this->client->getSetting('embed_documents') && ($this->quote->documents()->where('is_public', true)->count() > 0 || $this->quote->company->documents()->where('is_public', true)->count() > 0)) {
+                $pdf = $this->quote->documentMerge($pdf);
+            }
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->quote->numberFormatter().'.pdf']]);
         }

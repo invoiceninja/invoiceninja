@@ -97,12 +97,12 @@ class InvoiceController extends Controller
 
         $invitation = false;
 
-        match($data['entity_type'] ?? false) {
+        match($data['entity_type'] ?? 'invoice') {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
             'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
             'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),
-            false => $invitation = false,
+            default => $invitation = false,
         };
 
         if (! $invitation) {

@@ -21,7 +21,7 @@ class Setup extends Component
     public function mount()
     {
         $this->dispatch('purchase.context', property: 'quantity', value: 1);
-        $this->dispatch('purchase.next');        
+        $this->dispatch('purchase.next');
     }
 
     public function render()

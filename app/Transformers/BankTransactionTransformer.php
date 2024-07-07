@@ -72,6 +72,7 @@ class BankTransactionTransformer extends EntityTransformer
             'vendor_id' => (string) $this->encodePrimaryKey($bank_transaction->vendor_id) ?: '',
             'bank_transaction_rule_id' => (string) $this->encodePrimaryKey($bank_transaction->bank_transaction_rule_id) ?: '',
             'is_deleted' => (bool) $bank_transaction->is_deleted,
+            'nordigen_transaction_id' => (string) $bank_transaction->nordigen_transaction_id,
             'created_at' => (int) $bank_transaction->created_at,
             'updated_at' => (int) $bank_transaction->updated_at,
             'archived_at' => (int) $bank_transaction->deleted_at,

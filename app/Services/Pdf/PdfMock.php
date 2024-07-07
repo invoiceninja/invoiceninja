@@ -114,38 +114,40 @@ class PdfMock
             case 'invoice':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Invoice::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
-                $entity->invitation = InvoiceInvitation::factory()->make();
+                $entity->invitation = InvoiceInvitation::factory()->make(); //@phpstan-ignore-line
                 break;
             case 'quote':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Quote::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
-                $entity->invitation = QuoteInvitation::factory()->make();
+                $entity->invitation = QuoteInvitation::factory()->make(); //@phpstan-ignore-line
                 break;
             case 'credit':
                 /** @var \App\Models\Invoice | \App\Models\Credit | \App\Models\Quote $entity */
                 $entity = Credit::factory()->make();
-                $entity->client = Client::factory()->make(['settings' => $settings]);
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
                 $entity->client->setRelation('company', $this->company);
-                $entity->invitation = CreditInvitation::factory()->make();
+                $entity->invitation = CreditInvitation::factory()->make(); //@phpstan-ignore-line
                 break;
             case 'purchase_order':
 
                 /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
                 // $entity->client = Client::factory()->make(['settings' => $settings]);
-                $entity->vendor = Vendor::factory()->make();
+                $entity->vendor = Vendor::factory()->make(); /** @phpstan-ignore-line */
                 $entity->vendor->setRelation('company', $this->company);
-                $entity->invitation = PurchaseOrderInvitation::factory()->make();
+                $entity->invitation = PurchaseOrderInvitation::factory()->make();/** @phpstan-ignore-line */
+
                 break;
             case PurchaseOrder::class:
                 /** @var \App\Models\PurchaseOrder $entity */
                 $entity = PurchaseOrder::factory()->make();
                 $entity->invitation = PurchaseOrderInvitation::factory()->make();
-                $entity->vendor = Vendor::factory()->make();
+                $entity->vendor = Vendor::factory()->make(); /** @phpstan-ignore-line */
+
                 $entity->invitation->setRelation('company', $this->company);
                 break;
             default:
@@ -172,7 +174,8 @@ class PdfMock
         match ($this->request['settings_type']) {
             'group' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'client' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
-            'company' => $settings = (object)$this->request['settings']
+            'company' => $settings = (object)$this->request['settings'],
+            default => $settings = (object)$this->request['settings'],
         };
 
         $settings = CompanySettings::setProperties($settings);
@@ -184,7 +187,7 @@ class PdfMock
     /**
      * getTaxMap
      *
-     * @return \Illuminate\Support\Collection
+     * @return  \Illuminate\Support\Collection
      */
     private function getTaxMap(): \Illuminate\Support\Collection
     {
@@ -466,7 +469,7 @@ class PdfMock
     '$country_2' => 'AF',
     '$firstName' => 'Benedict',
     '$user.name' => 'Derrick Monahan DDS Erna Wunsch',
-    '$font_name' => isset($this->settings?->primary_font) ? $this->settings?->primary_font : 'Roboto',
+    '$font_name' => isset($this->settings?->primary_font) ? $this->settings?->primary_font : 'Roboto', //@phpstan-ignore-line
     '$auto_bill' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     '$payments' => '',
     '$task.tax' => '',

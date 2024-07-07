@@ -59,11 +59,11 @@ class ContactExport extends BaseExport
 
         $query = ClientContact::query()
                         ->where('company_id', $this->company->id)
-                        ->whereHas('client', function ($q){
+                        ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         });
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'client_contacts');
 
         return $query;
 
@@ -155,7 +155,7 @@ class ContactExport extends BaseExport
         }
 
         if (in_array('client.user_id', $this->input['report_keys'])) {
-            $entity['client.user_id'] = $client->user ? $client->user->present()->name() : '';
+            $entity['client.user_id'] = $client->user ? $client->user->present()->name() : '';// @phpstan-ignore-line
         }
 
         if (in_array('client.assigned_user_id', $this->input['report_keys'])) {

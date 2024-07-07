@@ -126,7 +126,7 @@ class EmailDefaults
      */
     private function setFrom(): self
     {
-        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method,['default', 'mailgun'])) {
+        if (Ninja::isHosted() && in_array($this->email->email_object->settings->email_sending_method, ['default', 'mailgun'])) {
             if ($this->email->company->account->isPaid() && property_exists($this->email->email_object->settings, 'email_from_name') && strlen($this->email->email_object->settings->email_from_name) > 1) {
                 $email_from_name = $this->email->email_object->settings->email_from_name;
             } else {
@@ -180,7 +180,7 @@ class EmailDefaults
         $breaks = ["<br />","<br>","<br/>"];
         $this->email->email_object->text_body = str_ireplace($breaks, "\r\n", $this->email->email_object->body);
         $this->email->email_object->text_body = strip_tags($this->email->email_object->text_body);
-        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], '$view_url', $this->email->email_object->text_body);
+        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n".'$view_url'."\r\n", $this->email->email_object->text_body);
 
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
@@ -309,6 +309,11 @@ class EmailDefaults
         /** Purchase Order / Invoice / Credit / Quote PDF  */
         if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
+
+            if($this->email->email_object->settings->embed_documents && ($this->email->email_object->entity->documents()->where('is_public', true)->count() > 0 || $this->email->email_object->entity->company->documents()->where('is_public', true)->count() > 0)) {
+                $pdf = $this->email->email_object->entity->documentMerge($pdf);
+            }
+
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }
 
@@ -401,7 +406,7 @@ class EmailDefaults
      * @param  string $markdown The body to convert
      * @return string           The parsed markdown response
      */
-    private function parseMarkdownToHtml(string $markdown): ?string
+    private function parseMarkdownToHtml(string $markdown): string
     {
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,

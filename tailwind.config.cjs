@@ -15,6 +15,9 @@ module.exports = {
             fontFamily: {
                 sans: ['Open Sans', ...defaultTheme.fontFamily.sans],
             },
+            transitionProperty: {
+                'height': 'height'
+            }
         },
     },
     plugins: [

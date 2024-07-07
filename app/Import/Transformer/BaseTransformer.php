@@ -65,7 +65,7 @@ class BaseTransformer
             return $parsed_date;
         }
     }
-    
+
     public function parseDateOrNull($data, $field)
     {
         $date = &$data[$field];
@@ -119,17 +119,18 @@ class BaseTransformer
     {
         $code = array_key_exists($key, $data) ? $data[$key] : false;
 
-        $currencies = Cache::get('currencies');
+        if(!$code)
+            return $this->company->settings->currency_id;
 
-        $currency = $currencies
-            ->filter(function ($item) use ($code) {
-                return $item->code == $code;
-            })
-            ->first();
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
-        return $currency
-            ? $currency->id
-            : $this->company->settings->currency_id;
+        $currency = $currencies->first(function ($item) use ($code) {
+            return $item->code == $code;
+        });
+
+        return $currency ? (string) $currency->id : $this->company->settings->currency_id;
+
     }
 
     public function getFrequency($frequency = RecurringInvoice::FREQUENCY_MONTHLY): int
@@ -345,10 +346,10 @@ class BaseTransformer
     {
         if (array_key_exists($field, $data)) {
             return Number::parseFloat($data[$field]);
-        } 
-        
+        }
+
         return 0;
-        
+
     }
 
     /**
@@ -653,12 +654,11 @@ class BaseTransformer
     /**
      * @param $name
      *
-     * @return int|null
+     * @return int
      */
     public function getExpenseCategoryId($name)
     {
-        /** @var \App\Models\ExpenseCategory $ec */
-
+        /** @var ?\App\Models\ExpenseCategory $ec */
         $ec = ExpenseCategory::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
@@ -674,7 +674,7 @@ class BaseTransformer
         $ec->name = $name;
         $ec->save();
 
-        return $ec ? $ec->id : null;
+        return $ec->id;
     }
 
     public function getOrCreateExpenseCategry($name)

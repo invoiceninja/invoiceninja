@@ -58,22 +58,23 @@ class PurchaseOrderExport extends BaseExport
         $query = PurchaseOrder::query()
                         ->withTrashed()
                         ->with('vendor')
-                        ->whereHas('vendor', function ($q){
+                        ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id);
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) { // @phpstan-ignore-line
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'purchase_orders');
 
 
         $clients = &$this->input['client_id'];
 
-        if($clients)
+        if($clients) {
             $query = $this->addClientFilter($query, $clients);
+        }
 
         $query = $this->addPurchaseOrderStatusFilter($query, $this->input['status'] ?? '');
 
@@ -166,7 +167,8 @@ class PurchaseOrderExport extends BaseExport
         }
 
         if (in_array('purchase_order.user_id', $this->input['report_keys'])) {
-            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : '';
+            $entity['purchase_order.user_id'] = $purchase_order->user ? $purchase_order->user->present()->name() : ''; // @phpstan-ignore-line
+
         }
 
         if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {

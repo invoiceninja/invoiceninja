@@ -44,11 +44,11 @@ class SubscriptionCron
 
         if (! config('ninja.db.multi_db_enabled')) {
 
-                nlog('Subscription Cron '. now()->toDateTimeString());
+            nlog('Subscription Cron '. now()->toDateTimeString());
 
-                $this->timezoneAware();
+            $this->timezoneAware();
 
-                
+
         } else {
             //multiDB environment, need to
             foreach (MultiDB::$dbs as $db) {
@@ -65,9 +65,9 @@ class SubscriptionCron
     //Requires the crons to be updated and set to hourly @ 00:01
     private function timezoneAware()
     {
-        $grouped_company_ids = 
-
-        Invoice::select('company_id')
+        
+        Invoice::query()
+                ->with('company')
                 ->where('is_deleted', 0)
                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->where('balance', '>', 0)
@@ -77,9 +77,11 @@ class SubscriptionCron
                 ->whereNotNull('subscription_id')
                 ->groupBy('company_id')
                 ->cursor()
-                ->each(function ($company_id){
+                ->each(function ($invoice) {
 
-                    $company = Company::find($company_id);
+                    /** @var \App\Models\Company $company */
+                    // $company = Company::find($invoice->company_id);
+                    $company = $invoice->company;
 
                     $timezone_now = now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway');
 
@@ -110,7 +112,7 @@ class SubscriptionCron
                                     $this->sendLoad($subscription, $body);
                                     //This will send the notification daily.
                                     //We'll need to handle this by performing some action on the invoice to either archive it or delete it?
-                        });
+                                });
 
                     }
 

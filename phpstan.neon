@@ -3,19 +3,20 @@ includes:
     - ./vendor/spaze/phpstan-stripe/extension.neon
     - phpstan-baseline.neon
 parameters:
-    level: 2
+    level: 4
     paths:
         - app
     excludePaths:
-        - 'vendor/*'
-        - 'resources/*/*.php'
-        - 'app/Jobs/Ninja/*'
-        - 'app/Models/Presenters/*'
-        - 'app/Console/Commands/*'
-        - 'app/DataMapper/Analytics/*'
-        - 'app/PaymentDrivers/Authorize/*'
-        - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
-        - 'app/Utils/Traits/*'
+        analyseAndScan:
+            - 'vendor'
+            - 'resources'
+            - 'app/Jobs/Ninja/*'
+            - 'app/Models/Presenters/*'
+            - 'app/Console/Commands/*'
+            - 'app/DataMapper/Analytics/*'
+            - 'app/PaymentDrivers/Authorize/*'
+            - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
+            - 'app/Utils/Traits/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits
@@ -28,3 +29,12 @@ parameters:
         - '#makeHidden#'
         - '#Socialite#'
         - '#Access to protected property#'
+        - '#Call to undefined method .*#'
+        - '#Argument of an invalid type stdClass supplied for foreach, only iterables are supported.#'
+        - '#Comparison operation ">=" between int<1, max> and 1 is always true#'
+        - '#Negated boolean expression is always#'
+        - '#Ternary operator condition#'
+        - '#Expression on left side of ?? is not nullable.#'
+        - '#Left side of && is always true.#'
+        - '#Right side of && is always true.#'
+        

@@ -11,12 +11,15 @@
 
 namespace App\Http\Requests\Company;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\Company\ValidSubdomain;
-use App\Http\ValidationRules\ValidSettingsRule;
 use App\Utils\Ninja;
+use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use App\DataMapper\CompanySettings;
+use InvoiceNinja\EInvoice\EInvoice;
+use App\Http\ValidationRules\ValidSettingsRule;
+use InvoiceNinja\EInvoice\Models\Peppol\Invoice;
+use App\Http\ValidationRules\EInvoice\ValidScheme;
+use App\Http\ValidationRules\Company\ValidSubdomain;
 
 class UpdateCompanyRequest extends Request
 {
@@ -64,7 +67,8 @@ class UpdateCompanyRequest extends Request
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
 
-        
+        // $rules['e_invoice'] = ['sometimes','nullable', new ValidScheme()];
+
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'bail|nullable|sometimes|url';
         }
@@ -97,14 +101,14 @@ class UpdateCompanyRequest extends Request
             unset($input['e_invoice_certificate_passphrase']);
         }
 
-        if(isset($input['smtp_username']) && strlen(str_replace("*","", $input['smtp_username'])) < 2) {
+        if(isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
             unset($input['smtp_username']);
         }
 
         if(isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
             unset($input['smtp_password']);
         }
-        
+
         if(isset($input['smtp_port'])) {
             $input['smtp_port'] = (int)$input['smtp_port'];
         }
@@ -112,11 +116,6 @@ class UpdateCompanyRequest extends Request
         if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }
-
-        // if(isset($input['e_invoice'])){
-        //     nlog("am i set?");
-        //     $r = FatturaElettronica::validate($input['e_invoice']);
-        // }
 
         $this->replace($input);
     }
@@ -145,8 +144,9 @@ class UpdateCompanyRequest extends Request
             $settings['email_style_custom'] = str_replace(['{!!','!!}','{{','}}','@checked','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</sc','<sc','html;base64', '@elseif', '@else', '@endunless', '@endisset', '@endempty', '@endauth', '@endguest', '@endproduction', '@endenv', '@hasSection', '@endhasSection', '@sectionMissing', '@endsectionMissing', '@endfor', '@endforeach', '@empty', '@endforelse', '@endwhile', '@continue', '@break', '@includeIf', '@includeWhen', '@includeUnless', '@includeFirst', '@component', '@endcomponent', '@endsection', '@yield', '@show', '@append', '@overwrite', '@stop', '@extends', '@endpush', '@stack', '@prepend', '@endprepend', '@slot', '@endslot', '@endphp', '@method', '@csrf', '@error', '@enderror', '@json', '@endverbatim', '@inject'], '', $settings['email_style_custom']);
         }
 
-        if(isset($settings['company_logo']) && strlen($settings['company_logo']) > 2)
+        if(isset($settings['company_logo']) && strlen($settings['company_logo']) > 2) {
             $settings['company_logo'] = $this->forceScheme($settings['company_logo']);
+        }
 
         if (! $account->isFreeHostedClient()) {
             return $settings;
@@ -173,7 +173,8 @@ class UpdateCompanyRequest extends Request
         return rtrim($url, '/');
     }
 
-    private function forceScheme($url){
+    private function forceScheme($url)
+    {
         return stripos($url, 'http') !== false ? $url : "https://{$url}";
     }
 

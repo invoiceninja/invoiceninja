@@ -25,7 +25,7 @@ class OptionalRecurringProducts extends Component
     {
 
         $this->dispatch('purchase.context', property: "bundle.optional_recurring_products.{$id}.quantity", value: $value);
-        
+
     }
 
     public function render(): \Illuminate\View\View

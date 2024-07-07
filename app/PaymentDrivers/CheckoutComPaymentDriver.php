@@ -538,11 +538,10 @@ class CheckoutComPaymentDriver extends BaseDriver
 
     public function auth(): bool
     {
-        try{
+        try {
             $this->init()->gateway->getCustomersClient('x');
             return true;
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
         }
         return false;
@@ -556,65 +555,65 @@ class CheckoutComPaymentDriver extends BaseDriver
                                   ->where('token', $token)
                                   ->first();
     }
-    
+
     /**
      * ImportCustomers
      *
-     * Only their methods because checkout.com 
+     * Only their methods because checkout.com
      * does not have a list route for customers
-     * 
+     *
      * @return void
      */
     public function importCustomers()
     {
         $this->init();
-        
+
         $this->company_gateway
              ->company
              ->clients()
              ->cursor()
-             ->each(function ($client){
+             ->each(function ($client) {
 
-                if(!str_contains($client->present()->email(), "@"))
-                    return;
+                 if(!str_contains($client->present()->email(), "@")) {
+                     return;
+                 }
 
-                try{
-                    $customer = $this->gateway->getCustomersClient()->get($client->present()->email());
-                }    
-                catch(\Exception $e) {
-                    nlog("Checkout: Customer not found");
-                    return;
-                }
+                 try {
+                     $customer = $this->gateway->getCustomersClient()->get($client->present()->email());
+                 } catch(\Exception $e) {
+                     nlog("Checkout: Customer not found");
+                     return;
+                 }
 
-                $this->client = $client;
+                 $this->client = $client;
 
-                nlog($customer['instruments']);
+                 nlog($customer['instruments']);
 
-                foreach($customer['instruments'] as $card) 
-                {
-                    if(
-                        $card['type'] != 'card' || 
-                        Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) ||
-                        $this->getToken($card['id'], $customer['id'])
-                    )
-                    continue;
-             
-                    $payment_meta = new \stdClass();
-                    $payment_meta->exp_month = (string) $card['expiry_month'];
-                    $payment_meta->exp_year = (string) $card['expiry_year'];
-                    $payment_meta->brand = (string) $card['scheme'];
-                    $payment_meta->last4 = (string) $card['last4'];
-                    $payment_meta->type = (int) GatewayType::CREDIT_CARD;
+                 foreach($customer['instruments'] as $card) {
+                     if(
+                         $card['type'] != 'card' ||
+                         Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) ||
+                         $this->getToken($card['id'], $customer['id'])
+                     ) {
+                         continue;
+                     }
 
-                    $data = [
-                        'payment_meta' => $payment_meta,
-                        'token' => $card['id'],
-                        'payment_method_id' => GatewayType::CREDIT_CARD,
-                    ];
+                     $payment_meta = new \stdClass();
+                     $payment_meta->exp_month = (string) $card['expiry_month'];
+                     $payment_meta->exp_year = (string) $card['expiry_year'];
+                     $payment_meta->brand = (string) $card['scheme'];
+                     $payment_meta->last4 = (string) $card['last4'];
+                     $payment_meta->type = (int) GatewayType::CREDIT_CARD;
 
-                    $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer['id']]);
+                     $data = [
+                         'payment_meta' => $payment_meta,
+                         'token' => $card['id'],
+                         'payment_method_id' => GatewayType::CREDIT_CARD,
+                     ];
 
-                }
+                     $this->storeGatewayToken($data, ['gateway_customer_reference' => $customer['id']]);
+
+                 }
 
              });
     }

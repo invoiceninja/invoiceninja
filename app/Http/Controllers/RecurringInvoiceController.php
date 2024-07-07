@@ -70,7 +70,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @param RecurringInvoiceFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -117,7 +117,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @param CreateRecurringInvoiceRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -167,7 +167,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @param StoreRecurringInvoiceRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -223,7 +223,7 @@ class RecurringInvoiceController extends BaseController
      * @param ShowRecurringInvoiceRequest $request  The request
      * @param RecurringInvoice $recurring_invoice  The RecurringInvoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -278,7 +278,7 @@ class RecurringInvoiceController extends BaseController
      * @param EditRecurringInvoiceRequest $request  The request
      * @param RecurringInvoice $recurring_invoice  The RecurringInvoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -333,7 +333,7 @@ class RecurringInvoiceController extends BaseController
      * @param UpdateRecurringInvoiceRequest $request  The request
      * @param RecurringInvoice $recurring_invoice  The RecurringInvoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -451,7 +451,7 @@ class RecurringInvoiceController extends BaseController
      * @param ActionRecurringInvoiceRequest $request
      * @param RecurringInvoice $recurring_invoice
      * @param $action
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function action(ActionRecurringInvoiceRequest $request, RecurringInvoice $recurring_invoice, $action)
     {
@@ -520,7 +520,7 @@ class RecurringInvoiceController extends BaseController
      *
      * @param UploadRecurringInvoiceRequest $request
      * @param RecurringInvoice $recurring_invoice
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

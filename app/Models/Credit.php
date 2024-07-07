@@ -46,7 +46,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $date
  * @property string|null $last_sent_date
  * @property string|null $due_date
- * @property int $is_deleted
+ * @property bool $is_deleted
  * @property array|null $line_items
  * @property object|null $backup
  * @property string|null $footer
@@ -60,7 +60,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $tax_name3
  * @property float $tax_rate3
  * @property string $total_taxes
- * @property int $uses_inclusive_taxes
+ * @property bool $uses_inclusive_taxes
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3

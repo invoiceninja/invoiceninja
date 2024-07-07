@@ -23,7 +23,7 @@ class WebCronController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      * @OA\Get(
      *      path="/webcron",

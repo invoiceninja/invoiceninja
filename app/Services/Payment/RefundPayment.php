@@ -27,19 +27,12 @@ class RefundPayment
 
     private float $credits_used = 0;
 
-    private $gateway_refund_status;
-
-    private $activity_repository;
-
     private bool $refund_failed = false;
 
     private string $refund_failed_message = '';
 
     public function __construct(public Payment $payment, public array $refund_data)
     {
-        $this->gateway_refund_status = false;
-
-        $this->activity_repository = new ActivityRepository();
     }
 
     public function run()

@@ -12,14 +12,13 @@
 
 namespace App\PaymentDrivers\BTCPay;
 
-use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentType;
 use App\PaymentDrivers\BTCPayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Exceptions\PaymentFailed;
+use App\Jobs\Mail\PaymentFailureMailer;
 use Illuminate\Mail\Mailables\Address;
 use App\Services\Email\EmailObject;
 use App\Services\Email\Email;
@@ -83,15 +82,6 @@ class BTCPay implements MethodInterface
             $_invoice = collect($drv->payment_hash->data->invoices)->first();
             $cli = $drv->client;
 
-            $dataPayment = [
-                'payment_method' => $drv->payment_method,
-                'payment_type' => PaymentType::CRYPTO,
-                'amount' => $request->amount,
-                'gateway_type_id' => GatewayType::CRYPTO,
-                'transaction_reference' =>  'xxx'
-            ];
-            $payment = $drv->createPayment($dataPayment, \App\Models\Payment::STATUS_PENDING);
-
             $metaData = [
                 'buyerName' => $cli->name,
                 'buyerAddress1' => $cli->address1,
@@ -102,11 +92,11 @@ class BTCPay implements MethodInterface
                 'buyerCountry' => $cli->country_id,
                 'buyerPhone' => $cli->phone,
                 'itemDesc' => "From InvoiceNinja",
-                'paymentID' => $payment->id
+                'InvoiceNinjaPaymentHash' => $drv->payment_hash->hash
             ];
 
 
-            $urlRedirect = redirect()->route('client.payments.show', ['payment' => $payment->hashed_id])->getTargetUrl();
+            $urlRedirect = redirect()->route('client.invoice.show', ['invoice' => $_invoice->invoice_id])->getTargetUrl();
             $checkoutOptions = new \BTCPayServer\Client\InvoiceCheckoutOptions();
             $checkoutOptions->setRedirectURL($urlRedirect);
 
@@ -120,11 +110,12 @@ class BTCPay implements MethodInterface
                 $metaData,
                 $checkoutOptions
             );
-            $payment->transaction_reference = $rep->getId();
-            $payment->save();
+            //$payment->transaction_reference = $rep->getId();
+            // $payment->save();
 
             return redirect($rep->getCheckoutLink());
         } catch (\Throwable $e) {
+            PaymentFailureMailer::dispatch($drv->client, $drv->payment_hash->data, $drv->client->company, $request->amount);
             throw new PaymentFailed('Error during BTCPay payment : ' . $e->getMessage());
         }
     }

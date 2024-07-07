@@ -60,7 +60,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param \App\Filters\PurchaseOrderFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/purchase_orders",
@@ -105,7 +105,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param CreatePurchaseOrderRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -153,7 +153,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param StorePurchaseOrderRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -208,7 +208,7 @@ class PurchaseOrderController extends BaseController
      * @param ShowPurchaseOrderRequest $request  The request
      * @param PurchaseOrder $purchase_order  The purchase order
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -262,7 +262,7 @@ class PurchaseOrderController extends BaseController
      * @param EditPurchaseOrderRequest $request The request
      * @param PurchaseOrder $purchase_order The purchase order
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/purchase_orders/{id}/edit",
@@ -314,7 +314,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param UpdatePurchaseOrderRequest $request The request
      * @param PurchaseOrder $purchase_order
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \ReflectionException
@@ -434,7 +434,7 @@ class PurchaseOrderController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\BinaryFileResponse
      *
      * @OA\Post(
      *      path="/api/v1/purchase_orders/bulk",
@@ -495,7 +495,7 @@ class PurchaseOrderController extends BaseController
 
         $purchase_orders = PurchaseOrder::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $purchase_orders) {
+        if ($purchase_orders->count() == 0) {
             return response()->json(['message' => 'No Purchase Orders Found']);
         }
 
@@ -717,7 +717,7 @@ class PurchaseOrderController extends BaseController
 
             default:
                 return response()->json(['message' => ctrans('texts.action_unavailable', ['action' => $action])], 400);
-                break;
+
         }
     }
 
@@ -726,7 +726,7 @@ class PurchaseOrderController extends BaseController
      *
      * @param UploadPurchaseOrderRequest $request
      * @param PurchaseOrder $purchase_order
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -826,7 +826,7 @@ class PurchaseOrderController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadPdf($invitation_key)
     {
@@ -891,7 +891,7 @@ class PurchaseOrderController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadEPurchaseOrder($invitation_key)
     {

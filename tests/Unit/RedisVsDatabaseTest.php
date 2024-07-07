@@ -29,13 +29,15 @@ class RedisVsDatabaseTest extends TestCase
 
     public function testRedisSpeed()
     {
+        app('currencies');
+
         $start = microtime(true);
 
         $currencies = Cache::get('currencies');
 
-        $currencies->filter(function ($item) {
+        $currencies->first(function ($item) {
             return $item->id == 17;
-        })->first();
+        });
 
         nlog(microtime(true) - $start);
 

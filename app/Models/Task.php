@@ -11,10 +11,11 @@
 
 namespace App\Models;
 
-use App\Utils\Traits\MakesHash;
 use Carbon\CarbonInterval;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * App\Models\Task
@@ -43,8 +44,8 @@ use Illuminate\Support\Carbon;
  * @property bool $is_running
  * @property string|null $time_log
  * @property string|null $number
- * @property string $rate
- * @property int $invoice_documents
+ * @property float $rate
+ * @property bool $invoice_documents
  * @property int $is_date_based
  * @property int|null $status_order
  * @property-read \App\Models\User|null $assigned_user
@@ -185,7 +186,7 @@ class Task extends BaseModel
         }
 
         if($this->status) {
-            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? '';
+            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? ''; //@phpstan-ignore-line
         }
 
         return '';
@@ -207,7 +208,7 @@ class Task extends BaseModel
         $parts = json_decode($this->time_log) ?: [];
 
         if (count($parts)) {
-            return Carbon::createFromTimeStamp($parts[0][0])->timestamp;
+            return Carbon::createFromTimeStamp((int)$parts[0][0])->timestamp;
         } else {
             return null;
         }
@@ -280,11 +281,11 @@ class Task extends BaseModel
             $parent_entity = $this->client ?? $this->company;
 
             if($log[0]) {
-                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:i:s');
+                $log[0] = Carbon::createFromTimestamp((int)$log[0])->format($parent_entity->date_format().' H:i:s');
             }
 
             if($log[1] && $log[1] != 0) {
-                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:i:s');
+                $log[1] = Carbon::createFromTimestamp((int)$log[1])->format($parent_entity->date_format().' H:i:s');
             } else {
                 $log[1] = ctrans('texts.running');
             }
@@ -312,11 +313,11 @@ class Task extends BaseModel
             if($log[0]) {
                 $logged['start_date_raw'] = $log[0];
             }
-            $logged['start_date'] = Carbon::createFromTimestamp($log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+            $logged['start_date'] = Carbon::createFromTimestamp((int)$log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
 
             if($log[1] && $log[1] != 0) {
                 $logged['end_date_raw'] = $log[1];
-                $logged['end_date'] = Carbon::createFromTimestamp($log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+                $logged['end_date'] = Carbon::createFromTimestamp((int)$log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
             } else {
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
@@ -332,4 +333,11 @@ class Task extends BaseModel
         })->toArray();
     }
 
+    public function assignedCompanyUser()
+    {
+        if(!$this->assigned_user_id)
+            return false;
+
+        return CompanyUser::where('company_id', $this->company_id)->where('user_id', $this->assigned_user_id)->first();
+    }
 }

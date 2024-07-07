@@ -44,19 +44,19 @@ use CleverIt\UBL\Invoice\FatturaPA\common\FatturaElettronicaHeader;
  */
 class FatturaPA extends AbstractService
 {
-    private $xml;
+    // private $xml;
 
     //urn:cen.eu:en16931:2017#compliant#urn:fatturapa.gov.it:CIUS-IT:2.0.0
     //<cbc:EndpointID schemeID=" 0201 ">UFF001</cbc:EndpointID>
 
     /**
     * 	   File Types
-    * 
+    *
     * 	   EI01 => FILE VUOTO
     *      EI02 => SERVIZIO NON DISPONIBILE
     *      EI03 => UTENTE NON ABILITATO
     */
-    
+
     /** Formato Trasmissione
      *     FPA12: This is the format used for FatturaPA version 1.2.
      *     FPR12: This format is used for FatturaPA version 1.2 in cases where the invoice is destined for the Public Administration.
@@ -70,7 +70,7 @@ class FatturaPA extends AbstractService
      * "D" (Differita): VAT is due at a later date, typically when payment for the goods or services is received.
      * "S" (Soggetta): VAT is due under the reverse charge mechanism, where the recipient of the goods or services is responsible for accounting for the VAT.
      */
-    
+
     /**
     * MP01 contanti //cash
     * MP02 assegno //check
@@ -97,11 +97,11 @@ class FatturaPA extends AbstractService
     * MP23 PagoPA //PagoPA
      */
 
-     /**
-      * TP01 pagamento a rate //payment in installments
-      * TP02 pagamento completo //full payment
-      * TP03 anticipo //advance
-      */    
+    /**
+     * TP01 pagamento a rate //payment in installments
+     * TP02 pagamento completo //full payment
+     * TP03 anticipo //advance
+     */
 
     /**
      * @param Invoice $invoice
@@ -113,180 +113,183 @@ class FatturaPA extends AbstractService
     public function run()
     {
 
-    $fatturaHeader = new FatturaElettronicaHeader();
+        $fatturaHeader = new FatturaElettronicaHeader();
 
-    $datiTrasmissione = new DatiTrasmissione();
-    $datiTrasmissione->setFormatoTrasmissione("FPR12");
-    $datiTrasmissione->setCodiceDestinatario($this->invoice->client->routing_id);
-    $datiTrasmissione->setProgressivoInvio($this->invoice->number);
+        $datiTrasmissione = new DatiTrasmissione();
+        $datiTrasmissione->setFormatoTrasmissione("FPR12");
+        $datiTrasmissione->setCodiceDestinatario($this->invoice->client->routing_id);
+        $datiTrasmissione->setProgressivoInvio($this->invoice->number);
 
-    $idPaese = new IdTrasmittente();
-    $idPaese->setIdPaese($this->invoice->company->country()->iso_3166_2);
-    $idPaese->setIdCodice($this->invoice->company->settings->vat_number);
+        $idPaese = new IdTrasmittente();
+        $idPaese->setIdPaese($this->invoice->company->country()->iso_3166_2);
+        $idPaese->setIdCodice($this->invoice->company->settings->vat_number);
 
-    $datiTrasmissione->setIdTrasmittente($idPaese);
-    $fatturaHeader->setDatiTrasmissione($datiTrasmissione);
+        $datiTrasmissione->setIdTrasmittente($idPaese);
+        $fatturaHeader->setDatiTrasmissione($datiTrasmissione);
 
-    $cedentePrestatore = new CedentePrestatore();
-    $datiAnagrafici = new DatiAnagrafici();
-    $idFiscaleIVA = new IdFiscaleIVA(IdPaese: $this->invoice->company->country()->iso_3166_2, IdCodice: $this->invoice->company->settings->vat_number);
-    $datiAnagrafici->setIdFiscaleIVA($idFiscaleIVA);
+        $cedentePrestatore = new CedentePrestatore();
+        $datiAnagrafici = new DatiAnagrafici();
+        $idFiscaleIVA = new IdFiscaleIVA(IdPaese: $this->invoice->company->country()->iso_3166_2, IdCodice: $this->invoice->company->settings->vat_number);
+        $datiAnagrafici->setIdFiscaleIVA($idFiscaleIVA);
 
-    $anagrafica = new Anagrafica(Denominazione: $this->invoice->company->present()->name());
-    $datiAnagrafici->setAnagrafica($anagrafica);
-    $datiAnagrafici->setRegimeFiscale("RF01");  //swap this out with the custom settings.
-    $cedentePrestatore->setDatiAnagrafici($datiAnagrafici);
+        $anagrafica = new Anagrafica(Denominazione: $this->invoice->company->present()->name());
+        $datiAnagrafici->setAnagrafica($anagrafica);
+        $datiAnagrafici->setRegimeFiscale("RF01");  //swap this out with the custom settings.
+        $cedentePrestatore->setDatiAnagrafici($datiAnagrafici);
 
-    $sede = new Sede(Indirizzo: $this->invoice->company->settings->address1, 
-                    CAP: (int)$this->invoice->company->settings->postal_code, 
-                    Comune: $this->invoice->company->settings->city, 
-                    Provincia: $this->invoice->company->settings->state);
+        $sede = new Sede(
+            Indirizzo: $this->invoice->company->settings->address1,
+            CAP: (int)$this->invoice->company->settings->postal_code,
+            Comune: $this->invoice->company->settings->city,
+            Provincia: $this->invoice->company->settings->state
+        );
 
-    $cedentePrestatore->setSede($sede);
-    $fatturaHeader->setCedentePrestatore($cedentePrestatore);
+        $cedentePrestatore->setSede($sede);
+        $fatturaHeader->setCedentePrestatore($cedentePrestatore);
 
-    //client details
-    $datiAnagrafici = new DatiAnagrafici();
+        //client details
+        $datiAnagrafici = new DatiAnagrafici();
 
-//for some reason the validation does not like codice fiscale for the client?
-//perhaps it may need IdFiscaleIVA?
-// $datiAnagrafici->setCodiceFiscale("09876543210");
+        //for some reason the validation does not like codice fiscale for the client?
+        //perhaps it may need IdFiscaleIVA?
+        // $datiAnagrafici->setCodiceFiscale("09876543210");
 
-    $anagrafica = new Anagrafica(Denominazione: $this->invoice->client->present()->name());
-    $datiAnagrafici->setAnagrafica($anagrafica);
+        $anagrafica = new Anagrafica(Denominazione: $this->invoice->client->present()->name());
+        $datiAnagrafici->setAnagrafica($anagrafica);
 
-    $sede = new Sede(Indirizzo: $this->invoice->client->address1, 
-                    CAP: (int)$this->invoice->client->postal_code, 
-                    Comune: $this->invoice->client->city, 
-                    Provincia: $this->invoice->client->state);
+        $sede = new Sede(
+            Indirizzo: $this->invoice->client->address1,
+            CAP: (int)$this->invoice->client->postal_code,
+            Comune: $this->invoice->client->city,
+            Provincia: $this->invoice->client->state
+        );
 
-    $cessionarioCommittente = new CessionarioCommittente($datiAnagrafici, $sede);
+        $cessionarioCommittente = new CessionarioCommittente($datiAnagrafici, $sede);
 
-    $fatturaHeader->setCessionarioCommittente($cessionarioCommittente);
+        $fatturaHeader->setCessionarioCommittente($cessionarioCommittente);
 
-////////////////// Fattura Body //////////////////
-$fatturaBody = new FatturaElettronicaBody();
+        ////////////////// Fattura Body //////////////////
+        $fatturaBody = new FatturaElettronicaBody();
 
-$datiGeneraliDocument = new DatiGeneraliDocumento();
-$datiGeneraliDocument->setTipoDocumento("TD01")
-                     ->setDivisa($this->invoice->client->currency()->code)
-                     ->setData($this->invoice->date)
-                     ->setNumero($this->invoice->number)
-                     ->setCausale($this->invoice->public_notes ?? ''); //unsure...
+        $datiGeneraliDocument = new DatiGeneraliDocumento();
+        $datiGeneraliDocument->setTipoDocumento("TD01")
+                             ->setDivisa($this->invoice->client->currency()->code)
+                             ->setData($this->invoice->date)
+                             ->setNumero($this->invoice->number)
+                             ->setCausale($this->invoice->public_notes ?? ''); //unsure...
 
-/**PO information 
-$datiOrdineAcquisto = new DatiOrdineAcquisto();
-$datiOrdineAcquisto->setRiferimentoNumeroLinea(1)
-                   ->setIdDocumento($this->invoice->po_number)
-                   ->setNumItem(1)
-                   ->setCodiceCIG("123abc")  // special invoice props
-                   ->setCodiceCUP("456def"); // special invoice props
-*/
+        /**PO information
+        $datiOrdineAcquisto = new DatiOrdineAcquisto();
+        $datiOrdineAcquisto->setRiferimentoNumeroLinea(1)
+                           ->setIdDocumento($this->invoice->po_number)
+                           ->setNumItem(1)
+                           ->setCodiceCIG("123abc")  // special invoice props
+                           ->setCodiceCUP("456def"); // special invoice props
+        */
 
-/**Contract data 
-$datiContratto = new DatiContratto(
-    RiferimentoNumeroLinea: 1,
-    IdDocumento: 6685,
-    Data: "2024-01-01",
-    NumItem: 5,
-    CodiceCUP: "123abc",
-    CodiceCIG: "456def",
-);
-*/
+        /**Contract data
+        $datiContratto = new DatiContratto(
+            RiferimentoNumeroLinea: 1,
+            IdDocumento: 6685,
+            Data: "2024-01-01",
+            NumItem: 5,
+            CodiceCUP: "123abc",
+            CodiceCIG: "456def",
+        );
+        */
 
-/**Shipping/Delivery Data
-$datiRicezione = new DatiRicezione(
-    RiferimentoNumeroLinea: 1,
-    IdDocumento: 6685,
-    Data: "2024-01-01",
-    NumItem: 5,
-    CodiceCUP: "123abc",
-    CodiceCIG: "456def",
-);
- */
+        /**Shipping/Delivery Data
+        $datiRicezione = new DatiRicezione(
+            RiferimentoNumeroLinea: 1,
+            IdDocumento: 6685,
+            Data: "2024-01-01",
+            NumItem: 5,
+            CodiceCUP: "123abc",
+            CodiceCIG: "456def",
+        );
+         */
 
- /**Shippers details
+        /**Shippers details
 $datiAnagraficiVettore = new DatiAnagraficiVettore();
 $idFiscaleIVA = new IdFiscaleIVA("IT", "24681012141");
 $anagrafica = new Anagrafica("Trasport SPA");
 
 $datiAnagraficiVettore->setIdFiscaleIVA($idFiscaleIVA)
-                      ->setAnagrafica($anagrafica);
+                             ->setAnagrafica($anagrafica);
 
 $datiTrasporto = new DatiTrasporto();
 $datiTrasporto->setDatiAnagraficiVettore($datiAnagraficiVettore)
-              ->setDataOraConsegna("2017-01-10T16:46:12.000+02:00");
+                     ->setDataOraConsegna("2017-01-10T16:46:12.000+02:00");
 */
 
-$datiGenerali = new DatiGenerali();
-$datiGenerali->setDatiGeneraliDocumento($datiGeneraliDocument);
-            //  ->setDatiOrdineAcquisto($datiOrdineAcquisto)
-            //  ->setDatiContratto($datiContratto)
-            //  ->setDatiRicezione($datiRicezione);
+        $datiGenerali = new DatiGenerali();
+        $datiGenerali->setDatiGeneraliDocumento($datiGeneraliDocument);
+        //  ->setDatiOrdineAcquisto($datiOrdineAcquisto)
+        //  ->setDatiContratto($datiContratto)
+        //  ->setDatiRicezione($datiRicezione);
 
 
-    $datiBeniServizi  = new DatiBeniServizi();
-    $tax_rate_level = 0;
-    //line items
-    foreach ($this->invoice->line_items as $key => $item) 
-    {
+        $datiBeniServizi  = new DatiBeniServizi();
+        $tax_rate_level = 0;
+        //line items
+        foreach ($this->invoice->line_items as $key => $item) {
 
-        $numero = $key+1;
-        $dettaglioLinee = new DettaglioLinee(
-            NumeroLinea: "{$numero}",
-            Descrizione: $item->notes ?? 'Descrizione',
-            Quantita: sprintf('%0.2f', $item->quantity),
-            PrezzoUnitario: sprintf('%0.2f', $item->cost),
-            PrezzoTotale: sprintf('%0.2f', $item->line_total),
-            AliquotaIVA: sprintf('%0.2f', $item->tax_rate1),
-        );
+            $numero = $key + 1;
+            $dettaglioLinee = new DettaglioLinee(
+                NumeroLinea: "{$numero}",
+                Descrizione: $item->notes ?? 'Descrizione',
+                Quantita: sprintf('%0.2f', $item->quantity),
+                PrezzoUnitario: sprintf('%0.2f', $item->cost),
+                PrezzoTotale: sprintf('%0.2f', $item->line_total),
+                AliquotaIVA: sprintf('%0.2f', $item->tax_rate1),
+            );
 
-        $datiBeniServizi->setDettaglioLinee($dettaglioLinee);
+            $datiBeniServizi->setDettaglioLinee($dettaglioLinee);
 
-        if ($item->tax_rate1 > $tax_rate_level) {
-            $tax_rate_level = sprintf('%0.2f', $item->tax_rate1);
+            if ($item->tax_rate1 > $tax_rate_level) {
+                $tax_rate_level = sprintf('%0.2f', $item->tax_rate1);
+            }
+
         }
 
-    }
-    
-    //totals
-    if($this->invoice->tax_rate1 > $tax_rate_level) {
-        $tax_rate_level = sprintf('%0.2f', $this->invoice->tax_rate1);
-    }
+        //totals
+        if($this->invoice->tax_rate1 > $tax_rate_level) {
+            $tax_rate_level = sprintf('%0.2f', $this->invoice->tax_rate1);
+        }
 
-    $calc = $this->invoice->calc();
-    $subtotal = sprintf('%0.2f', $calc->getSubTotal());
-    $taxes = sprintf('%0.2f', $calc->getTotalTaxes());
+        $calc = $this->invoice->calc();
+        $subtotal = sprintf('%0.2f', $calc->getSubTotal());
+        $taxes = sprintf('%0.2f', $calc->getTotalTaxes());
 
-    $datiRiepilogo = new DatiRiepilogo(
-        AliquotaIVA: "{$tax_rate_level}",
-        ImponibileImporto: "{$subtotal}",
-        Imposta: "{$taxes}",
-        EsigibilitaIVA: "I",
-    );
+        $datiRiepilogo = new DatiRiepilogo(
+            AliquotaIVA: "{$tax_rate_level}",
+            ImponibileImporto: "{$subtotal}",
+            Imposta: "{$taxes}",
+            EsigibilitaIVA: "I",
+        );
 
-    $datiBeniServizi->setDatiRiepilogo($datiRiepilogo);
+        $datiBeniServizi->setDatiRiepilogo($datiRiepilogo);
 
-    $dettalioPagament = new DettaglioPagamento(
-        ModalitaPagamento: "MP01", //String
-        DataScadenzaPagamento: (string) $this->invoice->due_date ?? $this->invoice->date,
-        ImportoPagamento: (string) sprintf('%0.2f', $this->invoice->balance),
-    );
+        $dettalioPagament = new DettaglioPagamento(
+            ModalitaPagamento: "MP01", //String
+            DataScadenzaPagamento: (string) $this->invoice->due_date ?? $this->invoice->date,
+            ImportoPagamento: (string) sprintf('%0.2f', $this->invoice->balance),
+        );
 
-    $datiPagamento = new DatiPagamento();
-    $datiPagamento->setCondizioniPagamento("TP02")
-                ->setDettaglioPagamento($dettalioPagament);
+        $datiPagamento = new DatiPagamento();
+        $datiPagamento->setCondizioniPagamento("TP02")
+                    ->setDettaglioPagamento($dettalioPagament);
 
-    $fatturaBody->setDatiGenerali($datiGenerali)
-                ->setDatiBeniServizi($datiBeniServizi)
-                ->setDatiPagamento($datiPagamento);
+        $fatturaBody->setDatiGenerali($datiGenerali)
+                    ->setDatiBeniServizi($datiBeniServizi)
+                    ->setDatiPagamento($datiPagamento);
 
-    ////////////////////////////////////
-    $xmlService = new Service();
+        ////////////////////////////////////
+        $xmlService = new Service();
 
-    $xml = $xmlService->write('p:FatturaElettronica', new FatturaElettronica($fatturaHeader, $fatturaBody));
+        $xml = $xmlService->write('p:FatturaElettronica', new FatturaElettronica($fatturaHeader, $fatturaBody));
 
-    return $xml;
+        return $xml;
 
     }
 

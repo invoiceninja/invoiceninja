@@ -19,7 +19,7 @@ class ProcessPurchaseOrdersInBulkRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->guard('vendor')->user()->vendor->company->enabled_modules & PortalComposer::MODULE_PURCHASE_ORDERS;
+        return (bool)(auth()->guard('vendor')->user()->vendor->company->enabled_modules & PortalComposer::MODULE_PURCHASE_ORDERS);
     }
 
     public function rules()

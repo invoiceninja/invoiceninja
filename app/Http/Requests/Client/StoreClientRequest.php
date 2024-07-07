@@ -48,8 +48,7 @@ class StoreClientRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }
-        else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -133,11 +132,9 @@ class StoreClientRequest extends Request
             } else {
                 $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
             }
-        } 
-        elseif (! array_key_exists('currency_id', $input['settings'])) {
+        } elseif (! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
-        }
-        elseif (empty($input['settings']['currency_id']) ?? true) {
+        } elseif (empty($input['settings']['currency_id']) ?? true) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
@@ -188,48 +185,44 @@ class StoreClientRequest extends Request
         ];
     }
 
-    private function getLanguageId($language_code)
+    private function getLanguageId(string $language_code)
     {
-        $languages = Cache::get('languages');
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        $language = $languages->filter(function ($item) use ($language_code) {
+        $language = $languages->first(function ($item) use ($language_code) {
             return $item->locale == $language_code;
-        })->first();
+        });
 
-        if ($language) {
-            return (string) $language->id;
-        }
+        return $language ? (string)$language->id : '';
 
-        return '';
     }
 
-    private function getCountryCode($country_code)
+    private function getCountryCode(string $country_code)
     {
-        $countries = Cache::get('countries');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-        $country = $countries->filter(function ($item) use ($country_code) {
+        $country = $countries->first(function ($item) use ($country_code) {
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
-        })->first();
+        });
 
-        if ($country) {
-            return (string) $country->id;
-        }
-
-        return '';
+        return $country ? (string) $country->id : '';
+        
     }
 
     private function getCurrencyCode($code)
     {
-        $currencies = Cache::get('currencies');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
-        $currency = $currencies->filter(function ($item) use ($code) {
+        $currency = $currencies->first(function ($item) use ($code) {
             return $item->code == $code;
-        })->first();
+        });
 
-        if ($currency) {
-            return (string) $currency->id;
-        }
-
-        return '';
+        return  $currency ? (string)$currency->id : '';
+        
     }
 }

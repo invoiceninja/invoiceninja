@@ -88,7 +88,7 @@ class ProjectController extends BaseController
      *       ),
      *     )
      * @param ProjectFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(ProjectFilters $filters)
     {
@@ -102,7 +102,7 @@ class ProjectController extends BaseController
      *
      * @param ShowProjectRequest $request
      * @param Project $project
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -156,7 +156,7 @@ class ProjectController extends BaseController
      *
      * @param EditProjectRequest $request
      * @param Project $project
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -210,7 +210,7 @@ class ProjectController extends BaseController
      *
      * @param UpdateProjectRequest $request
      * @param Project $project
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -278,7 +278,7 @@ class ProjectController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateProjectRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -326,7 +326,7 @@ class ProjectController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreProjectRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -388,7 +388,7 @@ class ProjectController extends BaseController
      *
      * @param DestroyProjectRequest $request
      * @param Project $project
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -445,7 +445,7 @@ class ProjectController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -535,7 +535,7 @@ class ProjectController extends BaseController
      *
      * @param UploadProjectRequest $request
      * @param Project $project
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Put(
      *      path="/api/v1/projects/{id}/upload",

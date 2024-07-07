@@ -47,6 +47,44 @@ class ExpenseApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testExpensePutWithVendorStatus()
+    {
+    
+    
+        $data =
+        [
+            'vendor_id' => $this->vendor->hashed_id,
+            'amount' => 10,
+            'date' => '2021-10-01',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+    
+
+        $this->assertEquals($this->vendor->hashed_id, $arr['data']['vendor_id']);
+
+        $data = [
+            'payment_date' => now()->format('Y-m-d')
+        ];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->putJson('/api/v1/expenses/'.$arr['data']['id'], $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $this->assertEquals($this->vendor->hashed_id, $arr['data']['vendor_id']);
+
+    }
+
     public function testTransactionIdClearedOnDelete()
     {
         $bi = BankIntegration::factory()->create([

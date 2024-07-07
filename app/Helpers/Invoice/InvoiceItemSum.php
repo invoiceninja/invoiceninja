@@ -29,6 +29,7 @@ class InvoiceItemSum
     use Discounter;
     use Taxer;
 
+    //@phpstan-ignore-next-line
     private array $eu_tax_jurisdictions = [
         'AT', // Austria
         'BE', // Belgium
@@ -170,7 +171,7 @@ class InvoiceItemSum
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
+        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) { //@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }
@@ -182,7 +183,7 @@ class InvoiceItemSum
             $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
 
             $this->rule = new $class();
-            
+
             if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
                 return $this;
             }
@@ -331,7 +332,7 @@ class InvoiceItemSum
 
     public function setLineTotal($total)
     {
-        $this->item->line_total = $total;
+        $this->item->line_total = (float) $total;
 
         return $this;
     }

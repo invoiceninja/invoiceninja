@@ -77,6 +77,7 @@ class PaymentController extends Controller
                     'EUR' => $data = $bt->formatDataforEur($payment_intent),
                     'JPY' => $data = $bt->formatDataforJp($payment_intent),
                     'GBP' => $data = $bt->formatDataforUk($payment_intent),
+                    default => $data = $bt->formatDataforUk($payment_intent),
                 };
 
                 $gateway = $stripe;
@@ -103,7 +104,7 @@ class PaymentController extends Controller
      * and invoice ids for reference.
      *
      * @param Request $request
-     * @return RedirectResponse|mixed
+     * @return \Illuminate\Http\RedirectResponse|mixed
      */
     public function process(Request $request)
     {
@@ -120,8 +121,16 @@ class PaymentController extends Controller
     {
         /** @var \App\Models\CompanyGateway $gateway **/
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
-        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
-        $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+        $payment_hash = PaymentHash::with('fee_invoice')->where('hash', $request->payment_hash)->firstOrFail();
+
+        // if($payment_hash)
+        $invoice = $payment_hash->fee_invoice;
+        // else
+            // $invoice = Invoice::with('client')->where('id',$payment_hash->fee_invoice_id)->orderBy('id','desc')->first();
+
+        // $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
+
+
         $client = $invoice ? $invoice->client : auth()->guard('contact')->user()->client;
 
         // 09-07-2022 catch duplicate responses for invoices that already paid here.
@@ -157,7 +166,7 @@ class PaymentController extends Controller
      * Pay for invoice/s using credits only.
      *
      * @param Request $request The request object
-     * @return \Response         The response view
+     * @return \Illuminate\Http\RedirectResponse        The response view
      */
     public function credit_response(Request $request)
     {

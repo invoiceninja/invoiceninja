@@ -45,7 +45,8 @@ class StoreProjectRequest extends Request
         $rules['name'] = 'required';
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
         $rules['budgeted_hours'] = 'sometimes|numeric';
-
+        $rules['task_rate'] = 'required|bail|numeric';
+        
         if (isset($this->number)) {
             $rules['number'] = Rule::unique('projects')->where('company_id', $user->company()->id);
         }
@@ -54,7 +55,7 @@ class StoreProjectRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -75,9 +76,12 @@ class StoreProjectRequest extends Request
             $input['color'] = '';
         }
 
-        if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours']))
+        if(array_key_exists('budgeted_hours', $input) && empty($input['budgeted_hours'])) {
             $input['budgeted_hours'] = 0;
+        }
 
+        $input['task_rate'] = (isset($input['task_rate']) && floatval($input['task_rate']) >= 0) ? $input['task_rate'] : 0;
+        
         $this->replace($input);
     }
 

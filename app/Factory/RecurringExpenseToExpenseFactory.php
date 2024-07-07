@@ -82,11 +82,15 @@ class RecurringExpenseToExpenseFactory
         } else {
             $locale = $recurring_expense->company->locale();
 
-            $date_formats = Cache::get('date_formats');
+            //@deprecated
+            // $date_formats = Cache::get('date_formats');
 
-            $date_format = $date_formats->filter(function ($item) use ($recurring_expense) {
+            /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
+            $date_formats = app('date_formats');
+
+            $date_format = $date_formats->first(function ($item) use ($recurring_expense) {
                 return $item->id == $recurring_expense->company->settings->date_format_id;
-            })->first()->format;
+            })->format;
         }
 
         Carbon::setLocale($locale);
@@ -144,7 +148,7 @@ class RecurringExpenseToExpenseFactory
                 continue;
             }
 
-            if (Str::contains($match, '|')) {
+            // if (Str::contains($match, '|')) {
                 $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
 
                 $left = substr($parts[0], 1); // 'MONTH'
@@ -182,7 +186,7 @@ class RecurringExpenseToExpenseFactory
                     $value,
                     1
                 );
-            }
+            // }
         }
 
         // Second case with more common calculations.

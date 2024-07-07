@@ -67,7 +67,7 @@ class PaymentController extends BaseController
      *
      * @param PaymentFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -115,7 +115,7 @@ class PaymentController extends BaseController
      *
      * @param CreatePaymentRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -165,7 +165,7 @@ class PaymentController extends BaseController
      *
      * @param StorePaymentRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -222,7 +222,7 @@ class PaymentController extends BaseController
      * @param ShowPaymentRequest $request The request
      * @param Payment $payment The invoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -277,7 +277,7 @@ class PaymentController extends BaseController
      * @param EditPaymentRequest $request The request
      * @param Payment $payment The invoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -332,7 +332,7 @@ class PaymentController extends BaseController
      * @param UpdatePaymentRequest $request The request
      * @param Payment $payment The invoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -454,7 +454,7 @@ class PaymentController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -667,7 +667,7 @@ class PaymentController extends BaseController
      *
      * @param RefundPaymentRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -720,7 +720,7 @@ class PaymentController extends BaseController
      *
      * @param UploadPaymentRequest $request
      * @param Payment $payment
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

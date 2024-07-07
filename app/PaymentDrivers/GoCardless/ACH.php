@@ -48,7 +48,7 @@ class ACH implements MethodInterface
      * Authorization page for ACH.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
      */
     public function authorizeView(array $data)
     {
@@ -107,7 +107,7 @@ class ACH implements MethodInterface
      * Handle ACH post-redirect authorization.
      *
      * @param Request $request
-     * @return RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function authorizeResponse(Request $request)
     {
@@ -157,7 +157,7 @@ class ACH implements MethodInterface
      * Process payments for ACH.
      *
      * @param PaymentResponseRequest $request
-     * @return RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -173,7 +173,7 @@ class ACH implements MethodInterface
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
         }
 
-        $amount = $this->go_cardless->convertToGoCardlessAmount($this->go_cardless->payment_hash?->amount_with_fee(), $this->go_cardless->client->currency()->precision);
+        $amount = $this->go_cardless->convertToGoCardlessAmount($this->go_cardless->payment_hash?->amount_with_fee(), $this->go_cardless->client->currency()->precision); //@phpstan-ignore-line
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
@@ -206,7 +206,7 @@ class ACH implements MethodInterface
      *
      * @param ResourcesPayment $payment
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processPendingPayment(ResourcesPayment $payment, array $data = [])
     {

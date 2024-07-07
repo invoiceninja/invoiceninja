@@ -31,7 +31,7 @@ class TaskExport extends BaseExport
 
     public string $date_key = 'created_at';
 
-    private string $date_format = 'YYYY-MM-DD';
+    private string $date_format = 'Y-m-d';
 
     public Writer $csv;
 
@@ -69,22 +69,24 @@ class TaskExport extends BaseExport
         $query = Task::query()
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
-        
+        $query = $this->addDateRange($query, 'tasks');
+
         $clients = &$this->input['client_id'];
 
-        if($clients)
+        if($clients) {
             $query = $this->addClientFilter($query, $clients);
+        }
 
         $document_attachments = &$this->input['document_email_attachment'];
 
-        if($document_attachments) 
+        if($document_attachments) {
             $this->queueDocuments($query);
+        }
 
         return $query;
 
@@ -178,23 +180,17 @@ class TaskExport extends BaseExport
 
         $logs = json_decode($task->time_log, 1);
 
-        $date_format_default = 'Y-m-d';
-
-        $date_format = DateFormat::find($task->company->settings->date_format_id);
-
-        if ($date_format) {
-            $date_format_default = $date_format->format;
-        }
+        $date_format_default = $this->date_format;
 
         foreach ($logs as $key => $item) {
             if (in_array('task.start_date', $this->input['report_keys']) || in_array('start_date', $this->input['report_keys'])) {
-                $carbon_object = Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name);
+                $carbon_object = Carbon::createFromTimeStamp((int)$item[0])->setTimezone($timezone_name);
                 $entity['task.start_date'] = $carbon_object->format($date_format_default);
                 $entity['task.start_time'] = $carbon_object->format('H:i:s');
             }
 
             if ((in_array('task.end_date', $this->input['report_keys']) || in_array('end_date', $this->input['report_keys'])) && $item[1] > 0) {
-                $carbon_object = Carbon::createFromTimeStamp($item[1])->setTimezone($timezone_name);
+                $carbon_object = Carbon::createFromTimeStamp((int)$item[1])->setTimezone($timezone_name);
                 $entity['task.end_date'] = $carbon_object->format($date_format_default);
                 $entity['task.end_time'] = $carbon_object->format('H:i:s');
             }
@@ -224,7 +220,7 @@ class TaskExport extends BaseExport
         }
 
     }
-    
+
     /**
      * Add Task Status Filter
      *
@@ -234,7 +230,7 @@ class TaskExport extends BaseExport
      */
     protected function addTaskStatusFilter(Builder $query, string $status): Builder
     {
-    
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {

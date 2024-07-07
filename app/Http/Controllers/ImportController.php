@@ -27,7 +27,7 @@ class ImportController extends Controller
      *
      * @param PreImportRequest $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      * @OA\Post(
      *      path="/api/v1/preimport",
@@ -192,6 +192,7 @@ class ImportController extends Controller
                 $contents = file_get_contents($file->getPathname());
                 // Store the csv in cache with an expiry of 10 minutes
                 Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
+                nlog($hash.'-'.$entityType);
             }
         }
 
@@ -276,7 +277,7 @@ class ImportController extends Controller
 
         return $data;
     }
-    
+
 
     /**
      * Returns the best delimiter
@@ -302,7 +303,7 @@ class ImportController extends Controller
             }
 
         }
-        
+
         /** @phpstan-ignore-next-line **/
         return $bestDelimiter ?? ',';
 

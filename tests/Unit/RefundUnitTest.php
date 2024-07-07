@@ -25,29 +25,8 @@ class RefundUnitTest extends TestCase
     {
         parent::setUp();
     }
-
-    // public function testProRataRefundMonthly()
-    // {
-    //     $pro_rata = new ProRata();
-    //     $refund = $pro_rata->refund(10, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-31'), RecurringInvoice::FREQUENCY_MONTHLY);
-
-    //     $this->assertEquals(9.68, $refund);
-
-    //     $this->assertEquals(30, Carbon::parse('2021-01-01')->diffInDays(Carbon::parse('2021-01-31')));
-
-    // }
-
-    // public function testProRataRefundYearly()
-    // {
-    //     $pro_rata = new ProRata();
-
-    //     $refund = $pro_rata->refund(10, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-31'), RecurringInvoice::FREQUENCY_ANNUALLY);
-
-    //     $this->assertEquals(0.82, $refund);
-    // }
-
     public function testDiffInDays()
     {
-        $this->assertEquals(30, Carbon::parse('2021-01-01')->diffInDays(Carbon::parse('2021-01-31')));
+        $this->assertEquals(30, intval(abs(Carbon::parse('2021-01-01')->diffInDays(Carbon::parse('2021-01-31')))));
     }
 }

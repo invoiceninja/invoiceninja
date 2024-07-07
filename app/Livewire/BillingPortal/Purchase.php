@@ -36,7 +36,7 @@ class Purchase extends Component
 
     public ?string $campaign;
 
-    // 
+    //
 
     public int $step = 0;
 
@@ -127,11 +127,11 @@ class Purchase extends Component
 
     public function mount()
     {
-        $classes = collect(self::$dependencies)->mapWithKeys(fn($dependency, $class) => [$dependency['id'] => $class])->toArray();
+        $classes = collect(self::$dependencies)->mapWithKeys(fn ($dependency, $class) => [$dependency['id'] => $class])->toArray();
 
         if ($this->subscription->steps) {
             $steps = collect(explode(',', $this->subscription->steps))
-                ->map(fn($step) => $classes[$step])
+                ->map(fn ($step) => $classes[$step])
                 ->toArray();
 
             $this->steps = [

@@ -81,7 +81,7 @@ class InvoiceController extends BaseController
      *
      * @param InvoiceFilters $filters  The filters
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/invoices",
@@ -128,7 +128,7 @@ class InvoiceController extends BaseController
      *
      * @param CreateInvoiceRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -176,7 +176,7 @@ class InvoiceController extends BaseController
      *
      * @param StoreInvoiceRequest $request  The request
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -248,7 +248,7 @@ class InvoiceController extends BaseController
      * @param ShowInvoiceRequest $request  The request
      * @param Invoice $invoice  The invoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -303,7 +303,7 @@ class InvoiceController extends BaseController
      * @param EditInvoiceRequest $request  The request
      * @param Invoice $invoice  The invoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/invoices/{id}/edit",
@@ -357,7 +357,7 @@ class InvoiceController extends BaseController
      * @param UpdateInvoiceRequest $request  The request
      * @param Invoice $invoice  The invoice
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -408,7 +408,7 @@ class InvoiceController extends BaseController
         }
 
         if ($invoice->isLocked()) {
-            return response()->json(['message' => ctrans('texts.locked_invoice')], 422);
+            return response()->json(['message' => '', 'errors' => ['number' => ctrans('texts.locked_invoice')]], 422);
         }
 
         $old_invoice = $invoice->line_items;
@@ -503,7 +503,7 @@ class InvoiceController extends BaseController
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $invoices) {
+        if ($invoices->count() == 0 ) {
             return response()->json(['message' => 'No Invoices Found']);
         }
 
@@ -800,7 +800,7 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadPdf($invitation_key)
     {
@@ -870,7 +870,7 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadEInvoice($invitation_key)
     {
@@ -938,7 +938,7 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      * @param $invoice
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {
@@ -954,7 +954,7 @@ class InvoiceController extends BaseController
      *
      * @param UploadInvoiceRequest $request
      * @param Invoice $invoice
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

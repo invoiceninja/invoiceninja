@@ -19,8 +19,6 @@ return new class extends Migration {
         if ($currency) {
             $currency->update(['symbol' => '$']);
         }
-
-        $this->buildCache(true);
     }
 
     /**

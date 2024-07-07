@@ -34,7 +34,7 @@
 <br>
         <p>You have certain recourse rights if any debit does not comply with this agreement. For example, you have the right to receive reimbursement for any debit that is not authorized or is not consistent with this PAD Agreement. To obtain more information on your recourse rights, contact your financial institution.</p>
 <br>
-        <p>You may amend or cancel this authorization at any time by providing the merchant with thirty (30) days notice at {{ $company->present()->email() }}. To obtain a sample cancellation form, or further information on cancelling a PAD agreement, please contact your financial institution.</p>
+        <p>You may amend or cancel this authorization at any time by providing the merchant with thirty (30) days notice at {{ $company->owner()->email }}. To obtain a sample cancellation form, or further information on cancelling a PAD agreement, please contact your financial institution.</p>
 <br>
         <p>{{ $company->present()->name() }} partners with Stripe to provide payment processing.</p>
     

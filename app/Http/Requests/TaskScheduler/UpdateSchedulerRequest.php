@@ -27,7 +27,7 @@ class UpdateSchedulerRequest extends Request
                         'logged',
                         'partial',
                         'applied',
-                        'active', 
+                        'active',
                         'paused',
                         'completed',
                         'approved',
@@ -92,8 +92,8 @@ class UpdateSchedulerRequest extends Request
 
         if(isset($input['parameters']['status'])) {
 
-            
-$task_statuses = [];
+
+            $task_statuses = [];
 
             if(isset($input['parameters']['report_name']) && $input['parameters']['report_name'] == 'task') {
                 $task_statuses = array_diff(explode(",", $input['parameters']['status']), $this->client_statuses);

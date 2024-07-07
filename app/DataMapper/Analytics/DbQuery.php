@@ -55,7 +55,7 @@ class DbQuery extends GenericMixedMetric
     public $string_metric8 = 'client_version';
 
     public $string_metric9 = 'platform';
-    
+
     /**
      * The counter
      * set to 1.
@@ -66,12 +66,14 @@ class DbQuery extends GenericMixedMetric
 
     public $double_metric2 = 1;
 
-    public function __construct($string_metric5, $string_metric6, $int_metric1, $double_metric2, $string_metric7)
+    public function __construct($string_metric5, $string_metric6, $int_metric1, $double_metric2, $string_metric7, $string_metric8, $string_metric9)
     {
         $this->int_metric1 = $int_metric1;
         $this->string_metric5 = $string_metric5;
         $this->string_metric6 = $string_metric6;
         $this->double_metric2 = $double_metric2;
         $this->string_metric7 = $string_metric7;
+        $this->string_metric8 = mb_convert_encoding($string_metric8, "UTF-8");
+        $this->string_metric9 = mb_convert_encoding($string_metric9, "UTF-8");
     }
 }

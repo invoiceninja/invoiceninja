@@ -126,7 +126,7 @@ class BaseEmailEngine implements EngineInterface
 
         if (! empty($this->variables)) {
 
-            $text = str_replace(['$paymentLink', '$viewButton', '$view_button', '$viewLink', '$view_link'], '$view_url', $text);
+            $text = str_replace(['$paymentLink', '$viewButton', '$view_button', '$viewLink', '$view_link'], "\r\n\r\n".'$view_url'."\r\n", $text);
             $text = str_replace(array_keys($this->variables), array_values($this->variables), $text);
             $text = str_replace(array_keys($this->variables), array_values($this->variables), $text);
 

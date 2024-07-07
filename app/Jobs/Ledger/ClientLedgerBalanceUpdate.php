@@ -47,7 +47,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle(): void
     {
-       
+
         MultiDB::setDb($this->company->db);
 
         CompanyLedger::query()

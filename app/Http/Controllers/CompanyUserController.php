@@ -107,7 +107,7 @@ class CompanyUserController extends BaseController
      *     )
      * @param UpdateCompanyUserRequest $request
      * @param User $user
-     * @return Response|mixed|void
+     * @return Response| \Illuminate\Http\JsonResponse|mixed|void
      */
     public function update(UpdateCompanyUserRequest $request, User $user)
     {
@@ -119,8 +119,6 @@ class CompanyUserController extends BaseController
 
         if (! $company_user) {
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
-
-            return;
         }
 
         if ($auth_user->isAdmin()) {
@@ -152,7 +150,6 @@ class CompanyUserController extends BaseController
 
         if (! $company_user) {
             throw new ModelNotFoundException(ctrans('texts.company_user_not_found'));
-            return;
         }
 
         $this->entity_type = User::class;
