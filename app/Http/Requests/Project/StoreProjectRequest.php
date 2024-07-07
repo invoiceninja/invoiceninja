@@ -80,8 +80,8 @@ class StoreProjectRequest extends Request
             $input['budgeted_hours'] = 0;
         }
 
-        $input['task_rate'] = isset($input['task_rate']) ? $input['task_rate'] : 0;
-
+        $input['task_rate'] = (isset($input['task_rate']) && floatval($input['task_rate']) >= 0) ? $input['task_rate'] : 0;
+        
         $this->replace($input);
     }
 
