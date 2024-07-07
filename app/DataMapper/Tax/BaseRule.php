@@ -220,6 +220,7 @@ class BaseRule implements RuleInterface
                 try {
                     $this->invoice->saveQuietly();
                 } catch(\Exception $e) {
+                    nlog("Exception:: BaseRule::" . $e->getMessage());
                 }
 
             }
@@ -261,7 +262,7 @@ class BaseRule implements RuleInterface
                 return $this->client->state;
             }
 
-            return USStates::getState(strlen($this->client->postal_code) > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
+            return USStates::getState(strlen($this->client->postal_code ?? '') > 1 ? $this->client->postal_code : $this->client->shipping_postal_code);
 
         } catch (\Exception $e) {
             return 'CA';

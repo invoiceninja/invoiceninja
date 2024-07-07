@@ -47,13 +47,14 @@ class ProjectTransformer extends EntityTransformer
     {
         $transformer = new DocumentTransformer($this->serializer);
 
-        if($project->documents)
+        // if($project->documents->count() > 0) {
             return $this->includeCollection($project->documents, $transformer, Document::class);
-    
-        return null;
+        // }
+
+        // return null;
     }
 
-    public function includeClient(Project $project): \League\Fractal\Resource\Item
+    public function includeClient(Project $project): ?\League\Fractal\Resource\Item
     {
 
         if (!$project->client) {
@@ -83,14 +84,14 @@ class ProjectTransformer extends EntityTransformer
     public function includeExpenses(Project $project): \League\Fractal\Resource\Collection
     {
         $transformer = new ExpenseTransformer($this->serializer);
-                
+
         return $this->includeCollection($project->expenses, $transformer, Expense::class);
     }
 
     public function includeQuotes(Project $project): \League\Fractal\Resource\Collection
     {
         $transformer = new QuoteTransformer($this->serializer);
-        
+
         return $this->includeCollection($project->quotes, $transformer, Quote::class);
     }
 

@@ -79,6 +79,10 @@ class PortalComposer
             return [];
         }
 
+        auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents'); // Exclude 'grandchildren' relation of 'client'
+        }]);
+
         $this->settings = auth()->guard('contact')->user()->client->getMergedSettings();
 
         $data['sidebar'] = $this->sidebarMenu();

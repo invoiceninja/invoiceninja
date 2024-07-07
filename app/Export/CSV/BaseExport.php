@@ -838,12 +838,12 @@ class BaseExport
         return '';
 
     }
-    
+
     /**
      * Apply Product Filters
      *
      * @param  Builder $query
-     * 
+     *
      * @return Builder
      */
     public function applyProductFilters(Builder $query): Builder
@@ -863,13 +863,13 @@ class BaseExport
 
         return $query;
     }
-    
+
     /**
      * Add Client Filter
      *
      * @param  Builder $query
      * @param  mixed $clients
-     * 
+     *
      * @return Builder
      */
     protected function addClientFilter(Builder $query, $clients): Builder
@@ -886,13 +886,13 @@ class BaseExport
 
         return $query;
     }
-    
+
     /**
      * Add Vendor Filter
      *
      * @param  Builder $query
      * @param  string $vendors
-     * 
+     *
      * @return Builder
      */
     protected function addVendorFilter(Builder$query, string $vendors): Builder
@@ -910,13 +910,13 @@ class BaseExport
 
         return $query;
     }
-    
+
     /**
      * AddProjectFilter
      *
      * @param  Builder $query
      * @param  string $projects
-     * 
+     *
      * @return Builder
      */
     protected function addProjectFilter(Builder $query, string $projects): Builder
@@ -934,13 +934,13 @@ class BaseExport
 
         return $query;
     }
-    
+
     /**
      * Add Category Filter
      *
      * @param  Builder $query
      * @param  string $expense_categories
-     * 
+     *
      * @return Builder
      */
     protected function addCategoryFilter(Builder $query, string $expense_categories): Builder
@@ -959,24 +959,25 @@ class BaseExport
 
         return $query;
     }
-    
+
     /**
      * Add Payment Status Filters
      *
      * @param  Builder $query
      * @param  string $status
-     * 
+     *
      * @return Builder
      */
     protected function addPaymentStatusFilters(Builder $query, string $status): Builder
     {
 
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if(in_array('all', $status_parameters) || count($status_parameters) == 0) {
+        if((count($status_parameters) == 0) || in_array('all', $status_parameters)) {
             return $query;
         }
-        
+
         $query->where(function ($query) use ($status_parameters) {
             $payment_filters = [];
 
@@ -1016,21 +1017,22 @@ class BaseExport
         return $query;
 
     }
-            
+
     /**
      * Add RecurringInvoice Status Filter
      *
      * @param  Builder $query
      * @param  string $status
-     * 
+     *
      * @return Builder
      */
     protected function addRecurringInvoiceStatusFilter(Builder $query, string $status): Builder
     {
 
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
-        if (in_array('all', $status_parameters) || count($status_parameters) == 0){
+        if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
             return $query;
         }
 
@@ -1060,7 +1062,7 @@ class BaseExport
      *
      * @param  Builder $query
      * @param  string $status
-     * 
+     *
      * @return Builder
      */
     protected function addQuoteStatusFilter(Builder $query, string $status): Builder
@@ -1126,12 +1128,13 @@ class BaseExport
      *
      * @param  Builder $query
      * @param  string $status
-     * 
+     *
      * @return Builder
      */
     protected function addPurchaseOrderStatusFilter(Builder $query, string $status): Builder
     {
-        
+
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {
@@ -1179,7 +1182,8 @@ class BaseExport
      */
     protected function addInvoiceStatusFilter(Builder $query, string $status): Builder
     {
-
+               
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if(in_array('all', $status_parameters) || count($status_parameters) == 0) {
@@ -1234,20 +1238,21 @@ class BaseExport
 
         return $query;
     }
-    
+
     /**
      * Add Date Range
      *
      * @param  Builder $query
+     * @param ?string $table_name
      * @return Builder
      */
-    protected function addDateRange(Builder $query): Builder
+    protected function addDateRange(Builder $query, ?string $table_name = null): Builder
     {
         $query = $this->applyProductFilters($query);
 
         $date_range = $this->input['date_range'];
 
-        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1) {
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
             $this->date_key = $this->input['date_key'];
         }
 
@@ -1578,7 +1583,7 @@ class BaseExport
 
     public function queueDocuments(Builder $query)
     {
-        
+
         if($query->getModel() instanceof Document) {
             $documents = $query->pluck('id')->toArray();
         } else {
@@ -1604,5 +1609,18 @@ class BaseExport
             ZipDocuments::dispatch($documents, $this->company, $user);
         }
     }
-
+    
+    /**
+     * Tests that the column exists
+     * on the table prior to adding it to 
+     * the query builder
+     *
+     * @param  string $table
+     * @param  string $column
+     * @return bool
+     */
+    public function columnExists($table, $column): bool
+    {
+        return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
+    }
 }

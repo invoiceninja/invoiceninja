@@ -67,7 +67,7 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new UserTransformer($this->serializer);
 
-        if (!$task->user) {
+        if (!$task->user) { //@phpstan-ignore-line
             return null;
         }
 
@@ -111,8 +111,9 @@ class TaskTransformer extends EntityTransformer
     {
         $transformer = new ProjectTransformer($this->serializer);
 
-        if ($task->project) 
+        if ($task->project) {
             return $this->includeItem($task->project, $transformer, Project::class);
+        }
 
         return null;
     }

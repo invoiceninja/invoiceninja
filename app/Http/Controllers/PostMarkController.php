@@ -19,7 +19,6 @@ use Illuminate\Http\Request;
  */
 class PostMarkController extends BaseController
 {
-    private $invitation;
 
     public function __construct()
     {

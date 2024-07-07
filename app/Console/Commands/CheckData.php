@@ -12,37 +12,38 @@
 namespace App\Console\Commands;
 
 use App;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Contact;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Libraries\MultiDB;
+use App\Models\CompanyUser;
+use Illuminate\Support\Str;
+use App\Models\CompanyToken;
+use App\Models\ClientContact;
+use App\Models\CompanyLedger;
+use App\Models\PurchaseOrder;
+use App\Models\VendorContact;
+use App\Models\BankTransaction;
+use App\Models\QuoteInvitation;
+use Illuminate\Console\Command;
+use App\Models\CreditInvitation;
+use App\Models\RecurringInvoice;
+use App\Models\InvoiceInvitation;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
-use App\Libraries\MultiDB;
-use App\Models\Account;
-use App\Models\BankTransaction;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Company;
-use App\Models\CompanyLedger;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\Contact;
-use App\Models\Credit;
-use App\Models\CreditInvitation;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Models\Payment;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoice;
 use App\Models\RecurringInvoiceInvitation;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Utils\Ninja;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -130,6 +131,7 @@ class CheckData extends Command
         $this->checkContactEmailAndSendEmailStatus();
         $this->checkPaymentCurrency();
         $this->checkSubdomainsSet();
+        $this->checkExpenseCurrency();
 
         if (Ninja::isHosted()) {
             $this->checkAccountStatuses();
@@ -172,18 +174,18 @@ class CheckData extends Command
         CompanyUser::query()->cursor()->each(function ($cu) {
 
             if (CompanyToken::where('user_id', $cu->user_id)->where('company_id', $cu->company_id)->where('is_system', 1)->doesntExist()) {
-                
+
 
                 if ($cu->company && $cu->user) {
                     $this->logMessage("Creating missing company token for user # {$cu->user_id} for company id # {$cu->company_id}");
                     (new CreateCompanyToken($cu->company, $cu->user, 'System'))->handle();
-                } 
-                
+                }
+
                 if (!$cu->user) {
                     $this->logMessage("No user found for company user - removing company user");
                     $cu->forceDelete();
                 }
-                    
+
             }
         });
     }
@@ -477,14 +479,13 @@ class CheckData extends Command
                         }
                     } else {
                         $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
-                        
-                        try{
+
+                        try {
                             $entity->service()->createInvitations()->save();
-                        }
-                        catch(\Exception $e){
+                        } catch(\Exception $e) {
 
                         }
-                        
+
                     }
 
                     try {
@@ -949,12 +950,12 @@ class CheckData extends Command
 
             });
 
-            Company::whereDoesntHave('company_users', function ($query){
-            $query->where('is_owner', 1);
+            Company::whereDoesntHave('company_users', function ($query) {
+                $query->where('is_owner', 1);
             })
             ->cursor()
             ->when(Ninja::isHosted())
-            ->each(function ($c){
+            ->each(function ($c) {
 
                 $this->logMessage("Orphan Account # {$c->account_id}");
 
@@ -963,8 +964,8 @@ class CheckData extends Command
             CompanyUser::whereDoesntHave('tokens')
             ->cursor()
             ->when(Ninja::isHosted())
-            ->each(function ($cu){
-                
+            ->each(function ($cu) {
+
                 $this->logMessage("Missing tokens for Company User # {$cu->id}");
 
             });
@@ -1159,7 +1160,21 @@ class CheckData extends Command
 
             });
         }
+    }
 
+    public function checkExpenseCurrency()
+    {
+        Expense::with('company')
+                ->withTrashed()
+                ->whereNull('exchange_rate')
+                ->orWhere('exchange_rate', 0)
+                ->cursor()
+                ->each(function ($expense){
+                    $expense->exchange_rate = 1;
+                    $expense->saveQuietly();
+                    
+                    $this->logMessage("Fixing - exchange rate for expense :: {$expense->id}");
 
+                });
     }
 }

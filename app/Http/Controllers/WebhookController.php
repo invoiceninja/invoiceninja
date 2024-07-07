@@ -79,7 +79,7 @@ class WebhookController extends BaseController
      *       ),
      *     )
      * @param WebhookFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(WebhookFilters $filters)
     {
@@ -93,7 +93,7 @@ class WebhookController extends BaseController
      *
      * @param ShowWebhookRequest $request
      * @param Webhook $webhook
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -147,7 +147,7 @@ class WebhookController extends BaseController
      *
      * @param EditWebhookRequest $request
      * @param Webhook $webhook
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -201,7 +201,7 @@ class WebhookController extends BaseController
      *
      * @param UpdateWebhookRequest $request
      * @param Webhook $webhook
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -262,7 +262,7 @@ class WebhookController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateWebhookRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -312,7 +312,7 @@ class WebhookController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreWebhookRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -378,7 +378,7 @@ class WebhookController extends BaseController
      *
      * @param DestroyWebhookRequest $request
      * @param Webhook $webhook
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -433,7 +433,7 @@ class WebhookController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(

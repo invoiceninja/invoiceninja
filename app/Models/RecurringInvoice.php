@@ -40,8 +40,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $date
  * @property string|null $due_date
  * @property bool $is_deleted
- * @property mixed $line_items
- * @property object|null $backup
+ * @property array $line_items
+ * @property object|string|null $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
@@ -72,17 +72,17 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $auto_bill_enabled
  * @property int|null $design_id
  * @property bool $uses_inclusive_taxes
- * @property string|null $custom_surcharge1
- * @property string|null $custom_surcharge2
- * @property string|null $custom_surcharge3
- * @property string|null $custom_surcharge4
+ * @property float|null $custom_surcharge1
+ * @property float|null $custom_surcharge2
+ * @property float|null $custom_surcharge3
+ * @property float|null $custom_surcharge4
  * @property bool $custom_surcharge_tax1
  * @property bool $custom_surcharge_tax2
  * @property bool $custom_surcharge_tax3
  * @property bool $custom_surcharge_tax4
  * @property string|null $due_date_days
  * @property string|null $partial_due_date
- * @property string $exchange_rate
+ * @property float $exchange_rate
  * @property float $paid_to_date
  * @property int|null $subscription_id
  * @property string|null $next_send_date_client
@@ -341,12 +341,12 @@ class RecurringInvoice extends BaseModel
             return $this->status_id;
         }
     }
-    
+
     /**
      * CalculateStatus
      *
      * Calculates the status of the Recurring Invoice.
-     * 
+     *
      * We only apply the pending status on new models, we never revert an invoice back to
      * pending.
      * @param  bool $new_model
@@ -355,15 +355,16 @@ class RecurringInvoice extends BaseModel
     public function calculateStatus(bool $new_model = false) //15-02-2024 - $new_model needed
     {
 
-        if($this->remaining_cycles == 0) 
+        if($this->remaining_cycles == 0) {
             return self::STATUS_COMPLETED;
-        elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) 
+        } elseif ($new_model && $this->status_id == self::STATUS_ACTIVE && Carbon::parse($this->next_send_date)->isFuture()) {
             return self::STATUS_PENDING;
-        elseif($this->remaining_cycles != 0 && ($this->status_id == self::STATUS_COMPLETED))
+        } elseif($this->remaining_cycles != 0 && ($this->status_id == self::STATUS_COMPLETED)) {
             return self::STATUS_ACTIVE;
+        }
 
         return $this->status_id;
-        
+
     }
 
     public function nextSendDate(): ?Carbon
@@ -683,7 +684,7 @@ class RecurringInvoice extends BaseModel
             return null;
         }
 
-        return $new_date->addDays($client_payment_terms); //add the number of days in the payment terms to the date
+        return $new_date->addDays((int)$client_payment_terms); //add the number of days in the payment terms to the date
     }
 
     /**

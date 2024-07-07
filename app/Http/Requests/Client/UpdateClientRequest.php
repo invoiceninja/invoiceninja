@@ -105,8 +105,7 @@ class UpdateClientRequest extends Request
         /* If the user removes the currency we must always set the default */
         if (array_key_exists('settings', $input) && ! array_key_exists('currency_id', $input['settings'])) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
-        }
-        elseif (empty($input['settings']['currency_id']) ?? true) {
+        } elseif (empty($input['settings']['currency_id']) ?? true) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
@@ -140,32 +139,28 @@ class UpdateClientRequest extends Request
 
     private function getCountryCode($country_code)
     {
-        $countries = Cache::get('countries');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-        $country = $countries->filter(function ($item) use ($country_code) {
+        $country = $countries->first(function ($item) use ($country_code) {
             return $item->iso_3166_2 == $country_code || $item->iso_3166_3 == $country_code;
-        })->first();
+        });
 
-        if ($country) {
-            return (string) $country->id;
-        }
-
-        return '';
+        return $country ? (string) $country->id : '';
     }
 
     private function getLanguageId($language_code)
     {
-        $languages = Cache::get('languages');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        $language = $languages->filter(function ($item) use ($language_code) {
+        $language = $languages->first(function ($item) use ($language_code) {
             return $item->locale == $language_code;
-        })->first();
+        });
 
-        if ($language) {
-            return (string) $language->id;
-        }
-
-        return '';
+        return $language ? (string) $language->id : '';
     }
 
     /**
@@ -175,7 +170,7 @@ class UpdateClientRequest extends Request
      * down to the free plan setting properties which
      * are saveable
      *
-     * @param  \stdClass $settings
+     * @param  mixed $settings
      * @return \stdClass $settings
      */
     private function filterSaveableSettings($settings)

@@ -69,15 +69,23 @@ class Locale
      */
     public function handle($request, Closure $next)
     {
+
+
         /*LOCALE SET */
         if ($request->has('lang') && in_array($request->input('lang', 'en'), $this->locales)) {
             $locale = $request->input('lang');
             App::setLocale($locale);
         } elseif (auth()->guard('contact')->user()) {
-            App::setLocale(auth()->guard('contact')->user()->client()->setEagerLoads([])->first()->locale());
+
+            auth()->guard('contact')->user()->loadMissing(['client' => function ($query) { // @phpstan-ignore method.undefined
+                $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+            }]);
+
+            App::setLocale(auth()->guard('contact')->user()->client->locale());
         } elseif (auth()->user()) {
             try {
-                App::setLocale(auth()->user()->company()->getLocale());
+                App::setLocale(auth()->user()->company()->getLocale()); // @phpstan-ignore method.undefined
+
             } catch (\Exception $e) {
             }
         } else {

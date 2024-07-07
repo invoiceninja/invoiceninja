@@ -12,7 +12,7 @@ class ThrottleRequestsWithPredis extends ThrottleRequests
     /**
      * The Redis factory implementation.
      *
-     * @var \Illuminate\Contracts\Redis\Factory
+     * @var \Illuminate\Redis\Connections\Connection
      */
     protected $redis;
 

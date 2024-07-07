@@ -34006,7 +34006,7 @@ class USStates
         'WA', 'WA', 'WA', 'WA', 'WA', 'WA', 'WA', 'AK', 'AK', 'AK', 'AK', 'AK'
         ];
 
-        $prefix = substr($zip, 0, 3);
+        $prefix = substr(($zip ?? ''), 0, 3);
         $index = intval($prefix);
         /* converts prefix to integer */
         return $zip_by_state[$index] == "--" ? false : $zip_by_state[$index];

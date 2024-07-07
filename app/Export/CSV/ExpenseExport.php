@@ -83,13 +83,13 @@ class ExpenseExport extends BaseExport
                         ->with('client')
                         ->withTrashed()
                         ->where('company_id', $this->company->id);
-        
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+
+        if(!$this->input['include_deleted'] ?? false) { // @phpstan-ignore-line
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'expenses');
 
         if($this->input['status'] ?? false) {
             $query = $this->addExpenseStatusFilter($query, $this->input['status']);
@@ -220,17 +220,17 @@ class ExpenseExport extends BaseExport
         //     $entity['expense.client'] = $expense->client ? $expense->client->present()->name() : '';
         // }
 
-        // if (in_array('expense.invoice_id', $this->input['report_keys'])) {
-        //     $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
-        // }
+        if (in_array('expense.invoice_id', $this->input['report_keys'])) {
+            $entity['expense.invoice_id'] = $expense->invoice ? $expense->invoice->number : '';
+        }
 
         // if (in_array('expense.category', $this->input['report_keys'])) {
         //     $entity['expense.category'] = $expense->category ? $expense->category->name : '';
         // }
 
-        // if (in_array('expense.vendor_id', $this->input['report_keys'])) {
-        //     $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
-        // }
+        if (in_array('expense.vendor_id', $this->input['report_keys'])) {
+            $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
+        }
 
         // if (in_array('expense.payment_type_id', $this->input['report_keys'])) {
         //     $entity['expense.payment_type_id'] = $expense->payment_type ? $expense->payment_type->name : '';
@@ -259,10 +259,17 @@ class ExpenseExport extends BaseExport
     {
         $precision = $expense->currency->precision ?? 2;
 
-        $entity['expense.net_amount'] = round($expense->amount, $precision);
-
         if($expense->calculate_tax_by_amount) {
+
             $total_tax_amount = round($expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3, $precision);
+            
+            if($expense->uses_inclusive_taxes) {
+                $entity['expense.net_amount'] = round($expense->amount, $precision) - $total_tax_amount;
+            }
+            else {
+                $entity['expense.net_amount'] = round($expense->amount, $precision);
+            }
+
         } else {
 
             if($expense->uses_inclusive_taxes) {

@@ -229,7 +229,7 @@ class InvoiceSum
     {
         // $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
         // $this->invoice->total_taxes = $this->getTotalTaxes();
-        
+
         $this->setCalculatedAttributes();
         $this->invoice->balance = $this->invoice->amount;
         $this->invoice->saveQuietly();
@@ -245,10 +245,9 @@ class InvoiceSum
      */
     private function setCalculatedAttributes(): self
     {
-        if($this->invoice->status_id == Invoice::STATUS_CANCELLED){
+        if($this->invoice->status_id == Invoice::STATUS_CANCELLED) {
             $this->invoice->balance = 0;
-        }
-        elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
+        } elseif ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             if ($this->invoice->amount != $this->invoice->balance) {
                 $this->invoice->balance = Number::roundValue($this->getTotal(), $this->precision) - $this->invoice->paid_to_date; //21-02-2024 cannot use the calculated $paid_to_date here as it could send the balance backward.
             } else {
@@ -258,7 +257,7 @@ class InvoiceSum
         /* Set new calculated total */
         $this->invoice->amount = $this->formatValue($this->getTotal(), $this->precision);
 
-        if($this->rappen_rounding){
+        if($this->rappen_rounding) {
             $this->invoice->amount = $this->roundRappen($this->invoice->amount);
             $this->invoice->balance = $this->roundRappen($this->invoice->balance);
         }
@@ -269,7 +268,7 @@ class InvoiceSum
     }
 
 
-    function roundRappen($value): float
+    public function roundRappen($value): float
     {
         return round($value / .05, 0) * .05;
     }

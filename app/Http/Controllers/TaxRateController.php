@@ -77,7 +77,7 @@ class TaxRateController extends BaseController
      *
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function index(TaxRateFilters $filters)
     {
@@ -90,7 +90,7 @@ class TaxRateController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateTaxRateRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -137,7 +137,7 @@ class TaxRateController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreTaxRateRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function store(StoreTaxRateRequest $request)
     {
@@ -156,7 +156,7 @@ class TaxRateController extends BaseController
      *
      * @param ShowTaxRateRequest $request
      * @param TaxRate $tax_rate
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -209,7 +209,7 @@ class TaxRateController extends BaseController
      *
      * @param EditTaxRateRequest $request
      * @param TaxRate $tax_rate
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -262,7 +262,7 @@ class TaxRateController extends BaseController
      *
      * @param UpdateTaxRateRequest $request
      * @param TaxRate $tax_rate
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -319,7 +319,7 @@ class TaxRateController extends BaseController
      *
      * @param DestroyTaxRateRequest $request
      * @param TaxRate $tax_rate
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -374,7 +374,7 @@ class TaxRateController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(

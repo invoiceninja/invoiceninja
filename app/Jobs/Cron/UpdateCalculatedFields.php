@@ -68,7 +68,7 @@ class UpdateCalculatedFields
                     $project->current_hours = $this->calculateDuration($project);
                     $project->save();
                 });
-                
+
                 //Clean password resets table
                 \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHour())->delete();
 
@@ -86,6 +86,9 @@ class UpdateCalculatedFields
 
                 foreach(json_decode($task->time_log) as $log) {
 
+                    if(!is_array($log))
+                        continue;
+                    
                     $start_time = $log[0];
                     $end_time = $log[1] == 0 ? time() : $log[1];
 
@@ -96,7 +99,7 @@ class UpdateCalculatedFields
 
         });
 
-        return round(($duration / 60 / 60), 0);
+        return (int) round(($duration / 60 / 60), 0);
 
     }
 }

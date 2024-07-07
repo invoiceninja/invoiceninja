@@ -33,8 +33,6 @@ class CreditBalanceTest extends TestCase
         });
 
         $this->makeTestData();
-
-        $this->buildCache(true);
     }
 
     public function testCreditBalance()

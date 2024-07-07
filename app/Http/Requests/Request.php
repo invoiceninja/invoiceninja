@@ -33,11 +33,12 @@ class Request extends FormRequest
 
     public function fileValidation()
     {
-        if(config('ninja.upload_extensions'))
+        if(config('ninja.upload_extensions')) {
             return $this->file_validation. ",".config('ninja.upload_extensions');
+        }
 
         return $this->file_validation;
-        
+
     }
 
     public function globalRules($rules)
@@ -46,9 +47,10 @@ class Request extends FormRequest
 
         foreach ($this->all() as $key => $value) {
 
-            if($key == 'user')
+            if($key == 'user') {
                 continue;
-            
+            }
+
             if (method_exists($this, $key)) {
                 $merge_rules = $this->{$key}($rules);
             }

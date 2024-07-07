@@ -59,7 +59,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property \App\DataMapper\CompanySettings $settings
+ * @property \App\DataMapper\CompanySettings|\stdClass $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -112,12 +112,12 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
  * @property int $deleted_at
- * @property string $smtp_username
- * @property string $smtp_password
- * @property string $smtp_host
- * @property string $smtp_port
- * @property string $smtp_encryption
- * @property string $smtp_local_domain
+ * @property string|null $smtp_username
+ * @property string|null $smtp_password
+ * @property string|null $smtp_host
+ * @property string|null $smtp_port
+ * @property string|null $smtp_encryption
+ * @property string|null $smtp_local_domain
  * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -636,20 +636,13 @@ class Company extends BaseModel
 
     public function country()
     {
-        $companies = Cache::get('countries');
 
-        if (! $companies) {
-            $this->buildCache(true);
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-            $companies = Cache::get('countries');
-        }
-
-        return $companies->filter(function ($item) {
+        return $countries->first(function ($item) {
             return $item->id == $this->getSetting('country_id');
-        })->first();
-
-        //        return $this->belongsTo(Country::class);
-        // return Country::find($this->settings->country_id);
+        });
     }
 
     public function group_settings()
@@ -659,17 +652,14 @@ class Company extends BaseModel
 
     public function timezone()
     {
-        $timezones = Cache::get('timezones');
 
-        if (! $timezones) {
-            $this->buildCache(true);
-        }
+        /** @var \Illuminate\Support\Collection<\App\Models\TimeZone> */
+        $timezones = app('timezones');
 
-        return $timezones->filter(function ($item) {
+        return $timezones->first(function ($item) {
             return $item->id == $this->settings->timezone_id;
-        })->first();
+        });
 
-        // return Timezone::find($this->settings->timezone_id);
     }
 
     public function designs()
@@ -694,22 +684,15 @@ class Company extends BaseModel
 
     public function language()
     {
-        $languages = Cache::get('languages');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        //build cache and reinit
-        if (! $languages) {
-            $this->buildCache(true);
-            $languages = Cache::get('languages');
-        }
-
-        //if the cache is still dead, get from DB
-        if (!$languages && property_exists($this->settings, 'language_id')) {
-            return Language::find($this->settings->language_id);
-        }
-
-        return $languages->filter(function ($item) {
+        $language = $languages->first(function ($item) {
             return $item->id == $this->settings->language_id;
-        })->first();
+        });
+
+        return $language ?? $languages->first();
     }
 
     public function getLocale()
@@ -750,11 +733,13 @@ class Company extends BaseModel
 
     public function currency()
     {
-        $currencies = Cache::get('currencies');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
-        return $currencies->filter(function ($item) {
+        return $currencies->first(function ($item) {
             return $item->id == $this->settings->currency_id;
-        })->first();
+        });
     }
 
     /**
@@ -856,7 +841,6 @@ class Company extends BaseModel
                           ->where('applies_to', 'DEBIT')
                           ->get();
     }
-
 
     public function resolveRouteBinding($value, $field = null)
     {
@@ -967,15 +951,13 @@ class Company extends BaseModel
 
     public function date_format()
     {
-        $date_formats = Cache::get('date_formats');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
+        $date_formats = app('date_formats');
 
-        if (! $date_formats) {
-            $this->buildCache(true);
-        }
-
-        return $date_formats->filter(function ($item) {
+        return $date_formats->first(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
-        })->first()->format;
+        })->format;
     }
 
     public function getInvoiceCert()

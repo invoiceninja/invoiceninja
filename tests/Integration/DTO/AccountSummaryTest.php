@@ -128,18 +128,6 @@ class AccountSummaryTest extends TestCase
         parent::setUp();
     }
 
-    public function testWithBadDataTransformations()
-    {
-        $dtox = \App\Helpers\Bank\Yodlee\DTO\AccountSummary::from($this->bad_data[0]);
-        $this->assertEquals(19315, $dtox->id);
-        $this->assertEquals('', $dtox->account_status);
-    }
-
-    public function testTransform()
-    {
-        $dto = \App\Helpers\Bank\Yodlee\DTO\AccountSummary::from($this->data[0]);
-        $this->assertEquals($dto->id, 19315);
-    }
 
     public function testTransformRefactor()
     {

@@ -96,7 +96,7 @@ class StoreUserRequest extends Request
         }
 
         $input['id'] = null;
-        
+
         $this->replace($input);
     }
 

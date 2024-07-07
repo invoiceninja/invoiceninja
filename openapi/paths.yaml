@@ -116,12 +116,10 @@ paths:
                   description: "The users email address."
                   type: string
                   example: "demo@invoiceninja.com"
-                  required: true
                 password:
                   description: "The user password. Must meet minimum criteria ~ > 6 characters"
                   type: string
                   example: "Password0"
-                  required: true
                 one_time_password:
                   description: "The one time password if 2FA is enabled"
                   type: string
@@ -2135,6 +2133,43 @@ paths:
             type: string
             format: string
           example: D2J234DFA
+      responses:
+        200:
+          description: "Returns the company object"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        5XX:
+          description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/companies/current":
+    post:
+      tags:
+        - companies
+      summary: "Returns the current comapny"
+      description: "Returns the current company based on the API token passed in"
+      operationId: showCurrentCompany
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - $ref: "#/components/parameters/include"
       responses:
         200:
           description: "Returns the company object"

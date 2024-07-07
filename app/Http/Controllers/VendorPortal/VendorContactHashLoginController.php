@@ -19,7 +19,7 @@ class VendorContactHashLoginController extends Controller
     /**
      * Logs a user into the client portal using their contact_key
      * @param  string $contact_key  The contact key
-     * @return Auth|\Illuminate\Support\Facades\Redirect
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function login(string $contact_key)
     {
@@ -27,14 +27,19 @@ class VendorContactHashLoginController extends Controller
     }
 
     /**
-    * @return \Illuminate\Support\Facades\Redirect
+     * @return \Illuminate\Http\RedirectResponse
     */
 
     public function magicLink(string $magic_link)
     {
         return redirect($this->setRedirectPath());
     }
-
+    
+    /**
+     * errorPage
+     *
+     * @return \Illuminate\View\View
+     */
     public function errorPage()
     {
         return render('generic.error', ['title' => session()->get('title'), 'notification' => session()->get('notification')]);

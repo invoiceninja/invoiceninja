@@ -27,16 +27,6 @@ class PdfMaker
 
     public $document;
 
-    private $xpath;
-
-    private $filters = [
-        '<![CDATA[' => '',
-        '<![CDATA[<![CDATA[' => '',
-        ']]]]><![CDATA[>]]>' => '',
-        ']]>' => '',
-        '<?xml version="1.0" encoding="utf-8" standalone="yes"??>' => '',
-    ];
-
     private $options;
 
     /** @var CommonMarkConverter */
@@ -80,7 +70,7 @@ class PdfMaker
             $replacements = [];
             $contents = $this->document->getElementsByTagName('ninja');
 
-            $ts = new TemplateService();    
+            $ts = new TemplateService();
 
             if(isset($this->options['client'])) {
                 $client = $this->options['client'];
@@ -88,10 +78,10 @@ class PdfMaker
                     $ts->setCompany($client->company);
                     $ts->addGlobal(['currency_code' => $client->company->currency()->code]);
                 } catch(\Exception $e) {
-                        nlog($e->getMessage());
+                    nlog($e->getMessage());
                 }
             }
-            
+
             if(isset($this->options['vendor'])) {
                 $vendor = $this->options['vendor'];
                 try {

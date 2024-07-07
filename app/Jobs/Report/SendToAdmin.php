@@ -57,8 +57,7 @@ class SendToAdmin implements ShouldQueue
         $csv = $export->run();
         $user = $this->company->owner();
 
-        if(isset($this->request['user_id']))
-        {
+        if(isset($this->request['user_id'])) {
             $user = User::find($this->request['user_id']) ?? $this->company->owner();
         }
 

@@ -46,7 +46,7 @@ class SEPA implements MethodInterface
      * Handle authorization for SEPA.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse|void
      */
     public function authorizeView(array $data)
     {
@@ -106,7 +106,7 @@ class SEPA implements MethodInterface
      * Handle authorization response for SEPA.
      *
      * @param Request $request
-     * @return RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function authorizeResponse(Request $request)
     {
@@ -156,7 +156,7 @@ class SEPA implements MethodInterface
      * Handle the payment page for SEPA.
      *
      * @param PaymentResponseRequest $request
-     * @return RedirectResponse|App\PaymentDrivers\GoCardless\never|void
+     * @return \Illuminate\Http\RedirectResponse|App\PaymentDrivers\GoCardless\never|void
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -204,7 +204,7 @@ class SEPA implements MethodInterface
      *
      * @param ResourcesPayment $payment
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processPendingPayment(\GoCardlessPro\Resources\Payment $payment, array $data = [])
     {

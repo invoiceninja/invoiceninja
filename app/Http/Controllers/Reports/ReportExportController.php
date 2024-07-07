@@ -36,21 +36,16 @@ class ReportExportController extends BaseController
             return response()->json(['message' => 'Still working.....'], 409);
         }
 
-        if($report) {
+        Cache::forget($hash);
 
-            Cache::forget($hash);
+        $headers = [
+            'Content-Disposition' => 'attachment',
+            'Content-Type' => 'text/csv',
+        ];
 
-            $headers = [
-                'Content-Disposition' => 'attachment',
-                'Content-Type' => 'text/csv',
-            ];
-
-            return response()->streamDownload(function () use ($report) {
-                echo $report;
-            }, $this->filename, $headers);
-
-        }
-
+        return response()->streamDownload(function () use ($report) {
+            echo $report;
+        }, $this->filename, $headers);
 
     }
 }

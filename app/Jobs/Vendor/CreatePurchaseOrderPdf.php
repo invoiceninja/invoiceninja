@@ -100,18 +100,6 @@ class CreatePurchaseOrderPdf implements ShouldQueue
 
         return $ps->boot()->getPdf();
 
-
-        $pdf = $this->rawPdf();
-
-        if ($pdf) {
-            try {
-                Storage::disk($this->disk)->put($this->file_path, $pdf);
-            } catch(\Exception $e) {
-                throw new FilePermissionsFailure($e->getMessage());
-            }
-        }
-
-        return $this->file_path;
     }
 
     public function rawPdf()

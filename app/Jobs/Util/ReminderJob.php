@@ -71,7 +71,7 @@ class ReminderJob implements ShouldQueue
                  ->whereHas('company', function ($query) {
                      $query->where('is_disabled', 0);
                  })
-                 ->with('invitations')->chunk(50, function ($invoices) {
+                 ->with('invitations')->chunk(200, function ($invoices) {
                      foreach ($invoices as $invoice) {
                          $this->sendReminderForInvoice($invoice);
                      }
@@ -99,7 +99,7 @@ class ReminderJob implements ShouldQueue
                      ->whereHas('company', function ($query) {
                          $query->where('is_disabled', 0);
                      })
-                     ->with('invitations')->chunk(50, function ($invoices) {
+                     ->with('invitations')->chunk(200, function ($invoices) {
 
                          foreach ($invoices as $invoice) {
                              $this->sendReminderForInvoice($invoice);
@@ -168,45 +168,50 @@ class ReminderJob implements ShouldQueue
         $amount = $fees[0];
         $percent = $fees[1];
 
-        $temp_invoice_balance = $over_due_invoice->balance;
+        $invoice = false;
 
-        if ($amount <= 0 && $percent <= 0) {
-            return;
+        //2024-06-07 this early return prevented any reminders from sending for users who enabled lock_invoices.
+        if ($amount > 0 || $percent > 0) {
+            // return;
+
+            $fee = $amount;
+
+            if ($over_due_invoice->partial > 0) {
+                $fee += round($over_due_invoice->partial * $percent / 100, 2);
+            } else {
+                $fee += round($over_due_invoice->balance * $percent / 100, 2);
+            }
+
+            /** @var \App\Models\Invoice $invoice */
+            $invoice = InvoiceFactory::create($over_due_invoice->company_id, $over_due_invoice->user_id);
+            $invoice->client_id = $over_due_invoice->client_id;
+            $invoice->date = now()->format('Y-m-d');
+            $invoice->due_date = now()->format('Y-m-d');
+
+            $invoice_item = new InvoiceItem();
+            $invoice_item->type_id = '5';
+            $invoice_item->product_key = trans('texts.fee');
+            $invoice_item->notes = ctrans('texts.late_fee_added_locked_invoice', ['invoice' => $over_due_invoice->number, 'date' => $this->translateDate(now()->startOfDay(), $over_due_invoice->client->date_format(), $over_due_invoice->client->locale())]);
+            $invoice_item->quantity = 1;
+            $invoice_item->cost = $fee;
+
+            $invoice_items = [];
+            $invoice_items[] = $invoice_item;
+
+            $invoice->line_items = $invoice_items;
+
+            /**Refresh Invoice values*/
+            $invoice = $invoice->calc()->getInvoice();
+            $invoice->service()
+                    ->createInvitations()
+                    ->applyNumber()
+                    ->markSent()
+                    ->save();
         }
 
-        $fee = $amount;
-
-        if ($over_due_invoice->partial > 0) {
-            $fee += round($over_due_invoice->partial * $percent / 100, 2);
-        } else {
-            $fee += round($over_due_invoice->balance * $percent / 100, 2);
+        if(!$invoice) {
+            $invoice = $over_due_invoice;
         }
-
-        /** @var \App\Models\Invoice $invoice */
-        $invoice = InvoiceFactory::create($over_due_invoice->company_id, $over_due_invoice->user_id);
-        $invoice->client_id = $over_due_invoice->client_id;
-        $invoice->date = now()->format('Y-m-d');
-        $invoice->due_date = now()->format('Y-m-d');
-
-        $invoice_item = new InvoiceItem();
-        $invoice_item->type_id = '5';
-        $invoice_item->product_key = trans('texts.fee');
-        $invoice_item->notes = ctrans('texts.late_fee_added_locked_invoice', ['invoice' => $over_due_invoice->number, 'date' => $this->translateDate(now()->startOfDay(), $over_due_invoice->client->date_format(), $over_due_invoice->client->locale())]);
-        $invoice_item->quantity = 1;
-        $invoice_item->cost = $fee;
-
-        $invoice_items = [];
-        $invoice_items[] = $invoice_item;
-
-        $invoice->line_items = $invoice_items;
-
-        /**Refresh Invoice values*/
-        $invoice = $invoice->calc()->getInvoice();
-        $invoice->service()
-                ->createInvitations()
-                ->applyNumber()
-                ->markSent()
-                ->save();
 
         $enabled_reminder = 'enable_'.$reminder_template;
         if ($reminder_template == 'endless_reminder') {

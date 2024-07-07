@@ -92,8 +92,7 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('portal', function (Request $request) {
             return Limit::perMinute(15)->by($request->ip());
         });
-
-
+        
     }
 
     /**

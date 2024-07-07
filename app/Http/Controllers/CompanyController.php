@@ -78,7 +78,7 @@ class CompanyController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Get(
      *      path="/api/v1/companies",
@@ -117,16 +117,26 @@ class CompanyController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $companies = Company::whereAccountId($user->company()->account->id);
+        $companies = Company::where('account_id', $user->company()->account->id);
 
         return $this->listResponse($companies);
+    }
+
+    public function current()
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $company = Company::find($user->company()->id);
+
+        return $this->itemResponse($company);
     }
 
     /**
      * Show the form for creating a new resource.
      *
      * @param CreateCompanyRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -176,7 +186,7 @@ class CompanyController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreCompanyRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -262,7 +272,7 @@ class CompanyController extends BaseController
      *
      * @param ShowCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -316,7 +326,7 @@ class CompanyController extends BaseController
      *
      * @param EditCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -370,7 +380,7 @@ class CompanyController extends BaseController
      *
      * @param UpdateCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Put(
@@ -447,7 +457,7 @@ class CompanyController extends BaseController
      *
      * @param DestroyCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -563,7 +573,7 @@ class CompanyController extends BaseController
      *
      * @param UploadCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -626,7 +636,7 @@ class CompanyController extends BaseController
      *
      * @param DefaultCompanyRequest $request
      * @param Company $company
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -683,7 +693,7 @@ class CompanyController extends BaseController
     public function updateOriginTaxData(DefaultCompanyRequest $request, Company $company)
     {
 
-        if($company->settings->country_id == "840" && !$company?->account->isFreeHostedClient()) {
+        if($company->settings->country_id == "840" && !$company->account->isFreeHostedClient()) {
             try {
                 (new CompanyTaxRate($company))->handle();
             } catch(\Exception $e) {
@@ -696,6 +706,11 @@ class CompanyController extends BaseController
         return $this->itemResponse($company->fresh());
     }
 
+    /**
+     * 
+     *
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse
+     */
     public function logo()
     {
 
@@ -705,18 +720,16 @@ class CompanyController extends BaseController
         $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
         $headers = ['Content-Disposition' => 'inline'];
 
-        try{
+        try {
             $response = \Illuminate\Support\Facades\Http::get($logo);
 
             if ($response->successful()) {
                 $logo = $response->body();
-            }
-            else {
+            } else {
                 $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
             }
 
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
             $logo = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
 

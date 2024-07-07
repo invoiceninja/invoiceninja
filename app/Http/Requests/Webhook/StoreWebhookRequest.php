@@ -45,7 +45,7 @@ class StoreWebhookRequest extends Request
         if (!isset($input['rest_method'])) {
             $input['rest_method'] = 'post';
         }
-        
+
         $this->replace($input);
     }
 }

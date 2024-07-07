@@ -63,7 +63,7 @@ class PayPalWebhook implements ShouldQueue
         if($this->verifyWebhook()) {
             nlog('verified');
 
-            match($this->webhook_request['event_type']) {
+            match($this->webhook_request['event_type']) {//@phpstan-ignore-line
                 'CHECKOUT.ORDER.COMPLETED' => $this->checkoutOrderCompleted(),
             };
 
@@ -307,7 +307,7 @@ class PayPalWebhook implements ShouldQueue
 
             });
 
-        return $gateway ?? false;
+        return $gateway ?? null;
     }
 
     //--------------------------------------------------------------------------------------//

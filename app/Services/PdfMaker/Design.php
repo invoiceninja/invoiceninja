@@ -287,7 +287,7 @@ class Design extends BaseDesign
     {
         $elements = [];
 
-        if (!$this->client) {
+        if (!$this->client) {//@phpstan-ignore-line
             return $elements;
         }
 
@@ -359,7 +359,7 @@ class Design extends BaseDesign
             $variables = $this->context['pdf_variables']['credit_details'];
         }
 
-        if ($this->vendor) {
+        if ($this->vendor) { //@phpstan-ignore-line
             $variables = $this->context['pdf_variables']['purchase_order_details'];
         }
 

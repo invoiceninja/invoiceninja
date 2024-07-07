@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_deleted
  * @property float $amount
  * @property float $foreign_amount
- * @property string $exchange_rate
+ * @property float $exchange_rate
  * @property string|null $tax_name1
  * @property float $tax_rate1
  * @property string|null $tax_name2
@@ -60,8 +60,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property float $tax_amount1
  * @property float $tax_amount2
  * @property float $tax_amount3
- * @property int $uses_inclusive_taxes
- * @property int $calculate_tax_by_amount
+ * @property bool $uses_inclusive_taxes
+ * @property bool $calculate_tax_by_amount
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\ExpenseCategory|null $category
  * @property-read \App\Models\Client|null $client

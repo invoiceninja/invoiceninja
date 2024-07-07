@@ -96,7 +96,7 @@ class VendorController extends BaseController
      *       ),
      *     )
      * @param VendorFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(VendorFilters $filters)
     {
@@ -110,7 +110,7 @@ class VendorController extends BaseController
      *
      * @param ShowVendorRequest $request
      * @param Vendor $vendor
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -164,7 +164,7 @@ class VendorController extends BaseController
      *
      * @param EditVendorRequest $request
      * @param Vendor $vendor
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -218,7 +218,7 @@ class VendorController extends BaseController
      *
      * @param UpdateVendorRequest $request
      * @param Vendor $vendor
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -284,7 +284,7 @@ class VendorController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateVendorRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -333,7 +333,7 @@ class VendorController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreVendorRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -391,7 +391,7 @@ class VendorController extends BaseController
      *
      * @param DestroyVendorRequest $request
      * @param Vendor $vendor
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -446,7 +446,7 @@ class VendorController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -527,7 +527,7 @@ class VendorController extends BaseController
      *
      * @param UploadVendorRequest $request
      * @param Vendor $vendor
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

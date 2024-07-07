@@ -91,7 +91,7 @@ class InvoiceTransformer extends BaseTransformer
             ];
 
             $addresses = $this->harvestAddresses($invoice_data);
-            
+
             $transformed['client'] = array_merge($transformed['client'], $addresses);
 
         }
@@ -102,17 +102,15 @@ class InvoiceTransformer extends BaseTransformer
                     'amount' => $this->getFloat($invoice_data, 'Payments'),
                 ],
             ];
-        }
-        elseif(isset($invoice_data['AmountPaidAmount']) && isset($invoice_data['DatePaid'])){
+        } elseif(isset($invoice_data['AmountPaidAmount']) && isset($invoice_data['DatePaid'])) {
             $transformed['payments'] = [
                 [
                     'date'   => $this->parseDate($invoice_data['DatePaid']),
                     'amount' => $this->getFloat($invoice_data, 'AmountPaidAmount'),
                 ]
             ];
-        }
-        elseif(isset($invoice_data['DocumentStatus']) && $invoice_data['DocumentStatus'] == 'fully_paid'){
-            
+        } elseif(isset($invoice_data['DocumentStatus']) && $invoice_data['DocumentStatus'] == 'fully_paid') {
+
             $transformed['payments'] = [
                 [
                     'date'   => isset($invoice_data['DatePaid']) ? $this->parseDate($invoice_data['DatePaid']) : ($this->parseDate($invoice_data['DocumentDate']) ?? now()->format('Y-m-d')),
@@ -125,33 +123,34 @@ class InvoiceTransformer extends BaseTransformer
     }
 
 
-    private function harvestAddresses($invoice_data) {
+    private function harvestAddresses($invoice_data)
+    {
         $address = $invoice_data['DocumentRecipientAddress'];
 
         $lines = explode("\n", $address);
 
         $billing_address = [];
-        if(count($lines) == 2){
+        if(count($lines) == 2) {
             $billing_address['address1'] = $lines[0];
-           
+
             $parts = explode(",", $lines[1]);
 
-            if(count($parts) == 3){
+            if(count($parts) == 3) {
                 $billing_address['city'] = $parts[0];
                 $billing_address['state'] = $parts[1];
                 $billing_address['postal_code'] = $parts[2];
             }
-            
+
         }
 
-        $shipaddress = $invoice_data['ShipAddress'] ?? ''; 
+        $shipaddress = $invoice_data['ShipAddress'] ?? '';
         $shipping_address = [];
 
         $lines = explode("\n", $shipaddress);
 
         if(count($lines) == 2) {
             $shipping_address['address1'] = $lines[0];
-            
+
             $parts = explode(",", $lines[1]);
 
             if(count($parts) == 3) {
@@ -188,7 +187,7 @@ class InvoiceTransformer extends BaseTransformer
 
     private function harvestLineItems(array $invoice_data): array
     {
-        
+
         $default_data =
             [
                 [
@@ -198,8 +197,8 @@ class InvoiceTransformer extends BaseTransformer
                     'is_amount_discount' => false,
                 ],
             ];
-        
-        if(!isset($invoice_data['Items'])){
+
+        if(!isset($invoice_data['Items'])) {
             return $default_data;
         }
 
@@ -208,15 +207,14 @@ class InvoiceTransformer extends BaseTransformer
 
         $line_items = [];
 
-        foreach($processed as $item)
-        {
+        foreach($processed as $item) {
             $_item['cost'] = $item['unit_price'];
             $_item['quantity'] = $item['qty'] ?? 1;
-            $_item['discount'] = $item['discount_percentage'] > $item['discount_amount'] ? $item['discount_percentage'] : $item['discount_amount']; 
+            $_item['discount'] = $item['discount_percentage'] > $item['discount_amount'] ? $item['discount_percentage'] : $item['discount_amount'];
             $_item['is_amount_discount'] = $item['discount_type'] == 'percentage' ? false : true;
             $_item['product_key'] = $item['code'] ?? '';
             $_item['notes'] = $item['description'] ?? '';
-            
+
             $_item = $this->parseTaxes($_item, $item);
             $this->is_amount_discount = $_item['is_amount_discount'];
 
@@ -230,18 +228,19 @@ class InvoiceTransformer extends BaseTransformer
 
     private function parseTaxes($ninja_item, $i2g_item): array
     {
-        if(is_string($i2g_item['applied_taxes']))
+        if(is_string($i2g_item['applied_taxes'])) {
             return $ninja_item;
-        
+        }
+
         $ninja_item['tax_name1'] = 'Tax';
         $ninja_item['tax_rate1'] = $i2g_item['applied_taxes']['rate'];
 
         return $ninja_item;
 
     }
-    
 
-    function parseCsvWithNestedCsv($csvString, $delimiter = ',', $enclosure = '"', $lineEnding = ';')
+
+    public function parseCsvWithNestedCsv($csvString, $delimiter = ',', $enclosure = '"', $lineEnding = ';')
     {
         // Regular expression to find nested CSVs
         $nestedCsvPattern = '/"([^"]*(?:""[^"]*)*)"/';
@@ -278,7 +277,7 @@ class InvoiceTransformer extends BaseTransformer
             if($key == 0) {
                 continue;
             }
-
+            /** @var array $row */
             if(is_array($row[5])) {
                 $csv = str_getcsv($row[5][0], ";");
                 $row[5] = array_combine(explode(",", $csv[0]), explode(",", $csv[1]));

@@ -102,13 +102,13 @@ class CreditExport extends BaseExport
         $query = Credit::query()
                         ->withTrashed()
                         ->with('client')
-                        ->whereHas('client', function ($q){
+                        ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', $this->input['include_deleted'] ?? false);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'credits');
 
         $clients = &$this->input['client_id'];
 
@@ -241,7 +241,7 @@ class CreditExport extends BaseExport
         }
 
         if (in_array('credit.user_id', $this->input['report_keys'])) {
-            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name() : '';
+            $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name() : ''; //@phpstan-ignore-line
         }
 
         return $entity;

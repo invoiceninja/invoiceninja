@@ -13,6 +13,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\DataMapper\Analytics\LoginFailure;
+use App\DataMapper\Analytics\LoginMeta;
 use App\DataMapper\Analytics\LoginSuccess;
 use App\Events\User\UserLoggedIn;
 use App\Http\Controllers\BaseController;
@@ -111,6 +112,9 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
+            LightLogs::create(new LoginMeta($request->email, $request->ip, 'success'))
+                ->batch();
+
             /** @var \App\Models\User $user */
             $user = $this->guard()->user();
 
@@ -159,6 +163,9 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
+            LightLogs::create(new LoginMeta($request->email, $request->ip, 'failure'))
+                ->batch();
+
             $this->incrementLoginAttempts($request);
 
             return response()
@@ -172,7 +179,7 @@ class LoginController extends BaseController
      * Refreshes the data feed with the current Company User.
      *
      * @param Request $request
-     * @return Response|JsonResponse
+     * @return \Illuminate\Http\Response|JsonResponse
      */
     public function refresh(Request $request)
     {
@@ -391,8 +398,8 @@ class LoginController extends BaseController
         $truth->setCompany($set_company);
 
         //21-03-2024
-        $cu->each(function ($cu){
-            if(CompanyToken::where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()){
+        $cu->each(function ($cu) {
+            if(CompanyToken::where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) {
                 (new CreateCompanyToken($cu->company, $cu->user, request()->server('HTTP_USER_AGENT')))->handle();
             }
         });
@@ -481,7 +488,7 @@ class LoginController extends BaseController
      * send login response to oauthed users
      *
      * @param \App\Models\User $existing_user
-     * @return Response | JsonResponse
+     * @return Response| \Illuminate\Http\JsonResponse | JsonResponse
      */
     private function existingOauthUser($existing_user)
     {
@@ -651,7 +658,9 @@ class LoginController extends BaseController
         }
 
         if(request()->hasHeader('X-REACT') || request()->query('react')) {
-            Cache::put("react_redir:".auth()->user()?->account->key, 'true', 300);
+            /**@var \App\Models\User $user */
+            $user = auth()->user();
+            Cache::put("react_redir:".$user?->account->key, 'true', 300);
         }
 
         if (request()->has('code')) {

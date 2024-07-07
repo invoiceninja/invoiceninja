@@ -123,6 +123,7 @@ class CreateCompany
 
             }
         } catch(\Exception $e) {
+            nlog("Exception:: CreateCompany::" . $e->getMessage());
             nlog("Could not resolve country => {$e->getMessage()}");
         }
 
@@ -156,6 +157,7 @@ class CreateCompany
             return $company;
 
         } catch(\Exception $e) {
+            nlog("Exception:: CreateCompany::" . $e->getMessage());
             nlog("SETUP: could not complete setup for Spanish Locale");
         }
 
@@ -189,6 +191,7 @@ class CreateCompany
 
         } catch(\Exception $e) {
             nlog($e->getMessage());
+            nlog("Exception:: CreateCompany::" . $e->getMessage());
             nlog("SETUP: could not complete setup for South African Locale");
         }
 
@@ -222,6 +225,7 @@ class CreateCompany
 
         } catch(\Exception $e) {
             nlog($e->getMessage());
+            nlog("Exception:: CreateCompany::" . $e->getMessage());
             nlog("SETUP: could not complete setup for Australian Locale");
         }
 

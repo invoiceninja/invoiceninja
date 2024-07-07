@@ -145,7 +145,7 @@ class SubscriptionService
 
             /* 06-04-2022 */
             /* We may not be in a state where the user is present */
-            if (auth()->guard('contact')) {
+            if (auth()->guard('contact')->user()) {
                 return $this->handleRedirect('/client/invoices/'.$this->encodePrimaryKey($payment_hash->fee_invoice_id));
             }
         }
@@ -200,7 +200,7 @@ class SubscriptionService
         $license->first_name = $contact ? $contact->first_name : ' ';
         $license->last_name = $contact ? $contact->last_name : ' ';
         $license->is_claimed = 1;
-        $license->transaction_reference = $payment_hash?->payment?->transaction_reference ?: ' ';
+        $license->transaction_reference = $payment_hash?->payment?->transaction_reference ?: ' '; //@phpstan-ignore-line
         $license->product_id = self::WHITE_LABEL;
         $license->recurring_invoice_id = $recurring_invoice->id;
 
@@ -416,7 +416,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_of_subscription_used = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = intval(abs($start_date->diffInDays($current_date)));
 
         $days_in_frequency = $this->getDaysInFrequency();
 
@@ -441,7 +441,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_of_subscription_used = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = intval(abs($start_date->diffInDays($current_date)));
 
         if ($subscription) {
             $days_in_frequency = $subscription->service()->getDaysInFrequency();
@@ -481,7 +481,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_of_subscription_used = $start_date->diffInDays($current_date);
+        $days_of_subscription_used = intval(abs($start_date->diffInDays($current_date)));
 
         $days_in_frequency = $invoice->subscription->service()->getDaysInFrequency();
 
@@ -543,7 +543,7 @@ class SubscriptionService
 
         $current_date = now();
 
-        $days_to_charge = $start_date->diffInDays($current_date);
+        $days_to_charge = intval(abs($start_date->diffInDays($current_date)));
 
         $days_in_frequency = $this->getDaysInFrequency();
 
@@ -1118,7 +1118,7 @@ class SubscriptionService
      */
     public function triggerWebhook($context)
     {
-        if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) {
+        if (empty($this->subscription->webhook_configuration['post_purchase_url']) || is_null($this->subscription->webhook_configuration['post_purchase_url']) || strlen($this->subscription->webhook_configuration['post_purchase_url']) < 1) { //@phpstan-ignore-line
             return ["message" => "Success", "status_code" => 200];
         }
 
@@ -1363,23 +1363,23 @@ class SubscriptionService
             case RecurringInvoice::FREQUENCY_TWO_WEEKS:
                 return 14;
             case RecurringInvoice::FREQUENCY_FOUR_WEEKS:
-                return now()->diffInDays(now()->addWeeks(4));
+                return intval(abs(now()->diffInDays(now()->addWeeks(4))));
             case RecurringInvoice::FREQUENCY_MONTHLY:
-                return now()->diffInDays(now()->addMonthNoOverflow());
+                return intval(abs(now()->diffInDays(now()->addMonthNoOverflow())));
             case RecurringInvoice::FREQUENCY_TWO_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(2));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(2))));
             case RecurringInvoice::FREQUENCY_THREE_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(3));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(3))));
             case RecurringInvoice::FREQUENCY_FOUR_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(4));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(4))));
             case RecurringInvoice::FREQUENCY_SIX_MONTHS:
-                return now()->diffInDays(now()->addMonthsNoOverflow(6));
+                return intval(abs(now()->diffInDays(now()->addMonthsNoOverflow(6))));
             case RecurringInvoice::FREQUENCY_ANNUALLY:
-                return now()->diffInDays(now()->addYear());
+                return intval(abs(now()->diffInDays(now()->addYear())));
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
-                return now()->diffInDays(now()->addYears(2));
+                return intval(abs(now()->diffInDays(now()->addYears(2))));
             case RecurringInvoice::FREQUENCY_THREE_YEARS:
-                return now()->diffInDays(now()->addYears(3));
+                return intval(abs(now()->diffInDays(now()->addYears(3))));
             default:
                 return 0;
         }

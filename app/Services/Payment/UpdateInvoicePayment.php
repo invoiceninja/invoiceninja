@@ -127,8 +127,6 @@ class UpdateInvoicePayment
                     return;
                 }
 
-
-
                 if (strlen($invoice->number) > 1 && str_starts_with($invoice->number, "####")) {
                     $invoice->number = '';
                 }
@@ -139,7 +137,6 @@ class UpdateInvoicePayment
                         ->applyNumber()
                         ->save();
             }
-
 
             /* Updates the company ledger */
             $this->payment

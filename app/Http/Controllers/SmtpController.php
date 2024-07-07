@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\Mail;
 
 class SmtpController extends BaseController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -51,7 +50,7 @@ class SmtpController extends BaseController
                 'timeout' => 5,
             ],
         ]);
-        
+
         (new \Illuminate\Mail\MailServiceProvider(app()))->register();
 
         try {
@@ -60,7 +59,7 @@ class SmtpController extends BaseController
             $sending_user = (isset($company->settings->email_from_name) && strlen($company->settings->email_from_name) > 2) ? $company->settings->email_from_name : $user->name();
 
             $mailable = new TestMailServer('Email Server Works!', $sending_email);
-            $mailable->from($sending_email,$sending_user);
+            $mailable->from($sending_email, $sending_user);
 
             Mail::mailer('smtp')
                 ->to($user->email, $user->present()->name())
@@ -68,7 +67,7 @@ class SmtpController extends BaseController
 
         } catch (\Exception $e) {
             app('mail.manager')->forgetMailers();
-            return response()->json(['message' => $e->getMessage()], 400);        
+            return response()->json(['message' => $e->getMessage()], 400);
         }
 
         app('mail.manager')->forgetMailers();

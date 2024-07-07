@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Factory\TaskFactory;
+use App\Jobs\Task\TaskAssigned;
 use App\Models\Task;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
@@ -45,6 +46,13 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
+        if(isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id){
+            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
+        }
+
+        if(!is_numeric($task->rate) && !isset($data['rate']))
+            $data['rate'] = 0;
+        
         $task->fill($data);
         $task->saveQuietly();
 
@@ -109,11 +117,15 @@ class TaskRepository extends BaseRepository
         }
 
         $key_values = array_column($time_log, 0);
-        array_multisort($key_values, SORT_ASC, $time_log);
+        
+        if(count($key_values) > 0)
+            array_multisort($key_values, SORT_ASC, $time_log);
 
-        foreach($time_log as $key => $value)
-        {
-            $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+        foreach($time_log as $key => $value) {
+
+            if(is_array($time_log[$key]) && count($time_log[$key]) >=2)
+                $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+
         }
 
         if (isset($data['action'])) {
@@ -127,10 +139,10 @@ class TaskRepository extends BaseRepository
                 $time_log[count($time_log) - 1][1] = time();
                 $task->is_running = false;
             } elseif ($data['action'] == 'offline') {
-                $task->is_running = $data['is_running'] ? 1 : 0;
+                $task->is_running = $data['is_running'] ? true : false;
             }
         } elseif (isset($data['is_running'])) {
-            $task->is_running = $data['is_running'] ? 1 : 0;
+            $task->is_running = $data['is_running'] ? true : false;
         }
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
@@ -150,7 +162,7 @@ class TaskRepository extends BaseRepository
     {
 
         if(isset($time_log[0][0])) {
-            return \Carbon\Carbon::createFromTimestamp($time_log[0][0])->addSeconds($task->company->utc_offset());
+            return \Carbon\Carbon::createFromTimestamp((int)$time_log[0][0])->addSeconds($task->company->utc_offset());
         }
 
         return null;
@@ -254,25 +266,28 @@ class TaskRepository extends BaseRepository
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1 || $end_time == 0)
+        if(in_array($this->task_round_to_nearest, [0,1]) || $end_time == 0) {
             return $end_time;
+        }
 
         $interval = $end_time - $start_time;
-        
-        if($this->task_round_up)
-            return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
 
-        if($interval <= $this->task_round_to_nearest)
+        if($this->task_round_up) {
+            return $start_time + (int)ceil($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
+        }
+
+        if($interval <= $this->task_round_to_nearest) {
             return $start_time;
-        
-        return $start_time - (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+        }
+
+        return $start_time + (int)floor($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
 
     public function stop(Task $task)
     {
         $this->init($task);
-        
+
         $log = json_decode($task->time_log, true);
 
         $last = end($log);
@@ -305,7 +320,7 @@ class TaskRepository extends BaseRepository
 
     private function init(Task $task): self
     {
-        
+
         $this->task_round_up = $task->client ? $task->client->getSetting('task_round_up') : $task->company->getSetting('task_round_up');
         $this->task_round_to_nearest = $task->client ? $task->client->getSetting('task_round_to_nearest') : $task->company->getSetting('task_round_to_nearest');
 

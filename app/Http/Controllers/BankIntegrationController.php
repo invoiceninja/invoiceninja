@@ -55,7 +55,7 @@ class BankIntegrationController extends BaseController
 
     /**
      * @param BankIntegrationFilters $filters
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function index(BankIntegrationFilters $filters)
     {
@@ -69,7 +69,7 @@ class BankIntegrationController extends BaseController
      *
      * @param ShowBankIntegrationRequest $request
      * @param BankIntegration $bank_integration
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function show(ShowBankIntegrationRequest $request, BankIntegration $bank_integration)
@@ -83,7 +83,7 @@ class BankIntegrationController extends BaseController
      *
      * @param EditBankIntegrationRequest $request
      * @param BankIntegration $bank_integration
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function edit(EditBankIntegrationRequest $request, BankIntegration $bank_integration)
@@ -96,7 +96,7 @@ class BankIntegrationController extends BaseController
      *
      * @param UpdateBankIntegrationRequest $request
      * @param BankIntegration $bank_integration
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function update(UpdateBankIntegrationRequest $request, BankIntegration $bank_integration)
@@ -111,7 +111,7 @@ class BankIntegrationController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateBankIntegrationRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      */
@@ -130,7 +130,7 @@ class BankIntegrationController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreBankIntegrationRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function store(StoreBankIntegrationRequest $request)
@@ -150,7 +150,7 @@ class BankIntegrationController extends BaseController
      *
      * @param DestroyBankIntegrationRequest $request
      * @param BankIntegration $bank_integration
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @throws \Exception
      */
@@ -165,7 +165,7 @@ class BankIntegrationController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      */
     public function bulk(BulkBankIntegrationRequest $request)
@@ -270,7 +270,7 @@ class BankIntegrationController extends BaseController
 
         $nordigen = new Nordigen();
 
-        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
+        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->where('account_id', $user->account_id)->whereNotNull('nordigen_account_id')->each(function (BankIntegration $bank_integration) use ($nordigen) {
             $is_account_active = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
 
@@ -295,7 +295,7 @@ class BankIntegrationController extends BaseController
      * Return the remote list of accounts stored on the third party provider
      * and update our local cache.
      *
-     * @return Response | JsonResponse
+     * @return Response| \Illuminate\Http\JsonResponse | JsonResponse
      *
      */
 

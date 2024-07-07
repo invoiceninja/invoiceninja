@@ -457,15 +457,13 @@ class PdfConfiguration
      */
     public function setDateFormat(): self
     {
-        $date_formats = Cache::get('date_formats');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
+        $date_formats = app('date_formats');
 
-        if (! $date_formats) {
-            $this->buildCache(true);
-        }
-
-        $this->date_format = $date_formats->filter(function ($item) {
+        $this->date_format = $date_formats->first(function ($item) {
             return $item->id == $this->settings->date_format_id;
-        })->first()->format;
+        })->format;
 
         return $this;
     }

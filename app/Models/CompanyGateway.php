@@ -53,7 +53,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Gateway $gateway
  * @property-read mixed $hashed_id
  * @method getConfigField(string $field)
- * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway filter(\App\Filters\QueryFilters $filters)
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CompanyGateway newQuery()

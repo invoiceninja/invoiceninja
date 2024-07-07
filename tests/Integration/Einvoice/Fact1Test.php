@@ -23,51 +23,51 @@ use Illuminate\Support\Facades\Cache;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Invoiceninja\Einvoice\Models\FACT1\ItemType\Item;
+use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Invoiceninja\Einvoice\Models\FACT1\PartyType\Party;
-use Invoiceninja\Einvoice\Models\FACT1\PriceType\Price;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
+use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
-use Invoiceninja\Einvoice\Models\FACT1\ContactType\Contact;
-use Invoiceninja\Einvoice\Models\FACT1\CountryType\Country;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxAmount;
-use Invoiceninja\Einvoice\Models\FACT1\TaxTotalType\TaxTotal;
+use InvoiceNinja\EInvoice\Models\Peppol\ContactType\Contact;
+use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\PriceAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
-use Invoiceninja\Einvoice\Models\FACT1\TaxSchemeType\TaxScheme;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
-use Invoiceninja\Einvoice\Models\FACT1\AddressType\PostalAddress;
+use InvoiceNinja\EInvoice\Models\Peppol\AddressType\PostalAddress;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
-use Invoiceninja\Einvoice\Models\FACT1\InvoiceLineType\InvoiceLine;
-use Invoiceninja\Einvoice\Models\FACT1\TaxScheme as FACT1TaxScheme;
-use Invoiceninja\Einvoice\Models\FACT1\TaxSubtotalType\TaxSubtotal;
-use Invoiceninja\Einvoice\Models\FACT1\QuantityType\InvoicedQuantity;
+use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
+use InvoiceNinja\EInvoice\Models\Peppol\QuantityType\InvoicedQuantity;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\LineExtensionAmount;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\PayableAmount;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxableAmount;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxExclusiveAmount;
-use Invoiceninja\Einvoice\Models\FACT1\AmountType\TaxInclusiveAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Invoiceninja\Einvoice\Models\FACT1\PartyTaxSchemeType\PartyTaxScheme;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyTaxSchemeType\PartyTaxScheme;
 use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
-use Invoiceninja\Einvoice\Models\FACT1\MonetaryTotalType\LegalMonetaryTotal;
-use Invoiceninja\Einvoice\Models\FACT1\PartyLegalEntityType\PartyLegalEntity;
-use Invoiceninja\Einvoice\Models\FACT1\TaxCategoryType\ClassifiedTaxCategory;
+use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyLegalEntityType\PartyLegalEntity;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
 use Symfony\Component\Serializer\Mapping\ClassDiscriminatorFromClassMetadata;
-use Invoiceninja\Einvoice\Models\FACT1\CustomerPartyType\AccountingCustomerParty;
-use Invoiceninja\Einvoice\Models\FACT1\SupplierPartyType\AccountingSupplierParty;
-use Invoiceninja\Einvoice\Models\FACT1\PartyIdentificationType\PartyIdentification;
-use Invoiceninja\Einvoice\Models\FACT1\TaxCategoryType\TaxCategory;
+use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
+use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentificationType\PartyIdentification;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 
 /**
  * @test
  */
-class Fact1Test extends TestCase
+class FACT1Test extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
@@ -140,7 +140,7 @@ class Fact1Test extends TestCase
         $_invoice->service()->markSent()->save();
         $calc = $_invoice->calc();
         
-        $invoice = new \Invoiceninja\Einvoice\Models\FACT1\Invoice();
+        $invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         $invoice->UBLVersionID = '2.1';
         $invoice->CustomizationID = 'urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1';
         $invoice->ID = $_invoice->number;
@@ -298,7 +298,7 @@ class Fact1Test extends TestCase
             $i->Description = $item->notes;
             $i->Name = $item->product_key;
 
-            $tax_scheme = new FACT1TaxScheme();
+            $tax_scheme = new PeppolTaxScheme();
             $tax_scheme->ID = $item->tax_name1;
             $tax_scheme->Name = $item->tax_rate1;
 

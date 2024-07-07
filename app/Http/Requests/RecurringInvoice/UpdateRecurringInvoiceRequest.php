@@ -48,7 +48,7 @@ class UpdateRecurringInvoiceRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -126,7 +126,7 @@ class UpdateRecurringInvoiceRequest extends Request
         }
 
         if (isset($input['line_items'])) {
-            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+            $input['line_items'] = $this->cleanItems($input['line_items']);
             $input['amount'] = $this->entityTotalAmount($input['line_items']);
         }
 

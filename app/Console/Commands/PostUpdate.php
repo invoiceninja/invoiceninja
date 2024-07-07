@@ -54,13 +54,6 @@ class PostUpdate extends Command
 
         info('finished migrating');
 
-        $output = [];
-
-        // exec('vendor/bin/composer install --no-dev -o', $output);
-
-        info(print_r($output, 1));
-        info('finished running composer install ');
-
         try {
             // Artisan::call('optimize');
             Artisan::call('config:clear');
@@ -86,8 +79,7 @@ class PostUpdate extends Command
 
         info('queue restarted');
 
-        $this->buildCache(true);
-
+        Artisan::call('cache:clear');
         VersionCheck::dispatch();
 
         info('Sent for version check');

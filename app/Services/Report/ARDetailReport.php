@@ -90,17 +90,17 @@ class ARDetailReport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query = Invoice::query()
+                ->whereIn('invoices.status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                 ->withTrashed()
-                ->whereHas('client', function ($query){
+                ->whereHas('client', function ($query) {
                     $query->where('is_deleted', 0);
                 })
-                ->where('company_id', $this->company->id)
-                ->where('is_deleted', 0)
-                ->where('balance', '>', 0)
-                ->orderBy('due_date', 'ASC')
-                ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
+                ->where('invoices.company_id', $this->company->id)
+                ->where('invoices.is_deleted', 0)
+                ->where('invoices.balance', '>', 0)
+                ->orderBy('invoices.due_date', 'ASC');
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $query = $this->filterByClients($query);
 
@@ -124,7 +124,7 @@ class ARDetailReport extends BaseExport
             $client->present()->name(),
             $client->number,
             $client->id_number,
-            Carbon::parse($invoice->due_date)->diffInDays(now()),
+            intval(abs(Carbon::parse($invoice->due_date)->diffInDays(now()))),
             Number::formatMoney($invoice->amount, $client),
             Number::formatMoney($invoice->balance, $client),
         ];

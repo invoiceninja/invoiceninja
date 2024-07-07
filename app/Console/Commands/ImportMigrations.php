@@ -75,8 +75,6 @@ class ImportMigrations extends Command
     {
         $this->faker = Factory::create();
 
-        $this->buildCache();
-
         $path = $this->option('path') ?? public_path('storage/migrations/import');
 
         $directory = new DirectoryIterator($path);
