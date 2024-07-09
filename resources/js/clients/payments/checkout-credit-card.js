@@ -5,64 +5,70 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
+
+import { wait } from '../wait';
 
 class CheckoutCreditCard {
     constructor() {
         this.tokens = [];
     }
 
-    mountFrames() {
-        console.log('Mount checkout frames..');
-    }
-
     handlePaymentUsingToken(e) {
         document.getElementById('checkout--container').classList.add('hidden');
-        document.getElementById('pay-now-with-token--container').classList.remove('hidden');
+        document
+            .getElementById('pay-now-with-token--container')
+            .classList.remove('hidden');
         document.getElementById('save-card--container').style.display = 'none';
 
-        document
-            .querySelector('input[name=token]')
-            .value = e.target.dataset.token;
+        document.querySelector('input[name=token]').value =
+            e.target.dataset.token;
     }
 
     handlePaymentUsingCreditCard(e) {
-        document.getElementById('checkout--container').classList.remove('hidden');
-        document.getElementById('pay-now-with-token--container').classList.add('hidden');
+        document
+            .getElementById('checkout--container')
+            .classList.remove('hidden');
+        document
+            .getElementById('pay-now-with-token--container')
+            .classList.add('hidden');
         document.getElementById('save-card--container').style.display = 'grid';
 
-        document
-            .querySelector('input[name=token]')
-            .value = '';
+        document.querySelector('input[name=token]').value = '';
 
         const payButton = document.getElementById('pay-button');
-        
-        const publicKey = document.querySelector('meta[name="public-key"]').content ?? '';
+
+        const publicKey =
+            document.querySelector('meta[name="public-key"]').content ?? '';
         const form = document.getElementById('payment-form');
 
         Frames.init(publicKey);
 
-        Frames.addEventHandler(Frames.Events.CARD_VALIDATION_CHANGED, function (event) {
-            payButton.disabled = !Frames.isCardValid();
-        });
+        Frames.addEventHandler(
+            Frames.Events.CARD_VALIDATION_CHANGED,
+            function (event) {
+                payButton.disabled = !Frames.isCardValid();
+            }
+        );
 
-        Frames.addEventHandler(Frames.Events.CARD_TOKENIZATION_FAILED, function (event) {
-            payButton.disabled = false;
-        });
+        Frames.addEventHandler(
+            Frames.Events.CARD_TOKENIZATION_FAILED,
+            function (event) {
+                payButton.disabled = false;
+            }
+        );
 
         Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, function (event) {
             payButton.disabled = true;
 
-            document.querySelector(
-                'input[name="gateway_response"]'
-            ).value = JSON.stringify(event);
+            document.querySelector('input[name="gateway_response"]').value =
+                JSON.stringify(event);
 
-            document.querySelector(
-                'input[name="store_card"]'
-            ).value = document.querySelector(
-                'input[name=token-billing-checkbox]:checked'
-            ).value;
+            document.querySelector('input[name="store_card"]').value =
+                document.querySelector(
+                    'input[name=token-billing-checkbox]:checked'
+                ).value;
 
             document.getElementById('server-response').submit();
         });
@@ -87,9 +93,11 @@ class CheckoutCreditCard {
     handle() {
         this.handlePaymentUsingCreditCard();
 
-        Array
-            .from(document.getElementsByClassName('toggle-payment-with-token'))
-            .forEach((element) => element.addEventListener('click', this.handlePaymentUsingToken));
+        Array.from(
+            document.getElementsByClassName('toggle-payment-with-token')
+        ).forEach((element) =>
+            element.addEventListener('click', this.handlePaymentUsingToken)
+        );
 
         document
             .getElementById('toggle-payment-with-credit-card')
@@ -101,4 +109,6 @@ class CheckoutCreditCard {
     }
 }
 
-new CheckoutCreditCard().handle();
+wait('#checkout-credit-card-payment').then(() =>
+    new CheckoutCreditCard().handle()
+);
