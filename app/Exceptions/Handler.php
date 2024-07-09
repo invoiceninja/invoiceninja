@@ -94,11 +94,6 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-        if (! Schema::hasTable('accounts')) {
-            info('account table not found');
-            return;
-        }
-
         if (Ninja::isHosted()) {
 
             // if($exception instanceof ThrottleRequestsException && class_exists(\Modules\Admin\Events\ThrottledExceptionRaised::class)) {
