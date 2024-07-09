@@ -103,6 +103,8 @@ class RequiredFields extends Component
 
     public function handleSubmit(array $data)
     {
+        $this->is_loading = true;
+
         $rff = new RFFService(
             fields: $this->fields,
             database: $this->getContext()['db'],

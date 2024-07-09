@@ -30,7 +30,7 @@ class PaymentMethod extends Component
 
     public $amount = 0;
 
-     public function placeholder()
+    public function placeholder()
     {
         return <<<'HTML'
         <div  class="flex items-center justify-center min-h-screen">
@@ -42,9 +42,20 @@ class PaymentMethod extends Component
         HTML;
     }
 
+    public function handleSelect(string $company_gateway_id, string $gateway_type_id, string $amount)
+    {
+        $this->isLoading = true;
+
+        $this->dispatch(
+            event: 'payment-method-selected',
+            company_gateway_id: $company_gateway_id,
+            gateway_type_id: $gateway_type_id,
+            amount: $amount,
+        );
+    }
+
     public function mount()
     {
-
         $this->variables = $this->getContext()['variables'];
         $this->amount = array_sum(array_column($this->getContext()['payable_invoices'], 'amount'));
 
@@ -52,10 +63,9 @@ class PaymentMethod extends Component
 
         $this->methods = $this->getContext()['invitation']->contact->client->service()->getPaymentMethods($this->amount);
 
-        if(count($this->methods) == 1) {
+        if (count($this->methods) == 1) {
             $this->dispatch('singlePaymentMethodFound', company_gateway_id: $this->methods[0]['company_gateway_id'], gateway_type_id: $this->methods[0]['gateway_type_id'], amount: $this->amount);
-        }
-        else {
+        } else {
             $this->isLoading = false;
             $this->dispatch('loadingCompleted');
         }
