@@ -19,6 +19,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Ninja;
@@ -29,7 +30,7 @@ use Stripe\ApplePayDomain;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 
-class BrowserPay implements MethodInterface
+class BrowserPay implements MethodInterface, LivewireMethodInterface
 {
     protected StripePaymentDriver $stripe;
 
@@ -63,8 +64,9 @@ class BrowserPay implements MethodInterface
     {
         return redirect()->route('client.payment_methods.index');
     }
+    
 
-    public function paymentView(array $data): View
+    public function paymentData(array $data): array
     {
         $payment_intent_data = [
             'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -92,6 +94,13 @@ class BrowserPay implements MethodInterface
             'requestPayerName' => true,
             'requestPayerEmail' => true,
         ];
+
+        return $data;
+    }
+
+    public function paymentView(array $data): View
+    {
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.browser_pay.pay', $data);
     }
@@ -230,5 +239,12 @@ class BrowserPay implements MethodInterface
         }
 
         return str_replace(['https://', '/public'], '', $domain);
+    }
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(): string 
+    {
+        return 'gateways.stripe.browser_pay.pay_livewire';
     }
 }

@@ -23,6 +23,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Stripe\ACH;
 use App\PaymentDrivers\Stripe\ACSS;
 use App\PaymentDrivers\Stripe\Alipay;
@@ -61,7 +62,7 @@ use Stripe\SetupIntent;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
-class StripePaymentDriver extends BaseDriver
+class StripePaymentDriver extends BaseDriver implements LivewireMethodInterface
 {
     use MakesHash;
     use Utilities;
@@ -420,7 +421,29 @@ class StripePaymentDriver extends BaseDriver
 
     public function processPaymentViewData(array $data): array
     {
-        return $this->payment_method->paymentData($data);
+        $data = $this->payment_method->paymentData($data); 
+
+        $data['stripe_account_id'] = $this->company_gateway->getConfigField('account_id');
+
+        if (array_key_exists('intent', $data)) {
+            $data['client_secret'] = $data['intent']->client_secret;
+        }
+
+        unset($data['intent']);
+
+        $token_billing_string = 'true';
+
+        if($this->company_gateway->token_billing == 'off' || $this->company_gateway->token_billing == 'optin') {
+            $token_billing_string = 'false';
+        }
+
+        if (isset($data['pre_payment']) && $data['pre_payment'] == '1' && isset($data['is_recurring']) && $data['is_recurring'] == '1') {
+            $token_billing_string = 'true';
+        }
+
+        $data['token_billing_string'] = $token_billing_string;
+
+        return $data;
     }
 
     public function processPaymentResponse($request)
@@ -1017,5 +1040,10 @@ class StripePaymentDriver extends BaseDriver
 
         return false;
 
+    }
+
+    public function livewirePaymentView(): string 
+    {
+        return $this->payment_method->livewirePaymentView();
     }
 }

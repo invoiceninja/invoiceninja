@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait } from '../wait';
+
 class StripeCreditCard {
     constructor(key, secret, onlyAuthorization, stripeConnect) {
         this.key = key;
@@ -17,15 +19,11 @@ class StripeCreditCard {
     }
 
     setupStripe() {
-
         if (this.stripeConnect) {
-
             this.stripe = Stripe(this.key, {
                 stripeAccount: this.stripeConnect,
             });
-
-        }
-        else {
+        } else {
             this.stripe = Stripe(this.key);
         }
 
@@ -36,9 +34,13 @@ class StripeCreditCard {
 
     createElement() {
         this.cardElement = this.elements.create('card', {
-            hidePostalCode: document.querySelector('meta[name=stripe-require-postal-code]')?.content === "0",
+            hidePostalCode:
+                document.querySelector('meta[name=stripe-require-postal-code]')
+                    ?.content === '0',
             value: {
-                postalCode: document.querySelector('meta[name=client-postal-code]').content,
+                postalCode: document.querySelector(
+                    'meta[name=client-postal-code]'
+                ).content,
             },
             hideIcon: false,
         });
@@ -103,9 +105,8 @@ class StripeCreditCard {
     }
 
     handleSuccess(result) {
-        document.querySelector(
-            'input[name="gateway_response"]'
-        ).value = JSON.stringify(result.paymentIntent);
+        document.querySelector('input[name="gateway_response"]').value =
+            JSON.stringify(result.paymentIntent);
 
         let tokenBillingCheckbox = document.querySelector(
             'input[name="token-billing-checkbox"]:checked'
@@ -177,69 +178,74 @@ class StripeCreditCard {
                     return this.handleAuthorization();
                 });
         } else {
-            Array
-                .from(document.getElementsByClassName('toggle-payment-with-token'))
-                .forEach((element) => element.addEventListener('click', (element) => {
-                    document.getElementById('stripe--payment-container').classList.add('hidden');
-                    document.getElementById('save-card--container').style.display = 'none';
-                    document.querySelector('input[name=token]').value = element.target.dataset.token;
-                }));
+            Array.from(
+                document.getElementsByClassName('toggle-payment-with-token')
+            ).forEach((element) =>
+                element.addEventListener('click', (element) => {
+                    document
+                        .getElementById('stripe--payment-container')
+                        .classList.add('hidden');
+                    document.getElementById(
+                        'save-card--container'
+                    ).style.display = 'none';
+                    document.querySelector('input[name=token]').value =
+                        element.target.dataset.token;
+                })
+            );
 
             document
                 .getElementById('toggle-payment-with-credit-card')
                 .addEventListener('click', (element) => {
-                    document.getElementById('stripe--payment-container').classList.remove('hidden');
-                    document.getElementById('save-card--container').style.display = 'grid';
-                    document.querySelector('input[name=token]').value = "";
+                    document
+                        .getElementById('stripe--payment-container')
+                        .classList.remove('hidden');
+                    document.getElementById(
+                        'save-card--container'
+                    ).style.display = 'grid';
+                    document.querySelector('input[name=token]').value = '';
                 });
 
             this.createElement().mountCardElement();
 
-            document
-                .getElementById('pay-now')
-                .addEventListener('click', () => {
+            document.getElementById('pay-now').addEventListener('click', () => {
+                try {
+                    let tokenInput =
+                        document.querySelector('input[name=token]');
 
-                    try {
-                        let tokenInput = document.querySelector('input[name=token]');
-
-                        if (tokenInput.value) {
-                            return this.completePaymentUsingToken();
-                        }
-
-                        return this.completePaymentWithoutToken();
-                    } catch (error) {
-                        console.log(error.message);
+                    if (tokenInput.value) {
+                        return this.completePaymentUsingToken();
                     }
 
-                });
+                    return this.completePaymentWithoutToken();
+                } catch (error) {
+                    console.log(error.message);
+                }
+            });
         }
     }
 }
 
-
-Livewire.hook('component.init', () => {
-
-    console.log("running now");
-
+wait('#stripe-credit-card-payment').then(() => {
     const publishableKey =
-        document.querySelector('meta[name="stripe-publishable-key"]')?.content ?? '';
+        document.querySelector('meta[name="stripe-publishable-key"]')
+            ?.content ?? '';
 
     const secret =
         document.querySelector('meta[name="stripe-secret"]')?.content ?? '';
 
     const onlyAuthorization =
-        document.querySelector('meta[name="only-authorization"]')?.content ?? '';
+        document.querySelector('meta[name="only-authorization"]')?.content ??
+        '';
 
     const stripeConnect =
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
-    let s = new StripeCreditCard(publishableKey, secret, onlyAuthorization, stripeConnect);
+    let s = new StripeCreditCard(
+        publishableKey,
+        secret,
+        onlyAuthorization,
+        stripeConnect
+    );
 
     s.handle();
-
-    document.addEventListener('livewire:init', () => {
-
-        Livewire.on('passed-required-fields-check', () => s.handle());
-
-    });
-})
+});

@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use Exception;
 use App\Models\Company;
 use App\Models\Invoice;
@@ -45,7 +46,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\RequestIdSource as SourceRequestIdSource;
 
-class CheckoutComPaymentDriver extends BaseDriver
+class CheckoutComPaymentDriver extends BaseDriver implements LivewireMethodInterface
 {
     use SystemLogTrait;
     use Utilities;
@@ -187,6 +188,17 @@ class CheckoutComPaymentDriver extends BaseDriver
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);
+    }
+
+    /**
+     * Process payment view for the Livewire payments.
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function processPaymentViewData(array $data): array
+    {
+        return $this->payment_method->paymentData($data);
     }
 
     /**
@@ -616,5 +628,10 @@ class CheckoutComPaymentDriver extends BaseDriver
                  }
 
              });
+    }
+
+    public function livewirePaymentView(): string
+    {
+        return $this->payment_method->livewirePaymentView();
     }
 }
