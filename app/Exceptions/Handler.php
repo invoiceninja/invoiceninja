@@ -18,6 +18,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Encryption\MissingAppKeyException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -149,6 +150,10 @@ class Handler extends ExceptionHandler
         }
 
         parent::report($exception);
+
+        if (Ninja::isSelfHost() && $exception instanceof MissingAppKeyException) {
+            \Log::error('To setup the app run "cp .env.example .env" followed by "php artisan key:generate"');
+        }
     }
 
     private function validException($exception)
