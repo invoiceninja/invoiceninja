@@ -14,6 +14,11 @@ return new class extends Migration
         Schema::table('invoices', function (Blueprint $table){
             $table->index(['project_id','deleted_at']);
         });
+
+        Schema::table('quotes', function (Blueprint $table) {
+            $table->index(['project_id','deleted_at']);
+        });
+
     }
 
     /**
