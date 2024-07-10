@@ -43,7 +43,7 @@ class SystemHealth
      * @param bool $check_database
      * @return     array  Result set of checks
      */
-    public static function check($check_database = true): array
+    public static function check($check_database = true, $check_filesystem = true): array
     {
         $system_health = true;
 
@@ -82,7 +82,7 @@ class SystemHealth
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
             'trailing_slash' => (bool) self::checkUrlState(),
-            'file_permissions' => (string) self::checkFileSystem(),
+            'file_permissions' => (string) ($check_filesystem ? self::checkFileSystem() : ''),
             'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
             'api_version' => (string) config('ninja.app_version'),
             'is_docker' => (bool) config('ninja.is_docker'),
