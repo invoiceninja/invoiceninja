@@ -322,4 +322,23 @@ class SystemHealth
     {
         return is_writable(base_path().'/.env');
     }
+
+    public static function lastError()
+    {
+        $filepath = storage_path('logs/laravel.log');
+        $file = escapeshellarg($filepath);
+        $end_of_file = `tail -n 500 $file`;
+
+        $lines = explode("\n", $end_of_file);
+        $last_error = '';
+
+        foreach ($lines as $line) {
+            // Match the main error, ie. [2024-07-10 12:23:07] production.ERROR: ...
+            if (substr($line, 0, 2) === '[2') {
+                $last_error = $line;
+            }
+        }
+
+        return $last_error;
+    }
 }
