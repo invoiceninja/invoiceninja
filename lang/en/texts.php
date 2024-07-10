@@ -5296,6 +5296,9 @@ $lang = array(
     'add_comment' => 'Add Comment',
     'added_comment' => 'Successfully saved comment',
     'tickets' => 'Tickets',
+    'assigned_group' => 'Successfully assigned group',
+    'merge_to_pdf' => 'Merge to PDF',
+    'latest_requires_php_version' => 'Note: the latest version requires PHP :version',
 );
 
 return $lang;
