@@ -267,7 +267,7 @@ class MigrationController extends BaseController
 
         if ($request->companies) {
             //handle Laravel 5.5 UniHTTP
-            $companies = json_decode($request->companies, 1);
+            $companies = json_decode($request->companies, true);
         } else {
             //handle Laravel 6 Guzzle
             $companies = [];
@@ -275,7 +275,7 @@ class MigrationController extends BaseController
             foreach ($request->all() as $input) {
                 if ($input instanceof UploadedFile) {
                 } else {
-                    $companies[] = json_decode($input, 1);
+                    $companies[] = json_decode($input, true);
                 }
             }
         }

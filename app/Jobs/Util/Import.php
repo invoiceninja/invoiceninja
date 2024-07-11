@@ -212,7 +212,7 @@ class Import implements ShouldQueue
 
         $user->setCompany($this->company);
 
-        $array = json_decode(file_get_contents($this->file_path), 1);
+        $array = json_decode(file_get_contents($this->file_path), true);
         $data = $array['data'];
 
         foreach ($this->available_imports as $import) {
@@ -2010,7 +2010,7 @@ class Import implements ShouldQueue
     public function transformId($resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
-            info(print_r($resource, 1));
+            nlog($resource);
             throw new Exception("Resource {$resource} not available.");
         }
 
@@ -2067,11 +2067,10 @@ class Import implements ShouldQueue
         LightLogs::create($job_failure)
                  ->queue();
 
-        nlog(print_r($exception->getMessage(), 1));
+        nlog($exception->getMessage());
 
-        // if (Ninja::isHosted()) {
         app('sentry')->captureException($exception);
-        // }
+        
     }
 
 

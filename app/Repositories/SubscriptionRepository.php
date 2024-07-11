@@ -130,7 +130,7 @@ class SubscriptionRepository extends BaseRepository
     private function convertV3Bundle($bundle): array
     {
         if(is_object($bundle)) {
-            $bundle = json_decode(json_encode($bundle), 1);
+            $bundle = json_decode(json_encode($bundle), true);
         }
 
         $items = [];

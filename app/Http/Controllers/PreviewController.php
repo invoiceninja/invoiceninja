@@ -288,7 +288,7 @@ class PreviewController extends BaseController
         /** @var \App\Models\Company $company */
         $company = $user->company();
 
-        $design_object = json_decode(json_encode(request()->input('design')), 1);
+        $design_object = json_decode(json_encode(request()->input('design')), true);
 
         $ts = (new TemplateService());
 

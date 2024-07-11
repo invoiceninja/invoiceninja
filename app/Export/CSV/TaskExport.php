@@ -161,7 +161,7 @@ class TaskExport extends BaseExport
 
         }
 
-        if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
+        if (is_null($task->time_log) || (is_array(json_decode($task->time_log, true)) && count(json_decode($task->time_log, true)) == 0)) {
             $this->storage_array[] = $entity;
         } else {
             $this->iterateLogs($task, $entity);
@@ -178,7 +178,7 @@ class TaskExport extends BaseExport
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, 1);
+        $logs = json_decode($task->time_log, true);
 
         $date_format_default = $this->date_format;
 

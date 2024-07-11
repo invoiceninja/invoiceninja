@@ -57,6 +57,7 @@ class ActivityExport extends BaseExport
 
         $report = $query->cursor()
             ->map(function ($resource) {
+                /** @var \App\Models\Activity $resource */
                 $row = $this->buildActivityRow($resource);
                 return $this->processMetaData($row, $resource);
             })->toArray();
@@ -128,6 +129,9 @@ class ActivityExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
+                
+                /** @var \App\Models\Activity $entity */
+
                   $this->buildRow($entity);
               });
 

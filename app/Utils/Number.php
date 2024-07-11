@@ -255,7 +255,7 @@ class Number
             $decimal = $country->decimal_separator;
         }
 
-        if (isset($country->swap_currency_symbol) && strlen($country->swap_currency_symbol) >= 1) {
+        if (isset($country->swap_currency_symbol) && $country->swap_currency_symbol == 1) {
             $swapSymbol = $country->swap_currency_symbol;
         }
 
