@@ -18,7 +18,6 @@ npm-debug.log
 yarn-error.log
 local_version.txt
 .env
-.env.bak
 .phpunit.result.cache
 _ide_helper.php
 
