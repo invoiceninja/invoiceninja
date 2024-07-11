@@ -78,9 +78,9 @@ class SystemHealth
             'open_basedir' => (bool) self::checkOpenBaseDir(),
             'mail_mailer' => (string) self::checkMailMailer(),
             'flutter_renderer' => (string) config('ninja.flutter_canvas_kit'),
-            'jobs_pending' => (int) self::checkQueueSize(),
             'pdf_engine' => (string) self::getPdfEngine(),
             'queue' => (string) config('queue.default'),
+            'queue_data' => self::checkQueueData(),
             'trailing_slash' => (bool) self::checkUrlState(),
             'file_permissions' => (string) ($check_file_system ? self::checkFileSystem() : ''),
             'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
@@ -117,16 +117,28 @@ class SystemHealth
         return false;
     }
 
-    private static function checkQueueSize()
+    private static function checkQueueData()
     {
-        $count = 0;
+        $pending = 0;
+        $failed = 0;
+        $last_error = '';
 
         try {
-            $count = Queue::size();
+            $pending = DB::table('jobs')->count();
+            $failed = DB::table('failed_jobs')->count();
+
+            if ($failed > 0) {
+                $failed_job = DB::table('failed_jobs')->latest('failed_at')->first();
+                $last_error = $failed_job->exception;
+            }
         } catch (\Exception $e) {
         }
 
-        return $count;
+        return [
+            'failed' => $failed,
+            'pending' => $pending,
+            'last_error' => $last_error,
+        ];
     }
 
     public static function checkFileSystem()
