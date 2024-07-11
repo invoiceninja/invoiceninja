@@ -11,6 +11,8 @@
 
 namespace App\Utils;
 
+use LimitIterator;
+use SplFileObject;
 use App\Libraries\MultiDB;
 use App\Mail\TestMailServer;
 use Exception;
@@ -337,11 +339,12 @@ class SystemHealth
 
     public static function lastError()
     {
-        $filepath = storage_path('logs/laravel.log');
-        $file = escapeshellarg($filepath);
-        $end_of_file = `tail -n 500 $file`;
+        $log_file = new SplFileObject(sprintf('%s/laravel.log', base_path('storage/logs')));
+        $log_file->seek(PHP_INT_MAX);
+        $last_line = $log_file->key();
 
-        $lines = explode("\n", $end_of_file);
+        $lines = new LimitIterator($log_file, max(0, $last_line - 500), $last_line);
+        $log_lines = iterator_to_array($lines);
         $last_error = '';
 
         foreach ($lines as $line) {
