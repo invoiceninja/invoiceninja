@@ -30,15 +30,6 @@
                             {{ ctrans('texts.purchase_order_number_placeholder', ['purchase_order' => $purchase_order->number])}}
                             - {{ \App\Models\PurchaseOrder::stringStatus($purchase_order->status_id) }}
                         </h3>
-
-                            @if($key)
-                            <div class="btn hidden md:block" data-clipboard-text="{{url("vendor/purchase_order/{$key}")}}" aria-label="Copied!">
-                                <div class="flex text-sm leading-6 font-medium text-gray-500">
-                                    <p class="pr-10">{{url("vendor/purchase_order/{$key}")}}</p>
-                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
-                                </div>
-                            </div>
-                            @endif
                     </div>
                 </div>
             </div>
@@ -57,13 +48,14 @@
 
 @push('head')
     @vite('resources/js/clients/purchase_orders/accept.js')
-    <script src="{{ asset('vendor/clipboard.min.js') }}"  defer></script>
 
     <script type="text/javascript">
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            var clipboard = new ClipboardJS('.btn');
+            @if($key)
+                window.history.pushState({}, "", "{{ url("vendor/purchase_order/{$key}") }}");
+            @endif
 
         });
 

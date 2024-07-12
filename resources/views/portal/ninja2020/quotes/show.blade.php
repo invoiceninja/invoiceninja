@@ -29,16 +29,6 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.approved') }}
                         </h3>
-
-                            @if($key)
-                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/quote/{$key}")}}" aria-label="Copied!">
-                                <div class="flex text-sm leading-6 font-medium text-gray-500">
-                                    <p class="mr-2">{{url("client/quote/{$key}")}}</p>
-                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
-                                </div>
-                            </div>
-                            @endif
-
                     </div>
 
                                 @if($quote->invoice()->exists())
@@ -61,15 +51,6 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.approved') }}
                         </h3>
-
-                            @if($key)
-                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/quote/{$key}")}}" aria-label="Copied!">
-                                <div class="flex text-sm leading-6 font-medium text-gray-500">
-                                    <p class="mr-2">{{url("client/quote/{$key}")}}</p>
-                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
-                                </div>
-                            </div>
-                            @endif
                     </div>
                 </div>
             </div>
@@ -84,15 +65,6 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.expired') }}
                         </h3>
-
-                            @if($key)
-                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/quote/{$key}")}}" aria-label="Copied!">
-                                <div class="flex text-sm leading-6 font-medium text-gray-500">
-                                    <p class="mr-2">{{url("client/quote/{$key}")}}</p>
-                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
-                                </div>
-                            </div>
-                            @endif
                     </div>
                 </div>
             </div>
@@ -112,13 +84,14 @@
 
 @push('head')
     @vite('resources/js/clients/quotes/approve.js')
-    <script src="{{ asset('vendor/clipboard.min.js') }}" defer></script>
 
     <script type="text/javascript" defer>
 
     document.addEventListener('DOMContentLoaded', () => {
 
-        var clipboard = new ClipboardJS('.btn');
+        @if($key)
+            window.history.pushState({}, "", "{{ url("client/quote/{$key}") }}");
+        @endif
 
     });
 

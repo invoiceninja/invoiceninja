@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.clean_setup')
+@extends('setup.clean_setup')
 @section('meta_title', ctrans('texts.setup'))
 
 @section('body')
@@ -59,16 +59,20 @@
                     <div class="flex justify-center mt-4 hidden" id="submit-wrapper">
                         <div class="flex flex-col">
                             <div class="mt-4 text-sm">
-                                <input type="checkbox" class="form-checkbox mr-2" name="terms_of_service" required>
-                                <span>{{ ctrans('texts.i_agree') }}
-                                    <a class="button-link text-blue-600" target="_blank" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
-                                </span>
+                                <label for="terms_of_service">
+                                    <input type="checkbox" class="form-checkbox mr-2" name="terms_of_service" id="terms_of_service" required>
+                                    <span>{{ ctrans('texts.i_agree') }}
+                                        <a class="button-link text-blue-600" target="_blank" href="https://www.invoiceninja.com/self-hosting-terms-service/">{{ ctrans('texts.terms_of_service') }}</a>
+                                    </span>
+                                </label>
                             </div>
                             <div class="mt-2 text-sm">
-                                <input type="checkbox" class="form-checkbox mr-2" name="privacy_policy" required>
-                                <span>{{ ctrans('texts.i_agree') }}
-                                    <a class="button-link text-blue-600" target="_blank" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
-                                </span>
+                                <label for="privacy_policy">
+                                    <input type="checkbox" class="form-checkbox mr-2" name="privacy_policy" id="privacy_policy" required>
+                                    <span>{{ ctrans('texts.i_agree') }}
+                                        <a class="button-link text-blue-600" target="_blank" href="https://www.invoiceninja.com/self-hosting-privacy-data-control/">{{ ctrans('texts.privacy_policy') }}</a>
+                                    </span>
+                                </label>
                             </div>
 
                             <button type="submit" class="button button-primary bg-blue-600 w-1/2 my-4">{{ ctrans('texts.submit') }}</button>
