@@ -559,7 +559,7 @@ class BaseDriver extends AbstractPaymentDriver
             $error = 'Payment Aborted';
         }
 
-        if (! is_null($this->payment_hash)) {
+        if (! is_null($this->payment_hash)) { //@phpstan-ignore-line
             $this->unWindGatewayFees($this->payment_hash);
         }
 
@@ -830,7 +830,7 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         $invoices_string = \implode(', ', collect($this->payment_hash->invoices())->pluck('invoice_number')->toArray()) ?: null;
-        $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?? 0, $this->client);
+        $amount = Number::formatMoney($this->payment_hash?->amount_with_fee() ?? 0, $this->client); // @phpstan-ignore-line
 
         if($abbreviated && $invoices_string) {
             return $invoices_string;

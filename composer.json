@@ -100,7 +100,7 @@
         "symfony/http-client": "^6.0",
         "symfony/mailgun-mailer": "^6.1",
         "symfony/postmark-mailer": "^6.1",
-        "turbo124/beacon": "^2.0",
+        "turbo124/beacon": "^2",
         "twig/intl-extra": "^3.7",
         "twig/twig": "^3",
         "twilio/sdk": "^6.40",

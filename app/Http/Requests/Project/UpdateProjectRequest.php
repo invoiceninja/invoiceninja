@@ -45,7 +45,8 @@ class UpdateProjectRequest extends Request
             $rules['number'] = Rule::unique('projects')->where('company_id', $user->company()->id)->ignore($this->project->id);
         }
 
-        $rules['budgeted_hours'] = 'sometimes|numeric';
+        $rules['budgeted_hours'] = 'sometimes|bail|numeric';
+        $rules['task_rate'] = 'sometimes|bail|numeric';
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->fileValidation();

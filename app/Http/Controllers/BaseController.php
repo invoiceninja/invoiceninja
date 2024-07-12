@@ -35,6 +35,7 @@ use League\Fractal\Resource\Item;
 use App\Models\BankTransactionRule;
 use Illuminate\Support\Facades\Auth;
 use App\Transformers\ArraySerializer;
+use Illuminate\Support\Facades\Schema as DbSchema;
 use App\Transformers\EntityTransformer;
 use League\Fractal\Resource\Collection;
 use Illuminate\Database\Eloquent\Builder;
@@ -937,7 +938,9 @@ class BaseController extends Controller
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
-                $query->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
+                $query->where(function ($q) use ($user){ //grouping these together improves query performance significantly)
+                    $q->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
+                });
             }
         }
 
@@ -1104,7 +1107,7 @@ class BaseController extends Controller
     public function flutterRoute()
     {
 
-        if ((bool) $this->checkAppSetup() !== false && $account = Account::first()) {
+        if ((bool) $this->checkAppSetup() !== false && DbSchema::hasTable('accounts') && $account = Account::first()) {
 
             /** @var \App\Models\Account $account */
 

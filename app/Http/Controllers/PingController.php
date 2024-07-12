@@ -81,4 +81,34 @@ class PingController extends BaseController
 
         return response()->json(SystemHealth::check(), 200);
     }
+
+    /**
+     * Get the last error from storage/logs/laravel.log
+     *
+     * @return Response| \Illuminate\Http\JsonResponse
+     *
+     * @OA\Get(
+     *      path="/api/v1/last_error",
+     *      operationId="getLastError",
+     *      tags={"last_error"},
+     *      summary="Get the last error from storage/logs/laravel.log",
+     *      description="Get the last error from storage/logs/laravel.log",
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Response(
+     *          response=200,
+     *          description="The last error from the logs",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       )
+     *     )
+     */
+    public function lastError()
+    {
+        if (Ninja::isNinja() || ! auth()->user()->isAdmin()) {
+            return response()->json(['message' => ctrans('texts.route_not_available'), 'errors' => []], 403);
+        }
+
+        return response()->json(['last_error' => SystemHealth::lastError()], 200);
+    }
 }

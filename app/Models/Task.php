@@ -186,7 +186,7 @@ class Task extends BaseModel
         }
 
         if($this->status) {
-            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? '';
+            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? ''; //@phpstan-ignore-line
         }
 
         return '';

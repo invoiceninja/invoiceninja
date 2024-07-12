@@ -117,10 +117,15 @@ class TaskRepository extends BaseRepository
         }
 
         $key_values = array_column($time_log, 0);
-        array_multisort($key_values, SORT_ASC, $time_log);
+        
+        if(count($key_values) > 0)
+            array_multisort($key_values, SORT_ASC, $time_log);
 
         foreach($time_log as $key => $value) {
-            $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+
+            if(is_array($time_log[$key]) && count($time_log[$key]) >=2)
+                $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+
         }
 
         if (isset($data['action'])) {
@@ -261,7 +266,7 @@ class TaskRepository extends BaseRepository
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1 || $end_time == 0) {
+        if(in_array($this->task_round_to_nearest, [0,1]) || $end_time == 0) {
             return $end_time;
         }
 

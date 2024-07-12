@@ -107,16 +107,16 @@ class InvoiceSumInclusive
     private function calculateCustomValues()
     {
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
@@ -137,21 +137,21 @@ class InvoiceSumInclusive
         }
 
         //Handles cases where the surcharge is not taxed
-        // if(is_numeric($this->invoice->custom_surcharge1) && $this->invoice->custom_surcharge1 > 0 && !$this->invoice->custom_surcharge_tax1) {
-        //     $amount += $this->invoice->custom_surcharge1;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge1) && $this->invoice->custom_surcharge1 > 0 && $this->invoice->custom_surcharge_tax1) {
+            $amount += $this->invoice->custom_surcharge1;
+        }
 
-        // if(is_numeric($this->invoice->custom_surcharge2) && $this->invoice->custom_surcharge2 > 0 && !$this->invoice->custom_surcharge_tax2) {
-        //     $amount += $this->invoice->custom_surcharge2;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge2) && $this->invoice->custom_surcharge2 > 0 && $this->invoice->custom_surcharge_tax2) {
+            $amount += $this->invoice->custom_surcharge2;
+        }
 
-        // if(is_numeric($this->invoice->custom_surcharge3) && $this->invoice->custom_surcharge3 > 0 && !$this->invoice->custom_surcharge_tax3) {
-        //     $amount += $this->invoice->custom_surcharge3;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge3) && $this->invoice->custom_surcharge3 > 0 && $this->invoice->custom_surcharge_tax3) {
+            $amount += $this->invoice->custom_surcharge3;
+        }
 
-        // if(is_numeric($this->invoice->custom_surcharge4) && $this->invoice->custom_surcharge4 > 0 && !$this->invoice->custom_surcharge_tax4) {
-        //     $amount += $this->invoice->custom_surcharge4;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge4) && $this->invoice->custom_surcharge4 > 0 && $this->invoice->custom_surcharge_tax4) {
+            $amount += $this->invoice->custom_surcharge4;
+        }
 
         if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);

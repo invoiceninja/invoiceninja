@@ -44,7 +44,7 @@ use CleverIt\UBL\Invoice\FatturaPA\common\FatturaElettronicaHeader;
  */
 class FatturaPA extends AbstractService
 {
-    private $xml;
+    // private $xml;
 
     //urn:cen.eu:en16931:2017#compliant#urn:fatturapa.gov.it:CIUS-IT:2.0.0
     //<cbc:EndpointID schemeID=" 0201 ">UFF001</cbc:EndpointID>
