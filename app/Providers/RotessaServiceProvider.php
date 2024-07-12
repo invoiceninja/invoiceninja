@@ -26,6 +26,6 @@ class RotessaServiceProvider extends BaseProvider
      */
     public function registerComponent(): void
     {
-        Blade::componentNamespace('App\\Http\\ViewComposers\\Components', $this->moduleNameLower);
+        Blade::componentNamespace('App\\Http\\ViewComposers\\Components\\Rotessa', $this->moduleNameLower);
     }
 }

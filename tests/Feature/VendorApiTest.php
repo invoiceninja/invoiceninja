@@ -47,7 +47,6 @@ class VendorApiTest extends TestCase
         Model::reguard();
     }
 
-
     public function testVendorContactCreation()
     {
         $data = [

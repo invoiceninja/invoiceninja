@@ -5285,7 +5285,7 @@ $lang = array(
     'remind_quote' => 'Remind Quote',
     'end_of_month' => 'End Of Month',
     'tax_currency_mismatch' => 'Tax currency is different from invoice currency',
-    'edocument_import_already_exists' => '\nThe invoice has already been imported on :date'
+    'edocument_import_already_exists' => 'The invoice has already been imported on :date'
 );
 
 return $lang;

@@ -3786,7 +3786,7 @@ $lang = array(
     'entity_number_placeholder' => ':entity # :entity_number',
     'email_link_not_working' => 'If the button above isn\'t working for you, please click on the link',
     'display_log' => 'Display Log',
-    'send_fail_logs_to_our_server' => 'Report errors in realtime',
+    'send_fail_logs_to_our_server' => 'Report errors to help improve the app',
     'setup' => 'Setup',
     'quick_overview_statistics' => 'Quick overview & statistics',
     'update_your_personal_info' => 'Update your personal information',
@@ -5286,7 +5286,7 @@ $lang = array(
     'remind_quote' => 'Remind Quote',
     'end_of_month' => 'End Of Month',
     'tax_currency_mismatch' => 'Tax currency is different from invoice currency',
-    'edocument_import_already_exists' => '\nThe invoice has already been imported on :date',
+    'edocument_import_already_exists' => 'The invoice has already been imported on :date',
     'before_valid_until' => 'Before the valid until',
     'after_valid_until' => 'After the valid until',
     'task_assigned_notification' => 'Task Assigned Notification',
@@ -5296,6 +5296,9 @@ $lang = array(
     'add_comment' => 'Add Comment',
     'added_comment' => 'Successfully saved comment',
     'tickets' => 'Tickets',
+    'assigned_group' => 'Successfully assigned group',
+    'merge_to_pdf' => 'Merge to PDF',
+    'latest_requires_php_version' => 'Note: the latest version requires PHP :version',
 );
 
 return $lang;

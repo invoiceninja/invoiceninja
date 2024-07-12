@@ -25,10 +25,12 @@
                     {{ ctrans('texts.https') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1" name="https"
-                           {{ old('https') ? 'checked': '' }} checked>
-                    <span>{{ ctrans('texts.require') }}</span>
-                    <span class="text-gray-600 text-xs ml-2">({{ ctrans('texts.recommended_in_production') }})</span>
+                    <label for="https">
+                        <input type="checkbox" class="form-checkbox mr-1" name="https"
+                            id="https" {{ old('https') ? 'checked': '' }} checked>
+                        <span>{{ ctrans('texts.require') }}</span>
+                        <span class="text-gray-600 text-xs ml-2">({{ ctrans('texts.recommended_in_production') }})</span>
+                    </label>
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:flex sm:items-center">
@@ -36,9 +38,11 @@
                     {{ ctrans('texts.reports') }}
                 </dt>
                 <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-                    <input type="checkbox" class="form-checkbox mr-1"
-                           name="send_logs" {{ old('send_logs' ? 'checked': '') }}>
-                    <span>{{ ctrans('texts.send_fail_logs_to_our_server') }}</span>
+                    <label for="send_logs">
+                        <input type="checkbox" class="form-checkbox mr-1"
+                            name="send_logs" id="send_logs" {{ old('send_logs' ? 'checked': '') }}>
+                        <span>{{ ctrans('texts.send_fail_logs_to_our_server') }}</span>
+                    </label>
                     <a class="button-link mt-1 block" target="_blank" href="https://www.invoiceninja.com/privacy-policy/">Read more
                         about how we use this.</a>
                 </dd>
