@@ -1,0 +1,42 @@
+
+{
+    "Customer": {
+      "PrimaryEmailAddr": {
+        "Address": "Surf@Intuit.com"
+      }, 
+      "SyncToken": "0", 
+      "domain": "QBO", 
+      "GivenName": "Bill", 
+      "DisplayName": "Bill's Windsurf Shop", 
+      "BillWithParent": false, 
+      "FullyQualifiedName": "Bill's Windsurf Shop", 
+      "CompanyName": "Bill's Windsurf Shop", 
+      "FamilyName": "Lucchini", 
+      "sparse": false, 
+      "PrimaryPhone": {
+        "FreeFormNumber": "(415) 444-6538"
+      }, 
+      "Active": true, 
+      "Job": false, 
+      "BalanceWithJobs": 85.0, 
+      "BillAddr": {
+        "City": "Half Moon Bay", 
+        "Line1": "12 Ocean Dr.", 
+        "PostalCode": "94213", 
+        "Lat": "37.4307072", 
+        "Long": "-122.4295234", 
+        "CountrySubDivisionCode": "CA", 
+        "Id": "3"
+      }, 
+      "PreferredDeliveryMethod": "Print", 
+      "Taxable": false, 
+      "PrintOnCheckName": "Bill's Windsurf Shop", 
+      "Balance": 85.0, 
+      "Id": "2", 
+      "MetaData": {
+        "CreateTime": "2014-09-11T16:49:28-07:00", 
+        "LastUpdatedTime": "2014-09-18T12:56:01-07:00"
+      }
+    }, 
+    "time": "2015-07-23T11:04:15.496-07:00"
+  }
