@@ -89,6 +89,7 @@ class SystemHealth
             'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
             'api_version' => (string) config('ninja.app_version'),
             'is_docker' => (bool) config('ninja.is_docker'),
+            'pending_migrations' => self::checkPendingMigrations(),
         ];
     }
 
@@ -170,6 +171,17 @@ class SystemHealth
         }
 
         return false;
+    }
+
+    public static function checkPendingMigrations()
+    {
+        $run_count = DB::table('migrations')->count();
+
+        $directory = base_path('database/migrations');
+        $iterator = new \FilesystemIterator($directory);
+        $total_count = iterator_count($iterator) - 1;
+
+        return $run_count != $total_count;
     }
 
     public static function getPdfEngine()
