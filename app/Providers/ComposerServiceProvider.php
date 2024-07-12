@@ -27,6 +27,7 @@ class ComposerServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->composer('portal.*', PortalComposer::class);
+
         view()->composer(['*.rotessa.components.address','*.rotessa.components.banks.US.bank','*.rotessa.components.dropdowns.country.US'], function ($view) {
             $states = USStates::get();
             $view->with('states', $states);
