@@ -130,6 +130,8 @@ class HtmlEngine
 
         $data = [];
 
+        $data['$date_client_now'] = ['value' => now()->setTimezone($this->client->timezone()->name)->addSeconds($this->client->utc_offset())->format($this->client->date_format()), 'label' => ''];
+        $data['$date_company_now'] = ['value' => now()->setTimezone($this->company->timezone()->name)->addSeconds($this->company->utc_offset())->format($this->company->date_format()), 'label' => ''];
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
         $data['$show_shipping_address'] = ['value' => $this->settings->show_shipping_address ? 'flex' : 'none', 'label' => ''];

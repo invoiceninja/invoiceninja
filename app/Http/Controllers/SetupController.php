@@ -144,8 +144,6 @@ class SetupController extends Controller
             define('STDIN', fopen('php://stdin', 'r'));
 
             Artisan::call('config:clear');
-
-
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);
             Artisan::call('config:clear');

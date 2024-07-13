@@ -822,6 +822,20 @@ class Client extends BaseModel implements HasLocalePreference
 
     }
 
+    public function utc_offset(): int
+    {
+
+        $offset = 0;
+        $timezone = $this->timezone();
+
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
+        $offset = $date->getOffset();
+
+        return $offset;
+
+    }
+
     public function timezone_offset(): int
     {
         $offset = 0;
