@@ -33,6 +33,8 @@ class ProductMap
             14 => 'product.custom_value4',
             15 => 'product.image_url',
             16 => 'product.in_stock_quantity',
+            17 => 'product.tax_category',
+            18 => 'product.max_quantity',
         ];
     }
 
@@ -56,6 +58,8 @@ class ProductMap
             14 => 'texts.custom_value',
             15 => 'texts.image_url',
             16 => 'texts.in_stock_quantity',
+            17 => 'texts.tax_category',
+            18 => 'texts.max_quantity',
         ];
     }
 }
