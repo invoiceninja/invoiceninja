@@ -375,6 +375,7 @@ class BaseDriver extends AbstractPaymentDriver
             // To access campaign data => Cache::get(CAMPAIGN_HASH)
             // To access utm data => session()->get('utm-' . CAMPAIGN_HASH);
 
+            /** @var \App\Models\Subscription $billing_subscription */
             (new SubscriptionService($billing_subscription))->completePurchase($this->payment_hash);
         }
 

@@ -38,7 +38,7 @@ class UploadAvatar implements ShouldQueue
 
     public function handle(): ?string
     {
-        $tmp_file = sha1(time()).'.png';
+        $tmp_file = sha1(time()).'.png'; //@phpstan-ignore-line
 
         $im = imagecreatefromstring(file_get_contents($this->file));
         imagealphablending($im, false);

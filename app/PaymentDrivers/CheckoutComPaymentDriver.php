@@ -592,7 +592,7 @@ class CheckoutComPaymentDriver extends BaseDriver
                  foreach($customer['instruments'] as $card) {
                      if(
                          $card['type'] != 'card' ||
-                         Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) ||
+                         Carbon::createFromDate($card['expiry_year'], $card['expiry_month'], '1')->lt(now()) || //@phpstan-ignore-line
                          $this->getToken($card['id'], $customer['id'])
                      ) {
                          continue;

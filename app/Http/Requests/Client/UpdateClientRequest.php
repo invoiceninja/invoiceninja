@@ -11,13 +11,14 @@
 
 namespace App\Http\Requests\Client;
 
-use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\ValidClientGroupSettingsRule;
-use App\Utils\Traits\ChecksEntityStatus;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
+use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\ChecksEntityStatus;
+use App\Http\ValidationRules\EInvoice\ValidClientScheme;
+use App\Http\ValidationRules\ValidClientGroupSettingsRule;
 
 class UpdateClientRequest extends Request
 {
@@ -65,6 +66,8 @@ class UpdateClientRequest extends Request
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
         $rules['id_number'] = ['sometimes', 'bail', 'nullable', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
         $rules['number'] = ['sometimes', 'bail', Rule::unique('clients')->where('company_id', $user->company()->id)->ignore($this->client->id)];
+
+        $rules['e_invoice'] = ['sometimes','nullable', new ValidClientScheme()];
 
         $rules['settings'] = new ValidClientGroupSettingsRule();
         $rules['contacts'] = 'array';

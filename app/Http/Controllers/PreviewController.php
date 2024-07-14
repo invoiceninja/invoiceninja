@@ -125,7 +125,7 @@ class PreviewController extends BaseController
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
-        $response->header('Server-Timing', microtime(true) - $start);
+        $response->header('Server-Timing', (string) (microtime(true) - $start));
 
         return $response;
     }

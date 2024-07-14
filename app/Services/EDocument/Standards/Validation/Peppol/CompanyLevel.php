@@ -231,9 +231,9 @@ class CompanyLevel
     // #[SerializedName('cac:BuyerCustomerParty')]
     // public $BuyerCustomerParty;
 
-    // /** @var SellerSupplierParty */
-    // #[SerializedName('cac:SellerSupplierParty')]
-    // public $SellerSupplierParty;
+    /** @var SellerSupplierParty */
+    #[SerializedName('cac:SellerSupplierParty')]
+    public $SellerSupplierParty;
 
     /** @var TaxRepresentativeParty */
     #[SerializedName('cac:TaxRepresentativeParty')]

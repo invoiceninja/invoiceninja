@@ -253,7 +253,7 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
 
         // $this->fixClientBalances();
-        $check_data = (new CheckCompanyData($this->company, md5(time())))->handle();
+        $check_data = (new CheckCompanyData($this->company, md5(time())))->handle(); //@phpstan-ignore-line
 
         // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
         $this->processNinjaTokens($data['ninja_tokens']);

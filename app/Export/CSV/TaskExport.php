@@ -106,7 +106,9 @@ class TaskExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                  $this->buildRow($entity);
+                
+                /** @var \App\Models\Task $entity*/
+                $this->buildRow($entity);
               });
 
         $this->csv->insertAll($this->storage_array);
@@ -128,6 +130,7 @@ class TaskExport extends BaseExport
         $query->cursor()
                 ->each(function ($resource) {
 
+                    /** @var \App\Models\Task $resource*/
                     $this->buildRow($resource);
 
                     foreach($this->storage_array as $row) {

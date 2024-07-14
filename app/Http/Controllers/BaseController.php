@@ -653,7 +653,7 @@ class BaseController extends Controller
     /**
      * Passes back the miniloaded data response
      *
-     * @param  Builder $query
+     * @param  mixed $query
      *
      */
     protected function timeConstrainedResponse($query)
@@ -894,11 +894,7 @@ class BaseController extends Controller
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
 
-        // else {
-        //     $resource = new Collection($query, $transformer, $this->entity_type);
-        // }
-
-        return $this->response($this->manager->createData($resource)->toArray());
+        return $this->response($this->manager->createData($resource)->toArray()); //@phpstan-ignore-line
     }
 
     /**

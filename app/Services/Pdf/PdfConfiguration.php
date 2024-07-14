@@ -306,7 +306,7 @@ class PdfConfiguration
             $decimal = $this->country->decimal_separator;
         }
 
-        if (isset($this->country->swap_currency_symbol) && strlen($this->country->swap_currency_symbol) >= 1) {
+        if (isset($this->country->swap_currency_symbol) && $this->country->swap_currency_symbol) {
             $swapSymbol = $this->country->swap_currency_symbol;
         }
 
