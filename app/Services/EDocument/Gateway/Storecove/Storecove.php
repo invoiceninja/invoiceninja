@@ -51,7 +51,7 @@ class Storecove {
     //check if identifier is able to send on the network.
 
 
-
+    //response = {  "code": "OK",  "email": false}
     public function discovery($identifier, $scheme, $network = 'peppol')
     {
         $network_data = [];
@@ -70,6 +70,44 @@ class Storecove {
             
     }
 
+    //response = "guid" : "xx",
+
+    /**
+     * If the receiver cannot be found, then an
+     * email is sent to that user if a appropriate 
+     * email is included in the document payload
+     * 
+     * {
+            "routing":  {
+                "emails": [
+                "test@example.com"
+                ],
+                "eIdentifiers": []
+            }
+        }
+     *
+     */
+    public function sendDocument($document)
+    {
+        $uri = "https://api.storecove.com/api/v2/document_submissions";
+        
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $document, $this->getHeaders());
+
+        if($r->successful())
+            return $r->json()['guid'];
+
+        return false;
+
+    }
+
+    //document submission sending evidence
+    public function sendingEvidence(string $guid)
+    {
+        $uri = "https://api.storecove.com/api/v2/document_submissions/{$guid}";
+        $r = $this->httpClient($uri, (HttpVerb::GET)->value, [], $this->getHeaders());
+
+    }
+
     private function getHeaders(array $headers = [])
     {
 
@@ -83,9 +121,9 @@ class Storecove {
     public function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
-        $r = Http::withToken($this->access_token)
+        $r = Http::withToken(config('ninja.storecove_api_key'))
                 ->withHeaders($this->getHeaders($headers))
-                ->{$verb}("{$this->api_endpoint_url}{$uri}", $data);
+                ->{$verb}($uri, $data);
 
         return $r;
     }
