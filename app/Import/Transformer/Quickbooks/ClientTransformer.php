@@ -58,9 +58,9 @@ class ClientTransformer extends BaseTransformer
             $transformed_data[$key] = method_exists($this, $method = sprintf("get%s", str_replace(".","",$field)) )? call_user_func([$this, $method],$data,$field) :  $this->getString($data, $field);
         }
         
-        $transformed_data = (new Model)->fillable(array_keys($this->fillable))->fill($transformed_data)->toArray() + $this->getContacts($data, $field);
-
-        return $transformed_data;
+        $transformed_data = (new Model)->fillable(array_keys($this->fillable))->fill($transformed_data);
+        $transformed_data->contacts[0] = $this->getContacts($data)->toArray()+['company_id' => $this->company->id ];
+        return $transformed_data->toArray() + ['company_id' => $this->company->id ] ;
     }
 
     public function getString($data, $field)
@@ -68,15 +68,14 @@ class ClientTransformer extends BaseTransformer
         return Arr::get($data, $field);
     }
 
-    protected function getContacts($data, $field = null) {
-        return [ 'contacts' => [
-                (new ClientContact())->fill([
+    protected function getContacts($data) {
+        return (new ClientContact())->fill([
                     'first_name'    => $this->getString($data, 'GivenName'),
                     'last_name'     => $this->getString($data, 'FamilyName'),
                     'phone'         => $this->getString($data, 'PrimaryPhone.FreeFormNumber'),
                     'email'         => $this->getString($data, 'PrimaryEmailAddr.Address'),
-                ]) ]
-            ];
+                    'company_id' => $this->company->id
+                ]);
     }
 
 
