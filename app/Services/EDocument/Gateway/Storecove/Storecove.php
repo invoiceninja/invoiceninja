@@ -86,12 +86,28 @@ class Storecove {
             }
         }
      *
+     * 
+     * 
+        // documentType : invoice/invoice_response/order
+        // rawDocumentData : {
+        // document: base64_encode($ubl)
+        // parse: true
+        // parseStrategy: ubl
+        // }
      */
     public function sendDocument($document)
     {
+
+        $payload = [
+            'documentType' => 'invoice',
+            'rawDocumentData' => base64_encode($document),
+            'parse' => true,
+            'parseStrategy', 'ubl'
+        ];
+
         $uri = "https://api.storecove.com/api/v2/document_submissions";
         
-        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $document, $this->getHeaders());
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
 
         if($r->successful())
             return $r->json()['guid'];
@@ -101,7 +117,7 @@ class Storecove {
     }
 
     //document submission sending evidence
-    public function sendingEvidence(string $guid)
+    public function getSendingEvidence(string $guid)
     {
         $uri = "https://api.storecove.com/api/v2/document_submissions/{$guid}";
         $r = $this->httpClient($uri, (HttpVerb::GET)->value, [], $this->getHeaders());
@@ -118,7 +134,7 @@ class Storecove {
 
     }
 
-    public function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
+    private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
         $r = Http::withToken(config('ninja.storecove_api_key'))
@@ -128,10 +144,5 @@ class Storecove {
         return $r;
     }
     
-//     curl \
-// -X POST  \
-// -H "Accept: application/json" \
-// -H "Authorization: Bearer API_KEY_HERE" \
-// -H "Content-Type: application/json" \
-// --data @discovery.json
+
 }

@@ -65,7 +65,7 @@ class UpdateCompanyRequest extends Request
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
 
-        $rules['e_invoice'] = ['sometimes','nullable', new ValidCompanyScheme()];
+        // $rules['e_invoice'] = ['sometimes','nullable', new ValidCompanyScheme()];
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'bail|nullable|sometimes|url';
