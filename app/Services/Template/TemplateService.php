@@ -654,7 +654,7 @@ class TemplateService
                 'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $invoice->pivot->created_at->timestamp,
             ];
-        })->merge($credits)->sortBy('timestamp')->toArray();
+        })->concat($credits)->sortBy('timestamp')->toArray();
 
         return [
             'status' => $payment->stringStatus($payment->status_id),

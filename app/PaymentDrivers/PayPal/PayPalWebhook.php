@@ -297,7 +297,7 @@ class PayPalWebhook implements ShouldQueue
         $gateway = CompanyGateway::query()
             ->where('company_id', $company->id)
             ->where('gateway_key', $this->gateway_key)
-            ->first(function ($cg) use ($merchant_id) {
+            ->first(function ($cg) use ($merchant_id) { //@phpstan-ignore-line
                 $config = $cg->getConfig();
 
                 if($config->merchantId == $merchant_id) {

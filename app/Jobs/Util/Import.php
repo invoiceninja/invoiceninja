@@ -1545,7 +1545,6 @@ class Import implements ShouldQueue
                     $file_path,
                     $file_name,
                     $file_info,
-                    filesize($file_path),
                     0,
                     false
                 );

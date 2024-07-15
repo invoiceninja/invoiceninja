@@ -277,7 +277,7 @@ class Number
 
             return "{$symbol}{$value}";
         } else {
-            return self::formatValue($value, $currency);
+            return self::formatValue($value, $currency); //@phpstan-ignore-line
         }
     }
 
@@ -339,7 +339,7 @@ class Number
             $precision = 0;
         }
 
-        $value = number_format($v, $precision, $decimal, $thousand);
+        $value = number_format($v, $precision, $decimal, $thousand);//@phpstan-ignore-line
         $symbol = $currency->symbol;
 
         if ($entity->getSetting('show_currency_code') === true && $currency->code == 'CHF') {
@@ -356,7 +356,7 @@ class Number
 
             return "{$symbol}{$value}";
         } else {
-            return self::formatValue($value, $currency);
+            return self::formatValue($value, $currency); //@phpstan-ignore-line
         }
     }
 }

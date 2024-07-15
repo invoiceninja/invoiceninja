@@ -410,7 +410,7 @@ class PdfConfiguration
             $precision = 0;
         }
 
-        $value = number_format($v, $precision, $decimal, $thousand);
+        $value = number_format($v, $precision, $decimal, $thousand); //@phpstan-ignore-line
         $symbol = $this->currency->symbol;
 
         if ($this->settings->show_currency_code === true && $this->currency->code == 'CHF') {
@@ -427,7 +427,7 @@ class PdfConfiguration
 
             return "{$symbol}{$value}";
         } else {
-            return $this->formatValue($value);
+            return $this->formatValue($value); // @phpstan-ignore-line
         }
     }
 
