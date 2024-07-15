@@ -240,5 +240,5 @@ return [
         'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
     'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', ''),
-    
+    'storecove_api_key' => env('STORECOVE_API_KEY', false),    
 ];
