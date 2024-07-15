@@ -65,7 +65,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Valid;
 
-class CompanyLevel
+class ClientLevel
 {
     // /** @var UBLVersionID */
     // #[SerializedName('cbc:UBLVersionID')]
@@ -227,13 +227,13 @@ class CompanyLevel
     #[SerializedName('cac:PayeeParty')]
     public $PayeeParty;
 
-    // /** @var BuyerCustomerParty */
-    // #[SerializedName('cac:BuyerCustomerParty')]
-    // public $BuyerCustomerParty;
+    /** @var BuyerCustomerParty */
+    #[SerializedName('cac:BuyerCustomerParty')]
+    public $BuyerCustomerParty;
 
-    /** @var SellerSupplierParty */
-    #[SerializedName('cac:SellerSupplierParty')]
-    public $SellerSupplierParty;
+    // /** @var SellerSupplierParty */
+    // #[SerializedName('cac:SellerSupplierParty')]
+    // public $SellerSupplierParty;
 
     /** @var TaxRepresentativeParty */
     #[SerializedName('cac:TaxRepresentativeParty')]

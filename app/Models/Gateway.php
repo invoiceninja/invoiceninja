@@ -24,7 +24,7 @@ namespace App\Models;
  * @property string|null $site_url
  * @property bool $is_offsite
  * @property bool $is_secure
- * @property object|null $fields
+ * @property object|null|string $fields
  * @property string $default_gateway_type_id
  * @property int|null $created_at
  * @property int|null $updated_at

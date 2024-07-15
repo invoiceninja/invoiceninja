@@ -47,10 +47,12 @@ class CopyDocs implements ShouldQueue
     {
         MultiDB::setDb($this->db);
 
-        Document::whereIn('id', $this->document_ids)
+        Document::query()
+                ->whereIn('id', $this->document_ids)
                 ->where('company_id', $this->entity->company_id)
                 ->each(function ($document) {
 
+                    /** @var \App\Models\Document $document */
                     $file = $document->getFile();
 
                     $extension = pathinfo($document->name, PATHINFO_EXTENSION);

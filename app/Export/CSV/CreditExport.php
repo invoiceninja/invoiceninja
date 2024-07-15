@@ -52,6 +52,8 @@ class CreditExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($credit) {
+                    
+                    /** @var \App\Models\Credit $credit */
                     $row = $this->buildRow($credit);
                     return $this->processMetaData($row, $credit);
                 })->toArray();
@@ -139,6 +141,7 @@ class CreditExport extends BaseExport
 
         $query->cursor()
             ->each(function ($credit) {
+                /** @var \App\Models\Credit $credit */
                 $this->csv->insertOne($this->buildRow($credit));
             });
 

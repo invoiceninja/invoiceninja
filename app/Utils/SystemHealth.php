@@ -202,7 +202,7 @@ class SystemHealth
 
     public static function checkOpenBaseDir()
     {
-        if (strlen(ini_get('open_basedir') == 0)) {
+        if (strlen(ini_get('open_basedir')) == 0) {
             return true;
         }
 

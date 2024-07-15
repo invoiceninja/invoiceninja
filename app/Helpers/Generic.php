@@ -27,7 +27,7 @@ function nlog($output, $context = []): void
     }
 
     if (gettype($output) == 'object') {
-        $output = print_r($output, 1);
+        $output = print_r($output, true);
     }
 
     // $trace = debug_backtrace();
@@ -53,7 +53,7 @@ function nrlog($output, $context = []): void
     }
 
     if (gettype($output) == 'object') {
-        $output = print_r($output, 1);
+        $output = print_r($output, true);
     }
 
     // $trace = debug_backtrace();
