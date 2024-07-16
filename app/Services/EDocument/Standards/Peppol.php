@@ -15,6 +15,7 @@ use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use InvoiceNinja\EInvoice\EInvoice;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
@@ -76,6 +77,12 @@ class Peppol extends AbstractService
         //@todo - need to process this and remove null values
         return $this->p_invoice;
 
+    }
+
+    public function toXml(): string
+    {
+        $e = new EInvoice();
+        return $e->encode($this->p_invoice, 'xml');
     }
 
     public function run()

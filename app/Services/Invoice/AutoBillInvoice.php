@@ -62,7 +62,7 @@ class AutoBillInvoice extends AbstractService
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int) $this->invoice->balance == 0) {
+        if (floatval($this->invoice->balance) == 0) {
             return $this->invoice->service()->markPaid()->save();
         }
 

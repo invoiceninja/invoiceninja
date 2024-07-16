@@ -449,8 +449,39 @@ class Activity extends StaticModel
         $replacements['created_at'] = $this->created_at ?? '';
         $replacements['ip'] = $this->ip ?? '';
 
+        if($this->activity_type_id == 141)
+            $replacements = $this->harvestNoteEntities($replacements);
+
         return $replacements;
 
+    }
+
+    private function harvestNoteEntities(array $replacements): array
+    {
+        $entities = [
+            ':invoice',
+            ':quote',
+            ':credit',
+            ':payment',
+            ':task',
+            ':expense',
+            ':purchase_order',
+            ':recurring_invoice',
+            ':recurring_expense',
+            ':client',
+            
+        ];
+
+        foreach($entities as $entity)
+        {
+            $entity_key = substr($entity, 1);
+
+            if($this?->{$entity_key})
+                $replacements = array_merge($replacements, $this->matchVar($entity));
+
+        }
+
+        return $replacements;
     }
 
     private function matchVar(string $variable)
