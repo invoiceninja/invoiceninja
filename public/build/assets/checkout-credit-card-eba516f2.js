@@ -1,4 +1,4 @@
-import{w as o}from"./wait-d71d9fed.js";/**
+import{w as o}from"./wait-8f4ae121.js";/**
  * Invoice Ninja (https://invoiceninja.com)
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository

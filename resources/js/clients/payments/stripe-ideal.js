@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait } from '../wait';    
+
 class ProcessIDEALPay {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -81,11 +83,13 @@ class ProcessIDEALPay {
     };
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
-
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
-new ProcessIDEALPay(publishableKey, stripeConnect).setupStripe().handle();
+wait('#stripe-ideal-payment').then(() => {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessIDEALPay(publishableKey, stripeConnect).setupStripe().handle();
+});

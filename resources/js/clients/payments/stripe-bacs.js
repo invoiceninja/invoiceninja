@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait } from '../wait';
+
 class ProcessBACS {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -75,13 +77,15 @@ class ProcessBACS {
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
-
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-const onlyAuthorization =
-    document.querySelector('meta[name="only-authorization"]')?.content ?? '';
-
-new ProcessBACS(publishableKey, stripeConnect).setupStripe().handle();
+wait('#stripe-bacs-payment').then(() => {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    const onlyAuthorization =
+        document.querySelector('meta[name="only-authorization"]')?.content ?? '';
+    
+    new ProcessBACS(publishableKey, stripeConnect).setupStripe().handle();
+});
