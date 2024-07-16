@@ -14,7 +14,7 @@ return new class extends Migration
     {
         $t = \App\Models\Timezone::find(115);
 
-        if(!$t){
+        if(!$t && \App\Models\Timezone::count() > 1){
 
             $t = new Timezone();
             $t->id = 115;
