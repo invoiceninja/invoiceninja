@@ -41,3 +41,17 @@ export function wait(...selectors) {
         observer.observe(document.body, { childList: true, subtree: true });
     });
 }
+
+export function instant() {
+    const instant = document.querySelector('meta[name="instant-payment"]');
+
+    if (
+        instant &&
+        instant instanceof HTMLMetaElement &&
+        instant.content === 'yes'
+    ) {
+        return true;
+    }
+
+    return false;
+}

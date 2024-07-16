@@ -54,17 +54,20 @@ class ProcessPayment extends Component
 
         $company_gateway = CompanyGateway::find($this->getContext()['company_gateway_id']);
 
-        if(!$responder_data['success']) {
+        if (!$responder_data['success']) {
             throw new PaymentFailed($responder_data['error'], 400);
         }
 
         $driver = $company_gateway
-                ->driver($invitation->contact->client)
-                ->setPaymentMethod($data['payment_method_id'])
-                ->setPaymentHash($responder_data['payload']['ph']);
+            ->driver($invitation->contact->client)
+            ->setPaymentMethod($data['payment_method_id'])
+            ->setPaymentHash($responder_data['payload']['ph']);
 
-        $this->payment_view = $driver->livewirePaymentView();
         $this->payment_data_payload = $driver->processPaymentViewData($responder_data['payload']);
+        
+        $this->payment_view = $driver->livewirePaymentView(
+            $this->payment_data_payload,
+        );
 
         $this->isLoading = false;
 

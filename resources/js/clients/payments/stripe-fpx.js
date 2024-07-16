@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait } from '../wait';
+
 class ProcessFPXPay {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -81,13 +83,13 @@ class ProcessFPXPay {
     }
 }
 
-
-
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
-
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
-new ProcessFPXPay(publishableKey, stripeConnect).setupStripe().handle();
+wait('#stripe-fpx-payment').then(() => {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessFPXPay(publishableKey, stripeConnect).setupStripe().handle();
+});

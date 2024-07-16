@@ -18,5 +18,5 @@ interface LivewireMethodInterface
      *
      * @param array $data
      */
-    public function livewirePaymentView(): string;
+    public function livewirePaymentView(array $data): string;
 }

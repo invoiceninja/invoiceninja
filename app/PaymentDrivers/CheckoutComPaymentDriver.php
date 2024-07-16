@@ -630,8 +630,8 @@ class CheckoutComPaymentDriver extends BaseDriver implements LivewireMethodInter
              });
     }
 
-    public function livewirePaymentView(): string
+    public function livewirePaymentView(array $data): string
     {
-        return $this->payment_method->livewirePaymentView();
+        return $this->payment_method->livewirePaymentView($data);
     }
 }
