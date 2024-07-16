@@ -147,7 +147,7 @@ class UpdatePaymentMethods
     {
         $sources = $customer->sources ?? false;
 
-        if (!$customer || is_null($sources) || !property_exists($sources, 'data')) {
+        if (!$customer || is_null($sources) || !$sources || !property_exists($sources, 'data')) {
             return;
         }
 
