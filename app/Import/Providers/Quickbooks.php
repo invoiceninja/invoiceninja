@@ -11,14 +11,18 @@
 
 namespace App\Import\Providers;
 
+use App\Factory\ProductFactory;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Import\Transformer\Quickbooks\ClientTransformer;
 use App\Import\Transformer\Quickbooks\InvoiceTransformer;
+use App\Import\Transformer\Quickbooks\ProductTransformer;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
+use App\Repositories\ProductRepository;
 
 class Quickbooks extends BaseImport
 {
@@ -62,6 +66,26 @@ class Quickbooks extends BaseImport
         $this->transformer = new ClientTransformer($this->company);
         $client_count = $this->ingest($data, $entity_type);
         $this->entity_count['clients'] = $client_count;
+    } 
+
+    public function product()
+    {
+        $entity_type = 'product';
+        $data = $this->getData($entity_type);
+        if (empty($data)) {
+            $this->entity_count['products'] = 0;
+
+            return;
+        }
+
+        $this->request_name = StoreProductRequest::class;
+        $this->repository_name = ProductRepository::class;
+        $this->factory_name = ProductFactory::class;
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+        $this->transformer = new ProductTransformer($this->company);
+        $count = $this->ingest($data, $entity_type);
+        $this->entity_count['products'] = $count;
     } 
 
     public function getData($type) {
