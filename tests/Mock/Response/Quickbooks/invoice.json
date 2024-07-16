@@ -1,152 +1,103 @@
 
 {
     "Invoice": {
-      "TxnDate": "2014-09-19", 
-      "domain": "QBO", 
-      "PrintStatus": "NeedToPrint", 
-      "SalesTermRef": {
-        "value": "3"
-      }, 
-      "TotalAmt": 362.07, 
-      "Line": [
-        {
-          "Description": "Rock Fountain", 
-          "DetailType": "SalesItemLineDetail", 
-          "SalesItemLineDetail": {
-            "TaxCodeRef": {
-              "value": "TAX"
-            }, 
-            "Qty": 1, 
-            "UnitPrice": 275, 
-            "ItemRef": {
-              "name": "Rock Fountain", 
-              "value": "5"
-            }
-          }, 
-          "LineNum": 1, 
-          "Amount": 275.0, 
-          "Id": "1"
-        }, 
-        {
-          "Description": "Fountain Pump", 
-          "DetailType": "SalesItemLineDetail", 
-          "SalesItemLineDetail": {
-            "TaxCodeRef": {
-              "value": "TAX"
-            }, 
-            "Qty": 1, 
-            "UnitPrice": 12.75, 
-            "ItemRef": {
-              "name": "Pump", 
-              "value": "11"
-            }
-          }, 
-          "LineNum": 2, 
-          "Amount": 12.75, 
-          "Id": "2"
-        }, 
-        {
-          "Description": "Concrete for fountain installation", 
-          "DetailType": "SalesItemLineDetail", 
-          "SalesItemLineDetail": {
-            "TaxCodeRef": {
-              "value": "TAX"
-            }, 
-            "Qty": 5, 
-            "UnitPrice": 9.5, 
-            "ItemRef": {
-              "name": "Concrete", 
-              "value": "3"
-            }
-          }, 
-          "LineNum": 3, 
-          "Amount": 47.5, 
-          "Id": "3"
-        }, 
-        {
-          "DetailType": "SubTotalLineDetail", 
-          "Amount": 335.25, 
-          "SubTotalLineDetail": {}
-        }
-      ], 
-      "DueDate": "2014-10-19", 
-      "ApplyTaxAfterDiscount": false, 
-      "DocNumber": "1037", 
-      "sparse": false, 
-      "CustomerMemo": {
-        "value": "Thank you for your business and have a great day!"
-      }, 
-      "ProjectRef": {
-        "value": "39298045"
-      }, 
-      "Deposit": 0, 
-      "Balance": 362.07, 
-      "CustomerRef": {
-        "name": "Sonnenschein Family Store", 
-        "value": "24"
-      }, 
-      "TxnTaxDetail": {
-        "TxnTaxCodeRef": {
-          "value": "2"
-        }, 
-        "TotalTax": 26.82, 
-        "TaxLine": [
-          {
-            "DetailType": "TaxLineDetail", 
-            "Amount": 26.82, 
-            "TaxLineDetail": {
-              "NetAmountTaxable": 335.25, 
-              "TaxPercent": 8, 
-              "TaxRateRef": {
-                "value": "3"
-              }, 
-              "PercentBased": true
-            }
-          }
-        ]
-      }, 
-      "SyncToken": "0", 
-      "LinkedTxn": [
-        {
-          "TxnId": "100", 
-          "TxnType": "Estimate"
-        }
-      ], 
-      "BillEmail": {
-        "Address": "Familiystore@intuit.com"
-      }, 
-      "ShipAddr": {
-        "City": "Middlefield", 
-        "Line1": "5647 Cypress Hill Ave.", 
-        "PostalCode": "94303", 
-        "Lat": "37.4238562", 
-        "Long": "-122.1141681", 
-        "CountrySubDivisionCode": "CA", 
-        "Id": "25"
-      }, 
-      "EmailStatus": "NotSet", 
-      "BillAddr": {
-        "Line4": "Middlefield, CA  94303", 
-        "Line3": "5647 Cypress Hill Ave.", 
-        "Line2": "Sonnenschein Family Store", 
-        "Line1": "Russ Sonnenschein", 
-        "Long": "-122.1141681", 
-        "Lat": "37.4238562", 
-        "Id": "95"
-      }, 
+      "AllowIPNPayment": false,
+      "AllowOnlinePayment": false,
+      "AllowOnlineCreditCardPayment": false,
+      "AllowOnlineACHPayment": false,
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "34",
+      "SyncToken": "0",
       "MetaData": {
-        "CreateTime": "2014-09-19T13:16:17-07:00", 
-        "LastUpdatedTime": "2014-09-19T13:16:17-07:00"
-      }, 
-      "CustomField": [
-        {
-          "DefinitionId": "1", 
-          "StringValue": "102", 
-          "Type": "StringType", 
-          "Name": "Crew #"
+       "CreateTime": "2024-06-17T11:09:08-07:00",
+       "LastModifiedByRef": {
+        "value": "9341452725837119"
+       },
+       "LastUpdatedTime": "2024-06-17T11:09:08-07:00"
+      },
+      "CustomField": [],
+      "DocNumber": "1010",
+      "TxnDate": "2024-06-17",
+      "CurrencyRef": {
+       "value": "USD",
+       "name": "United States Dollar"
+      },
+      "LinkedTxn": [],
+      "Line": [
+       {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Custom Design",
+        "Amount": 375,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+         "ItemRef": {
+          "value": "4",
+          "name": "Design"
+         },
+         "UnitPrice": 75,
+         "Qty": 5,
+         "ItemAccountRef": {
+          "value": "82",
+          "name": "Design income"
+         },
+         "TaxCodeRef": {
+          "value": "NON"
+         }
         }
-      ], 
-      "Id": "130"
-    }, 
+       },
+       {
+        "Amount": 375,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+       }
+      ],
+      "TxnTaxDetail": {
+       "TotalTax": 0
+      },
+      "CustomerRef": {
+       "value": "29",
+       "name": "Weiskopf Consulting"
+      },
+      "CustomerMemo": {
+       "value": "Thank you for your business and have a great day!"
+      },
+      "BillAddr": {
+       "Id": "56",
+       "Line1": "Nicola Weiskopf",
+       "Line2": "Weiskopf Consulting",
+       "Line3": "45612 Main St.",
+       "Line4": "Bayshore, CA  94326",
+       "Lat": "INVALID",
+       "Long": "INVALID"
+      },
+      "ShipAddr": {
+       "Id": "30",
+       "Line1": "45612 Main St.",
+       "City": "Bayshore",
+       "CountrySubDivisionCode": "CA",
+       "PostalCode": "94326",
+       "Lat": "45.256574",
+       "Long": "-66.0943698"
+      },
+      "FreeFormAddress": true,
+      "SalesTermRef": {
+       "value": "3",
+       "name": "Net 30"
+      },
+      "DueDate": "2024-07-17",
+      "TotalAmt": 375,
+      "ApplyTaxAfterDiscount": false,
+      "PrintStatus": "NotSet",
+      "EmailStatus": "NeedToSend",
+      "BillEmail": {
+       "Address": "Consulting@intuit.com"
+      },
+      "Balance": 375,
+      "DeliveryInfo": {
+       "DeliveryType": "Email"
+      }
+     }, 
     "time": "2015-07-24T10:48:27.082-07:00"
   }

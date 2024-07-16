@@ -1,15 +1,4 @@
-HTTP/1.1 200 OK
-Server: nginx
-Date: Sun, 05 May 2013 08:52:09 GMT
-Content-Type: application/json;charset=utf-8
-Content-Length: 127
-Connection: keep-alive
-Cache-Control: no-cache, no-store
-Access-Control-Max-Age: 300
-Access-Control-Allow-Credentials: true
-
 {
- "QueryResponse": {
   "Invoice": [
    {
     "AllowIPNPayment": false,
@@ -4109,6 +4098,4 @@ Access-Control-Allow-Credentials: true
   "startPosition": 1,
   "maxResults": 31,
   "totalCount": 31
- },
- "time": "2024-07-16T07:08:44.246-07:00"
-}
+ }
