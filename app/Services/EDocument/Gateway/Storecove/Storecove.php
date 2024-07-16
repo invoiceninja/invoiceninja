@@ -32,7 +32,7 @@ class Storecove {
         "network" =>  "peppol",
         "metaScheme" =>  "iso6523-actorid-upis",
         "scheme" =>  "de:lwid",
-        "identifier" => "10101010-STO-10"
+        "identifier" => "DE:VAT"
     ];
 
     private array $dbn_discovery = [
@@ -102,18 +102,14 @@ class Storecove {
 
         $payload = [
             "legalEntityId"=> 290868,
-            "idempotencyGuid"=> "61b37456-5f9e-4d56-b63b-3b1a23fa5c73",
+            "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
             "routing"=>  [
                 "eIdentifiers" => [
                     [
-                        "scheme"=> "DE:LWID",
-                        "id"=> "10101010-STO-10"
+                        "scheme" => "DE:VAT",
+                        "id"=> "DE:VAT"
                     ],
-                ],
-                "emails"=> [
-                "david@invoiceninja.com"
-                ],
-                "eIdentifiers"=> []
+                ]
             ],
             "document"=> [
                 'documentType' => 'invoice',

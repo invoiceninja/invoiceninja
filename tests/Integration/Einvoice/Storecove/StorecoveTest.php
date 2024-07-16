@@ -31,7 +31,7 @@ class StorecoveTest extends TestCase
             $this->markTestSkipped("do not run in CI");
     }
 
-    public function teseateLegalEntity()
+    public function testCreateLegalEntity()
     {
 
         $data = [
@@ -47,6 +47,10 @@ class StorecoveTest extends TestCase
             'tax_registered' => true,
             'tenant_id' => $this->company->company_key,
             'zip' => $this->company->settings->postal_code,
+            'peppol_identifiers' => [
+                'scheme' => 'DE:VAT',
+                'id' => 'DE:VAT'
+            ],
         ];
 
         $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
@@ -56,6 +60,22 @@ class StorecoveTest extends TestCase
 
     }
 
+    // public function testUpdateLegalEntity()
+    // {
+    //     $data = [
+    //         'peppol_identifiers' => [
+    //             'scheme' => 'DE:VAT',
+    //             'id' => 'DE:VAT'
+    //         ],
+    //     ];
+
+    //     $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+    //     $r = $sc->updateLegalEntity(290868, $data);
+
+    //     $this->assertIsArray($r);
+    //     nlog($r);
+
+    // }
 
     public function testGetLegalEntity()
     {
@@ -66,7 +86,7 @@ class StorecoveTest extends TestCase
 
         $this->assertIsArray($r);
 
-        // nlog($r);
+        nlog($r);
 
     }    
 
