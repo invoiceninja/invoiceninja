@@ -3,10 +3,16 @@
 namespace Tests\Unit\Import\Transformer\Quickbooks;
 
 use Tests\TestCase;
+use Tests\MockAccountData;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Import\Transformer\Quickbooks\InvoiceTransformer;
 
 class InvoiceTransformerTest extends TestCase
 {
+    use MockAccountData;
+    use DatabaseTransactions;
+
     private $invoiceData;
     private $tranformedData;
     private $transformer;
@@ -14,12 +20,13 @@ class InvoiceTransformerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Mock the company object
-        $company = (new \App\Factory\CompanyFactory)->create(1234);
 
+        $this->makeTestData();
+        $this->withoutExceptionHandling();
+        Auth::setUser($this->user);
         // Read the JSON string from a file and decode into an associative array
         $this->invoiceData = json_decode( file_get_contents( app_path('/../tests/Mock/Response/Quickbooks/invoice.json') ), true);
-        $this->transformer = new InvoiceTransformer($company);
+        $this->transformer = new InvoiceTransformer($this->company);
         $this->transformedData = $this->transformer->transform($this->invoiceData['Invoice']);
     }
 
@@ -50,5 +57,19 @@ class InvoiceTransformerTest extends TestCase
         $this->assertArrayHasKey('amount', $this->transformedData);
         $this->assertIsFloat($this->transformedData['amount']);
         $this->assertEquals($this->invoiceData['Invoice']['TotalAmt'], $this->transformedData['amount']);
+    }
+
+    public function testTransformContainsLineItems()
+    {
+        $this->assertArrayHasKey('line_items', $this->transformedData);
+        $this->assertNotNull($this->transformedData['line_items']);
+        $this->assertEquals( count($this->invoiceData['Invoice']["Line"]) - 1, count($this->transformedData['line_items']) );
+    }
+
+    public function testTransformHasClient()
+    {
+        $this->assertArrayHasKey('client', $this->transformedData);
+        $this->assertArrayHasKey('contacts', $this->transformedData['client']);
+        $this->assertEquals($this->invoiceData['Invoice']['BillEmail']['Address'], $this->transformedData['client']['contacts'][0]['email']);
     }
 }
