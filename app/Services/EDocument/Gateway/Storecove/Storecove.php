@@ -9,11 +9,10 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\EDocument\Gateway;
+namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\Models\Company;
 use Illuminate\Support\Facades\Http;
-
 
 enum HttpVerb: string
 {
@@ -26,7 +25,7 @@ enum HttpVerb: string
 
 class Storecove {
 
-    private string $base_url = 'https://api.storecove.com/';
+    private string $base_url = 'https://api.storecove.com/api/v2/';
 
     private array $peppol_discovery = [
         "documentTypes" =>  ["invoice"],
@@ -102,15 +101,34 @@ class Storecove {
     {
 
         $payload = [
-            'documentType' => 'invoice',
-            'rawDocumentData' => base64_encode($document),
-            'parse' => true,
-            'parseStrategy', 'ubl'
+            "legalEntityId"=> 290868,
+            "idempotencyGuid"=> "61b37456-5f9e-4d56-b63b-3b1a23fa5c73",
+            "routing"=>  [
+                "eIdentifiers" => [
+                    [
+                        "scheme"=> "DE:LWID",
+                        "id"=> "10101010-STO-10"
+                    ],
+                ],
+                "emails"=> [
+                "david@invoiceninja.com"
+                ],
+                "eIdentifiers"=> []
+            ],
+            "document"=> [
+                'documentType' => 'invoice',
+                'rawDocumentData' => ['document' => base64_encode($document)],
+                'parse' => true,
+                'parseStrategy', 'ubl'
+            ],
         ];
 
-        $uri = "api/v2/document_submissions";
+        $uri = "document_submissions";
         
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
+
+        nlog($r->body());
+        nlog($r->json());
 
         if($r->successful())
             return $r->json()['guid'];
@@ -122,7 +140,7 @@ class Storecove {
     //document submission sending evidence
     public function getSendingEvidence(string $guid)
     {
-        $uri = "api/v2/document_submissions/{$guid}";
+        $uri = "document_submissions/{$guid}";
         $r = $this->httpClient($uri, (HttpVerb::GET)->value, [], $this->getHeaders());
 
     }
@@ -214,6 +232,21 @@ class Storecove {
 
     }
 
+    public function getLegalEntity($id)
+    {
+
+        $uri = "legal_entities/{$id}";
+
+        $r = $this->httpClient($uri, (HttpVerb::GET)->value, []);
+
+        if($r->successful()) {
+            return $r->json();
+        }
+
+        return $r;
+
+    }
+
     public function updateLegalEntity($id, array $data)
     {
 
@@ -242,7 +275,7 @@ class Storecove {
 
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
-
+nlog("{$this->base_url}{$uri}");
         $r = Http::withToken(config('ninja.storecove_api_key'))
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->base_url}{$uri}", $data);
