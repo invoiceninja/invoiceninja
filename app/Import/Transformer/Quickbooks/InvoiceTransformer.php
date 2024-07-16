@@ -93,11 +93,11 @@ class InvoiceTransformer extends BaseTransformer
 
     public function getCreateTime($data)
     {
-        return $this->parseDateOrNull($this->getString($data,'MetaData.CreateTime'));
+        return $this->parseDateOrNull($data['MetaData'], 'CreateTime');
     }
 
     public function getLastUpdatedTime($data)
     {
-        return $this->parseDateOrNull($this->getString($data,'MetaData.LastUpdatedTime'));
+        return $this->parseDateOrNull($data['MetaData'],'LastUpdatedTime');
     }
 }
