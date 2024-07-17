@@ -103,7 +103,12 @@ class StorecoveTest extends TestCase
     public function testSendDocument()
     {
 
-        $x = '<?xml version="1.0"?>
+        $x = '
+        <?xml version="1.0" encoding="utf-8"?>
+<Invoice
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
             <cbc:ID>0061</cbc:ID>
             <cbc:IssueDate>2024-07-15</cbc:IssueDate>
             <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
@@ -221,7 +226,6 @@ class StorecoveTest extends TestCase
             </cac:Price>
             </cac:InvoiceLine>';
 
-        
         $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
         $sc->sendDocument($x);
 
