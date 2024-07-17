@@ -24,12 +24,17 @@ class TemplateEmail extends Mailable
 {
     private $build_email;
 
-    private $client;
 
+    /** @var \App\Models\Client $client */
+        private $client;
+        
+    /** @var \App\Models\ClientContact | \App\Models\VendorContact $contact */
     private $contact;
 
+    /** @var \App\Models\Company $company */
     private $company;
 
+    /** @var \App\Models\InvoiceInvitation | \App\Models\QuoteInvitation | \App\Models\CreditInvitation | \App\Models\PurchaseOrderInvitation | \App\Models\RecurringInvoiceInvitation | null $invitation */
     private $invitation;
 
     public function __construct($build_email, ClientContact $contact, $invitation = null)
@@ -167,7 +172,7 @@ class TemplateEmail extends Mailable
 
         }
 
-        if ($this->invitation->invoice) {
+        if ($this->invitation->invoice) { //@phpstan-ignore-line
             if ($this->invitation->invoice->client->getSetting('enable_e_invoice') && $this->invitation->invoice->client->getSetting('ubl_email_attachment') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->invoice->service()->getEInvoice($this->invitation->contact);
 
@@ -176,7 +181,7 @@ class TemplateEmail extends Mailable
                 }
 
             }
-        } elseif ($this->invitation->credit) {
+        } elseif ($this->invitation->credit) {//@phpstan-ignore-line
             if ($this->invitation->credit->client->getSetting('enable_e_invoice') && $this->invitation->invoice->client->getSetting('ubl_email_attachment') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->credit->service()->getECredit($this->invitation->contact);
 
@@ -185,7 +190,7 @@ class TemplateEmail extends Mailable
                 }
 
             }
-        } elseif ($this->invitation->quote) {
+        } elseif ($this->invitation->quote) {//@phpstan-ignore-line
             if ($this->invitation->quote->client->getSetting('enable_e_invoice') && $this->invitation->invoice->client->getSetting('ubl_email_attachment') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->quote->service()->getEQuote($this->invitation->contact);
 
