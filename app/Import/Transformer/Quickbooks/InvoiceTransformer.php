@@ -119,10 +119,13 @@ class InvoiceTransformer extends BaseTransformer
         $customer = explode(" ", $this->getString($data, 'CustomerRef.name'));
         $customer = ['GivenName' => $customer[0], 'FamilyName' => $customer[1]];
         $has_company = property_exists($bill_address, 'Line4');
+        $address = $has_company?  $bill_address->Line4 : $bill_address->Line3;
+        $address_1 = substr($address, 0, stripos($address,','));
+        $address =array_filter( [$address_1] + (explode(' ', substr($address, stripos($address,",") + 1 ))));
         $client = 
         [
             "CompanyName" => $has_company?  $bill_address->Line2 : $bill_address->Line1,
-            "BillAddr" => array_combine(['City','CountrySubDivisionCode','PostalCode'], array_filter(explode(" ",  $has_company?  $bill_address->Line4 : $bill_address->Line3 ))) + ['Line1' => $has_company? $bill_address->Line3 : $bill_address->Line2 ],
+            "BillAddr" => array_combine(['City','CountrySubDivisionCode','PostalCode'], $address) + ['Line1' => $has_company? $bill_address->Line3 : $bill_address->Line2 ],
             "ShipAddr" => $ship_address
         ] + $customer + ['PrimaryEmailAddr' => ['Address' => $this->getString($data, 'BillEmail.Address') ]];
         $client_id = $this->getClient($client['CompanyName'],$this->getString($client, 'PrimaryEmailAddr.Address'));
