@@ -431,11 +431,11 @@ class Activity extends StaticModel
         }
 
         if($this->client) {
-            $replacements['client'] = ['label' => $this?->client?->present()->name() ?? '', 'hashed_id' => $this->client->hashed_id ?? ''];
+            $replacements['client'] = ['label' => $this->client?->present()->name() ?? '', 'hashed_id' => $this->client->hashed_id ?? ''];
         }
 
         if($this->vendor) {
-            $replacements['vendor'] = ['label' => $this?->vendor?->present()->name() ?? '', 'hashed_id' => $this->vendor->hashed_id ?? ''];
+            $replacements['vendor'] = ['label' => $this->vendor?->present()->name() ?? '', 'hashed_id' => $this->vendor->hashed_id ?? ''];
         }
 
         if($this->activity_type_id == 4 && $this->recurring_invoice) {
