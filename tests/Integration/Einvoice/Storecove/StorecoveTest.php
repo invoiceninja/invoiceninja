@@ -60,6 +60,18 @@ class StorecoveTest extends TestCase
 
     }
 
+    public function tesXAddPeppolIdentifier()
+    {
+        
+            $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+            $r = $sc->addIdentifier(290868, "DE923356489", "DE:VAT");
+
+            // nlog($r->body());
+            // $this->assertIsArray($r);
+            nlog($r);
+        
+    }
+
     // public function testUpdateLegalEntity()
     // {
     //     $data = [
@@ -85,8 +97,6 @@ class StorecoveTest extends TestCase
         $r = $sc->getLegalEntity(290868);
 
         $this->assertIsArray($r);
-
-        nlog($r);
 
     }    
 
