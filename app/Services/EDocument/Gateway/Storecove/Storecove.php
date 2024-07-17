@@ -103,19 +103,14 @@ class Storecove {
         $payload = [
             "legalEntityId"=> 290868,
             "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
-            "routing"=>  [
-                "eIdentifiers" => [
-                    [
-                        "scheme" => "DE:VAT",
-                        "id"=> "DE:VAT"
-                    ],
-                ]
-            ],
             "document"=> [
                 'documentType' => 'invoice',
-                'rawDocumentData' => ['document' => base64_encode($document), 'parse' => true, 'parseStrategy', 'ubl'],
-                // 
-                // '
+                "invoice"  => [],
+            ],
+            "rawDocumentData"=> [
+                "document" => base64_encode($document), 
+                "parse" => true,
+                "parseStrategy"=> "ubl",
             ],
         ];
 
