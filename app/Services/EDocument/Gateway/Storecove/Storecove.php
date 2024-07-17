@@ -113,9 +113,9 @@ class Storecove {
             ],
             "document"=> [
                 'documentType' => 'invoice',
-                'rawDocumentData' => ['document' => base64_encode($document)],
-                'parse' => true,
-                'parseStrategy', 'ubl'
+                'rawDocumentData' => ['document' => base64_encode($document), 'parse' => true, 'parseStrategy', 'ubl'],
+                // 
+                // '
             ],
         ];
 
@@ -258,6 +258,29 @@ class Storecove {
 
     }
 
+
+    
+    public function addIdentifier(int $legal_entity_id, string $identifier, string $scheme)
+    {
+        $uri = "legal_entities/{$legal_entity_id}/peppol_identifiers";
+
+        $data = [
+            "identifier" => $identifier,
+            "scheme" => $scheme,
+            "superscheme" => "iso6523-actorid-upis",  
+        ];
+
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $data);
+
+        if($r->successful()) {
+            return $r->json();
+        }
+
+        return $r;
+
+    }
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private function getHeaders(array $headers = [])
     {
@@ -271,7 +294,7 @@ class Storecove {
 
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
-nlog("{$this->base_url}{$uri}");
+        
         $r = Http::withToken(config('ninja.storecove_api_key'))
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->base_url}{$uri}", $data);
