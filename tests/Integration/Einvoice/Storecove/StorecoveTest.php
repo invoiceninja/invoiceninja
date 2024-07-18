@@ -218,13 +218,12 @@ class StorecoveTest extends TestCase
   ';
 
 //inclusive
-$x = '
-<?xml version="1.0" encoding="utf-8"?>
+$x = '<?xml version="1.0" encoding="utf-8"?>
 <Invoice
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
-<cbc:ID>DE-10515</cbc:ID>
+<cbc:ID>DE-93090</cbc:ID>
   <cbc:IssueDate>2024-07-18</cbc:IssueDate>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cac:AccountingSupplierParty>
@@ -297,7 +296,20 @@ $x = '
       </FinancialInstitutionBranch>
     </PayeeFinancialAccount>
   </cac:PaymentMeans>
-  <cac:TaxTotal/>
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="EUR">15.97</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="EUR">84.03</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="EUR">15.97</cbc:TaxAmount>
+      <cac:TaxCategory>
+        <cbc:ID>C62</cbc:ID>
+        <cbc:Percent>0</cbc:Percent>
+        <cac:TaxScheme>
+          <cbc:ID></cbc:ID>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
   <cac:LegalMonetaryTotal>
     <cbc:LineExtensionAmount currencyID="EUR">84.03</cbc:LineExtensionAmount>
     <cbc:TaxExclusiveAmount currencyID="EUR">84.03</cbc:TaxExclusiveAmount>
@@ -327,7 +339,7 @@ $x = '
       <cbc:Name>Product Key</cbc:Name>
     </cac:Item>
     <cac:Price>
-      <cbc:PriceAmount currencyID="EUR">10</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="EUR">8.403</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
 ';
