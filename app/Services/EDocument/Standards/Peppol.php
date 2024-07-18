@@ -11,11 +11,13 @@
 
 namespace App\Services\EDocument\Standards;
 
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
 use InvoiceNinja\EInvoice\EInvoice;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
@@ -24,9 +26,13 @@ use InvoiceNinja\EInvoice\Models\Peppol\ContactType\Contact;
 use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
+use App\Services\EDocument\Standards\Settings\PropertyResolver;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyNameType\PartyName;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
@@ -34,13 +40,11 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
+use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
 
 class Peppol extends AbstractService
 {
@@ -59,16 +63,17 @@ class Peppol extends AbstractService
         "896" => "Debit note related to self-billed invoice"
     ];
 
-    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
+    private Company $company;
 
     private InvoiceSum | InvoiceSumInclusive $calc;
 
     /**
      * @param Invoice $invoice
      */
-    public function __construct(public Invoice $invoice)
+    public function __construct(public Invoice $invoice, public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice = null)
     {
-        $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+        $this->p_invoice = $p_invoice ?? new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+        $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
     }
 
@@ -95,6 +100,7 @@ class Peppol extends AbstractService
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
         $this->p_invoice->TaxTotal = $this->getTotalTaxes();
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
+        // $this->p_invoice->PaymentMeans = $this->getPaymentMeans();
 
         // $payeeFinancialAccount = (new PayeeFinancialAccount())
         //     ->setBankId($company->settings->custom_value1)
@@ -105,6 +111,17 @@ class Peppol extends AbstractService
         // ->setPayeeFinancialAccount($payeeFinancialAccount);
         // $ubl_invoice->setPaymentMeans($paymentMeans);
 
+    }
+
+    private function getPaymentMeans(): PaymentMeans
+    {
+        // $payeeFinancialAccount = new PayeeFinancialAccount()
+        // $payeeFinancialAccount->
+
+        // $ppm = new PaymentMeans();
+        // $ppm->PayeeFinancialAccount = $payeeFinancialAccount;
+
+        // return $ppm;
     }
 
     private function getLegalMonetaryTotal(): LegalMonetaryTotal
@@ -310,7 +327,7 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate1)), 2);
+            $tax_amount->amount = round(($item->line_total * ($item->tax_rate1/100)), 2);
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
 
@@ -339,7 +356,7 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate2)), 2);
+            $tax_amount->amount = round(($item->line_total * ($item->tax_rate2/100)), 2);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -372,7 +389,7 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate3)), 2);
+            $tax_amount->amount = round(($item->line_total * ($item->tax_rate3/100)), 2);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -520,4 +537,35 @@ class Peppol extends AbstractService
         return $total;
     }
 
+    public function setInvoiceDefaults(): self
+    {
+        $settings = [
+            'AccountingCostCode' => 7,
+            'AccountingCost' => 7,
+            'BuyerReference' => 6,
+            'AccountingSupplierParty' => 1,
+            'AccountingCustomerParty' => 2,
+            'PayeeParty' => 1,
+            'BuyerCustomerParty' => 2,
+            'SellerSupplierParty' => 1,
+            'TaxRepresentativeParty' => 1,
+            'Delivery' => 1,
+            'DeliveryTerms' => 7,
+            'PaymentMeans' => 7,
+            'PaymentTerms' => 7,
+        ];
+
+        foreach($settings as $prop => $visibility){
+
+            if($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $prop))
+                $this->p_invoice->{$prop} = $prop_value;
+            elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $prop)) {
+                $this->p_invoice->{$prop} = $prop_value;
+            }
+
+
+        }
+
+        return $this;
+    }
 }

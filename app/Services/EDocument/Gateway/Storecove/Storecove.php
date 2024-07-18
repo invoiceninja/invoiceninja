@@ -119,6 +119,8 @@ class Storecove {
 
         $uri = "document_submissions";
         
+        nlog($payload);
+        
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
 
         nlog($r->body());
