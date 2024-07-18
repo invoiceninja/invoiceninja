@@ -224,7 +224,7 @@ $x = '
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
-<cbc:ID>DE-53423</cbc:ID>
+<cbc:ID>DE-10515</cbc:ID>
   <cbc:IssueDate>2024-07-18</cbc:IssueDate>
   <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
   <cac:AccountingSupplierParty>
@@ -299,7 +299,7 @@ $x = '
   </cac:PaymentMeans>
   <cac:TaxTotal/>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="EUR">100</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="EUR">84.03</cbc:LineExtensionAmount>
     <cbc:TaxExclusiveAmount currencyID="EUR">84.03</cbc:TaxExclusiveAmount>
     <cbc:TaxInclusiveAmount currencyID="EUR">100.00</cbc:TaxInclusiveAmount>
     <cbc:PayableAmount currencyID="EUR">100.00</cbc:PayableAmount>
@@ -307,11 +307,11 @@ $x = '
   <cac:InvoiceLine>
     <cbc:ID>1</cbc:ID>
     <cbc:InvoicedQuantity>10</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="EUR">100</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="EUR">84.03</cbc:LineExtensionAmount>
     <cac:TaxTotal>
       <cbc:TaxAmount currencyID="EUR">15.97</cbc:TaxAmount>
       <cac:TaxSubtotal>
-        <cbc:TaxableAmount currencyID="EUR">100</cbc:TaxableAmount>
+        <cbc:TaxableAmount currencyID="EUR">84.03</cbc:TaxableAmount>
         <cbc:TaxAmount currencyID="EUR">15.97</cbc:TaxAmount>
         <cac:TaxCategory>
           <cbc:ID>C62</cbc:ID>
