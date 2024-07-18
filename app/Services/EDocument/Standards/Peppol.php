@@ -11,11 +11,14 @@
 
 namespace App\Services\EDocument\Standards;
 
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
 use InvoiceNinja\EInvoice\EInvoice;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Helpers\Invoice\Taxer;
+use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
@@ -24,9 +27,14 @@ use InvoiceNinja\EInvoice\Models\Peppol\ContactType\Contact;
 use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
+use App\Services\EDocument\Standards\Settings\PropertyResolver;
+use App\Utils\Traits\NumberFormatter;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyNameType\PartyName;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
@@ -34,16 +42,17 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
-use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
+use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
 
 class Peppol extends AbstractService
 {
+    use Taxer;
+    use NumberFormatter;
+    
     private array $InvoiceTypeCodes = [
         "380" => "Commercial invoice",
         "381" => "Credit note",
@@ -59,16 +68,17 @@ class Peppol extends AbstractService
         "896" => "Debit note related to self-billed invoice"
     ];
 
-    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
+    private Company $company;
 
     private InvoiceSum | InvoiceSumInclusive $calc;
 
     /**
      * @param Invoice $invoice
      */
-    public function __construct(public Invoice $invoice)
+    public function __construct(public Invoice $invoice, public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice = null)
     {
-        $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+        $this->p_invoice = $p_invoice ?? new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+        $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
     }
 
@@ -95,6 +105,7 @@ class Peppol extends AbstractService
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
         $this->p_invoice->TaxTotal = $this->getTotalTaxes();
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
+        // $this->p_invoice->PaymentMeans = $this->getPaymentMeans();
 
         // $payeeFinancialAccount = (new PayeeFinancialAccount())
         //     ->setBankId($company->settings->custom_value1)
@@ -107,6 +118,17 @@ class Peppol extends AbstractService
 
     }
 
+    private function getPaymentMeans(): PaymentMeans
+    {
+        // $payeeFinancialAccount = new PayeeFinancialAccount()
+        // $payeeFinancialAccount->
+
+        // $ppm = new PaymentMeans();
+        // $ppm->PayeeFinancialAccount = $payeeFinancialAccount;
+
+        // return $ppm;
+    }
+
     private function getLegalMonetaryTotal(): LegalMonetaryTotal
     {
         $taxable = $this->getTaxable();
@@ -115,12 +137,12 @@ class Peppol extends AbstractService
 
         $lea = new LineExtensionAmount();
         $lea->currencyID = $this->invoice->client->currency()->code;
-        $lea->amount = $taxable;
+        $lea->amount = $this->invoice->uses_inclusive_taxes ? round($this->invoice->amount - $this->invoice->total_taxes, 2) : $taxable;
         $lmt->LineExtensionAmount = $lea;
 
         $tea = new TaxExclusiveAmount();
         $tea->currencyID = $this->invoice->client->currency()->code;
-        $tea->amount = $taxable;
+        $tea->amount = $this->invoice->uses_inclusive_taxes ? round($this->invoice->amount - $this->invoice->total_taxes,2) : $taxable;
         $lmt->TaxExclusiveAmount = $tea;
 
         $tia = new TaxInclusiveAmount();
@@ -142,22 +164,20 @@ class Peppol extends AbstractService
 
         $type_id = $this->invoice->line_items[0]->type_id;
 
-        if(strlen($this->invoice->tax_name1 ?? '') > 1) {
+        // if(strlen($this->invoice->tax_name1 ?? '') > 1) {
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1), 2);
+            // $tax_amount->amount = $this->invoice->uses_inclusive_taxes ?  $this->calcInclusiveLineTax($this->invoice->tax_rate1, $this->invoice->amount) : $this->calcAmountLineTax($this->invoice->tax_rate1, $this->invoice->amount);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->total_taxes : $this->calcAmountLineTax($this->invoice->tax_rate1, $this->invoice->amount);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
 
-
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = $this->invoice->amount;
+            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount - $this->invoice->total_taxes : $this->invoice->amount;
             $tax_subtotal->TaxableAmount = $taxable_amount;
-
-
 
             $tc = new TaxCategory();
             $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
@@ -169,24 +189,25 @@ class Peppol extends AbstractService
 
             $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
-            $tax_total->TaxSubtotal = $tax_subtotal;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
 
             $taxes[] = $tax_total;
-        }
+        // }
 
 
         if(strlen($this->invoice->tax_name2 ?? '') > 1) {
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate2), 2);
+
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($this->invoice->tax_rate2, $this->invoice->amount) : $this->calcAmountLineTax($this->invoice->tax_rate2, $this->invoice->amount);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
 
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = $this->invoice->amount;
+            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount- $this->invoice->total_taxes : $this->invoice->amount;
             $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
@@ -211,14 +232,14 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round($this->invoice->amount * (1 / $this->invoice->tax_rate1), 2);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($this->invoice->tax_rate3, $this->invoice->amount) : $this->calcAmountLineTax($this->invoice->tax_rate3, $this->invoice->amount);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
 
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = $this->invoice->amount;
+            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount - $this->invoice->total_taxes : $this->invoice->amount;
             $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
@@ -259,14 +280,11 @@ class Peppol extends AbstractService
 
             $lea = new LineExtensionAmount();
             $lea->currencyID = $this->invoice->client->currency()->code;
-            $lea->amount = $item->line_total;
+            // $lea->amount = $item->line_total;
+            $lea->amount = $this->invoice->uses_inclusive_taxes ? $item->line_total - $this->calcInclusiveLineTax($item->tax_rate1, $item->line_total) : $item->line_total;
             $line->LineExtensionAmount = $lea;
             $line->Item = $_item;
 
-            // $ta = new TaxAmount;
-            // $ta->amount = $this->getItemTaxes($item);
-            // $ta->currencyID = $this->invoice->client->currency()->Code;
-            // $tt->TaxAmount = $ta;
             $item_taxes = $this->getItemTaxes($item);
 
             if(count($item_taxes) > 0) {
@@ -276,7 +294,7 @@ class Peppol extends AbstractService
             $price = new Price();
             $pa = new PriceAmount();
             $pa->currencyID = $this->invoice->client->currency()->code;
-            $pa->amount = $this->costWithDiscount($item);
+            $pa->amount = $this->costWithDiscount($item) - ( $this->invoice->uses_inclusive_taxes ? ($this->calcInclusiveLineTax($item->tax_rate1, $item->line_total)/$item->quantity) : 0);
             $price->PriceAmount = $pa;
 
             $line->Price = $price;
@@ -310,13 +328,13 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate1)), 2);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate1, $item->line_total) : $this->calcAmountLineTax($item->tax_rate1, $item->line_total);
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
 
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = $item->line_total;
+            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $item->line_total - $tax_amount->amount : $item->line_total;
             $tax_subtotal->TaxableAmount = $taxable_amount;
             $tc = new TaxCategory();
             $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
@@ -339,7 +357,8 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate2)), 2);
+            
+$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -372,7 +391,8 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = round(($item->line_total * (1 / $item->tax_rate3)), 2);
+
+$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate3, $item->line_total) : $this->calcAmountLineTax($item->tax_rate3, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -520,4 +540,34 @@ class Peppol extends AbstractService
         return $total;
     }
 
+    public function setInvoiceDefaults(): self
+    {
+        $settings = [
+            'AccountingCostCode' => 7,
+            'AccountingCost' => 7,
+            'BuyerReference' => 6,
+            'AccountingSupplierParty' => 1,
+            'AccountingCustomerParty' => 2,
+            'PayeeParty' => 1,
+            'BuyerCustomerParty' => 2,
+            'SellerSupplierParty' => 1,
+            'TaxRepresentativeParty' => 1,
+            'Delivery' => 1,
+            'DeliveryTerms' => 7,
+            'PaymentMeans' => 7,
+            'PaymentTerms' => 7,
+        ];
+
+        foreach($settings as $prop => $visibility){
+
+            if($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $prop))
+                $this->p_invoice->{$prop} = $prop_value;
+            elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $prop)) {
+                $this->p_invoice->{$prop} = $prop_value;
+            }
+
+        }
+
+        return $this;
+    }
 }

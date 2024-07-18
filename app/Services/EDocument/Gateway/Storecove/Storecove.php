@@ -103,23 +103,23 @@ class Storecove {
         $payload = [
             "legalEntityId"=> 290868,
             "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
-            "routing"=>  [
-                "eIdentifiers" => [
-                    [
-                        "scheme" => "DE:VAT",
-                        "id"=> "DE:VAT"
-                    ],
-                ]
+            "routing" => [
+                "eIdentifiers" => [],
+                "emails" => ["david@invoiceninja.com"]
             ],
             "document"=> [
                 'documentType' => 'invoice',
-                'rawDocumentData' => ['document' => base64_encode($document), 'parse' => true, 'parseStrategy', 'ubl'],
-                // 
-                // '
+                "rawDocumentData"=> [
+                    "document" => base64_encode($document), 
+                    "parse" => true,
+                    "parseStrategy"=> "ubl",
+                ],
             ],
         ];
 
         $uri = "document_submissions";
+        
+        nlog($payload);
         
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
 
