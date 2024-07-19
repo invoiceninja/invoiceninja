@@ -14,6 +14,7 @@ namespace App\Import\Providers;
 use App\Factory\ProductFactory;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
@@ -91,7 +92,12 @@ class Quickbooks extends BaseImport
     public function getData($type) {
 
         // get the data from cache? file? or api ?
-        return [];
+        return json_decode(base64_decode(Cache::get("{$this->hash}-$type")), 1);
+    }
+
+    public function payment()
+    {
+
     }
 
     public function invoice()
