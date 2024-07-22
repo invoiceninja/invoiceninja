@@ -87,7 +87,7 @@ class Peppol extends AbstractService
         'BG' => 'VAT',
         'CY' => 'VAT',
         'CZ' => 'VAT',
-        'DE' => 'VAT',
+        'DE' => 'VAT', //tested - requires Payment Means to be defined.
         'DK' => 'ERST',
         'EE' => 'VAT',
         'ES' => 'VAT',
@@ -97,8 +97,8 @@ class Peppol extends AbstractService
         'HR' => 'VAT',
         'HU' => 'VAT',
         'IE' => 'VAT',
-        'IT' => 'IVA',
-        'IT' => 'CF',,
+        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number)
+        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number)
         'LT' => 'VAT',
         'LU' => 'VAT',
         'LV' => 'VAT',
