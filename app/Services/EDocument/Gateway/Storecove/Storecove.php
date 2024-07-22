@@ -48,10 +48,8 @@ class Storecove {
 
     //config('ninja.storecove_api_key');
 
-
     //https://app.storecove.com/en/docs#_test_identifiers
     //check if identifier is able to send on the network.
-
 
     //response = {  "code": "OK",  "email": false}
     public function discovery($identifier, $scheme, $network = 'peppol')

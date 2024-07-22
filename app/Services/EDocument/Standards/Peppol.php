@@ -47,6 +47,8 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
+use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentification;
 
 class Peppol extends AbstractService
 {
@@ -115,6 +117,7 @@ class Peppol extends AbstractService
         // ->setPaymentMeansCode($invoice->custom_value1)
         // ->setPayeeFinancialAccount($payeeFinancialAccount);
         // $ubl_invoice->setPaymentMeans($paymentMeans);
+        return $this;
 
     }
 
@@ -463,6 +466,19 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         $acp = new AccountingCustomerParty();
 
         $party = new Party();
+
+        if(strlen($this->invoice->client->vat_number ?? '') > 1) {
+            
+            $pi = new PartyIdentification;
+            $vatID = new ID;
+            $vatID->schemeID = 'IT:VAT';
+            $vatID->value = $this->invoice->client->vat_number;
+ 
+            $pi->ID = $vatID;
+
+            $party->PartyIdentification[] = $pi;
+
+        }
 
         $party_name = new PartyName();
         $party_name->Name = $this->invoice->client->present()->name();

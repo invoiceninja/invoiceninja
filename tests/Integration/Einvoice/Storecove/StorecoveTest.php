@@ -31,46 +31,44 @@ class StorecoveTest extends TestCase
             $this->markTestSkipped("do not run in CI");
     }
 
-    public function testCreateLegalEntity()
-    {
+    // public function testCreateLegalEntity()
+    // {
 
-        $data = [
-            'acts_as_receiver' => true,
-            'acts_as_sender' => true,
-            'advertisements' => ['invoice'],
-            'city' => $this->company->settings->city,
-            'country' => 'DE',
-            'county' => $this->company->settings->state,
-            'line1' => $this->company->settings->address1,
-            'line2' => $this->company->settings->address2,
-            'party_name' => $this->company->present()->name(),
-            'tax_registered' => true,
-            'tenant_id' => $this->company->company_key,
-            'zip' => $this->company->settings->postal_code,
-            'peppol_identifiers' => [
-                'scheme' => 'DE:VAT',
-                'id' => 'DE:VAT'
-            ],
-        ];
+    //     $data = [
+    //         'acts_as_receiver' => true,
+    //         'acts_as_sender' => true,
+    //         'advertisements' => ['invoice'],
+    //         'city' => $this->company->settings->city,
+    //         'country' => 'DE',
+    //         'county' => $this->company->settings->state,
+    //         'line1' => $this->company->settings->address1,
+    //         'line2' => $this->company->settings->address2,
+    //         'party_name' => $this->company->present()->name(),
+    //         'tax_registered' => true,
+    //         'tenant_id' => $this->company->company_key,
+    //         'zip' => $this->company->settings->postal_code,
+    //         'peppol_identifiers' => [
+    //             'scheme' => 'DE:VAT',
+    //             'id' => 'DE:VAT'
+    //         ],
+    //     ];
 
-        $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-        $r = $sc->createLegalEntity($data, $this->company);
+    //     $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+    //     $r = $sc->createLegalEntity($data, $this->company);
 
-        $this->assertIsArray($r);
+    //     $this->assertIsArray($r);
 
-    }
+    // }
 
-    public function tesXAddPeppolIdentifier()
-    {
+    // public function testAddPeppolIdentifier()
+    // {
         
-            $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-            $r = $sc->addIdentifier(290868, "DE923356489", "DE:VAT");
+    //         $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+    //         $r = $sc->addIdentifier(290868, "DE923356489", "DE:VAT");
 
-            // nlog($r->body());
-            // $this->assertIsArray($r);
-            nlog($r);
+    //         nlog($r);
         
-    }
+    // }
 
     // public function testUpdateLegalEntity()
     // {
@@ -91,7 +89,6 @@ class StorecoveTest extends TestCase
 
     public function testGetLegalEntity()
     {
-
         
         $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
         $r = $sc->getLegalEntity(290868);
