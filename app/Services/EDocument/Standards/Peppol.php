@@ -55,6 +55,76 @@ class Peppol extends AbstractService
     use Taxer;
     use NumberFormatter;
     
+    /**
+     * used as a proxy for 
+     * the schemeID of partyidentification
+     * property - for Storecove only:
+     * 
+     * Used in the format key:value
+     * 
+     * ie. IT:IVA / DE:VAT
+     * 
+     * Note there are multiple options for the following countries:
+     * 
+     * US (EIN/SSN) employer identification number / social security number
+     * IT (CF/IVA) Codice Fiscale (person/company identifier) / company vat number
+     *
+     * @var array
+     */
+    private array $schemeIdIdentifiers = [
+        'US' => 'EIN', 
+        'US' => 'SSN',
+        'NZ' => 'GST',
+        'CH' => 'VAT',
+        'IS' => 'VAT',
+        'LI' => 'VAT',
+        'NO' => 'VAT',
+        'AD' => 'VAT',
+        'AL' => 'VAT',
+        'AT' => 'VAT',
+        'BA' => 'VAT',
+        'BE' => 'VAT',
+        'BG' => 'VAT',
+        'CY' => 'VAT',
+        'CZ' => 'VAT',
+        'DE' => 'VAT',
+        'DK' => 'ERST',
+        'EE' => 'VAT',
+        'ES' => 'VAT',
+        'FI' => 'VAT',
+        'FR' => 'VAT',
+        'GR' => 'VAT',
+        'HR' => 'VAT',
+        'HU' => 'VAT',
+        'IE' => 'VAT',
+        'IT' => 'IVA',
+        'IT' => 'CF',,
+        'LT' => 'VAT',
+        'LU' => 'VAT',
+        'LV' => 'VAT',
+        'MC' => 'VAT',
+        'ME' => 'VAT',
+        'MK' => 'VAT',
+        'MT' => 'VAT',
+        'NL' => 'VAT',
+        'PL' => 'VAT',
+        'PT' => 'VAT',
+        'RO' => 'VAT',
+        'RS' => 'VAT',
+        'SE' => 'VAT',
+        'SI' => 'VAT',
+        'SK' => 'VAT',
+        'SM' => 'VAT',
+        'TR' => 'VAT',
+        'VA' => 'VAT',
+        'IN' => 'GSTIN',
+        'JP' => 'IIN',
+        'MY' => 'TIN',
+        'SG' => 'GST',
+        'GB' => 'VAT',
+        'SA' => 'TIN',
+    ];
+
     private array $InvoiceTypeCodes = [
         "380" => "Commercial invoice",
         "381" => "Credit note",
