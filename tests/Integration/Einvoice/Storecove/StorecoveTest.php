@@ -11,6 +11,8 @@
 
 namespace Tests\Integration\Einvoice\Storecove;
 
+use App\DataMapper\ClientSettings;
+use App\Models\Client;
 use Tests\TestCase;
 use Tests\MockAccountData;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -64,7 +66,7 @@ class StorecoveTest extends TestCase
     // {
         
     //         $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-    //         $r = $sc->addIdentifier(290868, "DE923356489", "DE:VAT");
+    //         $r = $sc->addIdentifier(291394, "DE923356489", "DE:VAT");
 
     //         nlog($r);
         
@@ -347,4 +349,45 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
 
     }
 
+    public function testCreateCHClient()
+    {
+      
+      Client::unguard();
+
+      $c = 
+      Client::create([
+          'company_id' => $this->company->id,
+          'user_id' => $this->user->id,
+          'name' => 'Test Company AG',
+          'website' => 'https://www.testcompany.ch',
+          'private_notes' => 'These are some private notes about the test client.',
+          'balance' => 0,
+          'paid_to_date' => 0,
+          'vat_number' => '654321987',
+          'id_number' => 'CH9300762011623852957', // Sample Swiss IBAN
+          'custom_value1' => '2024-07-22 10:00:00',
+          'custom_value2' => 'blue',
+          'custom_value3' => 'sampleword',
+          'custom_value4' => 'test@example.com',
+          'address1' => '123',
+          'address2' => 'Test Street 45',
+          'city' => 'Zurich',
+          'state' => 'Zurich',
+          'postal_code' => '8001',
+          'country_id' => '756', // Switzerland
+          'shipping_address1' => '123',
+          'shipping_address2' => 'Test Street 45',
+          'shipping_city' => 'Zurich',
+          'shipping_state' => 'Zurich',
+          'shipping_postal_code' => '8001',
+          'shipping_country_id' => '756', // Switzerland
+          'settings' => ClientSettings::Defaults(),
+          'client_hash' => \Illuminate\Support\Str::random(32),
+          'routing_id' => '',
+      ]);
+
+
+      $this->assertInstanceOf(\App\Models\Client::class, $c);
+
+    }
 }

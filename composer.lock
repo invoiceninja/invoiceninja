@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7c67ca71986b97fc72bba5eba530e878",
+    "content-hash": "edc6905124cb32fef6a13befb3d5a4e1",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -684,16 +684,16 @@
         },
         {
             "name": "beganovich/snappdf",
-            "version": "v5.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/beganovich/snappdf.git",
-                "reference": "3b21c7a88a4d05b01a606bc74f1950b0e9e820b1"
+                "url": "https://github.com/turbo124/snappdf.git",
+                "reference": "adadaf593dca174db46efa139bdff844b3a64da8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beganovich/snappdf/zipball/3b21c7a88a4d05b01a606bc74f1950b0e9e820b1",
-                "reference": "3b21c7a88a4d05b01a606bc74f1950b0e9e820b1",
+                "url": "https://api.github.com/repos/turbo124/snappdf/zipball/adadaf593dca174db46efa139bdff844b3a64da8",
+                "reference": "adadaf593dca174db46efa139bdff844b3a64da8",
                 "shasum": ""
             },
             "require": {
@@ -708,6 +708,7 @@
                 "friendsofphp/php-cs-fixer": "^3.6",
                 "phpunit/phpunit": "^11.0"
             },
+            "default-branch": true,
             "bin": [
                 "snappdf"
             ],
@@ -717,7 +718,11 @@
                     "Beganovich\\Snappdf\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Test\\Snappdf\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -729,10 +734,9 @@
             ],
             "description": "Convert webpages or HTML into the PDF file using Chromium or Google Chrome.",
             "support": {
-                "issues": "https://github.com/beganovich/snappdf/issues",
-                "source": "https://github.com/beganovich/snappdf/tree/v5.0"
+                "source": "https://github.com/turbo124/snappdf/tree/master"
             },
-            "time": "2024-03-20T22:03:41+00:00"
+            "time": "2024-07-22T09:26:26+00:00"
         },
         {
             "name": "braintree/braintree_php",
@@ -18944,16 +18948,16 @@
         },
         {
             "name": "spatie/backtrace",
-            "version": "1.6.1",
+            "version": "1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/backtrace.git",
-                "reference": "8373b9d51638292e3bfd736a9c19a654111b4a23"
+                "reference": "1a9a145b044677ae3424693f7b06479fc8c137a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/backtrace/zipball/8373b9d51638292e3bfd736a9c19a654111b4a23",
-                "reference": "8373b9d51638292e3bfd736a9c19a654111b4a23",
+                "url": "https://api.github.com/repos/spatie/backtrace/zipball/1a9a145b044677ae3424693f7b06479fc8c137a9",
+                "reference": "1a9a145b044677ae3424693f7b06479fc8c137a9",
                 "shasum": ""
             },
             "require": {
@@ -18991,7 +18995,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/backtrace/tree/1.6.1"
+                "source": "https://github.com/spatie/backtrace/tree/1.6.2"
             },
             "funding": [
                 {
@@ -19003,20 +19007,20 @@
                     "type": "other"
                 }
             ],
-            "time": "2024-04-24T13:22:11+00:00"
+            "time": "2024-07-22T08:21:24+00:00"
         },
         {
             "name": "spatie/error-solutions",
-            "version": "1.0.5",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/error-solutions.git",
-                "reference": "4bb6c734dc992b2db3e26df1ef021c75d2218b13"
+                "reference": "a014da18f2675ea15af0ba97f7e9aee59e13964f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/error-solutions/zipball/4bb6c734dc992b2db3e26df1ef021c75d2218b13",
-                "reference": "4bb6c734dc992b2db3e26df1ef021c75d2218b13",
+                "url": "https://api.github.com/repos/spatie/error-solutions/zipball/a014da18f2675ea15af0ba97f7e9aee59e13964f",
+                "reference": "a014da18f2675ea15af0ba97f7e9aee59e13964f",
                 "shasum": ""
             },
             "require": {
@@ -19069,7 +19073,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/error-solutions/issues",
-                "source": "https://github.com/spatie/error-solutions/tree/1.0.5"
+                "source": "https://github.com/spatie/error-solutions/tree/1.1.0"
             },
             "funding": [
                 {
@@ -19077,7 +19081,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-07-09T12:13:32+00:00"
+            "time": "2024-07-22T08:18:22+00:00"
         },
         {
             "name": "spatie/flare-client-php",
@@ -19577,6 +19581,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "asm/php-ansible": 20,
+        "beganovich/snappdf": 20,
         "horstoeko/orderx": 20,
         "invoiceninja/einvoice": 20,
         "socialiteproviders/apple": 20
