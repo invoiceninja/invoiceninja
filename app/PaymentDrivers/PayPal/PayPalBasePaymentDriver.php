@@ -525,6 +525,7 @@ class PayPalBasePaymentDriver extends BaseDriver
         $this->init();
 
         PayPalWebhook::dispatch($request->all(), $request->headers->all(), $this->access_token);
+        
     }
 
     public function createNinjaPayment($request, $response)

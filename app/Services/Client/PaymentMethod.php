@@ -169,7 +169,7 @@ class PaymentMethod
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) { //@phpstan-ignore-line
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
                         // $this->payment_methods[] = [$gateway->id => $type];
-                        //@15-06-2024
+                        // @15-06-2024
                         $this->buildUrl($gateway, $type);
                     }
                 } else {

@@ -340,9 +340,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         }
 
-
-
-        
+        return response()->json(['message' => 'Error processing token payment'], 400);
 
     }
 
@@ -413,11 +411,12 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
                 $this->client,
                 $this->client->company,
             );
+
         }
 
         $this->processInternallyFailedPayment($this, new \Exception('Auto billing failed.', 400));
 
-        SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client, $this->client->company);
+        SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client, $this->client->company);
 
     }
 }
