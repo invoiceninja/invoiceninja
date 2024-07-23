@@ -102,6 +102,8 @@ class ClientExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($client) {
+                    
+                    /** @var \App\Models\Client $client */
                     $row = $this->buildRow($client);
                     return $this->processMetaData($row, $client);
                 })->toArray();
@@ -154,6 +156,8 @@ class ClientExport extends BaseExport
 
         $query->cursor()
               ->each(function ($client) {
+                
+                /** @var \App\Models\Client $client */
                   $this->csv->insertOne($this->buildRow($client));
               });
 

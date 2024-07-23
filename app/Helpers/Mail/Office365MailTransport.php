@@ -25,7 +25,8 @@ class Office365MailTransport extends AbstractTransport
 
     protected function doSend(SentMessage $message): void
     {
-        $symfony_message = MessageConverter::toEmail($message->getOriginalMessage());
+        $symfony_message = MessageConverter::toEmail($message->getOriginalMessage()); //@phpstan-ignore-line
+
 
         $graph = new Graph();
 

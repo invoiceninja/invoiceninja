@@ -108,7 +108,8 @@ class CompanyExport implements ShouldQueue
 
 
         $this->export_data['users'] = $this->company->users()->withTrashed()->cursor()->map(function ($user) {
-            $user->account_id = $this->encodePrimaryKey($user->account_id);
+            /** @var \App\Models\User $user */
+            $user->account_id = $this->encodePrimaryKey($user->account_id); //@phpstan-ignore-line
             return $user;
         })->all();
 

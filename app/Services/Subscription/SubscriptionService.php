@@ -428,7 +428,7 @@ class SubscriptionService
     /**
      * We refund unused days left.
      *
-     * @param  Invoice $invoice
+     * @param  \App\Models\Invoice | \App\Models\Credit $invoice
      * @return float
      */
     private function calculateProRataRefund($invoice, $subscription = null): float

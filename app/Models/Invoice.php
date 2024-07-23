@@ -371,6 +371,14 @@ class Invoice extends BaseModel
         return $this->hasOne(Task::class);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<Quote>
+     */
+    public function quote(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Quote::class);
+    }
+
     public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class);
@@ -423,7 +431,9 @@ class Invoice extends BaseModel
 
     public function isPayable(): bool
     {
-        if ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
+        if($this->is_deleted)
+            return false;
+        elseif ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
         } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted == false) {
             return true;

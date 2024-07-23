@@ -66,10 +66,15 @@
                 body: formData,
             })
             .then(response => {
+
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message ?? 'Unknown error.');
+                    });
                 }
-                return response.json();
+                
+                return response.json();                
+
             })
             .then(data => {
 

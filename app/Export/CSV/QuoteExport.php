@@ -103,6 +103,8 @@ class QuoteExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+
+                    /** @var \App\Models\Quote $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
@@ -125,6 +127,8 @@ class QuoteExport extends BaseExport
 
         $query->cursor()
             ->each(function ($quote) {
+                
+                /** @var \App\Models\Quote $quote */
                 $this->csv->insertOne($this->buildRow($quote));
             });
 

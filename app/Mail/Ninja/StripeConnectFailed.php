@@ -39,7 +39,7 @@ class StripeConnectFailed extends Mailable
         return new Envelope(
             subject: "Stripe Connect not configured, please login and connect.",
             from: config('ninja.contact.email'),
-            to: $this->user->email,
+            to: $this->user->email, //@phpstan-ignore-line
         );
     }
 

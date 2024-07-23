@@ -58,7 +58,7 @@ class Apple
             'bid' => $this->bundle_id,
         ];
 
-        $jwt = JWT::encode($payload, $this->private_key, $this->alg, $header);
+        $jwt = JWT::encode($payload, $this->private_key, $this->alg, null, $header);
 
         $decoded = JWT::decode($jwt, new Key($this->private_key, $this->alg));
 

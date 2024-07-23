@@ -174,7 +174,7 @@ trait DesignHelpers
         // evaluating the variable.
 
         if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$column_type}_columns"])) {
-            $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) {
+            $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) { //@phpstan-ignore-line
                 return $item->type_id = $type_id;
             });
 

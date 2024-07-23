@@ -87,7 +87,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['Tag']);
-        $this->company = Company::where('company_key', $this->request['Tag'])->first(); /** @phpstan-ignore-line */
+        $this->company = Company::query()->where('company_key', $this->request['Tag'])->first(); /** @phpstan-ignore-line */
 
         $this->invitation = $this->discoverInvitation($this->request['MessageID']);
 

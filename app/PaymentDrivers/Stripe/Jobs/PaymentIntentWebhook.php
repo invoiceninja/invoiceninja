@@ -313,4 +313,13 @@ class PaymentIntentWebhook implements ShouldQueue
             $client->company,
         );
     }
+
+    public function failed($exception = null)
+    {
+        if ($exception) {
+            nlog($exception->getMessage());
+        }
+
+        config(['queue.failed.driver' => null]);
+    }
 }

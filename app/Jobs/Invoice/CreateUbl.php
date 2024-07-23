@@ -63,7 +63,7 @@ class CreateUbl implements ShouldQueue
         // invoice
         $ubl_invoice->setId($invoice->number);
         $ubl_invoice->setIssueDate(date_create($invoice->date));
-        $ubl_invoice->setInvoiceTypeCode($invoice->amount < 0 ? self::INVOICE_TYPE_CREDIT : self::INVOICE_TYPE_STANDARD);
+        $ubl_invoice->setInvoiceTypeCode($invoice->amount < 0 ? (string)self::INVOICE_TYPE_CREDIT : (string)self::INVOICE_TYPE_STANDARD);
 
         $supplier_party = $this->createParty($company, $invoice->user);
         $ubl_invoice->setAccountingSupplierParty($supplier_party);

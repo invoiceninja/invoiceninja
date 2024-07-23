@@ -82,6 +82,7 @@ class ContactExport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
 
         $query->cursor()->each(function ($contact) {
+            /** @var \App\Models\ClientContact $contact */
             $this->csv->insertOne($this->buildRow($contact));
         });
 
@@ -101,6 +102,7 @@ class ContactExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($contact) {
+                    /** @var \App\Models\ClientContact $contact */
                     $row = $this->buildRow($contact);
                     return $this->processMetaData($row, $contact);
                 })->toArray();

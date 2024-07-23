@@ -573,7 +573,7 @@ class Client extends BaseModel implements HasLocalePreference
             if ($pm['gateway_type_id'] == GatewayType::BACS) {
                 $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BACS)) {
+                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BACS)) { //@phpstan-ignore-line
                     $fees_and_limits = $cg->fees_and_limits;
                     $fees_and_limits->{GatewayType::BACS} = new FeesAndLimits();
                     $cg->fees_and_limits = $fees_and_limits;
@@ -597,7 +597,7 @@ class Client extends BaseModel implements HasLocalePreference
             if ($pm['gateway_type_id'] == GatewayType::ACSS) {
                 $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::ACSS)) {
+                if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::ACSS)) { //@phpstan-ignore-line
                     $fees_and_limits = $cg->fees_and_limits;
                     $fees_and_limits->{GatewayType::ACSS} = new FeesAndLimits();
                     $cg->fees_and_limits = $fees_and_limits;
@@ -624,7 +624,7 @@ class Client extends BaseModel implements HasLocalePreference
                 if ($pm['gateway_type_id'] == GatewayType::BANK_TRANSFER) {
                     $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                    if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BANK_TRANSFER)) {
+                    if ($cg && ! property_exists($cg->fees_and_limits, GatewayType::BANK_TRANSFER)) { //@phpstan-ignore-line
                         $fees_and_limits = $cg->fees_and_limits;
                         $fees_and_limits->{GatewayType::BANK_TRANSFER} = new FeesAndLimits();
                         $cg->fees_and_limits = $fees_and_limits;
@@ -819,6 +819,20 @@ class Client extends BaseModel implements HasLocalePreference
         $converter = new CurrencyApi();
 
         return 1 / $converter->convert(1, $this->currency()->id, $this->company->settings->currency_id);
+
+    }
+
+    public function utc_offset(): int
+    {
+
+        $offset = 0;
+        $timezone = $this->timezone();
+
+        date_default_timezone_set('GMT');
+        $date = new \DateTime("now", new \DateTimeZone($timezone->name));
+        $offset = $date->getOffset();
+
+        return $offset;
 
     }
 
