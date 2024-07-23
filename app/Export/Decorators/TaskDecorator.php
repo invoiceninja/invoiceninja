@@ -48,7 +48,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, 1);
+        $logs = json_decode($task->time_log, true);
 
         $date_format_default = 'Y-m-d';
 
@@ -77,7 +77,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, 1);
+        $logs = json_decode($task->time_log, true);
 
         $date_format_default = 'Y-m-d';
 

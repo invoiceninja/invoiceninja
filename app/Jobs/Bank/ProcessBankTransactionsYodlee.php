@@ -35,10 +35,6 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    private string $bank_integration_account_id;
-
-    private BankIntegration $bank_integration;
-
     private ?string $from_date;
 
     private bool $stop_loop = true;
@@ -50,10 +46,8 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(string $bank_integration_account_id, BankIntegration $bank_integration)
+    public function __construct(private string $bank_integration_account_id, private BankIntegration $bank_integration)
     {
-        $this->bank_integration_account_id = $bank_integration_account_id;
-        $this->bank_integration = $bank_integration;
         $this->from_date = $bank_integration->from_date;
         $this->company = $this->bank_integration->company;
     }

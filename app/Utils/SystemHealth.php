@@ -89,7 +89,7 @@ class SystemHealth
             'exchange_rate_api_not_configured' => (bool)self::checkCurrencySanity(),
             'api_version' => (string) config('ninja.app_version'),
             'is_docker' => (bool) config('ninja.is_docker'),
-            'pending_migrations' => self::checkPendingMigrations(),
+            'pending_migrations' => (bool) ($check_file_system ? self::checkPendingMigrations() : false),
         ];
     }
 
@@ -202,7 +202,7 @@ class SystemHealth
 
     public static function checkOpenBaseDir()
     {
-        if (strlen(ini_get('open_basedir') == 0)) {
+        if (strlen(ini_get('open_basedir')) == 0) {
             return true;
         }
 

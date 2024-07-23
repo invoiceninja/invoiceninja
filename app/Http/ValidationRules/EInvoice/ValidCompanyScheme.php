@@ -35,18 +35,21 @@ class ValidCompanyScheme implements ValidationRule, ValidatorAwareRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
 
-        $r = new EInvoice();
-        $errors = $r->validateRequest($value['Invoice'], CompanyLevel::class);
-        
-        foreach ($errors as $key => $msg) {
+        if(isset($value['Invoice']))
+        {
+            $r = new EInvoice();
+            $errors = $r->validateRequest($value['Invoice'], CompanyLevel::class);
+            
+            foreach ($errors as $key => $msg) {
 
-            $this->validator->errors()->add(
-                "e_invoice.{$key}",
-                "{$key} - {$msg}"
-            );
+                $this->validator->errors()->add(
+                    "e_invoice.{$key}",
+                    "{$key} - {$msg}"
+                );
 
+            }
         }
-
+    
     }
  
     /**

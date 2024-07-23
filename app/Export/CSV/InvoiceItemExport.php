@@ -113,6 +113,8 @@ class InvoiceItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($resource) {
+                
+                /** @var \App\Models\Invoice $resource */
                 $this->iterateItems($resource);
 
                 foreach($this->storage_array as $row) {
@@ -141,6 +143,8 @@ class InvoiceItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
+                
+                /** @var \App\Models\Invoice $invoice */
                 $this->iterateItems($invoice);
             });
 

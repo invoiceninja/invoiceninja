@@ -59,7 +59,7 @@ class DateFormat extends StaticModel
      */
     public function __toString()
     {
-        $date = mktime(0, 0, 0, 12, 31, date('Y'));
+        $date = mktime(0, 0, 0, 12, 31, date('Y')); //@phpstan-ignore-line
 
         return date($this->format, $date);
     }

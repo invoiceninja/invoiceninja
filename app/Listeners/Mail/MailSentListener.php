@@ -46,7 +46,7 @@ class MailSentListener implements ShouldQueue
         try {
             $message_id = $event->sent->getMessageId();
 
-            $message = MessageConverter::toEmail($event->sent->getOriginalMessage());
+            $message = MessageConverter::toEmail($event->sent->getOriginalMessage()); //@phpstan-ignore-line
 
             if (!$message->getHeaders()->get('x-invitation')) {
                 return;
