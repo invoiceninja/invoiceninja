@@ -25,7 +25,7 @@ class InvoiceTransformerTest extends TestCase
         $this->withoutExceptionHandling();
         Auth::setUser($this->user);
         // Read the JSON string from a file and decode into an associative array
-        $this->invoiceData = json_decode( file_get_contents( app_path('/../tests/Mock/Response/Quickbooks/invoice.json') ), true);
+        $this->invoiceData = json_decode( file_get_contents( app_path('/../tests/Mock/Quickbooks/Data/invoice.json') ), true);
         $this->transformer = new InvoiceTransformer($this->company);
         $this->transformedData = $this->transformer->transform($this->invoiceData['Invoice']);
     }

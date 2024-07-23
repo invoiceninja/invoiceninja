@@ -18,7 +18,7 @@ class ClientTransformerTest extends TestCase
         $company = (new \App\Factory\CompanyFactory)->create(1234);
 
         // Read the JSON string from a file and decode into an associative array
-        $this->customer_data = json_decode( file_get_contents( app_path('/../tests/Mock/Response/Quickbooks/customer.json') ), true);
+        $this->customer_data = json_decode( file_get_contents( app_path('/../tests/Mock/Quickbooks/Data/customer.json') ), true);
         $this->transformer = new ClientTransformer($company);
         $this->transformed_data = $this->transformer->transform($this->customer_data['Customer']);
     }

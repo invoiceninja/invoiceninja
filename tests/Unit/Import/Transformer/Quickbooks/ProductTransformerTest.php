@@ -18,7 +18,7 @@ class ProductTransformerTest extends TestCase
         $company = (new \App\Factory\CompanyFactory)->create(1234);
 
         // Read the JSON string from a file and decode into an associative array
-        $this->product_data = json_decode( file_get_contents( app_path('/../tests/Mock/Response/Quickbooks/item.json') ), true);
+        $this->product_data = json_decode( file_get_contents( app_path('/../tests/Mock/Quickbooks/Data/item.json') ), true);
         $this->transformer = new ProductTransformer($company);
         $this->transformed_data = $this->transformer->transform($this->product_data['Item']);
     }
