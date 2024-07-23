@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\ImportQuickbooksController;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
 use App\Http\Controllers\Gateways\Checkout3dsController;
 use App\Http\Controllers\Gateways\GoCardlessController;
@@ -37,6 +38,7 @@ Route::middleware('url_db')->group(function () {
     Route::post('/user/confirm/{confirmation_code}', [UserController::class, 'confirmWithPassword']);
 });
 
+Route::post('import/quickbooks/authorize', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('import.auth.quickbooks');
 Route::get('stripe/signup/{token}', [StripeConnectController::class, 'initialize'])->name('stripe_connect.initialization');
 Route::get('stripe/completed', [StripeConnectController::class, 'completed'])->name('stripe_connect.return');
 
