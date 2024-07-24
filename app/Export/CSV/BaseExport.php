@@ -1039,6 +1039,10 @@ class BaseExport
 
         $recurring_filters = [];
 
+        if($this->company->getSetting('report_include_drafts')){
+            $recurring_filters[] = RecurringInvoice::STATUS_DRAFT;
+        }
+
         if (in_array('active', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
         }
