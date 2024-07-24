@@ -1023,7 +1023,8 @@ class TemplateService
                     'vat_number' => $project->client->vat_number ?? '',
                     'currency' => $project->client->currency()->code ?? 'USD',
                 ] : [],
-            'user' => $this->userInfo($project->user)
+            'user' => $this->userInfo($project->user),
+            'invoices' => $this->processInvoices($project->invoices)
         ];
 
     }

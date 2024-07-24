@@ -170,6 +170,9 @@ class ACH
         ];
 
         $payment = $this->forte->createPayment($data, Payment::STATUS_COMPLETED);
-        return redirect('client/invoices')->withSuccess('Invoice paid.');
+        // return redirect('client/invoices')->withSuccess('Invoice paid.');
+    
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
+
     }
 }

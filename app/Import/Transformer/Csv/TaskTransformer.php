@@ -46,6 +46,7 @@ class TaskTransformer extends BaseTransformer
             'company_id' => $this->company->id,
             'number' => $this->getString($task_data, 'task.number'),
             'user_id' => $this->getString($task_data, 'task.user_id'),
+            'rate' => $this->getFloat($task_data, 'task.rate'),
             'client_id' => $clientId,
             'project_id' => $this->getProjectId($projectId, $clientId),
             'description' => $this->getString($task_data, 'task.description'),
@@ -87,8 +88,7 @@ class TaskTransformer extends BaseTransformer
             $is_billable = true;
         }
 
-        if(isset($item['task.start_date']) &&
-        isset($item['task.end_date'])) {
+        if(isset($item['task.start_date'])) {
             $start_date = $this->resolveStartDate($item);
             $end_date = $this->resolveEndDate($item);
         } elseif(isset($item['task.duration'])) {
@@ -136,7 +136,7 @@ class TaskTransformer extends BaseTransformer
     private function resolveEndDate($item)
     {
 
-        $stub_end_date = $item['task.end_date'];
+        $stub_end_date = isset($item['task.end_date']) ? $item['task.end_date'] : $item['task.start_date'];
         $stub_end_date .= isset($item['task.end_time']) ? " ".$item['task.end_time'] : '';
 
         try {

@@ -172,6 +172,7 @@ class BaseExport
         'tax_rate3' => 'invoice.tax_rate3',
         'recurring_invoice' => 'invoice.recurring_id',
         'auto_bill' => 'invoice.auto_bill_enabled',
+        'project' => 'invoice.project',
     ];
 
     protected array $recurring_invoice_report_keys = [

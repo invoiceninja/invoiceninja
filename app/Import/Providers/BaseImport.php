@@ -473,6 +473,8 @@ class BaseImport
 
         $tasks = $this->groupTasks($tasks, $task_number_key);
 
+        nlog($tasks);
+        
         foreach ($tasks as $raw_task) {
             $task_data = [];
 

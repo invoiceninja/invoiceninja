@@ -92,6 +92,7 @@ class InvoiceDecorator extends Decorator implements DecoratorInterface
     {
         return $invoice->recurring_invoice ? $invoice->recurring_invoice->number : '';
     }
+
     public function auto_bill_enabled(Invoice $invoice)
     {
         return $invoice->auto_bill_enabled ? ctrans('texts.yes') : ctrans('texts.no');
