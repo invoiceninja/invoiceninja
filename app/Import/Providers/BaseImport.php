@@ -98,7 +98,7 @@ class BaseImport
         }
 
         /** @var string $base64_encoded_csv */
-        $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
+        $base64_encoded_csv = Cache::get($this->hash.'-'.$entity_type);
 
         if (empty($base64_encoded_csv)) {
             return null;
