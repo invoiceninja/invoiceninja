@@ -5316,7 +5316,8 @@ $lang = array(
     'enter_information_for_the_account_holder' => 'Enter Information for the Account Holder',
     'home_phone' => 'Home Phone',
     'customer_type' => 'Customer Type',
-    'process_date' => 'Process Date'
+    'process_date' => 'Process Date',
+    'other_phone' => 'Other Phone'
 );
 
 return $lang;
