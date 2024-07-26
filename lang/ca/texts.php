@@ -5301,6 +5301,22 @@ $lang = array(
     'latest_requires_php_version' => 'Note: the latest version requires PHP :version',
     'auto_expand_product_table_notes' => 'Automatically expand products table notes',
     'auto_expand_product_table_notes_help' => 'Automatically expands the notes section within the products table to display more lines.',
+    'institution_number' => 'Institution Number',
+    'transit_number' => 'Transit Number',
+    'personal' => 'Personal',
+    'province_code' => 'Province Code',
+    'province_abbreviation' => 'Province Abbreviation',
+    'street_address' => 'Street Address',
+    'full_name' => 'Full Name',
+    'address_information' => 'Address Information',
+    'enter_the_information_for_the_bank_account' => 'Enter the Information for the Bank Account',
+    'address_line_1' => 'Address Line 1',
+    'address_line_2' => 'Address Line 2',
+    'account_holder_information' => 'Account Holder Information',
+    'enter_information_for_the_account_holder' => 'Enter Information for the Account Holder',
+    'home_phone' => 'Home Phone',
+    'customer_type' => 'Customer Type',
+    'process_date' => 'Process Date'
 );
 
 return $lang;
