@@ -18,6 +18,7 @@ class Payment {
         this.steps = new Map()
 
         if (this.shouldDisplayRff) {
+
             this.steps.set("rff", {
                 element: document.getElementById('displayRequiredFieldsModal'),
                 nextButton: document.getElementById('rff-next-step'),
@@ -39,6 +40,7 @@ class Payment {
                     if (fields.email) {
                         document.querySelector('input[name="contact_email"]').value = fields.email.value;
                     }
+
                 }
             });
         }
@@ -71,7 +73,20 @@ class Payment {
             element.dataset.companyGatewayId;
         document.getElementById("payment_method_id").value =
             element.dataset.gatewayTypeId;
-        
+              
+        if (element.dataset.isPaypal == '1') {
+
+            var rff_city = document.getElementById("rff_city");
+            var rff_postal_code = document.getElementById("rff_postal_code");
+
+            if (rff_city)
+                rff_city.classList.remove('hidden');
+
+            if (rff_postal_code)
+                rff_postal_code.classList.remove('hidden');
+
+        }
+
         if (this.steps.size === 0) {
             return this.submitForm();
         }

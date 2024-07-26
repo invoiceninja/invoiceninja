@@ -192,6 +192,7 @@ class PaymentMethod
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                 'gateway_type_id' => GatewayType::CREDIT,
+                'is_paypal' => $gateway->isPayPal(),
             ];
         }
 
@@ -210,12 +211,14 @@ class PaymentMethod
                 'label' => $gateway->getConfigField('name').$fee_label,
                 'company_gateway_id'  => $gateway->id,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'is_paypal' => $gateway->isPayPal(),
             ];
         } else {
             $this->payment_urls[] = [
                 'label' => $gateway->getTypeAlias($type).$fee_label,
                 'company_gateway_id'  => $gateway->id,
                 'gateway_type_id' => $type,
+                'is_paypal' => $gateway->isPayPal(),
             ];
         }
 
@@ -236,12 +239,14 @@ class PaymentMethod
                         'label' => $gateway->getConfigField('name').$fee_label,
                         'company_gateway_id'  => $gateway_id,
                         'gateway_type_id' => GatewayType::CREDIT_CARD,
+                        'is_paypal' => $gateway->isPayPal(),
                     ];
                 } else {
                     $this->payment_urls[] = [
                         'label' => $gateway->getTypeAlias($gateway_type_id).$fee_label,
                         'company_gateway_id'  => $gateway_id,
                         'gateway_type_id' => $gateway_type_id,
+                        'is_paypal' => $gateway->isPayPal(),
                     ];
                 }
             }
@@ -259,6 +264,7 @@ class PaymentMethod
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                 'gateway_type_id' => GatewayType::CREDIT,
+                'is_paypal' => $gateway->isPayPal(),
             ];
         }
 
