@@ -5299,6 +5299,24 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'auto_expand_product_table_notes' => 'Développer automatiquement les notes du tableau de produits',
     'auto_expand_product_table_notes_help' => ' 
 Développe automatiquement la section des notes dans le tableau de produits pour afficher plus de lignes.',
+    'transit_number'=>'Numéro de transit',
+    'institution_number' => 'Numéro d\'institution',
+    'account_type' => 'Type de compte',
+    'personal' => 'Personnel',
+    'province_code' => 'Code de la province (abréviation)',
+    'province_abbreviation' => 'Abréviation de la province',
+    'postal_code' => 'Code postal',
+    'street_address' => 'Adresse',
+    'full_name' => 'Nom complet',
+    'address_information' => 'Informations de l\'adresse',
+    'enter_the_information_for_the_bank_account' => 'Entrez les informations du compte bancaire',
+    'address_line_1' => 'Adresse ligne 1',
+    'address_line_2' => 'Adresse ligne 2',
+    'account_holder_information' => 'Informations du titulaire du compte',
+    'enter_information_for_the_account_holder' => 'Entrez les informations du titulaire du compte',
+    'home_phone' => 'Téléphone résidentiel',
+    'customer_type' => 'Type de client',
+    'process_date' => 'Date de traitement'
 );
 
 return $lang;
