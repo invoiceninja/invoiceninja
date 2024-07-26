@@ -52,6 +52,8 @@ class ExpenseExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+                    
+                    /** @var \App\Models\Expense $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
@@ -132,6 +134,8 @@ class ExpenseExport extends BaseExport
 
         $query->cursor()
                 ->each(function ($expense) {
+                    
+                    /** @var \App\Models\Expense $expense */
                     $this->csv->insertOne($this->buildRow($expense));
                 });
 

@@ -124,7 +124,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date','sum'];
+        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -654,7 +654,7 @@ class TemplateService
                 'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $invoice->pivot->created_at->timestamp,
             ];
-        })->merge($credits)->sortBy('timestamp')->toArray();
+        })->concat($credits)->sortBy('timestamp')->toArray();
 
         return [
             'status' => $payment->stringStatus($payment->status_id),

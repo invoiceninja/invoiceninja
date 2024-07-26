@@ -34,7 +34,11 @@ class BulkVendorRequest extends Request
             return false;
         }
 
-        return auth()->user()->can(auth()->user()->isAdmin(), Vendor::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', Vendor::class);
+
     }
 
     /**

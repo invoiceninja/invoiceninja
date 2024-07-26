@@ -183,7 +183,7 @@ class DocumentController extends BaseController
         }
 
         if ($action == 'download') {
-            ZipDocuments::dispatch($documents->pluck('id'), $user->company(), auth()->user());
+            ZipDocuments::dispatch($documents->pluck('id'), $user->company(), auth()->user()); //@phpstan-ignore-line
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

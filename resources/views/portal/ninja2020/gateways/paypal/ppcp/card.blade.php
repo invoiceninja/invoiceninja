@@ -14,10 +14,10 @@
     
 @endphp
 @section('gateway_head')
-    <meta http-equiv="Content-Security-Policy" content="
+    <!-- <meta http-equiv="Content-Security-Policy" content="
         img-src 'self' https://c.paypal.com https://b.stats.paypal.com; 
         frame-src 'self' https://c.paypal.com; 
-        script-src 'self' https://c.paypal.com;">
+        script-src 'self' https://c.paypal.com;"> -->
 @endsection
 
 @section('gateway_content')
@@ -86,7 +86,7 @@
     }
 </script>
 
-<script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
+<!-- <script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script> -->
 
 @if(isset($merchantId))
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchant-id={!! $merchantId !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
@@ -138,10 +138,15 @@
                 body: formData,
             })
             .then(response => {
+           
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message);
+                    });
                 }
+                
                 return response.json();
+            
             })
             .then(data => {
 
@@ -164,7 +169,6 @@
                 
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
                 document.getElementById('errors').hidden = false;
-
             });
 
         },
@@ -172,20 +176,6 @@
 
             window.location.href = "/client/invoices/";
         },
-        // onError: function(error) {
-
-
-        // console.log("submit catch");
-        // const errorM = parseError(error);
-
-        // console.log(errorM);
-
-        // const msg = handle422Error(errorM);
-
-        //     document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${msg.description}`;
-        //     document.getElementById('errors').hidden = false;
-
-        // },
         onClick: function (){
            
         }
@@ -195,8 +185,8 @@
   // Render each field after checking for eligibility
   if (cardField.isEligible()) {
       
-    //   const nameField = cardField.NameField();
-    //   nameField.render("#card-name-field-container");
+       const nameField = cardField.NameField();
+       nameField.render("#card-name-field-container");
 
       const numberField = cardField.NumberField({
         inputEvents: {

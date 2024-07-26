@@ -153,9 +153,9 @@ class CompanyLevel
     // #[SerializedName('cbc:AccountingCostCode')]
     // public $AccountingCostCode;
 
-    // /** @var string */
-    // #[SerializedName('cbc:AccountingCost')]
-    // public string $AccountingCost;
+    /** @var string */
+    #[SerializedName('cbc:AccountingCost')]
+    public string $AccountingCost;
 
     // /** @var LineCountNumeric */
     // #[SerializedName('cbc:LineCountNumeric')]
@@ -231,9 +231,9 @@ class CompanyLevel
     // #[SerializedName('cac:BuyerCustomerParty')]
     // public $BuyerCustomerParty;
 
-    // /** @var SellerSupplierParty */
-    // #[SerializedName('cac:SellerSupplierParty')]
-    // public $SellerSupplierParty;
+    /** @var SellerSupplierParty */
+    #[SerializedName('cac:SellerSupplierParty')]
+    public $SellerSupplierParty;
 
     /** @var TaxRepresentativeParty */
     #[SerializedName('cac:TaxRepresentativeParty')]

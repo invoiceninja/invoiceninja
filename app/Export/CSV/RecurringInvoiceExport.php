@@ -93,6 +93,8 @@ class RecurringInvoiceExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
+                
+                /** @var \App\Models\RecurringInvoice $invoice */
                 $this->csv->insertOne($this->buildRow($invoice));
             });
 
@@ -112,6 +114,8 @@ class RecurringInvoiceExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+                    
+                    /** @var \App\Models\RecurringInvoice $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();

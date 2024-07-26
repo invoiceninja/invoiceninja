@@ -48,7 +48,7 @@ class StoreCompanyGatewayRequest extends Request
     {
         $input = $this->all();
 
-        if ($gateway = Gateway::where('key', $input['gateway_key'])->first()) {
+        if ($gateway = Gateway::query()->where('key', $input['gateway_key'])->first()) {
             $default_gateway_fields = json_decode($gateway->fields);
 
             /*Force gateway properties */

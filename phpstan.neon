@@ -3,7 +3,7 @@ includes:
     - ./vendor/spaze/phpstan-stripe/extension.neon
     - phpstan-baseline.neon
 parameters:
-    level: 4
+    level: 5
     paths:
         - app
     excludePaths:

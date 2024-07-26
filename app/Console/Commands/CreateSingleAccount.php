@@ -385,6 +385,9 @@ class CreateSingleAccount extends Command
 
         });
 
+
+        $this->countryClients($company, $user);
+
         $this->info("finished");
 
     }
@@ -1109,4 +1112,44 @@ class CreateSingleAccount extends Command
 
         event(new RecurringInvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars()));
     }
+
+
+    private function countryClients($company, $user)
+    {
+        
+        Client::unguard();
+
+        Client::create([
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+            'name' => 'Swiss Company AG',
+            'website' => 'https://www.testcompany.ch',
+            'private_notes' => 'These are some private notes about the test client.',
+            'balance' => 0,
+            'paid_to_date' => 0,
+            'vat_number' => '654321987',
+            'id_number' => 'CH9300762011623852957', // Sample Swiss IBAN
+            'custom_value1' => '2024-07-22 10:00:00',
+            'custom_value2' => 'blue',
+            'custom_value3' => 'sampleword',
+            'custom_value4' => 'test@example.com',
+            'address1' => '123',
+            'address2' => 'Test Street 45',
+            'city' => 'Zurich',
+            'state' => 'Zurich',
+            'postal_code' => '8001',
+            'country_id' => '756', // Switzerland
+            'shipping_address1' => '123',
+            'shipping_address2' => 'Test Street 45',
+            'shipping_city' => 'Zurich',
+            'shipping_state' => 'Zurich',
+            'shipping_postal_code' => '8001',
+            'shipping_country_id' => '756', // Switzerland
+            'settings' => ClientSettings::Defaults(),
+            'client_hash' => \Illuminate\Support\Str::random(32),
+            'routing_id' => '',
+        ]);
+
+    }
+
 }

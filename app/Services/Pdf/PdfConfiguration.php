@@ -306,7 +306,7 @@ class PdfConfiguration
             $decimal = $this->country->decimal_separator;
         }
 
-        if (isset($this->country->swap_currency_symbol) && strlen($this->country->swap_currency_symbol) >= 1) {
+        if (isset($this->country->swap_currency_symbol) && $this->country->swap_currency_symbol) {
             $swapSymbol = $this->country->swap_currency_symbol;
         }
 
@@ -386,7 +386,7 @@ class PdfConfiguration
             $decimal = $this->country->decimal_separator;
         }
 
-        if (isset($this->country->swap_currency_symbol) && strlen($this->country->swap_currency_symbol) >= 1) {
+        if (isset($this->country->swap_currency_symbol) && $this->country->swap_currency_symbol == 1) {
             $swapSymbol = $this->country->swap_currency_symbol;
         }
 
@@ -410,7 +410,7 @@ class PdfConfiguration
             $precision = 0;
         }
 
-        $value = number_format($v, $precision, $decimal, $thousand);
+        $value = number_format($v, $precision, $decimal, $thousand); //@phpstan-ignore-line
         $symbol = $this->currency->symbol;
 
         if ($this->settings->show_currency_code === true && $this->currency->code == 'CHF') {
@@ -427,7 +427,7 @@ class PdfConfiguration
 
             return "{$symbol}{$value}";
         } else {
-            return $this->formatValue($value);
+            return $this->formatValue($value); // @phpstan-ignore-line
         }
     }
 

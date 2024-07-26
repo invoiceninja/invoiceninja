@@ -394,7 +394,7 @@
 
                                                                         <td align="right" valign="top"
                                                                             style="border:0;border-collapse:collapse;margin:0;padding:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;vertical-align:middle;color:#525f7f;font-size:15px;line-height:24px;font-weight:bold">
-                                                                            ${{ totalPrice|number_format(2, '.', ',') }}
+                                                                            ${{ totalPrice|format_currency(currency_code) }}
                                                                         <td>
                                                                 </ninja>
                                                 </tr>

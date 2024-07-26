@@ -1099,7 +1099,7 @@ $lang = array(
     'invoice_embed_documents' => 'Embed Documents',
     'invoice_embed_documents_help' => 'Include attached images in the invoice.',
     'document_email_attachment' => 'Attach Documents',
-    'ubl_email_attachment' => 'Attach UBL',
+    'ubl_email_attachment' => 'Attach UBL/E-Invoice',
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
     'dropzone_default_message' => 'Drop files or click to upload',
@@ -3045,7 +3045,7 @@ $lang = array(
     'portal_mode' => 'Portal Mode',
     'attach_pdf' => 'Attach PDF',
     'attach_documents' => 'Attach Documents',
-    'attach_ubl' => 'Attach UBL',
+    'attach_ubl' => 'Attach UBL/E-Invoice',
     'email_style' => 'Email Style',
     'processed' => 'Processed',
     'fee_amount' => 'Fee Amount',
@@ -5238,7 +5238,7 @@ $lang = array(
     'local_domain_help' => 'EHLO domain (optional)',
     'port_help' => 'ie. 25,587,465',
     'host_help' => 'ie. smtp.gmail.com',
-    'always_show_required_fields' => 'Allows show required fields form',
+    'always_show_required_fields' => 'Always show required fields form',
     'always_show_required_fields_help' => 'Displays the required fields form always at checkout',
     'advanced_cards' => 'Advanced Cards',
     'activity_140' => 'Statement sent to :client',
@@ -5299,6 +5299,8 @@ $lang = array(
     'assigned_group' => 'Successfully assigned group',
     'merge_to_pdf' => 'Merge to PDF',
     'latest_requires_php_version' => 'Note: the latest version requires PHP :version',
+    'auto_expand_product_table_notes' => 'Automatically expand products table notes',
+    'auto_expand_product_table_notes_help' => 'Automatically expands the notes section within the products table to display more lines.',
 );
 
 return $lang;
