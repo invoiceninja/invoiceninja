@@ -145,14 +145,13 @@ class PaymentMethod implements MethodInterface
             $request->validate([
                 'source' => ['required','string','exists:client_gateway_tokens,token'],
                 'amount' => ['required','numeric'],
-                'token_id' => ['required','integer','exists:client_gateway_tokens,id'],
                 'process_date'=> ['required','date','after_or_equal:today'],
             ]);
             $customer = ClientGatewayToken::query()
                 ->where('company_gateway_id', $this->rotessa->company_gateway->id)
                 ->where('client_id', $this->rotessa->client->id)
-                ->where('id', (int) $request->input('token_id'))
                 ->where('token', $request->input('source'))
+                ->where('id', $this->decodePrimaryKey($request->input('source')))
                 ->first();
             if(!$customer) throw new \Exception('Client gateway token not found!', 605);
 
