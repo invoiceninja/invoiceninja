@@ -20,7 +20,8 @@ return new class extends Migration
             $configuration = new \stdClass;
             $configuration->api_key = '';
             $configuration->test_mode =  true;
-    
+
+            $gateway = new Gateway();
             $gateway->id = 63;
             $gateway->name = 'Rotessa'; 
             $gateway->key = '91be24c7b792230bced33e930ac61676'; 
