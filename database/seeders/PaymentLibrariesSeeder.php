@@ -88,7 +88,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 60, 'name' => 'PayPal REST', 'provider' => 'PayPal_Rest', 'key' => '80af24a6a691230bbec33e930ab40665', 'fields' => '{"clientId":"","secret":"","signature":"","testMode":false}'],
             ['id' => 61, 'name' => 'PayPal Platform', 'provider' => 'PayPal_PPCP', 'key' => '80af24a6a691230bbec33e930ab40666', 'fields' => '{"testMode":false}'],
             ['id' => 62, 'name' => 'BTCPay', 'provider' => 'BTCPay', 'key' => 'vpyfbmdrkqcicpkjqdusgjfluebftuva', 'fields' => '{"btcpayUrl":"", "apiKey":"", "storeId":"", "webhookSecret":""}'],
-            ['id' => 63, 'name' => 'Rotessa', 'is_offsite' => false, 'sort_order' => 22, 'provider' => 'Rotessa', 'key' => '91be24c7b792230bced33e930ac61676', 'fields' => '{"api_key":"", "test_mode":""}'],
+            ['id' => 63, 'name' => 'Rotessa', 'is_offsite' => false, 'sort_order' => 22, 'provider' => 'Rotessa', 'key' => '91be24c7b792230bced33e930ac61676', 'fields' => '{"apiKey":"", "testMode":""}'],
         ];
 
         foreach ($gateways as $gateway) {

@@ -18,8 +18,8 @@ return new class extends Migration
 
         if(!Gateway::find(63)) {
             $configuration = new \stdClass;
-            $configuration->api_key = '';
-            $configuration->test_mode =  true;
+            $configuration->apiKey = '';
+            $configuration->testMode =  true;
 
             $gateway = new Gateway();
             $gateway->id = 63;
