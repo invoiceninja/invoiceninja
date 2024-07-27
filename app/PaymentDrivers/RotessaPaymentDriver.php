@@ -135,7 +135,6 @@ class RotessaPaymentDriver extends BaseDriver
             // create payment methods
             $client_contacts->each(
                 function($contact) use ($customers) {
-                    sleep(10);
                     $result = $this->gateway->getCustomersId(['id' => ($contact = (object) $contact)->id])->send();
                     $this->client = Client::find($contact->client_id);
                     $customer = (new Customer($result->getData()))->additional(['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ] );
@@ -148,7 +147,6 @@ class RotessaPaymentDriver extends BaseDriver
             $client_contacts = $customers->filter(function ($value, $key) use ($client_emails) {
                 return !in_array(((object) $value)->email, $client_emails);
             })->each( function($customer) use ($company_id) {
-                sleep(10);
                 // create new client contact from rotess customer
                 $customer = (object) $this->gateway->getCustomersId(['id' => ($customer = (object) $customer)->id])->send()->getData();
                 /**
