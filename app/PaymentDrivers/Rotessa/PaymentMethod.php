@@ -180,7 +180,7 @@ class PaymentMethod implements MethodInterface
             [ 'data' => $data ],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
-            880,
+            SystemLog::TYPE_ROTESSA,
             $this->rotessa->client,
             $this->rotessa->client->company,
         );
@@ -203,7 +203,7 @@ class PaymentMethod implements MethodInterface
             $exception->getMessage(),
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            880,
+            SystemLog::TYPE_ROTESSA,
             $this->rotessa->client,
             $this->rotessa->client->company,
         );
