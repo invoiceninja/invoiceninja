@@ -318,7 +318,7 @@
                             @foreach($methods as $method)
                                 <button
                                     x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
-                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}',  '{{ $method['is_paypal'] }}')"
                                     class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {{ $method['label'] }}
                                 </button>
