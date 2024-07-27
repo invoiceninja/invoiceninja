@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Direct Debit', 'card_title' => 'Direct Debit'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.direct_debit'), 'card_title' => ctrans('texts.direct_debit') ])
 
 @section('gateway_content')
     @if (count($tokens) > 0)
@@ -14,7 +14,6 @@
             <input type="hidden" name="amount" value="{{ $amount }}">
             <input type="hidden" name="currency" value="{{ $currency }}">
             <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
-            <input type="hidden" name="token_id" value="">
             <input type="hidden" name="frequency" value="Once">
             <input type="hidden" name="installments" value="1">
             <input type="hidden" name="comment" value="Payment for invoice # {{ $invoice_nums }}">
@@ -27,13 +26,13 @@
                             class="form-radio cursor-pointer toggle-payment-with-token" />
                         <span class="ml-1 cursor-pointer">
                             {{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} ({{ $token->meta->brand }})
-                             &nbsp; Acc#: {{ $token->meta->account_number }}
+                             &nbsp; {{ ctrans('texts.account_number') }}#: {{ $token->meta->account_number }}
                         </span>
                     </label><br/>
                 @endforeach
             @endisset
             <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-                Process Date
+                {{ ctrans('texts.process_date') }}
             </dt>
             <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
                 <input autocomplete="new-password" readonly type="date" min="{{ $due_date }}" name="process_date" id="process_date" required class="input w-full" placeholder="" value="{{ old('process_date', $process_date ) }}">
