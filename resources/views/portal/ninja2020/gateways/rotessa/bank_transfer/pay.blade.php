@@ -23,7 +23,7 @@
             @if (count($tokens) > 0)
                 @foreach ($tokens as $token)
                     <label class="mr-4">
-                        <input type="radio" data-token="{{ $token->token }}" data-token_id="{{ $token->id }}" name="payment-type"
+                        <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
                         <span class="ml-1 cursor-pointer">
                             {{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} ({{ $token->meta->brand }})
@@ -81,7 +81,6 @@
             .from(document.getElementsByClassName('toggle-payment-with-token'))
             .forEach((element) => element.addEventListener('click', (element) => {
                 document.querySelector('input[name=source]').value = element.target.dataset.token;
-                document.querySelector('input[name=token_id]').value = element.target.dataset.token_id;
             }));
 
         document.getElementById('pay-now').addEventListener('click', function() {
