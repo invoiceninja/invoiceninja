@@ -151,7 +151,6 @@ class PaymentMethod implements MethodInterface
                 ->where('company_gateway_id', $this->rotessa->company_gateway->id)
                 ->where('client_id', $this->rotessa->client->id)
                 ->where('token', $request->input('source'))
-                ->where('id', $this->decodePrimaryKey($request->input('source')))
                 ->first();
             if(!$customer) throw new \Exception('Client gateway token not found!', 605);
 
