@@ -226,7 +226,7 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => true, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //BTCPay
-	    case 4002:
+	    case 63:
 		return [
                     GatewayType::BANK_TRANSFER => [
                         'refund' => false,
