@@ -99,7 +99,7 @@
                     @endif
 
                     @if(strlen(auth()->guard('contact')->user()->client->city) === 0)
-                    <div class="col-span-6 sm:col-span-3 hidden" id="rff_city">
+                    <div class="col-span-6 sm:col-span-3" id="rff_city">
                         <label for="city" class="input-label">{{ ctrans('texts.city') }}</label>
                         <input 
                             id="rff_city" 
@@ -115,7 +115,7 @@
                     @endif
 
                     @if(strlen(auth()->guard('contact')->user()->client->postal_code) === 0)
-                    <div class="col-span-6 sm:col-span-3 hidden" id="rff_postal_code">
+                    <div class="col-span-6 sm:col-span-3" id="rff_postal_code">
                         <label for="postal_code" class="input-label">{{ ctrans('texts.postal_code') }}</label>
                         <input 
                             id="rff_postal_code" 
@@ -215,7 +215,7 @@
                 this.validateCity();
                 this.validatePostalCode();
 
-                if (!this.errors.rff_first_name && !this.errors.rff_last_name) {
+                if (!this.errors.rff_first_name && !this.errors.rff_last_name && !this.errors.email && !this.errors.rff_postal_code && !this.errors.rff_city) {
                     
                 const next_rff = document.getElementById('rff-next-step');
                     next_rff.click();

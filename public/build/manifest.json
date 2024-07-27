@@ -23,7 +23,7 @@
     "src": "resources/js/clients/invoices/action-selectors.js"
   },
   "resources/js/clients/invoices/payment.js": {
-    "file": "assets/payment-357f3929.js",
+    "file": "assets/payment-36249364.js",
     "isEntry": true,
     "src": "resources/js/clients/invoices/payment.js"
   },
@@ -240,7 +240,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-906435d5.css",
+    "file": "assets/app-ec452b34.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
