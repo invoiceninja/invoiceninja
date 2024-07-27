@@ -185,7 +185,7 @@ class PaymentMethod implements MethodInterface
             $this->rotessa->client->company,
         );
 
-        return redirect()->route('client.payments.show', [ 'payment' => $this->rotessa->encodePrimaryKey($payment->id) ]);
+        return redirect()->route('client.payments.show', [ 'payment' => $payment->hashed_id ]);
     }
 
     /**
