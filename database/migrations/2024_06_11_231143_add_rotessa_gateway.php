@@ -33,12 +33,4 @@ return new class extends Migration
             $gateway->save();
         }
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-         Gateway::where('name', '=', 'Rotessa')->delete();
-    }
 };
