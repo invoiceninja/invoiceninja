@@ -105,7 +105,7 @@ class Gateway extends StaticModel
             $link = 'https://www.forte.net/';
         } elseif ($this->id == 62) {
             $link = 'https://docs.btcpayserver.org/InvoiceNinja/';
-        } elseif ($this->id == 4002) {
+        } elseif ($this->id == 63) {
 	        $link = 'https://rotessa.com';	
 	      }
 
