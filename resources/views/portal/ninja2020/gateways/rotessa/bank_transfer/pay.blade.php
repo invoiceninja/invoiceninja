@@ -16,7 +16,7 @@
             <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
             <input type="hidden" name="frequency" value="Once">
             <input type="hidden" name="installments" value="1">
-            <input type="hidden" name="comment" value="Payment for invoice # {{ $invoice_nums }}">
+            <input type="hidden" name="comment" value="{{ ctrans('texts.activity_10_online',['invoice'=> $invoice_nums ] ) }}">
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
             @if (count($tokens) > 0)
@@ -40,7 +40,7 @@
         @endcomponent
         </form>
     @else
-        @component('portal.ninja2020.components.general.card-element-single', ['title' => 'Direct Debit', 'show_title' => false])
+        @component('portal.ninja2020.components.general.card-element-single', ['title' => ctrans('texts.direct_debit'), 'show_title' => false])
             <span>{{ ctrans('texts.bank_account_not_linked') }}</span>
 
             <a class="button button-link text-primary"
