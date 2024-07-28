@@ -704,16 +704,16 @@ class BaseImport
                 ->save();
         }
 
-        if ($invoice->status_id === Invoice::STATUS_DRAFT) {
-        } elseif ($invoice->status_id === Invoice::STATUS_SENT) {
-            $invoice = $invoice
-                ->service()
-                ->markSent()
-                ->save();
-        } elseif (
-            $invoice->status_id <= Invoice::STATUS_SENT &&
-            $invoice->amount > 0
-        ) {
+        if ($invoice->status_id == Invoice::STATUS_DRAFT) {
+            return $invoice;
+        } 
+        
+        $invoice = $invoice
+            ->service()
+            ->markSent()
+            ->save();
+
+        if ($invoice->status_id <= Invoice::STATUS_SENT && $invoice->amount > 0) {
             if ($invoice->balance <= 0) {
                 $invoice->status_id = Invoice::STATUS_PAID;
                 $invoice->save();

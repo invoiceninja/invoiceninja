@@ -192,7 +192,7 @@ class PaymentMethod
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                 'gateway_type_id' => GatewayType::CREDIT,
-                'is_paypal' => $gateway->isPayPal(),
+                'is_paypal' => false,
             ];
         }
 
@@ -264,7 +264,7 @@ class PaymentMethod
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                 'gateway_type_id' => GatewayType::CREDIT,
-                'is_paypal' => $gateway->isPayPal(),
+                'is_paypal' => false,
             ];
         }
 
