@@ -10,7 +10,7 @@
 
 <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">
     <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-        {{ ctrans('texts.full_name') }}
+        {{ ctrans('texts.account_holder_name') }}
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="name" name="name" type="text" placeholder="{{ ctrans('texts.full_name') }}" required value="{{ old('name', $name) }}">
@@ -28,7 +28,7 @@
 
 <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">
     <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-        {{ ctrans('texts.home_phone') }}
+        {{ ctrans('texts.phone') }}
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="home_phone" name="home_phone" type="text" placeholder="{{ ctrans('texts.home_phone') }}" required value="{{ old('home_phone', $home_phone) }}">
@@ -37,7 +37,7 @@
 
 <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">
     <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-        {{ ctrans('texts.other_phone') }}
+        {{ ctrans('texts.work_phone') }}
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="phone" name="phone" type="text" placeholder="{{ ctrans('texts.other_phone') }}" required value="{{ old('phone', $phone) }}">
