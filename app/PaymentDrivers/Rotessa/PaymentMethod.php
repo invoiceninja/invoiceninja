@@ -154,7 +154,7 @@ class PaymentMethod implements MethodInterface
                 ->first();
             if(!$customer) throw new \Exception('Client gateway token not found!', 605);
 
-            $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date','comment'));
+            $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date') + ['comment' => $this->rotessa->getDescription(false) ]);
             $transaction->additional(['customer_id' => $customer->gateway_customer_reference]);
             $transaction = array_filter( $transaction->resolve());
             $response = $this->rotessa->gateway->capture($transaction)->send();
