@@ -80,7 +80,13 @@ class Payment {
         document.getElementById("payment_method_id").value =
             element.dataset.gatewayTypeId;
               
-        if (element.dataset.isPaypal != '1') {
+        const filledRff = document.querySelector('input[name="contact_first_name"').value.length >=1 &&
+            document.querySelector('input[name="contact_last_name"').value.length >= 1 &&
+            document.querySelector('input[name="contact_email"').value.length >= 1 &&
+            document.querySelector('input[name="client_city"').value.length >= 1 &&
+            document.querySelector('input[name="client_postal_code"').value.length >= 1;
+
+        if (element.dataset.isPaypal != '1' || filledRff) {
             this.steps.delete("rff");
         }
 

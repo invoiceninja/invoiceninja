@@ -46,6 +46,8 @@
             <input type="hidden" name="contact_first_name" value="{{ auth()->guard('contact')->user()->first_name }}">
             <input type="hidden" name="contact_last_name" value="{{ auth()->guard('contact')->user()->last_name }}">
             <input type="hidden" name="contact_email" value="{{ auth()->guard('contact')->user()->email }}">
+            <input type="hidden" name="client_city" value="{{ auth()->guard('contact')->user()->client->city }}">
+            <input type="hidden" name="client_postal_code" value="{{ auth()->guard('contact')->user()->client->postal_code }}">
 
             <div class="bg-white shadow sm:rounded-lg mb-4" translate>
                 <div class="px-4 py-5 sm:p-6">
