@@ -12,7 +12,7 @@
             {{ ctrans('texts.bank_name') }}
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input class="input w-full" id="bank_name" name="bank_name" type="text" placeholder="Bank Name" required value="{{ old('bank_name', $bank_name) }}">
+            <input class="input w-full" id="bank_name" name="bank_name" type="text" placeholder="{{ ctrans('texts.bank_name') }}" required value="{{ old('bank_name', $bank_name) }}">
         </dd>
     </div>
 
@@ -21,7 +21,7 @@
              {{ ctrans('texts.account_number') }}
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input class="input w-full" id="account_number" name="account_number" type="text" placeholder="Account Number" required value="{{ old('account_number', $account_number) }}">
+            <input class="input w-full" id="account_number" name="account_number" type="text" placeholder="{{ ctrans('texts.account_number') }}" required value="{{ old('account_number', $account_number) }}">
         </dd>
     </div>
 
