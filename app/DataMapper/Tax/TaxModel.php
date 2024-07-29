@@ -474,6 +474,12 @@ class TaxModel
         $this->regions->EU->subregions->NL->reduced_tax_rate = 9;
         $this->regions->EU->subregions->NL->apply_tax = false;
 
+        $this->regions->EU->subregions->PL = new \stdClass();
+        $this->regions->EU->subregions->PL->tax_rate = 23;
+        $this->regions->EU->subregions->PL->tax_name = 'VAT';
+        $this->regions->EU->subregions->PL->reduced_tax_rate = 8;
+        $this->regions->EU->subregions->PL->apply_tax = false;
+
         $this->regions->EU->subregions->PT = new \stdClass();
         $this->regions->EU->subregions->PT->tax_rate = 23;
         $this->regions->EU->subregions->PT->tax_name = 'IVA';

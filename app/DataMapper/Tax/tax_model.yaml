@@ -197,6 +197,10 @@ region:
         vat: 21
         reduced_vat: 9
         apply_tax: false
+      PL:
+        vat: 23
+        reduced_vat: 8
+        apply_tax: false
       PT:
         vat: 23
         reduced_vat: 6
