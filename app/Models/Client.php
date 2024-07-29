@@ -27,7 +27,6 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Cache;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
@@ -124,7 +123,7 @@ class Client extends BaseModel implements HasLocalePreference
     use AppSetup;
     use ClientGroupSettingsSaver;
     use Excludable;
-
+    
     protected $presenter = ClientPresenter::class;
 
     protected $hidden = [
