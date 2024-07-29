@@ -164,6 +164,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
     Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
+    Route::post('charts/calculated_fields', [ChartController::class, 'calculatedFields'])->name('chart.calculated_fields');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
 

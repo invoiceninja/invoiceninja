@@ -108,11 +108,11 @@ class PaymentController extends Controller
      */
     public function process(Request $request)
     {
-        $request->validate([
-            'contact_first_name' => ['required'],
-            'contact_last_name' => ['required'],
-            'contact_email' => ['required', 'email'],
-        ]);
+        // $request->validate([
+        //     'contact_first_name' => ['required'],
+        //     'contact_last_name' => ['required'],
+        //     'contact_email' => ['required', 'email'],
+        // ]);
 
         return (new InstantPayment($request))->run();
     }
