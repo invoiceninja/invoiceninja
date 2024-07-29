@@ -128,7 +128,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         nlog($response);
 
-        if($request->has('token') && strlen($request->input('token')) > 2) {
+        if($request->has('token') && strlen($request->input('token','')) > 2) {
             return $this->processTokenPayment($request, $response);
         }
 
@@ -332,8 +332,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         $orderId = $this->createOrder($data);
 
-        // $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
-        
         try {
 
             $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);

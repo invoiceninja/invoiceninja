@@ -151,8 +151,8 @@ class Peppol extends AbstractService
     private InvoiceSum | InvoiceSumInclusive $calc;
 
     /**
-     * @param Invoice $invoice
-     */
+    * @param Invoice $invoice
+    */
     public function __construct(public Invoice $invoice, public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice = null)
     {
         $this->p_invoice = $p_invoice ?? new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
