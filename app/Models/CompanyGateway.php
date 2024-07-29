@@ -159,6 +159,11 @@ class CompanyGateway extends BaseModel
 
     protected $touches = [];
 
+    public function isPayPal()
+    {
+        return in_array($this->gateway_key, ['80af24a6a691230bbec33e930ab40666','80af24a6a691230bbec33e930ab40665']);
+    }
+
     public function getEntityType()
     {
         return self::class;

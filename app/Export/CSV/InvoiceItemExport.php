@@ -265,6 +265,10 @@ class InvoiceItemExport extends BaseExport
             $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';// @phpstan-ignore-line
         }
 
+        if (in_array('invoice.project', $this->input['report_keys'])) {
+            $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line        
+        }
+        
         return $entity;
     }
 
