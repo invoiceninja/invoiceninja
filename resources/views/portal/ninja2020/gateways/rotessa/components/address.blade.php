@@ -5,7 +5,7 @@
             </h3>
 
             <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
-                {{ ctrans('texts.enter_the_address_information_for_the_account_holder') }}
+                {{ ctrans('texts.enter_information_for_the_account_holder') }}
             </p>
         </div>
     <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">

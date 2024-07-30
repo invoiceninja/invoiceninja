@@ -1,6 +1,6 @@
 <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">
-                   {{ ctrans('texts.account_information') }}
+                   {{ ctrans('texts.add_bank_account') }}
                 </h3>
 
                 <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
