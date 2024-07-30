@@ -216,7 +216,7 @@ class RotessaPaymentDriver extends BaseDriver
                 'description' => $th->getMessage(),
                 'code' =>(int) $th->getCode()
             ];
-            SystemLogger::dispatch(['server_response' => $th->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->company_gateway->client , $this->company_gateway->company);
+            SystemLogger::dispatch(['server_response' => $th->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  SystemLog::TYPE_ROTESSA , $this->company_gateway->client , $this->company_gateway->company);
             
             throw $th;
         }
@@ -268,7 +268,7 @@ class RotessaPaymentDriver extends BaseDriver
                 'code' =>(int) $th->getCode()
             ];
 
-            SystemLogger::dispatch(['server_response' => is_null($result) ? '' : (array) $result, 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
+            SystemLogger::dispatch(['server_response' => is_null($result) ? '' : $result->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
             
             throw $th;
         }
