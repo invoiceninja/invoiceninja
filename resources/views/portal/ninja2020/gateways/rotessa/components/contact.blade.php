@@ -4,7 +4,7 @@
     </h3>
 
     <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
-        {{ ctrans('texts.enter_the_information_for_the_account_holder') }}
+        {{ ctrans('texts.enter_information_for_the_account_holder') }}
     </p>
 </div>
 
@@ -28,7 +28,7 @@
 
 <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">
     <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-        {{ ctrans('texts.phone') }}
+        {{ ctrans('texts.contact_phone') }}
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="home_phone" name="home_phone" type="text" placeholder="{{ ctrans('texts.phone') }}" required value="{{ old('home_phone', $home_phone) }}">
@@ -63,4 +63,4 @@
 </div>
 
 <input name="id" type="hidden" value="{{ old('id', $id) }}">
-<input name="custom_identifier" type="hidden" value="{{ old('custom_identifer', $contact['custom_identifier']) }}">
+<input name="custom_identifier" type="hidden" value="{{ old('custom_identifer', $custom_identifier) }}">
