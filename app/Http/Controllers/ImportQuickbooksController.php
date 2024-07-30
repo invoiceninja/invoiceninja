@@ -9,10 +9,24 @@ use Illuminate\Http\Response;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\Import\QuickbooksIngest;
-use App\Http\Controllers\ImportController as BaseController;
+use App\Services\Import\Quickbooks\Service as QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
 {
+    protected QuickbooksService $service; 
+    private $import_entities = [
+        'client' => 'Customer',
+        'invoice' => 'Invoice',
+        'product' => 'Item',
+        'payment' => 'Payment'
+    ];
+
+    public function __construct(QuickbooksService $service) {
+        parent::__construct();
+        
+        $this->service = $service;
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -29,25 +43,28 @@ class ImportQuickbooksController extends BaseController
     public function preimport(Request $request)
     {
         // Check for authorization otherwise 
-       
         // Create a reference
         $hash = Str::random(32);
         $data = [
-            'hash'     => $hash,
-            'type' => $request->input('import_type')
+            'hash' => $hash,
+            'type' => $request->input('import_type', 'client'),
+            'max' => $request->input('max', 100)
         ];
-        $contents = $this->getData();
-        Cache::put("$hash-{$data['type']}", base64_encode(json_encode($contents)), 600);
+        $this->getData($data);
 
         return response()->json(['message' => 'Data cached for import'] + $data, 200);
     }
 
-    public function authorizeQuickbooks() {
+    protected function getData($data) {
 
-    }
-
-    protected function getData() {
-
+        $entity = $this->import_entities[$data['type']];
+        $cache_name = "{$data['hash']}-{$data['type']}";
+        // TODO: Get or put cache  or DB?
+        if(!  Cache::has($cache_name) )
+        {
+            $contents = call_user_func([$this->service, "fetch{$entity}s"], $data['max']);
+            Cache::put($cache_name, base64_encode( $contents->toJson()), 600);
+        }
     }
 
     /**
