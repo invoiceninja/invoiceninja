@@ -181,7 +181,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         $sl = $this->getSystemLog($this->request['MessageID']);
 
         /** Prevents Gmail tracking from firing inappropriately */
-        if($this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3) {
+        if(!$sl || $this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3) {
             return;
         }
 
