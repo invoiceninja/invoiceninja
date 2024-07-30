@@ -42,6 +42,7 @@ class AccountComponent extends Component
     
     public function render()
     {
-        return render('gateways.rotessa.components.account', array_merge($this->attributes->getAttributes(), $this->defaults) );
+
+        return render('gateways.rotessa.components.account', $this->attributes->getAttributes() + $this->defaults);
     }
 }
