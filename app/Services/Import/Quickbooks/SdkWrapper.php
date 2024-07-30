@@ -77,7 +77,7 @@ final class SdkWrapper implements QuickbooksInterface
         if(!in_array($entity, $this->entities)) return [];
         
         $records = [];
-        $start = 1;
+        $start = 0;
         $limit = 100;
         try {
             $total = $this->totalRecords($entity);
