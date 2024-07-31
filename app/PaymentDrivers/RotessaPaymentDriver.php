@@ -248,9 +248,11 @@ class RotessaPaymentDriver extends BaseDriver
                 $data = array_filter($customer->resolve());
             }
             
-            $payment_method_id = Arr::has($data,'address.postal_code') && ((int) $data['address']['postal_code'])? GatewayType::BANK_TRANSFER: GatewayType::ACSS; 
+            // $payment_method_id = Arr::has($data,'address.postal_code') && ((int) $data['address']['postal_code'])? GatewayType::BANK_TRANSFER: GatewayType::ACSS; 
+            // TODO: Check/ Validate postal code between USA vs CAN
+            $payment_method_id = GatewayType::ACSS;
             $gateway_token = $this->storeGatewayToken( [
-                'payment_meta' => $data + ['brand' => 'Rotessa'],
+                'payment_meta' => $data + ['brand' => 'Rotessa', 'last4' => $data['bank_name'], 'type' => $data['bank_account_type'] ],
                 'token' => encrypt(join(".", Arr::only($data, 'id','custom_identifier'))),
                 'payment_method_id' => $payment_method_id ,
             ], ['gateway_customer_reference' => 
