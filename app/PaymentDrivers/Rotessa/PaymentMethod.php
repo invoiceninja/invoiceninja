@@ -60,7 +60,10 @@ class PaymentMethod implements MethodInterface
             'id' => null
         ] )->all();
         $data['gateway'] = $this->rotessa;
-        $data['gateway_type_id'] =  $data['client']->country->iso_3166_2 == 'US' ?  GatewayType::BANK_TRANSFER : (  $data['client']->country->iso_3166_2 == 'CA' ? GatewayType::ACSS : (int) request('method'));
+        // Set gateway type according to client country
+        // $data['gateway_type_id'] =  $data['client']->country->iso_3166_2 == 'US' ?  GatewayType::BANK_TRANSFER : (  $data['client']->country->iso_3166_2 == 'CA' ? GatewayType::ACSS : (int) request('method'));
+        // TODO: detect GatewayType based on client country USA vs CAN
+        $data['gateway_type_id'] =   GatewayType::ACSS ;
         $data['account'] = [
             'routing_number' => $data['client']->routing_id,
             'country' => $data['client']->country->iso_3166_2
