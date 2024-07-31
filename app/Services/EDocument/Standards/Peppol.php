@@ -714,6 +714,11 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         return $this;
     }
 
+    public function getSetting(object $e_invoice, string $property_path): mixed
+    {
+        return PropertyResolver::resolve($e_invoice, $property_path);
+    }
+
     public function countryLevelMutators():self
     {
 
@@ -723,16 +728,10 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         return $this;
     }
 
-    private function setDefaultAccountingSupplierParty(): self
-    {
-        $party = new PeppolParty
-    }
-
     private function DE(): self
     {
         // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
-        if(!isset($this->p_invoice->AccountingSupplierParty->Party->Contact))
-            $this->setDefaultAccountingSupplierParty();
+        // this is forced by default.
 
         // ONE payment means MUST be set
 
