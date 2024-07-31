@@ -118,14 +118,14 @@ class RotessaPaymentDriver extends BaseDriver
     public function importCustomers() {
         $this->init();
         try {
-            if(!$result = Cache::has('rotessa-import_customers')) {
+            if(!$result = Cache::has("rotessa-import_customers-{$this->company_gateway->company->company_key}")) {
                 $result = $this->gateway->getCustomers()->send();
                 if(!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
                 // cache results
-                Cache::put('rotessa-import_customers', $result->getData(), 60 * 60 * 24);
+                Cache::put("rotessa-import_customers-{$this->company_gateway->company->company_key}", $result->getData(), 60 * 60 * 24);
             }
            
-            $result = Cache::get('rotessa-import_customers');
+            $result = Cache::get("rotessa-import_customers-{$this->company_gateway->company->company_key}");
             $customers = collect($result)->unique('email');
             $client_emails = $customers->pluck('email')->all();
             $company_id = $this->company_gateway->company->id;
@@ -200,7 +200,9 @@ class RotessaPaymentDriver extends BaseDriver
                     "first_name" => substr($customer->name, 0, stripos($customer->name, " ")),
                     "last_name" => substr($customer->name, stripos($customer->name, " ")),
                     "email" => $customer->email,
-                    "phone" => $customer->phone
+                    "phone" => $customer->phone,
+                    "is_primary"  => true,
+                    "send_email" => true,
                 ]);
                 $client->contacts()->saveMany([$contact]);
                 $contact = $client->contacts()->first();
