@@ -108,11 +108,11 @@ class PaymentController extends Controller
      */
     public function process(Request $request)
     {
-        $request->validate([
-            'contact_first_name' => ['required'],
-            'contact_last_name' => ['required'],
-            'contact_email' => ['required', 'email'],
-        ]);
+        // $request->validate([
+        //     'contact_first_name' => ['required'],
+        //     'contact_last_name' => ['required'],
+        //     'contact_email' => ['required', 'email'],
+        // ]);
 
         return (new InstantPayment($request))->run();
     }
@@ -209,7 +209,7 @@ class PaymentController extends Controller
 
         if (property_exists($payment_hash->data, 'billing_context')) {
             $billing_subscription = \App\Models\Subscription::find($this->decodePrimaryKey($payment_hash->data->billing_context->subscription_id));
-
+            /** @var \App\Models\Subscription $billing_subscription */
             return (new SubscriptionService($billing_subscription))->completePurchase($payment_hash);
         }
 

@@ -115,13 +115,8 @@ class AccountController extends BaseController
 
     public function update(UpdateAccountRequest $request, Account $account)
     {
-        $fi = new \FilesystemIterator(public_path('react'), \FilesystemIterator::SKIP_DOTS);
 
-        if (iterator_count($fi) < 30) {
-            return response()->json(['message' => 'React App Not Installed, Please install the React app before attempting to switch.'], 400);
-        }
-
-        $account->fill($request->all());
+        $account->set_react_as_default_ap = $request->input('set_react_as_default_ap');
         $account->save();
 
         $this->entity_type = Account::class;

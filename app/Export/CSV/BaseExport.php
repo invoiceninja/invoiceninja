@@ -172,6 +172,7 @@ class BaseExport
         'tax_rate3' => 'invoice.tax_rate3',
         'recurring_invoice' => 'invoice.recurring_id',
         'auto_bill' => 'invoice.auto_bill_enabled',
+        'project' => 'invoice.project',
     ];
 
     protected array $recurring_invoice_report_keys = [
@@ -449,6 +450,7 @@ class BaseExport
         'status' => 'task.status_id',
         'project' => 'task.project_id',
         'billable' => 'task.billable',
+        'item_notes' => 'task.item_notes',
     ];
 
     protected array $forced_client_fields = [
@@ -1037,6 +1039,10 @@ class BaseExport
         }
 
         $recurring_filters = [];
+
+        if($this->company->getSetting('report_include_drafts')){
+            $recurring_filters[] = RecurringInvoice::STATUS_DRAFT;
+        }
 
         if (in_array('active', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;

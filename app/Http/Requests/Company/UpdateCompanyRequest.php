@@ -14,8 +14,9 @@ namespace App\Http\Requests\Company;
 use App\DataMapper\CompanySettings;
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Company\ValidExpenseMailbox;
-use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
+use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 
@@ -65,7 +66,7 @@ class UpdateCompanyRequest extends Request
         $rules['smtp_local_domain'] = 'sometimes|string|nullable';
         // $rules['smtp_verify_peer'] = 'sometimes|string';
 
-        // $rules['e_invoice'] = ['sometimes','nullable', new ValidScheme()];
+        $rules['e_invoice'] = ['sometimes', 'nullable', new ValidCompanyScheme()];
 
         if (isset($input['portal_mode']) && ($input['portal_mode'] == 'domain' || $input['portal_mode'] == 'iframe')) {
             $rules['portal_domain'] = 'bail|nullable|sometimes|url';

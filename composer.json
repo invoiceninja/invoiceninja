@@ -41,7 +41,7 @@
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "bacon/bacon-qr-code": "^2.0",
-        "beganovich/snappdf": "^5",
+        "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.0",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
@@ -196,6 +196,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/beganovich/php-ansible"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/snappdf"
         }
     ],
     "minimum-stability": "dev",

@@ -124,13 +124,13 @@ class SubscriptionRepository extends BaseRepository
      *
      * Removing the nested keys of the items array
      *
-     * @param  array $bundle
+     * @param  mixed $bundle
      * @return array
      */
     private function convertV3Bundle($bundle): array
     {
         if(is_object($bundle)) {
-            $bundle = json_decode(json_encode($bundle), 1);
+            $bundle = json_decode(json_encode($bundle), true);
         }
 
         $items = [];

@@ -46,6 +46,7 @@ class ZugferdEDocument extends AbstractService
      */
     public function run(): Expense
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->file->get());
@@ -117,12 +118,13 @@ class ZugferdEDocument extends AbstractService
                 if ($taxid != null) {
                     $vendor->vat_number = $taxid;
                 }
-                $vendor->currency_id = Currency::whereCode($invoiceCurrency)->first()->id;
+                $vendor->currency_id = Currency::query()->where('code', $invoiceCurrency)->first()->id;
                 $vendor->phone = $contact_phone;
                 $vendor->address1 = $address_1;
                 $vendor->address2 = $address_2;
                 $vendor->city = $city;
                 $vendor->postal_code = $postcode;
+
                 $country = app('countries')->first(function ($c) use ($country) {
                     return $c->iso_3166_2 == $country || $c->iso_3166_3 == $country;
                 });

@@ -34,9 +34,9 @@ class TranslationHelper
     {
         
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
-        $countries = app('countries');
+        // $countries = app('countries');
 
-        return $countries->each(function ($country) {
+        return \App\Models\Country::all()->each(function ($country) {
             $country->name = ctrans('texts.country_'.$country->name);
         })->sortBy(function ($country) {
             return $country->iso_3166_2;
@@ -47,9 +47,9 @@ class TranslationHelper
     {
         
         /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
-        $payment_types = app('payment_types');
+        // $payment_types = app('payment_types');
 
-        return $payment_types->each(function ($pType) {
+        return \App\Models\PaymentType::all()->each(function ($pType) {
             $pType->name = ctrans('texts.payment_type_'.$pType->name);
         })->sortBy(function ($pType) {
             return $pType->name;
@@ -60,9 +60,9 @@ class TranslationHelper
     {
         
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
-        $languages = app('languages');
+        // $languages = app('languages');
 
-        return $languages->each(function ($lang) {
+        return \App\Models\Language::all()->each(function ($lang) {
             $lang->name = ctrans('texts.lang_'.$lang->name);
         })->sortBy(function ($lang) {
             return $lang->name;
@@ -73,9 +73,9 @@ class TranslationHelper
     {
         
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
-        $currencies = app('currencies');
+        // $currencies = app('currencies');
 
-        return $currencies->each(function ($currency) {
+        return \App\Models\Currency::all()->each(function ($currency) {
             $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
         })->sortBy(function ($currency) {
             return $currency->name;

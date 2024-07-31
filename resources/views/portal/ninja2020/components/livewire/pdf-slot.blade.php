@@ -1,6 +1,6 @@
 <div>
   <div class="flex flex-row space-x-2 float-right mb-2" x-data>
-    <button wire:loading.attr="disabled" wire:click="downloadPdf" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
+    <button wire:loading.attr="disabled" wire:click="downloadPdf" class="button bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
         <span class="mr-0">{{ ctrans('texts.download_pdf') }}</span>
         <div wire:loading wire:target="downloadPdf">
             <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -10,7 +10,7 @@
         </div>
     </button>
     @if($entity_type == 'invoice' && $settings->enable_e_invoice)
-    <button wire:loading.attr="disabled" wire:click="downloadEDocument" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
+    <button wire:loading.attr="disabled" wire:click="downloadEDocument" class="button bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
         <span>{{ ctrans('texts.download_e_invoice') }}</span>
         <div wire:loading wire:target="downloadEDocument">
             <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -21,7 +21,7 @@
     </button>
     @endif
       @if($entity_type == 'credit' && $settings->enable_e_invoice)
-          <button wire:loading.attr="disabled" wire:click="downloadEDocument" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
+          <button wire:loading.attr="disabled" wire:click="downloadEDocument" class="button bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
               <span>{{ ctrans('texts.download_e_credit') }}</span>
               <div wire:loading wire:target="downloadEDocument">
                   <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -32,7 +32,7 @@
           </button>
       @endif
       @if($entity_type == 'quote' && $settings->enable_e_invoice)
-          <button wire:loading.attr="disabled" wire:click="downloadEDocument" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
+          <button wire:loading.attr="disabled" wire:click="downloadEDocument" class="button bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
               <span>{{ ctrans('texts.download_e_quote') }}</span>
               <div wire:loading wire:target="downloadEDocument">
                   <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@
       @endif
 {{--      Not implemented yet--}}
 {{--      @if($entity_type == 'purchase_order' && $settings->enable_e_invoice)
-          <button wire:loading.attr="disabled" wire:click="downloadEInvoice" class="bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
+          <button wire:loading.attr="disabled" wire:click="downloadEInvoice" class="button bg-primary text-white px-4 py-4 lg:px-2 lg:py-2 rounded" type="button">
               <span>{{ ctrans('texts.download_e_invoice') }}</span>
               <div wire:loading wire:target="downloadEInvoice">
                   <svg class="animate-spin h-5 w-5 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

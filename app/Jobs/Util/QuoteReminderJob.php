@@ -61,10 +61,10 @@ class QuoteReminderJob implements ShouldQueue
             nrlog("Sending quote reminders on ".now()->format('Y-m-d h:i:s'));
 
             Quote::query()
-                 ->where('is_deleted', 0)
-                 ->whereIn('status_id', [Invoice::STATUS_SENT])
-                 ->whereNull('deleted_at')
-                 ->where('next_send_date', '<=', now()->toDateTimeString())
+                 ->where('quotes.is_deleted', 0)
+                 ->whereIn('quotes.status_id', [Invoice::STATUS_SENT])
+                 ->whereNull('quotes.deleted_at')
+                 ->where('quotes.next_send_date', '<=', now()->toDateTimeString())
                  ->whereHas('client', function ($query) {
                      $query->where('is_deleted', 0)
                            ->where('deleted_at', null);
@@ -88,10 +88,10 @@ class QuoteReminderJob implements ShouldQueue
                 nrlog("Sending quote reminders on db {$db} ".now()->format('Y-m-d h:i:s'));
 
                 Quote::query()
-                     ->where('is_deleted', 0)
-                     ->whereIn('status_id', [Invoice::STATUS_SENT])
-                     ->whereNull('deleted_at')
-                     ->where('next_send_date', '<=', now()->toDateTimeString())
+                     ->where('quotes.is_deleted', 0)
+                     ->whereIn('quotes.status_id', [Invoice::STATUS_SENT])
+                     ->whereNull('quotes.deleted_at')
+                     ->where('quotes.next_send_date', '<=', now()->toDateTimeString())
                      ->whereHas('client', function ($query) {
                          $query->where('is_deleted', 0)
                                ->where('deleted_at', null);
@@ -99,6 +99,7 @@ class QuoteReminderJob implements ShouldQueue
                      ->whereHas('company', function ($query) {
                          $query->where('is_disabled', 0);
                      })
+                    
                      ->with('invitations')->chunk(50, function ($quotes) {
 
                          foreach ($quotes as $quote) {

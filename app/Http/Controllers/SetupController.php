@@ -43,7 +43,7 @@ class SetupController extends Controller
 
     public function index()
     {
-        $check = SystemHealth::check(false);
+        $check = SystemHealth::check(false, false);
 
         if ($check['system_health'] == true && $check['simple_db_check'] && Schema::hasTable('accounts') && $account = Account::first()) {
             return redirect('/');
@@ -59,7 +59,7 @@ class SetupController extends Controller
     public function doSetup(StoreSetupRequest $request)
     {
         try {
-            $check = SystemHealth::check(false);
+            $check = SystemHealth::check(false, false);
         } catch (Exception $e) {
             nlog(['message' => $e->getMessage(), 'action' => 'SetupController::doSetup()']);
 
@@ -145,6 +145,7 @@ class SetupController extends Controller
 
             Artisan::call('config:clear');
 
+            Artisan::call('key:generate', ['--force' => true]);
 
             Artisan::call('migrate', ['--force' => true]);
             Artisan::call('db:seed', ['--force' => true]);

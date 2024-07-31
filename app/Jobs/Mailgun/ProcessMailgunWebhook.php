@@ -94,7 +94,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
 
         MultiDB::findAndSetDbByCompanyKey($this->request['event-data']['tags'][0]);
-        $company = Company::where('company_key', $this->request['event-data']['tags'][0])->first();
+        $company = Company::query()->where('company_key', $this->request['event-data']['tags'][0])->first();
 
         if ($company && $this->request['event-data']['event'] == 'complained' && config('ninja.notification.slack')) {
             $company->notification(new EmailSpamNotification($company))->ninja();

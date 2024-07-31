@@ -187,6 +187,8 @@ class CreditCard
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
         $payment = $this->forte->createPayment($data, Payment::STATUS_COMPLETED);
-        return redirect('client/invoices')->withSuccess('Invoice paid.');
+        // return redirect('client/invoices')->withSuccess('Invoice paid.');
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
+
     }
 }

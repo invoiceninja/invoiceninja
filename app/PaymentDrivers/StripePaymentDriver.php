@@ -12,54 +12,55 @@
 
 namespace App\PaymentDrivers;
 
-use App\Exceptions\PaymentFailed;
-use App\Exceptions\StripeConnectFailure;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Http\Requests\Request;
-use App\Jobs\Util\SystemLogger;
-use App\Models\Client;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentHash;
-use App\Models\SystemLog;
-use App\PaymentDrivers\Stripe\ACH;
-use App\PaymentDrivers\Stripe\ACSS;
-use App\PaymentDrivers\Stripe\Alipay;
-use App\PaymentDrivers\Stripe\BACS;
-use App\PaymentDrivers\Stripe\Bancontact;
-use App\PaymentDrivers\Stripe\BankTransfer;
-use App\PaymentDrivers\Stripe\BECS;
-use App\PaymentDrivers\Stripe\BrowserPay;
-use App\PaymentDrivers\Stripe\Charge;
-use App\PaymentDrivers\Stripe\Connect\Verify;
-use App\PaymentDrivers\Stripe\CreditCard;
-use App\PaymentDrivers\Stripe\EPS;
-use App\PaymentDrivers\Stripe\FPX;
-use App\PaymentDrivers\Stripe\GIROPAY;
-use App\PaymentDrivers\Stripe\iDeal;
-use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
-use App\PaymentDrivers\Stripe\Klarna;
-use App\PaymentDrivers\Stripe\PRZELEWY24;
-use App\PaymentDrivers\Stripe\SEPA;
-use App\PaymentDrivers\Stripe\SOFORT;
-use App\PaymentDrivers\Stripe\Utilities;
-use App\Utils\Traits\MakesHash;
 use Exception;
-use Illuminate\Http\RedirectResponse;
-use Laracasts\Presenter\Exceptions\PresenterException;
+use Stripe\Stripe;
 use Stripe\Account;
 use Stripe\Customer;
-use Stripe\Exception\ApiErrorException;
+use App\Models\Client;
+use App\Models\Payment;
+use Stripe\SetupIntent;
+use Stripe\StripeClient;
+use App\Models\SystemLog;
 use Stripe\PaymentIntent;
 use Stripe\PaymentMethod;
-use Stripe\SetupIntent;
-use Stripe\Stripe;
-use Stripe\StripeClient;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
+use App\Http\Requests\Request;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\Stripe\ACH;
+use App\PaymentDrivers\Stripe\EPS;
+use App\PaymentDrivers\Stripe\FPX;
+use App\PaymentDrivers\Stripe\ACSS;
+use App\PaymentDrivers\Stripe\BACS;
+use App\PaymentDrivers\Stripe\BECS;
+use App\PaymentDrivers\Stripe\SEPA;
+use App\PaymentDrivers\Stripe\iDeal;
+use App\PaymentDrivers\Stripe\Alipay;
+use App\PaymentDrivers\Stripe\Charge;
+use App\PaymentDrivers\Stripe\Klarna;
+use App\PaymentDrivers\Stripe\SOFORT;
+use Illuminate\Http\RedirectResponse;
+use App\PaymentDrivers\Stripe\GIROPAY;
+use Stripe\Exception\ApiErrorException;
+use App\Exceptions\StripeConnectFailure;
+use App\PaymentDrivers\Stripe\Utilities;
+use App\PaymentDrivers\Stripe\Bancontact;
+use App\PaymentDrivers\Stripe\BrowserPay;
+use App\PaymentDrivers\Stripe\CreditCard;
+use App\PaymentDrivers\Stripe\PRZELEWY24;
+use App\PaymentDrivers\Stripe\BankTransfer;
+use App\PaymentDrivers\Stripe\Connect\Verify;
+use App\PaymentDrivers\Stripe\ImportCustomers;
+use App\PaymentDrivers\Stripe\Jobs\ChargeRefunded;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use Laracasts\Presenter\Exceptions\PresenterException;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
+use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
 
 class StripePaymentDriver extends BaseDriver
 {
@@ -670,38 +671,45 @@ class StripePaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
+        nlog($request->all());
+
         if ($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());
         }
 
         if ($request->type === 'payment_intent.processing') {
-            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10, 12)));
+            PaymentIntentProcessingWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
             return response()->json([], 200);
         }
 
         //payment_intent.succeeded - this will confirm or cancel the payment
         if ($request->type === 'payment_intent.succeeded') {
-            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10, 15)));
+            PaymentIntentWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
 
         if ($request->type === 'payment_intent.partially_funded') {
-            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(10, 15)));
+            PaymentIntentPartiallyFundedWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
 
         if (in_array($request->type, ['payment_intent.payment_failed', 'charge.failed'])) {
-            PaymentIntentFailureWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(rand(5, 10)));
+            PaymentIntentFailureWebhook::dispatch($request->data, $request->company_key, $this->company_gateway->id)->delay(now()->addSeconds(2));
+
+            return response()->json([], 200);
+        }
+        
+        if ($request->type === 'charge.refunded' && $request->data['object']['status'] == 'succeeded') {
+            ChargeRefunded::dispatch($request->data, $request->company_key)->delay(now()->addSeconds(5));
 
             return response()->json([], 200);
         }
 
         if ($request->type === 'charge.succeeded') {
             foreach ($request->data as $transaction) {
-
 
                 $payment = Payment::query()
                     ->where('company_id', $this->company_gateway->company_id)

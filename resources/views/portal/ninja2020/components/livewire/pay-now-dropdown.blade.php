@@ -23,6 +23,7 @@
                                 <a href="#" @click="open = false" dusk="pay-with-custom"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
+                                   data-is-paypal="{{ $method['is_paypal'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
                                    dusk="payment-method">
                                     {{ \App\Models\CompanyGateway::find($method['company_gateway_id'])->firstOrFail()->getConfigField('name') }}
@@ -31,6 +32,7 @@
                                 <a href="#" @click="open = false" dusk="pay-with-{{ $index }}"
                                    data-company-gateway-id="{{ $method['company_gateway_id'] }}"
                                    data-gateway-type-id="{{ $method['gateway_type_id'] }}"
+                                   data-is-paypal="{{ $method['is_paypal'] }}"
                                    class="block px-4 py-2 text-sm leading-5 text-gray-700 dropdown-gateway-button hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:bg-gray-100 focus:text-gray-900"
                                    dusk="payment-method">
                                     {{ $method['label'] }}

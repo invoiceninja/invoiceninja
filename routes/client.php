@@ -144,20 +144,20 @@ Route::group(['middleware' => ['invite_db'], 'prefix' => 'client', 'as' => 'clie
     Route::get('unsubscribe/{entity}/{invitation_key}', [App\Http\Controllers\ClientPortal\InvitationController::class, 'unsubscribe'])->name('unsubscribe');
 });
 
-Route::get('route/{hash}', function ($hash) {
+// Route::get('route/{hash}', function ($hash) {
 
-    $route = '/';
+//     $route = '/';
 
-    try {
-        $route = decrypt($hash); 
-    }
-    catch (\Exception $e) { 
-        abort(404);
-    }
+//     try {
+//         $route = decrypt($hash); 
+//     }
+//     catch (\Exception $e) { 
+//         abort(404);
+//     }
 
-    return redirect($route);
+//     return redirect($route);
 
-})->middleware('throttle:404');
+// })->middleware('throttle:404');
 
 Route::get('phantom/{entity}/{invitation_key}', [Phantom::class, 'displayInvitation'])->middleware(['invite_db', 'phantom_secret'])->name('phantom_view');
 Route::get('blade/', [Phantom::class, 'blade'])->name('blade');

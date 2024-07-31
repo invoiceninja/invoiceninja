@@ -411,7 +411,7 @@ class InvoiceItemSumInclusive
 
             $this->rule = new $class();
 
-            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
+            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2 ?? false)) {
                 return $this;
             }
 

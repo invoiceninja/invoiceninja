@@ -42,13 +42,7 @@
         @endif
 
         <!-- Title -->
-        @auth('contact')
-            <title>@yield('meta_title', '') — {{ auth()->guard('contact')->user()->user->account->isPaid() ? auth()->guard('contact')->user()->company->present()->name() : 'Invoice Ninja' }}</title>
-        @endauth
-
-        @guest
-            <title>@yield('meta_title', '') — {{ config('app.name') }}</title>
-        @endguest
+        <title>@yield('meta_title', '') — {{ config('app.name') }}</title>
 
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -86,10 +80,6 @@
             <link href="{{ str_replace("setup", "", Request::url())}}css/app.css" rel="stylesheet">
         @endif
 
-        @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())
-        {{-- <link href="{{ mix('favicon.png') }}" rel="shortcut icon" type="image/png"> --}}
-        @endif
-
         <link rel="canonical" href="{{ config('ninja.app_url') }}/{{ request()->path() }}"/>
 
         {{-- Feel free to push anything to header using @push('header') --}}
@@ -101,8 +91,6 @@
 
         <link rel="stylesheet" type="text/css" href="{{ asset('vendor/cookieconsent@3/cookieconsent.min.css') }}" />
     </head>
-
-    @include('portal.ninja2020.components.primary-color')
 
     <body class="antialiased {{ $custom_body_class ?? '' }}">
         @if(session()->has('message'))

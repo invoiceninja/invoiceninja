@@ -168,6 +168,6 @@ class StartMigration implements ShouldQueue
 
     public function failed($exception = null)
     {
-        info(print_r($exception->getMessage(), 1));
+        nlog($exception->getMessage());
     }
 }

@@ -19,7 +19,7 @@ class TempFile
 {
     public static function path($url): string
     {
-        $temp_path = @tempnam(sys_get_temp_dir() . '/' . sha1(time()), basename($url));
+        $temp_path = @tempnam(sys_get_temp_dir() . '/' . sha1((string) time()), basename($url));
         copy($url, $temp_path);
 
         return $temp_path;

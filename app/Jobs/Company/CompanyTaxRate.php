@@ -94,7 +94,7 @@ class CompanyTaxRate implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->id)];
+        return [new WithoutOverlapping($this->company->company_key)];
     }
 
     public function failed($e)
