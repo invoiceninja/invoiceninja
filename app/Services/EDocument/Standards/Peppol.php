@@ -576,8 +576,8 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
 
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->company->owner()->email ?? 'owner@gmail.com';
-        $contact->Telephone = ;
-        $contact->Name = ;
+        $contact->Telephone = '';
+        $contact->Name = '';
 
         $party->Contact = $contact;
 
