@@ -707,4 +707,198 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
 
         return $this;
     }
+
+    public function countryLevelMutators():self
+    {
+
+        if(method_exists($this, $this->invoice->company->country()->iso_3166_2))
+            $this->{$this->invoice->company->country()->iso_3166_2}();
+
+        return $this;
+    }
+
+    private function DE(): self
+    {
+        // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
+
+        // ONE payment means MUST be set
+
+        //
+        return $this;
+    }
+
+    private function CH(): self
+    {
+        //if QR-Bill support required - then special flow required.... optional.
+
+        return $this;
+    }
+
+    private function AT(): self
+    {
+        //special fields for sending to AT:GOV
+        return $this;
+    }
+
+    private function AU(): self
+    {
+
+        //if payment means are included, they must be the same `type`
+        return $this;
+    }
+
+    private function ES(): self
+    {
+
+// For B2B, provide an ES:DIRE routing identifier and an ES:VAT tax identifier. 
+    // both sender and receiver must be an ES company;
+    // you must have a "credit_transfer" PaymentMean;
+    // the "dueDate" property is mandatory.
+
+// For B2G, provide three ES:FACE identifiers in the routing object, 
+// as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers. 
+// The invoice will then be routed through the FACe network. The three required ES:FACE identifiers are as follows:
+//   "routing": {
+//     "eIdentifiers":[
+//       {
+//         "scheme": "ES:FACE",
+//         "id": "L01234567",
+//         "role": "ES-01-FISCAL"
+//       },
+//       {
+//         "scheme": "ES:FACE",
+//         "id": "L01234567",
+//         "role": "ES-02-RECEPTOR"
+//       },
+//       {
+//         "scheme": "ES:FACE",
+//         "id": "L01234567",
+//         "role": "ES-03-PAGADOR"
+//       }
+//     ]
+//   }
+
+        return $this;
+    }
+
+    private function FI(): self
+    {
+
+        // For Finvoice, provide an FI:OPID routing identifier and an FI:OVT legal identifier. 
+        // An FI:VAT is recommended. In many cases (depending on the sender/receiver country and the type of service/goods) 
+        // an FI:VAT is required. So we recommend always including this.
+
+        return $this;
+    }
+
+    private function FR(): self
+    {
+        // When sending invoices to the French government (Chorus Pro):
+
+        // All invoices have to be routed to SIRET 0009:11000201100044. There is no test environment for sending to public entities.
+
+        // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
+
+        // The service code must be sent in invoice.buyerReference (deprecated) or the invoice.references array (documentType buyer_reference)
+
+        // The commitment number must be sent in the invoice.orderReference (deprecated) or the invoice.references array (documentType purchase_order).
+
+        // Invoices to companies (SIRET / 0009 or SIRENE / 0002) are routed directly to that identifier.
+        return $this;
+    }
+
+    private function IT(): self
+    {
+        // IT Sender, IT Receiver, B2B/B2G
+        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
+
+        // IT Sender, IT Receiver, B2C
+        // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
+
+        // IT Sender, non-IT Receiver
+        // Provide the receiver tax identifier and any routing identifier applicable to the receiving country (see Receiver Identifiers).
+
+        // non-IT Sender, IT Receiver, B2B/B2G
+        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
+
+        // non-IT Sender, IT Receiver, B2C
+        // Provide the receiver IT:CF and an optional email. The invoice will be eReported and sent via email. Note that this cannot be a PEC email address.
+
+        return $this;
+    }
+
+    private function MY(): self
+    {
+        //way too much to digest here, delayed.
+        return $this;
+    }
+
+    private function NL(): self
+    {
+
+        // When sending to public entities, the invoice.accountingSupplierParty.party.contact.email is mandatory.
+
+        // Dutch senders and receivers require a legal identifier. For companies, this is NL:KVK, for public entities this is NL:OINO.
+
+        return $this;
+    }
+
+    private function NZ(): self
+    {
+        // New Zealand uses a GLN to identify businesses. In addition, when sending invoices to a New Zealand customer, make sure you include the pseudo identifier NZ:GST as their tax identifier.
+        return $this;
+    }
+
+    private function PL(): self
+    {
+
+        // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
+
+        // "routing": {
+        //   "eIdentifiers": [
+        //     {
+        //         "scheme": "PL:VAT",
+        //         "id": "PL0101010101"
+        //     }
+        //   ],
+        //   "networks": [
+        //     {
+        //       "application": "pl-ksef",
+        //       "settings": {
+        //         "enabled": true
+        //       }
+        //     }
+        //   ]
+        // }
+        // Note this will only work if your LegalEntity has been setup for this network. 
+
+        return $this;
+    }
+
+    private function RO(): self
+    {
+    // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
+
+    // "routing": {
+    // "eIdentifiers": [
+    //     {
+    //         "scheme": "RO:VAT",
+    //         "id": "RO010101010"
+    //     }
+    // ],
+    // "networks": [
+    //     {
+    //     "application": "ro-anaf",
+    //     "settings": {
+    //         "enabled": true
+    //     }
+    //     }
+    // ]
+    // }
+    // Note this will only work if your LegalEntity has been setup for this network.
+    // The county field for a Romania address must use the ISO3166-2:RO codes, e.g. "RO-AB, RO-AR". Don’t omit the country prefix!
+    // The city field for county RO-B must be SECTOR1 - SECTOR6.
+
+        return $this;
+    }
 }
