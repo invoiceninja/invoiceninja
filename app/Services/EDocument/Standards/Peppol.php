@@ -48,6 +48,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerPart
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
+use InvoiceNinja\EInvoice\Models\Peppol\Party as PeppolParty;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentification;
 
 class Peppol extends AbstractService
@@ -185,6 +186,8 @@ class Peppol extends AbstractService
         $this->p_invoice->TaxTotal = $this->getTotalTaxes();
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
+        $this->countryLevelMutators();
+        
         // $this->p_invoice->PaymentMeans = $this->getPaymentMeans();
 
         // $payeeFinancialAccount = (new PayeeFinancialAccount())
@@ -573,6 +576,8 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
 
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->company->owner()->email ?? 'owner@gmail.com';
+        $contact->Telephone = ;
+        $contact->Name = ;
 
         $party->Contact = $contact;
 
@@ -695,6 +700,7 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
             'PaymentTerms' => 7,
         ];
 
+        //only scans for top level props
         foreach($settings as $prop => $visibility){
 
             if($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $prop))
@@ -717,9 +723,16 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         return $this;
     }
 
+    private function setDefaultAccountingSupplierParty(): self
+    {
+        $party = new PeppolParty
+    }
+
     private function DE(): self
     {
         // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
+        if(!isset($this->p_invoice->AccountingSupplierParty->Party->Contact))
+            $this->setDefaultAccountingSupplierParty();
 
         // ONE payment means MUST be set
 
@@ -899,6 +912,51 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
     // The county field for a Romania address must use the ISO3166-2:RO codes, e.g. "RO-AB, RO-AR". Don’t omit the country prefix!
     // The city field for county RO-B must be SECTOR1 - SECTOR6.
 
+        return $this;
+    }
+
+    private function SG(): self
+    {
+        //delayed  - stage 2
+        return $this;
+    }
+
+    //Sweden
+    private function SE(): self
+    {
+        // Deliver invoices to the "Svefaktura" co-operation of local Swedish service providers. 
+        // Routing is through the SE:ORGNR together with a network specification:
+
+        // "routing": {
+        //   "eIdentifiers": [
+        //     {
+        //         "scheme": "SE:ORGNR",
+        //         "id": "0012345678"
+        //     }
+        //   ],
+        //   "networks": [
+        //     {
+        //       "application": "svefaktura",
+        //       "settings": {
+        //         "enabled": true
+        //       }
+        //     }
+        //   ]
+        // }
+        // Use of the "Svefaktura" co-operation can also be induced by specifying an operator id, as follows:
+
+        // "routing": {
+        //   "eIdentifiers": [
+        //     {
+        //         "scheme": "SE:ORGNR",
+        //         "id": "0012345678"
+        //     },
+        //     {
+        //         "scheme": "SE:OPID",
+        //         "id": "1234567890"
+        //     }
+        //   ]
+        // }
         return $this;
     }
 }
