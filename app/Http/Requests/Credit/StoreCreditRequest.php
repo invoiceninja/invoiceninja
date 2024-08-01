@@ -64,6 +64,9 @@ class StoreCreditRequest extends Request
         $user = auth()->user();
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
+        
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         // $rules['number'] = new UniqueCreditNumberRule($this->all());
         $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', $user->company()->id)];

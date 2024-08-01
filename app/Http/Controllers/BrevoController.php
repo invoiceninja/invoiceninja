@@ -62,7 +62,7 @@ class BrevoController extends BaseController
     public function webhook(Request $request)
     {
         if ($request->has('token') && $request->get('token') == config('services.brevo.secret')) {
-            ProcessBrevoWebhook::dispatch($request->all())->delay(10);
+            ProcessBrevoWebhook::dispatch($request->all())->delay(rand(2, 10));
 
             return response()->json(['message' => 'Success'], 200);
         }
@@ -201,7 +201,7 @@ class BrevoController extends BaseController
                 return response()->json(['message' => 'Failed. Invalid Parameters. At least one item was invalid.'], 400);
             }
 
-            ProcessBrevoInboundWebhook::dispatch($item)->delay(10);
+            ProcessBrevoInboundWebhook::dispatch($item)->delay(rand(2, 10));
 
         }
 

@@ -61,7 +61,8 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
-        $rules['invitations.*.client_contact_id'] = 'distinct';
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
 

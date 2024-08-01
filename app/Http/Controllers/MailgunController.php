@@ -68,7 +68,7 @@ class MailgunController extends BaseController
         }
 
         if (\hash_equals(\hash_hmac('sha256', $input['signature']['timestamp'] . $input['signature']['token'], config('services.mailgun.webhook_signing_key')), $input['signature']['signature'])) {
-            ProcessMailgunWebhook::dispatch($request->all())->delay(10);
+            ProcessMailgunWebhook::dispatch($request->all())->delay(rand(2, 10));
         }
 
         return response()->json(['message' => 'Success.'], 200);
@@ -128,7 +128,7 @@ class MailgunController extends BaseController
         if (!$authorizedByHash && !$authorizedByToken)
             return response()->json(['message' => 'Unauthorized'], 403);
 
-        ProcessMailgunInboundWebhook::dispatch($input["sender"] . "|" . $input["recipient"] . "|" . $input["message-url"])->delay(10);
+        ProcessMailgunInboundWebhook::dispatch($input["sender"] . "|" . $input["recipient"] . "|" . $input["message-url"])->delay(rand(2, 10));
 
         return response()->json(['message' => 'Success.'], 200);
     }

@@ -535,16 +535,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.316.3",
+            "version": "3.316.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "e832e594b3c213760e067e15ef2739f77505e832"
+                "reference": "eeb8df6ff6caa428e8bcd631ad2a96430900a249"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e832e594b3c213760e067e15ef2739f77505e832",
-                "reference": "e832e594b3c213760e067e15ef2739f77505e832",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/eeb8df6ff6caa428e8bcd631ad2a96430900a249",
+                "reference": "eeb8df6ff6caa428e8bcd631ad2a96430900a249",
                 "shasum": ""
             },
             "require": {
@@ -624,9 +624,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.316.3"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.316.10"
             },
-            "time": "2024-07-12T18:07:23+00:00"
+            "time": "2024-07-30T18:10:20+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -4552,16 +4552,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v11.18.1",
+            "version": "v11.19.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "b19ba518c56852567e99fbae9321bc436c2cc5a8"
+                "reference": "5e103d499e9ee5bcfc184412d034c4e516b87085"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/b19ba518c56852567e99fbae9321bc436c2cc5a8",
-                "reference": "b19ba518c56852567e99fbae9321bc436c2cc5a8",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/5e103d499e9ee5bcfc184412d034c4e516b87085",
+                "reference": "5e103d499e9ee5bcfc184412d034c4e516b87085",
                 "shasum": ""
             },
             "require": {
@@ -4754,7 +4754,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2024-07-26T10:39:29+00:00"
+            "time": "2024-07-30T15:22:41+00:00"
         },
         {
             "name": "laravel/pint",
@@ -16431,16 +16431,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.60.0",
+            "version": "v3.61.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "e595e4e070d17c5d42ed8c4206f630fcc5f401a4"
+                "reference": "94a87189f55814e6cabca2d9a33b06de384a2ab8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/e595e4e070d17c5d42ed8c4206f630fcc5f401a4",
-                "reference": "e595e4e070d17c5d42ed8c4206f630fcc5f401a4",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/94a87189f55814e6cabca2d9a33b06de384a2ab8",
+                "reference": "94a87189f55814e6cabca2d9a33b06de384a2ab8",
                 "shasum": ""
             },
             "require": {
@@ -16522,7 +16522,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.60.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.61.1"
             },
             "funding": [
                 {
@@ -16530,7 +16530,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-07-25T09:26:51+00:00"
+            "time": "2024-07-31T14:33:15+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -17579,16 +17579,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.28",
+            "version": "10.5.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "ff7fb85cdf88131b83e721fb2a327b664dbed275"
+                "reference": "8e9e80872b4e8064401788ee8a32d40b4455318f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ff7fb85cdf88131b83e721fb2a327b664dbed275",
-                "reference": "ff7fb85cdf88131b83e721fb2a327b664dbed275",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8e9e80872b4e8064401788ee8a32d40b4455318f",
+                "reference": "8e9e80872b4e8064401788ee8a32d40b4455318f",
                 "shasum": ""
             },
             "require": {
@@ -17660,7 +17660,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.28"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.29"
             },
             "funding": [
                 {
@@ -17676,7 +17676,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-18T14:54:16+00:00"
+            "time": "2024-07-30T11:08:00+00:00"
         },
         {
             "name": "react/cache",
