@@ -153,7 +153,7 @@ class BrowserPay implements MethodInterface
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id)]);
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     /**
