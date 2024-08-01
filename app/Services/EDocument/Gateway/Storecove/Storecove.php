@@ -95,6 +95,48 @@ class Storecove {
         // parseStrategy: ubl
         // }
      */
+    public function sendJsonDocument($document)
+    {
+
+
+        $payload = [
+            "legalEntityId" => 290868,
+            "idempotencyGuid" => \Illuminate\Support\Str::uuid(),
+            "routing" => [
+                "eIdentifiers" => [],
+                "emails" => ["david@invoiceninja.com"]
+            ],
+            // "document" => [
+            //     'documentType' => 'invoice',
+            //     "rawDocumentData" => [
+            //         "document" => base64_encode($document),
+            //         "parse" => true,
+            //         "parseStrategy" => "ubl",
+            //     ],
+            // ],
+            "document"=> [
+                "documentType" => "invoice",
+            "invoice" => $document,
+            ],
+        ];
+        
+        $uri = "document_submissions";
+
+        nlog($payload);
+
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
+
+        nlog($r->body());
+        nlog($r->json());
+
+        if($r->successful()) {
+            return $r->json()['guid'];
+        }
+
+        return false;
+
+    }
+
     public function sendDocument($document)
     {
 
@@ -256,8 +298,6 @@ class Storecove {
 
     }
 
-
-    
     public function addIdentifier(int $legal_entity_id, string $identifier, string $scheme)
     {
         $uri = "legal_entities/{$legal_entity_id}/peppol_identifiers";
@@ -277,7 +317,6 @@ class Storecove {
         return $r;
 
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private function getHeaders(array $headers = [])
@@ -300,5 +339,4 @@ class Storecove {
         return $r;
     }
     
-
 }
