@@ -19,18 +19,19 @@ use Tests\MockAccountData;
 use App\DataMapper\InvoiceItem;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use InvoiceNinja\EInvoice\EInvoice;
 use InvoiceNinja\EInvoice\Symfony\Encode;
 use App\Services\EDocument\Standards\Peppol;
 use App\Services\EDocument\Standards\FatturaPANew;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
 use InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaElettronicaBody;
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
-use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 
 /**
  * @test
@@ -92,6 +93,12 @@ class PeppolTest extends TestCase
             'settings' => $settings,
             'e_invoice' => $einvoice,
         ]);
+        
+        $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
 
         $client_settings = ClientSettings::defaults();
         $client_settings->currency_id = '3';
@@ -206,6 +213,12 @@ class PeppolTest extends TestCase
             'e_invoice' => $einvoice,
         ]);
 
+        $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
+
         $client_settings = ClientSettings::defaults();
         $client_settings->currency_id = '3';
 
@@ -301,6 +314,13 @@ class PeppolTest extends TestCase
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
+        
+
+        $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
 
         $client_settings = ClientSettings::defaults();
         $client_settings->currency_id = '3';

@@ -565,9 +565,9 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         $party->PhysicalLocation = $address;
 
         $contact = new Contact();
-        $contact->ElectronicMail = $this->invoice->company->owner()->email ?? 'owner@gmail.com';
-        $contact->Telephone = '';
-        $contact->Name = '';
+        $contact->ElectronicMail = $this->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $this->invoice->company->owner()->present()->email();
+        $contact->Telephone = $this->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $this->invoice->company->getSetting('phone');
+        $contact->Name = $this->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $this->invoice->company->owner()->present()->name();
 
         $party->Contact = $contact;
 
@@ -693,20 +693,26 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         //only scans for top level props
         foreach($settings as $prop => $visibility){
 
-            if($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $prop))
+            if($prop_value = $this->getSetting($prop))        
                 $this->p_invoice->{$prop} = $prop_value;
-            elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $prop)) {
-                $this->p_invoice->{$prop} = $prop_value;
-            }
 
         }
 
         return $this;
     }
 
-    public function getSetting(object $e_invoice, string $property_path): mixed
+    public function getSetting(string $property_path): mixed
     {
-        return PropertyResolver::resolve($e_invoice, $property_path);
+    
+        if($prop_value = PropertyResolver::resolve($this->invoice->e_invoice, $property_path)) 
+            return $prop_value;
+        elseif($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $property_path)) 
+            return $prop_value;
+        elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $property_path)) 
+            return $prop_value;
+        
+        return null;
+
     }
 
     public function countryLevelMutators():self
