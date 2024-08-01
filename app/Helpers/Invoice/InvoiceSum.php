@@ -11,12 +11,14 @@
 
 namespace App\Helpers\Invoice;
 
+use App\Models\Client;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\Vendor;
 use App\Utils\Number;
 use App\Utils\Traits\NumberFormatter;
 use Illuminate\Support\Collection;
@@ -50,6 +52,8 @@ class InvoiceSum
 
     private $precision;
 
+    private Client | Vendor $client;
+
     public InvoiceItemSum $invoice_items;
 
     private $rappen_rounding = false;
@@ -60,18 +64,15 @@ class InvoiceSum
      */
     public function __construct($invoice)
     {
+
         $this->invoice = $invoice;
+        $this->client = $invoice->client ?? $invoice->vendor;
 
-        if ($this->invoice->client) {
-            $this->precision = $this->invoice->client->currency()->precision;
-            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
-        } else {
-            $this->precision = $this->invoice->vendor->currency()->precision;
-            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
-
-        }
+        $this->precision = $this->client->currency()->precision;
+        $this->rappen_rounding = $this->client->getSetting('enable_rappen_rounding');
 
         $this->tax_map = new Collection();
+
     }
 
     public function build()

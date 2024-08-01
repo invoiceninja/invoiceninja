@@ -1269,9 +1269,6 @@ class BaseExport
             $custom_start_date = now()->startOfYear();
             $custom_end_date = now();
         }
-
-        nlog($custom_start_date->format('Y-m-d'));
-        nlog($custom_end_date->format('Y-m-d'));
         
         switch ($date_range) {
             case 'all':
