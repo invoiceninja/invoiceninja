@@ -188,16 +188,6 @@ class Peppol extends AbstractService
 
         $this->countryLevelMutators();
         
-        // $this->p_invoice->PaymentMeans = $this->getPaymentMeans();
-
-        // $payeeFinancialAccount = (new PayeeFinancialAccount())
-        //     ->setBankId($company->settings->custom_value1)
-        //     ->setBankName($company->settings->custom_value2);
-
-        // $paymentMeans = (new PaymentMeans())
-        // ->setPaymentMeansCode($invoice->custom_value1)
-        // ->setPayeeFinancialAccount($payeeFinancialAccount);
-        // $ubl_invoice->setPaymentMeans($paymentMeans);
         return $this;
 
     }
@@ -485,7 +475,7 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             
-$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -724,6 +714,26 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
 
         if(method_exists($this, $this->invoice->company->country()->iso_3166_2))
             $this->{$this->invoice->company->country()->iso_3166_2}();
+
+        return $this;
+    }
+
+    private function setPaymentMeans(): self
+    {
+        $paymentMeans = new PaymentMeans();
+
+//  = $this->getPaymentMeans();
+
+// $payeeFinancialAccount = (new PayeeFinancialAccount())
+//     ->setBankId($company->settings->custom_value1)
+//     ->setBankName($company->settings->custom_value2);
+
+// $paymentMeans = (new PaymentMeans())
+// ->setPaymentMeansCode($invoice->custom_value1)
+// ->setPayeeFinancialAccount($payeeFinancialAccount);
+// $ubl_invoice->setPaymentMeans($paymentMeans);
+
+        $this->p_invoice->PaymentMeans = $paymentMeans;
 
         return $this;
     }
