@@ -1,27 +1,27 @@
 <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
                 <h3 class="text-lg font-medium leading-6 text-gray-900">
-                   Account Information
+                   {{ ctrans('texts.add_bank_account') }}
                 </h3>
 
                 <p class="max-w-2xl mt-1 text-sm leading-5 text-gray-500">
-                    Enter the information for the bank account 
+                     {{ ctrans('texts.enter_the_information_for_the_bank_account') }} 
                 </p>
             </div>
             <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">
         <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-            Bank Name
+            {{ ctrans('texts.bank_name') }}
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input class="input w-full" id="bank_name" name="bank_name" type="text" placeholder="Bank Name" required value="{{ old('bank_name', $bank_name) }}">
+            <input class="input w-full" id="bank_name" name="bank_name" type="text" placeholder="{{ ctrans('texts.bank_name') }}" required value="{{ old('bank_name', $bank_name) }}">
         </dd>
     </div>
 
     <div class="px-4 py-2 sm:px-6 lg:grid lg:grid-cols-3 lg:gap-4 lg:flex lg:items-center">
         <dt class="text-sm leading-5 font-medium text-gray-500 mr-4">
-            Account Number
+             {{ ctrans('texts.account_number') }}
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input class="input w-full" id="account_number" name="account_number" type="text" placeholder="Account Number" required value="{{ old('account_number', $account_number) }}">
+            <input class="input w-full" id="account_number" name="account_number" type="text" placeholder="{{ ctrans('texts.account_number') }}" required value="{{ old('account_number', $account_number) }}">
         </dd>
     </div>
 

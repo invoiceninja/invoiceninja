@@ -43,6 +43,6 @@ class AddressComponent extends Component
     
     public function render()
     {
-        return render('gateways.rotessa.components.address',array_merge(  $this->defaults, $this->attributes->getAttributes() ) );
+        return render('gateways.rotessa.components.address',   $this->attributes->getAttributes() + $this->defaults );
     }
 }

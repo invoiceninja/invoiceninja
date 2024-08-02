@@ -15,11 +15,12 @@ class ContactComponent extends Component
 {
 
     public function __construct(ClientContact $contact) {
+        
         $contact = collect($contact->client->contacts->firstWhere('is_primary', 1)->toArray())->merge([
             'home_phone' =>$contact->client->phone, 
             'custom_identifier' => $contact->client->number,
             'name' =>$contact->client->name,
-            'id' => null
+            'id' => $contact->client->contact_key,
         ] )->all();
         
         $this->attributes = $this->newAttributeBag(Arr::only($contact, $this->fields) );
@@ -37,12 +38,13 @@ class ContactComponent extends Component
 
     private $defaults = [
         'customer_type' => "Business",
-        'customer_identifier' => null,
-        'id' => null
+        'custom_identifier' => null,
+        'customer_id' => null
     ];
 
     public function render()
     {
-        return render('gateways.rotessa.components.contact', array_merge($this->defaults, $this->attributes->getAttributes() ) );
+        \Debugbar::debug($this->attributes->getAttributes() + $this->defaults);
+        return render('gateways.rotessa.components.contact', $this->attributes->getAttributes() + $this->defaults );
     }
 }

@@ -38,6 +38,9 @@ jobs:
           sudo php artisan cache:clear
           sudo find ./vendor/bin/ -type f -exec chmod +x {} \;
           sudo find ./ -type d -exec chmod 755 {} \;
+      - name: Set current date to variable
+        id: set_date
+        run: echo "current_date=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Prepare React FrontEnd
         run: |
@@ -46,10 +49,11 @@ jobs:
           git checkout develop
           cp .env.example .env
           cp ../vite.config.ts.react ./vite.config.js
+          sed -i '/"version"/c\  "version": " Latest Build - ${{ env.current_date }}",' package.json
           npm i
           npm run build
           cp -r dist/* ../public/
-          mv dist/index.html ../resources/views/react/index.blade.php
+          mv ../public/index.html ../resources/views/react/index.blade.php
           
       - name: Prepare JS/CSS assets
         run: |

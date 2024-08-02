@@ -4,7 +4,6 @@
 @push('head')
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
-    <meta name="show-required-fields-form" content="{{ auth()->guard('contact')->user()->showRff() }}" />
     @include('portal.ninja2020.components.no-cache')
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
@@ -47,6 +46,8 @@
             <input type="hidden" name="contact_first_name" value="{{ auth()->guard('contact')->user()->first_name }}">
             <input type="hidden" name="contact_last_name" value="{{ auth()->guard('contact')->user()->last_name }}">
             <input type="hidden" name="contact_email" value="{{ auth()->guard('contact')->user()->email }}">
+            <input type="hidden" name="client_city" value="{{ auth()->guard('contact')->user()->client->city }}">
+            <input type="hidden" name="client_postal_code" value="{{ auth()->guard('contact')->user()->client->postal_code }}">
 
             <div class="bg-white shadow sm:rounded-lg mb-4" translate>
                 <div class="px-4 py-5 sm:p-6">

@@ -21,6 +21,11 @@
                     <input type="hidden" name="action" value="payment">
                     <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}"/>
                     <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}"/>
+                    <input type="hidden" name="contact_first_name" value="{{ $contact ? $contact->first_name : '' }}">
+                    <input type="hidden" name="contact_last_name" value="{{ $contact ? $contact->last_name : '' }}">
+                    <input type="hidden" name="contact_email" value="{{ $contact ? $contact->email : '' }}">
+                    <input type="hidden" name="client_city" value="{{ $contact ? $contact->client->city : '' }}">
+                    <input type="hidden" name="client_postal_code" value="{{ $contact ? $contact->client->postal_code : '' }}">
                 </form>
             </div>
 
@@ -313,12 +318,67 @@
                             {{ ctrans('texts.trial_call_to_action') }}
                             </button>
                             </form>
+
+                        @elseif(count($methods) > 0 && $check_rff)
+
+                            @if($errors->any())
+                            <div class="w-full mx-auto text-center bg-red-100 border border-red-400 text-red-700 px-4 py-1 rounded">
+                                @foreach($errors->all() as $error)
+                                <p class="w-full">{{ $error }}</p>
+                                @endforeach
+                            </div>
+                            @endif
+                            <form wire:submit="handleRff">
+                                @csrf
+
+                            @if(strlen($contact->first_name ?? '') === 0)
+                            <div class="col-auto mt-3 flex items-center space-x-0 @if($contact->first_name) !== 0) hidden @endif">
+                                <label for="first_name" class="w-1/4 text-sm font-medium text-white whitespace-nowrap text-left">{{ ctrans('texts.first_name') }}</label>
+                                <input id="first_name" class="w-3/4 rounded-md border-gray-300 pl-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" wire:model="contact_first_name" />
+                            </div>
+                            @endif
+
+                            @if(strlen($contact->last_name ?? '') === 0)
+                            <div class="col-auto mt-3 flex items-center space-x-0 @if($contact->last_name) !== 0) hidden @endif">
+                                <label for="last_name" class="w-1/4 text-sm font-medium text-white whitespace-nowrap  text-left">{{ ctrans('texts.last_name') }}</label>
+                                <input id="last_name" class="w-3/4 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" wire:model="contact_last_name" />
+                            </div>
+                            @endif
+
+                            @if(strlen($contact->email ?? '') === 0)
+                            <div class="col-auto mt-3 flex items-center space-x-0 @if($contact->email) !== 0) hidden @endif">
+                                <label for="email" class="w-1/4 text-sm font-medium text-white whitespace-nowrap  text-left">{{ ctrans('texts.email') }}</label>
+                                <input id="email" class="w-3/4 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" wire:model="contact_email" />
+                            </div>
+                            @endif
+
+                            @if(strlen($client_postal_code ?? '') === 0)
+                            <div class="col-auto mt-3 flex items-center space-x-0 @if($client_postal_code) !== 0) hidden @endif">
+                                <label for="postal_code" class="w-1/4 text-sm font-medium text-white whitespace-nowrap  text-left">{{ ctrans('texts.postal_code') }}</label>
+                                <input id="postal_code" class="w-3/4 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" wire:model="client_postal_code" />
+                            </div>
+                            @endif
+
+                            @if(strlen($client_city ?? '') === 0)
+                            <div class="col-auto mt-3 flex items-center space-x-0 @if($client_city) !== 0) hidden @endif">
+                                <label for="city" class="w-1/4 text-sm font-medium text-white whitespace-nowrap text-left">{{ ctrans('texts.city') }}</label>
+                                <input id="city" class="w-3/4 rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-700" wire:model="client_city" />
+                            </div>
+                            @endif
+
+                                <button 
+                                    type="submit"
+                                    class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 mt-4">
+                                    {{ ctrans('texts.next') }}
+                                </button>
+                            </form>
+
                         @elseif(count($methods) > 0)
                         <div class="mt-4" x-show.important="!toggle" x-transition>
                             @foreach($methods as $method)
                                 <button
                                     x-on:click="buttonDisabled = true" x-bind:disabled="buttonDisabled"
-                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}')"
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}',  '{{ $method['is_paypal'] }}')"
                                     class="relative -ml-px inline-flex items-center space-x-2 rounded border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                     {{ $method['label'] }}
                                 </button>

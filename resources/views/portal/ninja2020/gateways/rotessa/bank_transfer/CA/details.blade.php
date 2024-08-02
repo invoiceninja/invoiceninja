@@ -1,4 +1,4 @@
-<dd> Gateway: </dd>
+<dd> {{ ctrans('texts.gateway') }}: </dd>
 <dt>{{ $brand }}</dt>
-<dd> Account Number: </dd>
+<dd> {{ ctrans('texts.account_number') }}: </dd>
 <dt>{{ $account_number }}</dt>

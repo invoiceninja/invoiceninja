@@ -60,7 +60,10 @@ class PaymentMethod implements MethodInterface
             'id' => null
         ] )->all();
         $data['gateway'] = $this->rotessa;
-        $data['gateway_type_id'] =  $data['client']->country->iso_3166_2 == 'US' ?  GatewayType::BANK_TRANSFER : (  $data['client']->country->iso_3166_2 == 'CA' ? GatewayType::ACSS : (int) request('method'));
+        // Set gateway type according to client country
+        // $data['gateway_type_id'] =  $data['client']->country->iso_3166_2 == 'US' ?  GatewayType::BANK_TRANSFER : (  $data['client']->country->iso_3166_2 == 'CA' ? GatewayType::ACSS : (int) request('method'));
+        // TODO: detect GatewayType based on client country USA vs CAN
+        $data['gateway_type_id'] =   GatewayType::ACSS ;
         $data['account'] = [
             'routing_number' => $data['client']->routing_id,
             'country' => $data['client']->country->iso_3166_2
@@ -145,18 +148,16 @@ class PaymentMethod implements MethodInterface
             $request->validate([
                 'source' => ['required','string','exists:client_gateway_tokens,token'],
                 'amount' => ['required','numeric'],
-                'token_id' => ['required','integer','exists:client_gateway_tokens,id'],
                 'process_date'=> ['required','date','after_or_equal:today'],
             ]);
             $customer = ClientGatewayToken::query()
                 ->where('company_gateway_id', $this->rotessa->company_gateway->id)
                 ->where('client_id', $this->rotessa->client->id)
-                ->where('id', (int) $request->input('token_id'))
                 ->where('token', $request->input('source'))
                 ->first();
-            if(!$customer) throw new \Exception('Client gateway token not found!', 605);
+            if(!$customer) throw new \Exception('Client gateway token not found!',  SystemLog::TYPE_ROTESSA);
 
-            $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date','comment'));
+            $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date') + ['comment' => $this->rotessa->getDescription(false) ]);
             $transaction->additional(['customer_id' => $customer->gateway_customer_reference]);
             $transaction = array_filter( $transaction->resolve());
             $response = $this->rotessa->gateway->capture($transaction)->send();
@@ -182,12 +183,12 @@ class PaymentMethod implements MethodInterface
             [ 'data' => $data ],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
-            880,
+            SystemLog::TYPE_ROTESSA,
             $this->rotessa->client,
             $this->rotessa->client->company,
         );
 
-        return redirect()->route('client.payments.show', [ 'payment' => $this->rotessa->encodePrimaryKey($payment->id) ]);
+        return redirect()->route('client.payments.show', [ 'payment' => $payment->hashed_id ]);
     }
 
     /**
@@ -205,7 +206,7 @@ class PaymentMethod implements MethodInterface
             $exception->getMessage(),
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
-            880,
+            SystemLog::TYPE_ROTESSA,
             $this->rotessa->client,
             $this->rotessa->client->company,
         );

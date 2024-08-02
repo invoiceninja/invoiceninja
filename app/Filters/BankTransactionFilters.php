@@ -155,11 +155,13 @@ class BankTransactionFilters extends QueryFilters
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if ($sort_col[0] == 'deposit') {
-            return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $dir);
+            return $this->builder->orderByRaw("(CASE WHEN base_type = 'CREDIT' THEN amount END) $dir")->orderBy('amount', $dir);
+            // return $this->builder->where('base_type', 'CREDIT')->orderBy('amount', $dir);
         }
 
         if ($sort_col[0] == 'withdrawal') {
-            return $this->builder->where('base_type', 'DEBIT')->orderBy('amount', $dir);
+            return $this->builder->orderByRaw("(CASE WHEN base_type = 'DEBIT' THEN amount END) $dir")->orderBy('amount', $dir);
+            // return $this->builder->where('base_type', 'DEBIT')->orderBy('amount', $dir);
         }
 
         if ($sort_col[0] == 'status') {

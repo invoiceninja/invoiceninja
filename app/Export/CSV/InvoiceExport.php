@@ -153,9 +153,9 @@ class InvoiceExport extends BaseExport
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
 
-        // if (in_array('invoice.status', $this->input['report_keys'])) {
-        //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        // }
+        if (in_array('invoice.project', $this->input['report_keys'])) {
+            $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';
+        }
 
         if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
             $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';

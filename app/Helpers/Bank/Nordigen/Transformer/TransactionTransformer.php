@@ -171,7 +171,7 @@ class TransactionTransformer implements BankRevenueInterface
     private function formatDate(string $input)
     {
         $timezone = Timezone::find($this->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
