@@ -72,9 +72,9 @@ class Client extends HttpClient
             $response = $this->httpClient->sendRequest( $this->requestFactory->createRequest($method, $uri, $headers, $body, $protocolVersion));
             else $response = $this->httpClient->request($method, $uri, compact('body','headers'));
         } catch (\Http\Client\Exception\NetworkException $networkException) {
-            throw new NetworkException($networkException->getMessage(), $request, $networkException);
+            throw new \Exception($networkException->getMessage());
         } catch (\Exception $exception) {
-            throw new RequestException($exception->getMessage(), $request, $exception);
+            throw new \Exception($exception->getMessage());
         }
 
         return $response;

@@ -15,7 +15,6 @@ use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
-use App\Jobs\Cron\UpdateCalculatedFields;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
@@ -67,9 +66,6 @@ class Kernel extends ConsoleKernel
 
         /* Stale Invoice Cleanup*/
         $schedule->job(new CleanStaleInvoiceOrder())->hourlyAt(30)->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
-
-        /* Stale Invoice Cleanup*/
-        $schedule->job(new UpdateCalculatedFields())->hourlyAt(40)->withoutOverlapping()->name('update-calculated-fields-job')->onOneServer();
 
         /* Checks for large companies and marked them as is_large */
         $schedule->job(new CompanySizeCheck())->dailyAt('23:20')->withoutOverlapping()->name('company-size-job')->onOneServer();
