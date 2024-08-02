@@ -108,7 +108,7 @@ class PaymentMethod implements MethodInterface
             return $this->rotessa->processInternallyFailedPayment($this->rotessa, new ClientPortalAuthorizationException( get_class( $e) . " :  {$e->getMessage()}", (int)  $e->getCode() ));
         }
 
-        return back()->withMessage(ctrans('texts.unable_to_verify_payment_method'));
+        // return back()->withMessage(ctrans('texts.unable_to_verify_payment_method'));
     }
 
     /**
@@ -134,7 +134,6 @@ class PaymentMethod implements MethodInterface
      * Handle payments page for Rotessa.
      *
      * @param PaymentResponseRequest $request
-     * @return void
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
