@@ -157,10 +157,6 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
     }
 
-
-
-    
-
     public function createOrder(array $data): string
     {
 
@@ -173,13 +169,6 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         })->implode("\n");
 
         $order = [
-                "payer" => [
-                    "name" => [
-                    "given_name" => $this->client->present()->first_name(),
-                    "surname" => $this->client->present()->last_name()
-                    ],
-                    "email_address" => $this->client->present()->email(),
-                ],
                 "intent" => "CAPTURE",
                 "payment_source" => $this->getPaymentSource(),
                 "purchase_units" => [
@@ -218,6 +207,10 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         if(isset($data['payment_source'])) {
             $order['payment_source'] = $data['payment_source'];
+        }
+
+        if(isset($data["payer"])){
+            $order['payer'] = $data["payer"];
         }
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
@@ -281,6 +274,13 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         nlog($r->body());
 
+        $data["payer"] = [
+                    "name" => [
+                        "given_name" => $this->client->present()->first_name(),
+                        "surname" => $this->client->present()->last_name()
+                    ],
+                    "email_address" => $this->client->present()->email(),
+                ];
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
             "card" => [
@@ -355,6 +355,14 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
     {
         $data = [];
         $this->payment_hash = $payment_hash;
+
+        $data['payer'] = [
+                    "name" => [
+                        "given_name" => $this->client->present()->first_name(),
+                        "surname" => $this->client->present()->last_name()
+                    ],
+                    "email_address" => $this->client->present()->email(),
+                ];
 
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
