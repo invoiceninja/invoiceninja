@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use \Closure;
 use App\Utils\Ninja;
+use App\Models\Company;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
 use App\Jobs\Import\QuickbooksIngest;
+use Illuminate\Support\Facades\Validator;
 use App\Services\Import\Quickbooks\Service as QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
@@ -23,21 +26,104 @@ class ImportQuickbooksController extends BaseController
 
     public function __construct(QuickbooksService $service) {
         parent::__construct();
-        
+
         $this->service = $service;
-    }
+        $this->middleware(
+            function (Request $request, Closure $next) {
+               
+                // Check for the required query parameters
+                if (!$request->has(['code', 'state', 'realmId'])) {
+                    return abort(400,'Unauthorized');
+                }
+
+                $rules = [
+                    'state' => [
+                        'required',
+                        'valid' => function ($attribute, $value, $fail) {
+                            if (!Cache::has($value)) {
+                                $fail('The state is invalid.');
+                            }
+                        },
+                    ]
+                ];
+                // Custom error messages
+                $messages = [
+                    'state.required' => 'The state is required.',
+                    'state.valid' => 'state token not valid'
+                ];
+                // Perform the validation
+                $validator = Validator::make($request->all(), $rules, $messages);
+                if ($validator->fails()) {
+                    // If validation fails, redirect back with errors and input
+                    return redirect('/')
+                        ->withErrors($validator)
+                        ->withInput();
+                }
+
+                $token = Cache::pull($request->state);
+                $request->merge(['company' => Cache::get($token) ]);
+
+                return $next($request);
+            }
+        )->only('onAuthorized');
+        $this->middleware(
+            function ( Request $request, Closure $next) {
+                $rules = [
+                    'token' => [
+                        'required',
+                        'valid' => function ($attribute, $value, $fail) {
+                            if (!Cache::has($value) || (!Company::where('company_key', (Cache::get($value))['company_key'])->exists() )) {
+                                $fail('The company is invalid.');
+                            }
+                        },
+                    ]
+                ];
+                // Custom error messages
+                $messages = [
+                    'token.required' => 'The token is required.',
+                    'token.valid' => 'Token note valid!'
+                ];
+                // Perform the validation
+                $validator = Validator::make(['token' => $request->token ], $rules, $messages);
+                if ($validator->fails()) {
+                    // If validation fails, redirect back with errors and input
+                    return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+                }
+
+                //If validation passes, proceed to the next middleware/controller
+                return $next($request);
+            }
+        )->only('authorizeQuickbooks');
+    }  
+
+    public function onAuthorized(Request $request) {
+
+        $realmId = $request->query('realmId');
+        $tokens = $this->service->getOAuth()->accessToken($request->query('code'), $realmId);
+        $company = $request->input('company');
+        Cache::put($company['company_key'], $tokens['access_token'], $tokens['access_token_expires']);
+        // TODO: save refresh token and realmId in company DB
+
+        return response(200);
+    } 
 
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize($ability, $arguments = []): bool
+    public function authorizeQuickbooks(Request $request)
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $token = $request->token;
+        $auth = $this->service->getOAuth();
+        $authorizationUrl = $auth->getAuthorizationUrl();
+        $state = $auth->getState();
 
-        return $user->isAdmin() ; 
+        Cache::put($state, $token, 90);
+
+        return redirect()->to($authorizationUrl);
     }
 
     public function preimport(Request $request)
@@ -52,7 +138,7 @@ class ImportQuickbooksController extends BaseController
         ];
         $this->getData($data);
 
-        return response()->json(['message' => 'Data cached for import'] + $data, 200);
+        return $data;
     }
 
     protected function getData($data) {
@@ -96,6 +182,7 @@ class ImportQuickbooksController extends BaseController
      */
     public function import(Request $request)
     {
+        $this->preimport($request);
         /** @var \App\Models\User $user */
         $user = auth()->user();
         if (Ninja::isHosted()) {
