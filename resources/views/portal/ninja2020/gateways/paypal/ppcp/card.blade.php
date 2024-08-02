@@ -14,10 +14,12 @@
     
 @endphp
 @section('gateway_head')
-    <!-- <meta http-equiv="Content-Security-Policy" content="
-        img-src 'self' https://c.paypal.com https://b.stats.paypal.com; 
-        frame-src 'self' https://c.paypal.com; 
-        script-src 'self' https://c.paypal.com;"> -->
+    <meta http-equiv="Content-Security-Policy" content="
+        frame-src 'self' https://c.paypal.com https://www.sandbox.paypal.com https://www.paypal.com; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://c.paypal.com https://www.paypalobjects.com https://www.paypal.com https://www.sandbox.paypal.com/;
+        img-src * data: 'self'; 
+        style-src 'self' 'unsafe-inline';"
+        >
 @endsection
 
 @section('gateway_content')
@@ -86,7 +88,7 @@
     }
 </script>
 
-<!-- <script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script> -->
+<script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
 
 @if(isset($merchantId))
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&merchant-id={!! $merchantId !!}&components=card-fields" data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
@@ -185,8 +187,8 @@
   // Render each field after checking for eligibility
   if (cardField.isEligible()) {
       
-       const nameField = cardField.NameField();
-       nameField.render("#card-name-field-container");
+      // const nameField = cardField.NameField();
+     //  nameField.render("#card-name-field-container");
 
       const numberField = cardField.NumberField({
         inputEvents: {

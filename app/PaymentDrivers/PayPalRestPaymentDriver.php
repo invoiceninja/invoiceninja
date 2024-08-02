@@ -173,6 +173,13 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         })->implode("\n");
 
         $order = [
+                "payer" => [
+                    "name" => [
+                    "given_name" => $this->client->present()->first_name(),
+                    "surname" => $this->client->present()->last_name()
+                    ],
+                    "email_address" => $this->client->present()->email(),
+                ],
                 "intent" => "CAPTURE",
                 "payment_source" => $this->getPaymentSource(),
                 "purchase_units" => [
