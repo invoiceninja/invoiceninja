@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use QuickBooksOnline\API\DataService\DataService;
+use App\Http\Controllers\ImportQuickbooksController;
 use App\Services\Import\Quickbooks\Service as QuickbooksService;
 use App\Services\Import\Quickbooks\Auth as QuickbooksAuthService;
 use App\Repositories\Import\Quickcbooks\Contracts\RepositoryInterface;
@@ -20,9 +24,10 @@ class QuickbooksServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(QuickbooksInterface::class, function ($app) {
-            // TODO: Possibly load tokens from Cache or DB?
-            $sdk = DataService::Configure(config('services.quickbooks.settings'));
+
+        $this->app->bind(QuickbooksInterface::class, function ($app) {
+           // TODO: Load tokens from Cache and DB?
+            $sdk = DataService::Configure(config('services.quickbooks.settings') + ['state' => Str::random(12)]);
             if(env('APP_DEBUG')) {
                 $sdk->setLogLocation(storage_path("logs/quickbooks.log"));
                 $sdk->enableLog();
@@ -52,6 +57,7 @@ class QuickbooksServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->registerRoutes();
         $this->registerConfig();
     }
 
@@ -61,12 +67,36 @@ class QuickbooksServiceProvider extends ServiceProvider
                     'auth_mode' => 'oauth2',
                     'ClientID' => env('QUICKBOOKS_CLIENT_ID', false),
                     'ClientSecret' => env('QUICKBOOKS_CLIENT_SECRET', false),
-                    'RedirectURI' => env('QUICKBOOKS_REDIRECT_URL', env('APP_URL')),
+                    // TODO use env('QUICKBOOKS_REDIRECT_URI') or route()/ url()
+                    'RedirectURI' => url("/quickbooks/authorized"),
                     'scope' => "com.intuit.quickbooks.accounting",
                     'baseUrl' => ucfirst(env('APP_ENV'))
                ],
                'debug' => env('APP_DEBUG') || env('APP_ENV')
                ]
         );
+    }
+
+    /**
+     * Register custom routes.
+     *
+     * @return void
+     */
+    protected function registerRoutes()
+    {
+        Route::middleware('web')
+            ->namespace($this->app->getNamespace() . 'Http\Controllers')
+            ->group(function () {
+                
+                Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('authorize.quickbooks');
+                Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('authorized.quickbooks');
+            });
+
+        Route::middleware('api')
+            ->namespace($this->app->getNamespace() . 'Http\Controllers')
+            ->group(function () {
+                Route::post('import/quickbooks', [ImportQuickbooksController::class, 'import'])->name('import.quickbooks');
+                //Route::post('import/quickbooks/preimport', [ImportQuickbooksController::class, 'preimport'])->name('import.quickbooks.preimport');
+            });
     }
 }
