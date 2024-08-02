@@ -151,14 +151,36 @@ class Peppol extends AbstractService
 
     private InvoiceSum | InvoiceSumInclusive $calc;
 
+    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
     /**
     * @param Invoice $invoice
     */
-    public function __construct(public Invoice $invoice, public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice = null)
+    public function __construct(public Invoice $invoice)
     {
-        $this->p_invoice = $p_invoice ?? new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
+        $this->setInvoice();
+    }
+
+    private function setInvoice(): self
+    {
+
+        
+        if($this->invoice->e_invoice){
+
+            
+            $e = new EInvoice();
+            $this->p_invoice = $e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
+
+            return $this;
+
+        }
+
+        $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+        $this->setInvoiceDefaults();
+
+        return $this;
     }
 
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
@@ -171,7 +193,31 @@ class Peppol extends AbstractService
     public function toXml(): string
     {
         $e = new EInvoice();
-        return $e->encode($this->p_invoice, 'xml');
+        $xml = $e->encode($this->p_invoice, 'xml');
+
+        $prefix = '<?xml version="1.0" encoding="utf-8"?>
+    <Invoice
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">';
+
+        return str_ireplace(['\n','<?xml version="1.0"?>'], ['', $prefix], $xml);
+
+    }
+
+    public function toJson(): string
+    {
+        $e = new EInvoice();
+        $json =  $e->encode($this->p_invoice, 'json');
+
+        return $json;
+        // $prefixes =  str_ireplace(["cac:","cbc:"], "", $json);
+        // return str_ireplace(["InvoiceLine", "PostalAddress", "PartyName"], ["invoiceLines","address", "companyName"], $prefixes);
+    }
+
+    public function toArray(): array
+    {
+        return json_decode($this->toJson(), true);
     }
 
     public function run()
@@ -188,30 +234,9 @@ class Peppol extends AbstractService
 
         $this->countryLevelMutators();
         
-        // $this->p_invoice->PaymentMeans = $this->getPaymentMeans();
-
-        // $payeeFinancialAccount = (new PayeeFinancialAccount())
-        //     ->setBankId($company->settings->custom_value1)
-        //     ->setBankName($company->settings->custom_value2);
-
-        // $paymentMeans = (new PaymentMeans())
-        // ->setPaymentMeansCode($invoice->custom_value1)
-        // ->setPayeeFinancialAccount($payeeFinancialAccount);
-        // $ubl_invoice->setPaymentMeans($paymentMeans);
         return $this;
 
     }
-
-    // private function getPaymentMeans(): PaymentMeans
-    // {
-        // $payeeFinancialAccount = new PayeeFinancialAccount()
-        // $payeeFinancialAccount->
-
-        // $ppm = new PaymentMeans();
-        // $ppm->PayeeFinancialAccount = $payeeFinancialAccount;
-
-        // return $ppm;
-    // }
 
     private function getLegalMonetaryTotal(): LegalMonetaryTotal
     {
@@ -485,7 +510,7 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             
-$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -519,7 +544,7 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
 
-$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate3, $item->line_total) : $this->calcAmountLineTax($item->tax_rate3, $item->line_total);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate3, $item->line_total) : $this->calcAmountLineTax($item->tax_rate3, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -575,9 +600,9 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         $party->PhysicalLocation = $address;
 
         $contact = new Contact();
-        $contact->ElectronicMail = $this->invoice->company->owner()->email ?? 'owner@gmail.com';
-        $contact->Telephone = '';
-        $contact->Name = '';
+        $contact->ElectronicMail = $this->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $this->invoice->company->owner()->present()->email();
+        $contact->Telephone = $this->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $this->invoice->company->getSetting('phone');
+        $contact->Name = $this->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $this->invoice->company->owner()->present()->name();
 
         $party->Contact = $contact;
 
@@ -703,20 +728,26 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         //only scans for top level props
         foreach($settings as $prop => $visibility){
 
-            if($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $prop))
+            if($prop_value = $this->getSetting($prop))        
                 $this->p_invoice->{$prop} = $prop_value;
-            elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $prop)) {
-                $this->p_invoice->{$prop} = $prop_value;
-            }
 
         }
 
         return $this;
     }
 
-    public function getSetting(object $e_invoice, string $property_path): mixed
+    public function getSetting(string $property_path): mixed
     {
-        return PropertyResolver::resolve($e_invoice, $property_path);
+    
+        if($prop_value = PropertyResolver::resolve($this->invoice->e_invoice, $property_path)) 
+            return $prop_value;
+        elseif($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $property_path)) 
+            return $prop_value;
+        elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $property_path)) 
+            return $prop_value;
+        
+        return null;
+
     }
 
     public function countryLevelMutators():self
@@ -728,14 +759,29 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         return $this;
     }
 
+    private function setPaymentMeans(bool $required = false): self
+    {
+       
+        if($this->p_invoice->PaymentMeans)
+            return $this;
+        elseif(!isset($this->p_invoice->PaymentMeans) && $paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
+            $this->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
+            return $this;
+        }
+
+        if($required)
+            throw new \Exception('e-invoice generation halted:: Payment Means required');
+
+        return $this;
+    }
+
     private function DE(): self
     {
         // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
         // this is forced by default.
+        
+        $this->setPaymentMeans(true);
 
-        // ONE payment means MUST be set
-
-        //
         return $this;
     }
 
@@ -762,7 +808,7 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
     private function ES(): self
     {
 
-// For B2B, provide an ES:DIRE routing identifier and an ES:VAT tax identifier. 
+    // For B2B, provide an ES:DIRE routing identifier and an ES:VAT tax identifier. 
     // both sender and receiver must be an ES company;
     // you must have a "credit_transfer" PaymentMean;
     // the "dueDate" property is mandatory.

@@ -1258,7 +1258,7 @@ class BaseExport
 
         $date_range = $this->input['date_range'];
 
-        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key'] ?? '') > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
             $this->date_key = $this->input['date_key'];
         }
 
@@ -1269,7 +1269,7 @@ class BaseExport
             $custom_start_date = now()->startOfYear();
             $custom_end_date = now();
         }
-
+        
         switch ($date_range) {
             case 'all':
                 $this->start_date = 'All available data';

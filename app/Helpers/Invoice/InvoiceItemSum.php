@@ -15,6 +15,7 @@ use App\Models\Quote;
 use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Vendor;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\RecurringQuote;
@@ -121,7 +122,7 @@ class InvoiceItemSum
 
     private $tax_collection;
 
-    private ?Client $client;
+    private Client | Vendor $client;
 
     private bool $calc_tax = false;
 
@@ -132,10 +133,10 @@ class InvoiceItemSum
         $this->tax_collection = collect([]);
 
         $this->invoice = $invoice;
+        $this->client = $invoice->client ?? $invoice->vendor;
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
-            $this->client = $this->invoice->client;
             $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
