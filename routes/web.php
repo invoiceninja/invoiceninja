@@ -38,7 +38,6 @@ Route::middleware('url_db')->group(function () {
     Route::post('/user/confirm/{confirmation_code}', [UserController::class, 'confirmWithPassword']);
 });
 
-Route::post('import/quickbooks/authorize', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('import.auth.quickbooks');
 Route::get('stripe/signup/{token}', [StripeConnectController::class, 'initialize'])->name('stripe_connect.initialization');
 Route::get('stripe/completed', [StripeConnectController::class, 'completed'])->name('stripe_connect.return');
 

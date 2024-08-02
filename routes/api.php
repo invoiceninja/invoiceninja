@@ -245,8 +245,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('import_json', [ImportJsonController::class, 'import'])->name('import.import_json');
     Route::post('preimport', [ImportController::class, 'preimport'])->name('import.preimport');
     ;
-    Route::post('import/quickbooks', [ImportQuickbooksController::class, 'import'])->name('import.quickbooks');
-    Route::post('import/quickbooks/preimport', [ImportQuickbooksController::class, 'preimport'])->name('import.quickbooks.preimport');
     Route::resource('invoices', InvoiceController::class); // name = (invoices. index / create / show / update / destroy / edit
     Route::get('invoices/{invoice}/delivery_note', [InvoiceController::class, 'deliveryNote'])->name('invoices.delivery_note');
     Route::get('invoices/{invoice}/{action}', [InvoiceController::class, 'action'])->name('invoices.action');
