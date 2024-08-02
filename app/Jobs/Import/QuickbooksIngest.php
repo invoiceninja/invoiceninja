@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Jobs\Import;
+
+use App\Libraries\MultiDB;
+use Illuminate\Bus\Queueable;
+use App\Import\Providers\Quickbooks;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+
+class QuickbooksIngest implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $engine;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(array $request, $company)
+    {
+        $this->company = $company;
+        $this->request = $request;
+    }
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        MultiDB::setDb($this->company->db);
+        set_time_limit(0);
+        $engine = new Quickbooks($this->request, $this->company);
+        foreach (['client', 'product', 'invoice', 'payment'] as $entity) {
+            $engine->import($entity);
+        }
+
+        $engine->finalizeImport();
+    }
+}
