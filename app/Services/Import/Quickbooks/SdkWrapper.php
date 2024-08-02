@@ -21,7 +21,11 @@ final class SdkWrapper implements QuickbooksInterface
     public function getAuthorizationUrl() : string 
     {
         return ($this->sdk->getOAuth2LoginHelper())->getAuthorizationCodeURL();
+    }
 
+    public function getState() : string
+    {
+        return ($this->sdk->getOAuth2LoginHelper())->getState();
     }
 
     public function getAccessToken() : array
@@ -30,7 +34,7 @@ final class SdkWrapper implements QuickbooksInterface
     }
 
     public function getRefreshToken(): array{
-        return $this->gettokens();
+        return $this->getTokens();
     }
 
     public function accessToken(string $code, string $realm) : array 
