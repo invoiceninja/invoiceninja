@@ -5298,7 +5298,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'latest_requires_php_version' => 'Note: La dernière version requiert PHP :version',
     'auto_expand_product_table_notes' => 'Développer automatiquement les notes du tableau de produits',
     'auto_expand_product_table_notes_help' => ' 
-Développe automatiquement la section des notes dans le tableau de produits pour afficher plus de lignes.',
+Développe automatiquement la section des notes dans le tableau de produits pour afficher plus de lignes.'
 );
 
 return $lang;

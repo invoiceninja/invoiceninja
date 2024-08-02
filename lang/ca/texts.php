@@ -5300,7 +5300,7 @@ $lang = array(
     'merge_to_pdf' => 'Merge to PDF',
     'latest_requires_php_version' => 'Note: the latest version requires PHP :version',
     'auto_expand_product_table_notes' => 'Automatically expand products table notes',
-    'auto_expand_product_table_notes_help' => 'Automatically expands the notes section within the products table to display more lines.',
+    'auto_expand_product_table_notes_help' => 'Automatically expands the notes section within the products table to display more lines.'
 );
 
 return $lang;
