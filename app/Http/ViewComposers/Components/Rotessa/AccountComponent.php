@@ -33,10 +33,7 @@ class AccountComponent extends Component
         "authorization_type" => 'Online'
     ];
 
-    public array $account;
-
-    public function __construct(array $account) {
-        $this->account = $account;
+    public function __construct(public array $account) {
         $this->attributes = $this->newAttributeBag(Arr::only($this->account, $this->fields) );
     }
     

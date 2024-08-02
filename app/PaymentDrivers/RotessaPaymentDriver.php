@@ -11,6 +11,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\DataMapper\ClientSettings;
 use Omnipay\Omnipay;
 use App\Models\Client;
 use App\Models\Payment;
@@ -183,6 +184,9 @@ class RotessaPaymentDriver extends BaseDriver
                         "updated_at": "2015-02-10T23:50:45.000-06:00"
                     } 
                     */
+                $settings = ClientSettings::defaults();
+                $settings->currency_id = $this->company_gateway->company->getSetting('currency_id');
+                
                 $client = (\App\Factory\ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id))->fill(
                     [
                         'address1' => $customer->address['address_1'] ?? '',
@@ -192,7 +196,8 @@ class RotessaPaymentDriver extends BaseDriver
                         'state' => $customer->address['province_code'] ?? '',
                         'country_id' => empty($customer->transit_number) ? 840 : 124,
                         'routing_id' => empty(($r = $customer->routing_number))? null : $r,
-                        "number" => str_pad($customer->account_number,3,'0',STR_PAD_LEFT)
+                        "number" => str_pad($customer->account_number,3,'0',STR_PAD_LEFT),
+                        "settings" => $settings,
                     ]
                 );
                 $client->saveQuietly();
@@ -234,8 +239,9 @@ class RotessaPaymentDriver extends BaseDriver
             $existing = ClientGatewayToken::query()
                 ->where('company_gateway_id', $this->company_gateway->id)
                 ->where('client_id', $this->client->id)
+                ->where('is_deleted',0)
                 ->orWhere(function (Builder $query) use ($data) {
-                    $query->where('token', encrypt(join(".", Arr::only($data, 'id','custom_identifier')))  )
+                    $query->where('token', join(".", Arr::only($data, ['id','custom_identifier']))) 
                     ->where('gateway_customer_reference', Arr::only($data,'id'));
                 })
                 ->exists();
@@ -246,14 +252,15 @@ class RotessaPaymentDriver extends BaseDriver
 
                 $customer = new Customer($result->getData());
                 $data = array_filter($customer->resolve());
+
             }
             
             // $payment_method_id = Arr::has($data,'address.postal_code') && ((int) $data['address']['postal_code'])? GatewayType::BANK_TRANSFER: GatewayType::ACSS; 
             // TODO: Check/ Validate postal code between USA vs CAN
             $payment_method_id = GatewayType::ACSS;
             $gateway_token = $this->storeGatewayToken( [
-                'payment_meta' => $data + ['brand' => 'Rotessa', 'last4' => $data['bank_name'], 'type' => $data['bank_account_type'] ],
-                'token' => encrypt(join(".", Arr::only($data, 'id','custom_identifier'))),
+                'payment_meta' => $data + ['brand' => 'Bank Transfer', 'last4' => substr($data['account_number'], -4), 'type' => GatewayType::ACSS ],
+                'token' => join(".", Arr::only($data, ['id','custom_identifier'])),
                 'payment_method_id' => $payment_method_id ,
             ], ['gateway_customer_reference' => 
                     $data['id'] 

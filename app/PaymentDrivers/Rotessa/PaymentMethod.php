@@ -37,11 +37,9 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class PaymentMethod implements MethodInterface
 {
-    protected RotessaPaymentDriver $rotessa;
 
-    public function __construct(RotessaPaymentDriver $rotessa)
+    public function __construct(protected RotessaPaymentDriver $rotessa)
     {
-        $this->rotessa = $rotessa;
         $this->rotessa->init();
     }
 
@@ -60,9 +58,6 @@ class PaymentMethod implements MethodInterface
             'id' => null
         ] )->all();
         $data['gateway'] = $this->rotessa;
-        // Set gateway type according to client country
-        // $data['gateway_type_id'] =  $data['client']->country->iso_3166_2 == 'US' ?  GatewayType::BANK_TRANSFER : (  $data['client']->country->iso_3166_2 == 'CA' ? GatewayType::ACSS : (int) request('method'));
-        // TODO: detect GatewayType based on client country USA vs CAN
         $data['gateway_type_id'] =   GatewayType::ACSS ;
         $data['account'] = [
             'routing_number' => $data['client']->routing_id,
@@ -104,6 +99,7 @@ class PaymentMethod implements MethodInterface
                 'customer_id'=>['required_without:custom_identifier','integer'],
             ]);
             $customer = new Customer(  ['address' => $request->only('address_1','address_2','city','postal_code','province_code','country'), 'custom_identifier' => $request->input('custom_identifier') ] + $request->all());
+
             $this->rotessa->findOrCreateCustomer($customer->resolve());
             
             return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
@@ -142,8 +138,10 @@ class PaymentMethod implements MethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
+
         $response= null;
         $customer = null;
+
         try {
             $request->validate([
                 'source' => ['required','string','exists:client_gateway_tokens,token'],
@@ -153,17 +151,20 @@ class PaymentMethod implements MethodInterface
             $customer = ClientGatewayToken::query()
                 ->where('company_gateway_id', $this->rotessa->company_gateway->id)
                 ->where('client_id', $this->rotessa->client->id)
+                ->where('is_deleted', 0)
                 ->where('token', $request->input('source'))
                 ->first();
+
             if(!$customer) throw new \Exception('Client gateway token not found!',  SystemLog::TYPE_ROTESSA);
 
             $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date') + ['comment' => $this->rotessa->getDescription(false) ]);
             $transaction->additional(['customer_id' => $customer->gateway_customer_reference]);
             $transaction = array_filter( $transaction->resolve());
             $response = $this->rotessa->gateway->capture($transaction)->send();
+            
             if(!$response->isSuccessful()) throw new \Exception($response->getMessage(), (int) $response->getCode()); 
             
-           return  $this->processPendingPayment($response->getParameter('id'), (float) $response->getParameter('amount'), (int) $customer->gateway_type_id , $customer->token);
+           return  $this->processPendingPayment($response->getParameter('id'), (float) $response->getParameter('amount'), PaymentType::ACSS , $customer->token);
         } catch(\Throwable $e) {
             $this->processUnsuccessfulPayment( new InvalidResponseException($e->getMessage(), (int) $e->getCode()) );
         }
@@ -194,7 +195,7 @@ class PaymentMethod implements MethodInterface
     /**
      * Handle unsuccessful payment for Rotessa.
      *
-     * @param Exception $exception
+     * @param \Exception $exception
      * @throws PaymentFailed
      * @return void
      */

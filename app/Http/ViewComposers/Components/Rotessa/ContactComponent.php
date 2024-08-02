@@ -18,9 +18,9 @@ class ContactComponent extends Component
         
         $contact = collect($contact->client->contacts->firstWhere('is_primary', 1)->toArray())->merge([
             'home_phone' =>$contact->client->phone, 
-            'custom_identifier' => $contact->client->number,
+            'custom_identifier' => $contact->client->client_hash,
             'name' =>$contact->client->name,
-            'id' => $contact->client->contact_key,
+            'id' => null,
         ] )->all();
         
         $this->attributes = $this->newAttributeBag(Arr::only($contact, $this->fields) );

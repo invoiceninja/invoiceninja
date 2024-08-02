@@ -25,10 +25,7 @@ class AddressComponent extends Component
         'country' => 'US'
     ];
 
-    public array $address;
-
-    public function __construct(array $address) {
-        $this->address = $address;
+    public function __construct(public array $address) {
         if(strlen($this->address['state']) > 2 ) {
             $this->address['state'] = $this->address['country'] == 'US' ? array_search($this->address['state'], USStates::$states) : CAProvinces::getAbbreviation($this->address['state']); 
         }
