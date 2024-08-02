@@ -3,6 +3,7 @@ namespace App\Services\Import\Quickbooks;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use App\Services\Import\Quickbooks\Auth;
 use App\Repositories\Import\Quickbooks\Contracts\RepositoryInterface;
 use App\Services\Import\QuickBooks\Contracts\SdkInterface as QuickbooksInterface;
 
@@ -12,6 +13,11 @@ final class Service
 
     public function __construct(QuickbooksInterface $quickbooks) {
         $this->sdk = $quickbooks;
+    }
+
+    public function getOAuth() : Auth
+    {
+        return new Auth($this->sdk);
     }
 
     public function getAccessToken() : array
