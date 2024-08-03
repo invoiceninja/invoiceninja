@@ -24,7 +24,7 @@ class FilterController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return void
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index(Request $request, string $entity)
     {

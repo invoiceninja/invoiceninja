@@ -27,19 +27,12 @@ class RefundPayment
 
     private float $credits_used = 0;
 
-    private $gateway_refund_status;
-
-    private $activity_repository;
-
     private bool $refund_failed = false;
 
     private string $refund_failed_message = '';
 
     public function __construct(public Payment $payment, public array $refund_data)
     {
-        $this->gateway_refund_status = false;
-
-        $this->activity_repository = new ActivityRepository();
     }
 
     public function run()
@@ -51,7 +44,6 @@ class RefundPayment
                             ->setStatus() //sets status of payment
                             ->updatePaymentables() //update the paymentable items
                             ->adjustInvoices()
-                            ->finalize()
                             ->save();
 
         if (array_key_exists('email_receipt', $this->refund_data) && $this->refund_data['email_receipt'] == 'true') {
@@ -59,10 +51,11 @@ class RefundPayment
             EmailRefundPayment::dispatch($this->payment, $this->payment->company, $contact);
         }
 
-        $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : ";
-        $notes .= $this->refund_data['gateway_refund'] !== false ? ctrans('texts.yes') : ctrans('texts.no');
-
+        $is_gateway_refund = ($this->refund_data['gateway_refund'] !== false || $this->refund_failed || (isset($this->refund_data['via_webhook']) && $this->refund_data['via_webhook'] !== false)) ? ctrans('texts.yes') : ctrans('texts.no');
+        $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : " . $is_gateway_refund;
+        
         $this->createActivity($notes);
+        $this->finalize();
 
         return $this->payment;
     }
@@ -185,7 +178,7 @@ class RefundPayment
      */
     private function setStatus()
     {
-        if ($this->total_refund == $this->payment->amount) {
+        if ($this->total_refund == $this->payment->amount || floatval($this->payment->amount) == floatval($this->payment->refunded))  {
             $this->payment->status_id = Payment::STATUS_REFUNDED;
         } else {
             $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;

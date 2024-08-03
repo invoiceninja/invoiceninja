@@ -65,7 +65,7 @@ class AutoBillCron
 
             $auto_bill_partial_invoices->chunk(400, function ($invoices) {
                 foreach ($invoices as $invoice) {
-                    AutoBill::dispatch($invoice->id, false);
+                    AutoBill::dispatch($invoice->id, null);
                 }
 
                 sleep(2);
@@ -87,7 +87,7 @@ class AutoBillCron
 
             $auto_bill_invoices->chunk(400, function ($invoices) {
                 foreach ($invoices as $invoice) {
-                    AutoBill::dispatch($invoice->id, false);
+                    AutoBill::dispatch($invoice->id, null);
                 }
 
                 sleep(2);

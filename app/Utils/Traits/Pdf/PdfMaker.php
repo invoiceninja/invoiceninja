@@ -20,8 +20,8 @@ trait PdfMaker
     /**
      * Returns a PDF stream.
      *
-     * @param  string $header Header to be included in PDF
-     * @param  string $footer Footer to be included in PDF
+     * @param  string|null $header Header to be included in PDF
+     * @param  string|null $footer Footer to be included in PDF
      * @param  string $html   The HTML object to be converted into PDF
      *
      * @return string        The PDF string
@@ -39,7 +39,7 @@ trait PdfMaker
             $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
         }
 
-        $html = str_replace(['file:/', 'iframe', '&lt;object', '<object', '127.0.0.1', 'localhost'], ['','','','','',''], $html);
+        $html = str_ireplace(['file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost'], '', $html);
 
         $generated = $pdf
                         ->setHtml($html)

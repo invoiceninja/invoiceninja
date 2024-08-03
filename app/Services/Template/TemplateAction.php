@@ -102,6 +102,7 @@ class TemplateAction implements ShouldQueue
             Expense::class => $resource->with('client'),
             Payment::class => $resource->with('invoices', 'client'),
             Client::class => $resource,
+            default => $resource,
         };
 
         $result = $resource->withTrashed()
@@ -219,6 +220,7 @@ class TemplateAction implements ShouldQueue
             Project::class => 'projects',
             Client::class => 'clients',
             Vendor::class => 'vendors',
+            default =>'invoices',
         };
     }
 

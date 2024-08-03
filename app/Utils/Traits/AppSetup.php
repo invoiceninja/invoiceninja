@@ -25,13 +25,21 @@ trait AppSetup
             return Ninja::isNinja();
         }
 
-        $check = SystemHealth::check();
+        $check = SystemHealth::check(true, false);
 
         return $check['system_health'] == 'true';
     }
-
+    
+    /**
+     * @deprecated
+     *
+     * @param  mixed $force
+     * @return void
+     */
     public function buildCache($force = false)
     {
+        return;
+
         $cached_tables = config('ninja.cached_tables');
 
         foreach ($cached_tables as $name => $class) {
@@ -53,61 +61,6 @@ trait AppSetup
         }
 
         /*Build template cache*/
-        $this->buildTemplates();
-    }
-
-    private function buildTemplates($name = 'templates')
-    {
-        $data = [
-
-            'invoice' => [
-                'subject' => EmailTemplateDefaults::emailInvoiceSubject(),
-                'body' => EmailTemplateDefaults::emailInvoiceTemplate(),
-            ],
-
-            'quote' => [
-                'subject' => EmailTemplateDefaults::emailQuoteSubject(),
-                'body' => EmailTemplateDefaults::emailQuoteTemplate(),
-            ],
-            'payment' => [
-                'subject' => EmailTemplateDefaults::emailPaymentSubject(),
-                'body' => EmailTemplateDefaults::emailPaymentTemplate(),
-            ],
-            'payment_partial' => [
-                'subject' => EmailTemplateDefaults::emailPaymentPartialSubject(),
-                'body' => EmailTemplateDefaults::emailPaymentPartialTemplate(),
-            ],
-            'reminder1' => [
-                'subject' => EmailTemplateDefaults::emailReminder1Subject(),
-                'body' => EmailTemplateDefaults::emailReminder1Template(),
-            ],
-            'reminder2' => [
-                'subject' => EmailTemplateDefaults::emailReminder2Subject(),
-                'body' => EmailTemplateDefaults::emailReminder2Template(),
-            ],
-            'reminder3' => [
-                'subject' => EmailTemplateDefaults::emailReminder3Subject(),
-                'body' => EmailTemplateDefaults::emailReminder3Template(),
-            ],
-            'reminder_endless' => [
-                'subject' => EmailTemplateDefaults::emailReminderEndlessSubject(),
-                'body' => EmailTemplateDefaults::emailReminderEndlessTemplate(),
-            ],
-            'statement' => [
-                'subject' => EmailTemplateDefaults::emailStatementSubject(),
-                'body' => EmailTemplateDefaults::emailStatementTemplate(),
-            ],
-            'credit' => [
-                'subject' => EmailTemplateDefaults::emailCreditSubject(),
-                'body' => EmailTemplateDefaults::emailCreditTemplate(),
-            ],
-            'purchase_order' => [
-                'subject' => EmailTemplateDefaults::emailPurchaseOrderSubject(),
-                'body' => EmailTemplateDefaults::emailPurchaseOrderTemplate(),
-            ],
-        ];
-
-        Cache::forever($name, $data);
     }
 
     private function updateEnvironmentProperty(string $property, $value): void

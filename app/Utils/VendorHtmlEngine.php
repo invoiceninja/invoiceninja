@@ -567,27 +567,15 @@ class VendorHtmlEngine
 
     private function getCountryName(): string
     {
-        $countries = Cache::get('countries');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-        if (! $countries) {
-            $this->buildCache(true);
-
-            $countries = Cache::get('countries');
-        }
-
-        if ($countries) {
-            $country = $countries->filter(function ($item) {
-                return $item->id == $this->settings->country_id;
-            })->first();
-        } else {
-            $country = Country::find($this->settings->country_id);
-        }
-
-        if ($country) {
-            return ctrans('texts.country_' . $country->name);
-        }
-
-        return '&nbsp;';
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
+        
+        return $country ? ctrans('texts.country_' . $country->name) : '&nbsp;';
     }
 
 

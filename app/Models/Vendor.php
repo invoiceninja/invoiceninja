@@ -30,7 +30,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
- * @property string|null $currency_id
+ * @property int|null $currency_id
  * @property string|null $name
  * @property string|null $address1
  * @property string|null $address2
@@ -177,19 +177,17 @@ class Vendor extends BaseModel
 
     public function currency()
     {
-        $currencies = Cache::get('currencies');
-
-        if (! $currencies) {
-            $this->buildCache(true);
-        }
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
         if (! $this->currency_id) {
             return $this->company->currency();
         }
 
-        return $currencies->filter(function ($item) {
+        return $currencies->first(function ($item) {
             return $item->id == $this->currency_id;
-        })->first();
+        });
     }
 
     public function timezone()

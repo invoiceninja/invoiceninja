@@ -124,7 +124,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency','map', 'join', 'first', 'date','sum'];
+        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -306,9 +306,6 @@ class TemplateService
             } catch(SyntaxError $e) {
                 nlog($e->getMessage());
                 throw ($e);
-            } catch(Error $e) {
-                nlog("error = " . $e->getMessage());
-                throw ($e);
             } catch(RuntimeError $e) {
                 nlog("runtime = " . $e->getMessage());
                 throw ($e);
@@ -318,8 +315,11 @@ class TemplateService
             } catch(SecurityError $e) {
                 nlog("security = " . $e->getMessage());
                 throw ($e);
+            } catch(Error $e) {
+                nlog("error = " . $e->getMessage());
+                throw ($e);
             }
-
+            
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
@@ -436,11 +436,11 @@ class TemplateService
             }
 
             match ($key) {
-                'variables' => $processed = $value->first() ?? [],
+                'variables' => $processed = $value->first() ?? [], //@phpstan-ignore-line
                 'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], //@phpstan-ignore-line
                 'tasks' => $processed = [],
                 'projects' => $processed = [],
                 'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
@@ -533,7 +533,7 @@ class TemplateService
                         'tax_rate3' => (float) $invoice->tax_rate3,
                         'total_taxes' => Number::formatMoney($invoice->total_taxes, $invoice->client),
                         'total_taxes_raw' => $invoice->total_taxes,
-                        'is_amount_discount' => (bool) $invoice->is_amount_discount ?? false,
+                        'is_amount_discount' => (bool) $invoice->is_amount_discount ?? false,//@phpstan-ignore-line
                         'footer' => $invoice->footer ?? '',
                         'partial' => $invoice->partial ?? 0,
                         'partial_due_date' => $this->translateDate($invoice->partial_due_date, $invoice->client->date_format(), $invoice->client->locale()),
@@ -557,15 +557,7 @@ class TemplateService
                         'reminder_last_sent' => $this->translateDate($invoice->reminder_last_sent, $invoice->client->date_format(), $invoice->client->locale()),
                         'paid_to_date' => Number::formatMoney($invoice->paid_to_date, $invoice->client),
                         'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
-                        'client' => [
-                            'name' => $invoice->client->present()->name(),
-                            'balance' => $invoice->client->balance,
-                            'payment_balance' => $invoice->client->payment_balance,
-                            'credit_balance' => $invoice->client->credit_balance,
-                            'vat_number' => $invoice->client->vat_number ?? '',
-                            'currency' => $invoice->client->currency()->code ?? 'USD',
-                            'locale' => substr($invoice->client->locale(), 0, 2),
-                        ],
+                        'client' => $this->getClient($invoice),
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
                         'line_tax_map' => $invoice->calc()->getTaxMap(),
@@ -620,8 +612,6 @@ class TemplateService
     private function transformPayment(Payment $payment): array
     {
 
-        $data = [];
-
         $this->payment = $payment;
 
         $credits = $payment->credits->map(function ($credit) use ($payment) {
@@ -656,7 +646,7 @@ class TemplateService
                 'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
                 'timestamp' => $invoice->pivot->created_at->timestamp,
             ];
-        })->merge($credits)->sortBy('timestamp')->toArray();
+        })->concat($credits)->sortBy('timestamp')->toArray();
 
         return [
             'status' => $payment->stringStatus($payment->status_id),
@@ -682,19 +672,10 @@ class TemplateService
             'custom_value4' => $payment->custom_value4 ?? '',
             'created_at' => $this->translateDate($payment->created_at, $payment->client->date_format(), $payment->client->locale()),
             'updated_at' => $this->translateDate($payment->updated_at, $payment->client->date_format(), $payment->client->locale()),
-            'client' => [
-                'name' => $payment->client->present()->name(),
-                'balance' => $payment->client->balance,
-                'payment_balance' => $payment->client->payment_balance,
-                'credit_balance' => $payment->client->credit_balance,
-                'vat_number' => $payment->client->vat_number ?? '',
-                'currency' => $payment->client->currency()->code ?? 'USD',
-            ],
+            'client' => $this->getClient($payment),
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
         ];
-
-        return $data;
 
     }
 
@@ -764,14 +745,7 @@ class TemplateService
                 'amount' => Number::formatMoney($quote->amount, $quote->client),
                 'balance' => Number::formatMoney($quote->balance, $quote->client),
                 'balance_raw' => (float) $quote->balance,
-                'client' => [
-                            'name' => $quote->client->present()->name(),
-                            'balance' => $quote->client->balance,
-                            'payment_balance' => $quote->client->payment_balance,
-                            'credit_balance' => $quote->client->credit_balance,
-                            'vat_number' => $quote->client->vat_number ?? '',
-                            'currency' => $quote->client->currency()->code ?? 'USD',
-                        ],
+                'client' => $this->getClient($quote),
                 'status_id' => $quote->status_id,
                 'status' => Quote::stringStatus($quote->status_id),
                 'number' => $quote->number ?: '',
@@ -868,7 +842,7 @@ class TemplateService
                         'tax_rate3' => (float) $credit->tax_rate3,
                         'total_taxes' => Number::formatMoney($credit->total_taxes, $credit->client),
                         'total_taxes_raw' => $credit->total_taxes,
-                        'is_amount_discount' => (bool) $credit->is_amount_discount ?? false,
+                        'is_amount_discount' => (bool) $credit->is_amount_discount ?? false, //@phpstan-ignore-line
                         'footer' => $credit->footer ?? '',
                         'partial' => $credit->partial ?? 0,
                         'partial_due_date' => $this->translateDate($credit->partial_due_date, $credit->client->date_format(), $credit->client->locale()),
@@ -892,14 +866,7 @@ class TemplateService
                         'reminder_last_sent' => $this->translateDate($credit->reminder_last_sent, $credit->client->date_format(), $credit->client->locale()),
                         'paid_to_date' => Number::formatMoney($credit->paid_to_date, $credit->client),
                         'auto_bill_enabled' => (bool) $credit->auto_bill_enabled,
-                        'client' => [
-                            'name' => $credit->client->present()->name(),
-                            'balance' => $credit->client->balance,
-                            'payment_balance' => $credit->client->payment_balance,
-                            'credit_balance' => $credit->client->credit_balance,
-                            'vat_number' => $credit->client->vat_number ?? '',
-                            'currency' => $credit->client->currency()->code ?? 'USD',
-                        ],
+                        'client' => $this->getClient($credit),
                         'payments' => $payments,
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
                         'line_tax_map' => $credit->calc()->getTaxMap(),
@@ -928,6 +895,25 @@ class TemplateService
 
     }
 
+    private function getClient($entity): array
+    {
+
+        return $entity->client ? [
+            'name' => $entity->client->present()->name(),
+            'balance' => $entity->client->balance,
+            'payment_balance' => $entity->client->payment_balance,
+            'credit_balance' => $entity->client->credit_balance,
+            'vat_number' => $entity->client->vat_number ?? '',
+            'currency' => $entity->client->currency()->code ?? 'USD',
+            'custom_value1' => $entity->client->custom_value1 ?? '',
+            'custom_value2' => $entity->client->custom_value2 ?? '',
+            'custom_value3' => $entity->client->custom_value3 ?? '',
+            'custom_value4' => $entity->client->custom_value4 ?? '',
+            'address' => $entity->client->present()->address(),
+            'shipping_address' => $entity->client->present()->shipping_address(),
+            'locale' => substr($entity->client->locale(), 0, 2),      
+            ] : [];
+    }
     /**
      * @todo refactor
      *
@@ -957,14 +943,7 @@ class TemplateService
                 'custom_value4' => $task->custom_value4 ?: '',
                 'status' => $task->status ? $task->status->name : '',
                 'user' => $this->userInfo($task->user),
-                'client' => $task->client ? [
-                            'name' => $task->client->present()->name(),
-                            'balance' => $task->client->balance,
-                            'payment_balance' => $task->client->payment_balance,
-                            'credit_balance' => $task->client->credit_balance,
-                            'vat_number' => $task->client->vat_number ?? '',
-                            'currency' => $task->client->currency()->code ?? 'USD',
-                        ] : [],
+                'client' => $this->getClient($task),
             ];
 
 
@@ -1018,16 +997,10 @@ class TemplateService
             'custom_value4' => (string) $project->custom_value4 ?: '',
             'color' => (string) $project->color ?: '',
             'current_hours' => (int) $project->current_hours ?: 0,
-            'tasks' => ($project->tasks && !$nested) ? $this->processTasks($project->tasks, true) : [],
-            'client' => $project->client ? [
-                    'name' => $project->client->present()->name(),
-                    'balance' => $project->client->balance,
-                    'payment_balance' => $project->client->payment_balance,
-                    'credit_balance' => $project->client->credit_balance,
-                    'vat_number' => $project->client->vat_number ?? '',
-                    'currency' => $project->client->currency()->code ?? 'USD',
-                ] : [],
-            'user' => $this->userInfo($project->user)
+            'tasks' => ($project->tasks && !$nested) ? $this->processTasks($project->tasks, true) : [], //@phpstan-ignore-line
+            'client' => $this->getClient($project),
+            'user' => $this->userInfo($project->user),
+            'invoices' => $this->processInvoices($project->invoices)
         ];
 
     }
@@ -1050,16 +1023,7 @@ class TemplateService
                 ] : [],
                 'amount' => (float)$purchase_order->amount,
                 'balance' => (float)$purchase_order->balance,
-                'client' => $purchase_order->client ? [
-                    'name' => $purchase_order->client->present()->name(),
-                    'balance' => $purchase_order->client->balance,
-                    'payment_balance' => $purchase_order->client->payment_balance,
-                    'credit_balance' => $purchase_order->client->credit_balance,
-                    'vat_number' => $purchase_order->client->vat_number ?? '',
-                    'address' => $purchase_order->client->present()->address(),
-                    'shipping_address' => $purchase_order->client->present()->shipping_address(),
-                    'currency' => $purchase_order->client->currency()->code ?? 'USD',
-                ] : [],
+                'client' => $this->getClient($purchase_order),
                 'status_id' => (string)($purchase_order->status_id ?: 1),
                 'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),
                 'is_deleted' => (bool)$purchase_order->is_deleted,
@@ -1196,6 +1160,7 @@ class TemplateService
             'company-details' => $this->companyDetails($stack['labels'] == 'true'),
             'company-address' => $this->companyAddress($stack['labels'] == 'true'),
             'shipping-details' => $this->shippingDetails($stack['labels'] == 'true'),
+            default => $this->entityDetails(),
         };
 
         $this->save();
@@ -1330,6 +1295,7 @@ class TemplateService
     {
         $entity_string = '';
 
+        //@phpstan-ignore-next-line
         match($this->entity) {
             ($this->entity instanceof Invoice) => $entity_string = 'invoice',
             ($this->entity instanceof Quote)  => $entity_string = 'quote',

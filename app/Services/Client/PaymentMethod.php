@@ -21,10 +21,6 @@ class PaymentMethod
 {
     use MakesHash;
 
-    private $client;
-
-    private $amount;
-
     /** @var \Illuminate\Support\Collection<CompanyGateway> $gateways **/
     private $gateways;
 
@@ -32,10 +28,8 @@ class PaymentMethod
 
     private $payment_urls = [];
 
-    public function __construct(Client $client, float $amount)
+    public function __construct(private Client $client, private float $amount)
     {
-        $this->client = $client;
-        $this->amount = $amount;
     }
 
     public function run()
@@ -105,7 +99,6 @@ class PaymentMethod
                 $transformed_ids = [];
             }
 
-
             $this->gateways = $this->client
                              ->company
                              ->company_gateways
@@ -140,7 +133,7 @@ class PaymentMethod
 
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount) && $gateway->fees_and_limits->{$type}->is_enabled) {
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}) && $gateway->fees_and_limits->{$type}->is_enabled) {
                         $this->payment_methods[] = [$gateway->id => $type];
                     }
                 } else {
@@ -159,8 +152,8 @@ class PaymentMethod
         {
             foreach ($type as $gateway_id => $gateway_type_id)
             {
-            $gate = $this->gateways->where('id',$gateway_id)->first();
-            $this->buildUrl($gate, $gateway_type_id);
+                $gate = $this->gateways->where('id', $gateway_id)->first();
+                $this->buildUrl($gate, $gateway_type_id);
             }
         }
         
@@ -173,10 +166,10 @@ class PaymentMethod
         //note we have to use GatewayType::CREDIT_CARD as alias for CUSTOM
         foreach ($this->gateways as $gateway) {
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
-                if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) {
+                if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) { //@phpstan-ignore-line
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
                         // $this->payment_methods[] = [$gateway->id => $type];
-                        //@15-06-2024
+                        // @15-06-2024
                         $this->buildUrl($gateway, $type);
                     }
                 } else {
@@ -185,6 +178,22 @@ class PaymentMethod
                     $this->buildUrl($gateway, null);
                 }
             }
+        }
+
+        if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
+            // Show credits as only payment option if both statements are true.
+            if (
+                $this->client->service()->getCreditBalance() > $this->amount
+                && $this->client->getSetting('use_credits_payment') == 'always') {
+                $payment_urls = [];
+            }
+
+            $this->payment_urls[] = [
+                'label' => ctrans('texts.apply_credit'),
+                'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
+                'gateway_type_id' => GatewayType::CREDIT,
+                'is_paypal' => false,
+            ];
         }
 
         return $this;
@@ -202,15 +211,18 @@ class PaymentMethod
                 'label' => $gateway->getConfigField('name').$fee_label,
                 'company_gateway_id'  => $gateway->id,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'is_paypal' => $gateway->isPayPal(),
             ];
         } else {
             $this->payment_urls[] = [
                 'label' => $gateway->getTypeAlias($type).$fee_label,
                 'company_gateway_id'  => $gateway->id,
                 'gateway_type_id' => $type,
+                'is_paypal' => $gateway->isPayPal(),
             ];
         }
 
+        return $this;
     }
 
     //@deprecated as buildUrl() supercedes
@@ -227,12 +239,14 @@ class PaymentMethod
                         'label' => $gateway->getConfigField('name').$fee_label,
                         'company_gateway_id'  => $gateway_id,
                         'gateway_type_id' => GatewayType::CREDIT_CARD,
+                        'is_paypal' => $gateway->isPayPal(),
                     ];
                 } else {
                     $this->payment_urls[] = [
                         'label' => $gateway->getTypeAlias($gateway_type_id).$fee_label,
                         'company_gateway_id'  => $gateway_id,
                         'gateway_type_id' => $gateway_type_id,
+                        'is_paypal' => $gateway->isPayPal(),
                     ];
                 }
             }
@@ -250,20 +264,21 @@ class PaymentMethod
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                 'gateway_type_id' => GatewayType::CREDIT,
+                'is_paypal' => false,
             ];
         }
 
         return $this;
     }
 
-    private function validGatewayForAmount($fees_and_limits_for_payment_type, $amount): bool
+    private function validGatewayForAmount($fees_and_limits_for_payment_type): bool
     {
         if (isset($fees_and_limits_for_payment_type)) {
             $fees_and_limits = $fees_and_limits_for_payment_type;
         } else {
             return true;
         }
-
+        
         if ((property_exists($fees_and_limits, 'min_limit')) && $fees_and_limits->min_limit !== null && $fees_and_limits->min_limit != -1 && ($this->amount < $fees_and_limits->min_limit && $this->amount != -1)) {
             return false;
         }

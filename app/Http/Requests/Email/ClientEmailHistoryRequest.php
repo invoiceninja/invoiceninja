@@ -18,7 +18,6 @@ class ClientEmailHistoryRequest extends Request
 {
     use MakesHash;
 
-    private string $error_message = '';
     /**
      * Determine if the user is authorized to make this request.
      *

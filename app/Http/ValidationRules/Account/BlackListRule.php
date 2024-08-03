@@ -19,8 +19,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
  */
 class BlackListRule implements ValidationRule
 {
-    /** Bad domains +/- dispoable email domains */
+    /** Bad domains +/- disposable email domains */
     private array $blacklist = [
+        'padvn.com',
         'anonaddy.me',
         'nqmo.com',
         'wireconnected.com',

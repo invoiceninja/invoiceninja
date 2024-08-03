@@ -17,7 +17,7 @@ class ShowCreditRequest extends FormRequest
         auth()->guard('contact')->user()->loadMissing(['company']); 
 
         return ! $this->credit->is_deleted
-            && auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS
+            && (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)
             && auth()->guard('contact')->user()->client_id === $this->credit->client_id;
     }
 

@@ -9,39 +9,47 @@
  */
 
 class Payment {
-    constructor(displayTerms, displaySignature, displayRff) {
+    constructor(displayTerms, displaySignature) {
         this.shouldDisplayTerms = displayTerms;
         this.shouldDisplaySignature = displaySignature;
-        this.shouldDisplayRff = displayRff;
-
+        
         this.submitting = false;
         this.steps = new Map()
 
-        if (this.shouldDisplayRff) {
-            this.steps.set("rff", {
-                element: document.getElementById('displayRequiredFieldsModal'),
-                nextButton: document.getElementById('rff-next-step'),
-                callback: () => {
-                    const fields = {
-                        firstName: document.querySelector('input[name="rff_first_name"]'),
-                        lastName: document.querySelector('input[name="rff_last_name"]'),
-                        email: document.querySelector('input[name="rff_email"]'),
-                    }
-
-                    if (fields.firstName) {
-                        document.querySelector('input[name="contact_first_name"]').value = fields.firstName.value;
-                    }
-
-                    if (fields.lastName) {
-                        document.querySelector('input[name="contact_last_name"]').value = fields.lastName.value;
-                    }
-
-                    if (fields.email) {
-                        document.querySelector('input[name="contact_email"]').value = fields.email.value;
-                    }
+        this.steps.set("rff", {
+            element: document.getElementById('displayRequiredFieldsModal'),
+            nextButton: document.getElementById('rff-next-step'),
+            callback: () => {
+                const fields = {
+                    firstName: document.querySelector('input[name="rff_first_name"]'),
+                    lastName: document.querySelector('input[name="rff_last_name"]'),
+                    email: document.querySelector('input[name="rff_email"]'),
+                    city: document.querySelector('input[name="rff_city"]'),
+                    postalCode: document.querySelector('input[name="rff_postal_code"]'),
                 }
-            });
-        }
+
+                if (fields.firstName) {
+                    document.querySelector('input[name="contact_first_name"]').value = fields.firstName.value;
+                }
+
+                if (fields.lastName) {
+                    document.querySelector('input[name="contact_last_name"]').value = fields.lastName.value;
+                }
+
+                if (fields.email) {
+                    document.querySelector('input[name="contact_email"]').value = fields.email.value;
+                }
+
+                if (fields.city) {
+                    document.querySelector('input[name="client_city"]').value = fields.city.value;
+                }
+
+                if (fields.postalCode) {
+                    document.querySelector('input[name="client_postal_code"]').value = fields.postalCode.value;
+                }
+
+            }
+        });
 
         if (this.shouldDisplaySignature) {
             this.steps.set("signature", {
@@ -71,7 +79,17 @@ class Payment {
             element.dataset.companyGatewayId;
         document.getElementById("payment_method_id").value =
             element.dataset.gatewayTypeId;
-        
+              
+        const filledRff = document.querySelector('input[name="contact_first_name"').value.length >=1 &&
+            document.querySelector('input[name="contact_last_name"').value.length >= 1 &&
+            document.querySelector('input[name="contact_email"').value.length >= 1 &&
+            document.querySelector('input[name="client_city"').value.length >= 1 &&
+            document.querySelector('input[name="client_postal_code"').value.length >= 1;
+
+        if (element.dataset.isPaypal != '1' || filledRff) {
+            this.steps.delete("rff");
+        }
+
         if (this.steps.size === 0) {
             return this.submitForm();
         }
@@ -124,6 +142,5 @@ const signature = document.querySelector(
 ).content;
 
 const terms = document.querySelector('meta[name="show-invoice-terms"]').content;
-const rff = document.querySelector('meta[name="show-required-fields-form"]').content;
 
-new Payment(Boolean(+terms), Boolean(+signature), Boolean(+rff)).handle();
+new Payment(Boolean(+terms), Boolean(+signature)).handle();

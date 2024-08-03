@@ -292,9 +292,9 @@ class InvoiceService
 
         //12-10-2022
         if ($this->invoice->partial > 0 && !$this->invoice->partial_due_date) {
-            $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+            $this->invoice->partial_due_date = Carbon::parse($this->invoice->date)->addDays((int)$this->invoice->client->getSetting('payment_terms'));
         } else {
-            $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays($this->invoice->client->getSetting('payment_terms'));
+            $this->invoice->due_date = Carbon::parse($this->invoice->date)->addDays((int)$this->invoice->client->getSetting('payment_terms'));
         }
 
         return $this;
@@ -383,7 +383,6 @@ class InvoiceService
                                          return $item;
                                      })->toArray();
 
-        // $this->deletePdf();
         $this->deleteEInvoice();
 
         return $this;

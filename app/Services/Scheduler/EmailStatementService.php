@@ -23,8 +23,6 @@ class EmailStatementService
     use MakesHash;
     use MakesDates;
 
-    private Client $client;
-
     public function __construct(public Scheduler $scheduler)
     {
     }
@@ -44,9 +42,6 @@ class EmailStatementService
 
         $query->cursor()
             ->each(function ($_client) {
-
-                /**@var \App\Models\Client $_client */
-                $this->client = $_client;
 
                 //work out the date range
                 $statement_properties = $this->calculateStatementProperties($_client);

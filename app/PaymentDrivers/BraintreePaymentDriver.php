@@ -354,7 +354,6 @@ class BraintreePaymentDriver extends BaseDriver
             return false;
         }
 
-        return false;
     }
 
     private function findTokens(string $gateway_customer_reference)
@@ -388,7 +387,7 @@ class BraintreePaymentDriver extends BaseDriver
 
         foreach($cards as $card) {
 
-            if($this->getToken($card->token, $card->customerId) || Carbon::createFromDate($card->expirationYear, $card->expirationMonth, '1')->lt(now())) {
+            if($this->getToken($card->token, $card->customerId) || Carbon::createFromDate($card->expirationYear, $card->expirationMonth, '1')->lt(now())) { //@phpstan-ignore-line
                 continue;
             }
 

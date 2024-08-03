@@ -110,8 +110,6 @@ trait CleanLineItems
             $total += ($item['cost'] * $item['quantity']);
         }
 
-        nlog($total);
-
         return $total;
     }
 }

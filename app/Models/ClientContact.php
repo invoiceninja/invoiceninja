@@ -271,15 +271,13 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function preferredLocale()
     {
-        $languages = Cache::get('languages');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        if (! $languages) {
-            $this->buildCache(true);
-        }
-
-        return $languages->filter(function ($item) {
+        return $languages->first(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
-        })->first()->locale;
+        })->locale;
     }
 
     public function routeNotificationForMail($notification)
@@ -353,9 +351,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function showRff(): bool
     {
-        if (\strlen($this->first_name) === 0 || \strlen($this->last_name) === 0 || \strlen($this->email) === 0) {
-            return true;
-        }
+        // if (\strlen($this->first_name ?? '') === 0 || \strlen($this->last_name ?? '') === 0 || \strlen($this->email ?? '') === 0) {
+        //     return true;
+        // }
 
         return false;
     }

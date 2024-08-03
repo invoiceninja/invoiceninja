@@ -151,6 +151,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Asia/Magadan', 'location' => '(GMT+12:00) Magadan', 'utc_offset' => 43200];
         $timezones[] = ['name'=>'Pacific/Auckland', 'location' => '(GMT+12:00) Auckland', 'utc_offset' => 43200];
         $timezones[] = ['name'=>'Pacific/Fiji', 'location' => '(GMT+12:00) Fiji', 'utc_offset' => 43200];
+        $timezones[] = ['name' => 'Asia/Dubai', 'location' => '(GMT+04:00) Dubai', 'utc_offset' => 14400];
 
         $x = 1;
         foreach ($timezones as $timezone) {

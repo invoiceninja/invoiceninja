@@ -22,8 +22,6 @@ use Illuminate\Support\Str;
 
 class OneTimeTokenController extends BaseController
 {
-    private $contexts = [
-    ];
 
     public function __construct()
     {

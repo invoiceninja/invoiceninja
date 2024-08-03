@@ -75,11 +75,11 @@ class InvoiceItemExport extends BaseExport
                         })
                         ->where('company_id', $this->company->id);
 
-        if(!$this->input['include_deleted'] ?? false) {
+        if(!$this->input['include_deleted'] ?? false) {// @phpstan-ignore-line
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $clients = &$this->input['client_id'];
 
@@ -113,6 +113,8 @@ class InvoiceItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($resource) {
+                
+                /** @var \App\Models\Invoice $resource */
                 $this->iterateItems($resource);
 
                 foreach($this->storage_array as $row) {
@@ -141,6 +143,8 @@ class InvoiceItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
+                
+                /** @var \App\Models\Invoice $invoice */
                 $this->iterateItems($invoice);
             });
 
@@ -258,9 +262,13 @@ class InvoiceItemExport extends BaseExport
         }
 
         if (in_array('invoice.user_id', $this->input['report_keys'])) {
-            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';// @phpstan-ignore-line
         }
 
+        if (in_array('invoice.project', $this->input['report_keys'])) {
+            $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line        
+        }
+        
         return $entity;
     }
 

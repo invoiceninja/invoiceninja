@@ -17,6 +17,7 @@ use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Project;
 use App\Models\Quote;
 use App\Repositories\QuoteRepository;
+use App\Services\Quote\UpdateReminder;
 use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Storage;
@@ -133,7 +134,6 @@ class QuoteService
             $this->invoice
                  ->service()
                  ->markSent()
-                //  ->deletePdf()
                  ->save();
         }
 
@@ -255,6 +255,48 @@ class QuoteService
                 nlog($e->getMessage());
             }
         });
+
+        return $this;
+    }
+
+    public function setReminder($settings = null)
+    {
+        $this->quote = (new UpdateReminder($this->quote, $settings))->run();
+
+        return $this;
+    }
+
+
+    /*When a reminder is sent we want to touch the dates they were sent*/
+    public function touchReminder(string $reminder_template)
+    {
+        nrlog(now()->format('Y-m-d h:i:s') . " INV #{$this->quote->number} : Touching Reminder => {$reminder_template}");
+        switch ($reminder_template) {
+            case 'reminder1':
+                $this->quote->reminder1_sent = now();
+                $this->quote->reminder_last_sent = now();
+                $this->quote->last_sent_date = now();
+                break;
+            case 'reminder2':
+                $this->quote->reminder2_sent = now();
+                $this->quote->reminder_last_sent = now();
+                $this->quote->last_sent_date = now();
+                break;
+            case 'reminder3':
+                $this->quote->reminder3_sent = now();
+                $this->quote->reminder_last_sent = now();
+                $this->quote->last_sent_date = now();
+                break;
+            case 'endless_reminder':
+                $this->quote->reminder_last_sent = now();
+                $this->invoice->last_sent_date = now();
+                break;
+            default:
+                $this->quote->reminder1_sent = now();
+                $this->quote->reminder_last_sent = now();
+                $this->quote->last_sent_date = now();
+                break;
+        }
 
         return $this;
     }

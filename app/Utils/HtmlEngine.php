@@ -45,13 +45,13 @@ class HtmlEngine
     /** @var \App\Models\Client $client */
     public $client;
 
-    /** @var \App\Models\ClientContact $contact */
+    /** @var ?\App\Models\ClientContact $contact */
     public $contact;
 
     /** @var \App\Models\Company $company */
     public $company;
 
-    /** @var \App\DataMapper\CompanySettings $settings **/
+    /** @var \App\DataMapper\CompanySettings|\stdClass $settings **/
     public $settings;
 
     public $entity_calc;
@@ -120,7 +120,7 @@ class HtmlEngine
     {
         if (! $this->client->currency()) {
             throw new Exception(debug_backtrace()[1]['function'], 1);
-            exit;
+            // exit;
         }
 
         App::forgetInstance('translator');
@@ -130,12 +130,14 @@ class HtmlEngine
 
         $data = [];
 
+        $data['$date_client_now'] = ['value' => now()->setTimezone($this->client->timezone()->name)->addSeconds($this->client->utc_offset())->format($this->client->date_format()), 'label' => ''];
+        $data['$date_company_now'] = ['value' => now()->setTimezone($this->company->timezone()->name)->addSeconds($this->company->utc_offset())->format($this->company->date_format()), 'label' => ''];
         $data['$global_margin'] = ['value' => '6.35mm', 'label' => ''];
         $data['$company_logo_size'] = ['value' => $this->resolveCompanyLogoSize(), 'label' => ''];
-        $data['$show_shipping_address'] = ['value' => $this->settings?->show_shipping_address ? 'flex' : 'none', 'label' => ''];
-        $data['$show_shipping_address_block'] = ['value' => $this->settings?->show_shipping_address ? 'block' : 'none', 'label' => ''];
+        $data['$show_shipping_address'] = ['value' => $this->settings->show_shipping_address ? 'flex' : 'none', 'label' => ''];
+        $data['$show_shipping_address_block'] = ['value' => $this->settings->show_shipping_address ? 'block' : 'none', 'label' => ''];
         // $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 'visible' : 'hidden', 'label' => ''];
-        $data['$show_shipping_address_visibility'] = ['value' => $this->settings?->show_shipping_address ? 1 : 0, 'label' => ''];
+        $data['$show_shipping_address_visibility'] = ['value' => $this->settings->show_shipping_address ? 1 : 0, 'label' => ''];
 
         $data['$order_number'] = ['value' => '', 'label' => ctrans('texts.order_number')];
         $data['$tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -169,6 +171,9 @@ class HtmlEngine
         $data['$invoice.po_number'] = ['value' => $this->entity->po_number ?: ' ', 'label' => ctrans('texts.po_number')];
         $data['$poNumber'] = &$data['$invoice.po_number'];
         $data['$po_number'] = &$data['$invoice.po_number'];
+
+        $data['$project.name'] = ['value' => $this->entity->project?->name ?: '', 'label' => ctrans('texts.project')];
+
         $data['$entity.datetime'] = ['value' => $this->formatDatetime($this->entity->created_at, $this->client->date_format()), 'label' => ctrans('texts.date')];
         $data['$invoice.datetime'] = &$data['$entity.datetime'];
         $data['$quote.datetime'] = &$data['$entity.datetime'];
@@ -219,18 +224,14 @@ class HtmlEngine
             $data['$credit.custom3'] = &$data['$invoice.custom3'];
             $data['$credit.custom4'] = &$data['$invoice.custom4'];
 
-            if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project')];
-                $data['$invoice.project'] = &$data['$project.name'];
-            }
+            $data['$invoice.project'] = &$data['$project.name'];
+            $data['$quote.project'] = &$data['$project.name'];
 
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
 
-            $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings?->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
+            $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
 
-            if ($this->entity->vendor) {
-                $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
-            }
+            $data['$invoice.vendor'] = ['value' => $this->entity->vendor?->present()->name() ?: '', 'label' => ctrans('texts.vendor_name')];
 
             if (strlen($this->company->getSetting('qr_iban')) > 5) {
                 try {
@@ -275,14 +276,10 @@ class HtmlEngine
             $data['$credit.custom3'] = &$data['$quote.custom3'];
             $data['$credit.custom4'] = &$data['$quote.custom4'];
 
-            if ($this->entity->project) {
-                $data['$project.name'] = ['value' => $this->entity->project->name, 'label' => ctrans('texts.project_name')];
-                $data['$invoice.project'] = &$data['$project.name'];
-            }
+            $data['$invoice.project'] = &$data['$project.name'];
+            $data['$quote.project'] = &$data['$project.name'];
 
-            if ($this->entity->vendor) {
-                $data['$invoice.vendor'] = ['value' => $this->entity->vendor->present()->name(), 'label' => ctrans('texts.vendor_name')];
-            }
+            $data['$invoice.vendor'] = ['value' => $this->entity->vendor?->present()->name() ?: '', 'label' => ctrans('texts.vendor_name')];
         }
 
         if ($this->entity_string == 'credit') {
@@ -660,14 +657,13 @@ class HtmlEngine
 
         if ($this->settings->signature_on_pdf) {
             $data['$contact.signature'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
-            $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
-            $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
-
         } else {
             $data['$contact.signature'] = ['value' => '', 'label' => ''];
-            $data['$contact.signature_date'] = ['value' => '', 'label' => ctrans('texts.date')];
-            $data['$contact.signature_ip'] = ['value' => '', 'label' => ctrans('texts.address')];
         }
+
+        $data['$contact.signature_raw'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
+        $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date ?? '1970-01-01', $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+        $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
         $data['$from'] = ['value' => '', 'label' => ctrans('texts.from')];
@@ -738,7 +734,7 @@ class HtmlEngine
             $payment_list = '<br><br>';
 
             foreach ($this->entity->net_payments as $payment) {
-                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". GatewayType::getAlias($payment->gateway_type_id) . "<br>";
+                $payment_list .= ctrans('texts.payment_subject') . ": " . $this->formatDate($payment->date, $this->client->date_format()) . " :: " . Number::formatMoney($payment->amount, $this->client) ." :: ". $payment->translatedType() . "<br>";
             }
 
             $data['$payments'] = ['value' => $payment_list, 'label' => ctrans('texts.payments')];
@@ -775,8 +771,7 @@ class HtmlEngine
             return '';
         }
 
-        return
-        collect($payment->refund_meta)
+        return collect($payment->refund_meta)
                 ->map(function ($refund) use ($payment) {
 
                     $date = \Carbon\Carbon::parse($refund['date'] ?? $payment->date)->addSeconds($payment->client->timezone_offset());
@@ -919,39 +914,30 @@ class HtmlEngine
 
     private function getCountryName(): string
     {
-        $countries = Cache::get('countries');
 
-        if (! $countries) {
-            $this->buildCache(true);
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-            $countries = Cache::get('countries');
-        }
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
 
-        if ($countries) {
-            $country = $countries->filter(function ($item) {
-                return $item->id == $this->settings->country_id;
-            })->first();
-        } else {
-            $country = Country::find($this->settings->country_id);
-        }
-
-        if ($country) {
-            return ctrans('texts.country_' . $country->name);
-        }
-
-        return ' ';
+        return $country ? ctrans('texts.country_' . $country->name) : ctrans('texts.country_' . $countries->first()->name);
     }
 
 
     private function getCountryCode(): string
     {
-        $country = Country::find($this->settings->country_id);
 
-        if ($country) {
-            return $country->iso_3166_2;
-        }
 
-        return ' ';
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
+
+        $country = $countries->first(function ($item) {
+            return $item->id == $this->settings->country_id;
+        });
+
+        return $country ? $country->iso_3166_2 : ' ';
     }
     /**
      * Due to the way we are compiling the blade template we
@@ -962,20 +948,20 @@ class HtmlEngine
      * @return string a collection of <tr> rows with line item
      * aggregate data
      */
-    private function makeLineTaxes(): string
-    {
-        $tax_map = $this->entity_calc->getTaxMap();
+    // private function makeLineTaxes(): string
+    // {
+    //     $tax_map = $this->entity_calc->getTaxMap();
 
-        $data = '';
+    //     $data = '';
 
-        foreach ($tax_map as $tax) {
-            $data .= '<tr class="line_taxes">';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
-        }
+    //     foreach ($tax_map as $tax) {
+    //         $data .= '<tr class="line_taxes">';
+    //         $data .= '<td>'.$tax['name'].'</td>';
+    //         $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
+    //     }
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
     private function lineTaxValues(): string
     {
@@ -990,30 +976,30 @@ class HtmlEngine
         return $data;
     }
 
-    private function makeTotalTaxes(): string
-    {
-        $data = '';
+    // private function makeTotalTaxes(): string
+    // {
+    //     $data = '';
 
-        if (! $this->entity_calc->getTotalTaxMap()) {
-            return $data;
-        }
+    //     if (! $this->entity_calc->getTotalTaxMap()) {
+    //         return $data;
+    //     }
 
-        foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
-            $data .= '<tr>';
-            $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
-            $data .= '<td>'.$tax['name'].'</td>';
-            $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
-        }
+    //     foreach ($this->entity_calc->getTotalTaxMap() as $tax) {
+    //         $data .= '<tr>';
+    //         $data .= '<td colspan="{ count($this->entity->company->settings->pdf_variables->total_columns) - 2 }"></td>';
+    //         $data .= '<td>'.$tax['name'].'</td>';
+    //         $data .= '<td>'.Number::formatMoney($tax['total'], $this->client).'</td></tr>';
+    //     }
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
-    private function parseLabelsAndValues($labels, $values, $section): string
-    {
-        $section = strtr($section, $labels);
+    // private function parseLabelsAndValues($labels, $values, $section): string
+    // {
+    //     $section = strtr($section, $labels);
 
-        return strtr($section, $values);
-    }
+    //     return strtr($section, $values);
+    // }
 
     /*
     | Ensures the URL doesn't have duplicated trailing slash
@@ -1029,98 +1015,98 @@ class HtmlEngine
      * of Repeating headers and footers on the PDF.
      * @return string The css string
      */
-    private function generateCustomCSS(): string
-    {
-        $header_and_footer = '
-.header, .header-space {
-  height: 160px;
-}
+//     private function generateCustomCSS(): string
+//     {
+//         $header_and_footer = '
+// .header, .header-space {
+//   height: 160px;
+// }
 
-.footer, .footer-space {
-  height: 160px;
-}
+// .footer, .footer-space {
+//   height: 160px;
+// }
 
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
+// .footer {
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+// }
 
-.header {
-  position: fixed;
-  top: 0mm;
-  width: 100%;
-}
+// .header {
+//   position: fixed;
+//   top: 0mm;
+//   width: 100%;
+// }
 
-@media print {
-   thead {display: table-header-group;}
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';
+// @media print {
+//    thead {display: table-header-group;}
+//    tfoot {display: table-footer-group;}
+//    button {display: none;}
+//    body {margin: 0;}
+// }';
 
-        $header = '
-.header, .header-space {
-  height: 160px;
-}
+//         $header = '
+// .header, .header-space {
+//   height: 160px;
+// }
 
-.header {
-  position: fixed;
-  top: 0mm;
-  width: 100%;
-}
+// .header {
+//   position: fixed;
+//   top: 0mm;
+//   width: 100%;
+// }
 
-@media print {
-   thead {display: table-header-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';
+// @media print {
+//    thead {display: table-header-group;}
+//    button {display: none;}
+//    body {margin: 0;}
+// }';
 
-        $footer = '
+//         $footer = '
 
-.footer, .footer-space {
-  height: 160px;
-}
+// .footer, .footer-space {
+//   height: 160px;
+// }
 
-.footer {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
+// .footer {
+//   position: fixed;
+//   bottom: 0;
+//   width: 100%;
+// }
 
-@media print {
-   tfoot {display: table-footer-group;}
-   button {display: none;}
-   body {margin: 0;}
-}';
-        $css = '';
+// @media print {
+//    tfoot {display: table-footer-group;}
+//    button {display: none;}
+//    body {margin: 0;}
+// }';
+//         $css = '';
 
-        if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
-            $css .= $header_and_footer;
-        } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
-            $css .= $header;
-        } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
-            $css .= $footer;
-        }
+//         if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
+//             $css .= $header_and_footer;
+//         } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
+//             $css .= $header;
+//         } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
+//             $css .= $footer;
+//         }
 
-        $css .= '
-.page {
-  page-break-after: always;
-}
+//         $css .= '
+// .page {
+//   page-break-after: always;
+// }
 
-@page {
-  margin: 0mm
-}
+// @page {
+//   margin: 0mm
+// }
 
-html {
-        ';
+// html {
+//         ';
 
-        $css .= 'font-size:'.$this->settings->font_size.'px;';
+//         $css .= 'font-size:'.$this->settings->font_size.'px;';
 
-        $css .= '}';
+//         $css .= '}';
 
-        return $css;
-    }
+//         return $css;
+//     }
 
     /**
      * Generate markup for HTML images on entity.
@@ -1180,7 +1166,7 @@ html {
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
         <td align="center" class="new_button" style="border-radius: 2px; background-color: '.$this->settings->primary_color.'">
@@ -1200,14 +1186,14 @@ html {
         ';
 
 
-        return '
-            <table border="0" cellspacing="0" cellpadding="0" align="center">
-                <tr style="border: 0 !important; ">
-                    <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center"> 
-                    <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
-                    </td>
-                </tr>
-            </table>
-        ';
+        // return '
+        //     <table border="0" cellspacing="0" cellpadding="0" align="center">
+        //         <tr style="border: 0 !important; ">
+        //             <td class="new_button" style="padding: 12px 18px 12px 18px; border-radius:5px;" align="center">
+        //             <a href="'. $link .'" target="_blank" style="border: 0 !important;font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; display: inline-block;">'. $text .'</a>
+        //             </td>
+        //         </tr>
+        //     </table>
+        // ';
     }
 }

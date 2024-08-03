@@ -503,7 +503,7 @@ class InvoiceController extends BaseController
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if (! $invoices) {
+        if ($invoices->count() == 0 ) {
             return response()->json(['message' => 'No Invoices Found']);
         }
 
@@ -800,7 +800,7 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadPdf($invitation_key)
     {
@@ -870,7 +870,7 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      * @param $invitation_key
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function downloadEInvoice($invitation_key)
     {
@@ -938,7 +938,7 @@ class InvoiceController extends BaseController
      *       ),
      *     )
      * @param $invoice
-     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response
      */
     public function deliveryNote(ShowInvoiceRequest $request, Invoice $invoice)
     {

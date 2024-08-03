@@ -34,12 +34,9 @@ class ReportPreviewController extends BaseController
             return response()->json(['message' => 'Still working.....'], 409);
         }
 
-        if($report) {
+        Cache::forget($hash);
 
-            Cache::forget($hash);
-
-            return response()->json($report, 200);
-        }
+        return response()->json($report, 200);
 
 
     }

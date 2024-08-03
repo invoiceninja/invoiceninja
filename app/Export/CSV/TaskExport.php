@@ -29,9 +29,9 @@ class TaskExport extends BaseExport
 {
     private $entity_transformer;
 
-    public string $date_key = 'created_at';
+    public string $date_key = 'calculated_start_date';
 
-    private string $date_format = 'YYYY-MM-DD';
+    private string $date_format = 'Y-m-d';
 
     public Writer $csv;
 
@@ -74,7 +74,7 @@ class TaskExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'tasks');
 
         $clients = &$this->input['client_id'];
 
@@ -106,7 +106,9 @@ class TaskExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                  $this->buildRow($entity);
+                
+                /** @var \App\Models\Task $entity*/
+                $this->buildRow($entity);
               });
 
         $this->csv->insertAll($this->storage_array);
@@ -128,6 +130,7 @@ class TaskExport extends BaseExport
         $query->cursor()
                 ->each(function ($resource) {
 
+                    /** @var \App\Models\Task $resource*/
                     $this->buildRow($resource);
 
                     foreach($this->storage_array as $row) {
@@ -153,7 +156,7 @@ class TaskExport extends BaseExport
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
-            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration'])) {
+            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration', 'task.billable', 'task.item_notes'])) {
                 $entity[$key] = '';
             } else {
                 $entity[$key] = $this->decorator->transform($key, $task);
@@ -161,7 +164,7 @@ class TaskExport extends BaseExport
 
         }
 
-        if (is_null($task->time_log) || (is_array(json_decode($task->time_log, 1)) && count(json_decode($task->time_log, 1)) == 0)) {
+        if (is_null($task->time_log) || (is_array(json_decode($task->time_log, true)) && count(json_decode($task->time_log, true)) == 0)) {
             $this->storage_array[] = $entity;
         } else {
             $this->iterateLogs($task, $entity);
@@ -172,31 +175,25 @@ class TaskExport extends BaseExport
     private function iterateLogs(Task $task, array $entity)
     {
         $timezone = Timezone::find($task->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, 1);
+        $logs = json_decode($task->time_log, true);
 
-        $date_format_default = 'Y-m-d';
-
-        $date_format = DateFormat::find($task->company->settings->date_format_id);
-
-        if ($date_format) {
-            $date_format_default = $date_format->format;
-        }
+        $date_format_default = $this->date_format;
 
         foreach ($logs as $key => $item) {
             if (in_array('task.start_date', $this->input['report_keys']) || in_array('start_date', $this->input['report_keys'])) {
-                $carbon_object = Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name);
+                $carbon_object = Carbon::createFromTimeStamp((int)$item[0])->setTimezone($timezone_name);
                 $entity['task.start_date'] = $carbon_object->format($date_format_default);
                 $entity['task.start_time'] = $carbon_object->format('H:i:s');
             }
 
             if ((in_array('task.end_date', $this->input['report_keys']) || in_array('end_date', $this->input['report_keys'])) && $item[1] > 0) {
-                $carbon_object = Carbon::createFromTimeStamp($item[1])->setTimezone($timezone_name);
+                $carbon_object = Carbon::createFromTimeStamp((int)$item[1])->setTimezone($timezone_name);
                 $entity['task.end_date'] = $carbon_object->format($date_format_default);
                 $entity['task.end_time'] = $carbon_object->format('H:i:s');
             }
@@ -212,6 +209,14 @@ class TaskExport extends BaseExport
                 $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
             }
 
+            if (in_array('task.billable', $this->input['report_keys']) || in_array('billable', $this->input['report_keys'])) {
+                $entity['task.billable'] = isset($item[3]) && $item[3] == 'true' ? ctrans('texts.yes') : ctrans('texts.no');
+            }
+
+            if (in_array('task.item_notes', $this->input['report_keys']) || in_array('item_notes', $this->input['report_keys'])) {
+                $entity['task.item_notes'] = isset($item[2]) ? (string)$item[2] : '';
+            }
+
             $entity = $this->decorateAdvancedFields($task, $entity);
 
             $this->storage_array[] = $entity;
@@ -222,6 +227,8 @@ class TaskExport extends BaseExport
             $entity['task.end_time'] = '';
             $entity['task.duration'] = '';
             $entity['task.duration_words'] = '';
+            $entity['task.billable'] = '';
+            $entity['task.item_notes'] = '';
 
         }
 
@@ -236,7 +243,7 @@ class TaskExport extends BaseExport
      */
     protected function addTaskStatusFilter(Builder $query, string $status): Builder
     {
-
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
         if (in_array('all', $status_parameters) || count($status_parameters) == 0) {

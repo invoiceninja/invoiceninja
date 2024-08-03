@@ -126,13 +126,12 @@ class MatchBankTransactions implements ShouldQueue
     {
         $collection = collect();
 
+        /** @array $invoices */
         $invoices = explode(",", $invoice_hashed_ids);
 
-        if (count($invoices) >= 1) {
-            foreach ($invoices as $invoice) {
-                if (is_string($invoice) && strlen($invoice) > 1) {
-                    $collection->push($this->decodePrimaryKey($invoice));
-                }
+        foreach ($invoices as $invoice) {
+            if (is_string($invoice) && strlen($invoice) > 1) {
+                $collection->push($this->decodePrimaryKey($invoice));
             }
         }
 
@@ -189,7 +188,7 @@ class MatchBankTransactions implements ShouldQueue
     private function coalesceExpenses($expense): string
     {
 
-        if (!$this->bt->expense_id || strlen($this->bt->expense_id) < 1) {
+        if (!$this->bt->expense_id || strlen($this->bt->expense_id ?? '') < 2) {
             return $expense;
         }
 
@@ -233,11 +232,12 @@ class MatchBankTransactions implements ShouldQueue
         $_invoices = Invoice::query()
             ->withTrashed()
             ->where('company_id', $this->bt->company_id)
-            ->whereIn('id', $this->getInvoices($input['invoice_ids']));
+            ->whereIn('id', $this->getInvoices($input['invoice_ids']))
+            ->get();
 
         $amount = $this->bt->amount;
 
-        if ($_invoices && $this->checkPayable($_invoices)) {
+        if ($_invoices->count() >0 && $this->checkPayable($_invoices)) {
             $this->createPayment($_invoices, $amount);
 
             $this->bts->push($this->bt->id);
@@ -312,8 +312,11 @@ class MatchBankTransactions implements ShouldQueue
                 if ($_amount) {
                     $this->attachable_invoices[] = ['id' => $this->invoice->id, 'amount' => $_amount];
 
+                    $this->invoice->next_send_date = null;
+
                     $this->invoice
                         ->service()
+                        ->applyNumber()
                         ->setExchangeRate()
                         ->updateBalance($_amount * -1)
                         ->updatePaidToDate($_amount)
@@ -323,6 +326,7 @@ class MatchBankTransactions implements ShouldQueue
             });
         }, 2);
 
+        // @phpstan-ignore-next-line
         if (!$this->invoice) {
             return;
         }
@@ -355,21 +359,13 @@ class MatchBankTransactions implements ShouldQueue
         $this->setExchangeRate($payment);
 
         /* Create a payment relationship to the invoice entity */
-        foreach ($this->attachable_invoices as $attachable_invoice) {
+        foreach ($this->attachable_invoices as $attachable_invoice) { // @phpstan-ignore-line
             $payment->invoices()->attach($attachable_invoice['id'], [
                 'amount' => $attachable_invoice['amount'],
             ]);
         }
 
         event('eloquent.created: App\Models\Payment', $payment);
-
-        $this->invoice->next_send_date = null;
-
-        $this->invoice
-            ->service()
-            ->applyNumber()
-            ->deletePdf()
-            ->save();
 
         $payment->ledger()
             ->updatePaymentBalance($amount * -1);
@@ -389,7 +385,13 @@ class MatchBankTransactions implements ShouldQueue
         event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         event(new InvoiceWasPaid($this->invoice, $payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        $this->bt->invoice_ids = $invoices->get()->pluck('hashed_id')->implode(',');
+        $hashed_keys = [];
+
+        foreach($this->attachable_invoices as $attachable_invoice){ //@phpstan-ignore-line
+            $hashed_keys[] = $this->encodePrimaryKey($attachable_invoice['id']);
+        }
+
+        $this->bt->invoice_ids = implode(",", $hashed_keys);
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->payment_id = $payment->id;
         $this->bt->save();
@@ -446,6 +448,6 @@ class MatchBankTransactions implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company_id)];
+        return [new WithoutOverlapping($this->company->account->bank_integration_account_id)];
     }
 }

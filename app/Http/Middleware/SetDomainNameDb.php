@@ -56,7 +56,8 @@ class SetDomainNameDb
                     return response()->json($error, 403);
                 } else {
                     MultiDB::setDb('db-ninja-01');
-                    nlog('I could not set the DB - defaulting to DB1');
+                    nlog('SetDomainNameDb:: I could not set the DB - defaulting to DB1');
+                    $request->session()->invalidate();
                     //abort(400, 'Domain not found');
                 }
             }
@@ -73,7 +74,8 @@ class SetDomainNameDb
                     return response()->json($error, 403);
                 } else {
                     MultiDB::setDb('db-ninja-01');
-                    nlog('I could not set the DB - defaulting to DB1');
+                    nlog('SetDomainNameDb:: I could not set the DB - defaulting to DB1');
+                    $request->session()->invalidate();
                 }
             }
         }

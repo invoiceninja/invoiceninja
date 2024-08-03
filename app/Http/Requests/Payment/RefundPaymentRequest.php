@@ -81,7 +81,7 @@ class RefundPaymentRequest extends Request
     public function payment(): ?\App\Models\Payment
     {
         $input = $this->all();
-
-        return Payment::whereId($input['id'])->first();
+        /** @var \App\Models\Payment */
+        return Payment::find($input['id']);
     }
 }

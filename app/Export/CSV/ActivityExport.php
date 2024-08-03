@@ -25,8 +25,6 @@ use League\Csv\Writer;
 
 class ActivityExport extends BaseExport
 {
-    private $entity_transformer;
-
     public string $date_key = 'created_at';
 
     private string $date_format = 'YYYY-MM-DD';
@@ -43,7 +41,7 @@ class ActivityExport extends BaseExport
     {
         $this->company = $company;
         $this->input = $input;
-        $this->entity_transformer = new ActivityTransformer();
+
     }
 
     public function returnJson()
@@ -59,6 +57,7 @@ class ActivityExport extends BaseExport
 
         $report = $query->cursor()
             ->map(function ($resource) {
+                /** @var \App\Models\Activity $resource */
                 $row = $this->buildActivityRow($resource);
                 return $this->processMetaData($row, $resource);
             })->toArray();
@@ -111,7 +110,7 @@ class ActivityExport extends BaseExport
         $query = Activity::query()
                         ->where('company_id', $this->company->id);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'activities');
 
         return $query;
     }
@@ -130,6 +129,9 @@ class ActivityExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
+                
+                /** @var \App\Models\Activity $entity */
+
                   $this->buildRow($entity);
               });
 
@@ -143,10 +145,10 @@ class ActivityExport extends BaseExport
 
     }
 
-    private function decorateAdvancedFields(Task $task, array $entity): array
-    {
-        return $entity;
-    }
+    // private function decorateAdvancedFields(Task $task, array $entity): array
+    // {
+    //     return $entity;
+    // }
 
 
     public function processMetaData(array $row, $resource): array

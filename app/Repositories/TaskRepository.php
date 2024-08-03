@@ -12,6 +12,7 @@
 namespace App\Repositories;
 
 use App\Factory\TaskFactory;
+use App\Jobs\Task\TaskAssigned;
 use App\Models\Task;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Database\QueryException;
@@ -45,8 +46,15 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
+        if(!is_numeric($task->rate) && !isset($data['rate']))
+            $data['rate'] = 0;
+        
         $task->fill($data);
         $task->saveQuietly();
+
+        if(isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id) {
+            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
+        }
 
         $this->init($task);
 
@@ -109,10 +117,15 @@ class TaskRepository extends BaseRepository
         }
 
         $key_values = array_column($time_log, 0);
-        array_multisort($key_values, SORT_ASC, $time_log);
+        
+        if(count($key_values) > 0)
+            array_multisort($key_values, SORT_ASC, $time_log);
 
         foreach($time_log as $key => $value) {
-            $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+
+            if(is_array($time_log[$key]) && count($time_log[$key]) >=2)
+                $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+
         }
 
         if (isset($data['action'])) {
@@ -126,10 +139,10 @@ class TaskRepository extends BaseRepository
                 $time_log[count($time_log) - 1][1] = time();
                 $task->is_running = false;
             } elseif ($data['action'] == 'offline') {
-                $task->is_running = $data['is_running'] ? 1 : 0;
+                $task->is_running = $data['is_running'] ? true : false;
             }
         } elseif (isset($data['is_running'])) {
-            $task->is_running = $data['is_running'] ? 1 : 0;
+            $task->is_running = $data['is_running'] ? true : false;
         }
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
@@ -142,6 +155,8 @@ class TaskRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $task);
         }
 
+        $this->calculateProjectDuration($task);
+
         return $task;
     }
 
@@ -149,7 +164,7 @@ class TaskRepository extends BaseRepository
     {
 
         if(isset($time_log[0][0])) {
-            return \Carbon\Carbon::createFromTimestamp($time_log[0][0])->addSeconds($task->company->utc_offset());
+            return \Carbon\Carbon::createFromTimestamp((int)$time_log[0][0])->addSeconds($task->company->utc_offset());
         }
 
         return null;
@@ -248,12 +263,14 @@ class TaskRepository extends BaseRepository
             $task->saveQuietly();
         }
 
+        $this->calculateProjectDuration($task);
+
         return $task;
     }
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1 || $end_time == 0) {
+        if(in_array($this->task_round_to_nearest, [0,1]) || $end_time == 0) {
             return $end_time;
         }
 
@@ -289,7 +306,10 @@ class TaskRepository extends BaseRepository
             $task->saveQuietly();
         }
 
+        $this->calculateProjectDuration($task);
+        
         return $task;
+
     }
 
     public function triggeredActions($request, $task)
@@ -335,4 +355,67 @@ class TaskRepository extends BaseRepository
 
         return $task->number;
     }
+
+    private function calculateProjectDuration(Task $task) 
+    {
+
+        if($task->project) {
+
+            $duration = 0;
+
+            $task->project->tasks->each(function ($task) use (&$duration) {
+
+                if(is_iterable(json_decode($task->time_log))) {
+
+                    foreach(json_decode($task->time_log) as $log) {
+
+                        if(!is_array($log)) {
+                            continue;
+                        }
+
+                        $start_time = $log[0];
+                        $end_time = $log[1] == 0 ? time() : $log[1];
+
+                        $duration += $end_time - $start_time;
+
+                    }
+                }
+
+            });
+
+            $task->project->current_hours = (int) round(($duration / 60 / 60), 0);
+            $task->push();
+        }
+    }
+
+    /**
+     * @param $entity
+     */
+    public function restore($task)
+    {
+        if (!$task->trashed()) {
+            return;
+        }
+
+        parent::restore($task);
+
+        $this->calculateProjectDuration($task);
+
+    }
+
+    /**
+     * @param $entity
+     */
+    public function delete($task)
+    {
+        if ($task->is_deleted) {
+            return;
+        }
+        
+        parent::delete($task);
+
+        $this->calculateProjectDuration($task);
+
+    }
+
 }

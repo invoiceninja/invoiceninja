@@ -71,7 +71,7 @@ class PurchaseOrderItemExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'purchase_orders');
 
         $clients = &$this->input['client_id'];
 
@@ -101,13 +101,15 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query->cursor()
               ->each(function ($resource) {
-                  $this->iterateItems($resource);
+                
+                /** @var \App\Models\PurchaseOrder $resource */
+                $this->iterateItems($resource);
 
-                  foreach($this->storage_array as $row) {
-                      $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
-                  }
+                foreach($this->storage_array as $row) {
+                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                }
 
-                  $this->storage_array = [];
+                $this->storage_array = [];
 
               });
 
@@ -127,7 +129,9 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($purchase_order) {
-                $this->iterateItems($purchase_order);
+               
+            /** @var \App\Models\PurchaseOrder $purchase_order */
+            $this->iterateItems($purchase_order);
             });
 
         $this->csv->insertAll($this->storage_array);

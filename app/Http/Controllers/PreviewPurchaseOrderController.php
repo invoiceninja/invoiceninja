@@ -54,7 +54,7 @@ class PreviewPurchaseOrderController extends BaseController
     /**
      * Returns a template filled with entity variables.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse | \Illuminate\Http\Response | \Symfony\Component\HttpFoundation\BinaryFileResponse
      *
      * @OA\Post(
      *      path="/api/v1/preview/purchase_order",
@@ -217,139 +217,6 @@ class PreviewPurchaseOrderController extends BaseController
         ]);
 
 
-    }
-
-    public function livex(PreviewPurchaseOrderRequest $request)
-    {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-        $company = $user->company();
-        $file_path = (new PreviewPdf('<html></html>', $company))->handle();
-        $response = Response::make($file_path, 200);
-        $response->header('Content-Type', 'application/pdf');
-
-        return $response;
-
-        MultiDB::setDb($company->db);
-
-        $repo = new PurchaseOrderRepository();
-        $entity_obj = PurchaseOrderFactory::create($company->id, $user->id);
-        $class = PurchaseOrder::class;
-
-        try {
-            DB::connection(config('database.default'))->beginTransaction();
-
-            if ($request->has('entity_id')) {
-                /** @var \App\Models\PurchaseOrder|\Illuminate\Contracts\Database\Eloquent\Builder $entity_obj **/
-                $entity_obj = \App\Models\PurchaseOrder::on(config('database.default'))
-                                    ->with('vendor.company')
-                                    ->where('id', $this->decodePrimaryKey($request->input('entity_id')))
-                                    ->where('company_id', $company->id)
-                                    ->withTrashed()
-                                    ->first();
-            }
-
-            $entity_obj = $repo->save($request->all(), $entity_obj);
-
-            if (!$request->has('entity_id')) {
-                $entity_obj->service()->fillDefaults()->save();
-            }
-
-            App::forgetInstance('translator');
-            $t = app('translator');
-            App::setLocale($entity_obj->company->locale());
-            $t->replace(Ninja::transformTranslations($entity_obj->company->settings));
-
-            $html = new VendorHtmlEngine($entity_obj->invitations()->first());
-
-            /** @var \App\Models\Design $design */
-            $design = \App\Models\Design::withTrashed()->find($entity_obj->design_id);
-
-            /* Catch all in case migration doesn't pass back a valid design */
-            if (!$design) {
-                $design = \App\Models\Design::find(2);
-            }
-
-            if ($design->is_custom) {
-                $options = [
-                'custom_partials' => json_decode(json_encode($design->design), true)
-              ];
-                $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
-            } else {
-                $template = new PdfMakerDesign(strtolower($design->name));
-            }
-
-            $variables = $html->generateLabelsAndValues();
-
-            $state = [
-                'template' => $template->elements([
-                    'client' => null,
-                    'vendor' => $entity_obj->vendor,
-                    'entity' => $entity_obj,
-                    'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
-                    'variables' => $html->generateLabelsAndValues(),
-                    '$product' => $design->design->product,
-                ]),
-                'variables' => $html->generateLabelsAndValues(),
-                'options' => [
-                    'client' => null,
-                    'vendor' => $entity_obj->vendor,
-                    'purchase_orders' => [$entity_obj],
-                    'variables' => $html->generateLabelsAndValues(),
-                ],
-                'process_markdown' => $entity_obj->company->markdown_enabled,
-            ];
-
-            $maker = new PdfMaker($state);
-
-            $maker
-                ->design($template)
-                ->build();
-
-            DB::connection(config('database.default'))->rollBack();
-
-            if (request()->query('html') == 'true') {
-                return $maker->getCompiledHTML();
-            }
-        } catch(\Exception $e) {
-            DB::connection(config('database.default'))->rollBack();
-            return;
-        }
-
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
-
-        //if phantom js...... inject here..
-        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-            return (new Phantom())->convertHtmlToPdf($maker->getCompiledHTML(true));
-        }
-
-        if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-            $pdf = (new NinjaPdf())->build($maker->getCompiledHTML(true));
-
-            $numbered_pdf = $this->pageNumbering($pdf, $user->company());
-
-            if ($numbered_pdf) {
-                $pdf = $numbered_pdf;
-            }
-
-            return $pdf;
-        }
-
-        $file_path = (new PreviewPdf($maker->getCompiledHTML(true), $company))->handle();
-
-
-        if (Ninja::isHosted()) {
-            LightLogs::create(new LivePreview())
-                     ->increment()
-                     ->batch();
-        }
-
-
-        $response = Response::make($file_path, 200);
-        $response->header('Content-Type', 'application/pdf');
-
-        return $response;
     }
 
     private function blankEntity()

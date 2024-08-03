@@ -119,17 +119,18 @@ class BaseTransformer
     {
         $code = array_key_exists($key, $data) ? $data[$key] : false;
 
-        $currencies = Cache::get('currencies');
+        if(!$code)
+            return $this->company->settings->currency_id;
 
-        $currency = $currencies
-            ->filter(function ($item) use ($code) {
-                return $item->code == $code;
-            })
-            ->first();
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
-        return $currency
-            ? $currency->id
-            : $this->company->settings->currency_id;
+        $currency = $currencies->first(function ($item) use ($code) {
+            return $item->code == $code;
+        });
+
+        return $currency ? (string) $currency->id : $this->company->settings->currency_id;
+
     }
 
     public function getFrequency($frequency = RecurringInvoice::FREQUENCY_MONTHLY): int
@@ -653,12 +654,11 @@ class BaseTransformer
     /**
      * @param $name
      *
-     * @return int|null
+     * @return int
      */
     public function getExpenseCategoryId($name)
     {
-        /** @var \App\Models\ExpenseCategory $ec */
-
+        /** @var ?\App\Models\ExpenseCategory $ec */
         $ec = ExpenseCategory::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
             ->whereRaw("LOWER(REPLACE(`name`, ' ' ,''))  = ?", [
@@ -674,7 +674,7 @@ class BaseTransformer
         $ec->name = $name;
         $ec->save();
 
-        return $ec ? $ec->id : null;
+        return $ec->id;
     }
 
     public function getOrCreateExpenseCategry($name)

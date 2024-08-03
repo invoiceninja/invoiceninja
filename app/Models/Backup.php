@@ -61,7 +61,7 @@ class Backup extends BaseModel
         }
 
         $path = $client_or_vendor->backup_path().'/';
-        $filename = now()->format('Y_m_d').'_'.md5(time()).'.html';
+        $filename = now()->format('Y_m_d').'_'.md5(time()).'.html'; //@phpstan-ignore-line
         $file_path = $path.$filename;
 
         Storage::disk(config('filesystems.default'))->put($file_path, $html);

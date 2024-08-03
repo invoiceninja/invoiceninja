@@ -62,7 +62,7 @@ class PaymentExport extends BaseExport
                             ->where('company_id', $this->company->id)
                             ->where('is_deleted', 0);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'payments');
 
         $clients = &$this->input['client_id'];
 
@@ -92,6 +92,8 @@ class PaymentExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+                    
+                    /** @var \App\Models\Payment $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
@@ -112,6 +114,8 @@ class PaymentExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
+                
+                    /** @var \App\Models\Payment $entity */
                   $this->csv->insertOne($this->buildRow($entity));
               });
 

@@ -59,7 +59,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $trial_duration
  * @property int $is_onboarding
  * @property object|null $onboarding
- * @property int $is_migrated
+ * @property bool $is_migrated
  * @property string|null $platform
  * @property int|null $hosted_client_count
  * @property int|null $hosted_company_count
@@ -364,16 +364,19 @@ class Account extends BaseModel
         return $this->isProClient() && $this->isPaid();
     }
 
+    public function isNewHostedAccount()
+    {
+        return Ninja::isHosted() && Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 2;
+    }
+
     public function isTrial(): bool
     {
         if (!Ninja::isNinja()) {
             return false;
         }
 
-        //@27-01-2024 - updates for logic around trials
         return !$this->plan_paid && $this->trial_started && Carbon::parse($this->trial_started)->addDays(14)->gte(now()->subHours(12));
-        // $plan_details = $this->getPlanDetails();
-        // return $plan_details && $plan_details['trial'];
+
     }
 
     public function startTrial($plan): void
@@ -623,7 +626,7 @@ class Account extends BaseModel
         $plan_expires = Carbon::parse($this->plan_expires);
 
         if ($plan_expires->gt(now())) {
-            $diff = $plan_expires->diffInDays();
+            $diff = intval(abs($plan_expires->diffInDays()));
 
             if ($diff > 14) {
                 return 0;

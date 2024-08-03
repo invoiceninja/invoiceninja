@@ -549,7 +549,7 @@ class RecurringQuote extends BaseModel
             case 'terms':
                 return $this->calculateDateFromTerms($date);
             default:
-                return $this->setDayOfMonth($date, $this->due_date_days);
+                return $this->setDayOfMonth($date, ($this->due_date_days ?? 1));
         }
     }
 
@@ -569,7 +569,7 @@ class RecurringQuote extends BaseModel
             return null;
         }
 
-        return $new_date->addDays($client_payment_terms); //add the number of days in the payment terms to the date
+        return $new_date->addDays((int)$client_payment_terms); //add the number of days in the payment terms to the date
     }
 
     /**

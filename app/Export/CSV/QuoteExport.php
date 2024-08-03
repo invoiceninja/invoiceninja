@@ -31,11 +31,11 @@ class QuoteExport extends BaseExport
 
     private Decorator $decorator;
 
-    private array $decorate_keys = [
-        'client',
-        'currency',
-        'invoice',
-    ];
+    // private array $decorate_keys = [
+    //     'client',
+    //     'currency',
+    //     'invoice',
+    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -73,7 +73,7 @@ class QuoteExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'quotes');
 
         $clients = &$this->input['client_id'];
 
@@ -103,6 +103,8 @@ class QuoteExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+
+                    /** @var \App\Models\Quote $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
@@ -125,6 +127,8 @@ class QuoteExport extends BaseExport
 
         $query->cursor()
             ->each(function ($quote) {
+                
+                /** @var \App\Models\Quote $quote */
                 $this->csv->insertOne($this->buildRow($quote));
             });
 

@@ -45,8 +45,6 @@ class ArDetailReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
-        
-        $this->buildCache(true);
 
     }
 
@@ -96,6 +94,7 @@ class ArDetailReportTest extends TestCase
         $settings = CompanySettings::defaults();
         $settings->client_online_payment_notification = false;
         $settings->client_manual_payment_notification = false;
+        $settings->currency_id = '1';
 
         $this->company = Company::factory()->create([
             'account_id' => $this->account->id,
