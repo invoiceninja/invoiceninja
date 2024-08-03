@@ -34,4 +34,22 @@ final class Auth
     {
         return $this->sdk->getState();
     }
+
+    public function getAccessToken() : array
+    {
+        // TODO: Cache token and 
+        $token = $this->sdk->getAccessToken();
+        $access_token = $token->getAccessToken();
+        $refresh_token = $token->getRefreshToken();
+        $access_token_expires = $token->getAccessTokenExpiresAt();
+        $refresh_token_expires = $token->getRefreshTokenExpiresAt();       
+        //TODO: Cache token object. Update $sdk instance?
+        return compact('access_token', 'refresh_token','access_token_expires', 'refresh_token_expires');
+    }
+
+    public function getRefreshToken() : array
+    {
+        // TODO: Check if token is Cached otherwise fetch a new one and Cache token and expire
+        return  $this->getAccessToken();
+    }
 }
