@@ -15,7 +15,7 @@ class PostTransactionSchedulesUpdateViaPost extends BaseRequest implements Reque
     public function setId(int $value) {
     $this->setParameter('id',$value);  
   }
-    public function setAmount(int $value) {
+    public function setAmount($value) {
     $this->setParameter('amount',$value);  
   }
     public function setComment(string $value) {
