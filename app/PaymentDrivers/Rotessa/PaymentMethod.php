@@ -81,7 +81,7 @@ class PaymentMethod implements MethodInterface
                 'country' => ['required'],
                 'name' => ['required'],
                 'address_1' => ['required'],
-                'address_2' => ['required'],
+                // 'address_2' => ['required'],
                 'city' => ['required'],
                 'email' => ['required','email:filter'],
                 'province_code' => ['required','size:2','alpha'],
@@ -90,7 +90,7 @@ class PaymentMethod implements MethodInterface
                 'account_number' => ['required'],
                 'bank_name' => ['required'],
                 'phone' => ['required'],
-                'home_phone' => ['required'],
+                'home_phone' => ['required','size:10'],
                 'bank_account_type'=>['required_if:country,US'],
                 'routing_number'=>['required_if:country,US'],
                 'institution_number'=>['required_if:country,CA','numeric'],
@@ -159,11 +159,14 @@ class PaymentMethod implements MethodInterface
             $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date') + ['comment' => $this->rotessa->getDescription(false) ]);
             $transaction->additional(['customer_id' => $customer->gateway_customer_reference]);
             $transaction = array_filter( $transaction->resolve());
-            $response = $this->rotessa->gateway->capture($transaction)->send();
+            $response = $this->rotessa->gatewayRequest('post','transaction_schedules', $transaction);
+                        
+            if($response->failed()) 
+                $response->throw(); 
             
-            if(!$response->isSuccessful()) throw new \Exception($response->getMessage(), (int) $response->getCode()); 
-            
-           return  $this->processPendingPayment($response->getParameter('id'), (float) $response->getParameter('amount'), PaymentType::ACSS , $customer->token);
+            $response = $response->json();
+            nlog($response);
+           return  $this->processPendingPayment($response['id'], (float) $response['amount'], PaymentType::ACSS , $customer->token);
         } catch(\Throwable $e) {
             $this->processUnsuccessfulPayment( new InvalidResponseException($e->getMessage(), (int) $e->getCode()) );
         }

@@ -27,7 +27,7 @@ class AccountComponent extends Component
         'routing_number' => null,
         'institution_number' => null,
         'transit_number' => null,
-        'bank_name' => ' ',
+        'bank_name' => null,
         'account_number' => null,
         'country' => 'US',
         "authorization_type" => 'Online'

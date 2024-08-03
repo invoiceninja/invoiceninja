@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\PaymentDrivers\Rotessa\Resources\Customer;
 use App\PaymentDrivers\Rotessa\PaymentMethod as Acss;
 use App\PaymentDrivers\Rotessa\PaymentMethod as BankTransfer;
+use Illuminate\Support\Facades\Http;
 
 class RotessaPaymentDriver extends BaseDriver
 {
@@ -54,11 +55,6 @@ class RotessaPaymentDriver extends BaseDriver
 
     public function init(): self
     {
-       
-        $this->gateway = Omnipay::create(
-            $this->company_gateway->gateway->provider
-        );
-        $this->gateway->initialize((array) $this->company_gateway->getConfig());
         return $this;
     }
 
@@ -117,30 +113,42 @@ class RotessaPaymentDriver extends BaseDriver
     }
 
     public function importCustomers() {
-        $this->init();
+        
         try {
-            if(!$result = Cache::has("rotessa-import_customers-{$this->company_gateway->company->company_key}")) {
-                $result = $this->gateway->getCustomers()->send();
-                if(!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
-                // cache results
-                Cache::put("rotessa-import_customers-{$this->company_gateway->company->company_key}", $result->getData(), 60 * 60 * 24);
-            }
-           
-            $result = Cache::get("rotessa-import_customers-{$this->company_gateway->company->company_key}");
-            $customers = collect($result)->unique('email');
+            $result = $this->gatewayRequest('get','customers',[]);
+
+            if($result->failed())
+                $result->throw();
+            
+            $customers = collect($result->json())->unique('email');
+        
             $client_emails = $customers->pluck('email')->all();
             $company_id = $this->company_gateway->company->id;
             // get existing customers
-            $client_contacts = ClientContact::where('company_id', $company_id)->whereIn('email', $client_emails )->whereNull('deleted_at')->get();
+            $client_contacts = ClientContact::where('company_id', $company_id)
+                                            ->whereIn('email', $client_emails )
+                                            ->whereHas('client', function ($q){
+                                                $q->where('is_deleted', false);
+                                            })
+                                            ->whereNull('deleted_at')
+                                            ->get();
+
             $client_contacts = $client_contacts->map(function($item, $key) use ($customers) {
-                return  array_merge([], (array) $customers->firstWhere("email", $item->email) , ['custom_identifier' => $item->client->number, 'identifier' => $item->client->number, 'client_id' => $item->client->id ]);
+                return array_merge($customers->firstWhere("email", $item->email),['custom_identifier' => $item->client->number, 'identifier' => $item->client->number, 'client_id' => $item->client->id ]);
             }  );
+
             // create payment methods
             $client_contacts->each(
-                function($contact) use ($customers) {
-                    $result = $this->gateway->getCustomersId(['id' => ($contact = (object) $contact)->id])->send();
+                function($contact)  {
+                    // $result = $this->gateway->getCustomersId(['id' => ($contact = (object) $contact)->id])->send();
+                    $contact = (object)$contact;
+                    
+                    $result = $this->gatewayRequest("get","customers/{$contact->id}");
+                    $result = $result->json();
+                    
                     $this->client = Client::find($contact->client_id);
-                    $customer = (new Customer($result->getData()))->additional(['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ] );
+            
+                    $customer = (new Customer($result))->additional(['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ] );
                     $this->findOrCreateCustomer($customer->additional + $customer->jsonSerialize());
                 }
             );
@@ -150,8 +158,8 @@ class RotessaPaymentDriver extends BaseDriver
             $client_contacts = $customers->filter(function ($value, $key) use ($client_emails) {
                 return !in_array(((object) $value)->email, $client_emails);
             })->each( function($customer) use ($company_id) {
-                // create new client contact from rotess customer
-                $customer = (object) $this->gateway->getCustomersId(['id' => ($customer = (object) $customer)->id])->send()->getData();
+                
+                $customer = $this->gatewayRequest("get", "customers/{$customer['id']}")->json();
                 /**
                     {
                         "account_number": "11111111"
@@ -186,7 +194,7 @@ class RotessaPaymentDriver extends BaseDriver
                     */
                 $settings = ClientSettings::defaults();
                 $settings->currency_id = $this->company_gateway->company->getSetting('currency_id');
-                
+                $customer = (object)$customer;
                 $client = (\App\Factory\ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id))->fill(
                     [
                         'address1' => $customer->address['address_1'] ?? '',
@@ -245,12 +253,18 @@ class RotessaPaymentDriver extends BaseDriver
                     ->where('gateway_customer_reference', Arr::only($data,'id'));
                 })
                 ->exists();
-            if ($existing) return true;
+            if ($existing) 
+                return true;
             else if(!Arr::has($data,'id')) {
-                $result = $this->gateway->authorize($data)->send();
-                if (!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
+                // $result = $this->gateway->authorize($data)->send();
+                // if (!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
 
-                $customer = new Customer($result->getData());
+                $result = $this->gatewayRequest('post', 'customers', $data);
+
+                if($result->failed()) 
+                    $result->throw();
+
+                $customer = new Customer($result->json());
                 $data = array_filter($customer->resolve());
 
             }
@@ -268,7 +282,6 @@ class RotessaPaymentDriver extends BaseDriver
             
             return $data['id'];
             
-            throw new \Exception($result->getMessage(), (int) $result->getCode());
 
         } catch (\Throwable $th) {
             $data = [
@@ -276,7 +289,7 @@ class RotessaPaymentDriver extends BaseDriver
                 'transaction_response' => $th->getMessage(),
                 'success' => false,
                 'description' => $th->getMessage(),
-                'code' =>(int) $th->getCode()
+                'code' => 500
             ];
 
             SystemLogger::dispatch(['server_response' => is_null($result) ? '' : $result->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
@@ -284,4 +297,20 @@ class RotessaPaymentDriver extends BaseDriver
             throw $th;
         }
     }
+
+    public function gatewayRequest($verb, $uri, $payload = [])
+    {
+        $r = Http::withToken($this->company_gateway->getConfigField('apiKey'))
+                ->{$verb}($this->getUrl().$uri, $payload);
+
+        nlog($r->body());
+
+        return $r;
+    }
+
+    private function getUrl(): string
+    {
+        return $this->company_gateway->getConfigField('testMode') ? 'https://sandbox-api.rotessa.com/v1/' : 'https://api.rotessa.com/v1/';
+    }
+
 }

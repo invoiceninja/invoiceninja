@@ -22,7 +22,7 @@
             {{ ctrans('texts.address2') }}
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
-            <input class="input w-full" id="address_2" name="address_2" type="text" placeholder="Address Line 2" required value="{{ old('address_2', $address_2) }}">
+            <input class="input w-full" id="address_2" name="address_2" type="text" placeholder="Address Line 2" value="{{ old('address_2', $address_2) }}">
         </dd>
     </div>
 
