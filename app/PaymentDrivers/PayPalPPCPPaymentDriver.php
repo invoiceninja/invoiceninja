@@ -128,7 +128,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         nlog($response);
 
-        if($request->has('token') && strlen($request->input('token')) > 2) {
+        if($request->has('token') && strlen($request->input('token','')) > 2) {
             return $this->processTokenPayment($request, $response);
         }
 
@@ -273,14 +273,14 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 ]
             ];
 
-
-        if($shipping = $this->getShippingAddress()) {
+        if($shipping = $this->getShippingAddress()) 
             $order['purchase_units'][0]["shipping"] = $shipping;
-        }
 
-        if(isset($data['payment_source'])) {
+        if(isset($data['payment_source'])) 
             $order['payment_source'] = $data['payment_source'];
-        }
+
+        if(isset($data['payer']))
+            $order['payer'] = $data['payer'];
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
@@ -306,7 +306,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
      *
      * @param  mixed $request
      * @param  array $response
-     * @return void
      */
     public function processTokenPayment($request, array $response)
     {
@@ -317,7 +316,16 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                                  ->firstOrFail();
 
         $orderId = $response['orderID'];
+
         $r = $this->gatewayRequest("/v1/checkout/orders/{$orderId}/", 'delete', ['body' => '']);
+
+        $data["payer"] = [
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name()
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
 
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
@@ -333,8 +341,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         $orderId = $this->createOrder($data);
 
-        // $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
-        
         try {
 
             $r = $this->gatewayRequest("/v2/checkout/orders/{$orderId}", 'get', ['body' => '']);
@@ -362,26 +368,32 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         }
 
         $response = $r->json();
+        
+        if(isset($response['purchase_units'][0]['payments']['captures'][0]['status']) && $response['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED')
+        {
 
-        $data = [
-            'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
-            'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
-            'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
-            'gateway_type_id' => $this->gateway_type_id,
-        ];
+            $data = [
+                'payment_type' => $this->getPaymentMethod($request->gateway_type_id),
+                'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+                'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
+                'gateway_type_id' => $this->gateway_type_id,
+            ];
 
-        $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
-        SystemLogger::dispatch(
-            ['response' => $response, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_PAYPAL_PPCP,
-            $this->client,
-            $this->client->company,
-        );
+            SystemLogger::dispatch(
+                ['response' => $response, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_PAYPAL_PPCP,
+                $this->client,
+                $this->client->company,
+            );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+        }
+
+        return response()->json(['message' => 'Error processing token payment'], 400);
 
     }
 
@@ -389,6 +401,14 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
     {
         $data = [];
         $this->payment_hash = $payment_hash;
+
+        $data["payer"] = [
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name()
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
 
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
@@ -431,26 +451,36 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         }
 
         $response = $r->json();
+        if(isset($response['purchase_units'][0]['payments']['captures'][0]['status']) && $response['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED')
+        {
 
-        $data = [
-            'payment_type' => $this->getPaymentMethod((string)$cgt->gateway_type_id),
-            'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
-            'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
-            'gateway_type_id' => $this->gateway_type_id,
-        ];
+            $data = [
+                'payment_type' => $this->getPaymentMethod((string)$cgt->gateway_type_id),
+                'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
+                'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
+                'gateway_type_id' => $this->gateway_type_id,
+            ];
 
-        $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
+            $payment = $this->createPayment($data, \App\Models\Payment::STATUS_COMPLETED);
 
-        SystemLogger::dispatch(
-            ['response' => $response, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_PAYPAL_PPCP,
-            $this->client,
-            $this->client->company,
-        );
+            SystemLogger::dispatch(
+                ['response' => $response, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_PAYPAL_PPCP,
+                $this->client,
+                $this->client->company,
+            );
 
+        }
+
+        $this->processInternallyFailedPayment($this, new \Exception('Auto billing failed.', 400));
+
+        SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client, $this->client->company);
 
     }
+
+
+
 
 }

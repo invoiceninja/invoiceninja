@@ -300,7 +300,9 @@ class InvitationController extends Controller
                 'signature' => false,
                 'contact_first_name' => $invitation->contact->first_name ?? '',
                 'contact_last_name' => $invitation->contact->last_name ?? '',
-                'contact_email' => $invitation->contact->email ?? ''
+                'contact_email' => $invitation->contact->email ?? '',
+                'client_city' => $invitation->client->city ?? '',
+                'client_postal_code' => $invitation->client->postal_code ?? '',
             ];
 
             $request->replace($data);

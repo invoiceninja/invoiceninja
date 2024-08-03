@@ -18,6 +18,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Encryption\MissingAppKeyException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
@@ -94,17 +95,7 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
-        if (! Schema::hasTable('accounts')) {
-            info('account table not found');
-            return;
-        }
-
         if (Ninja::isHosted()) {
-
-            // if($exception instanceof ThrottleRequestsException && class_exists(\Modules\Admin\Events\ThrottledExceptionRaised::class)) {
-            // $uri = urldecode(request()->getRequestUri());
-            // event(new \Modules\Admin\Events\ThrottledExceptionRaised(auth()->user()?->account?->key, $uri, request()->ip()));
-            // }
 
             Integration::configureScope(function (Scope $scope): void {
                 $name = 'hosted@invoiceninja.com';
@@ -154,6 +145,10 @@ class Handler extends ExceptionHandler
         }
 
         parent::report($exception);
+
+        if (Ninja::isSelfHost() && $exception instanceof MissingAppKeyException) {
+            info('To setup the app run: cp .env.example .env');
+        }
     }
 
     private function validException($exception)

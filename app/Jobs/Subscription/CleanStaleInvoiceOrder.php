@@ -78,7 +78,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
             Invoice::query()
                     ->withTrashed()
                     ->where('is_proforma', 1)
-                    ->whereBetween('created_at', [now()->subHours(1), now()->subMinutes(10)])
+                    ->where('created_at', '<', now()->subHour())
                     ->cursor()
                     ->each(function ($invoice) use ($repo) {
                         $invoice->is_proforma = false;
@@ -95,6 +95,8 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                 ->each(function ($invoice) {
                     $invoice->service()->removeUnpaidGatewayFees();
                 });
+    
+            \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHours(12))->delete();
 
         }
     }

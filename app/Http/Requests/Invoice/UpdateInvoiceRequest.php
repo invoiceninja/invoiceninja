@@ -67,6 +67,9 @@ class UpdateInvoiceRequest extends Request
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->invoice->client_id])];
         $rules['line_items'] = 'array';
 
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
+
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['tax_rate1'] = 'bail|sometimes|numeric';

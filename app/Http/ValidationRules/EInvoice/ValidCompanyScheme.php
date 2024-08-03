@@ -11,6 +11,7 @@
 
 namespace App\Http\ValidationRules\EInvoice;
 
+use App\Services\EDocument\Standards\Validation\Peppol\CompanyLevel;
 use Closure;
 use InvoiceNinja\EInvoice\EInvoice;
 use Illuminate\Validation\Validator;
@@ -19,9 +20,9 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Contracts\Validation\ValidatorAwareRule;
 
 /**
- * Class BlackListRule.
+ * Class ValidScheme.
  */
-class ValidScheme implements ValidationRule, ValidatorAwareRule
+class ValidCompanyScheme implements ValidationRule, ValidatorAwareRule
 {
  
     /**
@@ -34,18 +35,21 @@ class ValidScheme implements ValidationRule, ValidatorAwareRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
 
-        $r = new EInvoice();
-        $errors = $r->validateRequest($value['Invoice'], Invoice::class);
-        
-        foreach ($errors as $key => $msg) {
+        if(isset($value['Invoice']))
+        {
+            $r = new EInvoice();
+            $errors = $r->validateRequest($value['Invoice'], CompanyLevel::class);
+            
+            foreach ($errors as $key => $msg) {
 
-            $this->validator->errors()->add(
-                "e_invoice.{$key}",
-                "{$key} - {$msg}"
-            );
+                $this->validator->errors()->add(
+                    "e_invoice.{$key}",
+                    "{$key} - {$msg}"
+                );
 
+            }
         }
-
+    
     }
  
     /**

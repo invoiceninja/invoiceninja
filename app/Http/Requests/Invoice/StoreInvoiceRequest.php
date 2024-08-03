@@ -38,10 +38,13 @@ class StoreInvoiceRequest extends Request
 
     public function rules()
     {
-        $rules = [];
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
+
+        $rules = [];
+
+        $rules['client_id'] = ['required', 'bail', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->fileValidation();
@@ -57,16 +60,16 @@ class StoreInvoiceRequest extends Request
             $rules['file'] = $this->fileValidation();
         }
 
-        $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
-
-        $rules['invitations.*.client_contact_id'] = 'distinct';
-
         $rules['number'] = ['bail', 'nullable', Rule::unique('invoices')->where('company_id', $user->company()->id)];
+
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['project_id'] = ['bail', 'sometimes', new ValidProjectForClient($this->all())];
         $rules['is_amount_discount'] = ['boolean'];
 
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
+        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date ?? '') > 1), 'date'];
 
         $rules['line_items'] = 'array';
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
@@ -79,18 +82,17 @@ class StoreInvoiceRequest extends Request
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['partial'] = 'bail|sometimes|nullable|numeric|gte:0';
         $rules['partial_due_date'] = ['bail', 'sometimes', 'nullable', 'exclude_if:partial,0', 'date', 'before:due_date', 'after_or_equal:date'];
-        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date ?? '') > 1), 'date'];
-
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
-
-        // $rules['amount'] = ['sometimes', 'bail', 'max:99999999999999'];
-        // $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
 
         return $rules;
     }
 
     public function prepareForValidation()
     {
+        
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
@@ -102,24 +104,24 @@ class StoreInvoiceRequest extends Request
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
             $input['amount'] = $this->entityTotalAmount($input['line_items']);
         }
-
         if(isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
-        }
-
-        if (array_key_exists('tax_rate1', $input) && is_null($input['tax_rate1'])) {
+        }        
+        if (!isset($input['tax_rate1'])) {
             $input['tax_rate1'] = 0;
         }
-        if (array_key_exists('tax_rate2', $input) && is_null($input['tax_rate2'])) {
+        if (!isset($input['tax_rate2'])) {
             $input['tax_rate2'] = 0;
         }
-        if (array_key_exists('tax_rate3', $input) && is_null($input['tax_rate3'])) {
+        if (!isset($input['tax_rate3'])) {
             $input['tax_rate3'] = 0;
         }
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
             $input['exchange_rate'] = 1;
         }
-
+        if(!isset($input['date'])) {
+            $input['date'] = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
+        }
         //handles edge case where we need for force set the due date of the invoice.
         if((isset($input['partial_due_date']) && strlen($input['partial_due_date']) > 1) && (!array_key_exists('due_date', $input) || (empty($input['due_date']) && empty($this->invoice->due_date)))) {
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);

@@ -177,7 +177,6 @@ class BackupUpdate extends Command
                         $doc_bin = $document->getFile();
                     } catch(\Exception $e) {
                         nlog("Exception:: BackupUpdate::" . $e->getMessage());
-                        nlog($e->getMessage());
                     }
 
                     if ($doc_bin) {

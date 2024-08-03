@@ -208,7 +208,7 @@ class ImportCustomers
                 if (! $cgt) {
                     nlog('customer '.$searchResults->data[0]->id.' does not exist.');
 
-                    $this->update_payment_methods->updateMethods($searchResults->data[0], $client);
+                    $this->update_payment_methods->updateMethods($searchResults->data[0], $client); //@phpstan-ignore-line
                 }
             }
         }

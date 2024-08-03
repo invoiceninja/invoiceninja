@@ -267,6 +267,7 @@ class ACSS
 
         $gateway_response = json_decode($request->gateway_response);
 
+        /** @var \App\Models\ClientGatewayToken $cgt */
         $cgt = ClientGatewayToken::find($this->decodePrimaryKey($request->token));
 
         /** @var \Stripe\PaymentIntent $intent */

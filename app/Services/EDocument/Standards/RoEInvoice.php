@@ -188,7 +188,7 @@ class RoEInvoice extends AbstractService
 
         $ubl_invoice->setCustomizationID("urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1");
         // invoice
-        $ubl_invoice->setId($invoice->number);
+        $ubl_invoice->setId($invoice->number); //@phpstan-ignore-line
         $ubl_invoice->setIssueDate(date_create($invoice->date));
         $ubl_invoice->setDueDate(date_create($invoice->due_date));
         $ubl_invoice->setInvoiceTypeCode("380");

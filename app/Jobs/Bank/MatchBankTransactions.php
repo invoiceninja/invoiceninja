@@ -448,6 +448,6 @@ class MatchBankTransactions implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company_id)];
+        return [new WithoutOverlapping($this->company->account->bank_integration_account_id)];
     }
 }

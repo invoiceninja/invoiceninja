@@ -11,6 +11,13 @@
 |
 */
 
-Broadcast::channel('App.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+// Broadcast::channel('App.User.{id}', function ($user, $id) {
+//    nlog($id);
+   
+//     return false;
+//     // return (int) $user->id === (int) $id;
+// });
+
+Broadcast::channel('company-{company_key}', function (\App\Models\User $user, string $company_key) {
+    return $user->company()->company_key === $company_key;
 });

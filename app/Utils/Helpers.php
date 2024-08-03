@@ -279,7 +279,7 @@ class Helpers
 
                     $_value = explode($_operation, $right); // [MONTHYEAR, 4]
 
-                    $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->addMonths($_value[1])->translatedFormat('F Y');
+                    $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->addMonths($_value[1])->translatedFormat('F Y'); //@phpstan-ignore-line
                 }
 
                 $replacement = sprintf('%s to %s', $_left, $_right);
