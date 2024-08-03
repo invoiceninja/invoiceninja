@@ -32,6 +32,7 @@ use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\UpdateExchangeRates;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
+use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
 use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -64,6 +65,9 @@ class Kernel extends ConsoleKernel
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
+        /* Checks Rotessa Transactions */
+        $schedule->json(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
+        
         /* Stale Invoice Cleanup*/
         $schedule->job(new CleanStaleInvoiceOrder())->hourlyAt(30)->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
 
