@@ -15,7 +15,6 @@ use App\Http\Requests\Request;
 
 class DisconnectUserMailerRequest extends Request
 {
-    private bool $phone_has_changed = false;
 
     /**
      * Determine if the user is authorized to make this request.

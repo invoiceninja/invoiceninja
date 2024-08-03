@@ -12,7 +12,10 @@
 namespace App\Helpers\Invoice;
 
 use App\Models\Quote;
+use App\Utils\Number;
+use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Vendor;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
 use App\Models\RecurringQuote;
@@ -49,6 +52,8 @@ class InvoiceSumInclusive
 
     private $rappen_rounding = false;
 
+    private Client | Vendor $client;
+
     public InvoiceItemSumInclusive $invoice_items;
     /**
      * Constructs the object with Invoice and Settings object.
@@ -58,14 +63,10 @@ class InvoiceSumInclusive
     public function __construct($invoice)
     {
         $this->invoice = $invoice;
-
-        if ($this->invoice->client) {
-            $this->precision = $this->invoice->client->currency()->precision;
-            $this->rappen_rounding = $this->invoice->client->getSetting('enable_rappen_rounding');
-        } else {
-            $this->precision = $this->invoice->vendor->currency()->precision;
-            $this->rappen_rounding = $this->invoice->vendor->getSetting('enable_rappen_rounding');
-        }
+        $this->client = $invoice->client ?? $invoice->vendor;
+        
+        $this->precision = $this->client->currency()->precision;
+        $this->rappen_rounding = $this->client->getSetting('enable_rappen_rounding');
 
         $this->tax_map = new Collection();
     }
@@ -107,16 +108,16 @@ class InvoiceSumInclusive
     private function calculateCustomValues()
     {
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge1, $this->invoice->custom_surcharge_tax1);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge1);
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge2, $this->invoice->custom_surcharge_tax2);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge2);
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge3, $this->invoice->custom_surcharge_tax3);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge3);
 
-        $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
+        // $this->total_taxes += $this->multiInclusiveTax($this->invoice->custom_surcharge4, $this->invoice->custom_surcharge_tax4);
         $this->total_custom_values += $this->valuer($this->invoice->custom_surcharge4);
 
         $this->total += $this->total_custom_values;
@@ -137,39 +138,39 @@ class InvoiceSumInclusive
         }
 
         //Handles cases where the surcharge is not taxed
-        // if(is_numeric($this->invoice->custom_surcharge1) && $this->invoice->custom_surcharge1 > 0 && !$this->invoice->custom_surcharge_tax1) {
-        //     $amount += $this->invoice->custom_surcharge1;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge1) && $this->invoice->custom_surcharge1 > 0 && $this->invoice->custom_surcharge_tax1) {
+            $amount += $this->invoice->custom_surcharge1;
+        }
 
-        // if(is_numeric($this->invoice->custom_surcharge2) && $this->invoice->custom_surcharge2 > 0 && !$this->invoice->custom_surcharge_tax2) {
-        //     $amount += $this->invoice->custom_surcharge2;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge2) && $this->invoice->custom_surcharge2 > 0 && $this->invoice->custom_surcharge_tax2) {
+            $amount += $this->invoice->custom_surcharge2;
+        }
 
-        // if(is_numeric($this->invoice->custom_surcharge3) && $this->invoice->custom_surcharge3 > 0 && !$this->invoice->custom_surcharge_tax3) {
-        //     $amount += $this->invoice->custom_surcharge3;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge3) && $this->invoice->custom_surcharge3 > 0 && $this->invoice->custom_surcharge_tax3) {
+            $amount += $this->invoice->custom_surcharge3;
+        }
 
-        // if(is_numeric($this->invoice->custom_surcharge4) && $this->invoice->custom_surcharge4 > 0 && !$this->invoice->custom_surcharge_tax4) {
-        //     $amount += $this->invoice->custom_surcharge4;
-        // }
+        if(is_numeric($this->invoice->custom_surcharge4) && $this->invoice->custom_surcharge4 > 0 && $this->invoice->custom_surcharge_tax4) {
+            $amount += $this->invoice->custom_surcharge4;
+        }
 
         if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
             $this->total_taxes += $tax;
 
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.floatval($this->invoice->tax_rate1).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax];
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.floatval($this->invoice->tax_rate2).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.floatval($this->invoice->tax_rate3).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax];
         }
 
         return $this;

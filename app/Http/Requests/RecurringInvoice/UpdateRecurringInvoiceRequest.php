@@ -60,6 +60,8 @@ class UpdateRecurringInvoiceRequest extends Request
 
         $rules['number'] = ['bail', 'sometimes', Rule::unique('recurring_invoices')->where('company_id', $user->company()->id)->ignore($this->recurring_invoice->id)];
 
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->recurring_invoice->client_id])];
 
@@ -126,7 +128,7 @@ class UpdateRecurringInvoiceRequest extends Request
         }
 
         if (isset($input['line_items'])) {
-            $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+            $input['line_items'] = $this->cleanItems($input['line_items']);
             $input['amount'] = $this->entityTotalAmount($input['line_items']);
         }
 

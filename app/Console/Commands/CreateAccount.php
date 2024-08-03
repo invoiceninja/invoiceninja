@@ -56,8 +56,6 @@ class CreateAccount extends Command
     {
         $this->info(date('r').' Create Single Account...');
 
-        $this->warmCache();
-
         $this->createAccount();
     }
 
@@ -121,28 +119,6 @@ class CreateAccount extends Command
         (new CreateCompanyTaskStatuses($company, $user))->handle();
         (new VersionCheck())->handle();
 
-        $this->warmCache();
     }
 
-    private function warmCache()
-    {
-        /* Warm up the cache !*/
-        $cached_tables = config('ninja.cached_tables');
-
-        foreach ($cached_tables as $name => $class) {
-            if ($name == 'payment_terms') {
-                $orderBy = 'num_days';
-            } elseif ($name == 'fonts') {
-                $orderBy = 'sort_order';
-            } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                $orderBy = 'name';
-            } else {
-                $orderBy = 'id';
-            }
-            $tableData = $class::orderBy($orderBy)->get();
-            if ($tableData->count()) {
-                Cache::forever($name, $tableData);
-            }
-        }
-    }
 }

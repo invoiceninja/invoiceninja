@@ -1,4 +1,4 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ''])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.paypal'), 'card_title' => ''])
 
 @section('gateway_head')
 
@@ -29,16 +29,6 @@
 @endsection
 
 @push('footer')
-
-<script type="application/json" fncls="fnparams-dede7cc5-15fd-4c75-a9f4-36c430ee3a99">
-    {
-        "f":"{{ $guid }}",
-        "s":"paypal.pay"        // unique ID for each web page
-    }
-</script>
-
-<script type="text/javascript" src="https://c.paypal.com/da/r/fb.js"></script>
-
 
 <style type="text/css">
 .loader {
@@ -91,9 +81,9 @@ inset: 6px;
             return orderId;  
         },
         onApprove: function(data, actions) {
-
-            console.log(data);
             
+            document.getElementById('is_working').classList.remove('hidden');
+
             document.getElementById("gateway_response").value =JSON.stringify( data );
             
             formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
@@ -108,10 +98,15 @@ inset: 6px;
                 body: formData,
             })
             .then(response => {
+
                 if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message ?? 'Unknown error.');
+                    });
                 }
-                return response.json(); // or response.json() if the response is JSON
+                
+                return response.json();
+
             })
             .then(data => {
 
@@ -135,8 +130,6 @@ inset: 6px;
                 document.getElementById('errors').hidden = false;
             });
 
-
-
         },
         onCancel: function() {
             window.location.href = "/client/invoices/";
@@ -151,11 +144,12 @@ inset: 6px;
         },
         onClick: function (){
 
+            console.log(fundingSource);
+
             if(fundingSource != 'card')
               document.getElementById('paypal-button-container').hidden = true;
 
-            document.getElementById('is_working').classList.remove('hidden');
-
+            // document.getElementById('is_working').classList.remove('hidden');
             document.querySelector('div[data-ref="required-fields-container').classList.add('hidden');
             
         },
@@ -174,8 +168,9 @@ inset: 6px;
 		if (document.getElementById("server_response").classList.contains('is-submitting')) {
 			e.preventDefault();
 		}
-		
+
 		document.getElementById("server_response").classList.add('is-submitting');
+
 	});
 
 </script>

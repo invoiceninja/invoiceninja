@@ -11,19 +11,20 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Utils\Ninja;
+use App\Models\Activity;
+use Tests\MockAccountData;
+use Illuminate\Support\Str;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\MakesHash;
+use App\Models\PurchaseOrderInvitation;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use App\Repositories\ActivityRepository;
 use App\Events\PurchaseOrder\PurchaseOrderWasCreated;
 use App\Events\PurchaseOrder\PurchaseOrderWasUpdated;
-use App\Models\Activity;
-use App\Models\PurchaseOrder;
-use App\Repositories\ActivityRepository;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Str;
-use Tests\MockAccountData;
-use Tests\TestCase;
 
 class PurchaseOrderTest extends TestCase
 {
@@ -36,12 +37,8 @@ class PurchaseOrderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        Session::start();
-
+        
         $this->faker = \Faker\Factory::create();
-
-        Model::reguard();
 
         $this->makeTestData();
     }
@@ -97,10 +94,39 @@ class PurchaseOrderTest extends TestCase
 
     public function testPurchaseOrderBulkActions()
     {
-        $i = $this->purchase_order->invitations->first();
+
+        $po = PurchaseOrder::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        // PurchaseOrderInvitation::factory()->create([
+        //     'user_id' => $this->user->id,
+        //     'company_id' => $this->company->id,
+        //     'vendor_contact_id' => $this->vendor->contacts()->first()->id,
+        //     'purchase_order_id' => $po->id,
+        // ]);
+
+
+        $po->service()->createInvitations()->save();
+
+        $i = $po->invitations->first();
 
         $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
+            'ids' => [$po->hashed_id],
+            'action' => 'download',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post("/api/v1/purchase_orders/bulk", $data)
+        ->assertStatus(200);
+
+
+        $data = [
+            'ids' =>[$po->hashed_id],
             'action' => 'archive',
         ];
 
@@ -111,7 +137,7 @@ class PurchaseOrderTest extends TestCase
         ->assertStatus(200);
 
         $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
+            'ids' =>[$po->hashed_id],
             'action' => 'restore',
         ];
 
@@ -122,7 +148,7 @@ class PurchaseOrderTest extends TestCase
         ->assertStatus(200);
 
         $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
+            'ids' =>[$po->hashed_id],
             'action' => 'delete',
         ];
 
@@ -134,7 +160,7 @@ class PurchaseOrderTest extends TestCase
 
 
         $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
+            'ids' =>[$po->hashed_id],
             'action' => 'restore',
         ];
 
@@ -144,16 +170,6 @@ class PurchaseOrderTest extends TestCase
         ])->post("/api/v1/purchase_orders/bulk", $data)
         ->assertStatus(200);
 
-        $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
-            'action' => 'download',
-        ];
-
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post("/api/v1/purchase_orders/bulk", $data)
-        ->assertStatus(200);
 
         $data = [
             'ids' =>[],
@@ -167,7 +183,7 @@ class PurchaseOrderTest extends TestCase
         ->assertStatus(302);
 
         $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
+            'ids' =>[$po->hashed_id],
             'action' => '',
         ];
 
@@ -179,7 +195,7 @@ class PurchaseOrderTest extends TestCase
 
 
         $data = [
-            'ids' =>[$this->purchase_order->hashed_id],
+            'ids' =>[$po->hashed_id],
             'action' => 'molly',
         ];
 

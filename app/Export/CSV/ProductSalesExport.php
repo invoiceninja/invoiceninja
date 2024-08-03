@@ -66,11 +66,11 @@ class ProductSalesExport extends BaseExport
         'custom_value4' => 'custom_value4',
     ];
 
-    private array $decorate_keys = [
-        'client',
-        'currency',
-        'date',
-    ];
+    // private array $decorate_keys = [
+    //     'client',
+    //     'currency',
+    //     'date',
+    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -129,7 +129,7 @@ class ProductSalesExport extends BaseExport
                         ->where('is_deleted', 0)
                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $query = $this->filterByClients($query);
 
@@ -330,8 +330,8 @@ class ProductSalesExport extends BaseExport
      * @param  string $product_key
      * @return ?\Illuminate\Database\Eloquent\Model
      */
-    private function getProduct(string $product_key)
-    {
-        return $this->products->firstWhere('product_key', $product_key);
-    }
+    // private function getProduct(string $product_key)
+    // {
+    //     return $this->products->firstWhere('product_key', $product_key);
+    // }
 }

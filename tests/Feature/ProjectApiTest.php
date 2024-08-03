@@ -47,6 +47,117 @@ class ProjectApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testCreateProjectWithNullTaskRate()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'name' => 'howdy',
+            'task_rate' => null,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/projects", $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(0, $arr['data']['task_rate']);
+            
+    }
+
+    public function testCreateProjectWithNullTaskRate2()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'name' => 'howdy',
+            'task_rate' => "A",
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/projects", $data);
+
+        $response->assertStatus(422);
+
+        $arr = $response->json();
+
+    }
+
+
+    public function testCreateProjectWithNullTaskRate3()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'name' => 'howdy',
+            'task_rate' => "10",
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/projects", $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(10, $arr['data']['task_rate']);
+            
+    }
+
+    public function testCreateProjectWithNullTaskRate5()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'name' => 'howdy',
+            'task_rate' => "-10",
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/projects", $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(0, $arr['data']['task_rate']);
+
+    }
+
+
+
+    public function testCreateProjectWithNullTaskRate4()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'name' => 'howdy',
+            'task_rate' => 10,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/projects", $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals(10, $arr['data']['task_rate']);
+            
+    }
+
     public function testProjectIncludesZeroCount()
     {
 

@@ -98,12 +98,14 @@ class BaseImport
         }
 
         /** @var string $base64_encoded_csv */
-        $base64_encoded_csv = Cache::pull($this->hash.'-'.$entity_type);
+        $base64_encoded_csv = Cache::get($this->hash.'-'.$entity_type);
 
         if (empty($base64_encoded_csv)) {
             return null;
         }
 
+        nlog("found {$entity_type}");
+        
         $csv = base64_decode($base64_encoded_csv);
         $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 
@@ -471,6 +473,8 @@ class BaseImport
 
         $tasks = $this->groupTasks($tasks, $task_number_key);
 
+        nlog($tasks);
+        
         foreach ($tasks as $raw_task) {
             $task_data = [];
 
@@ -700,16 +704,16 @@ class BaseImport
                 ->save();
         }
 
-        if ($invoice->status_id === Invoice::STATUS_DRAFT) {
-        } elseif ($invoice->status_id === Invoice::STATUS_SENT) {
-            $invoice = $invoice
-                ->service()
-                ->markSent()
-                ->save();
-        } elseif (
-            $invoice->status_id <= Invoice::STATUS_SENT &&
-            $invoice->amount > 0
-        ) {
+        if ($invoice->status_id == Invoice::STATUS_DRAFT) {
+            return $invoice;
+        } 
+        
+        $invoice = $invoice
+            ->service()
+            ->markSent()
+            ->save();
+
+        if ($invoice->status_id <= Invoice::STATUS_SENT && $invoice->amount > 0) {
             if ($invoice->balance <= 0) {
                 $invoice->status_id = Invoice::STATUS_PAID;
                 $invoice->save();

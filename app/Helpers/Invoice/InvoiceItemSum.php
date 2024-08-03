@@ -11,16 +11,18 @@
 
 namespace App\Helpers\Invoice;
 
-use App\DataMapper\BaseSettings;
-use App\DataMapper\InvoiceItem;
-use App\DataMapper\Tax\RuleInterface;
+use App\Models\Quote;
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Vendor;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\DataMapper\InvoiceItem;
+use App\DataMapper\BaseSettings;
+use App\Models\RecurringInvoice;
+use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSum
@@ -29,6 +31,7 @@ class InvoiceItemSum
     use Discounter;
     use Taxer;
 
+    //@phpstan-ignore-next-line
     private array $eu_tax_jurisdictions = [
         'AT', // Austria
         'BE', // Belgium
@@ -119,7 +122,7 @@ class InvoiceItemSum
 
     private $tax_collection;
 
-    private ?Client $client;
+    private Client | Vendor $client;
 
     private bool $calc_tax = false;
 
@@ -130,10 +133,10 @@ class InvoiceItemSum
         $this->tax_collection = collect([]);
 
         $this->invoice = $invoice;
+        $this->client = $invoice->client ?? $invoice->vendor;
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
-            $this->client = $this->invoice->client;
             $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
@@ -170,7 +173,7 @@ class InvoiceItemSum
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
+        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) { //@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }
@@ -312,7 +315,7 @@ class InvoiceItemSum
 
         $key = str_replace(' ', '', $tax_name.$tax_rate);
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.floatval($tax_rate).'%'];
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client).'%'];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -331,7 +334,7 @@ class InvoiceItemSum
 
     public function setLineTotal($total)
     {
-        $this->item->line_total = $total;
+        $this->item->line_total = (float) $total;
 
         return $this;
     }

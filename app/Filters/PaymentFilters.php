@@ -204,7 +204,6 @@ class PaymentFilters extends QueryFilters
             return $this->builder;
         }
 
-        return $this->builder;
     }
 
     /**

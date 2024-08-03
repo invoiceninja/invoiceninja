@@ -419,7 +419,7 @@ trait GeneratesCounter
         $check_counter = 1;
 
         do {
-            $number = $this->getFormattedEntityNumber($entity, $counter, $padding, $pattern);
+            $number = $this->getFormattedEntityNumber($entity, $counter, $padding, $pattern, $prefix);
 
             $check = $class::where('company_id', $entity->company_id)->where('number', $number)->withTrashed()->exists();
 
@@ -441,7 +441,7 @@ trait GeneratesCounter
     /**
      * Formats the entity number according to pattern, prefix and padding.
      *
-     * @param Collection $entity The entity ie App\Models\Client, Invoice, Quote etc
+     * @param mixed $entity The entity ie App\Models\Client, Invoice, Quote etc
      * @param int $counter The counter
      * @param int $padding The padding
      * @param      string $pattern

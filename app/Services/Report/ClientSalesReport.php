@@ -103,7 +103,7 @@ class ClientSalesReport extends BaseExport
         $query = Invoice::query()->where('client_id', $client->id)
                                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID]);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $amount = $query->sum('amount');
         $balance = $query->sum('balance');

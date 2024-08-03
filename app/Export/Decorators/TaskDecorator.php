@@ -18,6 +18,7 @@ use Carbon\Carbon;
 
 class TaskDecorator extends Decorator implements DecoratorInterface
 {
+    //@todo - we do not handle iterating through the timelog here.
     public function transform(string $key, mixed $entity): mixed
     {
         $task = false;
@@ -42,13 +43,13 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
 
         $timezone = Timezone::find($task->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, 1);
+        $logs = json_decode($task->time_log, true);
 
         $date_format_default = 'Y-m-d';
 
@@ -60,7 +61,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
         if(is_array($logs)) {
             $item = $logs[0];
-            return Carbon::createFromTimeStamp($item[0])->setTimezone($timezone_name)->format($date_format_default);
+            return Carbon::createFromTimeStamp((int)$item[0])->setTimezone($timezone_name)->format($date_format_default);
         }
 
         return '';
@@ -71,13 +72,13 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
 
         $timezone = Timezone::find($task->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
         }
 
-        $logs = json_decode($task->time_log, 1);
+        $logs = json_decode($task->time_log, true);
 
         $date_format_default = 'Y-m-d';
 
@@ -89,12 +90,32 @@ class TaskDecorator extends Decorator implements DecoratorInterface
 
         if(is_array($logs)) {
             $item = $logs[1];
-            return Carbon::createFromTimeStamp($item[1])->setTimezone($timezone_name)->format($date_format_default);
+            return Carbon::createFromTimeStamp((int)$item[1])->setTimezone($timezone_name)->format($date_format_default);
         }
 
         return '';
 
     }
+    
+    /**
+     * billable
+     *
+     * @todo
+     */
+    public function billable(Task $task)
+    {
+        return '';
+    }
+    
+    /**
+     * items_notes
+     * @todo
+     */
+    public function items_notes(Task $task)
+    {
+        return '';
+    }
+    
     public function duration(Task $task)
     {
         return $task->calcDuration();

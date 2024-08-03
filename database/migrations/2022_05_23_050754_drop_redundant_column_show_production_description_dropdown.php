@@ -19,7 +19,6 @@ return new class extends Migration {
             $table->dropColumn('show_production_description_dropdown');
         });
 
-        $this->buildCache(true);
     }
 
     /**

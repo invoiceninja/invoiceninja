@@ -101,7 +101,7 @@ class SubscriptionStatus extends AbstractService
 
         $subscription_start_date = Carbon::parse($primary_invoice->date)->startOfDay();
 
-        $days_of_subscription_used = $subscription_start_date->copy()->diffInDays(now());
+        $days_of_subscription_used = intval(abs($subscription_start_date->copy()->diffInDays(now())));
 
         return 1 - ($days_of_subscription_used / $this->recurring_invoice->subscription->service()->getDaysInFrequency());
 
@@ -174,7 +174,7 @@ class SubscriptionStatus extends AbstractService
      */
     private function checkRefundable(): self
     {
-        if(!$this->recurring_invoice->subscription->refund_period || $this->recurring_invoice->subscription->refund_period === 0) {
+        if(!$this->recurring_invoice->subscription->refund_period || (int)$this->recurring_invoice->subscription->refund_period == 0) {//@phpstan-ignore-line
             return $this->setRefundable(false);
         }
 

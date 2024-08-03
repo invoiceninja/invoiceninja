@@ -11,14 +11,16 @@
 
 namespace App\Helpers\Invoice;
 
-use App\DataMapper\Tax\RuleInterface;
+use App\Models\Quote;
+use App\Utils\Number;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Vendor;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
 use App\Models\RecurringQuote;
+use App\Models\RecurringInvoice;
+use App\DataMapper\Tax\RuleInterface;
 use App\Utils\Traits\NumberFormatter;
 
 class InvoiceItemSumInclusive
@@ -27,7 +29,7 @@ class InvoiceItemSumInclusive
     use Discounter;
     use Taxer;
 
-
+    //@phpstan-ignore-next-line
     private array $eu_tax_jurisdictions = [
         'AT', // Austria
         'BE', // Belgium
@@ -98,6 +100,7 @@ class InvoiceItemSumInclusive
 
     private $total_taxes;
 
+    /** @phpstan-ignore-next-line */
     private $item;
 
     private $line_items;
@@ -108,7 +111,7 @@ class InvoiceItemSumInclusive
 
     private bool $calc_tax = false;
 
-    private ?Client $client;
+    private Client | Vendor $client;
 
     private RuleInterface $rule;
 
@@ -117,10 +120,10 @@ class InvoiceItemSumInclusive
         $this->tax_collection = collect([]);
 
         $this->invoice = $invoice;
+        $this->client = $invoice->client ?? $invoice->vendor;
 
         if ($this->invoice->client) {
             $this->currency = $this->invoice->client->currency();
-            $this->client = $this->invoice->client;
             $this->shouldCalculateTax();
         } else {
             $this->currency = $this->invoice->vendor->currency();
@@ -264,7 +267,7 @@ class InvoiceItemSumInclusive
 
         $key = str_replace(' ', '', $tax_name.$tax_rate);
 
-        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.$tax_rate.'%'];
+        $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client).'%'];
 
         $this->tax_collection->push(collect($group_tax));
     }
@@ -399,7 +402,7 @@ class InvoiceItemSumInclusive
     private function shouldCalculateTax(): self
     {
 
-        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {
+        if (!$this->invoice->company?->calculate_taxes || $this->invoice->company->account->isFreeHostedClient()) {//@phpstan-ignore-line
             $this->calc_tax = false;
             return $this;
         }
@@ -410,7 +413,7 @@ class InvoiceItemSumInclusive
 
             $this->rule = new $class();
 
-            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2)) {
+            if($this->rule->regionWithNoTaxCoverage($this->client->country->iso_3166_2 ?? false)) {
                 return $this;
             }
 

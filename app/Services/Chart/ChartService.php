@@ -14,12 +14,17 @@ namespace App\Services\Chart;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Quote;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
 class ChartService
 {
     use ChartQueries;
+    use ChartCalculations;
 
     public function __construct(public Company $company, private User $user, private bool $is_admin)
     {
@@ -57,7 +62,9 @@ class ChartService
         /* Merge and filter by unique */
         $currencies = $currencies->merge($expense_currencies)->unique();
 
-        $cache_currencies = Cache::get('currencies');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $cache_currencies = app('currencies');
 
         $filtered_currencies = $cache_currencies->whereIn('id', $currencies)->all();
 
@@ -69,7 +76,7 @@ class ChartService
 
         return $final_currencies;
     }
-
+    
     /* Chart Data */
     public function chart_summary($start_date, $end_date): array
     {
@@ -85,6 +92,12 @@ class ChartService
             $data[$key]['payments'] = $this->getPaymentChartQuery($start_date, $end_date, $key);
             $data[$key]['expenses'] = $this->getExpenseChartQuery($start_date, $end_date, $key);
         }
+
+
+        $data[999]['invoices'] = $this->getAggregateInvoiceChartQuery($start_date, $end_date);
+        $data[999]['outstanding'] = $this->getAggregateOutstandingChartQuery($start_date, $end_date);
+        $data[999]['payments'] = $this->getAggregatePaymentChartQuery($start_date, $end_date);
+        $data[999]['expenses'] = $this->getAggregateExpenseChartQuery($start_date, $end_date);
 
         return $data;
     }
@@ -120,6 +133,17 @@ class ChartService
             $data[$key]['expenses'] = $expenses_set !== false ? $expenses[array_search($key, array_column($expenses, 'currency_id'))] : new \stdClass();
 
         }
+
+        $aggregate_revenue = $this->getAggregateRevenueQuery($start_date, $end_date);
+        $aggregate_outstanding = $this->getAggregateOutstandingQuery($start_date, $end_date);
+        $aggregate_expenses = $this->getAggregateExpenseQuery($start_date, $end_date);
+        $aggregate_invoices = $this->getAggregateInvoicesQuery($start_date, $end_date);
+
+        $data[999]['invoices'] = $aggregate_invoices !== false ? reset($aggregate_invoices) : new \stdClass();
+        $data[999]['expense'] = $aggregate_expenses !== false ? reset($aggregate_expenses) : new \stdClass();
+        $data[999]['outstanding'] = $aggregate_outstanding !== false ? reset($aggregate_outstanding) : new \stdClass();
+        $data[999]['revenue'] = $aggregate_revenue !== false ? reset($aggregate_revenue) : new \stdClass();
+
 
         return $data;
     }
@@ -162,7 +186,9 @@ class ChartService
 
     private function addCurrencyCodes($data_set): array
     {
-        $currencies = Cache::get('currencies');
+        
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
 
         foreach ($data_set as $key => $value) {
             $data_set[$key]->currency_id = str_replace('"', '', $value->currency_id);
@@ -186,4 +212,44 @@ class ChartService
 
         return '';
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * calculatedField
+     * 
+     * @param  array $data - 
+     * 
+     * field - list of fields for calculation
+     * period - current/previous
+     * calculation - sum/count/avg
+     *
+     * date_range - this_month
+     * or
+     * start_date - end_date
+     */
+    public function getCalculatedField(array $data)
+    {
+        $results = 0;
+
+        match($data['field']){
+            'active_invoices' => $results = $this->getActiveInvoices($data), 
+            'outstanding_invoices' => $results = 0, 
+            'completed_payments' => $results = 0, 
+            'refunded_payments' => $results = 0, 
+            'active_quotes' => $results = 0, 
+            'unapproved_quotes' => $results = 0, 
+            'logged_tasks' => $results = 0, 
+            'invoiced_tasks' => $results = 0, 
+            'paid_tasks' => $results = 0, 
+            'logged_expenses' => $results = 0, 
+            'pending_expenses' => $results = 0, 
+            'invoiced_expenses' => $results = 0, 
+            'invoice_paid_expenses' => $results = 0,
+            default => $results = 0,
+        };
+
+        return $results;
+    }
+
 }

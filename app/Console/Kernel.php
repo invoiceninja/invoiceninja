@@ -15,7 +15,6 @@ use App\Jobs\Cron\AutoBillCron;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
 use App\Jobs\Cron\SubscriptionCron;
-use App\Jobs\Cron\UpdateCalculatedFields;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
 use App\Jobs\Ninja\AdjustEmailQuota;
 use App\Jobs\Ninja\BankTransactionSync;
@@ -27,11 +26,13 @@ use App\Jobs\Ninja\TaskScheduler;
 use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\Jobs\Util\DiskCleanup;
+use App\Jobs\Util\QuoteReminderJob;
 use App\Jobs\Util\ReminderJob;
 use App\Jobs\Util\SchedulerCheck;
 use App\Jobs\Util\UpdateExchangeRates;
 use App\Jobs\Util\VersionCheck;
 use App\Models\Account;
+use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
 use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -55,17 +56,20 @@ class Kernel extends ConsoleKernel
         /* Send reminders */
         $schedule->job(new ReminderJob())->hourly()->withoutOverlapping()->name('reminder-job')->onOneServer();
 
+        /* Send quote reminders */
+        $schedule->job(new QuoteReminderJob())->hourly()->withoutOverlapping()->name('quote-reminder-job')->onOneServer();
+
         /* Sends recurring invoices*/
         $schedule->job(new RecurringInvoicesCron())->hourly()->withoutOverlapping()->name('recurring-invoice-job')->onOneServer();
 
         /* Checks for scheduled tasks */
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
+        /* Checks Rotessa Transactions */
+        $schedule->job(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
+        
         /* Stale Invoice Cleanup*/
         $schedule->job(new CleanStaleInvoiceOrder())->hourlyAt(30)->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
-
-        /* Stale Invoice Cleanup*/
-        $schedule->job(new UpdateCalculatedFields())->hourlyAt(40)->withoutOverlapping()->name('update-calculated-fields-job')->onOneServer();
 
         /* Checks for large companies and marked them as is_large */
         $schedule->job(new CompanySizeCheck())->dailyAt('23:20')->withoutOverlapping()->name('company-size-job')->onOneServer();

@@ -53,7 +53,7 @@ class WePayPaymentDriver extends BaseDriver
         throw new \Exception("Gateway no longer supported", 500);
 
 
-        return $this;
+        // return $this;
     }
 
     /**

@@ -88,7 +88,8 @@ class PreviewInvoiceRequest extends Request
     public function resolveInvitation()
     {
         $invitation = false;
-
+        
+        /** @phpstan-ignore-next-line */
         if(! $this->entity_id ?? false) {
             return $this->stubInvitation();
         }
@@ -98,6 +99,7 @@ class PreviewInvoiceRequest extends Request
             'quote' => $invitation = QuoteInvitation::withTrashed()->where('quote_id', $this->entity_id)->first(),
             'credit' => $invitation = CreditInvitation::withTrashed()->where('credit_id', $this->entity_id)->first(),
             'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->where('recurring_invoice_id', $this->entity_id)->first(),
+            default => $invitation = false,
         };
 
         if($invitation) {
