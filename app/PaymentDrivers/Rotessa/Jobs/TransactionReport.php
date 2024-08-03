@@ -49,7 +49,8 @@ class TransactionReport implements ShouldQueue
         {
             MultiDB::setDB($db);
 
-            CompanyGateway::where('gateway_key', '91be24c7b792230bced33e930ac61676')
+            CompanyGateway::query()
+                            ->where('gateway_key', '91be24c7b792230bced33e930ac61676')
                             ->cursor()
                             ->each(function ($cg){
 

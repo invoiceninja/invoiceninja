@@ -535,16 +535,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.317.0",
+            "version": "3.317.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6d46c8e00c22f66349b8a509bd2c5ced72cceff2"
+                "reference": "dc1e3031c2721a25beb2e8fbb175b576e3d60ab9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6d46c8e00c22f66349b8a509bd2c5ced72cceff2",
-                "reference": "6d46c8e00c22f66349b8a509bd2c5ced72cceff2",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/dc1e3031c2721a25beb2e8fbb175b576e3d60ab9",
+                "reference": "dc1e3031c2721a25beb2e8fbb175b576e3d60ab9",
                 "shasum": ""
             },
             "require": {
@@ -624,9 +624,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.317.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.317.1"
             },
-            "time": "2024-08-01T18:12:34+00:00"
+            "time": "2024-08-02T18:09:42+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -972,16 +972,16 @@
         },
         {
             "name": "checkout/checkout-sdk-php",
-            "version": "3.2.1",
+            "version": "3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/checkout/checkout-sdk-php.git",
-                "reference": "91797beb18fd9b1581b1cfe5b96a551c0009417c"
+                "reference": "ac757648271894e3c30b7bc58ff08ba1b5b84de8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/91797beb18fd9b1581b1cfe5b96a551c0009417c",
-                "reference": "91797beb18fd9b1581b1cfe5b96a551c0009417c",
+                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/ac757648271894e3c30b7bc58ff08ba1b5b84de8",
+                "reference": "ac757648271894e3c30b7bc58ff08ba1b5b84de8",
                 "shasum": ""
             },
             "require": {
@@ -1034,9 +1034,9 @@
             ],
             "support": {
                 "issues": "https://github.com/checkout/checkout-sdk-php/issues",
-                "source": "https://github.com/checkout/checkout-sdk-php/tree/3.2.1"
+                "source": "https://github.com/checkout/checkout-sdk-php/tree/3.2.2"
             },
-            "time": "2024-07-09T16:07:18+00:00"
+            "time": "2024-08-02T08:07:53+00:00"
         },
         {
             "name": "clue/stream-filter",
