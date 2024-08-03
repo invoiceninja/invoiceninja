@@ -39,7 +39,7 @@ trait CompanySettingsSaver
      * Saves a setting object.
      *
      * Works for groups|clients|companies
-     * @param  array $settings The request input settings array
+     * @param  mixed $settings The request input settings array
      * @param  object $entity   The entity which the settings belongs to
      * @return void
      */

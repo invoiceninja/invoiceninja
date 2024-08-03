@@ -188,7 +188,7 @@ class SquarePaymentDriver extends BaseDriver
         } else {
 
             /** @var \Square\Models\Error $error */
-            $error = end($apiResponse->getErrors());
+            $error = end($apiResponse->getErrors()); //@phpstan-ignore-line
 
             $data = [
                     'transaction_reference' => $payment->transaction_reference,

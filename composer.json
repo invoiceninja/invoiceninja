@@ -32,16 +32,16 @@
     "type": "project",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "ext-curl": "*",
         "afosto/yaac": "^1.4",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "bacon/bacon-qr-code": "^2.0",
-        "beganovich/snappdf": "^5",
+        "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.0",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
@@ -57,11 +57,10 @@
         "hedii/laravel-gelf-logger": "^9",
         "horstoeko/orderx": "dev-master",
         "horstoeko/zugferd": "^1",
-        "horstoeko/zugferdvisualizer":"^1",
+        "horstoeko/zugferdvisualizer": "^1",
         "hyvor/php-json-exporter": "^0.0.3",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
-        "invoiceninja/inspector": "^3.0",
         "invoiceninja/einvoice": "dev-main",
         "invoiceninja/ubl_invoice": "^2",
         "josemmo/facturae-php": "^1.7",
@@ -131,7 +130,8 @@
             "app/Helpers/TranslationHelper.php",
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
-        ]
+        ],
+        "classmap": ["app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/"]
     },
     "autoload-dev": {
         "psr-4": {
@@ -194,6 +194,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/beganovich/php-ansible"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/snappdf"
         }
     ],
     "minimum-stability": "dev",

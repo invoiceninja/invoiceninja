@@ -58,7 +58,7 @@ class CheckVat implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->client->id)];
+        return [new WithoutOverlapping($this->client->client_hash)];
     }
 
 }

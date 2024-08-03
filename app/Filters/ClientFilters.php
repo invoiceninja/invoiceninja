@@ -41,7 +41,7 @@ class ClientFilters extends QueryFilters
      */
     public function balance(string $balance = ''): Builder
     {
-        if (strlen($balance) == 0) {
+        if (strlen($balance) == 0 || count(explode(":", $balance)) < 2) {
             return $this->builder;
         }
 

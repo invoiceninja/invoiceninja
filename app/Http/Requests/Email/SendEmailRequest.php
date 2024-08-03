@@ -63,7 +63,7 @@ class SendEmailRequest extends Request
         $user = auth()->user();
 
         return [
-            'template' => 'bail|required|in:'.implode(',', $this->templates),
+            'template' => 'bail|required|string|in:'.implode(',', $this->templates),
             'entity' => 'bail|required|in:App\Models\Invoice,App\Models\Quote,App\Models\Credit,App\Models\RecurringInvoice,App\Models\PurchaseOrder,App\Models\Payment',
             'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
             'cc_email.*' => 'bail|sometimes|email',
@@ -94,7 +94,7 @@ class SendEmailRequest extends Request
 
         $this->entity_plural = Str::plural($input['entity']) ?? '';
 
-        if (isset($input['entity'])) {
+        if (isset($input['entity']) && in_array($input['entity'], ['invoice','quote','credit','recurring_invoice','purchase_order','payment'])) {
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
         }
 

@@ -129,7 +129,7 @@ class Project extends BaseModel
 
     public function invoices(): HasMany
     {
-        return $this->hasMany(Invoice::class);
+        return $this->hasMany(Invoice::class)->withTrashed();
     }
 
     public function quotes(): HasMany

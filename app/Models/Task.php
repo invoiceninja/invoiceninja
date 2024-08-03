@@ -137,7 +137,7 @@ class Task extends BaseModel
         // 'project',
     ];
 
-    protected $touches = [];
+    protected $touches = ['project'];
 
     public function getEntityType()
     {

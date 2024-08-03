@@ -94,6 +94,8 @@ class ProcessMailgunWebhook implements ShouldQueue
         }
 
         MultiDB::findAndSetDbByCompanyKey($this->request['event-data']['tags'][0]);
+
+        /** @var \App\Models\Company $company */
         $company = Company::where('company_key', $this->request['event-data']['tags'][0])->first();
 
         if ($company && $this->request['event-data']['event'] == 'complained' && config('ninja.notification.slack')) {
@@ -181,7 +183,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         $sl = $this->getSystemLog($this->request['MessageID']);
 
         /** Prevents Gmail tracking from firing inappropriately */
-        if($this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3) {
+        if(!$sl || $this->request['signature']['timestamp'] < $sl->log['signature']['timestamp'] + 3) {
             return;
         }
 
@@ -195,7 +197,7 @@ class ProcessMailgunWebhook implements ShouldQueue
             'date' => \Carbon\Carbon::parse($this->request['event-data']['timestamp'])->format('Y-m-d H:i:s') ?? '',
         ];
 
-        if($sl) {
+        if($sl instanceof SystemLog) {
             $data = $sl->log;
             $data['history']['events'][] = $event;
             $this->updateSystemLog($sl, $data);

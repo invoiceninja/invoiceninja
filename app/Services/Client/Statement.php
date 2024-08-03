@@ -187,7 +187,7 @@ class Statement
                 $pdf = $this->makePdf(null, null, $html);
             }
         } catch (\Exception $e) {
-            nlog(print_r($e->getMessage(), 1));
+            nlog(print_r($e->getMessage(), true));
         }
 
 
@@ -385,7 +385,6 @@ class Statement
     /**
      * Get correct invitation ID.
      *
-     * @return int|bool
      */
     protected function getInvitation()
     {

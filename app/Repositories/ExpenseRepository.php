@@ -46,7 +46,7 @@ class ExpenseRepository extends BaseRepository
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $payment_date = &$data['payment_date'];
+        $payment_date = isset($data['payment_date']) ? $data['payment_date'] : false;
 
         if($payment_date && $payment_date == $expense->payment_date) {
             //do nothing

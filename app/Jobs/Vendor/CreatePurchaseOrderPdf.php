@@ -199,7 +199,7 @@ class CreatePurchaseOrderPdf implements ShouldQueue
                 }
             }
         } catch (\Exception $e) {
-            nlog(print_r($e->getMessage(), 1));
+            nlog($e->getMessage());
         }
 
         if (config('ninja.log_pdf_html')) {

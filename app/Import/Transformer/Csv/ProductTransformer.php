@@ -43,6 +43,7 @@ class ProductTransformer extends BaseTransformer
             'custom_value3' => $this->getString($data, 'product.custom_value3'),
             'custom_value4' => $this->getString($data, 'product.custom_value4'),
             'product_image' => $this->getString($data, 'product.image_url'),
+            'in_stock_quantity' => $this->getFloat($data, 'product.in_stock_quantity'),
         ];
     }
 }
