@@ -66,7 +66,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new TaskScheduler())->hourlyAt(10)->withoutOverlapping()->name('task-scheduler-job')->onOneServer();
 
         /* Checks Rotessa Transactions */
-        $schedule->json(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
+        $schedule->job(new TransactionReport())->dailyAt('01:48')->withoutOverlapping()->name('rotessa-transaction-report')->onOneServer();
         
         /* Stale Invoice Cleanup*/
         $schedule->job(new CleanStaleInvoiceOrder())->hourlyAt(30)->withoutOverlapping()->name('stale-invoice-job')->onOneServer();
