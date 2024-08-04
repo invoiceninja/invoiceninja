@@ -482,6 +482,8 @@ class TemplateService
                 default => $processed = [],
             };
 
+            nlog(json_encode($processed));
+
             return $processed;
 
         })->toArray();

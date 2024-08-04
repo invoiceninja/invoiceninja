@@ -1526,7 +1526,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                 <select name="country" id="country" class="form-select w-full py-[9.5px] px-[12px] border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white">
                     <option value="{{ $client->country->id}}" selected>{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
                     @foreach($countries as $country)
-                        <option value="{{ $country->id }}">{{ $country->iso_3166_2 }} ({{ $country->name }})></option>
+                        <option value="{{ $country->id }}">{{ $country->iso_3166_2 }} ({{ $country->getName() }})></option>
                     @endforeach
                 </select>
               </div>

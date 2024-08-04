@@ -34,8 +34,10 @@ class TranslationHelper
     {
         
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
-        // $countries = app('countries');
+        $countries = app('countries');
 
+        return $countries;
+        
         return \App\Models\Country::all()->each(function ($country) {
             $country->name = ctrans('texts.country_'.$country->name);
         })->sortBy(function ($country) {
@@ -73,7 +75,8 @@ class TranslationHelper
     {
         
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
-        // $currencies = app('currencies');
+        $currencies = app('currencies');
+        return $currencies;
 
         return \App\Models\Currency::all()->each(function ($currency) {
             $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));

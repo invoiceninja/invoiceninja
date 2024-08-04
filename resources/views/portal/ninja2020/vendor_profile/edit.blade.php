@@ -152,7 +152,7 @@
                                 <option value="none"></option>
                                 @foreach($countries as $country)
                                     <option value="{{ $country->id }}" @if($vendor->country_id == $country->id) selected @endif>
-                                        {{ $country->iso_3166_2 }} ({{ $country->name }})
+                                        {{ $country->iso_3166_2 }} ({{ $country->getName() }})
                                     </option>
                                 @endforeach
                             </select>

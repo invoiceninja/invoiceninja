@@ -83,7 +83,7 @@
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)
                                             <option value="{{ $country->id }}">
                                                 {{ $country->iso_3166_2 }}
-                                                ({{ $country->name }})
+                                                ({{ $country->getName() }})
                                             </option>
                                         @endforeach
                                     </select>
