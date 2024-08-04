@@ -11,17 +11,17 @@
 
 namespace App\Providers;
 
-use App\Http\Middleware\ThrottleRequestsWithPredis;
-use App\Models\Scheduler;
 use App\Utils\Ninja;
+use App\Models\Scheduler;
+use Illuminate\Http\Request;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+use App\Http\Middleware\ThrottleRequestsWithPredis;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
