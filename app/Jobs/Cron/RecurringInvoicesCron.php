@@ -48,12 +48,12 @@ class RecurringInvoicesCron
         Auth::logout();
 
         if (! config('ninja.db.multi_db_enabled')) {
-            $recurring_invoices = RecurringInvoice::query()->where('recurring_invoices.status_id', RecurringInvoice::STATUS_ACTIVE)
-                                                        ->where('recurring_invoices.is_deleted', false)
-                                                        ->where('recurring_invoices.remaining_cycles', '!=', '0')
-                                                        ->whereNotNull('recurring_invoices.next_send_date')
-                                                        ->whereNull('recurring_invoices.deleted_at')
-                                                        ->where('recurring_invoices.next_send_date', '<=', now()->toDateTimeString())
+            $recurring_invoices = RecurringInvoice::query()->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                        ->where('is_deleted', false)
+                                                        ->where('remaining_cycles', '!=', '0')
+                                                        ->whereNotNull('next_send_date')
+                                                        ->whereNull('deleted_at')
+                                                        ->where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereHas('client', function ($query) {
                                                             $query->where('is_deleted', 0)
                                                                    ->where('deleted_at', null);
@@ -87,27 +87,18 @@ class RecurringInvoicesCron
             foreach (MultiDB::$dbs as $db) {
                 MultiDB::setDB($db);
 
-                $recurring_invoices = RecurringInvoice::query()->where('recurring_invoices.status_id', RecurringInvoice::STATUS_ACTIVE)
-                                                        ->where('recurring_invoices.is_deleted', false)
-                                                        ->where('recurring_invoices.remaining_cycles', '!=', '0')
-                                                        ->whereNull('recurring_invoices.deleted_at')
-                                                        ->whereNotNull('recurring_invoices.next_send_date')
-                                                        ->where('recurring_invoices.next_send_date', '<=', now()->toDateTimeString())
-                                                        // ->whereHas('client', function ($query) {
-                                                        //     $query->where('is_deleted', 0)
-                                                        //            ->where('deleted_at', null);
-                                                        // })
-                                                        // ->whereHas('company', function ($query) {
-                                                        //     $query->where('is_disabled', 0);
-                                                        // })
-                                                        ->leftJoin('clients', function ($join) {
-                                                            $join->on('recurring_invoices.client_id', '=', 'clients.id')
-                                                                ->where('clients.is_deleted', 0)
-                                                                ->whereNull('clients.deleted_at');
+                $recurring_invoices = RecurringInvoice::query()->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                                                        ->where('is_deleted', false)
+                                                        ->where('remaining_cycles', '!=', '0')
+                                                        ->whereNull('deleted_at')
+                                                        ->whereNotNull('next_send_date')
+                                                        ->where('next_send_date', '<=', now()->toDateTimeString())
+                                                        ->whereHas('client', function ($query) {
+                                                            $query->where('is_deleted', 0)
+                                                                   ->where('deleted_at', null);
                                                         })
-                                                        ->leftJoin('companies', function ($join) {
-                                                            $join->on('recurring_invoices.company_id', '=', 'companies.id')
-                                                                ->where('companies.is_disabled', 0);
+                                                        ->whereHas('company', function ($query) {
+                                                            $query->where('is_disabled', 0);
                                                         })
                                                         ->with('company')
                                                         ->cursor();
