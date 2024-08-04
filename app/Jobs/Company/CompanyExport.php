@@ -695,7 +695,7 @@ class CompanyExport implements ShouldQueue
 
         $url = Cache::get($this->hash);
 
-        Cache::put($this->hash, $storage_path, now()->addHour());
+        Cache::put($this->hash, $storage_path, 3600);
 
         App::forgetInstance('translator');
         $t = app('translator');
