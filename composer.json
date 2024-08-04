@@ -131,7 +131,9 @@
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
         ],
-        "classmap": ["app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/"]
+        "classmap": [
+            "app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -184,7 +186,7 @@
             "url": "https://github.com/turbo124/apple"
         },
         {
-            "type":"vcs",
+            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
         },
         {
