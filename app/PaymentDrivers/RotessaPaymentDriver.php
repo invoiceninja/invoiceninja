@@ -136,11 +136,9 @@ class RotessaPaymentDriver extends BaseDriver
                     $result = $this->gatewayRequest("get","customers/{$contact->id}");
                     $result = $result->json();
                     
-                    $this->client = Client::find($contact->client_id);
+                    $this->client = Client::query()->find($contact->client_id);
             
                     $customer = array_merge($result, ['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ]);
-                    // $customer = (new Customer($result))->additional( ['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ]); //creates a new customer in rotessa
-                    // $this->findOrCreateCustomer($customer->additional + $customer->jsonSerialize());
 
                     $this->findOrCreateCustomer($customer);
 

@@ -163,7 +163,7 @@ class PaymentMethod implements MethodInterface
 
            return  $this->processPendingPayment($response['id'], (float) $response['amount'], PaymentType::ACSS , $customer->token);
         } catch(\Throwable $e) {
-            $this->processUnsuccessfulPayment( new InvalidResponseException($e->getMessage(), (int) $e->getCode()) );
+            $this->processUnsuccessfulPayment( new \Exception($e->getMessage(), (int) $e->getCode()) );
         }
     }
 
