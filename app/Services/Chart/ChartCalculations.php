@@ -14,6 +14,7 @@ namespace App\Services\Chart;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quote;
+use App\Models\Task;
 
 /**
  * Class ChartCalculations.
@@ -163,6 +164,121 @@ trait ChartCalculations
         match ($data['calculation']) {
             'sum' => $result = $q->sum('refunded'),
             'avg' => $result = $q->avg('refunded'),
+            'count' => $result = $q->count(),
+            default => $result = 0,
+        };
+
+        return $result;
+
+    }
+
+    public function getLoggedTasks($data): int|float
+    {
+        //tasks with at least 1 timelog entry.
+
+        $result = 0;
+        $calculated = collect();
+
+        $q = Task::query()
+                    ->withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->where('is_deleted',0);
+
+        if(in_array($data['period'], ['current,previous'])) {
+            $q->whereBetween('calculated_start_date', [$data['start_date'], $data['end_date']]);
+        }
+
+        if($data['calculation'] != 'count' && $data['format'] == 'money')
+        {
+            if($data['currency_id'] != '999')
+            {
+
+                $q->whereHas('client', function ($query) use ($data){
+                    $query->where('settings->currency_id', $data['currency_id']);
+                });
+
+            }
+
+            $calculated = $this->taskMoneyCalculator($q, $data);
+
+        }
+
+        if($data['calculation'] != 'count' && $data['format'] == 'time')
+        {
+            $calculated = $q->get()->map(function ($t){
+                return $t->calcDuration();
+            });
+        }
+
+        match ($data['calculation']) {
+            'sum' => $result = $calculated->sum(),
+            'avg' => $result = $calculated->avg(),
+            'count' => $result = $q->count(),
+            default => $result = 0,
+        };
+
+        return $result;
+
+    }
+
+    private function taskMoneyCalculator($query, $data)
+    {
+
+        return $query->get()
+                    ->when($data['currency_id'] == '999', function ($collection) {
+                        $collection->map(function ($t) {
+                            return $t->taskCompanyValue();
+                        });
+                    })
+                    ->when($data['currency_id'] != '999', function ($collection) {
+
+                        $collection->map(function ($t) {
+                            return $t->taskValue();
+                        });
+
+                    });
+
+    }
+
+    public function getInvoicedTasks($data): int|float
+    {
+
+        $result = 0;
+        $calculated = collect();
+
+        $q = Task::query()
+                    ->withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->where('is_deleted', 0)
+                    ->whereHas('invoice');
+
+        if(in_array($data['period'], ['current,previous'])) {
+            $q->whereBetween('calculated_start_date', [$data['start_date'], $data['end_date']]);
+        }
+
+        if($data['calculation'] != 'count' && $data['format'] == 'money') {
+
+            if($data['currency_id'] != '999') {
+
+                $q->whereHas('client', function ($query) use ($data) {
+                    $query->where('settings->currency_id', $data['currency_id']);
+                });
+
+            }
+
+            $calculated = $this->taskMoneyCalculator($q, $data);
+
+        }
+
+        if($data['calculation'] != 'count' && $data['format'] == 'time') {
+            $calculated = $q->get()->map(function ($t) {
+                return $t->calcDuration();
+            });
+        }
+
+        match ($data['calculation']) {
+            'sum' => $result = $calculated->sum(),
+            'avg' => $result = $calculated->avg(),
             'count' => $result = $q->count(),
             default => $result = 0,
         };
