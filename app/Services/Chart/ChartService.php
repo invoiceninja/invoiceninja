@@ -224,6 +224,8 @@ class ChartService
      * period - current/previous
      * calculation - sum/count/avg
      *
+     * May require currency_id
+     * 
      * date_range - this_month
      * or
      * start_date - end_date
@@ -241,11 +243,11 @@ class ChartService
             'unapproved_quotes' => $results = $this->getUnapprovedQuotes($data), 
             'logged_tasks' => $results = $this->getLoggedTasks($data), 
             'invoiced_tasks' => $results = $this->getInvoicedTasks($data), 
-            'paid_tasks' => $results = 0, 
-            'logged_expenses' => $results = 0, 
-            'pending_expenses' => $results = 0, 
-            'invoiced_expenses' => $results = 0, 
-            'invoice_paid_expenses' => $results = 0,
+            'paid_tasks' => $results = $this->getPaidTasks($data), 
+            'logged_expenses' => $results = $this->getLoggedExpenses($data), 
+            'pending_expenses' => $results = $this->getPendingExpenses($data), 
+            'invoiced_expenses' => $results = $this->getInvoicedExpenses($data), 
+            'invoice_paid_expenses' => $results = $this->getInvoicedPaidExpenses($data),
             default => $results = 0,
         };
 
