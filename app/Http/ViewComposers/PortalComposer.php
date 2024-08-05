@@ -88,11 +88,11 @@ class PortalComposer
         $data['sidebar'] = $this->sidebarMenu();
         $data['header'] = [];
         $data['footer'] = [];
-        $data['countries'] = TranslationHelper::getCountries();
+        $data['countries'] = app('countries');
         $data['company'] = auth()->guard('contact')->user()->company;
         $data['client'] = auth()->guard('contact')->user()->client;
         $data['settings'] = $this->settings;
-        $data['currencies'] = TranslationHelper::getCurrencies();
+        $data['currencies'] = app('currencies');
         $data['contact'] = auth()->guard('contact')->user();
 
         $data['multiple_contacts'] = session()->get('multiple_contacts') ?: collect();

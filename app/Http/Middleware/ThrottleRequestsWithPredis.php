@@ -32,19 +32,15 @@ class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\Throttle
 
     /**
      * Create a new request throttler.
-     *
-     * @param  \Illuminate\Cache\RateLimiter  $limiter
-     * @param  \Illuminate\Contracts\Redis\Factory  $redis
      * @return void
      */
+    
+    /** @phpstan-ignore-next-line */
     public function __construct(RateLimiter $limiter, Redis $redis)
     {
         parent::__construct($limiter);
-
+        /** @phpstan-ignore-next-line */
         $this->redis = \Illuminate\Support\Facades\Redis::connection('sentinel-cache');
-
-        // $this->redis = $redis;
-
     }
 
     /**
@@ -126,7 +122,6 @@ class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\Throttle
     /**
      * Get the Redis connection that should be used for throttling.
      *
-     * @return \Illuminate\Redis\Connections\Connection
      */
     protected function getRedisConnection()
     {

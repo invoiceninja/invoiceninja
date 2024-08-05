@@ -12,14 +12,11 @@
 
 namespace App\PaymentDrivers\Rotessa;
 
-use Carbon\Carbon;
-use App\Models\Client;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use Illuminate\View\View;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
@@ -28,15 +25,17 @@ use App\Models\ClientGatewayToken;
 use Illuminate\Http\RedirectResponse;
 use App\PaymentDrivers\RotessaPaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
-use App\PaymentDrivers\Rotessa\Resources\Customer;
-use App\PaymentDrivers\Rotessa\Resources\Transaction;
-use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Exception\InvalidResponseException;
-use App\Exceptions\Ninja\ClientPortalAuthorizationException;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class PaymentMethod implements MethodInterface
 {
+
+    private array $transaction = [
+        "financial_transactions" => [],
+        "frequency" =>'Once',
+        "installments" =>1
+    ];
 
     public function __construct(protected RotessaPaymentDriver $rotessa)
     {
@@ -51,7 +50,7 @@ class PaymentMethod implements MethodInterface
      */
     public function authorizeView(array $data): View
     {
-        $data['contact'] = collect($data['client']->contacts->firstWhere('is_primary', 1)->toArray())->merge([
+        $data['contact'] = collect($data['client']->contacts->first()->toArray())->merge([
             'home_phone' => $data['client']->phone, 
             'custom_identifier' => $data['client']->number,
             'name' => $data['client']->name,
@@ -73,42 +72,38 @@ class PaymentMethod implements MethodInterface
      * @param Request $request
      * @return RedirectResponse
      */
-    public function authorizeResponse(Request $request): RedirectResponse
+    public function authorizeResponse($request)
     {
-        try {
-            $request->validate([
-                'gateway_type_id' => ['required','integer'],
-                'country' => ['required'],
-                'name' => ['required'],
-                'address_1' => ['required'],
-                // 'address_2' => ['required'],
-                'city' => ['required'],
-                'email' => ['required','email:filter'],
-                'province_code' => ['required','size:2','alpha'],
-                'postal_code' => ['required'],
-                'authorization_type' => ['required'],
-                'account_number' => ['required'],
-                'bank_name' => ['required'],
-                'phone' => ['required'],
-                'home_phone' => ['required','size:10'],
-                'bank_account_type'=>['required_if:country,US'],
-                'routing_number'=>['required_if:country,US'],
-                'institution_number'=>['required_if:country,CA','numeric'],
-                'transit_number'=>['required_if:country,CA','numeric'],
-                'custom_identifier'=>['required_without:customer_id'],
-                'customer_id'=>['required_without:custom_identifier','integer'],
-            ]);
-            $customer = new Customer(  ['address' => $request->only('address_1','address_2','city','postal_code','province_code','country'), 'custom_identifier' => $request->input('custom_identifier') ] + $request->all());
 
-            $this->rotessa->findOrCreateCustomer($customer->resolve());
-            
-            return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
+        $request->validate([
+            'gateway_type_id' => ['required','integer'],
+            'country' => ['required','in:US,CA,United States,Canada'],
+            'name' => ['required'],
+            'address_1' => ['required'],
+            'city' => ['required'],
+            'email' => ['required','email:filter'],
+            'province_code' => ['required','size:2','alpha'],
+            'postal_code' => ['required'],
+            'authorization_type' => ['required'],
+            'account_number' => ['required'],
+            'bank_name' => ['required'],
+            'phone' => ['required'],
+            'home_phone' => ['required','size:10'],
+            'bank_account_type'=>['required_if:country,US'],
+            'routing_number'=>['required_if:country,US'],
+            'institution_number'=>['required_if:country,CA','numeric','digits:3'],
+            'transit_number'=>['required_if:country,CA','numeric','digits:5'],
+            'custom_identifier'=>['required_without:customer_id'],
+            'customer_id'=>['required_without:custom_identifier','integer'],
+            'customer_type' => ['required', 'in:Personal,Business'],
+        ]);
 
-        } catch (\Throwable $e) {
-            return $this->rotessa->processInternallyFailedPayment($this->rotessa, new ClientPortalAuthorizationException( get_class( $e) . " :  {$e->getMessage()}", (int)  $e->getCode() ));
-        }
+        $customer = array_merge(['address' => $request->only('address_1','address_2','city','postal_code','province_code','country'), 'custom_identifier' => $request->input('custom_identifier') ], $request->all());
 
-        // return back()->withMessage(ctrans('texts.unable_to_verify_payment_method'));
+        $this->rotessa->findOrCreateCustomer($customer);
+        
+        return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
+
     }
 
     /**
@@ -124,7 +119,7 @@ class PaymentMethod implements MethodInterface
         $data['due_date'] = date('Y-m-d', min(max(strtotime($data['invoices']->max('due_date')), strtotime('now')), strtotime('+1 day')));
         $data['process_date'] = $data['due_date'];
         $data['currency'] = $this->rotessa->client->getCurrencyCode();
-        $data['frequency'] = Frequencies::getOnePayment();
+        $data['frequency'] = 'Once';
         $data['installments'] = 1;
         $data['invoice_nums'] = $data['invoices']->pluck('invoice_number')->join(', '); 
         return render('gateways.rotessa.bank_transfer.pay', $data );
@@ -142,11 +137,7 @@ class PaymentMethod implements MethodInterface
         $customer = null;
 
         try {
-            $request->validate([
-                'source' => ['required','string','exists:client_gateway_tokens,token'],
-                'amount' => ['required','numeric'],
-                'process_date'=> ['required','date','after_or_equal:today'],
-            ]);
+
             $customer = ClientGatewayToken::query()
                 ->where('company_gateway_id', $this->rotessa->company_gateway->id)
                 ->where('client_id', $this->rotessa->client->id)
@@ -156,16 +147,20 @@ class PaymentMethod implements MethodInterface
 
             if(!$customer) throw new \Exception('Client gateway token not found!',  SystemLog::TYPE_ROTESSA);
 
-            $transaction = new Transaction($request->only('frequency' ,'installments','amount','process_date') + ['comment' => $this->rotessa->getDescription(false) ]);
-            $transaction->additional(['customer_id' => $customer->gateway_customer_reference]);
-            $transaction = array_filter( $transaction->resolve());
+            $transaction = array_merge($this->transaction,[
+                'amount' => $request->input('amount'),
+                'process_date' => now()->addSeconds($customer->client->utc_offset())->format('Y-m-d'),
+                'comment' => $this->rotessa->getDescription(false),
+                'customer_id' => $customer->gateway_customer_reference,
+            ]);
+
             $response = $this->rotessa->gatewayRequest('post','transaction_schedules', $transaction);
-                        
+            
             if($response->failed()) 
                 $response->throw(); 
             
             $response = $response->json();
-            nlog($response);
+
            return  $this->processPendingPayment($response['id'], (float) $response['amount'], PaymentType::ACSS , $customer->token);
         } catch(\Throwable $e) {
             $this->processUnsuccessfulPayment( new InvalidResponseException($e->getMessage(), (int) $e->getCode()) );
