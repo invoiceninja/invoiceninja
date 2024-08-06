@@ -152,6 +152,11 @@ class Peppol extends AbstractService
     private InvoiceSum | InvoiceSumInclusive $calc;
 
     private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
+
+    private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
+    private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
+    private EInvoice $e;
+
     /**
     * @param Invoice $invoice
     */
@@ -159,18 +164,21 @@ class Peppol extends AbstractService
     {
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
-        $this->setInvoice();
+        $this->e = new EInvoice();
+        $this->setSettings()->setInvoice();
     }
-
+    
+    /**
+     * Rehydrates an existing e invoice - or - scaffolds a new one
+     *
+     * @return self
+     */
     private function setInvoice(): self
     {
 
-        
         if($this->invoice->e_invoice){
 
-            
-            $e = new EInvoice();
-            $this->p_invoice = $e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
+            $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
 
             return $this;
 
@@ -181,6 +189,21 @@ class Peppol extends AbstractService
         $this->setInvoiceDefaults();
 
         return $this;
+    }
+    
+    /**
+     * Transforms the settings props into usable models we can merge.
+     *
+     * @return self
+     */
+    private function setSettings(): self
+    {
+        $this->_client_settings = isset($this->invoice->client->e_invoice->Invoice) ? $this->e->decode('Peppol', json_encode($this->invoice->client->e_invoice->Invoice), 'json') : null;
+        
+        $this->_company_settings = isset($this->invoice->company->e_invoice->Invoice) ? $this->e->decode('Peppol', json_encode($this->invoice->company->e_invoice->Invoice), 'json') : null;
+
+        return $this;
+
     }
 
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
@@ -211,8 +234,7 @@ class Peppol extends AbstractService
         $json =  $e->encode($this->p_invoice, 'json');
 
         return $json;
-        // $prefixes =  str_ireplace(["cac:","cbc:"], "", $json);
-        // return str_ireplace(["InvoiceLine", "PostalAddress", "PartyName"], ["invoiceLines","address", "companyName"], $prefixes);
+        
     }
 
     public function toArray(): array
@@ -229,7 +251,7 @@ class Peppol extends AbstractService
         $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
         
-        $this->p_invoice->TaxTotal = $this->getTotalTaxes();
+        // $this->p_invoice->TaxTotal = $this->getTotalTaxes(); it only wants the aggregate here!!
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
         $this->countryLevelMutators();
@@ -340,7 +362,7 @@ class Peppol extends AbstractService
 
             $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
-            $tax_total->TaxSubtotal = $tax_subtotal;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
 
             $taxes[] = $tax_total;
 
@@ -372,7 +394,7 @@ class Peppol extends AbstractService
 
             $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
-            $tax_total->TaxSubtotal = $tax_subtotal;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
 
             $taxes[] = $tax_total;
 
@@ -741,9 +763,9 @@ class Peppol extends AbstractService
     
         if($prop_value = PropertyResolver::resolve($this->invoice->e_invoice, $property_path)) 
             return $prop_value;
-        elseif($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $property_path)) 
+        elseif($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) 
             return $prop_value;
-        elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $property_path)) 
+        elseif($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) 
             return $prop_value;
         
         return null;
@@ -761,8 +783,8 @@ class Peppol extends AbstractService
 
     private function setPaymentMeans(bool $required = false): self
     {
-       
-        if($this->p_invoice->PaymentMeans)
+
+        if(isset($this->p_invoice->PaymentMeans))
             return $this;
         elseif(!isset($this->p_invoice->PaymentMeans) && $paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
             $this->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
