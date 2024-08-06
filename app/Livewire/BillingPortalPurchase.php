@@ -356,15 +356,14 @@ class BillingPortalPurchase extends Component
 
         $this->methods = $contact->client->service()->getPaymentMethods($this->price);
 
-        foreach($this->methods as $method){
+        $method_values = array_column($this->methods, 'is_paypal');
+        $is_paypal = in_array('1', $method_values);
 
-            if($method['is_paypal'] == '1' && !$this->steps['check_rff']){
-                $this->rff();
-                break;
-            }
-
-        }
-
+        if($is_paypal && !$this->steps['check_rff'])
+            $this->rff();
+        elseif(!$is_paypal && !$this->steps['check_rff'])
+            $this->steps['fetched_payment_methods'] = true;
+        
         $this->heading_text = ctrans('texts.payment_methods');
 
         return $this;
