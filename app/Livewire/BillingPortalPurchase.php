@@ -361,7 +361,7 @@ class BillingPortalPurchase extends Component
 
         if($is_paypal && !$this->steps['check_rff'])
             $this->rff();
-        elseif(!$is_paypal && !$this->steps['check_rff'])
+        elseif(!$this->steps['check_rff'])
             $this->steps['fetched_payment_methods'] = true;
         
         $this->heading_text = ctrans('texts.payment_methods');
