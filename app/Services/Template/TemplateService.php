@@ -124,7 +124,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format'];
+        $allowedFilters = ['replace', 'escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -323,6 +323,9 @@ class TemplateService
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
+
+            $template = htmlspecialchars($template, ENT_XML1, 'UTF-8');
+
             $f->appendXML(html_entity_decode($template));
 
             $replacements[] = $f;

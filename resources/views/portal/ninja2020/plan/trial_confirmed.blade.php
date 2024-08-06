@@ -1450,7 +1450,7 @@ Ensure the default browser behavior of the `hidden` attribute.
               type="button"
               class="mx-[auto] max-w-[212px] bg-primary-blue hover:opacity-80 button button-primary bg-primary rounded-sm text-sm transition duration-300 ease-in md:mx-[0]"
             >
-            Account Login
+            {{ ctrans('texts.return_to_app') }}
             </a>
       </div>
     </div>

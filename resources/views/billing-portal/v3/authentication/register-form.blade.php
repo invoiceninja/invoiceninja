@@ -47,7 +47,7 @@
                                 @foreach(App\Utils\TranslationHelper::getCurrencies() as $currency)
                                     <option
                                         {{ $currency->id == $subscription->company->settings->currency_id ? 'selected' : null }} value="{{ $currency->id }}">
-                                        {{ $currency->name }}
+                                        {{ $currency->getName() }}
                                     </option>
                                 @endforeach
                             </select>

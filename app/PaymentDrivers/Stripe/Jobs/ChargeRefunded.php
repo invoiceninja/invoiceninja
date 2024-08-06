@@ -59,6 +59,11 @@ class ChargeRefunded implements ShouldQueue
 
         $payment_hash_key = $source['metadata']['payment_hash'] ?? null;
 
+        if(is_null($payment_hash_key)){
+            nlog("charge.refunded not found");
+            return;
+        }
+
         $payment_hash = PaymentHash::query()->where('hash', $payment_hash_key)->first();
         $company_gateway = $payment_hash->payment->company_gateway;
 
