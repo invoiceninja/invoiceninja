@@ -57,6 +57,12 @@ class Peppol extends AbstractService
     use NumberFormatter;
     
     /**
+     * Assumptions: 
+     * 
+     * Line Item Taxes Only
+     * Exclusive Taxes
+     * 
+     * 
      * used as a proxy for 
      * the schemeID of partyidentification
      * property - for Storecove only:
@@ -154,7 +160,9 @@ class Peppol extends AbstractService
     private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
 
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
+
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
+
     private EInvoice $e;
 
     /**
@@ -761,13 +769,13 @@ class Peppol extends AbstractService
     public function getSetting(string $property_path): mixed
     {
     
-        if($prop_value = PropertyResolver::resolve($this->invoice->e_invoice, $property_path)) 
+        if($prop_value = PropertyResolver::resolve($this->p_invoice, $property_path)) {
             return $prop_value;
-        elseif($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) 
+        }elseif($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) {
             return $prop_value;
-        elseif($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) 
+        }elseif($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) {
             return $prop_value;
-        
+        }
         return null;
 
     }
@@ -786,7 +794,7 @@ class Peppol extends AbstractService
 
         if(isset($this->p_invoice->PaymentMeans))
             return $this;
-        elseif(!isset($this->p_invoice->PaymentMeans) && $paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
+        elseif($paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
             $this->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
             return $this;
         }
@@ -796,24 +804,48 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * DE
+     *
+     * @Completed
+     * @Tested
+     * 
+     * @return self
+     */
     private function DE(): self
     {
-        // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
-        // this is forced by default.
         
         $this->setPaymentMeans(true);
 
         return $this;
     }
-
+    
+    /**
+     * CH
+     *
+     * @Completed
+     * 
+     * Completed - QR-Bill to be implemented at a later date.
+     * @return self
+     */
     private function CH(): self
     {
-        //if QR-Bill support required - then special flow required.... optional.
-
         return $this;
     }
-
+    
+    /**
+     * AT
+     *
+     * @Pending
+     * 
+     * Need to ensure when sending to government entities that we route appropriately
+     * Also need to ensure customerAssignedAccountIdValue is set so that the sender can be resolved.
+     * 
+     * Need a way to define if the client is a government entity.
+     * 
+     * @return self
+     */
     private function AT(): self
     {
         //special fields for sending to AT:GOV
@@ -826,7 +858,14 @@ class Peppol extends AbstractService
         //if payment means are included, they must be the same `type`
         return $this;
     }
-
+    
+    /**
+     * ES
+     *
+     * @Pending - testing.
+     * 
+     * @return self
+     */
     private function ES(): self
     {
 
