@@ -228,11 +228,14 @@ class Gateway extends StaticModel
                 ]; //BTCPay
 	    case 63:
 		return [
-                    GatewayType::BANK_TRANSFER => [
+                        
+                    /*
+                     * TODO: Add support for US bank accounts
+                     * GatewayType::BANK_TRANSFER => [
                         'refund' => false,
                         'token_billing' => true,
                         'webhooks' => [],
-                        ],  
+                        ],  */
                     GatewayType::ACSS => ['refund' => false, 'token_billing' => true, 'webhooks' => []]
                 ]; // Rotessa
             default:
