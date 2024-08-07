@@ -5311,6 +5311,7 @@ $lang = array(
     'customer_type' => 'Customer Type',
     'process_date' => 'Process Date',
     'forever_free' => 'Forever Free',
+    'comments_only' => 'Comments Only',
 );
 
 return $lang;

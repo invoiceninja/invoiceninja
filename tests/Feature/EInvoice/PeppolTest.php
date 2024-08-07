@@ -67,9 +67,7 @@ class PeppolTest extends TestCase
         $settings->country_id = '276';
         $settings->currency_id = '3';
 
-        
         $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
-        
         
         $fib = new FinancialInstitutionBranch();
         $fib->ID = "DEUTDEMMXXX"; //BIC
@@ -88,10 +86,13 @@ class PeppolTest extends TestCase
         $pm->PayeeFinancialAccount = $pfa;        
         $einvoice->PaymentMeans[] = $pm;
 
+        $stub = new \stdClass;
+        $stub->Invoice = $einvoice;
+
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
             'settings' => $settings,
-            'e_invoice' => $einvoice,
+            'e_invoice' => $stub,
         ]);
         
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
@@ -149,10 +150,11 @@ class PeppolTest extends TestCase
 
         $this->assertEquals(119, $invoice->amount);
 
-       
         $peppol = new Peppol($invoice);
         $peppol->setInvoiceDefaults();
         $peppol->run();
+
+        nlog($peppol->toXml());
 
         $de_invoice = $peppol->getInvoice();
 
@@ -207,10 +209,14 @@ class PeppolTest extends TestCase
         $pm->PayeeFinancialAccount = $pfa;        
         $einvoice->PaymentMeans[] = $pm;
 
+        
+        $stub = new \stdClass();
+        $stub->Invoice = $einvoice;
+
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
             'settings' => $settings,
-            'e_invoice' => $einvoice,
+            'e_invoice' => $stub,
         ]);
 
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);

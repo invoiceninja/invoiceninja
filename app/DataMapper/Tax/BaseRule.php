@@ -215,7 +215,7 @@ class BaseRule implements RuleInterface
 
             $this->invoice->tax_data = $tax_data;
 
-            if(\DB::transactionLevel() == 0) {
+            if(\DB::transactionLevel() == 0 && isset($this->invoice->id)) {
 
                 try {
                     $this->invoice->saveQuietly();

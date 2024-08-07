@@ -57,6 +57,12 @@ class Peppol extends AbstractService
     use NumberFormatter;
     
     /**
+     * Assumptions: 
+     * 
+     * Line Item Taxes Only
+     * Exclusive Taxes
+     * 
+     * 
      * used as a proxy for 
      * the schemeID of partyidentification
      * property - for Storecove only:
@@ -152,6 +158,13 @@ class Peppol extends AbstractService
     private InvoiceSum | InvoiceSumInclusive $calc;
 
     private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
+
+    private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
+
+    private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
+
+    private EInvoice $e;
+
     /**
     * @param Invoice $invoice
     */
@@ -159,18 +172,21 @@ class Peppol extends AbstractService
     {
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
-        $this->setInvoice();
+        $this->e = new EInvoice();
+        $this->setSettings()->setInvoice();
     }
-
+    
+    /**
+     * Rehydrates an existing e invoice - or - scaffolds a new one
+     *
+     * @return self
+     */
     private function setInvoice(): self
     {
 
-        
         if($this->invoice->e_invoice){
 
-            
-            $e = new EInvoice();
-            $this->p_invoice = $e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
+            $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
 
             return $this;
 
@@ -181,6 +197,21 @@ class Peppol extends AbstractService
         $this->setInvoiceDefaults();
 
         return $this;
+    }
+    
+    /**
+     * Transforms the settings props into usable models we can merge.
+     *
+     * @return self
+     */
+    private function setSettings(): self
+    {
+        $this->_client_settings = isset($this->invoice->client->e_invoice->Invoice) ? $this->e->decode('Peppol', json_encode($this->invoice->client->e_invoice->Invoice), 'json') : null;
+        
+        $this->_company_settings = isset($this->invoice->company->e_invoice->Invoice) ? $this->e->decode('Peppol', json_encode($this->invoice->company->e_invoice->Invoice), 'json') : null;
+
+        return $this;
+
     }
 
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
@@ -211,8 +242,7 @@ class Peppol extends AbstractService
         $json =  $e->encode($this->p_invoice, 'json');
 
         return $json;
-        // $prefixes =  str_ireplace(["cac:","cbc:"], "", $json);
-        // return str_ireplace(["InvoiceLine", "PostalAddress", "PartyName"], ["invoiceLines","address", "companyName"], $prefixes);
+        
     }
 
     public function toArray(): array
@@ -224,12 +254,16 @@ class Peppol extends AbstractService
     {
         $this->p_invoice->ID = $this->invoice->number;
         $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
+
+        if($this->invoice->due_date)
+            $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
+
         $this->p_invoice->InvoiceTypeCode = 380; //
         $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
         $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
         
-        $this->p_invoice->TaxTotal = $this->getTotalTaxes();
+        // $this->p_invoice->TaxTotal = $this->getTotalTaxes(); it only wants the aggregate here!!
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
         $this->countryLevelMutators();
@@ -340,7 +374,7 @@ class Peppol extends AbstractService
 
             $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
-            $tax_total->TaxSubtotal = $tax_subtotal;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
 
             $taxes[] = $tax_total;
 
@@ -372,7 +406,7 @@ class Peppol extends AbstractService
 
             $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
-            $tax_total->TaxSubtotal = $tax_subtotal;
+            $tax_total->TaxSubtotal[] = $tax_subtotal;
 
             $taxes[] = $tax_total;
 
@@ -739,13 +773,13 @@ class Peppol extends AbstractService
     public function getSetting(string $property_path): mixed
     {
     
-        if($prop_value = PropertyResolver::resolve($this->invoice->e_invoice, $property_path)) 
+        if($prop_value = PropertyResolver::resolve($this->p_invoice, $property_path)) {
             return $prop_value;
-        elseif($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $property_path)) 
+        }elseif($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) {
             return $prop_value;
-        elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $property_path)) 
+        }elseif($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) {
             return $prop_value;
-        
+        }
         return null;
 
     }
@@ -761,10 +795,10 @@ class Peppol extends AbstractService
 
     private function setPaymentMeans(bool $required = false): self
     {
-       
-        if($this->p_invoice->PaymentMeans)
+
+        if(isset($this->p_invoice->PaymentMeans))
             return $this;
-        elseif(!isset($this->p_invoice->PaymentMeans) && $paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
+        elseif($paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
             $this->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
             return $this;
         }
@@ -774,24 +808,48 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * DE
+     *
+     * @Completed
+     * @Tested
+     * 
+     * @return self
+     */
     private function DE(): self
     {
-        // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
-        // this is forced by default.
         
         $this->setPaymentMeans(true);
 
         return $this;
     }
-
+    
+    /**
+     * CH
+     *
+     * @Completed
+     * 
+     * Completed - QR-Bill to be implemented at a later date.
+     * @return self
+     */
     private function CH(): self
     {
-        //if QR-Bill support required - then special flow required.... optional.
-
         return $this;
     }
-
+    
+    /**
+     * AT
+     *
+     * @Pending
+     * 
+     * Need to ensure when sending to government entities that we route appropriately
+     * Also need to ensure customerAssignedAccountIdValue is set so that the sender can be resolved.
+     * 
+     * Need a way to define if the client is a government entity.
+     * 
+     * @return self
+     */
     private function AT(): self
     {
         //special fields for sending to AT:GOV
@@ -804,14 +862,28 @@ class Peppol extends AbstractService
         //if payment means are included, they must be the same `type`
         return $this;
     }
-
+    
+    /**
+     * ES
+     *
+     * @Pending 
+     * 
+     * ES:DIRE - routing identifier
+     * 
+     * testing. //293098
+     * 
+     * @return self
+     */
     private function ES(): self
     {
 
-    // For B2B, provide an ES:DIRE routing identifier and an ES:VAT tax identifier. 
-    // both sender and receiver must be an ES company;
-    // you must have a "credit_transfer" PaymentMean;
-    // the "dueDate" property is mandatory.
+        if(!isset($this->invoice->due_date))
+            $this->p_invoice->DueDate = new \DateTime($this->invoice->date);
+
+        if($this->invoice->client->classification == 'business' && $this->invoice->company->getSetting('classification') == 'business') {
+            //must have a paymentmeans as credit_transfer
+            $this->setPaymentMeans(true);
+        }
 
 // For B2G, provide three ES:FACE identifiers in the routing object, 
 // as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers. 

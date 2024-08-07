@@ -158,6 +158,18 @@ class ExpenseFilters extends QueryFilters
         return $this->builder;
     }
 
+    public function categories(string $categories = ''): Builder
+    {
+        $categories_exploded = explode(",", $categories);
+
+        if(empty($categories) || count(array_filter($categories_exploded)) == 0) 
+            return $this->builder;
+
+        $categories_keys = $this->transformKeys($categories_exploded);
+
+        return $this->builder->whereIn('category_id', $categories_keys);
+    }
+
     public function number(string $number = ''): Builder
     {
         if (strlen($number) == 0) {

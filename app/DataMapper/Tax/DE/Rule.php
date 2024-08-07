@@ -43,6 +43,8 @@ class Rule extends BaseRule implements RuleInterface
     public float $reduced_tax_rate = 0;
 
     public string $tax_name1 = 'MwSt.';
+
+    private string $tax_name;
     /**
      * Initializes the rules and builds any required data.
      *
@@ -50,6 +52,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function init(): self
     {
+        $this->tax_name = $this->tax_name1;
         $this->calculateRates();
 
         return $this;
@@ -91,6 +94,7 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function reverseTax($item): self
     {
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = 0;
 
         return $this;
@@ -103,6 +107,8 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function taxReduced($item): self
     {
+        
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = $this->reduced_tax_rate;
 
         return $this;
@@ -115,6 +121,8 @@ class Rule extends BaseRule implements RuleInterface
      */
     public function zeroRated($item): self
     {
+        
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = 0;
 
         return $this;
@@ -142,6 +150,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxDigital($item): self
     {
 
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = $this->tax_rate;
 
         return $this;
@@ -155,6 +164,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxService($item): self
     {
 
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = $this->tax_rate;
 
         return $this;
@@ -168,6 +178,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxShipping($item): self
     {
 
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = $this->tax_rate;
 
         return $this;
@@ -181,6 +192,7 @@ class Rule extends BaseRule implements RuleInterface
     public function taxPhysical($item): self
     {
 
+        $this->tax_name1 = $this->tax_name;
         $this->tax_rate1 = $this->tax_rate;
 
         return $this;
