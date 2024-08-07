@@ -5312,6 +5312,8 @@ $lang = array(
     'process_date' => 'Process Date',
     'forever_free' => 'Forever Free',
     'comments_only' => 'Comments Only',
+    'payment_balance_on_file' => 'Payment Balance On File',
+
 );
 
 return $lang;
