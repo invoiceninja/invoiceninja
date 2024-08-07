@@ -254,6 +254,10 @@ class Peppol extends AbstractService
     {
         $this->p_invoice->ID = $this->invoice->number;
         $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
+
+        if($this->invoice->due_date)
+            $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
+
         $this->p_invoice->InvoiceTypeCode = 380; //
         $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
         $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
@@ -862,17 +866,24 @@ class Peppol extends AbstractService
     /**
      * ES
      *
-     * @Pending - testing.
+     * @Pending 
+     * 
+     * ES:DIRE - routing identifier
+     * 
+     * testing. //293098
      * 
      * @return self
      */
     private function ES(): self
     {
 
-    // For B2B, provide an ES:DIRE routing identifier and an ES:VAT tax identifier. 
-    // both sender and receiver must be an ES company;
-    // you must have a "credit_transfer" PaymentMean;
-    // the "dueDate" property is mandatory.
+        if(!isset($this->invoice->due_date))
+            $this->p_invoice->DueDate = new \DateTime($this->invoice->date);
+
+        if($this->invoice->client->classification == 'business' && $this->invoice->company->getSetting('classification') == 'business') {
+            //must have a paymentmeans as credit_transfer
+            $this->setPaymentMeans(true);
+        }
 
 // For B2G, provide three ES:FACE identifiers in the routing object, 
 // as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers. 

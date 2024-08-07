@@ -137,14 +137,14 @@ class Storecove {
 
     }
 
-    public function sendDocument($document)
+    public function sendDocument(string $document, int $routing_id, array $identifiers = [])
     {
 
         $payload = [
-            "legalEntityId"=> 290868,
+            "legalEntityId" => $routing_id,
             "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
             "routing" => [
-                "eIdentifiers" => [],
+                "eIdentifiers" => $identifiers,
                 "emails" => ["david@invoiceninja.com"]
             ],
             "document"=> [
