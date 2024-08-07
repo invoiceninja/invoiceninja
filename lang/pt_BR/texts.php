@@ -3441,7 +3441,7 @@ Quando tiver as quantias, volte a esta página de formas de pagamento e clique "
     'reminder2_sent' => 'Lembrete 2 Enviado',
     'reminder3_sent' => 'Lembrete 3 Enviado',
     'reminder_last_sent' => 'Último Lembrete Enviado',
-    'pdf_page_info' => 'Página: atual de: total',
+    'pdf_page_info' => 'Página: :current de: :total',
     'emailed_credits' => 'Créditos enviados por e-mail com sucesso',
     'view_in_stripe' => 'Ver em Listra',
     'rows_per_page' => 'Linhas por Página',
