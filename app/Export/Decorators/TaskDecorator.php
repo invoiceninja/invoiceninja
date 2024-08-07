@@ -18,6 +18,7 @@ use Carbon\Carbon;
 
 class TaskDecorator extends Decorator implements DecoratorInterface
 {
+    //@todo - we do not handle iterating through the timelog here.
     public function transform(string $key, mixed $entity): mixed
     {
         $task = false;
@@ -42,7 +43,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
 
         $timezone = Timezone::find($task->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
@@ -71,7 +72,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
 
         $timezone = Timezone::find($task->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
@@ -95,6 +96,26 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return '';
 
     }
+    
+    /**
+     * billable
+     *
+     * @todo
+     */
+    public function billable(Task $task)
+    {
+        return '';
+    }
+    
+    /**
+     * items_notes
+     * @todo
+     */
+    public function items_notes(Task $task)
+    {
+        return '';
+    }
+    
     public function duration(Task $task)
     {
         return $task->calcDuration();

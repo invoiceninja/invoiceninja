@@ -59,9 +59,9 @@ class ExportController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $hash = Str::uuid();
+        $hash = Str::uuid()->toString();
         $url = \Illuminate\Support\Facades\URL::temporarySignedRoute('protected_download', now()->addHour(), ['hash' => $hash]);
-        Cache::put($hash, $url, now()->addHour());
+        Cache::put($hash, $url, 3600);
 
         CompanyExport::dispatch($user->getCompany(), $user, $hash);
 

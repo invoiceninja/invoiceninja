@@ -32,10 +32,10 @@
     "type": "project",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "ext-curl": "*",
         "afosto/yaac": "^1.4",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
@@ -57,12 +57,12 @@
         "hedii/laravel-gelf-logger": "^9",
         "horstoeko/orderx": "dev-master",
         "horstoeko/zugferd": "^1",
-        "horstoeko/zugferdvisualizer":"^1",
+        "horstoeko/zugferdvisualizer": "^1",
         "hyvor/php-json-exporter": "^0.0.3",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
-        "invoiceninja/inspector": "^3.0",
         "invoiceninja/einvoice": "dev-main",
+        "invoiceninja/inspector": "^3.0",
         "invoiceninja/ubl_invoice": "^2",
         "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
@@ -74,19 +74,18 @@
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.20.0",
-        "league/omnipay": "^3.1",
         "livewire/livewire": "^3",
         "microsoft/microsoft-graph": "^1.69",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^11.0",
-        "omnipay/paypal": "^3.0",
         "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",
         "psr/http-message": "^1.0",
         "pusher/pusher-php-server": "^7.2",
+        "quickbooks/v3-php-sdk": "^6.1",
         "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
@@ -132,7 +131,8 @@
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
         ],
-        "classmap": ["app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/"]
+        "classmap": [
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -185,7 +185,7 @@
             "url": "https://github.com/turbo124/apple"
         },
         {
-            "type":"vcs",
+            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
         },
         {

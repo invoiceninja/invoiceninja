@@ -48,6 +48,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerPart
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
+use InvoiceNinja\EInvoice\Models\Peppol\Party as PeppolParty;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentification;
 
 class Peppol extends AbstractService
@@ -150,14 +151,36 @@ class Peppol extends AbstractService
 
     private InvoiceSum | InvoiceSumInclusive $calc;
 
+    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
     /**
-     * @param Invoice $invoice
-     */
-    public function __construct(public Invoice $invoice, public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice = null)
+    * @param Invoice $invoice
+    */
+    public function __construct(public Invoice $invoice)
     {
-        $this->p_invoice = $p_invoice ?? new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
+        $this->setInvoice();
+    }
+
+    private function setInvoice(): self
+    {
+
+        
+        if($this->invoice->e_invoice){
+
+            
+            $e = new EInvoice();
+            $this->p_invoice = $e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
+
+            return $this;
+
+        }
+
+        $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+        $this->setInvoiceDefaults();
+
+        return $this;
     }
 
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
@@ -170,7 +193,31 @@ class Peppol extends AbstractService
     public function toXml(): string
     {
         $e = new EInvoice();
-        return $e->encode($this->p_invoice, 'xml');
+        $xml = $e->encode($this->p_invoice, 'xml');
+
+        $prefix = '<?xml version="1.0" encoding="utf-8"?>
+    <Invoice
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">';
+
+        return str_ireplace(['\n','<?xml version="1.0"?>'], ['', $prefix], $xml);
+
+    }
+
+    public function toJson(): string
+    {
+        $e = new EInvoice();
+        $json =  $e->encode($this->p_invoice, 'json');
+
+        return $json;
+        // $prefixes =  str_ireplace(["cac:","cbc:"], "", $json);
+        // return str_ireplace(["InvoiceLine", "PostalAddress", "PartyName"], ["invoiceLines","address", "companyName"], $prefixes);
+    }
+
+    public function toArray(): array
+    {
+        return json_decode($this->toJson(), true);
     }
 
     public function run()
@@ -185,30 +232,11 @@ class Peppol extends AbstractService
         $this->p_invoice->TaxTotal = $this->getTotalTaxes();
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
-        // $this->p_invoice->PaymentMeans = $this->getPaymentMeans();
-
-        // $payeeFinancialAccount = (new PayeeFinancialAccount())
-        //     ->setBankId($company->settings->custom_value1)
-        //     ->setBankName($company->settings->custom_value2);
-
-        // $paymentMeans = (new PaymentMeans())
-        // ->setPaymentMeansCode($invoice->custom_value1)
-        // ->setPayeeFinancialAccount($payeeFinancialAccount);
-        // $ubl_invoice->setPaymentMeans($paymentMeans);
+        $this->countryLevelMutators();
+        
         return $this;
 
     }
-
-    // private function getPaymentMeans(): PaymentMeans
-    // {
-        // $payeeFinancialAccount = new PayeeFinancialAccount()
-        // $payeeFinancialAccount->
-
-        // $ppm = new PaymentMeans();
-        // $ppm->PayeeFinancialAccount = $payeeFinancialAccount;
-
-        // return $ppm;
-    // }
 
     private function getLegalMonetaryTotal(): LegalMonetaryTotal
     {
@@ -482,7 +510,7 @@ class Peppol extends AbstractService
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
             
-$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -516,7 +544,7 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
 
-$tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate3, $item->line_total) : $this->calcAmountLineTax($item->tax_rate3, $item->line_total);
+            $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate3, $item->line_total) : $this->calcAmountLineTax($item->tax_rate3, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
             $tax_subtotal->TaxAmount = $tax_amount;
@@ -572,7 +600,9 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
         $party->PhysicalLocation = $address;
 
         $contact = new Contact();
-        $contact->ElectronicMail = $this->invoice->company->owner()->email ?? 'owner@gmail.com';
+        $contact->ElectronicMail = $this->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $this->invoice->company->owner()->present()->email();
+        $contact->Telephone = $this->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $this->invoice->company->getSetting('phone');
+        $contact->Name = $this->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $this->invoice->company->owner()->present()->name();
 
         $party->Contact = $contact;
 
@@ -695,16 +725,283 @@ $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiv
             'PaymentTerms' => 7,
         ];
 
+        //only scans for top level props
         foreach($settings as $prop => $visibility){
 
-            if($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $prop))
+            if($prop_value = $this->getSetting($prop))        
                 $this->p_invoice->{$prop} = $prop_value;
-            elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $prop)) {
-                $this->p_invoice->{$prop} = $prop_value;
-            }
 
         }
 
+        return $this;
+    }
+
+    public function getSetting(string $property_path): mixed
+    {
+    
+        if($prop_value = PropertyResolver::resolve($this->invoice->e_invoice, $property_path)) 
+            return $prop_value;
+        elseif($prop_value = PropertyResolver::resolve($this->invoice->client->e_invoice, $property_path)) 
+            return $prop_value;
+        elseif($prop_value = PropertyResolver::resolve($this->invoice->company->e_invoice, $property_path)) 
+            return $prop_value;
+        
+        return null;
+
+    }
+
+    public function countryLevelMutators():self
+    {
+
+        if(method_exists($this, $this->invoice->company->country()->iso_3166_2))
+            $this->{$this->invoice->company->country()->iso_3166_2}();
+
+        return $this;
+    }
+
+    private function setPaymentMeans(bool $required = false): self
+    {
+       
+        if($this->p_invoice->PaymentMeans)
+            return $this;
+        elseif(!isset($this->p_invoice->PaymentMeans) && $paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
+            $this->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
+            return $this;
+        }
+
+        if($required)
+            throw new \Exception('e-invoice generation halted:: Payment Means required');
+
+        return $this;
+    }
+
+    private function DE(): self
+    {
+        // accountingsupplierparty.party.contact MUST be set - Name / Telephone / Electronic Mail
+        // this is forced by default.
+        
+        $this->setPaymentMeans(true);
+
+        return $this;
+    }
+
+    private function CH(): self
+    {
+        //if QR-Bill support required - then special flow required.... optional.
+
+        return $this;
+    }
+
+    private function AT(): self
+    {
+        //special fields for sending to AT:GOV
+        return $this;
+    }
+
+    private function AU(): self
+    {
+
+        //if payment means are included, they must be the same `type`
+        return $this;
+    }
+
+    private function ES(): self
+    {
+
+    // For B2B, provide an ES:DIRE routing identifier and an ES:VAT tax identifier. 
+    // both sender and receiver must be an ES company;
+    // you must have a "credit_transfer" PaymentMean;
+    // the "dueDate" property is mandatory.
+
+// For B2G, provide three ES:FACE identifiers in the routing object, 
+// as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers. 
+// The invoice will then be routed through the FACe network. The three required ES:FACE identifiers are as follows:
+//   "routing": {
+//     "eIdentifiers":[
+//       {
+//         "scheme": "ES:FACE",
+//         "id": "L01234567",
+//         "role": "ES-01-FISCAL"
+//       },
+//       {
+//         "scheme": "ES:FACE",
+//         "id": "L01234567",
+//         "role": "ES-02-RECEPTOR"
+//       },
+//       {
+//         "scheme": "ES:FACE",
+//         "id": "L01234567",
+//         "role": "ES-03-PAGADOR"
+//       }
+//     ]
+//   }
+
+        return $this;
+    }
+
+    private function FI(): self
+    {
+
+        // For Finvoice, provide an FI:OPID routing identifier and an FI:OVT legal identifier. 
+        // An FI:VAT is recommended. In many cases (depending on the sender/receiver country and the type of service/goods) 
+        // an FI:VAT is required. So we recommend always including this.
+
+        return $this;
+    }
+
+    private function FR(): self
+    {
+        // When sending invoices to the French government (Chorus Pro):
+
+        // All invoices have to be routed to SIRET 0009:11000201100044. There is no test environment for sending to public entities.
+
+        // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
+
+        // The service code must be sent in invoice.buyerReference (deprecated) or the invoice.references array (documentType buyer_reference)
+
+        // The commitment number must be sent in the invoice.orderReference (deprecated) or the invoice.references array (documentType purchase_order).
+
+        // Invoices to companies (SIRET / 0009 or SIRENE / 0002) are routed directly to that identifier.
+        return $this;
+    }
+
+    private function IT(): self
+    {
+        // IT Sender, IT Receiver, B2B/B2G
+        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
+
+        // IT Sender, IT Receiver, B2C
+        // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
+
+        // IT Sender, non-IT Receiver
+        // Provide the receiver tax identifier and any routing identifier applicable to the receiving country (see Receiver Identifiers).
+
+        // non-IT Sender, IT Receiver, B2B/B2G
+        // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
+
+        // non-IT Sender, IT Receiver, B2C
+        // Provide the receiver IT:CF and an optional email. The invoice will be eReported and sent via email. Note that this cannot be a PEC email address.
+
+        return $this;
+    }
+
+    private function MY(): self
+    {
+        //way too much to digest here, delayed.
+        return $this;
+    }
+
+    private function NL(): self
+    {
+
+        // When sending to public entities, the invoice.accountingSupplierParty.party.contact.email is mandatory.
+
+        // Dutch senders and receivers require a legal identifier. For companies, this is NL:KVK, for public entities this is NL:OINO.
+
+        return $this;
+    }
+
+    private function NZ(): self
+    {
+        // New Zealand uses a GLN to identify businesses. In addition, when sending invoices to a New Zealand customer, make sure you include the pseudo identifier NZ:GST as their tax identifier.
+        return $this;
+    }
+
+    private function PL(): self
+    {
+
+        // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
+
+        // "routing": {
+        //   "eIdentifiers": [
+        //     {
+        //         "scheme": "PL:VAT",
+        //         "id": "PL0101010101"
+        //     }
+        //   ],
+        //   "networks": [
+        //     {
+        //       "application": "pl-ksef",
+        //       "settings": {
+        //         "enabled": true
+        //       }
+        //     }
+        //   ]
+        // }
+        // Note this will only work if your LegalEntity has been setup for this network. 
+
+        return $this;
+    }
+
+    private function RO(): self
+    {
+    // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
+
+    // "routing": {
+    // "eIdentifiers": [
+    //     {
+    //         "scheme": "RO:VAT",
+    //         "id": "RO010101010"
+    //     }
+    // ],
+    // "networks": [
+    //     {
+    //     "application": "ro-anaf",
+    //     "settings": {
+    //         "enabled": true
+    //     }
+    //     }
+    // ]
+    // }
+    // Note this will only work if your LegalEntity has been setup for this network.
+    // The county field for a Romania address must use the ISO3166-2:RO codes, e.g. "RO-AB, RO-AR". Don’t omit the country prefix!
+    // The city field for county RO-B must be SECTOR1 - SECTOR6.
+
+        return $this;
+    }
+
+    private function SG(): self
+    {
+        //delayed  - stage 2
+        return $this;
+    }
+
+    //Sweden
+    private function SE(): self
+    {
+        // Deliver invoices to the "Svefaktura" co-operation of local Swedish service providers. 
+        // Routing is through the SE:ORGNR together with a network specification:
+
+        // "routing": {
+        //   "eIdentifiers": [
+        //     {
+        //         "scheme": "SE:ORGNR",
+        //         "id": "0012345678"
+        //     }
+        //   ],
+        //   "networks": [
+        //     {
+        //       "application": "svefaktura",
+        //       "settings": {
+        //         "enabled": true
+        //       }
+        //     }
+        //   ]
+        // }
+        // Use of the "Svefaktura" co-operation can also be induced by specifying an operator id, as follows:
+
+        // "routing": {
+        //   "eIdentifiers": [
+        //     {
+        //         "scheme": "SE:ORGNR",
+        //         "id": "0012345678"
+        //     },
+        //     {
+        //         "scheme": "SE:OPID",
+        //         "id": "1234567890"
+        //     }
+        //   ]
+        // }
         return $this;
     }
 }

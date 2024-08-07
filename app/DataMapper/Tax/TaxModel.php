@@ -17,7 +17,7 @@ class TaxModel
     public string $seller_subregion = 'CA';
 
     /** @var string $version */
-    public string $version = 'alpha';
+    public string $version = 'beta';
 
     /** @var object $regions */
     public object $regions;
@@ -28,15 +28,38 @@ class TaxModel
      * @param  TaxModel $model
      * @return void
      */
-    public function __construct(public ?TaxModel $model = null)
+    public function __construct(public mixed $model = null)
     {
 
-        if(!$this->model) {
+        if(!$model) {
             $this->regions = $this->init();
         } else {
-            $this->regions = $model;
+            
+            //@phpstan-ignore-next-line
+            foreach($model as $key => $value) {
+                $this->{$key} = $value; 
+            }
+
         }
 
+        $this->migrate();
+    }
+
+    public function migrate(): self
+    {
+
+        if($this->version == 'alpha')
+        {
+            $this->regions->EU->subregions->PL = new \stdClass();
+            $this->regions->EU->subregions->PL->tax_rate = 23;
+            $this->regions->EU->subregions->PL->tax_name = 'VAT';
+            $this->regions->EU->subregions->PL->reduced_tax_rate = 8;
+            $this->regions->EU->subregions->PL->apply_tax = false;
+
+            $this->version = 'beta';
+        }
+
+        return $this;
     }
 
     /**
@@ -473,6 +496,12 @@ class TaxModel
         $this->regions->EU->subregions->NL->tax_name = 'BTW';
         $this->regions->EU->subregions->NL->reduced_tax_rate = 9;
         $this->regions->EU->subregions->NL->apply_tax = false;
+
+        $this->regions->EU->subregions->PL = new \stdClass();
+        $this->regions->EU->subregions->PL->tax_rate = 23;
+        $this->regions->EU->subregions->PL->tax_name = 'VAT';
+        $this->regions->EU->subregions->PL->reduced_tax_rate = 8;
+        $this->regions->EU->subregions->PL->apply_tax = false;
 
         $this->regions->EU->subregions->PT = new \stdClass();
         $this->regions->EU->subregions->PT->tax_rate = 23;

@@ -50,6 +50,10 @@ class StorePurchaseOrderRequest extends Request
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
 
+        
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.vendor_contact_id'] = 'bail|required|distinct';
+
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['line_items'] = 'array';

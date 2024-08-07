@@ -55,6 +55,9 @@ class UpdateQuoteRequest extends Request
         } elseif ($this->file('file')) {
             $rules['file'] = $this->fileValidation();
         }
+        
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)->ignore($this->quote->id)];
         $rules['client_id'] = ['bail', 'sometimes', Rule::in([$this->quote->client_id])];

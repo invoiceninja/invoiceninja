@@ -484,7 +484,7 @@ class BillingPortalPurchasev2 extends Component
             $this->methods = [];
         }
 
-        if ($this->contact && $this->float_amount_total >= 1) {
+        if ($this->contact && $this->float_amount_total >= 0) {
             $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
         }
         

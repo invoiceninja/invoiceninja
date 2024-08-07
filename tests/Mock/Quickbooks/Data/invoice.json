@@ -1,0 +1,103 @@
+
+{
+    "Invoice": {
+      "AllowIPNPayment": false,
+      "AllowOnlinePayment": false,
+      "AllowOnlineCreditCardPayment": false,
+      "AllowOnlineACHPayment": false,
+      "domain": "QBO",
+      "sparse": false,
+      "Id": "34",
+      "SyncToken": "0",
+      "MetaData": {
+       "CreateTime": "2024-06-17T11:09:08-07:00",
+       "LastModifiedByRef": {
+        "value": "9341452725837119"
+       },
+       "LastUpdatedTime": "2024-06-17T11:09:08-07:00"
+      },
+      "CustomField": [],
+      "DocNumber": "1010",
+      "TxnDate": "2024-06-17",
+      "CurrencyRef": {
+       "value": "USD",
+       "name": "United States Dollar"
+      },
+      "LinkedTxn": [],
+      "Line": [
+       {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Custom Design",
+        "Amount": 375,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+         "ItemRef": {
+          "value": "4",
+          "name": "Design"
+         },
+         "UnitPrice": 75,
+         "Qty": 5,
+         "ItemAccountRef": {
+          "value": "82",
+          "name": "Design income"
+         },
+         "TaxCodeRef": {
+          "value": "NON"
+         }
+        }
+       },
+       {
+        "Amount": 375,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+       }
+      ],
+      "TxnTaxDetail": {
+       "TotalTax": 0
+      },
+      "CustomerRef": {
+       "value": "29",
+       "name": "Weiskopf Consulting"
+      },
+      "CustomerMemo": {
+       "value": "Thank you for your business and have a great day!"
+      },
+      "BillAddr": {
+       "Id": "56",
+       "Line1": "Nicola Weiskopf",
+       "Line2": "Weiskopf Consulting",
+       "Line3": "45612 Main St.",
+       "Line4": "Bayshore, CA  94326",
+       "Lat": "INVALID",
+       "Long": "INVALID"
+      },
+      "ShipAddr": {
+       "Id": "30",
+       "Line1": "45612 Main St.",
+       "City": "Bayshore",
+       "CountrySubDivisionCode": "CA",
+       "PostalCode": "94326",
+       "Lat": "45.256574",
+       "Long": "-66.0943698"
+      },
+      "FreeFormAddress": true,
+      "SalesTermRef": {
+       "value": "3",
+       "name": "Net 30"
+      },
+      "DueDate": "2024-07-17",
+      "TotalAmt": 375,
+      "ApplyTaxAfterDiscount": false,
+      "PrintStatus": "NotSet",
+      "EmailStatus": "NeedToSend",
+      "BillEmail": {
+       "Address": "Consulting@intuit.com"
+      },
+      "Balance": 375,
+      "DeliveryInfo": {
+       "DeliveryType": "Email"
+      }
+     }, 
+    "time": "2015-07-24T10:48:27.082-07:00"
+  }

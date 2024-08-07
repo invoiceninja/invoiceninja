@@ -8,5 +8,8 @@
                     <option value="{{ $code }}"  @selected(old('province_code', $province_code) == $code ) >{{ $state }}</option>
                 @endforeach
             </select>
+            @error('province_code')
+            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </dd>
     </div>

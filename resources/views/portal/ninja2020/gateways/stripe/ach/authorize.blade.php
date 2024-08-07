@@ -51,9 +51,9 @@
             <option disabled selected></option>
             @foreach($countries as $country)
                 @if($country->iso_3166_2 == 'US')
-                <option value="{{ $country->iso_3166_2 }}" selected>{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
+                <option value="{{ $country->iso_3166_2 }}" selected>{{ $country->iso_3166_2 }} ({{ $country->getName() }})</option>
                 @else
-                <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
+                <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->getName() }})</option>
                 @endif
             @endforeach
         </select>
@@ -64,7 +64,7 @@
             <option disabled selected></option>
             @foreach($currencies as $currency)
                 @if($currency->code == 'USD')
-                    <option value="{{ $currency->code }}" selected>{{ $currency->code }} ({{ $currency->name }})</option>
+                    <option value="{{ $currency->code }}" selected>{{ $currency->code }} ({{ $currency->getName() }})</option>
                 @else
                     <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->name }})</option>
                 @endif
