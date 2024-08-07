@@ -38,7 +38,8 @@ class RotessaPaymentDriver extends BaseDriver
     public $payment_method;
 
     public static $methods = [
-        GatewayType::BANK_TRANSFER => BankTransfer::class,
+         // TODO: Add method for US based bank accounts   
+        // GatewayType::BANK_TRANSFER => BankTransfer::class,
         GatewayType::ACSS => Acss::class,
     ];
 
