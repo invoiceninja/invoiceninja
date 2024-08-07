@@ -5235,7 +5235,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'local_domain_help' => 'Domaine EHLO (facultatif)',
     'port_help' => 'ex. 25,587,465',
     'host_help' => 'ex. smtp.gmail.com',
-    'always_show_required_fields' => 'Permet l\'affichage des champs requis d\'un formulaire',
+    'always_show_required_fields' => 'Toujours afficher les champs requis d\'un formulaire',
     'always_show_required_fields_help' => 'Affiche toujours les champs requis d\'un formulaire au paiement',
     'advanced_cards' => 'Cartes avancées',
     'activity_140' => 'État de compte envoyé à :client',
@@ -5298,7 +5298,17 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'latest_requires_php_version' => 'Note: La dernière version requiert PHP :version',
     'auto_expand_product_table_notes' => 'Développer automatiquement les notes du tableau de produits',
     'auto_expand_product_table_notes_help' => ' 
-Développe automatiquement la section des notes dans le tableau de produits pour afficher plus de lignes.'
+Développe automatiquement la section des notes dans le tableau de produits pour afficher plus de lignes.',
+    'institution_number' => 'Numéro d\'institution',
+    'transit_number' => 'Numéro de transit',
+    'personal' => 'Personnel',
+    'address_information' => 'Information d\'adresse',
+    'enter_the_information_for_the_bank_account' => 'Entrez l\'information du compte de banque',
+    'account_holder_information' => 'Information sur le détenteur du compte',
+    'enter_information_for_the_account_holder' => 'Entrez l\'information du détenteur du compte',
+    'customer_type' => 'Type de client',
+    'process_date' => 'Date de traitement',
+    'forever_free' => 'Gratuit pour toujours',
 );
 
 return $lang;
