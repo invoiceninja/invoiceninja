@@ -5309,7 +5309,8 @@ $lang = array(
     'account_holder_information' => 'Account Holder Information',
     'enter_information_for_the_account_holder' => 'Enter Information for the Account Holder',
     'customer_type' => 'Customer Type',
-    'process_date' => 'Process Date'
+    'process_date' => 'Process Date',
+    'forever_free' => 'Forever Free',
 );
 
 return $lang;

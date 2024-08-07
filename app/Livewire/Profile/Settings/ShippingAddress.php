@@ -20,8 +20,6 @@ class ShippingAddress extends Component
 
     public $shipping_country_id;
 
-    public $countries;
-
     public $saved;
 
     protected $rules = [
@@ -33,7 +31,7 @@ class ShippingAddress extends Component
         'shipping_country_id' => ['sometimes'],
     ];
 
-    public function mount($countries)
+    public function mount()
     {
         $this->fill([
             'profile' => auth()->guard('contact')->user()->client,
@@ -43,8 +41,6 @@ class ShippingAddress extends Component
             'shipping_state' => auth()->guard('contact')->user()->client->shipping_state,
             'shipping_postal_code' => auth()->guard('contact')->user()->client->shipping_postal_code,
             'shipping_country_id' => auth()->guard('contact')->user()->client->shipping_country_id,
-
-            'countries' => $countries,
             'saved' => ctrans('texts.save'),
         ]);
     }

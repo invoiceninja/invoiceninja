@@ -998,7 +998,7 @@ paths:
     post:
       tags:
         - bank_transactions
-      summary: "Performs bulk actions on an array of bank_transations"
+      summary: "Bulk actions"
       description: ""
       operationId: bulkBankTransactions
       parameters:
@@ -1042,8 +1042,30 @@ paths:
     post:
       tags:
         - bank_transactions
-      summary: "Performs match actions on an array of bank_transactions"
-      description: ""
+      summary: "Match transactions"
+      description: |
+        Matching invoices or a payment to a bank transactions.
+        
+        The API expects the id of the transaction along with either a comma separated list of invoice ids OR the payment id to associate the transaction to.
+
+        Example for matching a transaction to two invoices:
+
+        {"transactions":[{"id":"olejRl5ejN","invoice_ids":"JxboYBLegw,JxboYBLeXX"}]}
+
+        Example for matching a transaction and a paymente:
+
+        {"transactions":[{"id":"olejRl5ejN","payment_id":"JxboYBLeXf"}]}
+
+        Matching expenses.
+
+        You can match an existing expense within Invoice Ninja - or - create a new expense using the following:
+
+        {"transactions":[{"id":"open5pld7A","vendor_id":"gl9avJnaG1","ninja_category_id":""}]}
+
+        To match to an existing expense:
+
+        {"transactions":[{"id":"Jxbo2qKagw","expense_id":"7N1aMM1aWm"}]}
+
       operationId: matchBankTransactions
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"

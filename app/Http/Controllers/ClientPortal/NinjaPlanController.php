@@ -80,13 +80,15 @@ class NinjaPlanController extends Controller
 
         $data['intent'] = $setupIntent;
         $data['client'] = Auth::guard('contact')->user()->client;
-
+        
         return $this->render('plan.trial', $data);
     }
 
     public function trial_confirmation(Request $request)
     {
         $trial_started = "Trial Started @ ".now()->format('Y-m-d H:i:s');
+
+        auth()->guard('contact')->user()->fill($request->only(['first_name','last_name']))->save();
 
         $client = auth()->guard('contact')->user()->client;
         $client->private_notes = $trial_started;

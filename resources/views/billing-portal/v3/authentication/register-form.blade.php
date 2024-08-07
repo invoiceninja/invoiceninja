@@ -47,7 +47,7 @@
                                 @foreach(App\Utils\TranslationHelper::getCurrencies() as $currency)
                                     <option
                                         {{ $currency->id == $subscription->company->settings->currency_id ? 'selected' : null }} value="{{ $currency->id }}">
-                                        {{ $currency->name }}
+                                        {{ $currency->getName() }}
                                     </option>
                                 @endforeach
                             </select>
@@ -61,7 +61,7 @@
                                     <option
                                         {{ $country == isset(auth()->user()->client->shipping_country->id) ? 'selected' : null }} value="{{ $country->id }}">
                                         {{ $country->iso_3166_2 }}
-                                        ({{ $country->name }})
+                                        ({{ $country->getName() }})
                                     </option>
                                 @endforeach
                             </select>
@@ -75,7 +75,7 @@
                                     <option
                                         {{ $country == isset(auth()->user()->client->shipping_country->id) ? 'selected' : null }} value="{{ $country->id }}">
                                         {{ $country->iso_3166_2 }}
-                                        ({{ $country->name }})
+                                        ({{ $country->getName() }})
                                     </option>
                                 @endforeach
                             </select>

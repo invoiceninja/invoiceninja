@@ -16,6 +16,7 @@ use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 /**
  * App\Models\Task
@@ -137,7 +138,7 @@ class Task extends BaseModel
         // 'project',
     ];
 
-    protected $touches = [];
+    protected $touches = ['project'];
 
     public function getEntityType()
     {
@@ -159,27 +160,55 @@ class Task extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function client()
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function status()
     {
         return $this->belongsTo(TaskStatus::class)->withTrashed();
     }
 
-    public function stringStatus()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function project()
+    {
+        return $this->belongsTo(Project::class)->withTrashed();
+    }
+
+    public function stringStatus(): string
     {
         if($this->invoice_id) {
             return '<h5><span class="badge badge-success">'.ctrans('texts.invoiced').'</span></h5>';
@@ -191,16 +220,6 @@ class Task extends BaseModel
 
         return '';
 
-    }
-
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class)->withTrashed();
-    }
-
-    public function project()
-    {
-        return $this->belongsTo(Project::class)->withTrashed();
     }
 
     public function calcStartTime()
@@ -230,7 +249,7 @@ class Task extends BaseModel
     public function calcDuration($start_time_cutoff = 0, $end_time_cutoff = 0)
     {
         $duration = 0;
-        $parts = json_decode($this->time_log) ?: [];
+        $parts = json_decode($this->time_log ?? '{}') ?: [];
 
         foreach ($parts as $part) {
             $start_time = $part[0];
@@ -270,6 +289,26 @@ class Task extends BaseModel
         }
 
         return $this->company->settings->default_task_rate ?? 0;
+    }
+
+    public function taskCompanyValue(): float
+    {
+        $client_currency = $this->client->getSetting('currency_id');
+        $company_currency = $this->company->getSetting('currency_id');
+
+        if($client_currency != $company_currency)
+        {
+            $converter = new CurrencyApi();
+            return $converter->convert($this->taskValue(), $client_currency, $company_currency);
+        }
+        
+        return $this->taskValue();
+
+    }
+
+    public function taskValue(): float
+    {
+        return round(($this->calcDuration() / 3600) * $this->getRate(),2);
     }
 
     public function processLogs()

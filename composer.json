@@ -74,14 +74,12 @@
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.20.0",
-        "league/omnipay": "^3.1",
         "livewire/livewire": "^3",
         "microsoft/microsoft-graph": "^1.69",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^11.0",
-        "omnipay/paypal": "^3.0",
         "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",
@@ -133,7 +131,8 @@
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
         ],
-        "classmap": ["app/PaymentDrivers/Rotessa/vendor/karneaud/omnipay-rotessa/src/Omnipay/Rotessa/"]
+        "classmap": [
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -186,7 +185,7 @@
             "url": "https://github.com/turbo124/apple"
         },
         {
-            "type":"vcs",
+            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
         },
         {

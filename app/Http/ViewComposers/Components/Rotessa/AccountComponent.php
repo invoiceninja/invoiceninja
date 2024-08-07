@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\ViewComposers\Components\Rotessa;
 
@@ -27,16 +36,13 @@ class AccountComponent extends Component
         'routing_number' => null,
         'institution_number' => null,
         'transit_number' => null,
-        'bank_name' => ' ',
+        'bank_name' => null,
         'account_number' => null,
         'country' => 'US',
         "authorization_type" => 'Online'
     ];
 
-    public array $account;
-
-    public function __construct(array $account) {
-        $this->account = $account;
+    public function __construct(public array $account) {
         $this->attributes = $this->newAttributeBag(Arr::only($this->account, $this->fields) );
     }
     
