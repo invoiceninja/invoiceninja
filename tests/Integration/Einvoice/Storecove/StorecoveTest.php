@@ -639,10 +639,14 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
       nlog($xml);
 
       $identifiers = [
-        [
-        'scheme' => 'ES:VAT',
-        'id' => 'ESB53625999'
-        ],
+        "routing" => [
+          "eIdentifiers" => [
+              [
+              'scheme' => 'ES:VAT',
+              'id' => 'ESB53625999'
+              ],
+          ]
+        ]
       ];
 
       $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
@@ -673,9 +677,13 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
       nlog($xml);
 
       $identifiers = [
-        [
-          'scheme' => 'DE:VAT',
-          'id' => 'DE010101010'
+        "routing" => [
+          "eIdentifiers" => [
+            [
+              'scheme' => 'DE:VAT',
+              'id' => 'DE010101010'
+            ]
+          ]
         ]
       ];
 

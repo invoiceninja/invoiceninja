@@ -13,22 +13,25 @@ namespace App\Services\EDocument\Standards;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Helpers\Invoice\Taxer;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
 use InvoiceNinja\EInvoice\EInvoice;
+use App\Utils\Traits\NumberFormatter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Helpers\Invoice\Taxer;
 use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
+use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
 use InvoiceNinja\EInvoice\Models\Peppol\AddressType\Address;
 use InvoiceNinja\EInvoice\Models\Peppol\ContactType\Contact;
 use InvoiceNinja\EInvoice\Models\Peppol\CountryType\Country;
+use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentification;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\Party as PeppolParty;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxTotalType\TaxTotal;
 use App\Services\EDocument\Standards\Settings\PropertyResolver;
-use App\Utils\Traits\NumberFormatter;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PriceAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyNameType\PartyName;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
@@ -42,14 +45,13 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\OrderReferenceType\OrderReference;
 use InvoiceNinja\EInvoice\Models\Peppol\MonetaryTotalType\LegalMonetaryTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\ClassifiedTaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerParty;
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
-use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
-use InvoiceNinja\EInvoice\Models\Peppol\Party as PeppolParty;
-use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentification;
+use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CustomerAssignedAccountID;
 
 class Peppol extends AbstractService
 {
@@ -103,7 +105,7 @@ class Peppol extends AbstractService
         'DE' => 'VAT', //tested - requires Payment Means to be defined.
         'DK' => 'ERST',
         'EE' => 'VAT',
-        'ES' => 'VAT',
+        'ES' => 'VAT', //tested - B2G pending
         'FI' => 'VAT',
         'FR' => 'VAT',
         'GR' => 'VAT',
@@ -164,6 +166,8 @@ class Peppol extends AbstractService
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
 
     private EInvoice $e;
+
+    private array $storecove_meta = [];
 
     /**
     * @param Invoice $invoice
@@ -649,7 +653,7 @@ class Peppol extends AbstractService
     {
 
         $acp = new AccountingCustomerParty();
-
+        
         $party = new Party();
 
         if(strlen($this->invoice->client->vat_number ?? '') > 1) {
@@ -740,7 +744,15 @@ class Peppol extends AbstractService
 
         return $total;
     }
+    
+    /////////////////  Helper Methods /////////////////////////
 
+    /**
+     * setInvoiceDefaults
+     *
+     * Stubs a default einvoice
+     * @return self
+     */
     public function setInvoiceDefaults(): self
     {
         $settings = [
@@ -769,7 +781,15 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * getSetting
+     *
+     * Attempts to harvest and return a preconfigured prop from company / client / invoice settings
+     * 
+     * @param  string $property_path
+     * @return mixed
+     */
     public function getSetting(string $property_path): mixed
     {
     
@@ -783,8 +803,14 @@ class Peppol extends AbstractService
         return null;
 
     }
-
-    public function countryLevelMutators():self
+    
+    /**
+     * countryLevelMutators
+     *
+     * Runs country level specific requirements for the e-invoice
+     * @return self
+     */
+    private function countryLevelMutators():self
     {
 
         if(method_exists($this, $this->invoice->company->country()->iso_3166_2))
@@ -792,7 +818,14 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * setPaymentMeans
+     *
+     * Sets the payment means - if it exists
+     * @param  bool $required
+     * @return self
+     */
     private function setPaymentMeans(bool $required = false): self
     {
 
@@ -803,12 +836,132 @@ class Peppol extends AbstractService
             return $this;
         }
 
-        if($required)
-            throw new \Exception('e-invoice generation halted:: Payment Means required');
+        return $this->checkRequired($required, "Payment Means");
 
-        return $this;
+    }
+        
+    /**
+     * setOrderReference
+     *
+     * sets the order reference - if it exists (Never rely on settings for this)
+     * 
+     * @param  bool $required
+     * @return self
+     */
+    private function setOrderReference(bool $required = false): self
+    {
+        $this->p_invoice->BuyerReference = $this->invoice->po_number ?? '';
+
+        if(strlen($this->invoice->po_number ?? '') > 1)
+        {
+            $order_reference = new OrderReference();
+            $id = new ID();
+            $id->value = $this->invoice->po_number;
+
+            $order_reference->ID = $id;
+
+            $this->p_invoice->OrderReference = $order_reference;
+
+            $this->setStorecoveMeta(["document" => [
+                                        "invoice" => [
+                                            "references" => [
+                                                "documentType" => "purchase_order", 
+                                                "documentId" => $this->invoice->po_number,
+                                            ],
+                                        ],
+                                    ]
+                                ]);
+
+            return $this;
+        }
+        
+        return $this->checkRequired($required, 'Order Reference');
+
     }
     
+    /**
+     * setCustomerAssignedAccountId
+     *
+     * Sets the client id_number CAN rely on settings
+     * 
+     * @param  bool $required
+     * @return self
+     */
+    private function setCustomerAssignedAccountId(bool $required = false): self
+    {
+        //@phpstan-ignore-next-line
+        if(isset($this->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID)){
+            return $this;
+        }
+        elseif($customer_assigned_account_id = $this->getSetting('Invoice.AccountingCustomerParty.CustomerAssignedAccountID')){
+        
+            $this->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
+            return $this;
+        }
+        elseif(strlen($this->invoice->client->id_number ?? '') > 1){
+
+            $customer_assigned_account_id = new CustomerAssignedAccountID();
+            $customer_assigned_account_id->value = $this->invoice->client->id_number;
+
+            $this->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
+            return $this;
+        }
+
+        //@phpstan-ignore-next-line
+        return $this->checkRequired($required, 'Client ID Number');
+
+    }
+    
+    /**
+     * Check Required
+     *
+     * Throws if a required field is missing.
+     * 
+     * @param  bool $required
+     * @param  string $section
+     * @return self
+     */
+    private function checkRequired(bool $required, string $section): self
+    {
+
+        return $required ? throw new \Exception("e-invoice generation halted:: {$section} required") : $this;
+
+    }
+
+        
+    /**
+     * Builds the Routing object for StoreCove
+     *
+     * @param  string $schemeId
+     * @param  string $id
+     * @return array
+     */
+    private function buildRouting(string $schemeId, string $id): array
+    {
+  
+        return 
+        [
+            "routing" => [
+                "publicIdentifiers" => [
+                    [
+                        "scheme" => $schemeId,
+                        "id" => $id
+                    ]
+                ]
+            ]
+        ];
+    }
+
+
+
+
+
+
+
+
+
+    ////////////////////////// Country level mutators /////////////////////////////////////
+
     /**
      * DE
      *
@@ -824,7 +977,21 @@ class Peppol extends AbstractService
 
         return $this;
     }
-    
+        
+    /**
+     * setStorecoveMeta
+     *
+     * updates the storecove payload for sending documents
+     * 
+     * @param  array $meta
+     * @return self
+     */
+    private function setStorecoveMeta(array $meta): self
+    {
+        $this->storecove_meta = array_merge($this->storecove_meta, $meta);
+        
+        return $this;
+    }
     /**
      * CH
      *
@@ -867,10 +1034,10 @@ class Peppol extends AbstractService
      * ES
      *
      * @Pending 
+     * B2G configuration
+     * B2G Testing
      * 
-     * ES:DIRE - routing identifier
-     * 
-     * testing. //293098
+     * testing. // routing identifier - 293098
      * 
      * @return self
      */
@@ -923,17 +1090,37 @@ class Peppol extends AbstractService
 
     private function FR(): self
     {
+
         // When sending invoices to the French government (Chorus Pro):
-
         // All invoices have to be routed to SIRET 0009:11000201100044. There is no test environment for sending to public entities.
-
         // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
 
+        if($this->invoice->client->classification == 'government'){
+            //route to SIRET 0009:11000201100044
+            $this->setStorecoveMeta($this->buildRouting('FR:SIRET', "0009:11000201100044"));
+
+            // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
+            $this->setCustomerAssignedAccountId(true);
+        
+        }
+        
+
+        if(strlen($this->invoice->client->id_number ?? '') == 9) {
+            //SIREN
+            $this->setStorecoveMeta($this->buildRouting('FR:SIREN', "0002:{$this->invoice->client->id_number}"));
+        }
+        else {
+            //SIRET
+            $this->setStorecoveMeta($this->buildRouting('FR:SIRET', "0009:{$this->invoice->client->id_number}"));
+        }
+
+        // ??????????????????????? //@TODO
         // The service code must be sent in invoice.buyerReference (deprecated) or the invoice.references array (documentType buyer_reference)
 
-        // The commitment number must be sent in the invoice.orderReference (deprecated) or the invoice.references array (documentType purchase_order).
+        if(strlen($this->invoice->po_number ?? '') >1) {
+            $this->setOrderReference(false);
+        }
 
-        // Invoices to companies (SIRET / 0009 or SIRENE / 0002) are routed directly to that identifier.
         return $this;
     }
 

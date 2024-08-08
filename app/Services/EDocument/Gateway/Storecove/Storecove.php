@@ -137,14 +137,14 @@ class Storecove {
 
     }
 
-    public function sendDocument(string $document, int $routing_id, array $identifiers = [])
+    public function sendDocument(string $document, int $routing_id, array $override_payload = [])
     {
 
         $payload = [
             "legalEntityId" => $routing_id,
             "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
             "routing" => [
-                "eIdentifiers" => $identifiers,
+                "eIdentifiers" => [],
                 "emails" => ["david@invoiceninja.com"]
             ],
             "document"=> [
@@ -156,6 +156,8 @@ class Storecove {
                 ],
             ],
         ];
+
+        $payload = array_merge($payload, $override_payload);
 
         $uri = "document_submissions";
         
