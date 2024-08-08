@@ -1,24 +1,13 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' => ctrans('texts.credit_card')])
-
-@section('gateway_head')
-    <meta name="client-token" content="{{ $client_token ?? '' }}"/>
-    <meta name="instant-payment" content="yes" />
-
-    <script src='https://js.braintreegateway.com/web/dropin/1.33.4/js/dropin.min.js'></script>
-    {{-- <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script> --}}
-    <script src="https://js.braintreegateway.com/web/3.87.0/js/data-collector.min.js"></script>
-
-<!-- Load the client component. -->
-<script src='https://js.braintreegateway.com/web/3.87.0/js/client.min.js'></script>
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="braintree-credit-card-payment">
+    <meta name="client-token" content="{{ $client_token ?? '' }}" />
 
     <style>
         [data-braintree-id="toggle"] {
             display: none;
         }
     </style>
-@endsection
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -73,12 +62,18 @@
 
     @include('portal.ninja2020.gateways.includes.pay_now')
     @include('portal.ninja2020.gateways.includes.pay_now', ['id' => 'pay-now-with-token', 'class' => 'hidden'])
-@endsection
 
-@section('gateway_footer')
+    <div id="threeds"></div>
+</div>
 
-    <script defer src="{{ asset('js/clients/payments/braintree-credit-card.js') }}"></script>
+@assets
+    <script src='https://js.braintreegateway.com/web/dropin/1.33.4/js/dropin.min.js'></script>
+    {{--
+    <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script> --}}
+    <script src="https://js.braintreegateway.com/web/3.87.0/js/data-collector.min.js"></script>
 
-@endsection
+    <!-- Load the client component. -->
+    <script src='https://js.braintreegateway.com/web/3.87.0/js/client.min.js'></script>
 
-<div id="threeds"></div>
+    @vite('resources/js/clients/payments/braintree-credit-card.js')
+@endassets
