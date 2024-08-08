@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use QuickBooksOnline\API\DataService\DataService;
+use App\Services\Import\Quickbooks\Auth as QuickbooksService;
+use App\Services\Import\Quickbooks\Repositories\CompanyTokensRepository;
+
 
 class QuickbooksSDKFactory
 {
@@ -18,14 +21,16 @@ class QuickbooksSDKFactory
         if(($user = Auth::user()))
         {
             $company = $user->company();
-            MultiDB::findAndSetDbByCompanyKey($company->company_key);
-            // Retrieve token from the database
-            if(($quickbooks = DB::table('companies')->where('id', $company->id)->select(['quickbook_refresh_token','quickbooks_realm_id'])->first())) {
-                $refreshTokenKey = $quickbooks->quickbooks_refresh_token;
-                $QBORealmID = $quickbooks->quickbooks_realm_id;
-                // Retrieve value from cache
-                $accessTokenKey = Cache::get($company->company_key);
-                $tokens = compact('accessTokenKey','refreskTokenKey','QBORealmID');
+
+            $tokens = (new CompanyTokensRepository($company->company_key));
+            $tokens  = array_filter($tokens->get());
+            if(!empty($tokens)) {
+                $keys =  ['refreshTokenKey','QBORealmID'];
+                if(array_key_exists('access_token', $tokens)) {
+                    $keys = array_merge(['accessTokenKey'] ,$keys);
+                }
+                
+                $tokens = array_combine($keys, array_values($tokens));
             }
         }
 
@@ -40,6 +45,12 @@ class QuickbooksSDKFactory
 
         $sdk->setMinorVersion("73");
         $sdk->throwExceptionOnError(true);
+        if(array_key_exists('refreshTokenKey', $config) && !array_key_exists('accessTokenKey', $config)) 
+        {
+            $auth = new QuickbooksService($sdk);
+            $tokens = $auth->refreshTokens();
+            $auth->saveTokens($tokens);
+        }
 
         return $sdk;
     }
