@@ -1,12 +1,7 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.aio_checkout'), 'card_title' =>
-ctrans('texts.aio_checkout')])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="razorpay-hosted-payment">
     <meta name="razorpay-options" content="{{ \json_encode($options) }}">
-    <meta name="instant-payment" content="yes" />
-@endsection
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -29,9 +24,10 @@ ctrans('texts.aio_checkout')])
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @include('portal.ninja2020.gateways.includes.pay_now')
-@endsection
+</div>
 
-@section('gateway_footer')
+@assets
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
     @vite('resources/js/clients/payments/razorpay-aio.js')
-@endsection
+@endassets
