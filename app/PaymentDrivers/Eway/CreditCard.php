@@ -17,10 +17,11 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\EwayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 
-class CreditCard
+class CreditCard implements LivewireMethodInterface
 {
     use MakesHash;
 
@@ -102,10 +103,17 @@ class CreditCard
         return $token;
     }
 
-    public function paymentView($data)
+    public function paymentData(array $data): array
     {
         $data['gateway'] = $this->eway_driver;
         $data['public_api_key'] = $this->eway_driver->company_gateway->getConfigField('publicApiKey');
+
+        return $data;
+    }
+
+    public function paymentView($data)
+    {
+        $data = $this->paymentData($data);
 
         return render('gateways.eway.pay', $data);
     }
@@ -275,5 +283,9 @@ class CreditCard
         }
 
         return $payment;
+    }
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.eway.pay_livewire';
     }
 }

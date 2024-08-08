@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class EwayRapid {
     constructor() {
         this.cardStyles =
@@ -510,4 +512,8 @@ class EwayRapid {
     }
 }
 
-new EwayRapid().handle();
+function boot() {
+    new EwayRapid().handle();
+}
+
+instant() ? boot() : wait('#eway-credit-card-payment').then(() => boot());

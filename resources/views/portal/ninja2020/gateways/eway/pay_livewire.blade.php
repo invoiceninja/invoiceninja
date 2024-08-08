@@ -1,16 +1,11 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' =>
-ctrans('texts.credit_card')])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="eway-credit-card-payment">
     <meta name="public-api-key" content="{{ $public_api_key }}">
     <meta name="translation-card-name" content="{{ ctrans('texts.cardholder_name') }}">
     <meta name="translation-expiry_date" content="{{ ctrans('texts.date') }}">
     <meta name="translation-card_number" content="{{ ctrans('texts.card_number') }}">
     <meta name="translation-cvv" content="{{ ctrans('texts.cvv') }}">
-    <meta name="instant-payment" content="yes" />
-@endsection
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -55,9 +50,10 @@ ctrans('texts.credit_card')])
     @include('portal.ninja2020.gateways.includes.save_card')
 
     @include('portal.ninja2020.gateways.includes.pay_now', ['disabled' => true])
-@endsection
+</div>
 
-@section('gateway_footer')
+@assets
     <script src="https://secure.ewaypayments.com/scripts/eWAY.min.js" data-init="false"></script>
+    
     @vite('resources/js/clients/payments/eway-credit-card.js')
-@endsection
+@endassets
