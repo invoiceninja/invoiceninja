@@ -1,15 +1,10 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title'
-=> ctrans('texts.payment_type_credit_card')])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="paytrace-credit-card-payment">
     <meta name="paytrace-client-key" content="{{ $client_key }}">
     <meta name="ctrans-cvv" content="{{ ctrans('texts.cvv') }}">
     <meta name="ctrans-card_number" content="{{ ctrans('texts.card_number') }}">
     <meta name="ctrans-expires" content="{{ ctrans('texts.expires') }}">
-    <meta name="instant-payment" content="yes" />
-@endsection
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
@@ -57,13 +52,14 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.pay_now')
-@endsection
+</div>
 
-@section('gateway_footer')
+@assets
     @if($gateway->company_gateway->getConfigField('testMode'))
-    <script src='https://protect.sandbox.paytrace.com/js/protect.min.js'></script>
+        <script src='https://protect.sandbox.paytrace.com/js/protect.min.js'></script>
     @else
-    <script src='https://protect.paytrace.com/js/protect.min.js'></script>
+        <script src='https://protect.paytrace.com/js/protect.min.js'></script>
     @endif
+    
     @vite('resources/js/clients/payments/paytrace-credit-card.js')
-@endsection
+@endassets
