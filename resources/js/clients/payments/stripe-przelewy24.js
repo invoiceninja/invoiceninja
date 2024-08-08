@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-import { wait } from '../wait';
+import { wait, instant } from '../wait';
 
 class ProcessPRZELEWY24 {
     constructor(key, stripeConnect) {
@@ -115,7 +115,7 @@ class ProcessPRZELEWY24 {
     };
 }
 
-wait('#stripe-przelewy24-payment').then(() => {
+function boot() {
     const publishableKey = document.querySelector(
         'meta[name="stripe-publishable-key"]'
     )?.content ?? '';
@@ -124,4 +124,6 @@ wait('#stripe-przelewy24-payment').then(() => {
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
     
     new ProcessPRZELEWY24(publishableKey, stripeConnect).setupStripe().handle();
-});
+}
+
+instant() ? boot() : wait('#stripe-przelewy24-payment').then(() => boot());

@@ -8,7 +8,7 @@
         <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
         <meta name="viewport" content="width=device-width, minimum-scale=1" />
-
+        <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

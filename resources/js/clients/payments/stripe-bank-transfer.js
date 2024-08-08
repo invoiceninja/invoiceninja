@@ -8,9 +8,9 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait } from '../wait';
+import { wait, instant } from '../wait';
 
-wait('#stripe-bank-transfer-payment').then(() => bankTransfer());
+instant() ? bankTransfer() : wait('#stripe-bank-transfer-payment').then(() => bankTransfer());
 
 function bankTransfer() {
     const secret = document.querySelector('meta[name="stripe-client-secret"]')?.content;

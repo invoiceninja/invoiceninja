@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait } from '../wait';
+import { wait, instant } from '../wait';
 
 class StripeCreditCard {
     constructor(key, secret, onlyAuthorization, stripeConnect) {
@@ -225,7 +225,7 @@ class StripeCreditCard {
     }
 }
 
-wait('#stripe-credit-card-payment').then(() => {
+function boot() {
     const publishableKey =
         document.querySelector('meta[name="stripe-publishable-key"]')
             ?.content ?? '';
@@ -248,4 +248,6 @@ wait('#stripe-credit-card-payment').then(() => {
     );
 
     s.handle();
-});
+}
+
+instant() ? boot() : wait('#stripe-credit-card-payment').then(() => boot());

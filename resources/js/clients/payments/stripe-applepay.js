@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait } from '../wait';
+import { instant, wait } from '../wait';
 
 /**
  * @typedef {Object} ApplePayOptions
@@ -21,7 +21,7 @@ import { wait } from '../wait';
  * @property {string} client_secret
  */
 
-wait('#stripe-applepay-payment', () => {
+function boot() {
     applePay({
         publishable_key: document.querySelector(
             'meta[name="stripe-publishable-key"]'
@@ -40,7 +40,9 @@ wait('#stripe-applepay-payment', () => {
             'meta[name="stripe-client-secret"]'
         )?.content,
     });
-});
+}
+
+instant() ? boot() : wait('#stripe-applepay-payment').then(() => boot());
 
 /**
  * @param {ApplePayOptions} options
