@@ -108,7 +108,6 @@ class RFFService
             if ($return_errors) {
                 return $validator->getMessageBag()->getMessages();
             }
-
             session()->flash('validation_errors', $validator->getMessageBag()->getMessages());
 
             return false;

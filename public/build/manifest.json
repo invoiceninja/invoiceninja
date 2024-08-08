@@ -67,7 +67,10 @@
     "src": "resources/js/clients/payment_methods/wepay-bank-account.js"
   },
   "resources/js/clients/payments/authorize-credit-card-payment.js": {
-    "file": "assets/authorize-credit-card-payment-a217579b.js",
+    "file": "assets/authorize-credit-card-payment-5206050e.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/payments/authorize-credit-card-payment.js"
   },
