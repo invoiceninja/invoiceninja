@@ -86,8 +86,8 @@ class ImportQuickbooksController extends BaseController
                 // Perform the validation
                 $validator = Validator::make(['token' => $request->token ], $rules, $messages);
                 if ($validator->fails()) {
-                    // If validation fails, redirect back with errors and input
-                    return redirect()->back()
+                    return redirect()
+                        ->back()
                         ->withErrors($validator)
                         ->withInput();
                 }
@@ -98,16 +98,16 @@ class ImportQuickbooksController extends BaseController
         )->only('authorizeQuickbooks');
     }  
 
-    public function onAuthorized(Request $request) {
-
-        $realmId = $request->query('realmId');
-        $tokens = $this->service->getOAuth()->accessToken($request->query('code'), $realmId);
-        $company = $request->input('company');
-        Cache::put($company['company_key'], $tokens['access_token'], $tokens['access_token_expires']);
-        // TODO: save refresh token and realmId in company DB
-
+    public function onAuthorized(Request $request)
+    {
+        $realm = $request->query('realmId');
+        $company_key = $request->input('company.company_key');
+        $company_id = $request->input('company.id');
+        $tokens = ($auth_service = $this->service->getOAuth())->accessToken($request->query('code'), $realm);
+        $auth_service->saveTokens($company_key, ['realm' => $realm] + $tokens);
+        
         return response(200);
-    } 
+    }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -121,24 +121,20 @@ class ImportQuickbooksController extends BaseController
         $authorizationUrl = $auth->getAuthorizationUrl();
         $state = $auth->getState();
 
-        Cache::put($state, $token, 90);
+        Cache::put($state, $token, 190);
 
         return redirect()->to($authorizationUrl);
     }
 
-    public function preimport(Request $request)
+    public function preimport(string $type, string $hash)
     {
         // Check for authorization otherwise 
         // Create a reference
-        $hash = Str::random(32);
         $data = [
             'hash' => $hash,
-            'type' => $request->input('import_type', 'client'),
-            'max' => $request->input('max', 100)
+            'type' => $type
         ];
         $this->getData($data);
-
-        return $data;
     }
 
     protected function getData($data) {
@@ -146,9 +142,11 @@ class ImportQuickbooksController extends BaseController
         $entity = $this->import_entities[$data['type']];
         $cache_name = "{$data['hash']}-{$data['type']}";
         // TODO: Get or put cache  or DB?
-        if(!  Cache::has($cache_name) )
+        if(! Cache::has($cache_name) )
         {
-            $contents = call_user_func([$this->service, "fetch{$entity}s"], $data['max']);
+            $contents = call_user_func([$this->service, "fetch{$entity}s"]);
+            if($contents->isEmpty()) return;
+            
             Cache::put($cache_name, base64_encode( $contents->toJson()), 600);
         }
     }
@@ -182,13 +180,18 @@ class ImportQuickbooksController extends BaseController
      */
     public function import(Request $request)
     {
-        $this->preimport($request);
+         $hash = Str::random(32);
+        foreach($request->input('import_types') as $type)
+        {
+            $this->preimport($type, $hash);
+        }
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = auth()->user() ?? Auth::loginUsingId(60);
+        $data = ['import_types' => $request->input('import_types') ] + compact('hash');
         if (Ninja::isHosted()) {
-            QuickbooksIngest::dispatch($request->all(), $user->company() );
+            QuickbooksIngest::dispatch( $data , $user->company() );
         } else {
-            QuickbooksIngest::dispatch($request->all(), $user->company() );
+            QuickbooksIngest::dispatch($data, $user->company() );
         }
 
         return response()->json(['message' => 'Processing'], 200);
