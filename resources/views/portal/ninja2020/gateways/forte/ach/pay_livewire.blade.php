@@ -1,11 +1,7 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Bank Transfer', 'card_title' => 'Bank Transfer'])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="force-ach-payment">
     <meta name="forte-api-login-id" content="{{$gateway->company_gateway->getConfigField("apiLoginId")}}">
-    <meta name="instant-payment" content="yes" />
-@endsection
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
@@ -40,10 +36,9 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.pay_now')
+</div>
 
-@endsection
-
-@section('gateway_footer')
+@assets
     @if($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
     @else
@@ -51,4 +46,4 @@
     @endif
     
     @vite('resources/js/clients/payments/forte-ach-payment.js')
-@endsection
+@endassets
