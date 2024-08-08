@@ -18,12 +18,13 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\PayFastPaymentDriver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-class CreditCard
+class CreditCard implements LivewireMethodInterface
 {
     public $payfast;
 
@@ -158,24 +159,9 @@ class CreditCard
 
     public function paymentView($data)
     {
-        $payfast_data = [
-            'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-            'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
-            'return_url' => route('client.payments.index'),
-            'cancel_url' => route('client.payment_methods.index'),
-            'notify_url' => $this->payfast->genericWebhookUrl(),
-            'm_payment_id' => $data['payment_hash'],
-            'amount' => $data['amount_with_fee'],
-            'item_name' => 'purchase',
-            'item_description' => ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number'),
-            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
-        ];
+        $data = $this->paymentData($data);
 
-        $payfast_data['signature'] = $this->payfast->generateSignature($payfast_data);
-        $payfast_data['gateway'] = $this->payfast;
-        $payfast_data['payment_endpoint_url'] = $this->payfast->endpointUrl();
-
-        return render('gateways.payfast.pay', array_merge($data, $payfast_data));
+        return render('gateways.payfast.pay', array_merge($data));
     }
 
     /*
@@ -262,5 +248,37 @@ class CreditCard
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.payfast.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $payfast_data = [
+            'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
+            'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
+            'return_url' => route('client.payments.index'),
+            'cancel_url' => route('client.payment_methods.index'),
+            'notify_url' => $this->payfast->genericWebhookUrl(),
+            'm_payment_id' => $data['payment_hash'],
+            'amount' => $data['amount_with_fee'],
+            'item_name' => 'purchase',
+            'item_description' => ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number'),
+            'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
+        ];
+
+        $payfast_data['signature'] = $this->payfast->generateSignature($payfast_data);
+        $payfast_data['gateway'] = $this->payfast;
+        $payfast_data['payment_endpoint_url'] = $this->payfast->endpointUrl();
+
+        return array_merge($data, $payfast_data);
     }
 }

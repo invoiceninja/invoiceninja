@@ -1,12 +1,8 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' => ctrans('texts.credit_card')])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="payfast-credit-card-payment">
     <meta name="contact-email" content="{{ $contact->email }}">
     <meta name="client-postal-code" content="{{ $contact->client->postal_code }}">
-    <meta name="instant-payment" content="yes" />
-@endsection
 
-@section('gateway_content')
     <form action="{{ $payment_endpoint_url }}" method="post" id="server_response">
         <input type="hidden" name="merchant_id" value="{{ $merchant_id }}">
         <input type="hidden" name="merchant_key" value="{{ $merchant_key }}">
@@ -58,16 +54,12 @@
     @include('portal.ninja2020.gateways.includes.pay_now')
 
    </form> 
-@endsection
+</div>
 
-@section('gateway_footer')
+@script
 <script>
-
-
     document.getElementById('pay-now').addEventListener('click', function() {
       document.getElementById('server_response').submit();
     });
-
 </script>
-@endsection
-
+@endscript
