@@ -9,13 +9,14 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-class InstantBankPay implements MethodInterface
+class InstantBankPay implements MethodInterface, LivewireMethodInterface
 {
     protected GoCardlessPaymentDriver $go_cardless;
 
@@ -194,9 +195,8 @@ class InstantBankPay implements MethodInterface
      * Process unsuccessful payments for Direct Debit.
      *
      * @param ResourcesPayment $payment
-     * @return never
      */
-    public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment)
+    public function processUnsuccessfulPayment(\GoCardlessPro\Resources\Payment $payment): void
     {
         PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
 
@@ -220,5 +220,25 @@ class InstantBankPay implements MethodInterface
             $this->go_cardless->client,
             $this->go_cardless->client->company,
         );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        // not supported, this is offsite payment method.
+
+        return '';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $this->paymentView($data);
+
+        return $data;
     }
 }
