@@ -1,43 +1,38 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title'
-=> ctrans('texts.payment_type_credit_card')])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="square-credit-card-payment">
     <meta name="square-appId" content="{{ $gateway->company_gateway->getConfigField('applicationId') }}">
     <meta name="square-locationId" content="{{ $gateway->company_gateway->getConfigField('locationId') }}">
     <meta name="square_contact" content="{{ json_encode($square_contact) }}">
     <meta name="amount" content="{{ $amount }}">
     <meta name="currencyCode" content="{{ $currencyCode }}">
-    <meta name="instant-payment" content="yes" />
+    <style>
+        .loader {
+            border-top-color: #3498db;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
 
-   <style>
-    .loader {
-      border-top-color: #3498db;
-      -webkit-animation: spinner 1.5s linear infinite;
-      animation: spinner 1.5s linear infinite;
-    }
+        @-webkit-keyframes spinner {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
 
-    @-webkit-keyframes spinner {
-      0% {
-        -webkit-transform: rotate(0deg);
-      }
-      100% {
-        -webkit-transform: rotate(360deg);
-      }
-    }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
 
-    @keyframes spinner {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
 
-   </style>
-@endsection
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="store_card">
@@ -105,9 +100,9 @@
     @endcomponent
 
     @include('portal.ninja2020.gateways.includes.pay_now')
-@endsection
+</div>
 
-@section('gateway_footer')
+@assets
     @if ($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
     @else
@@ -115,4 +110,4 @@
     @endif
 
     @vite('resources/js/clients/payments/square-credit-card.js')
-@endsection
+@endassets
