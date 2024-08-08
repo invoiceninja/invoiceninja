@@ -34,9 +34,9 @@
                         wire:model="{{ $field['name'] }}">
                 @endif
 
-                @if(session()->has('validation_errors') && array_key_exists($field['name'], session('validation_errors')))
+                @if(count($errors) && array_key_exists($field['name'], $errors))
                     <p class="mt-2 text-gray-900 border-red-300 px-2 py-1 bg-gray-100">
-                        {{ session('validation_errors')[$field['name']][0] }}
+                        {{ $errors[$field['name']][0] }}
                     </p>
                 @endif
                 @endcomponent

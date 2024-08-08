@@ -19,4 +19,12 @@ interface LivewireMethodInterface
      * @param array $data
      */
     public function livewirePaymentView(array $data): string;
+
+    /**
+     * Payment data for the gateway method.
+     *  
+     * @param array $data
+     * @return array
+     */
+    public function paymentData(array $data): array;
 }

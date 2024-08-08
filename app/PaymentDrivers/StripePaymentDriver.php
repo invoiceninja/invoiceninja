@@ -62,7 +62,7 @@ use Stripe\SetupIntent;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
-class StripePaymentDriver extends BaseDriver implements LivewireMethodInterface
+class StripePaymentDriver extends BaseDriver
 {
     use MakesHash;
     use Utilities;
@@ -1040,10 +1040,5 @@ class StripePaymentDriver extends BaseDriver implements LivewireMethodInterface
 
         return false;
 
-    }
-
-    public function livewirePaymentView(array $data): string 
-    {
-        return $this->payment_method->livewirePaymentView($data);
     }
 }

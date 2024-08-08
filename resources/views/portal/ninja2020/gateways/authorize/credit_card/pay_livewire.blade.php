@@ -1,18 +1,9 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_credit_card'), 'card_title' => ctrans('texts.payment_type_credit_card')])
-
-@section('gateway_head')
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="authorize-net-credit-card-payment">
     <meta name="authorize-public-key" content="{{ $public_client_id }}">
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
-    <meta name="instant-payment" content="yes" />
-
-    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
 
-    <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
-    <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
-@endsection
-
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
@@ -63,9 +54,9 @@
 
     @include('portal.ninja2020.gateways.authorize.includes.credit_card')
     @include('portal.ninja2020.gateways.includes.pay_now')
-@endsection
+</div>
 
-@section('gateway_footer')
+@assets
     @if($gateway->company_gateway->getConfigField('testMode'))
         <script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
     @else
@@ -73,24 +64,4 @@
     @endif
 
     @vite('resources/js/clients/payments/authorize-credit-card-payment.js')
-@endsection
-
-@push('footer')
-<script defer>
- 
-$(function() {
-
-    document.getElementsByClassName("expiry")[0].addEventListener('change', function() {
-
-    str = document.getElementsByClassName("expiry")[0].value.replace(/\s/g, '');
-    const expiryArray = str.split("/");
-
-    document.getElementsByName('expiry-month')[0].value = expiryArray[0];
-    document.getElementsByName('expiry-year')[0].value = expiryArray[1];
-
-    });
-
-});
-
-</script>
-@endpush
+@endassets

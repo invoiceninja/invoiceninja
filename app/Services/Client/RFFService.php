@@ -88,7 +88,7 @@ class RFFService
         }
     }
 
-    public function handleSubmit(array $data, ClientContact $contact, callable $callback): bool
+    public function handleSubmit(array $data, ClientContact $contact, callable $callback, bool $return_errors = false): bool|array
     {
         MultiDB::setDb($this->database);
 
@@ -105,6 +105,10 @@ class RFFService
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
+            if ($return_errors) {
+                return $validator->getMessageBag()->getMessages();
+            }
+                
             session()->flash('validation_errors', $validator->getMessageBag()->getMessages());
 
             return false;

@@ -49,6 +49,8 @@ class RequiredFields extends Component
 
     public bool $is_loading = true;
 
+    public array $errors = [];
+
     public function mount(): void
     {
         MultiDB::setDB(
@@ -103,6 +105,7 @@ class RequiredFields extends Component
 
     public function handleSubmit(array $data)
     {
+        $this->errors = [];
         $this->is_loading = true;
 
         $rff = new RFFService(
@@ -114,9 +117,14 @@ class RequiredFields extends Component
         $contact = auth()->user();
 
         /** @var \App\Models\ClientContact $contact */
-        $rff->handleSubmit($data, $contact, function () {
+        $errors = $rff->handleSubmit($data, $contact, return_errors: true, callback: function () {
             $this->dispatch('required-fields');
         });
+
+        if (is_array($errors) && count($errors)) {
+            $this->errors = $errors;
+            $this->is_loading = false;
+        }
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
