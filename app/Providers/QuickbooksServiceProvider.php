@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Route;
 use App\Factory\QuickbooksSDKFactory;
 use Illuminate\Support\ServiceProvider;
+use App\Http\Controllers\ImportQuickbooksController;
 use App\Services\Import\Quickbooks\Service as QuickbooksService;
 use App\Repositories\Import\Quickcbooks\Contracts\RepositoryInterface;
 use App\Services\Import\Quickbooks\SdkWrapper as QuickbooksSDKWrapper;
