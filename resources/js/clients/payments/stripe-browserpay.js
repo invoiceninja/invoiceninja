@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-import { wait } from '../wait';
+import { wait, instant } from '../wait';
 
 class StripeBrowserPay {
     constructor() {
@@ -144,4 +144,8 @@ class StripeBrowserPay {
     }
 }
 
-wait('#stripe-browserpay-payment').then(() => new StripeBrowserPay().handle())
+function boot() {
+    new StripeBrowserPay().handle()
+}
+
+instant() ? boot() : wait('#stripe-browserpay-payment').then(() => boot())

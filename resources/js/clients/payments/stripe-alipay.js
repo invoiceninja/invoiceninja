@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessAlipay {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -70,7 +72,7 @@ class ProcessAlipay {
     }
 }
 
-wait('#stripe-alipay-payment').then(() => {
+function boot() {
     const publishableKey =
         document.querySelector('meta[name="stripe-publishable-key"]')
             ?.content ?? '';
@@ -79,4 +81,6 @@ wait('#stripe-alipay-payment').then(() => {
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
     new ProcessAlipay(publishableKey, stripeConnect).setupStripe().handle();
-});
+}
+
+instant() ? boot() : wait('#stripe-alipay-payment').then(() => boot());

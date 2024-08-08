@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait } from '../wait';
+import { wait, instant } from '../wait';
 
 class ProcessKlarna {
     constructor(key, stripeConnect) {
@@ -93,7 +93,7 @@ class ProcessKlarna {
     };
 }
 
-wait('#stripe-klarna-payment').then(() => {
+function boot() {
     const publishableKey = document.querySelector(
         'meta[name="stripe-publishable-key"]'
     )?.content ?? '';
@@ -102,4 +102,6 @@ wait('#stripe-klarna-payment').then(() => {
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
     
     new ProcessKlarna(publishableKey, stripeConnect).setupStripe().handle();
-});
+}
+
+instant() ? boot() : wait('#stripe-klarna-payment').then(() => boot());
