@@ -148,16 +148,19 @@ class Storecove {
                 "emails" => ["david@invoiceninja.com"]
             ],
             "document"=> [
-                'documentType' => 'invoice',
-                "rawDocumentData"=> [
-                    "document" => base64_encode($document), 
-                    "parse" => true,
-                    "parseStrategy"=> "ubl",
-                ],
+                
             ],
         ];
 
         $payload = array_merge($payload, $override_payload);
+
+
+        $payload['document']['documentType'] = 'invoice';
+        $payload['document']["rawDocumentData"] = [
+                    "document" => base64_encode($document), 
+                    "parse" => true,
+                    "parseStrategy"=> "ubl",
+        ];
 
         $uri = "document_submissions";
         

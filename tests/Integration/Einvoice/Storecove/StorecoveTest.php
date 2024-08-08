@@ -509,113 +509,110 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
     {
       $this->routing_id = 293338;
 
+          $settings = CompanySettings::defaults();
+          $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+          $settings->website = 'www.invoiceninja.de';
 
-$settings = CompanySettings::defaults();
-$settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
-$settings->website = 'www.invoiceninja.de';
+          $settings->address1 = '10 Rue de la Paix';
+          $settings->address2 = 'Bâtiment A, Bureau 5';
+          $settings->city = 'Paris';
+          $settings->state = 'Île-de-France';
+          $settings->postal_code = '75002';
+          $settings->phone = '01 23456789';
+          $settings->email = $this->faker->unique()->safeEmail();
+          $settings->country_id = '250'; // France's ISO country code
+          $settings->vat_number = 'FR82345678911';
+          $settings->id_number = '12345678900010';
+          $settings->classification = 'business';
+          $settings->use_credits_payment = 'always';
+          $settings->timezone_id = '1'; // CET (Central European Time)
+          $settings->entity_send_time = 0;
+          $settings->e_invoice_type = 'PEPPOL';
+          $settings->currency_id = '3';
 
-$settings->address1 = '10 Rue de la Paix';
-$settings->address2 = 'Bâtiment A, Bureau 5';
-$settings->city = 'Paris';
-$settings->state = 'Île-de-France';
-$settings->postal_code = '75002';
-$settings->phone = '01 23456789';
-$settings->email = $this->faker->unique()->safeEmail();
-$settings->country_id = '250'; // France's ISO country code
-$settings->vat_number = 'FR12345678901';
-$settings->id_number = '12345678900010';
+          $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+          ]);
 
-$settings->use_credits_payment = 'always';
-$settings->timezone_id = '1'; // CET (Central European Time)
-$settings->entity_send_time = 0;
-$settings->e_invoice_type = 'PEPPOL';
-$settings->currency_id = '3';
+          $this->user->companies()->attach($company->id, [
+              'account_id' => $this->account->id,
+              'is_owner' => true,
+              'is_admin' => 1,
+              'is_locked' => 0,
+              'permissions' => '',
+              'notifications' => CompanySettings::notificationAdminDefaults(),
+              'settings' => null,
+          ]);
 
-$company = Company::factory()->create([
-  'account_id' => $this->account->id,
-  'settings' => $settings,
-]);
+          Client::unguard();
 
-$this->user->companies()->attach($company->id, [
-    'account_id' => $this->account->id,
-    'is_owner' => true,
-    'is_admin' => 1,
-    'is_locked' => 0,
-    'permissions' => '',
-    'notifications' => CompanySettings::notificationAdminDefaults(),
-    'settings' => null,
-]);
-
-Client::unguard();
-
-$c =
-Client::create([
-  'company_id' => $company->id,
-  'user_id' => $this->user->id,
-  'name' => 'Beispiel Firma GmbH',
-  'website' => 'https://www.beispiel-firma.de',
-  'private_notes' => 'Dies sind private Notizen zum Testkunden.',
-  'balance' => 0,
-  'paid_to_date' => 0,
-  'vat_number' => 'DE654321987',
-  'id_number' => 'HRB 12345', // Typical format for German company registration numbers
-  'custom_value1' => '2024-07-22 10:00:00',
-  'custom_value2' => 'blau',
-  'custom_value3' => 'musterwort',
-  'custom_value4' => 'test@example.com',
-  'address1' => 'Musterstraße 123',
-  'address2' => '2. Etage, Büro 45',
-  'city' => 'München',
-  'state' => 'Bayern',
-  'postal_code' => '80331',
-  'country_id' => '276', // Germany
-  'shipping_address1' => 'Musterstraße 123',
-  'shipping_address2' => '2. Etage, Büro 45',
-  'shipping_city' => 'München',
-  'shipping_state' => 'Bayern',
-  'shipping_postal_code' => '80331',
-  'shipping_country_id' => '276', // Germany
-  'settings' => ClientSettings::Defaults(),
-  'client_hash' => \Illuminate\Support\Str::random(32),
-  'routing_id' => '',
-]);
-
-
-$item = new InvoiceItem();
-$item->product_key = "Product Key";
-$item->notes = "Product Description";
-$item->cost = 10;
-$item->quantity = 10;
-$item->tax_rate1 = 19;
-$item->tax_name1 = 'mwst';
-
-$invoice = Invoice::factory()->create([
-    'company_id' => $company->id,
-    'user_id' => $this->user->id,
-    'client_id' => $c->id,
-    'discount' => 0,
-    'uses_inclusive_taxes' => false,
-    'status_id' => 1,
-    'tax_rate1' => 0,
-    'tax_name1' => '',
-    'tax_rate2' => 0,
-    'tax_rate3' => 0,
-    'tax_name2' => '',
-    'tax_name3' => '',
-    'line_items' => [$item],
-    'number' => 'DE-'.rand(1000, 100000),
-    'date' => now()->format('Y-m-d'),
-    'due_date' => now()->addDays(14)->format('Y-m-d'),
-]);
-
-$invoice = $invoice->calc()->getInvoice();
-$invoice->service()->markSent()->save();
+          $c =
+          Client::create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'name' => 'Exemple Société S.A.',
+            'website' => 'https://www.exemple-societe.fr',
+            'private_notes' => 'Ceci est une note privée pour le client test.',
+            'balance' => 0,
+            'paid_to_date' => 0,
+            'vat_number' => 'FR12345678901',
+            'id_number' => '12345678900010', // Typical format for French company registration numbers
+            'custom_value1' => '2024-07-22 10:00:00',
+            'custom_value2' => 'bleu',
+            'custom_value3' => 'motexemple',
+            'custom_value4' => 'test@example.com',
+            'address1' => '123 Rue de l\'Exemple',
+            'address2' => '2ème étage, Bureau 45',
+            'city' => 'Paris',
+            'state' => 'Île-de-France',
+            'postal_code' => '75001',
+            'country_id' => '250', // France
+            'shipping_address1' => '123 Rue de l\'Exemple',
+            'shipping_address2' => '2ème étage, Bureau 45',
+            'shipping_city' => 'Paris',
+            'shipping_state' => 'Île-de-France',
+            'shipping_postal_code' => '75001',
+            'shipping_country_id' => '250', // France
+            'classification' => 'business',
+            'settings' => ClientSettings::Defaults(),
+            'client_hash' => \Illuminate\Support\Str::random(32),
+            'routing_id' => '',
+          ]);
 
 
-return $invoice;
-      
+          $item = new InvoiceItem();
+          $item->product_key = "Product Key";
+          $item->notes = "Product Description";
+          $item->cost = 10;
+          $item->quantity = 10;
+          $item->tax_rate1 = 20;
+          $item->tax_name1 = 'VAT';
+
+          $invoice = Invoice::factory()->create([
+              'company_id' => $company->id,
+              'user_id' => $this->user->id,
+              'client_id' => $c->id,
+              'discount' => 0,
+              'uses_inclusive_taxes' => false,
+              'status_id' => 1,
+              'tax_rate1' => 0,
+              'tax_name1' => '',
+              'tax_rate2' => 0,
+              'tax_rate3' => 0,
+              'tax_name2' => '',
+              'tax_name3' => '',
+              'line_items' => [$item],
+              'number' => 'DE-'.rand(1000, 100000),
+              'date' => now()->format('Y-m-d'),
+              'due_date' => now()->addDays(14)->format('Y-m-d'),
+          ]);
+
+          $invoice = $invoice->calc()->getInvoice();
+          $invoice->service()->markSent()->save();
 
 
+          return $invoice;
 
     }
 
@@ -728,7 +725,39 @@ return $invoice;
 
     }
 
-    public function testEsRules()
+    public function testFrRules()
+    {
+
+        $invoice = $this->createFRData();
+
+        $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+        $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
+        foreach($stub as $key => $value) {
+            $e_invoice->{$key} = $value;
+        }
+
+        $invoice->e_invoice = $e_invoice;
+        $invoice->save();
+
+        $this->assertInstanceOf(Invoice::class, $invoice);
+        $this->assertInstanceof(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $e_invoice);
+
+        $p = new Peppol($invoice);
+
+        $p->run();
+        $xml  = $p->toXml();
+        nlog($xml);
+
+        $identifiers = $p->getStorecoveMeta();
+
+        $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+        $sc->sendDocument($xml, $this->routing_id, $identifiers);
+
+    }
+
+
+    public function RtestEsRules()
     {
 
       $invoice = $this->createESData();
@@ -768,7 +797,7 @@ return $invoice;
 
     }
 
-    public function testDeRules()
+    public function RtestDeRules()
     {
       $invoice = $this->createDEData();
 

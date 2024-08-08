@@ -862,15 +862,17 @@ class Peppol extends AbstractService
 
             $this->p_invoice->OrderReference = $order_reference;
 
-            $this->setStorecoveMeta(["document" => [
-                                        "invoice" => [
-                                            "references" => [
-                                                "documentType" => "purchase_order", 
-                                                "documentId" => $this->invoice->po_number,
-                                            ],
-                                        ],
-                                    ]
-                                ]);
+            // $this->setStorecoveMeta(["document" => [
+            //                             "invoice" => [
+            //                                 [
+            //                                 "references" => [
+            //                                     "documentType" => "purchase_order", 
+            //                                     "documentId" => $this->invoice->po_number,
+            //                                 ],
+            //                             ],
+            //                         ],
+            //                     ]   
+            //                 ]);
 
             return $this;
         }
@@ -952,7 +954,25 @@ class Peppol extends AbstractService
         ];
     }
 
+    /**
+     * setStorecoveMeta
+     *
+     * updates the storecove payload for sending documents
+     * 
+     * @param  array $meta
+     * @return self
+     */
+    private function setStorecoveMeta(array $meta): self
+    {
+        $this->storecove_meta = array_merge($this->storecove_meta, $meta);
+        
+        return $this;
+    }
 
+    public function getStorecoveMeta(): array
+    {
+        return $this->storecove_meta;
+    }
 
 
 
@@ -977,21 +997,7 @@ class Peppol extends AbstractService
 
         return $this;
     }
-        
-    /**
-     * setStorecoveMeta
-     *
-     * updates the storecove payload for sending documents
-     * 
-     * @param  array $meta
-     * @return self
-     */
-    private function setStorecoveMeta(array $meta): self
-    {
-        $this->storecove_meta = array_merge($this->storecove_meta, $meta);
-        
-        return $this;
-    }
+    
     /**
      * CH
      *
@@ -1109,7 +1115,6 @@ class Peppol extends AbstractService
             $this->setCustomerAssignedAccountId(true);
         
         }
-        
 
         if(strlen($this->invoice->client->id_number ?? '') == 9) {
             //SIREN
