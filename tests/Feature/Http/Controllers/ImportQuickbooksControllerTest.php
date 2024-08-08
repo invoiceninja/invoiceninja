@@ -38,7 +38,7 @@ class ImportQuickbooksControllerTest extends TestCase
 
         Session::start();
 
-        app()->singleton(QuickbooksInterface::class, fn() => new QuickbooksSDK($this->mock));
+        //app()->singleton(QuickbooksInterface::class, fn() => new QuickbooksSDK($this->mock));
     }
 
     public function testAuthorize(): void
@@ -88,47 +88,38 @@ class ImportQuickbooksControllerTest extends TestCase
         $this->mock->shouldHaveReceived('exchangeAuthorizationCodeForToken')->once()->with(123456,12345678);
     }
 
-    // public function testImport(): void
-    // {
-    //     Cache::spy();
-    //     Bus::fake();
-    //     $this->mock->shouldReceive('Query')->andReturnUsing(
-    //         function($val, $s = 1, $max = 1000) use ($count, $data) {
-    //                 if(stristr($val, 'count')) {
-    //                     return $count;
-    //                 }
+    public function testImport(): void
+    {
+       // Cache::spy();
+        //Bus::fake();
+        $data = $this->setUpTestData('customers');
+        $count = count($data);
+        $this->mock->shouldReceive('Query')->andReturnUsing(
+            function($val, $s = 1, $max = 1000) use ($count, $data) {
+                    if(stristr($val, 'count')) {
+                        return $count;
+                    }
 
-    //                 return Arr::take($data,$max);
-    //             }
-    //         );
-    //     $this->setUpTestData('customers');
-    //     // Perform the test
-    //     $response = $this->withHeaders([
-    //         'X-API-TOKEN' => $this->token,
-    //     ])->post('/api/v1/import/quickbooks/preimport',[
-    //         'import_type' => 'client'
-    //     ]);
-    //     $response->assertStatus(200);
-    //     $response = json_decode( $response->getContent());
-    //     $this->assertNotNull($response->hash);
-    //     $hash = $response->hash;
-    //     $response = $this->withHeaders([
-    //             'X-API-TOKEN' => $this->token,
-    //         ])->post('/api/v1/import/quickbooks',[
-    //             'import_type' => 'client',
-    //             'hash' => $response->hash
-    //         ]);
-    //     $response->assertStatus(200);
+                    return Arr::take($data,$max);
+                }
+            );
+        
+        // Perform the test
+        $response = $this->actingAs($this->user)->withHeaders([
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/import/quickbooks',[
+                'import_types' => ['client']
+            ]);
+        $response->assertStatus(200);
 
-    //     Cache::shouldHaveReceived('has')->once()->with("{$hash}-client");
-    //     Bus::assertDispatched(\App\Jobs\Import\QuickbooksIngest::class);
-    // }
+        //Cache::shouldHaveReceived('has')->once()->with("{$hash}-client");
+        //Bus::assertDispatched(\App\Jobs\Import\QuickbooksIngest::class);
+    }
 
     protected function setUpTestData($file) {
         $data = json_decode(
             file_get_contents(base_path("tests/Mock/Quickbooks/Data/$file.json")),true
         );
-        $count = count($data);
         
         return $data;
     }
