@@ -3,6 +3,7 @@ namespace App\Services\Import\Quickbooks;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use App\Services\Import\Quickbooks\Repositories\CompanyTokensRepository;
 use App\Services\Import\QuickBooks\Contracts\SDKInterface as QuickbooksInterface;
 
 final class Auth
@@ -35,21 +36,31 @@ final class Auth
         return $this->sdk->getState();
     }
 
+    public function saveTokens($key, $tokens)
+    {
+        $token_store = new CompanyTokensRepository($key);
+        $token_store->save($tokens); 
+    }
+
     public function getAccessToken() : array
     {
-        // TODO: Cache token and 
-        $token = $this->sdk->getAccessToken();
-        $access_token = $token->getAccessToken();
-        $refresh_token = $token->getRefreshToken();
-        $access_token_expires = $token->getAccessTokenExpiresAt();
-        $refresh_token_expires = $token->getRefreshTokenExpiresAt();       
-        //TODO: Cache token object. Update $sdk instance?
-        return compact('access_token', 'refresh_token','access_token_expires', 'refresh_token_expires');
+        $token_store = new CompanyTokensRepository();
+        $tokens = $token_store->get(); 
+        if(empty($tokens)) {
+            $token = $this->sdk->getAccessToken();
+            $access_token = $token->getAccessToken();
+            $realm = $token->getRealmID();
+            $refresh_token = $token->getRefreshToken();
+            $access_token_expires = $token->getAccessTokenExpiresAt();
+            $refresh_token_expires = $token->getRefreshTokenExpiresAt();     
+            $tokens = compact('access_token', 'refresh_token','access_token_expires', 'refresh_token_expires','realm');
+        }
+        
+        return $tokens;
     }
 
     public function getRefreshToken() : array
     {
-        // TODO: Check if token is Cached otherwise fetch a new one and Cache token and expire
         return  $this->getAccessToken();
     }
 }
