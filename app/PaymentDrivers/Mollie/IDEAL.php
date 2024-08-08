@@ -19,13 +19,14 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class IDEAL implements MethodInterface
+class IDEAL implements MethodInterface, LivewireMethodInterface
 {
     protected MolliePaymentDriver $mollie;
 
@@ -208,5 +209,25 @@ class IDEAL implements MethodInterface
     public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
     {
         return $this->processSuccessfulPayment($payment, 'open');
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        // Doesn't support, it's offsite payment method.
+
+        return '';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $this->paymentView($data);
+
+        return $data;
     }
 }

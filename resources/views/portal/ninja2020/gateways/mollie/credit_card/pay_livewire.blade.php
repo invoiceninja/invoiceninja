@@ -1,18 +1,14 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.credit_card'), 'card_title' =>
-ctrans('texts.credit_card')])
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4"
+    id="mollie-credit-card-payment">
 
-@section('gateway_head')
     <meta name="mollie-testmode" content="{{ $gateway->company_gateway->getConfigField('testMode') }}">
     <meta name="mollie-profileId" content="{{ $gateway->company_gateway->getConfigField('profileId') }}">
-    <meta name="instant-payment" content="yes">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    
+
     <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
     <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
-@endsection
 
-@section('gateway_content')
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -83,9 +79,9 @@ ctrans('texts.credit_card')])
 
     @include('portal.ninja2020.gateways.includes.save_card')
     @include('portal.ninja2020.gateways.includes.pay_now')
-@endsection
+</div>
 
-@section('gateway_footer')
+@assets
     <script src="https://js.mollie.com/v1/mollie.js"></script>
     @vite('resources/js/clients/payments/mollie-credit-card.js')
-@endsection
+@endassets
