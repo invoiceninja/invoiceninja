@@ -1087,7 +1087,13 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * FR
+     * @Pending - clarification on codes needed
+     *
+     * @return self
+     */
     private function FR(): self
     {
 

@@ -400,6 +400,7 @@ class BaseDriver extends AbstractPaymentDriver
             return;
 
         $invoices = Invoice::query()
+                            ->where('company_id', $this->company_gateway->company_id)
                             ->whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))
                             ->whereJsonContains('line_items', ['type_id' => '3'])
                             ->withTrashed();
@@ -407,6 +408,7 @@ class BaseDriver extends AbstractPaymentDriver
         if($invoices->count() == 0){
 
             $invoice = Invoice::query()
+                            ->where('company_id', $this->company_gateway->company_id)
                             ->whereIn('id', $this->transformKeys(array_column($payment_invoices, 'invoice_id')))
                             ->orderBy('id','desc')
                             ->withTrashed()
