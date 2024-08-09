@@ -65,7 +65,7 @@ class TemplateEmail extends Mailable
         }
 
         $link_string = '<ul>';
-
+            $link_string .= "<li>{ctrans('texts.download_files')}</li>";
         foreach ($this->build_email->getAttachmentLinks() as $link) {
             $link_string .= "<li>{$link}</li>";
         }

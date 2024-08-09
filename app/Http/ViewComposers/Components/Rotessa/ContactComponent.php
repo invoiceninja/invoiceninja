@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\ViewComposers\Components\Rotessa;
 
@@ -18,9 +27,9 @@ class ContactComponent extends Component
         
         $contact = collect($contact->client->contacts->firstWhere('is_primary', 1)->toArray())->merge([
             'home_phone' =>$contact->client->phone, 
-            'custom_identifier' => $contact->client->number,
+            'custom_identifier' => $contact->client->client_hash,
             'name' =>$contact->client->name,
-            'id' => $contact->client->contact_key,
+            'id' => null,
         ] )->all();
         
         $this->attributes = $this->newAttributeBag(Arr::only($contact, $this->fields) );

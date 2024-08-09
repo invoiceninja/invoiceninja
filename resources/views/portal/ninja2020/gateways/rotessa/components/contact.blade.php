@@ -14,6 +14,9 @@
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="name" name="name" type="text" placeholder="{{ ctrans('texts.name') }}" required value="{{ old('name', $name) }}">
+        @error('name')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
     </dd>
 </div>
 
@@ -23,6 +26,9 @@
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" name="email" id="email" type="email" placeholder="{{ ctrans('texts.email_address') }}" required value="{{ old('email', $email) }}">
+        @error('email')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
     </dd>
 </div>
 
@@ -32,6 +38,9 @@
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="home_phone" name="home_phone" type="text" placeholder="{{ ctrans('texts.phone') }}" required value="{{ old('home_phone', $home_phone) }}">
+        @error('home_phone')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
     </dd>
 </div>
 
@@ -41,6 +50,9 @@
     </dt>
     <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
         <input class="input w-full" id="phone" name="phone" type="text" placeholder="{{ ctrans('texts.work_phone') }}" required value="{{ old('phone', $phone) }}">
+    @error('phone')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
     </dd>
 </div>
 
@@ -59,6 +71,9 @@
                 <label for="customer_type_business" class="ml-3 block text-sm font-medium cursor-pointer">{{ ctrans('texts.business') }}</label>
             </div>
         </div>
+        @error('customer_type')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
     </dd>
 </div>
 
