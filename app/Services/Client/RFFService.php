@@ -128,7 +128,7 @@ class RFFService
         $contact = [];
 
         MultiDB::setDb($this->database);
-
+ 
         foreach ($data as $field => $value) {
             if (Str::startsWith($field, 'client_')) {
                 $client[$this->mappings[$field]] = $value;
@@ -162,8 +162,8 @@ class RFFService
 
 
         $_contact
-            ->fill($contact)
-            ->push();
+            ->fill($contact);
+            // ->push();
 
         $_contact->client
             ->fill($client)
