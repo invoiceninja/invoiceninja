@@ -516,9 +516,10 @@ class CompanySettings extends BaseSettings
     public $quote_late_fee_amount1 = 0;
     public $quote_late_fee_percent1 = 0;
     
-
+    public string $payment_flow = 'default'; //smooth
 
     public static $casts = [
+        'payment_flow'                       => 'string',
         'enable_quote_reminder1'             => 'bool',
         'quote_num_days_reminder1'           => 'int',
         'quote_schedule_reminder1'           => 'string',

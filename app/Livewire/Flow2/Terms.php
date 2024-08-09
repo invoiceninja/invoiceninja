@@ -25,7 +25,7 @@ class Terms extends Component
 
     public function mount()
     {
-        $this->invoice = $this->getContext()['invoice'];
+        $this->invoice = $this->getContext()['invoices']->first();
         $this->variables = $this->getContext()['variables'];
     }
 

@@ -79,13 +79,16 @@ class InvoiceController extends Controller
             'hash' => $hash,
             'variables' => $variables,
             'invoices' => [$invoice->hashed_id],
+            'db' => $invoice->company->db,
         ];
 
         if ($request->query('mode') === 'fullscreen') {
             return render('invoices.show-fullscreen', $data);
         }
 
-        return $this->render('invoices.show_smooth', $data);
+        return auth()->guard('contact')->user()->client->getSetting('payment_flow') == 'default' ? $this->render('invoices.show', $data) : $this->render('invoices.show_smooth', $data);
+
+        // return $this->render('invoices.show_smooth', $data);
     }
 
     public function showBlob($hash)
@@ -237,9 +240,12 @@ class InvoiceController extends Controller
             'hashed_ids' => $invoices->pluck('hashed_id'),
             'total' =>  $total,
             'variables' => $variables,
+            'invitation' => $invitation,
+            'db' => $invitation->company->db,
         ];
 
-        return $this->render('invoices.payment', $data);
+        // return $this->render('invoices.payment', $data);
+        return auth()->guard('contact')->user()->client->getSetting('payment_flow') === 'default' ? $this->render('invoices.payment', $data) : $this->render('invoices.show_smooth_multi', $data);
     }
 
     /**

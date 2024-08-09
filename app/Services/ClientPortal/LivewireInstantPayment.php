@@ -89,6 +89,8 @@ class LivewireInstantPayment
 
     public function run()
     {
+        nlog($this->data);
+
         $company_gateway = CompanyGateway::query()->find($this->data['company_gateway_id']);
 
         if ($this->data['company_gateway_id'] == CompanyGateway::GATEWAY_CREDIT) {

@@ -238,9 +238,12 @@ class InvoicePay extends Component
         $this->setContext('settings', $settings); // $this->context['settings'] = $settings;
         $this->setContext('db', $this->db); // $this->context['db'] = $this->db;
 
-        $invoices = Invoice::find($this->transformKeys($this->invoices));
+        nlog($this->invoices);
+
+        if(is_array($this->invoices))
+            $this->invoices = Invoice::find($this->transformKeys($this->invoices));
         
-        $invoices = $invoices->filter(function ($i) {
+        $invoices = $this->invoices->filter(function ($i) {
             $i = $i->service()
                 ->markSent()
                 ->removeUnpaidGatewayFees()
