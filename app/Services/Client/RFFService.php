@@ -129,7 +129,7 @@ class RFFService
         $contact = [];
 
         MultiDB::setDb($this->database);
-
+ 
         foreach ($data as $field => $value) {
             if (Str::startsWith($field, 'client_')) {
                 $client[$this->mappings[$field]] = $value;
@@ -140,53 +140,50 @@ class RFFService
             }
         }
 
-        $_contact->first_name = $data['contact_first_name'] ?? '';
-        $_contact->last_name = $data['contact_last_name'] ?? '';
-        $_contact->client->name = $data['client_name'] ?? '';
-        $_contact->email = $data['contact_email'] ?? '';
-        $_contact->client->phone = $data['client_phone'] ?? '';
-        $_contact->client->address1 = $data['client_address_line_1'] ?? '';
-        $_contact->client->city = $data['client_city'] ?? '';
-        $_contact->client->state = $data['client_state'] ?? '';
-        $_contact->client->country_id = $data['client_country_id'] ?? '';
-        $_contact->client->postal_code = $data['client_postal_code'] ?? '';
-        $_contact->client->shipping_address1 = $data['client_shipping_address_line_1'] ?? '';
-        $_contact->client->shipping_city = $data['client_shipping_city'] ?? '';
-        $_contact->client->shipping_state = $data['client_shipping_state'] ?? '';
-        $_contact->client->shipping_postal_code = $data['client_shipping_postal_code'] ?? '';
-        $_contact->client->shipping_country_id = $data['client_shipping_country_id'] ?? '';
-        $_contact->client->custom_value1 = $data['client_custom_value1'] ?? '';
-        $_contact->client->custom_value2 = $data['client_custom_value2'] ?? '';
-        $_contact->client->custom_value3 = $data['client_custom_value3'] ?? '';
-        $_contact->client->custom_value4 = $data['client_custom_value4'] ?? '';
-        $_contact->push();
+        // $_contact->first_name = $data['contact_first_name'] ?? '';
+        // $_contact->last_name = $data['contact_last_name'] ?? '';
+        // $_contact->client->name = $data['client_name'] ?? '';
+        // $_contact->email = $data['contact_email'] ?? '';
+        // $_contact->client->phone = $data['client_phone'] ?? '';
+        // $_contact->client->address1 = $data['client_address_line_1'] ?? '';
+        // $_contact->client->city = $data['client_city'] ?? '';
+        // $_contact->client->state = $data['client_state'] ?? '';
+        // $_contact->client->country_id = $data['client_country_id'] ?? '';
+        // $_contact->client->postal_code = $data['client_postal_code'] ?? '';
+        // $_contact->client->shipping_address1 = $data['client_shipping_address_line_1'] ?? '';
+        // $_contact->client->shipping_city = $data['client_shipping_city'] ?? '';
+        // $_contact->client->shipping_state = $data['client_shipping_state'] ?? '';
+        // $_contact->client->shipping_postal_code = $data['client_shipping_postal_code'] ?? '';
+        // $_contact->client->shipping_country_id = $data['client_shipping_country_id'] ?? '';
+        // $_contact->client->custom_value1 = $data['client_custom_value1'] ?? '';
+        // $_contact->client->custom_value2 = $data['client_custom_value2'] ?? '';
+        // $_contact->client->custom_value3 = $data['client_custom_value3'] ?? '';
+        // $_contact->client->custom_value4 = $data['client_custom_value4'] ?? '';
+        // $_contact->push();
 
 
         $_contact
-            ->fill($contact)
-            ->push();
+            ->fill($contact);
+            // ->push();
 
         $_contact->client
             ->fill($client)
             ->push();
 
-        if ($_contact) {
-            /** @var \App\Models\CompanyGateway $cg */
-            $cg = CompanyGateway::find(
-                $this->company_gateway_id,
-            );
+        /** @var \App\Models\CompanyGateway $cg */
+        $cg = CompanyGateway::find(
+            $this->company_gateway_id,
+        );
 
-            if ($cg && $cg->update_details) {
-                $payment_gateway = $cg->driver($_contact->client)->init();
+        //@phpstan-ignore-next-line
+        if ($cg && $cg->update_details) {
+            $payment_gateway = $cg->driver($_contact->client)->init();
 
-                if (method_exists($payment_gateway, "updateCustomer")) {
-                    $payment_gateway->updateCustomer();
-                }
+            if (method_exists($payment_gateway, "updateCustomer")) {
+                $payment_gateway->updateCustomer();
             }
-
-            return true;
         }
 
-        return false;
+        return true;
     }
 }

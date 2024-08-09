@@ -41,7 +41,7 @@ class InvoicePay extends Component
         'client_postal_code' => 'postal_code',
         'client_country_id' => 'country_id',
 
-        'client_shipping_address_line_1' => 'shipping_address1',
+        'client_shipping_address_line_1' => 'shipping_address1',  
         'client_shipping_address_line_2' => 'shipping_address2',
         'client_shipping_city' => 'shipping_city',
         'client_shipping_state' => 'shipping_state',
@@ -116,7 +116,7 @@ class InvoicePay extends Component
         nlog("signature captured");
 
         $this->signature_accepted = true;
-        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
+        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
         $invite->signature_base64 = $base64;
         $invite->signature_date = now()->addSeconds($invite->contact->client->timezone_offset());
         $this->setContext('signature', $base64); // $this->context['signature'] = $base64;
@@ -127,7 +127,7 @@ class InvoicePay extends Component
     #[On('payable-amount')]
     public function payableAmount($payable_amount)
     {
-        $this->setContext('payable_invoices.0.amount', Number::parseFloat($payable_amount)); // $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount);
+        $this->setContext('payable_invoices.0.amount', Number::parseFloat($payable_amount)); // $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount); //TODO DB: check parseFloat()
         $this->under_over_payment = false;
     }
 
@@ -263,6 +263,7 @@ class InvoicePay extends Component
         $this->setContext('invitation', $invite); // $this->context['invitation'] = $invite;
 
         $payable_invoices = $invoices->map(function ($i) {
+            /** @var \App\Models\Invoice $i */
             return [
                 'invoice_id' => $i->hashed_id,
                 'amount' => $i->partial > 0 ? $i->partial : $i->balance,

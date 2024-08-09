@@ -32,13 +32,13 @@ class RequiredFields extends Component
     public ?string $client_address_line_1;
     public ?string $client_city;
     public ?string $client_state;
-    public ?string $client_country_id;
+    public ?int $client_country_id;
     public ?string $client_postal_code;
     public ?string $client_shipping_address_line_1;
     public ?string $client_shipping_city;
     public ?string $client_shipping_state;
     public ?string $client_shipping_postal_code;
-    public ?string $client_shipping_country_id;
+    public ?int $client_shipping_country_id;
     public ?string $client_custom_value1;
     public ?string $client_custom_value2;
     public ?string $client_custom_value3;
