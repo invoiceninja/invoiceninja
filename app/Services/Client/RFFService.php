@@ -163,8 +163,8 @@ class RFFService
 
 
         $_contact
-            ->fill($contact);
-            // ->push();
+            ->fill($contact)
+            ->push();
 
         $_contact->client
             ->fill($client)
