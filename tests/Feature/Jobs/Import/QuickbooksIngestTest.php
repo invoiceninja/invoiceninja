@@ -46,7 +46,7 @@ class QuickbooksIngestTest extends TestCase
             'hash' => $hash,
             'column_map' => ['client' => ['mapping' => []]],
             'skip_header' => true,
-            'import_type' => 'quickbooks',
+            'import_types' => ['client'],
         ], $this->company )->handle();
         $this->assertTrue(Client::withTrashed()->where(['company_id' => $this->company->id, 'name' => "Freeman Sporting Goods"])->exists());
     }

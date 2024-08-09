@@ -15,6 +15,8 @@ class QuickbooksIngest implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $engine;
+    protected $request;
+    protected $company;
 
     /**
      * Create a new job instance.
@@ -32,8 +34,9 @@ class QuickbooksIngest implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
         set_time_limit(0);
-        $engine = new Quickbooks($this->request, $this->company);
-        foreach (['client', 'product', 'invoice', 'payment'] as $entity) {
+
+        $engine = new Quickbooks(['import_type' => 'client', 'hash'=> $this->request['hash'] ], $this->company);
+        foreach ($this->request['import_types'] as $entity) {
             $engine->import($entity);
         }
 
