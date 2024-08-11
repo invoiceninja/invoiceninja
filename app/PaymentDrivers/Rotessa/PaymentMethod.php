@@ -100,8 +100,17 @@ class PaymentMethod implements MethodInterface
 
         $customer = array_merge(['address' => $request->only('address_1','address_2','city','postal_code','province_code','country'), 'custom_identifier' => $request->input('custom_identifier') ], $request->all());
 
-        $this->rotessa->findOrCreateCustomer($customer);
-        
+        try{
+            $this->rotessa->findOrCreateCustomer($customer);
+        }
+        catch(\Exception $e){
+
+            $message = json_decode($e->getMessage(), true);        
+            
+            return redirect()->route('client.payment_methods.index')->withErrors(array_values($message['errors']));
+
+        }
+
         return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
 
     }

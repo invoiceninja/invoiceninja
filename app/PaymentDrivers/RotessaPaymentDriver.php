@@ -202,7 +202,6 @@ class RotessaPaymentDriver extends BaseDriver
     
     public function findOrCreateCustomer(array $data)
     {
-        nlog($data);
 
         $result = null; 
         try {
@@ -219,7 +218,6 @@ class RotessaPaymentDriver extends BaseDriver
             
             if(!isset($data['id'])) {
 
-                nlog("no id, lets goo");
                 $result = $this->gatewayRequest('post', 'customers', $data);
 
                 if($result->failed()) 
@@ -252,9 +250,16 @@ class RotessaPaymentDriver extends BaseDriver
                 'code' => 500
             ];
 
-            SystemLogger::dispatch(['server_response' => is_null($result) ? '' : $result->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
+            SystemLogger::dispatch(['server_response' => $data, 'data' => []], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
             
-            throw $th;
+                try{
+                    $errors = explode("422:", $th->getMessage())[1];
+                }
+                catch(\Exception){
+                    $errors = 'Unknown error occured';
+                }
+
+            throw new \Exception($errors, $th->getCode());
         }
     }
 

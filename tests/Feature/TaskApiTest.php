@@ -224,6 +224,25 @@ class TaskApiTest extends TestCase
         ])->postJson("/api/v1/tasks", $data);
 
         $response->assertStatus(200);
+        $arr =  $response->json();
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[""]',
+            'assigned_user' => [],
+            'project' => [],
+            'user' => [],
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/".$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
 
     }
     public function testUserFilters()
