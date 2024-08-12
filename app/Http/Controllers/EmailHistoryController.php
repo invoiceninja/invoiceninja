@@ -53,7 +53,7 @@ class EmailHistoryController extends BaseController
 
         $data = SystemLog::where('company_id', $user->company()->id)
         ->where('category_id', SystemLog::CATEGORY_MAIL)
-        ->whereJsonContains('log->history->entity', $this->encodePrimaryKey($request->entity))
+        ->whereJsonContains('log->history->entity', $request->entity)
         ->whereJsonContains('log->history->entity_id', $this->encodePrimaryKey($request->entity_id))
         ->orderBy('id', 'DESC')
         ->cursor()
