@@ -90,7 +90,7 @@ class Peppol extends AbstractService
         'NO' => 'VAT',
         'AD' => 'VAT',
         'AL' => 'VAT',
-        'AT' => 'VAT',
+        'AT' => 'VAT', //Tested - Routing GOV + Business
         'BA' => 'VAT',
         'BE' => 'VAT',
         'BG' => 'VAT',
@@ -102,12 +102,12 @@ class Peppol extends AbstractService
         'SA' => 'TIN', //South Africa
         'CY' => 'VAT',
         'CZ' => 'VAT',
-        'DE' => 'VAT', //tested - requires Payment Means to be defined.
+        'DE' => 'VAT', //tested - Requires Payment Means to be defined.
         'DK' => 'ERST',
         'EE' => 'VAT',
         'ES' => 'VAT', //tested - B2G pending
         'FI' => 'VAT',
-        'FR' => 'VAT',
+        'FR' => 'VAT', //tested - Need to ensure Siren/Siret routing
         'GR' => 'VAT',
         'HR' => 'VAT',
         'HU' => 'VAT',
@@ -153,6 +153,82 @@ class Peppol extends AbstractService
         "80" => "Debit note",
         "875" => "Self-billed credit note",
         "896" => "Debit note related to self-billed invoice"
+    ];
+
+            //         0       1      2      3 
+    // ["Country" => ["B2X","Legal","Tax","Routing"],
+    private array $routing_rules = [
+        "US" => ["B","DUNS, GLN, LEI","US:EIN, US:SSN","DUNS, GLN, LEI"],
+        "CA" => ["B","CA:CBN","","CA:CBN"],
+        "MX" => ["B","MX:RFC","","MX:RFC"],
+        "AU" => ["B+G","AU:ABN","","AU:ABN"],
+        "NZ" => ["B+G","GLN","NZ:GST","GLN"],
+        "CH" => ["B+G","CH:UIDB","CH:VAT","CH:UIDB"],
+        "IS" => ["B+G","IS:KTNR","IS:VAT","IS:KTNR"],
+        "LI" => ["B+G","","LI:VAT","LI:VAT"],
+        "NO" => ["B+G","NO:ORG","NO:VAT","NO:ORG"],
+        "AD" => ["B+G","","AD:VAT","AD:VAT"],
+        "AL" => ["B+G","","AL:VAT","AL:VAT"],
+        "AT" => [
+            ["G","AT:GOV","","9915:b"],
+            ["B","","AT:VAT","AT:VAT"],
+        ],
+        "BA" => ["B+G","","BA:VAT","BA:VAT"],
+        "BE" => ["B+G","BE:EN","BE:VAT","BE:EN"],
+        "BG" => ["B+G","","BG:VAT","BG:VAT"],
+        "CY" => ["B+G","","CY:VAT","CY:VAT"],
+        "CZ" => ["B+G","","CZ:VAT","CZ:VAT"],
+        "DE" => [
+            ["G","DE:LWID","","DE:LWID"],
+            ["B","","DE:VAT","DE:VAT"],
+        ],
+        "DK" => ["B+G","DK:DIGST","DK:ERST","DK:DIGST"],
+        "EE" => ["B+G","EE:CC","EE:VAT","EE:CC"],
+        "ES" => ["B","","ES:VAT","ES:VAT"],
+        "FI" => ["B+G","FI:OVT","FI:VAT","FI:OVT"],
+        "FR" => [
+            ["G","FR:SIRET + customerAssignedAccountIdValue","","0009:11000201100044"],
+            ["B","FR:SIRENE or FR:SIRET","FR:VAT","FR:SIRENE or FR:SIRET"],
+        ],
+        "GR" => ["B+G","","GR:VAT","GR:VAT"],
+        "HR" => ["B+G","","HR:VAT","HR:VAT"],
+        "HU" => ["B+G","","HU:VAT","HU:VAT"],
+        "IE" => ["B+G","","IE:VAT","IE:VAT"],
+        "IT" => [
+            ["G (Peppol)","","IT:IVA","IT:CUUO"],
+            ["B (SDI)","","IT:CF and/or IT:IVA","IT:CUUO"],
+            ["C (SDI)","","IT:CF","Email"],
+            ["G (SDI)","","IT:IVA","IT:CUUO"],
+        ],
+        "LT" => ["B+G","LT:LEC","LT:VAT","LT:LEC"],
+        "LU" => ["B+G","LU:MAT","LU:VAT","LU:VAT"],
+        "LV" => ["B+G","","LV:VAT","LV:VAT"],
+        "MC" => ["B+G","","MC:VAT","MC:VAT"],
+        "ME" => ["B+G","","ME:VAT","ME:VAT"],
+        "MK" => ["B+G","","MK:VAT","MK:VAT"],
+        "MT" => ["B+G","","MT:VAT","MT:VAT"],
+        "NL" => ["G","NL:OINO","","NL:OINO"],
+        "NL" => ["B","NL:KVK","NL:VAT","NL:KVK or NL:VAT"],
+        "PL" => ["G+B","","PL:VAT","PL:VAT"],
+        "PT" => ["G+B","","PT:VAT","PT:VAT"],
+        "RO" => ["G+B","","RO:VAT","RO:VAT"],
+        "RS" => ["G+B","","RS:VAT","RS:VAT"],
+        "SE" => ["G+B","SE:ORGNR","SE:VAT","SE:ORGNR"],
+        "SI" => ["G+B","","SI:VAT","SI:VAT"],
+        "SK" => ["G+B","","SK:VAT","SK:VAT"],
+        "SM" => ["G+B","","SM:VAT","SM:VAT"],
+        "TR" => ["G+B","","TR:VAT","TR:VAT"],
+        "VA" => ["G+B","","VA:VAT","VA:VAT"],
+        "IN" => ["B","","IN:GSTIN","Email"],
+        "JP" => ["B","JP:SST","JP:IIN","JP:SST"],
+        "MY" => ["B","MY:EIF","MY:TIN","MY:EIF"],
+        "SG" => [
+            ["G","SG:UEN","","0195:SGUENT08GA0028A"],
+            ["B","SG:UEN","SG:GST (optional)","SG:UEN"],
+        ],
+        "GB" => ["B","","GB:VAT","GB:VAT"],
+        "SA" => ["B","","SA:TIN","Email"],
+        "Other" => ["B","DUNS, GLN, LEI","","DUNS, GLN, LEI"],
     ];
 
     private Company $company;
@@ -270,7 +346,8 @@ class Peppol extends AbstractService
         // $this->p_invoice->TaxTotal = $this->getTotalTaxes(); it only wants the aggregate here!!
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
-        $this->countryLevelMutators();
+        $this->senderSpecificLevelMutators()
+             ->receiverSpecificLevelMutators();
         
         return $this;
 
@@ -747,6 +824,29 @@ class Peppol extends AbstractService
     
     /////////////////  Helper Methods /////////////////////////
 
+    private function getClientRoutingCode(): string
+    {
+        $receiver_identifiers = $this->routing_rules[$this->invoice->client->country->iso_3166_2];
+        $client_classification = $this->invoice->client->classification == 'government' ? 'G' : 'B';
+
+        if(count($receiver_identifiers) > 1) {
+
+            foreach($receiver_identifiers as $ident)
+            {
+                if(str_contains($ident[0], $client_classification))
+                {
+                    return $ident[3];
+                }
+            }
+
+        }
+        elseif(count($receiver_identifiers) == 1)  
+            return $receiver_identifiers[3];
+    
+        throw new \Exception("e-invoice generation halted:: Could not resolve the Tax Code for this client? {$this->invoice->client->hashed_id}");
+
+    }
+
     /**
      * setInvoiceDefaults
      *
@@ -805,12 +905,15 @@ class Peppol extends AbstractService
     }
     
     /**
-     * countryLevelMutators
+     * senderSpecificLevelMutators
      *
-     * Runs country level specific requirements for the e-invoice
+     * Runs sender level specific requirements for the e-invoice,
+     * 
+     * ie, mutations that are required by the senders country.
+     * 
      * @return self
      */
-    private function countryLevelMutators():self
+    private function senderSpecificLevelMutators():self
     {
 
         if(method_exists($this, $this->invoice->company->country()->iso_3166_2))
@@ -819,6 +922,24 @@ class Peppol extends AbstractService
         return $this;
     }
     
+    /**
+     * receiverSpecificLevelMutators
+     *
+     * Runs receiver level specific requirements for the e-invoice
+     * 
+     * ie mutations that are required by the receiving country
+     * @return self
+     */
+    private function receiverSpecificLevelMutators():self
+    {
+
+        if(method_exists($this, "client_{$this->invoice->company->country()->iso_3166_2}"))
+            $this->{"client_{$this->invoice->company->country()->iso_3166_2}"}();
+
+        return $this;
+    }
+
+
     /**
      * setPaymentMeans
      *
@@ -1026,12 +1147,21 @@ class Peppol extends AbstractService
     private function AT(): self
     {
         //special fields for sending to AT:GOV
+                
+        if($this->invoice->client->classification == 'government') {
+            //routing "b" for production "test" for test environment
+            $this->setStorecoveMeta($this->buildRouting('AT:GOV', "b"));
+
+            //for government clients this must be set.
+            $this->setCustomerAssignedAccountId(true);
+        }
+
         return $this;
     }
 
     private function AU(): self
     {
-
+        
         //if payment means are included, they must be the same `type`
         return $this;
     }
@@ -1125,7 +1255,8 @@ class Peppol extends AbstractService
             $this->setStorecoveMeta($this->buildRouting('FR:SIRET', "0009:{$this->invoice->client->id_number}"));
         }
 
-        // ??????????????????????? //@TODO
+        // Apparently this is not a special field according to support
+        // sounds like it is optional
         // The service code must be sent in invoice.buyerReference (deprecated) or the invoice.references array (documentType buyer_reference)
 
         if(strlen($this->invoice->po_number ?? '') >1) {
@@ -1137,22 +1268,55 @@ class Peppol extends AbstractService
 
     private function IT(): self
     {
+
         // IT Sender, IT Receiver, B2B/B2G
         // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
+        if($this->invoice->client->classification == 'government' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
+
+            $this->setStorecoveMeta($this->buildRouting('IT:VAT', $this->invoice->client->routing_id));
+
+            return $this;
+        }
 
         // IT Sender, IT Receiver, B2C
         // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
+        if($this->invoice->client->classification == 'individual' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
 
+            $this->setStorecoveMeta($this->buildRouting('IT:CF', $this->invoice->client->routing_id));
+
+            return $this;
+        }
+        
         // IT Sender, non-IT Receiver
         // Provide the receiver tax identifier and any routing identifier applicable to the receiving country (see Receiver Identifiers).
+        if($this->invoice->client->country->iso_3166_2 != 'IT' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
+
+            $code = $this->getClientRoutingCode();
+
+            $this->setStorecoveMeta($this->buildRouting($code, $this->invoice->client->vat_number));
+
+            return $this;
+        }
+
+        return $this;
+    }
+
+    private function client_IT(): self
+    {
+
+        // non-IT Sender, IT Receiver, B2C
+        // Provide the receiver IT:CF and an optional email. The invoice will be eReported and sent via email. Note that this cannot be a PEC email address.
+        if(in_array($this->invoice->client->classification, ['individual']) && $this->invoice->company->country()->iso_3166_2 != 'IT') {
+
+            return $this;
+        }
+
 
         // non-IT Sender, IT Receiver, B2B/B2G
         // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
 
-        // non-IT Sender, IT Receiver, B2C
-        // Provide the receiver IT:CF and an optional email. The invoice will be eReported and sent via email. Note that this cannot be a PEC email address.
-
         return $this;
+
     }
 
     private function MY(): self

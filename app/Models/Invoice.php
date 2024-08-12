@@ -431,7 +431,7 @@ class Invoice extends BaseModel
 
     public function isPayable(): bool
     {
-        if($this->is_deleted)
+        if($this->is_deleted || $this->status_id == self::STATUS_PAID)
             return false;
         elseif ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
