@@ -26,14 +26,15 @@ class AddGatewayFee extends AbstractService
 
     public function run()
     {
+
+        // Removes existing stale gateway fees
+        $this->cleanPendingGatewayFees();
+
         $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id, $this->invoice->uses_inclusive_taxes), $this->invoice->client->currency()->precision);
 
         if (! $gateway_fee || $gateway_fee == 0) {
             return $this->invoice;
         }
-
-        // Removes existing stale gateway fees
-        $this->cleanPendingGatewayFees();
 
         // If a gateway fee is > 0 insert the line item
         if ($gateway_fee > 0) {
