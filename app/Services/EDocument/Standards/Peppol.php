@@ -824,6 +824,29 @@ class Peppol extends AbstractService
     
     /////////////////  Helper Methods /////////////////////////
 
+    private function getClientRoutingCode(): string
+    {
+        $receiver_identifiers = $this->routing_rules[$this->invoice->client->country->iso_3166_2];
+        $client_classification = $this->invoice->client->classification == 'government' ? 'G' : 'B';
+
+        if(count($receiver_identifiers) > 1) {
+
+            foreach($receiver_identifiers as $ident)
+            {
+                if(str_contains($ident[0], $client_classification))
+                {
+                    return $ident[3];
+                }
+            }
+
+        }
+        elseif(count($receiver_identifiers) == 1)  
+            return $receiver_identifiers[3];
+    
+        throw new \Exception("e-invoice generation halted:: Could not resolve the Tax Code for this client? {$this->invoice->client->hashed_id}");
+
+    }
+
     /**
      * setInvoiceDefaults
      *
@@ -1268,7 +1291,7 @@ class Peppol extends AbstractService
         // Provide the receiver tax identifier and any routing identifier applicable to the receiving country (see Receiver Identifiers).
         if($this->invoice->client->country->iso_3166_2 != 'IT' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
 
-            $code = $this->buildForeignRoutingCode();
+            $code = $this->getClientRoutingCode();
 
             $this->setStorecoveMeta($this->buildRouting($code, $this->invoice->client->vat_number));
 
