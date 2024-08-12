@@ -616,7 +616,7 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
 
     }
 
-    private function createATData()
+    private function createATData(bool $is_gov = false)
     {
 
       $this->routing_id = 293801;
@@ -668,7 +668,7 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
         'balance' => 0,
         'paid_to_date' => 0,
         'vat_number' => 'ATU87654321',
-        'id_number' => 'FN 123456x', // Example format for Austrian company registration numbers
+        'id_number' => $is_gov ? 'ATU12312321' : 'FN 123456x', // Example format for Austrian company registration numbers
         'custom_value1' => '2024-07-22 10:00:00',
         'custom_value2' => 'blau',
         'custom_value3' => 'musterwort',
@@ -688,7 +688,7 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
         'settings' => ClientSettings::Defaults(),
         'client_hash' => \Illuminate\Support\Str::random(32),
         'routing_id' => '',
-        'classification' => 'business',
+        'classification' => $is_gov ? 'government' : 'business',
       ]);
 
 
@@ -726,7 +726,39 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
 
     }
 
-    public function testAtRules()
+    public function testAtGovernmentRules()
+    {
+      $this->routing_id = 293801;
+
+      $invoice = $this->createATData(true);
+
+      $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+      $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
+      foreach($stub as $key => $value) {
+          $e_invoice->{$key} = $value;
+      }
+
+      $invoice->e_invoice = $e_invoice;
+      $invoice->save();
+
+      $this->assertInstanceOf(Invoice::class, $invoice);
+      $this->assertInstanceof(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $e_invoice);
+
+      $p = new Peppol($invoice);
+
+      $p->run();
+      $xml  = $p->toXml();
+      nlog($xml);
+
+      $identifiers = $p->getStorecoveMeta();
+
+      $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+      $sc->sendDocument($xml, $this->routing_id, $identifiers);
+
+    }
+
+    public function PestAtRules()
     {
       $this->routing_id = 293801;
 
