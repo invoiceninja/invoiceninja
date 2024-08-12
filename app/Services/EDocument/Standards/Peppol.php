@@ -90,7 +90,7 @@ class Peppol extends AbstractService
         'NO' => 'VAT',
         'AD' => 'VAT',
         'AL' => 'VAT',
-        'AT' => 'VAT',
+        'AT' => 'VAT', //Pending Tests.
         'BA' => 'VAT',
         'BE' => 'VAT',
         'BG' => 'VAT',
@@ -102,12 +102,12 @@ class Peppol extends AbstractService
         'SA' => 'TIN', //South Africa
         'CY' => 'VAT',
         'CZ' => 'VAT',
-        'DE' => 'VAT', //tested - requires Payment Means to be defined.
+        'DE' => 'VAT', //tested - Requires Payment Means to be defined.
         'DK' => 'ERST',
         'EE' => 'VAT',
         'ES' => 'VAT', //tested - B2G pending
         'FI' => 'VAT',
-        'FR' => 'VAT',
+        'FR' => 'VAT', //tested - Need to ensure Siren/Siret routing
         'GR' => 'VAT',
         'HR' => 'VAT',
         'HU' => 'VAT',
@@ -1026,12 +1026,21 @@ class Peppol extends AbstractService
     private function AT(): self
     {
         //special fields for sending to AT:GOV
+                
+        if($this->invoice->client->classification == 'government') {
+            //routing "b" for production "test" for test environment
+            $this->setStorecoveMeta($this->buildRouting('AT:GOV', "test"));
+
+            //for government clients this must be set.
+            $this->setCustomerAssignedAccountId(true);
+        }
+
         return $this;
     }
 
     private function AU(): self
     {
-
+        
         //if payment means are included, they must be the same `type`
         return $this;
     }
