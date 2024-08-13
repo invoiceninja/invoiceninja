@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
+use App\Models\Product;
 
 class AddGatewayFee extends AbstractService
 {
@@ -26,15 +27,14 @@ class AddGatewayFee extends AbstractService
 
     public function run()
     {
-
-        // Removes existing stale gateway fees
-        $this->cleanPendingGatewayFees();
-
         $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id, $this->invoice->uses_inclusive_taxes), $this->invoice->client->currency()->precision);
 
         if (! $gateway_fee || $gateway_fee == 0) {
             return $this->invoice;
         }
+
+        // Removes existing stale gateway fees
+        $this->cleanPendingGatewayFees();
 
         // If a gateway fee is > 0 insert the line item
         if ($gateway_fee > 0) {
@@ -81,6 +81,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
             $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
+            $invoice_item->tax_id = Product::PRODUCT_TYPE_OVERRIDE_TAX;
         }
 
         $invoice_items = (array) $this->invoice->line_items;
