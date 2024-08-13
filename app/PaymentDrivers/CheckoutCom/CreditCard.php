@@ -242,7 +242,12 @@ class CreditCard implements MethodInterface
             }
 
             if ($response['status'] == 'Pending') {
-                $this->checkout->confirmGatewayFee();
+
+                $data = [
+                    'gateway_type_id' => GatewayType::CREDIT_CARD,
+                ];
+
+                $this->checkout->confirmGatewayFee($data);
 
                 return $this->processPendingPayment($response);
             }
