@@ -5309,6 +5309,9 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'customer_type' => 'Type de client',
     'process_date' => 'Date de traitement',
     'forever_free' => 'Gratuit pour toujours',
+    'comments_only' => 'Commentaires seulement',
+    'payment_balance_on_file' => 'Payer le solde inscrit au dossier',
+    'ubl_email_attachment_help' => 'Plus de paramètres pour E-facture, cliquez :here',
 );
 
 return $lang;
