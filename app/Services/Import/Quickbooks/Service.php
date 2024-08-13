@@ -40,6 +40,17 @@ final class Service
         return $this->transformer->transform($this->fetchRecords( 'Invoice', $max), 'Invoice');
     }
 
+
+    /**
+     * fetch QuickBooks product records
+     * @param int $max The maximum records to fetch. Default 100
+     * @return Illuminate\Support\Collection;
+     */
+    public function fetchItems(int $max = 100): Collection
+    {
+        return $this->fetchRecords('Item', $max) ;
+    }
+
     protected function fetchRecords(string $entity, $max = 100) : Collection {
         return (self::RepositoryFactory($entity))->get($max);
     }

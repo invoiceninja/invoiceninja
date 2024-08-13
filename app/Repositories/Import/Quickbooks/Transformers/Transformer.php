@@ -34,6 +34,18 @@ class Transformer
         ]);
     }
 
+    protected function transformItems(array $items): Collection
+    {
+        return $this->transformation($items, [
+            'Name',
+            'Description',
+            'PurchaseCost',
+            'UnitPrice',
+            'QtyOnHand',
+            'MetaData'
+        ]);
+    }
+
     protected function transformation(array $items, array $keys) : Collection
     {
         return collect($items)->select($keys);
