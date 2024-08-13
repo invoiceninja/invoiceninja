@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Import\QuickBooks;
+namespace App\Repositories\Import\Quickbooks;
 
 use Illuminate\Support\Collection;
 use App\Repositories\Import\Quickbooks\Contracts\RepositoryInterface;
