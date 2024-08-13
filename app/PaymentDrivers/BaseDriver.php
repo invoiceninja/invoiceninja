@@ -433,7 +433,7 @@ class BaseDriver extends AbstractPaymentDriver
                     $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
                     $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
                     $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-                    $invoice_item->tax_id = \App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
+                    $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
                 }
 
             $invoice->line_items = $invoice_items;

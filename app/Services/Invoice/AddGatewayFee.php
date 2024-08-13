@@ -81,7 +81,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
             $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-            $invoice_item->tax_id = Product::PRODUCT_TYPE_OVERRIDE_TAX;
+            $invoice_item->tax_id = (string)Product::PRODUCT_TYPE_OVERRIDE_TAX;
         }
 
         $invoice_items = (array) $this->invoice->line_items;
