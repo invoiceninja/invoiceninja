@@ -17,6 +17,54 @@ use App\Models\Company;
 
 class ForteCustomerFactory
 {
+
+    public function convertToForte(Client $client): array
+    {
+        
+        return [
+            "first_name" => $client->present()->first_name(),
+            "last_name" => $client->present()->last_name(),
+            "company_name" => $client->present()->name(),
+            "addresses" => [
+                [
+                    "label" => "Billing Address",
+                    "first_name" => $client->present()->first_name(),
+                    "last_name" => $client->present()->last_name(),
+                    "company_name" => $client->present()->name(),
+                    "phone" => $client->present()->phone(),
+                    "email" => $client->present()->email(),
+                    "shipping_address_type" => "commercial",
+                    "address_type" => "default_shipping",
+                    "physical_address" => [
+                        "street_line1" => $client->address2,
+                        "street_line2" => $client->address1,
+                        "locality" => $client->city,
+                        "region" => $client->state,
+                        "postal_code" => $client->postal_code
+                    ]
+                ],
+                // [
+                //     "label" => "Brown Billing",
+                //     "first_name" => "Emmett",
+                //     "last_name" => "Brown",
+                //     "company_name" => "Brown Associates",
+                //     "phone" => "444-444-4444",
+                //     "email" => "e.brown@forte.net",
+                //     "shipping_address_type" => "commercial",
+                //     "address_type" => "default_billing",
+                //     "physical_address" => [
+                //         "street_line1" => "500 Delorean Dr",
+                //         "street_line2" => "Suite 200",
+                //         "locality" => "Hill Valley",
+                //         "region" => "CA",
+                //         "postal_code" => "95420"
+                //     ]
+                // ]
+            ]
+        ];
+
+    }
+
     public function convertToNinja(array $customer, Company $company): array
     {
         return
