@@ -248,6 +248,9 @@ class FortePaymentDriver extends BaseDriver
 
     private function getClient(?string $email)
     {
+        if(!$email)
+            return false;
+
         return ClientContact::query()
                      ->where('company_id', $this->company_gateway->company_id)
                      ->where('email', $email)
@@ -257,7 +260,7 @@ class FortePaymentDriver extends BaseDriver
     public function tokenBilling(\App\Models\ClientGatewayToken $cgt, \App\Models\PaymentHash $payment_hash)
     {
 
-        $amount_with_fee = $payment_hash->data->total->amount_with_fee;
+        $amount_with_fee = $payment_hash->data->amount_with_fee;
         $fee_total = $payment_hash->fee_total;
 
         $data = 
