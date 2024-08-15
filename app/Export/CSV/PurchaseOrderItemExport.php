@@ -213,10 +213,6 @@ class PurchaseOrderItemExport extends BaseExport
         //     $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
         // }
 
-        // if(array_key_exists('type', $entity)) {
-        //     $entity['type'] = $purchase_order->typeIdString($entity['type']);
-        // }
-
         // if(array_key_exists('tax_category', $entity)) {
         //     $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
         // }
