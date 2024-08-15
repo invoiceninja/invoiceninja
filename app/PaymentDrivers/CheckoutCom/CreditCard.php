@@ -141,7 +141,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         }
     }
 
-    private function paymentData(array $data): array
+    public function paymentData(array $data): array
     {
         $data['gateway'] = $this->checkout;
         $data['company_gateway'] = $this->checkout->company_gateway;
