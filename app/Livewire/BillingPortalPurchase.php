@@ -349,7 +349,11 @@ class BillingPortalPurchase extends Component
         }
 
         if ((int)$this->price == 0) {
+
             $this->steps['payment_required'] = false;
+            $this->steps['fetched_payment_methods'] = false;
+            $this->heading_text = ctrans('texts.payment_methods');
+            return $this;
         } else {
             // $this->steps['fetched_payment_methods'] = true;
         }

@@ -13,8 +13,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // This will output a single bundle file
-        entryFileNames: 'bundle.js',
-        chunkFileNames: 'bundle.js'
+        entryFileNames: 'bundle.[hash].js',
+        chunkFileNames: 'bundle.[hash].js'
       }
     },
   },
