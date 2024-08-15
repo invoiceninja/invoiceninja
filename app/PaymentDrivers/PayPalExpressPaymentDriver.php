@@ -97,7 +97,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
             ->send();
 
         if ($response->isRedirect()) {
-            return $response->redirect();
+            return redirect($response->getRedirectUrl());
         }
 
         // $this->sendFailureMail($response->getMessage() ?: '');
@@ -245,5 +245,17 @@ class PayPalExpressPaymentDriver extends BaseDriver
         }
 
         return 0;
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        $this->processPaymentView($data);
+        
+        return ''; // Gateway is offsite.
+    }
+
+    public function processPaymentViewData(array $data): array
+    {
+        return $data;
     }
 }

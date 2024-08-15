@@ -15,7 +15,7 @@
     "file": "assets/wait-8f4ae121.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-e0713224.js",
+    "file": "assets/app-234e3402.js",
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"
@@ -350,7 +350,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-608daae2.css",
+    "file": "assets/app-4e969b65.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
