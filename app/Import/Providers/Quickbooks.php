@@ -11,6 +11,7 @@
 
 namespace App\Import\Providers;
 
+use App\Models\Invoice;
 use App\Factory\ProductFactory;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
@@ -148,6 +149,9 @@ class Quickbooks extends BaseImport
                 $invoice_data = $invoice_transformer->transform($raw_invoice);
                 $invoice_data['user_id'] = $this->company->owner()->id;
                 $invoice_data['line_items'] = (array) $invoice_data['line_items'];
+                $invoice_data['line_items'] = $this->cleanItems(
+                    $invoice_data['line_items'] ?? []
+                );
                 
                 if (
                     empty($invoice_data['client_id']) &&
@@ -175,24 +179,27 @@ class Quickbooks extends BaseImport
                         'error' => $validator->errors()->all(),
                     ];
                 } else {
-                    $invoice = InvoiceFactory::create(
-                        $this->company->id,
-                        $this->company->owner()->id
-                    );
-                    $invoice->mergeFillable(['partial','amount','balance','line_items']);
-                    if (! empty($invoice_data['status_id'])) {
-                        $invoice->status_id = $invoice_data['status_id'];
+                    if(!Invoice::where('number',$invoice_data['number'])->get()->first())
+                    {
+                        $invoice = InvoiceFactory::create(
+                            $this->company->id,
+                            $this->company->owner()->id
+                        );
+                        $invoice->mergeFillable(['partial','amount','balance','line_items']);
+                        if (! empty($invoice_data['status_id'])) {
+                            $invoice->status_id = $invoice_data['status_id'];
+                        }
+                        
+                        $saveable_invoice_data = $invoice_data;
+                        if(array_key_exists('payments', $saveable_invoice_data)) {
+                            unset($saveable_invoice_data['payments']);
+                        }
+                        
+                        $invoice->fill($saveable_invoice_data);
+                        $invoice->save();
+                        $count++;
+                        
                     }
-                    
-                    $saveable_invoice_data = $invoice_data;
-                    if(array_key_exists('payments', $saveable_invoice_data)) {
-                        unset($saveable_invoice_data['payments']);
-                    }
-                    
-                    $invoice->fill($saveable_invoice_data);
-                    $invoice->save();
-                    $count++;
-                    
                     // $this->actionInvoiceStatus(
                     //     $invoice,
                     //     $invoice_data,
