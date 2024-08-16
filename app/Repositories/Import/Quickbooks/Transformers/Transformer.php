@@ -13,11 +13,6 @@ class Transformer
         return call_user_func([$this, $method], $items);
     }
 
-    protected function transformInvoices(array $items): Collection
-    {
-        return $this->transformation($items, []);
-    }
-
     protected function transformCustomers(array $items): Collection
     {
         return $this->transformation($items, [
@@ -31,6 +26,24 @@ class Transformer
             'PrimaryEmailAddr',
             'CurrencyRef',
             'MetaData'
+        ]);
+    }
+
+    protected function transformInvoices(array $items): Collection
+    {
+        return $this->transformation($items, [
+            "TotalAmt",
+            "Line",
+            "DueDate",
+            "Deposit",
+            "Balance",
+            "CustomerMemo",
+            "DocNumber",
+            "CustomerRef",
+            "BillEmail",
+            'MetaData',
+            "BillAddr",
+            "ShipAddr"
         ]);
     }
 
