@@ -59,9 +59,10 @@ class InvoiceTransformer extends BaseTransformer
         return array_map(function ($item) {
             return [
                 'description' => $this->getString($item,'Description'),
-                'quantity' => $this->getString($item,'SalesItemLineDetail.Qty'),
-                'unit_price' =>$this->getString($item,'SalesItemLineDetail.UnitPrice'),
-                'amount' => $this->getString($item,'Amount')
+                'product_key' => $this->getString($item,'Description'),
+                'quantity' => (int) $this->getString($item,'SalesItemLineDetail.Qty'),
+                'unit_price' =>(float) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
+                'amount' => (float) $this->getString($item,'Amount')
             ];
         }, array_filter($this->getString($data,'Line'), function ($item) {
             return $this->getString($item,'DetailType') !== 'SubTotalLineDetail';
@@ -122,13 +123,18 @@ class InvoiceTransformer extends BaseTransformer
         $address = $has_company?  $bill_address->Line4 : $bill_address->Line3;
         $address_1 = substr($address, 0, stripos($address,','));
         $address =array_filter( [$address_1] + (explode(' ', substr($address, stripos($address,",") + 1 ))));
+        $client_id = null;
         $client = 
         [
             "CompanyName" => $has_company?  $bill_address->Line2 : $bill_address->Line1,
-            "BillAddr" => array_combine(['City','CountrySubDivisionCode','PostalCode'], $address) + ['Line1' => $has_company? $bill_address->Line3 : $bill_address->Line2 ],
+            "BillAddr" => array_combine(['City','CountrySubDivisionCode','PostalCode'], array_pad($address,3,'N/A') ) + ['Line1' => $has_company? $bill_address->Line3 : $bill_address->Line2 ],
             "ShipAddr" => $ship_address
         ] + $customer + ['PrimaryEmailAddr' => ['Address' => $this->getString($data, 'BillEmail.Address') ]];
-        $client_id = $this->getClient($client['CompanyName'],$this->getString($client, 'PrimaryEmailAddr.Address'));
+        if($this->hasClient($client['CompanyName']))
+        {
+            $client_id = $this->getClient($client['CompanyName'],$this->getString($client, 'PrimaryEmailAddr.Address'));
+        }
+        
        
         return ['client'=> (new ClientTransformer($this->company))->transform($client), 'client_id'=> $client_id ];
     }
