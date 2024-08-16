@@ -37,7 +37,7 @@ final class Service
      */
     public function fetchInvoices(int $max = 100): Collection
     {
-        return $this->transformer->transform($this->fetchRecords( 'Invoice', $max), 'Invoice');
+        return $this->fetchRecords('Invoice', $max) ;
     }
 
 
