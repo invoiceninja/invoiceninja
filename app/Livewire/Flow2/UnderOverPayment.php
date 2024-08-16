@@ -44,12 +44,12 @@ class UnderOverPayment extends Component
         $this->errors = '';
 
         $settings = $this->getContext()['settings'];
-        $input_amount = 0;
 
-        foreach($payableInvoices as $key=>$invoice){
-            $input_amount += Number::parseFloat($invoice['formatted_amount']);
-            $payableInvoices[$key]['amount'] = $input_amount;
+        foreach($payableInvoices as $key => $invoice){
+            $payableInvoices[$key]['amount'] = Number::parseFloat($invoice['formatted_amount']);
         }
+
+        $input_amount = collect($payableInvoices)->sum('amount');
 
         if($settings->client_portal_allow_under_payment && $settings->client_portal_under_payment_minimum != 0)
         {
@@ -63,11 +63,10 @@ class UnderOverPayment extends Component
         if(!$settings->client_portal_allow_over_payment && ($input_amount > $this->invoice_amount)){
             $this->errors = ctrans('texts.over_payments_disabled');
             $this->dispatch('errorMessageUpdate', errors: $this->errors);
-
         }
 
         if(!$this->errors){
-            $this->getContext()['payable_invoices'] = $payableInvoices;
+            $this->setContext('payable_invoices', $payableInvoices);
             $this->dispatch('payable-amount',  payable_amount: $input_amount );
         }
     }

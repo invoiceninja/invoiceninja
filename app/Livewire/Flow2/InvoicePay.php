@@ -127,7 +127,7 @@ class InvoicePay extends Component
     #[On('payable-amount')]
     public function payableAmount($payable_amount)
     {
-        $this->setContext('payable_invoices.0.amount', Number::parseFloat($payable_amount)); // $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount); //TODO DB: check parseFloat()
+        // $this->setContext('payable_invoices.0.amount', Number::parseFloat($payable_amount)); // $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount); //TODO DB: check parseFloat()
         $this->under_over_payment = false;
     }
 
