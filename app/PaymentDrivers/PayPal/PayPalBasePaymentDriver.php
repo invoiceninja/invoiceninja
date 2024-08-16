@@ -115,10 +115,9 @@ class PayPalBasePaymentDriver extends BaseDriver
 
         $this->api_endpoint_url = $this->company_gateway->getConfigField('testMode') ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 
-                if(\App\Utils\Ninja::isHosted()) {
+        if(\App\Utils\Ninja::isHosted() && $this->company_gateway->gateway_key != '80af24a6a691230bbec33e930ab40665') {
                 $secret = config('ninja.paypal.secret');
                 $client_id = config('ninja.paypal.client_id');
-        
         }
         else {
 

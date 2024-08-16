@@ -53,7 +53,6 @@ class ContactComponent extends Component
 
     public function render()
     {
-        \Debugbar::debug($this->attributes->getAttributes() + $this->defaults);
         return render('gateways.rotessa.components.contact', $this->attributes->getAttributes() + $this->defaults );
     }
 }

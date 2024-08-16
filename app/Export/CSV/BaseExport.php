@@ -451,6 +451,7 @@ class BaseExport
         'project' => 'task.project_id',
         'billable' => 'task.billable',
         'item_notes' => 'task.item_notes',
+        'time_log' => 'task.time_log',
     ];
 
     protected array $forced_client_fields = [

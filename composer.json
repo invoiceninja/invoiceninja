@@ -40,6 +40,7 @@
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
+        "aws/aws-sdk-php": "^3.319",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.0",

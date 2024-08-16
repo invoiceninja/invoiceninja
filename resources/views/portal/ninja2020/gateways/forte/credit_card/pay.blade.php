@@ -12,6 +12,9 @@
     <form action="{{ route('client.payments.response') }}" method="post" id="server_response">
         @csrf
         <input type="hidden" name="card_brand" id="card_brand">
+        <input type="hidden" name="expire_year" id="expire_year">
+        <input type="hidden" name="expire_month" id="expire_month">
+        <input type="hidden" name="last_4" id="last_4">
         <input type="hidden" name="payment_token" id="payment_token">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="company_gateway_id" value="{{ $gateway->company_gateway->id }}">
@@ -32,10 +35,39 @@
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
-    @component('portal.ninja2020.components.general.card-element', ['title' => 'Pay with Credit Card'])
-       @include('portal.ninja2020.gateways.forte.includes.credit_card')
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+    <ul class="list-none">    
+        @if(count($tokens) > 0)
+            @foreach($tokens as $token)
+            <li class="py-2">
+               <label class="mr-4 cursor-pointer">
+                    <input
+                        type="radio"
+                        data-token="{{ $token->hashed_id }}"
+                        name="payment-type"
+                        class="form-radio cursor-pointer toggle-payment-with-token"/>
+                    <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                </label>
+            </li>
+            @endforeach
+        @endisset
+
+        <li class="py-2">
+            <label class="mr-4 cursor-pointer">
+                <input
+                    type="radio"
+                    id="toggle-payment-with-credit-card"
+                    class="form-radio cursor-pointer"
+                    name="payment-type"
+                    checked/>
+                <span class="ml-1 cursor-pointer">{{ __('texts.new_card') }}</span>
+            </label>
+        </li>
+    </ul>
     @endcomponent
 
+    @include('portal.ninja2020.gateways.includes.save_card')
+    @include('portal.ninja2020.gateways.forte.includes.credit_card')
     @include('portal.ninja2020.gateways.includes.pay_now')
 
 @endsection

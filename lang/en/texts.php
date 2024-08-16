@@ -5311,6 +5311,9 @@ $lang = array(
     'customer_type' => 'Customer Type',
     'process_date' => 'Process Date',
     'forever_free' => 'Forever Free',
+    'comments_only' => 'Comments Only',
+    'payment_balance_on_file' => 'Payment Balance On File',
+    'ubl_email_attachment_help' => 'For more e-invoice settings please navigate :here',
 );
 
 return $lang;

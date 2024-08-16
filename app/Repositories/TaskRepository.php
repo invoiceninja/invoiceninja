@@ -147,6 +147,10 @@ class TaskRepository extends BaseRepository
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
 
+        if(isset(end($time_log)[1])){
+            $task->is_running = end($time_log)[1] == 0;
+        }
+        
         $task->time_log = json_encode($time_log);
 
         $task->saveQuietly();
@@ -259,7 +263,7 @@ class TaskRepository extends BaseRepository
 
             $log = array_merge($log, [$new]);
             $task->time_log = json_encode($log);
-
+            $task->is_running = true;
             $task->saveQuietly();
         }
 
@@ -303,6 +307,7 @@ class TaskRepository extends BaseRepository
             $log = array_merge($log, [$last]);//check at this point, it may be prepending here.
 
             $task->time_log = json_encode($log);
+            $task->is_running = false;
             $task->saveQuietly();
         }
 
