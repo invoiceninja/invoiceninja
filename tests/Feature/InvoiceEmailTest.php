@@ -69,7 +69,7 @@ class InvoiceEmailTest extends TestCase
         $system_log->log = [
             'history' => [
                 'entity_id' => $this->invoice->hashed_id,
-                'entity_type' => 'invoice',
+                'entity' => 'invoice',
                 'subject' => 'Invoice #1',
                 'events' => [
                     [
@@ -96,7 +96,7 @@ class InvoiceEmailTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals('invoice', $arr[0]['entity_type']);
+        $this->assertEquals('invoice', $arr[0]['entity']);
 
         $count = SystemLog::where('client_id', $this->client->id)
                 ->where('category_id', SystemLog::CATEGORY_MAIL)
@@ -117,7 +117,7 @@ class InvoiceEmailTest extends TestCase
         $system_log->log = [
             'history' => [
                 'entity_id' => $this->invoice->hashed_id,
-                'entity_type' => 'invoice',
+                'entity' => 'invoice',
                 'subject' => 'Invoice #1',
                 'events' => [
                     [
@@ -147,8 +147,8 @@ class InvoiceEmailTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-
-        $this->assertEquals('invoice', $arr[0]['entity_type']);
+            nlog($arr);
+        $this->assertEquals('invoice', $arr[0]['entity']);
         $this->assertEquals($this->invoice->hashed_id, $arr[0]['entity_id']);
 
         $count = SystemLog::where('company_id', $this->company->id)

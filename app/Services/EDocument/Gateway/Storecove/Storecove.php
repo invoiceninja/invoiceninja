@@ -137,24 +137,29 @@ class Storecove {
 
     }
 
-    public function sendDocument($document)
+    public function sendDocument(string $document, int $routing_id, array $override_payload = [])
     {
 
         $payload = [
-            "legalEntityId"=> 290868,
+            "legalEntityId" => $routing_id,
             "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
             "routing" => [
                 "eIdentifiers" => [],
                 "emails" => ["david@invoiceninja.com"]
             ],
             "document"=> [
-                'documentType' => 'invoice',
-                "rawDocumentData"=> [
+                
+            ],
+        ];
+
+        $payload = array_merge($payload, $override_payload);
+
+
+        $payload['document']['documentType'] = 'invoice';
+        $payload['document']["rawDocumentData"] = [
                     "document" => base64_encode($document), 
                     "parse" => true,
                     "parseStrategy"=> "ubl",
-                ],
-            ],
         ];
 
         $uri = "document_submissions";
