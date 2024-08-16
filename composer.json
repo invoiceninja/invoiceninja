@@ -86,7 +86,7 @@
         "predis/predis": "^2",
         "psr/http-message": "^1.0",
         "pusher/pusher-php-server": "^7.2",
-        "quickbooks/v3-php-sdk": "^6.1",
+        "quickbooks/v3-php-sdk": "6.1.4-alpha",
         "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
@@ -200,6 +200,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/turbo124/snappdf"
+        },
+        {
+            "type":"vcs",
+            "url":"https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git"
         }
     ],
     "minimum-stability": "dev",
