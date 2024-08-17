@@ -15,16 +15,20 @@ use App\Models\Invoice;
 use App\Factory\ProductFactory;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
+use App\Factory\PaymentFactory;
 use Illuminate\Support\Facades\Cache;
-use App\Http\Requests\Client\StoreClientRequest;
-use App\Http\Requests\Product\StoreProductRequest;
-use App\Http\Requests\Invoice\StoreInvoiceRequest;
-use App\Import\Transformer\Quickbooks\ClientTransformer;
-use App\Import\Transformer\Quickbooks\InvoiceTransformer;
-use App\Import\Transformer\Quickbooks\ProductTransformer;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
 use App\Repositories\ProductRepository;
+use App\Repositories\PaymentRepository;
+use App\Http\Requests\Client\StoreClientRequest;
+use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Invoice\StoreInvoiceRequest;
+use App\Http\Requests\Payment\StorePaymentRequest;
+use App\Import\Transformer\Quickbooks\ClientTransformer;
+use App\Import\Transformer\Quickbooks\InvoiceTransformer;
+use App\Import\Transformer\Quickbooks\ProductTransformer;
+use App\Import\Transformer\Quickbooks\PaymentTransformer;
 
 class Quickbooks extends BaseImport
 {
@@ -98,7 +102,22 @@ class Quickbooks extends BaseImport
 
     public function payment()
     {
+        $entity_type = 'payment';
+        $data = $this->getData($entity_type);
+        if (empty($data)) {
+            $this->entity_count['payments'] = 0;
 
+            return;
+        }
+
+        $this->request_name = StorePaymentRequest::class;
+        $this->repository_name = PaymentRepository::class;
+        $this->factory_name = PaymentFactory::class;
+        $this->repository = app()->make($this->repository_name);
+        $this->repository->import_mode = true;
+        $this->transformer = new PaymentTransformer($this->company);
+        $count = $this->ingest($data, $entity_type);
+        $this->entity_count['payments'] = $count;
     }
 
     public function invoice()

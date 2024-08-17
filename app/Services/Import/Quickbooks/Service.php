@@ -40,6 +40,15 @@ final class Service
         return $this->fetchRecords('Invoice', $max) ;
     }
 
+    /**
+     * fetch QuickBooks payment records
+     * @param int $max The maximum records to fetch. Default 100
+     * @return Illuminate\Support\Collection;
+     */
+    public function fetchPayments(int $max = 100): Collection
+    {
+        return $this->fetchRecords('Payment', $max) ;
+    }
 
     /**
      * fetch QuickBooks product records
