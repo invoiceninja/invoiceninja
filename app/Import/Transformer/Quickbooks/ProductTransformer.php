@@ -12,11 +12,10 @@
 
 namespace App\Import\Transformer\Quickbooks;
 
+use App\Import\Transformer\Quickbooks\CommonTrait;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Product as Model;
 use App\Import\ImportException;
-use Illuminate\Support\Str;
-use Illuminate\Support\Arr;
 
 /**
  * Class ProductTransformer.
@@ -24,6 +23,8 @@ use Illuminate\Support\Arr;
 class ProductTransformer extends BaseTransformer
 {
 
+    use CommonTrait;
+    
     protected $fillable = [
         'product_key' => 'Name',
         'notes' => 'Description',
@@ -34,33 +35,13 @@ class ProductTransformer extends BaseTransformer
         'created_at' => 'CreateTime',
         'updated_at' => 'LastUpdatedTime',
     ];
-    /**
-     * Transforms the JSON data into a ProductModel object.
-     *
-     * @param array $data
-     * @return ProductModel
-     */
-    /**
-     * Transforms a Customer array into a Product model.
-     *
-     * @param array $data
-     * @return array|bool
-     */
-    public function transform($data)
-    {
-        $transformed_data = [];
-        foreach($this->fillable as $key => $field) {
-            $transformed_data[$key] = method_exists($this, $method = sprintf("get%s", str_replace(".","",$field)) )? call_user_func([$this, $method],$data,$field) :  $this->getString($data, $field);
-        }
-        
-        $transformed_data = (new Model)->fillable(array_keys($this->fillable))->fill($transformed_data);
-        
-        return $transformed_data->toArray() + ['company_id' => $this->company->id ] ;
-    }
 
-    public function getString($data, $field)
+
+    public function __construct($company)
     {
-        return Arr::get($data, $field);
+        parent::__construct($company);
+
+        $this->model = new Model;
     }
 
     public function getQtyOnHand($data, $field = null) {
@@ -68,21 +49,11 @@ class ProductTransformer extends BaseTransformer
     }
 
     public function getPurchaseCost($data, $field = null) {
-        return (float) $this->getString($data, $field);
+        return (double) $this->getString($data, $field);
     }
 
 
     public function getUnitPrice($data, $field = null) {
         return (float) $this->getString($data, $field);
-    }
-
-    public function getCreateTime($data, $field = null)
-    {
-        return $this->parseDateOrNull($data['MetaData'], 'CreateTime');
-    }
-
-    public function getLastUpdatedTime($data, $field = null)
-    {
-        return $this->parseDateOrNull($data['MetaData'],'LastUpdatedTime');
     }
 }

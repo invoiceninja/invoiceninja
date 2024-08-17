@@ -17,6 +17,7 @@ use App\Import\ImportException;
 use App\DataMapper\InvoiceItem;
 use App\Models\Invoice as Model;
 use App\Import\Transformer\BaseTransformer;
+use App\Import\Transformer\Quickbooks\CommonTrait;
 use App\Import\Transformer\Quickbooks\ClientTransformer;
 
 /**
@@ -24,7 +25,9 @@ use App\Import\Transformer\Quickbooks\ClientTransformer;
  */
 class InvoiceTransformer extends BaseTransformer
 {
-    
+    use CommonTrait {
+        transform as preTransform;
+    }
 
     private $fillable = [
         'amount' => "TotalAmt",
@@ -32,21 +35,30 @@ class InvoiceTransformer extends BaseTransformer
         'due_date' => "DueDate",
         'partial' => "Deposit",
         'balance' => "Balance",
-        'comments' => "CustomerMemo",
+        'private_notes' => "CustomerMemo",
+        'public_notes' => "CustomerMemo",
         'number' => "DocNumber",
         'created_at' => "CreateTime",
-        'updated_at' => "LastUpdatedTime"
+        'updated_at' => "LastUpdatedTime",
+        'payments' => 'LinkedTxn',
+        'status_id' => 'InvoiceStatus',
     ];
+
+    public function __construct($company)
+    {
+        parent::__construct($company);
+
+        $this->model = new Model;
+    }
+
+    public function getInvoiceStatus($data)
+    {
+        return Invoice::STATUS_SENT;
+    }
 
     public function transform($data)
     {
-        $transformed = [];
-
-        foreach ($this->fillable as $key => $field) {
-            $transformed[$key] = is_null((($v = $this->getString($data, $field))))? null : (method_exists($this, ($method = "get{$field}")) ? call_user_func([$this, $method], $data, $field ) : $this->getString($data,$field));
-        }
-
-        return (new Model)->fillable(array_keys($this->fillable))->fill($transformed)->toArray() + $this->getInvoiceClient($data);
+       return $this->preTransform($data) + $this->getInvoiceClient($data);
     }
 
     public function getTotalAmt($data)
@@ -61,8 +73,11 @@ class InvoiceTransformer extends BaseTransformer
                 'description' => $this->getString($item,'Description'),
                 'product_key' => $this->getString($item,'Description'),
                 'quantity' => (int) $this->getString($item,'SalesItemLineDetail.Qty'),
-                'unit_price' =>(float) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
-                'amount' => (float) $this->getString($item,'Amount')
+                'unit_price' =>(double) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
+                'line_total' => (double) $this->getString($item,'Amount'),
+                'cost' =>(double) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
+                'product_cost' => (double) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
+                'tax_amount' => (double) $this->getString($item,'TxnTaxDetail.TotalTax'),
             ];
         }, array_filter($this->getString($data,'Line'), function ($item) {
             return $this->getString($item,'DetailType') !== 'SubTotalLineDetail';
@@ -139,10 +154,6 @@ class InvoiceTransformer extends BaseTransformer
         return ['client'=> (new ClientTransformer($this->company))->transform($client), 'client_id'=> $client_id ];
     }
 
-    public function getString($data,$field) {
-        return Arr::get($data,$field);
-    }
-
     public function getDueDate($data)
     {
         return $this->parseDateOrNull($data, 'DueDate');
@@ -150,12 +161,12 @@ class InvoiceTransformer extends BaseTransformer
 
     public function getDeposit($data)
     {
-        return (float) $this->getString($data,'Deposit');
+        return (double) $this->getString($data,'Deposit');
     }
 
     public function getBalance($data)
     {
-        return (float) $this->getString($data,'Balance');
+        return (double) $this->getString($data,'Balance');
     }
 
     public function getCustomerMemo($data)
@@ -163,13 +174,23 @@ class InvoiceTransformer extends BaseTransformer
         return $this->getString($data,'CustomerMemo.value');
     }
 
-    public function getCreateTime($data)
+    public function getDocNumber($data, $field = null) 
     {
-        return $this->parseDateOrNull($data['MetaData'], 'CreateTime');
+        return sprintf("%s-%s", 
+                    $this->getString($data, 'DocNumber'), 
+                    $this->getString($data, 'Id.value')
+                );
     }
 
-    public function getLastUpdatedTime($data)
+    public function getLinkedTxn($data)
     {
-        return $this->parseDateOrNull($data['MetaData'],'LastUpdatedTime');
+        $payments = $this->getString($data,'LinkedTxn');
+        if(empty($payments)) return [];
+
+       return [[
+            'amount' => $this->getTotalAmt($data),
+            'date' => $this->parseDateOrNull($data, 'TxnDate')
+        ]];
+
     }
 }

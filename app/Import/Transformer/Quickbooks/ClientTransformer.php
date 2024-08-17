@@ -12,18 +12,23 @@
 
 namespace App\Import\Transformer\Quickbooks;
 
+use App\Import\Transformer\Quickbooks\CommonTrait;
 use App\Import\Transformer\BaseTransformer;
 use App\Models\Client as Model;
 use App\Models\ClientContact;
 use App\Import\ImportException;
 use Illuminate\Support\Str;
-use Illuminate\Support\Arr;
 
 /**
  * Class ClientTransformer.
  */
 class ClientTransformer extends BaseTransformer
 {
+    
+    use CommonTrait {
+        transform as preTransform;
+    }
+
     private $fillable = [
         'name'              => 'CompanyName',
         'phone'             => 'PrimaryPhone.FreeFormNumber',
@@ -40,6 +45,14 @@ class ClientTransformer extends BaseTransformer
         'public_notes'      => 'Notes'
     ];
 
+    public function __construct($company)
+    {
+        parent::__construct($company);
+
+        $this->model = new Model;
+    }
+
+
     /**
      * Transforms a Customer array into a ClientContact model.
      *
@@ -54,18 +67,10 @@ class ClientTransformer extends BaseTransformer
             return false;
         }
 
-        foreach($this->fillable as $key => $field) {
-            $transformed_data[$key] = method_exists($this, $method = sprintf("get%s", str_replace(".","",$field)) )? call_user_func([$this, $method],$data,$field) :  $this->getString($data, $field);
-        }
+        $transformed_data = $this->preTransform($data);
+        $transformed_data['contacts'][0] = $this->getContacts($data)->toArray()+['company_id' => $this->company->id ];
         
-        $transformed_data = (new Model)->fillable(array_keys($this->fillable))->fill($transformed_data);
-        $transformed_data->contacts[0] = $this->getContacts($data)->toArray()+['company_id' => $this->company->id ];
-        return $transformed_data->toArray() + ['company_id' => $this->company->id ] ;
-    }
-
-    public function getString($data, $field)
-    {
-        return Arr::get($data, $field);
+        return $transformed_data;
     }
 
     protected function getContacts($data) {
