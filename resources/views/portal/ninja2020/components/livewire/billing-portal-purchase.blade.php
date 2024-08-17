@@ -141,12 +141,15 @@
                             <input type="hidden" name="contact_first_name" value="{{ $contact->first_name }}">
                             <input type="hidden" name="contact_last_name" value="{{ $contact->last_name }}">
                             <input type="hidden" name="contact_email" value="{{ $contact->email }}">
+                            <input type="hidden" name="client_city" value="{{ $contact->client->city }}">
+                            <input type="hidden" name="client_postal_code" value="{{ $contact->client->postal_code }}">
+                            
                         </form>
 
                         @if($steps['started_payment'] == false)
                             @foreach($this->methods as $method)
                                 <button
-                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}'); $wire.$refresh(); "
+                                    wire:click="handleMethodSelectingEvent('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}', '{{ $method['is_paypal'] }}'); $wire.$refresh(); "
                                     class="px-3 py-2 border rounded mr-4 hover:border-blue-600">
                                     {{ $method['label'] }}
                                 </button>
@@ -189,24 +192,38 @@
                     <form wire:submit="handleRff">
                         @csrf
 
-                        @if(strlen($contact->first_name) === 0)
+                        @if(strlen($contact->first_name ?? '') === 0)
                         <div class="col-auto mt-3">
                             <label for="first_name" class="input-label">{{ ctrans('texts.first_name') }}</label>
                             <input id="first_name" class="input w-full" wire:model="contact_first_name" />
                         </div>
                         @endif
 
-                        @if(strlen($contact->last_name) === 0)
+                        @if(strlen($contact->last_name ?? '') === 0)
                         <div class="col-auto mt-3 @if($contact->last_name) !== 0) hidden @endif">
                             <label for="last_name" class="input-label">{{ ctrans('texts.last_name') }}</label>
                             <input id="last_name" class="input w-full" wire:model="contact_last_name" />
                         </div>
                         @endif
 
-                        @if(strlen($contact->email) === 0)
+                        @if(strlen($contact->email ?? '') === 0)
                         <div class="col-auto mt-3 @if($contact->email) !== 0) hidden @endif">
                             <label for="email" class="input-label">{{ ctrans('texts.email') }}</label>
                             <input id="email" class="input w-full" wire:model="contact_email" />
+                        </div>
+                        @endif
+
+                        @if(strlen($client_postal_code ?? '') === 0)
+                        <div class="col-auto mt-3 @if($client_postal_code) !== 0) hidden @endif">
+                            <label for="postal_code" class="input-label">{{ ctrans('texts.postal_code') }}</label>
+                            <input id="postal_code" class="input w-full" wire:model="client_postal_code" />
+                        </div>
+                        @endif
+
+                        @if(strlen($client_city ?? '') === 0)
+                        <div class="col-auto mt-3 @if($client_city) !== 0) hidden @endif">
+                            <label for="city" class="input-label">{{ ctrans('texts.city') }}</label>
+                            <input id="city" class="input w-full" wire:model="client_city" />
                         </div>
                         @endif
 

@@ -85,6 +85,10 @@ class TaskFilters extends QueryFilters
             $this->builder->whereNull('invoice_id');
         }
 
+        if (in_array('is_running', $status_parameters)) {
+            $this->builder->where('is_running', true);
+        }
+
         return $this->builder;
     }
 

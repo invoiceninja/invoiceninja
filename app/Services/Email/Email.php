@@ -250,7 +250,7 @@ class Email implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
+        if(in_array($this->email_object->settings->email_sending_method, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
         }
     }
@@ -526,11 +526,11 @@ class Email implements ShouldQueue
     {
 
         /** Force free/trials onto specific mail driver */
-        // if(Ninja::isHosted() && !$this->company->account->isPaid()) {
-        //     $this->mailer = 'mailgun';
-        //     $this->setHostedMailgunMailer();
-        //     return $this;
-        // }
+        if($this->mailer == 'default' && $this->company->account->isNewHostedAccount()) {
+            $this->mailer = 'mailgun';
+            $this->setHostedMailgunMailer();
+            return $this;
+        }
 
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->email_object->settings->email_sending_method == 'default') {
 
@@ -619,7 +619,7 @@ class Email implements ShouldQueue
         $smtp_username = $company->smtp_username ?? '';
         $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
-        $smtp_local_domain = strlen($company->smtp_local_domain) > 2 ? $company->smtp_local_domain : null;
+        $smtp_local_domain = strlen($company->smtp_local_domain ?? '') > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
 
         if(strlen($smtp_host) <= 1 ||

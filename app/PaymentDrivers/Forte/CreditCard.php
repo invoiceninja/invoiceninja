@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Forte;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
@@ -59,22 +60,99 @@ class CreditCard
 
     public function authorizeResponse($request)
     {
-        $payment_meta = new \stdClass();
-        $payment_meta->exp_month = (string) $request->expire_month;
-        $payment_meta->exp_year = (string) $request->expire_year;
-        $payment_meta->brand = (string) $request->card_type;
-        $payment_meta->last4 = (string) $request->last_4;
-        $payment_meta->type = GatewayType::CREDIT_CARD;
+        $cst = $this->forte->findOrCreateCustomer();
 
         $data = [
-            'payment_meta' => $payment_meta,
-            'token' => $request->one_time_token,
-            'payment_method_id' => $request->payment_method_id,
+            "label" => $request->card_holders_name." " .$request->card_type,
+            "notes" => $request->card_holders_name." " .$request->card_type,
+            "card" => [
+                "one_time_token" => $request->one_time_token,
+                "name_on_card" => $request->card_holders_name
+                ],
         ];
 
-        $this->forte->storeGatewayToken($data);
+        $response = $this->forte->stubRequest()
+            ->post("{$this->forte->baseUri()}/organizations/{$this->forte->getOrganisationId()}/locations/{$this->forte->getLocationId()}/customers/{$cst}/paymethods", $data);
 
-        return redirect()->route('client.payment_methods.index')->withSuccess('Payment Method added.');
+        if($response->successful()){
+
+            $token = $response->object();
+
+            $payment_meta = new \stdClass();
+            $payment_meta->exp_month = (string) $request->expire_month;
+            $payment_meta->exp_year = (string) $request->expire_year;
+            $payment_meta->brand = (string) $request->card_brand;
+            $payment_meta->last4 = (string) $request->last_4;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $token->paymethod_token,
+                'payment_method_id' => $request->payment_method_id,
+            ];
+
+            $this->forte->storeGatewayToken($data, ['gateway_customer_reference' => $cst]);
+
+            return redirect()->route('client.payment_methods.index')->withSuccess('Payment Method added.');
+
+        }
+
+        $error = $response->object();
+        $message = [
+            'server_message' => $error->response->response_desc,
+            'server_response' => $response->json(),
+            'data' => $data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_FORTE,
+            $this->client,
+            $this->client->company,
+        );
+
+        throw new \App\Exceptions\PaymentFailed("Unable to store payment method: {$error->response->response_desc}", 400);
+
+    }
+
+    private function createPaymentToken($request)
+    {
+        $cst = $this->forte->findOrCreateCustomer();
+
+        $data = [
+            "label" => $this->forte->client->present()->name(),
+            "notes" => $this->forte->client->present()->name(),
+            "card" => [
+                "one_time_token" => $request->payment_token,
+                "name_on_card" => $this->forte->client->present()->first_name(). " ". $this->forte->client->present()->last_name()
+                ],
+        ];
+
+        $response = $this->forte->stubRequest()
+            ->post("{$this->forte->baseUri()}/organizations/{$this->forte->getOrganisationId()}/locations/{$this->forte->getLocationId()}/customers/{$cst}/paymethods", $data);
+
+        if($response->successful()){
+
+            $token = $response->object();
+
+            $payment_meta = new \stdClass();
+            $payment_meta->exp_month = (string) $request->expire_month;
+            $payment_meta->exp_year = (string) $request->expire_year;
+            $payment_meta->brand = (string) $request->card_brand;
+            $payment_meta->last4 = (string) $request->last_4;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $token->paymethod_token,
+                'payment_method_id' => $request->payment_method_id,
+            ];
+
+            $this->forte->storeGatewayToken($data, ['gateway_customer_reference' => $cst]);
+        }
+
     }
 
     public function paymentView(array $data)
@@ -88,7 +166,20 @@ class CreditCard
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+
         $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
+
+        if(strlen($request->token ?? '') > 3){
+
+
+            $cgt = \App\Models\ClientGatewayToken::find($this->decodePrimaryKey($request->token));
+
+            $payment = $this->forte->tokenBilling($cgt, $payment_hash);
+           
+            return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
+
+        }
+        
         $amount_with_fee = $payment_hash->data->total->amount_with_fee;
         $invoice_totals = $payment_hash->data->total->invoice_totals;
         $fee_total = null;
@@ -126,8 +217,8 @@ class CreditCard
                      "authorization_amount":'.$amount_with_fee.',
                      "service_fee_amount":'.$fee_total.',
                      "billing_address":{
-                        "first_name":"'.$this->forte->client->name.'",
-                        "last_name":"'.$this->forte->client->name.'"
+                        "first_name":"'.$this->forte->client->present()->first_name().'",
+                        "last_name":"'.$this->forte->client->present()->last_name().'"
                      },
                      "card":{
                         "one_time_token":"'.$request->payment_token.'"
@@ -146,6 +237,7 @@ class CreditCard
             curl_close($curl);
 
             $response = json_decode($response);
+
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -187,6 +279,12 @@ class CreditCard
             'gateway_type_id' => GatewayType::CREDIT_CARD,
         ];
         $payment = $this->forte->createPayment($data, Payment::STATUS_COMPLETED);
-        return redirect('client/invoices')->withSuccess('Invoice paid.');
+
+        if($request->store_card) {
+            $this->createPaymentToken($request);
+        }
+
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
+
     }
 }

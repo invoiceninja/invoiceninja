@@ -160,7 +160,7 @@ class CreditCard
             }
         }
 
-        return redirect()->route('client.payments.show', ['payment' => $this->stripe->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     public function processUnsuccessfulPayment($server_response)

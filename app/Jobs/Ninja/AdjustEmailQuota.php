@@ -79,7 +79,7 @@ class AdjustEmailQuota implements ShouldQueue
 
         /** Use redis pipelines to execute bulk deletes efficiently */
         $redis = Redis::connection('sentinel-cache');
-        $prefix =  config('cache.prefix'). ":email_quota*";
+        $prefix =  config('cache.prefix'). "email_quota*";
 
         $keys = $redis->keys($prefix);
 
@@ -92,7 +92,7 @@ class AdjustEmailQuota implements ShouldQueue
         }
         $keys = null;
 
-        $prefix =  config('cache.prefix'). ":throttle_notified*";
+        $prefix =  config('cache.prefix'). "throttle_notified*";
 
         $keys = $redis->keys($prefix);
 

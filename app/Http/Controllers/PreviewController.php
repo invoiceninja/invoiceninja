@@ -298,6 +298,9 @@ class PreviewController extends BaseController
                 ->mock();
         } catch(SyntaxError $e) {
         }
+        catch(\Exception $e) {
+            return response()->json(['message' => 'invalid data access', 'errors' => ['design.design.body' => $e->getMessage()]], 422);
+        }
 
         if (request()->query('html') == 'true') {
             return $ts->getHtml();

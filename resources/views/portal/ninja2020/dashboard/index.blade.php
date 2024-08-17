@@ -2,6 +2,13 @@
 @section('meta_title', ctrans('texts.dashboard'))
 
 @section('body')
+
+    @if($client->getSetting('custom_message_dashboard'))
+        @component('portal.ninja2020.components.message')
+            <pre>{{ $client->getSetting('custom_message_dashboard') }}</pre>
+        @endcomponent
+    @endif
+
     <div class="flex flex-col xl:flex-row gap-4">
         <div class="w-full rounded-md border border-[#E5E7EB] bg-white p-5 text-sm text-[#6C727F]">
             <h3 class="mb-4 text-xl font-semibold text-[#212529]">{{ $contact->first_name }} {{ $contact->last_name }}</h3>

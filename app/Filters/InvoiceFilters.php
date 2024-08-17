@@ -125,7 +125,14 @@ class InvoiceFilters extends QueryFilters
                                 ->orWhere('last_name', 'like', '%'.$filter.'%')
                                 ->orWhere('email', 'like', '%'.$filter.'%');
                           })
-                          ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
+                          ->orWhereRaw("
+                            JSON_UNQUOTE(JSON_EXTRACT(
+                                JSON_ARRAY(
+                                    JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
+                                    JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
+                                ), '$[*]')
+                            ) LIKE ?", ['%'.$filter.'%']);
+                        //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
 
@@ -153,22 +160,22 @@ class InvoiceFilters extends QueryFilters
     {
 
         return $this->builder->where(function ($query) {
-            $query->whereIn('invoices.status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
-            ->where('invoices.is_deleted', 0)
-            ->where('invoices.balance', '>', 0)
-            ->orWhere(function ($query) {
+            $query->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_SENT])
+            ->where('is_deleted', 0)
+            ->where('balance', '>', 0)
+            ->where(function ($query) {
 
-                $query->whereNull('invoices.due_date')
+                $query->whereNull('due_date')
                     ->orWhere(function ($q) {
-                        $q->where('invoices.due_date', '>=', now()->startOfDay()->subSecond())->where('invoices.partial', 0);
+                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
                     })
                     ->orWhere(function ($q) {
-                        $q->where('invoices.partial_due_date', '>=', now()->startOfDay()->subSecond())->where('invoices.partial', '>', 0);
+                        $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
                     });
 
             })
-            ->orderByRaw('ISNULL(invoices.due_date), invoices.due_date ' . 'desc')
-            ->orderByRaw('ISNULL(invoices.partial_due_date), invoices.partial_due_date ' . 'desc');
+            ->orderByRaw('ISNULL(due_date), due_date ' . 'desc')
+            ->orderByRaw('ISNULL(partial_due_date), partial_due_date ' . 'desc');
         });
 
     }

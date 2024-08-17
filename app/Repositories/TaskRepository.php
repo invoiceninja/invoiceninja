@@ -46,15 +46,15 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
-        if(isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id){
-            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
-        }
-
         if(!is_numeric($task->rate) && !isset($data['rate']))
             $data['rate'] = 0;
         
         $task->fill($data);
         $task->saveQuietly();
+
+        if(isset($data['assigned_user_id']) && $data['assigned_user_id'] != $task->assigned_user_id) {
+            TaskAssigned::dispatch($task, $task->company->db)->delay(2);
+        }
 
         $this->init($task);
 
@@ -147,6 +147,10 @@ class TaskRepository extends BaseRepository
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
 
+        if(isset(end($time_log)[1])){
+            $task->is_running = end($time_log)[1] == 0;
+        }
+        
         $task->time_log = json_encode($time_log);
 
         $task->saveQuietly();
@@ -154,6 +158,8 @@ class TaskRepository extends BaseRepository
         if (array_key_exists('documents', $data)) {
             $this->saveDocuments($data['documents'], $task);
         }
+
+        $this->calculateProjectDuration($task);
 
         return $task;
     }
@@ -257,9 +263,11 @@ class TaskRepository extends BaseRepository
 
             $log = array_merge($log, [$new]);
             $task->time_log = json_encode($log);
-
+            $task->is_running = true;
             $task->saveQuietly();
         }
+
+        $this->calculateProjectDuration($task);
 
         return $task;
     }
@@ -299,10 +307,14 @@ class TaskRepository extends BaseRepository
             $log = array_merge($log, [$last]);//check at this point, it may be prepending here.
 
             $task->time_log = json_encode($log);
+            $task->is_running = false;
             $task->saveQuietly();
         }
 
+        $this->calculateProjectDuration($task);
+        
         return $task;
+
     }
 
     public function triggeredActions($request, $task)
@@ -348,4 +360,67 @@ class TaskRepository extends BaseRepository
 
         return $task->number;
     }
+
+    private function calculateProjectDuration(Task $task) 
+    {
+
+        if($task->project) {
+
+            $duration = 0;
+
+            $task->project->tasks->each(function ($task) use (&$duration) {
+
+                if(is_iterable(json_decode($task->time_log))) {
+
+                    foreach(json_decode($task->time_log) as $log) {
+
+                        if(!is_array($log)) {
+                            continue;
+                        }
+
+                        $start_time = $log[0];
+                        $end_time = $log[1] == 0 ? time() : $log[1];
+
+                        $duration += $end_time - $start_time;
+
+                    }
+                }
+
+            });
+
+            $task->project->current_hours = (int) round(($duration / 60 / 60), 0);
+            $task->push();
+        }
+    }
+
+    /**
+     * @param $entity
+     */
+    public function restore($task)
+    {
+        if (!$task->trashed()) {
+            return;
+        }
+
+        parent::restore($task);
+
+        $this->calculateProjectDuration($task);
+
+    }
+
+    /**
+     * @param $entity
+     */
+    public function delete($task)
+    {
+        if ($task->is_deleted) {
+            return;
+        }
+        
+        parent::delete($task);
+
+        $this->calculateProjectDuration($task);
+
+    }
+
 }

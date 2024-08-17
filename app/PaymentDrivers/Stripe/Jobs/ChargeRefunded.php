@@ -11,18 +11,22 @@
 
 namespace App\PaymentDrivers\Stripe\Jobs;
 
-use App\Libraries\MultiDB;
 use App\Models\Company;
-use App\Models\CompanyGateway;
 use App\Models\Payment;
+use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
-use App\PaymentDrivers\Stripe\Utilities;
+use App\Services\Email\Email;
 use Illuminate\Bus\Queueable;
+use App\Models\CompanyGateway;
+use App\Services\Email\EmailObject;
+use Illuminate\Support\Facades\App;
+use Illuminate\Mail\Mailables\Address;
+use Illuminate\Queue\SerializesModels;
+use App\PaymentDrivers\Stripe\Utilities;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Queue\SerializesModels;
 
 class ChargeRefunded implements ShouldQueue
 {
@@ -36,19 +40,10 @@ class ChargeRefunded implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public $stripe_request;
-
-    public $company_key;
-
-    private $company_gateway_id;
-
     public $payment_completed = false;
 
-    public function __construct($stripe_request, $company_key, $company_gateway_id)
+    public function __construct(public array $stripe_request, private string $company_key)
     {
-        $this->stripe_request = $stripe_request;
-        $this->company_key = $company_key;
-        $this->company_gateway_id = $company_gateway_id;
     }
 
     public function handle()
@@ -64,8 +59,13 @@ class ChargeRefunded implements ShouldQueue
 
         $payment_hash_key = $source['metadata']['payment_hash'] ?? null;
 
-        $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
+        if(is_null($payment_hash_key)){
+            nlog("charge.refunded not found");
+            return;
+        }
+
         $payment_hash = PaymentHash::query()->where('hash', $payment_hash_key)->first();
+        $company_gateway = $payment_hash->payment->company_gateway;
 
         $stripe_driver = $company_gateway->driver()->init();
 
@@ -79,7 +79,7 @@ class ChargeRefunded implements ShouldQueue
                          ->first();
 
         //don't touch if already refunded
-        if(!$payment || in_array($payment->status_id, [Payment::STATUS_PARTIALLY_REFUNDED, Payment::STATUS_REFUNDED])) {
+        if(!$payment || $payment->status_id == Payment::STATUS_REFUNDED || $payment->is_deleted){
             return;
         }
 
@@ -94,8 +94,19 @@ class ChargeRefunded implements ShouldQueue
             return;
         }
 
-        if($payment->status_id == Payment::STATUS_COMPLETED) {
+        usleep(rand(200000,300000));
+        $payment = $payment->fresh();
 
+        if($payment->status_id == Payment::STATUS_PARTIALLY_REFUNDED){
+            //determine the delta in the refunded amount - how much has already been refunded and only apply the delta.
+            
+            if(floatval($payment->refunded) >= floatval($amount_refunded))
+                return;
+
+            $amount_refunded -= $payment->refunded;
+
+        }
+        
             $invoice_collection = $payment->paymentables
                         ->where('paymentable_type', 'invoices')
                         ->map(function ($pivot) {
@@ -117,9 +128,24 @@ class ChargeRefunded implements ShouldQueue
                             ];
                         });
 
-            } elseif($invoice_collection->sum('amount') != $amount_refunded) {
-                //too many edges cases at this point, return early
+            }
+            elseif($invoice_collection->sum('amount') != $amount_refunded) {
+                
+                $refund_text = "A partial refund was processed for Payment #{$payment_hash->payment->number}. <br><br> This payment is associated with multiple invoices, so you will need to manually apply the refund to the correct invoice/s.";
+
+                App::setLocale($payment_hash->payment->company->getLocale());
+
+                $mo = new EmailObject();
+                $mo->subject = "Refund processed in Stripe for multiple invoices, action required.";
+                $mo->body = $refund_text;
+                $mo->text_body = $refund_text;
+                $mo->company_key = $payment_hash->payment->company->company_key;
+                $mo->html_template = 'email.template.generic';
+                $mo->to = [new Address($payment_hash->payment->company->owner()->email, $payment_hash->payment->company->owner()->present()->name())];
+
+                Email::dispatch($mo, $payment_hash->payment->company);
                 return;
+
             }
 
             $invoices = $invoice_collection->toArray();
@@ -131,20 +157,21 @@ class ChargeRefunded implements ShouldQueue
                 'date' => now()->format('Y-m-d'),
                 'gateway_refund' => false,
                 'email_receipt' => false,
+                'via_webhook' => true,
             ];
 
             nlog($data);
 
             $payment->refund($data);
 
-            $payment->private_notes .= 'Refunded via Stripe';
-            return;
-        }
+            $payment->private_notes .= 'Refunded via Stripe  ';
+
+            $payment->saveQuietly();
 
     }
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company_gateway_id)];
+        return [new WithoutOverlapping($this->company_key)];
     }
 }

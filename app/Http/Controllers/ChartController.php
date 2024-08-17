@@ -66,7 +66,7 @@ class ChartController extends BaseController
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
 
-    public function calculatedField(ShowCalculatedFieldRequest $request)
+    public function calculatedFields(ShowCalculatedFieldRequest $request)
     {
 
         /** @var \App\Models\User auth()->user() */

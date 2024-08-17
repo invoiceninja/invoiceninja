@@ -172,6 +172,7 @@ class BaseExport
         'tax_rate3' => 'invoice.tax_rate3',
         'recurring_invoice' => 'invoice.recurring_id',
         'auto_bill' => 'invoice.auto_bill_enabled',
+        'project' => 'invoice.project',
     ];
 
     protected array $recurring_invoice_report_keys = [
@@ -449,6 +450,8 @@ class BaseExport
         'status' => 'task.status_id',
         'project' => 'task.project_id',
         'billable' => 'task.billable',
+        'item_notes' => 'task.item_notes',
+        'time_log' => 'task.time_log',
     ];
 
     protected array $forced_client_fields = [
@@ -1038,6 +1041,10 @@ class BaseExport
 
         $recurring_filters = [];
 
+        if($this->company->getSetting('report_include_drafts')){
+            $recurring_filters[] = RecurringInvoice::STATUS_DRAFT;
+        }
+
         if (in_array('active', $status_parameters)) {
             $recurring_filters[] = RecurringInvoice::STATUS_ACTIVE;
         }
@@ -1252,7 +1259,7 @@ class BaseExport
 
         $date_range = $this->input['date_range'];
 
-        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key'] ?? '') > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
             $this->date_key = $this->input['date_key'];
         }
 
@@ -1263,7 +1270,7 @@ class BaseExport
             $custom_start_date = now()->startOfYear();
             $custom_end_date = now();
         }
-
+        
         switch ($date_range) {
             case 'all':
                 $this->start_date = 'All available data';

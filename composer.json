@@ -32,16 +32,17 @@
     "type": "project",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
-        "ext-curl": "*",
         "afosto/yaac": "^1.4",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
+        "aws/aws-sdk-php": "^3.319",
         "bacon/bacon-qr-code": "^2.0",
-        "beganovich/snappdf": "^5",
+        "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.0",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
@@ -57,11 +58,10 @@
         "hedii/laravel-gelf-logger": "^9",
         "horstoeko/orderx": "dev-master",
         "horstoeko/zugferd": "^1",
-        "horstoeko/zugferdvisualizer":"^1",
+        "horstoeko/zugferdvisualizer": "^1",
         "hyvor/php-json-exporter": "^0.0.3",
         "imdhemy/laravel-purchases": "^1.7",
         "intervention/image": "^2.5",
-        "invoiceninja/inspector": "^3.0",
         "invoiceninja/einvoice": "dev-main",
         "invoiceninja/ubl_invoice": "^2",
         "josemmo/facturae-php": "^1.7",
@@ -74,14 +74,12 @@
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.20.0",
-        "league/omnipay": "^3.1",
         "livewire/livewire": "^3",
         "microsoft/microsoft-graph": "^1.69",
         "mollie/mollie-api-php": "^2.36",
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^11.0",
-        "omnipay/paypal": "^3.0",
         "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",
@@ -131,6 +129,8 @@
             "app/Helpers/TranslationHelper.php",
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
+        ],
+        "classmap": [
         ]
     },
     "autoload-dev": {
@@ -184,7 +184,7 @@
             "url": "https://github.com/turbo124/apple"
         },
         {
-            "type":"vcs",
+            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
         },
         {
@@ -194,6 +194,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/beganovich/php-ansible"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/snappdf"
         }
     ],
     "minimum-stability": "dev",

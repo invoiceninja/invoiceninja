@@ -11,7 +11,6 @@
 
 namespace App\Jobs\EDocument;
 
-use App\Services\EDocument\Standards\RoEInvoice;
 use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Credit;
@@ -23,10 +22,12 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\EDocument\Standards\Peppol;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
+use App\Services\EDocument\Standards\FatturaPA;
+use App\Services\EDocument\Standards\RoEInvoice;
 use App\Services\EDocument\Standards\OrderXDocument;
 use App\Services\EDocument\Standards\FacturaEInvoice;
-use App\Services\EDocument\Standards\FatturaPA;
 use App\Services\EDocument\Standards\ZugferdEDokument;
 
 class CreateEDocument implements ShouldQueue
@@ -68,6 +69,8 @@ class CreateEDocument implements ShouldQueue
 
         if ($this->document instanceof Invoice) {
             switch ($e_document_type) {
+                case "PEPPOL":
+                    return (new Peppol($this->document))->toXml();
                 case "FACT1":
                     return (new RoEInvoice($this->document))->generateXml();
                 case "FatturaPA":

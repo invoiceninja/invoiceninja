@@ -82,6 +82,7 @@ class TaskObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_TASK, $task, $task->company)->delay(0);
         }
+
     }
 
     /**

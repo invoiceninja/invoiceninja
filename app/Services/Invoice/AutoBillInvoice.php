@@ -42,6 +42,9 @@ class AutoBillInvoice extends AbstractService
 
     public function __construct(private Invoice $invoice, protected string $db)
     {
+        
+        $this->client = $this->invoice->client;
+
     }
 
     public function run()
@@ -49,8 +52,7 @@ class AutoBillInvoice extends AbstractService
         MultiDB::setDb($this->db);
 
         /* @var \App\Modesl\Client $client */
-        $this->client = $this->invoice->client;
-
+      
         $is_partial = false;
 
         /* Is the invoice payable? */
@@ -62,7 +64,7 @@ class AutoBillInvoice extends AbstractService
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int) $this->invoice->balance == 0) {
+        if (floatval($this->invoice->balance) == 0) {
             return $this->invoice->service()->markPaid()->save();
         }
 
@@ -272,7 +274,7 @@ class AutoBillInvoice extends AbstractService
      *
      * @return self
      */
-    private function applyUnappliedPayment(): self
+    public function applyUnappliedPayment(): self
     {
         $unapplied_payments = Payment::query()
                                   ->where('client_id', $this->client->id)
@@ -284,6 +286,11 @@ class AutoBillInvoice extends AbstractService
                                   ->get();
 
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
+        
+        nlog($this->client->id);
+        nlog($this->invoice->id);
+        nlog($unapplied_payments->sum('amount'));
+        nlog($unapplied_payments->sum('applied'));
 
         nlog("available unapplied balance = {$available_unapplied_balance}");
 
@@ -347,7 +354,7 @@ class AutoBillInvoice extends AbstractService
      *
      * @return $this
      */
-    private function applyCreditPayment(): self
+    public function applyCreditPayment(): self
     {
         $available_credits = Credit::query()->where('client_id', $this->client->id)
                                   ->where('is_deleted', false)
