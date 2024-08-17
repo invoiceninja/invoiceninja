@@ -43,7 +43,26 @@ class Transformer
             "BillEmail",
             'MetaData',
             "BillAddr",
-            "ShipAddr"
+            "ShipAddr",
+            "LinkedTxn",
+            "Id",
+            "CurrencyRef",
+            "TxnTaxDetail",
+            "TxnDate"
+        ]);
+    }
+
+    protected function transformPayments(array $items): Collection
+    {
+        return $this->transformation($items, [
+            "PaymentRefNum",
+            "TotalAmt",
+            "CustomerRef",
+            "CurrencyRef",
+            "TxnDate",
+            "Line",
+            "PrivateNote",
+            "MetaData"
         ]);
     }
 
