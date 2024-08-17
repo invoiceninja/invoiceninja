@@ -144,7 +144,6 @@ class ZugferdEDokument extends AbstractService
         foreach ($this->document->line_items as $index => $item) {
             /** @var InvoiceItem $item **/
             $this->xdocument->addNewPosition($index)
-                ->setDocumentPositionGrossPrice($item->gross_line_total + $item->discount)
                 ->setDocumentPositionNetPrice($item->line_total);
             if (!empty($item->product_key)) {
                 if (!empty($item->notes)) {
