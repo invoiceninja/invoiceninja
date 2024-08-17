@@ -70,7 +70,6 @@ class PaymentTransformer extends BaseTransformer
     {
         $invoices = [];
         $invoice = $this->getString($data,'Line.LinkedTxn.TxnType');
-        nlog(print_r([$invoice, $this->getString($data,'Line.LinkedTxn')], true));
         if(is_null($invoice) || $invoice !== 'Invoice') return $invoices;
         if( is_null( ($invoice_id = $this->getInvoiceId($this->getString($data, 'Line.LinkedTxn.TxnId.value')))) ) return $invoices;
         
