@@ -11,19 +11,20 @@
 
 namespace App\Services\EDocument\Imports;
 
-use App\Factory\ExpenseFactory;
-use App\Factory\VendorFactory;
-use App\Jobs\Util\UploadFile;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Expense;
-use App\Models\Vendor;
-use App\Services\AbstractService;
-use App\Utils\TempFile;
 use Exception;
+use App\Models\Vendor;
+use App\Models\Company;
+use App\Models\Country;
+use App\Models\Expense;
+use App\Utils\TempFile;
+use App\Models\Currency;
+use App\Jobs\Util\UploadFile;
+use App\Factory\VendorFactory;
+use App\Factory\ExpenseFactory;
+use App\Services\AbstractService;
 use horstoeko\zugferd\ZugferdDocumentReader;
-use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
+use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
 
 class ZugferdEDocument extends AbstractService {
     public ZugferdDocumentReader|string $document;
@@ -31,7 +32,7 @@ class ZugferdEDocument extends AbstractService {
     /**
      * @throws Exception
      */
-    public function __construct(public string $tempdocument, public string $documentname)
+    public function __construct(public string $tempdocument, public string $documentname, public Company $company)
     {
         # curl -X POST http://localhost:8000/api/v1/edocument/upload -H "Content-Type: multipart/form-data" -H "X-API-TOKEN: 7tdDdkz987H3AYIWhNGXy8jTjJIoDhkAclCDLE26cTCj1KYX7EBHC66VEitJwWhn" -H "X-Requested-With: XMLHttpRequest" -F _method=PUT -F documents[]=@einvoice.xml
     }
@@ -42,13 +43,14 @@ class ZugferdEDocument extends AbstractService {
     public function run(): Expense
     {
         /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $user = $this->company->owner();
+
         $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
 
         /** @var \App\Models\Expense $expense */
-        $expense = Expense::where("company_id", $user->company()->id)->where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
+        $expense = Expense::where("company_id", $this->company->id)->where('amount', $grandTotalAmount)->where("transaction_reference", $documentno)->whereDate("date", $documentdate)->first();
         if (!$expense) {
             // The document does not exist as an expense
             // Handle accordingly
@@ -59,10 +61,10 @@ class ZugferdEDocument extends AbstractService {
             $visualizer->setPdfPaperSize('A4-P');
             $visualizer->setTemplate('edocument.xinvoice');
 
-            $expense = ExpenseFactory::create($user->company()->id, $user->id);
+            $expense = ExpenseFactory::create($this->company->id, $user->id);
             $expense->date = $documentdate;
             $expense->public_notes = $documentno;
-            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id ?? $user->company()->settings->currency_id;
+            $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id ?? $this->company->settings->currency_id;
             $expense->save();
 
             $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml"); 
@@ -98,7 +100,7 @@ class ZugferdEDocument extends AbstractService {
                 // Vendor found
                 $expense->vendor_id = $vendor->id;
             } else {
-                $vendor = VendorFactory::create($user->company()->id, $user->id);
+                $vendor = VendorFactory::create($this->company->id, $user->id);
                 $vendor->name = $name;
                 if ($taxid != null) {
                     $vendor->vat_number = $taxid;
