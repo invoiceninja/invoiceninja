@@ -19,6 +19,7 @@ use App\Helpers\Invoice\InvoiceSum;
 use InvoiceNinja\EInvoice\EInvoice;
 use App\Utils\Traits\NumberFormatter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Services\EDocument\Standards\Peppol\RO;
 use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
@@ -52,6 +53,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\CustomerPartyType\AccountingCustomerPart
 use InvoiceNinja\EInvoice\Models\Peppol\SupplierPartyType\AccountingSupplierParty;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CustomerAssignedAccountID;
+use InvoiceNinja\EInvoice\Models\Peppol\LocationType\PhysicalLocation;
 
 class Peppol extends AbstractService
 {
@@ -112,8 +114,8 @@ class Peppol extends AbstractService
         'HR' => 'VAT',
         'HU' => 'VAT',
         'IE' => 'VAT',
-        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.'
-        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.'
+        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.' Cannot test currently
+        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.' Cannot test currently
         'LT' => 'VAT',
         'LU' => 'VAT',
         'LV' => 'VAT',
@@ -732,7 +734,9 @@ class Peppol extends AbstractService
 
     private function resolveTaxScheme(): mixed
     {
-        $rules = isset($this->routing_rules[$this->invoice->client->country->iso_3166_2]) ? $this->routing_rules[$this->invoice->client->country->iso_3166_2] : false;
+        $rules = isset($this->routing_rules[$this->invoice->client->country->iso_3166_2]) ? $this->routing_rules[$this->invoice->client->country->iso_3166_2] : [false, false, false, false,];
+
+        $code = false;
 
         match($this->invoice->client->classification){
             "business" => $code = "B",
@@ -741,18 +745,18 @@ class Peppol extends AbstractService
             default => $code = false,
         };
 
-        if(count($rules) > 1){
+        //single array
+        if(is_array($rules) && !is_array($rules[0]))
+            return $rules[2];
 
-            foreach($rules as $rule)
-            {
-                if(stripos($rule[0], $code) !== false) {
-                    return $rule[2];
-                }
+        foreach($rules as $rule)
+        {
+            if(stripos($rule[0], $code) !== false) {
+                return $rule[2];
             }
         }
 
         return false;
-
     }
 
     private function getAccountingCustomerParty(): AccountingCustomerParty
@@ -796,7 +800,11 @@ class Peppol extends AbstractService
         $address->Country = $country;
 
         $party->PostalAddress = $address;
-        $party->PhysicalLocation = $address;
+
+        $physical_location = new PhysicalLocation();
+        $physical_location->Address = $address;
+
+        $party->PhysicalLocation = $physical_location;;
 
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->client->present()->email();
@@ -935,7 +943,16 @@ class Peppol extends AbstractService
         return null;
 
     }
+
+    private function getClientSetting(string $property_path): mixed
+    {
+        return PropertyResolver::resolve($this->_client_settings, $property_path);
+    }
     
+    private function getCompanySetting(string $property_path): mixed
+    {
+        return PropertyResolver::resolve($this->_company_settings, $property_path);
+    }
     /**
      * senderSpecificLevelMutators
      *
@@ -1105,12 +1122,20 @@ class Peppol extends AbstractService
 
     private function setEmailRouting(string $email): self
     {
+        nlog($email);
+
         $meta = $this->getStorecoveMeta();
-        $emails = isset($meta['routing']['emails']) ? $meta['routing']['emails'] : ($meta['routing']['emails'] = []);
 
-        array_push($emails, $email);
+        if(isset($meta['routing']['emails'])){
+            $emails = $meta['routing']['emails'];
+            array_push($emails, $email);
+            $meta['routing']['emails'] = $emails;
+        }
+        else {
+            $meta['routing']['emails'] = [$email];
+        }
 
-        $this->setStorecoveMeta($emails);
+        $this->setStorecoveMeta($meta);
 
         return $this;
     }
@@ -1125,8 +1150,9 @@ class Peppol extends AbstractService
      */
     private function setStorecoveMeta(array $meta): self
     {
-        $this->storecove_meta = array_merge($this->storecove_meta, $meta);
         
+        $this->storecove_meta = array_merge($this->storecove_meta, $meta);
+
         return $this;
     }
 
@@ -1324,23 +1350,25 @@ class Peppol extends AbstractService
         // IT Sender, IT Receiver, B2B/B2G
         // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
         if(in_array($this->invoice->client->classification, ['business','government']) && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-            nlog("italian business/government receiver");
+
             $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => 'IT:IVA', "id" => $this->invoice->client->vat_number],
                 ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
             ]));
+
             return $this;
         }
 
         // IT Sender, IT Receiver, B2C
         // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
         if($this->invoice->client->classification == 'individual' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-            nlog("business receiver");
-            
+           
             $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => 'IT:CF', "id" => $this->invoice->client->vat_number],
-                ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
+                // ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
             ]));
+
+            $this->setEmailRouting($this->invoice->client->present()->email());
 
             return $this;
         }
@@ -1429,27 +1457,34 @@ class Peppol extends AbstractService
 
     private function RO(): self
     {
-    // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
+        // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
+        $meta = ["networks" => [
+                    [
+                        "application" => "ro-anaf",
+                        "settings"=> [
+                            "enabled" => true
+                        ],
+                    ],
+                ]];
+        
+        $this->setStorecoveMeta($meta);
+        
+        $this->setStorecoveMeta($this->buildRouting([
+               ["scheme" => 'RO:VAT', "id" => $this->invoice->client->vat_number],
+           ]));
 
-    // "routing": {
-    // "eIdentifiers": [
-    //     {
-    //         "scheme": "RO:VAT",
-    //         "id": "RO010101010"
-    //     }
-    // ],
-    // "networks": [
-    //     {
-    //     "application": "ro-anaf",
-    //     "settings": {
-    //         "enabled": true
-    //     }
-    //     }
-    // ]
-    // }
-    // Note this will only work if your LegalEntity has been setup for this network.
-    // The county field for a Romania address must use the ISO3166-2:RO codes, e.g. "RO-AB, RO-AR". Don’t omit the country prefix!
-    // The city field for county RO-B must be SECTOR1 - SECTOR6.
+        $ro = new RO($this->invoice);
+
+        $client_state = $this->getClientSetting('Invoice.AccountingSupplierParty.Party.PostalAddress.Address.CountrySubentity');
+        $client_city = $this->getClientSetting('Invoice.AccountingCustomerParty.Party.PostalAddress.Address.CityName');
+
+        $resolved_state = $ro->getStateCode($client_state);
+        $resolved_city = $ro->getSectorCode($client_city);
+
+        $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CountrySubentity = $resolved_state;
+        $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;        
+        $this->p_invoice->AccountingCustomerParty->Party->PhysicalLocation->Address->CountrySubentity = $resolved_state;
+        $this->p_invoice->AccountingCustomerParty->Party->PhysicalLocation->Address->CityName = $resolved_city;
 
         return $this;
     }

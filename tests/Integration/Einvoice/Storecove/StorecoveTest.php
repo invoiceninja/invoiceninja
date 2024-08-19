@@ -891,6 +891,158 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
 
     }
 
+    private function createROData()
+    {
+      $this->routing_id =294639;
+            
+      $settings = CompanySettings::defaults();
+      $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+      $settings->website = 'www.invoiceninja.ro';
+      $settings->address1 = 'Strada Exemplu, 28';
+      $settings->address2 = 'Clădirea Exemplu';
+      $settings->city = 'Bucharest';
+      $settings->state = 'Bucharest';
+      $settings->postal_code = '010101';
+      $settings->phone = '021 1234567';
+      $settings->email = $this->faker->unique()->safeEmail();
+      $settings->country_id = '642'; // Romania's ISO country code
+      $settings->vat_number = 'RO92443356490'; // Romanian VAT number format
+      $settings->id_number = 'B12345678'; // Typical Romanian company registration format
+      $settings->use_credits_payment = 'always';
+      $settings->timezone_id = '1'; // CET (Central European Time)
+      $settings->entity_send_time = 0;
+      $settings->e_invoice_type = 'PEPPOL';
+      $settings->currency_id = '3'; // Euro (EUR)
+      $settings->classification = 'business';
+
+
+      $company = Company::factory()->create([
+        'account_id' => $this->account->id,
+        'settings' => $settings,
+      ]);
+
+      $this->user->companies()->attach($company->id, [
+          'account_id' => $this->account->id,
+          'is_owner' => true,
+          'is_admin' => 1,
+          'is_locked' => 0,
+          'permissions' => '',
+          'notifications' => CompanySettings::notificationAdminDefaults(),
+          'settings' => null,
+      ]);
+
+      Client::unguard();
+
+      $c =
+      Client::create([
+        'company_id' => $company->id,
+        'user_id' => $this->user->id,
+        'name' => 'Impresa Esempio S.R.L.',
+        'website' => 'https://www.impresa-esempio.ro',
+        'private_notes' => 'Acestea sunt note private pentru clientul de test.',
+        'balance' => 0,
+        'paid_to_date' => 0,
+        'vat_number' => 'RO9244336489', // Romanian VAT number with RO prefix
+        'id_number' => 'J40/12345/2024', // Typical format for Romanian company registration numbers
+        'custom_value1' => '2024-07-22 10:00:00',
+        'custom_value2' => 'albastru', // Romanian for blue
+        'custom_value3' => 'cuvantexemplu', // Romanian for sample word
+        'custom_value4' => 'test@exemplu.ro',
+        'address1' => 'Strada Exemplu 123',
+        'address2' => 'Etaj 2, Birou 45',
+        'city' => 'Bucharest',
+        'state' => 'Bucharest',
+        'postal_code' => '010101',
+        'country_id' => '642', // Romania
+        'shipping_address1' => 'Strada Exemplu 123',
+        'shipping_address2' => 'Etaj 2, Birou 45',
+        'shipping_city' => 'Bucharest',
+        'shipping_state' => 'Bucharest',
+        'shipping_postal_code' => '010101',
+        'shipping_country_id' => '642', // Romania
+        'settings' => ClientSettings::defaults(),
+        'client_hash' => \Illuminate\Support\Str::random(32),
+        'routing_id' => 'SCSCSCS',
+        'classification' => 'business',
+      ]);
+
+      ClientContact::factory()->create([
+        'company_id' => $company->id,
+        'user_id' => $this->user->id,
+        'client_id' => $c->id,
+        'first_name' => 'Contact First',
+        'last_name' => 'Contact Last',
+        'email' => 'david+c1@invoiceninja.com',
+      ]);
+
+
+      $item = new InvoiceItem();
+      $item->product_key = "Product Key";
+      $item->notes = "Product Description";
+      $item->cost = 10;
+      $item->quantity = 10;
+      $item->tax_rate1 = 19;
+      $item->tax_name1 = 'TVA';
+
+      $invoice = Invoice::factory()->create([
+          'company_id' => $company->id,
+          'user_id' => $this->user->id,
+          'client_id' => $c->id,
+          'discount' => 0,
+          'uses_inclusive_taxes' => false,
+          'status_id' => 1,
+          'tax_rate1' => 0,
+          'tax_name1' => '',
+          'tax_rate2' => 0,
+          'tax_rate3' => 0,
+          'tax_name2' => '',
+          'tax_name3' => '',
+          'line_items' => [$item],
+          'number' => 'IT-'.rand(1000, 100000),
+          'date' => now()->format('Y-m-d'),
+          'due_date' => now()->addDays(14)->format('Y-m-d'),
+      ]);
+
+      $invoice = $invoice->calc()->getInvoice();
+      $invoice->service()->markSent()->save();
+
+      return $invoice;
+
+    }
+
+    public function testRoRules() 
+    {
+      $invoice = $this->createROData();
+
+      $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+      $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
+      foreach($stub as $key => $value) {
+          $e_invoice->{$key} = $value;
+      }
+
+      $invoice->e_invoice = $e_invoice;
+      $invoice->save();
+
+      $this->assertInstanceOf(Invoice::class, $invoice);
+      $this->assertInstanceof(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $e_invoice);
+
+      $p = new Peppol($invoice);
+
+      $p->run();
+      $xml  = $p->toXml();
+      nlog($xml);
+
+      $identifiers = $p->getStorecoveMeta();
+
+      $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+      $sc->sendDocument($xml, $this->routing_id, $identifiers);
+
+    }
+    
+
+
+
     public function PestAtGovernmentRules()
     {
       $this->routing_id = 293801;
@@ -923,7 +1075,7 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
 
     }
 
-    public function testItRules() 
+    public function PtestItRules() 
     {
       $invoice = $this->createITData();
 
@@ -956,28 +1108,28 @@ $x = '<?xml version="1.0" encoding="utf-8"?>
 
       nlog("Individual");
       
-$invoice = $this->createITData(false);
+      $invoice = $this->createITData(false);
 
-$e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+      $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
-$stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-foreach($stub as $key => $value) {
-    $e_invoice->{$key} = $value;
-}
+      $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
+      foreach($stub as $key => $value) {
+          $e_invoice->{$key} = $value;
+      }
 
-$invoice->e_invoice = $e_invoice;
-$invoice->save();
+      $invoice->e_invoice = $e_invoice;
+      $invoice->save();
 
-$p = new Peppol($invoice);
+      $p = new Peppol($invoice);
 
-$p->run();
-$xml  = $p->toXml();
-nlog($xml);
+      $p->run();
+      $xml  = $p->toXml();
+      nlog($xml);
 
-$identifiers = $p->getStorecoveMeta();
+      $identifiers = $p->getStorecoveMeta();
 
-$sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-$sc->sendDocument($xml, $this->routing_id, $identifiers);
+      $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+      $sc->sendDocument($xml, $this->routing_id, $identifiers);
 
 
     }
