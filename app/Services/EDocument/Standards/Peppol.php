@@ -112,8 +112,8 @@ class Peppol extends AbstractService
         'HR' => 'VAT',
         'HU' => 'VAT',
         'IE' => 'VAT',
-        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number)
-        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number)
+        'IT' => 'IVA', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.'
+        'IT' => 'CF', //tested - Requires a Customer Party Identification (VAT number) - 'IT senders must first be provisioned in the partner system.'
         'LT' => 'VAT',
         'LU' => 'VAT',
         'LV' => 'VAT',
@@ -158,10 +158,13 @@ class Peppol extends AbstractService
             //         0       1      2      3 
     // ["Country" => ["B2X","Legal","Tax","Routing"],
     private array $routing_rules = [
-        "US" => ["B","DUNS, GLN, LEI","US:EIN, US:SSN","DUNS, GLN, LEI"],
-        "CA" => ["B","CA:CBN","","CA:CBN"],
-        "MX" => ["B","MX:RFC","","MX:RFC"],
-        "AU" => ["B+G","AU:ABN","","AU:ABN"],
+        "US" => [
+            ["B","DUNS, GLN, LEI","US:EIN","DUNS, GLN, LEI"],
+            // ["B","DUNS, GLN, LEI","US:SSN","DUNS, GLN, LEI"],
+        ],
+        "CA" => ["B","CA:CBN",false,"CA:CBN"],
+        "MX" => ["B","MX:RFC",false,"MX:RFC"],
+        "AU" => ["B+G","AU:ABN",false,"AU:ABN"],
         "NZ" => ["B+G","GLN","NZ:GST","GLN"],
         "CH" => ["B+G","CH:UIDB","CH:VAT","CH:UIDB"],
         "IS" => ["B+G","IS:KTNR","IS:VAT","IS:KTNR"],
@@ -170,7 +173,7 @@ class Peppol extends AbstractService
         "AD" => ["B+G","","AD:VAT","AD:VAT"],
         "AL" => ["B+G","","AL:VAT","AL:VAT"],
         "AT" => [
-            ["G","AT:GOV","","9915:b"],
+            ["G","AT:GOV",false,"9915:b"],
             ["B","","AT:VAT","AT:VAT"],
         ],
         "BA" => ["B+G","","BA:VAT","BA:VAT"],
@@ -179,7 +182,7 @@ class Peppol extends AbstractService
         "CY" => ["B+G","","CY:VAT","CY:VAT"],
         "CZ" => ["B+G","","CZ:VAT","CZ:VAT"],
         "DE" => [
-            ["G","DE:LWID","","DE:LWID"],
+            ["G","DE:LWID",false,"DE:LWID"],
             ["B","","DE:VAT","DE:VAT"],
         ],
         "DK" => ["B+G","DK:DIGST","DK:ERST","DK:DIGST"],
@@ -187,7 +190,7 @@ class Peppol extends AbstractService
         "ES" => ["B","","ES:VAT","ES:VAT"],
         "FI" => ["B+G","FI:OVT","FI:VAT","FI:OVT"],
         "FR" => [
-            ["G","FR:SIRET + customerAssignedAccountIdValue","","0009:11000201100044"],
+            ["G","FR:SIRET + customerAssignedAccountIdValue",false,"0009:11000201100044"],
             ["B","FR:SIRENE or FR:SIRET","FR:VAT","FR:SIRENE or FR:SIRET"],
         ],
         "GR" => ["B+G","","GR:VAT","GR:VAT"],
@@ -195,10 +198,11 @@ class Peppol extends AbstractService
         "HU" => ["B+G","","HU:VAT","HU:VAT"],
         "IE" => ["B+G","","IE:VAT","IE:VAT"],
         "IT" => [
-            ["G (Peppol)","","IT:IVA","IT:CUUO"],
-            ["B (SDI)","","IT:CF and/or IT:IVA","IT:CUUO"],
-            ["C (SDI)","","IT:CF","Email"],
-            ["G (SDI)","","IT:IVA","IT:CUUO"],
+            ["G","","IT:IVA","IT:CUUO"], // (Peppol)
+            ["B","","IT:IVA","IT:CUUO"], // (SDI)
+            // ["B","","IT:CF","IT:CUUO"], // (SDI)
+            ["C","","IT:CF","Email"],// (SDI)
+            ["G","","IT:IVA","IT:CUUO"],// (SDI)
         ],
         "LT" => ["B+G","LT:LEC","LT:VAT","LT:LEC"],
         "LU" => ["B+G","LU:MAT","LU:VAT","LU:VAT"],
@@ -207,7 +211,7 @@ class Peppol extends AbstractService
         "ME" => ["B+G","","ME:VAT","ME:VAT"],
         "MK" => ["B+G","","MK:VAT","MK:VAT"],
         "MT" => ["B+G","","MT:VAT","MT:VAT"],
-        "NL" => ["G","NL:OINO","","NL:OINO"],
+        "NL" => ["G","NL:OINO",false,"NL:OINO"],
         "NL" => ["B","NL:KVK","NL:VAT","NL:KVK or NL:VAT"],
         "PL" => ["G+B","","PL:VAT","PL:VAT"],
         "PT" => ["G+B","","PT:VAT","PT:VAT"],
@@ -223,12 +227,12 @@ class Peppol extends AbstractService
         "JP" => ["B","JP:SST","JP:IIN","JP:SST"],
         "MY" => ["B","MY:EIF","MY:TIN","MY:EIF"],
         "SG" => [
-            ["G","SG:UEN","","0195:SGUENT08GA0028A"],
-            ["B","SG:UEN","SG:GST (optional)","SG:UEN"],
+            ["G","SG:UEN",false,"0195:SGUENT08GA0028A"],
+            ["B","SG:UEN","SG:GST","SG:UEN"],
         ],
         "GB" => ["B","","GB:VAT","GB:VAT"],
         "SA" => ["B","","SA:TIN","Email"],
-        "Other" => ["B","DUNS, GLN, LEI","","DUNS, GLN, LEI"],
+        "Other" => ["B","DUNS, GLN, LEI",false,"DUNS, GLN, LEI"],
     ];
 
     private Company $company;
@@ -726,6 +730,31 @@ class Peppol extends AbstractService
         return $asp;
     }
 
+    private function resolveTaxScheme(): mixed
+    {
+        $rules = isset($this->routing_rules[$this->invoice->client->country->iso_3166_2]) ? $this->routing_rules[$this->invoice->client->country->iso_3166_2] : false;
+
+        match($this->invoice->client->classification){
+            "business" => $code = "B",
+            "government" => $code = "G",
+            "individual" => $code = "C",
+            default => $code = false,
+        };
+
+        if(count($rules) > 1){
+
+            foreach($rules as $rule)
+            {
+                if(stripos($rule[0], $code) !== false) {
+                    return $rule[2];
+                }
+            }
+        }
+
+        return false;
+
+    }
+
     private function getAccountingCustomerParty(): AccountingCustomerParty
     {
 
@@ -736,10 +765,13 @@ class Peppol extends AbstractService
         if(strlen($this->invoice->client->vat_number ?? '') > 1) {
             
             $pi = new PartyIdentification;
+
             $vatID = new ID;
-            $vatID->schemeID = 'CH:MWST';
+            
+            if($scheme = $this->resolveTaxScheme())
+                $vatID->schemeID = $scheme;
+            
             $vatID->value = $this->invoice->client->vat_number;
- 
             $pi->ID = $vatID;
 
             $party->PartyIdentification[] = $pi;
@@ -1055,24 +1087,32 @@ class Peppol extends AbstractService
     /**
      * Builds the Routing object for StoreCove
      *
-     * @param  string $schemeId
-     * @param  string $id
+     * @param  array $identifiers
      * @return array
      */
-    private function buildRouting(string $schemeId, string $id): array
+    private function buildRouting(array $identifiers): array
     {
   
         return 
         [
             "routing" => [
-                "publicIdentifiers" => [
-                    [
-                        "scheme" => $schemeId,
-                        "id" => $id
-                    ]
-                ]
+                "eIdentifiers" => 
+                    $identifiers,
+                
             ]
         ];
+    }
+
+    private function setEmailRouting(string $email): self
+    {
+        $meta = $this->getStorecoveMeta();
+        $emails = isset($meta['routing']['emails']) ? $meta['routing']['emails'] : ($meta['routing']['emails'] = []);
+
+        array_push($emails, $email);
+
+        $this->setStorecoveMeta($emails);
+
+        return $this;
     }
 
     /**
@@ -1150,7 +1190,7 @@ class Peppol extends AbstractService
                 
         if($this->invoice->client->classification == 'government') {
             //routing "b" for production "test" for test environment
-            $this->setStorecoveMeta($this->buildRouting('AT:GOV', "b"));
+            $this->setStorecoveMeta($this->buildRouting(["scheme" => 'AT:GOV', "id" => 'b']));
 
             //for government clients this must be set.
             $this->setCustomerAssignedAccountId(true);
@@ -1239,7 +1279,11 @@ class Peppol extends AbstractService
 
         if($this->invoice->client->classification == 'government'){
             //route to SIRET 0009:11000201100044
-            $this->setStorecoveMeta($this->buildRouting('FR:SIRET', "0009:11000201100044"));
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => 'FR:SIRET', "id" => '11000201100044']
+
+                // ["scheme" => 'FR:SIRET', "id" => '0009:11000201100044']
+            ]));
 
             // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
             $this->setCustomerAssignedAccountId(true);
@@ -1248,11 +1292,19 @@ class Peppol extends AbstractService
 
         if(strlen($this->invoice->client->id_number ?? '') == 9) {
             //SIREN
-            $this->setStorecoveMeta($this->buildRouting('FR:SIREN', "0002:{$this->invoice->client->id_number}"));
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"]
+
+                // ["scheme" => 'FR:SIRET', "id" => "0002:{$this->invoice->client->id_number}"]
+            ]));
         }
         else {
             //SIRET
-            $this->setStorecoveMeta($this->buildRouting('FR:SIRET', "0009:{$this->invoice->client->id_number}"));
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"]
+
+                // ["scheme" => 'FR:SIRET', "id" => "0009:{$this->invoice->client->id_number}"]
+            ]));
         }
 
         // Apparently this is not a special field according to support
@@ -1271,18 +1323,24 @@ class Peppol extends AbstractService
 
         // IT Sender, IT Receiver, B2B/B2G
         // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
-        if($this->invoice->client->classification == 'government' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $this->setStorecoveMeta($this->buildRouting('IT:VAT', $this->invoice->client->routing_id));
-
+        if(in_array($this->invoice->client->classification, ['business','government']) && $this->invoice->company->country()->iso_3166_2 == 'IT') {
+            nlog("italian business/government receiver");
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => 'IT:IVA', "id" => $this->invoice->client->vat_number],
+                ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
+            ]));
             return $this;
         }
 
         // IT Sender, IT Receiver, B2C
         // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
         if($this->invoice->client->classification == 'individual' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-
-            $this->setStorecoveMeta($this->buildRouting('IT:CF', $this->invoice->client->routing_id));
+            nlog("business receiver");
+            
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => 'IT:CF', "id" => $this->invoice->client->vat_number],
+                ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
+            ]));
 
             return $this;
         }
@@ -1293,7 +1351,10 @@ class Peppol extends AbstractService
 
             $code = $this->getClientRoutingCode();
 
-            $this->setStorecoveMeta($this->buildRouting($code, $this->invoice->client->vat_number));
+            nlog("foreign receiver");
+            $this->setStorecoveMeta($this->buildRouting([
+                ["scheme" => $code, "id" => $this->invoice->client->vat_number]
+            ]));
 
             return $this;
         }
@@ -1310,7 +1371,6 @@ class Peppol extends AbstractService
 
             return $this;
         }
-
 
         // non-IT Sender, IT Receiver, B2B/B2G
         // Provide the receiver IT:VAT and the receiver IT:CUUO (codice destinatario)
