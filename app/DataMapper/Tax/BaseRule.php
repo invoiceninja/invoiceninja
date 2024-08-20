@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\Product;
 use App\DataProviders\USStates;
 use App\DataMapper\Tax\ZipTax\Response;
+use App\Models\RecurringInvoice;
 
 class BaseRule implements RuleInterface
 {
@@ -403,6 +404,9 @@ class BaseRule implements RuleInterface
     {
         $lock_invoices = $this->client->getSetting('lock_invoices');
 
+        if($this->invoice instanceof RecurringInvoice)
+            return true;
+        
         switch ($lock_invoices) {
             case 'off':
                 return true;

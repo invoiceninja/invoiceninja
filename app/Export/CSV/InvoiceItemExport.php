@@ -229,10 +229,6 @@ class InvoiceItemExport extends BaseExport
         //     $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
         // }
 
-        // if(array_key_exists('type', $entity)) {
-        //     $entity['type'] = $invoice->typeIdString($entity['type']);
-        // }
-
         // if(array_key_exists('tax_category', $entity)) {
         //     $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
         // }

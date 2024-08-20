@@ -25,9 +25,9 @@ class EDocumentRequest extends Request
         $rules = [];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
+            $rules['documents.*'] = 'required|file|max:1000000|mimes:xml';
         } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
+            $rules['documents'] = 'required|file|max:1000000|mimes:xml';
         }
         return $rules;
     }

@@ -98,7 +98,6 @@ class Storecove {
     public function sendJsonDocument($document)
     {
 
-
         $payload = [
             "legalEntityId" => 290868,
             "idempotencyGuid" => \Illuminate\Support\Str::uuid(),

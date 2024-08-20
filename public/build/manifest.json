@@ -86,7 +86,7 @@
     "src": "resources/js/clients/payments/forte-ach-payment.js"
   },
   "resources/js/clients/payments/forte-credit-card-payment.js": {
-    "file": "assets/forte-credit-card-payment-d2571506.js",
+    "file": "assets/forte-credit-card-payment-7bb15431.js",
     "isEntry": true,
     "src": "resources/js/clients/payments/forte-credit-card-payment.js"
   },

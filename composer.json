@@ -130,8 +130,7 @@
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
         ],
-        "classmap": [
-        ]
+        "classmap": []
     },
     "autoload-dev": {
         "psr-4": {

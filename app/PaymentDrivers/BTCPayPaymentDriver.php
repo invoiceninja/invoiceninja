@@ -90,6 +90,8 @@ class BTCPayPaymentDriver extends BaseDriver
 
     public function processWebhookRequest()
     {
+        sleep(2);
+
         $webhook_payload = file_get_contents('php://input');
 
         /** @var \stdClass $btcpayRep */
@@ -128,11 +130,15 @@ class BTCPayPaymentDriver extends BaseDriver
         }
 
         $this->setPaymentMethod(GatewayType::CRYPTO);
-        $this->payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$btcpayRep->metadata->InvoiceNinjaPaymentHash])->firstOrFail();
+        $this->payment_hash = PaymentHash::where('hash', $btcpayRep->metadata->InvoiceNinjaPaymentHash)->firstOrFail();
+
         $StatusId = Payment::STATUS_PENDING;
+
         if ($this->payment_hash->payment_id == null) {
             
-            $_invoice = Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
+            $_invoice = $this->payment_hash->fee_invoice;
+            
+            // Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
 
             $this->client = $_invoice->client;
 
@@ -144,6 +150,7 @@ class BTCPayPaymentDriver extends BaseDriver
                 'transaction_reference' => $btcpayRep->invoiceId
             ];
             $payment = $this->createPayment($dataPayment, $StatusId);
+
         } else {
             /** @var \App\Models\Payment $payment */
             $payment = Payment::withTrashed()->find($this->payment_hash->payment_id);
