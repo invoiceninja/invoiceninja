@@ -298,7 +298,7 @@ class NinjaMailerJob implements ShouldQueue
 
         /** Force free/trials onto specific mail driver */
 
-        if($this->mailer == 'default' && $this->company->account->isNewHostedAccount()) {
+        if($this->nmo->settings->email_sending_method == 'default' && $this->company->account->isNewHostedAccount()) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
