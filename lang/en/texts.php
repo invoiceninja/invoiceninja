@@ -5315,6 +5315,7 @@ $lang = array(
     'payment_balance_on_file' => 'Payment Balance On File',
     'ubl_email_attachment_help' => 'For more e-invoice settings please navigate :here',
     'stop_task_to_add_task_entry' => 'You need to stop the task before adding a new item.',
+    'xml_file' => 'XML File',
 );
 
 return $lang;
