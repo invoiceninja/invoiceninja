@@ -19,12 +19,19 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PWD }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Create Dockerfile
+        run: |
+          echo 'FROM node:14' > Dockerfile
+          echo 'WORKDIR /app' >> Dockerfile
+          echo 'COPY . /app' >> Dockerfile
+          echo 'RUN npm install' >> Dockerfile
+          echo 'CMD ["npm", "start"]' >> Dockerfile
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/invoiceninja-seboka:latest
