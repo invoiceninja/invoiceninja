@@ -27,4 +27,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/invoiceninja-seboka:${{ github.ref_name }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/invoiceninja-seboka:latest
