@@ -427,6 +427,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('yodlee/status/{account_number}', [YodleeController::class, 'accountStatus']); // @todo @turbo124 check route-path?!
 
     Route::get('nordigen/institutions', [NordigenController::class, 'institutions'])->name('nordigen.institutions');
+
+    Route::post('import/quickbooks', [ImportQuickbooksController::class, 'import'])->name('import.quickbooks');
+
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:3,1');
@@ -459,5 +462,8 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
+
+Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
+Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

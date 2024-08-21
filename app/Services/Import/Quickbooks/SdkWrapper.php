@@ -28,7 +28,7 @@ final class SdkWrapper implements QuickbooksInterface
         return ($this->sdk->getOAuth2LoginHelper())->getState();
     }
 
-    public function getAccessToken() : array
+    public function getAccessToken()
     {
         return $this->getTokens();
     }
@@ -44,15 +44,18 @@ final class SdkWrapper implements QuickbooksInterface
         return $this->getTokens();
     }
 
-    private function getTokens() : array {
+    private function getTokens()
+    {
         
         $token =($this->sdk->getOAuth2LoginHelper())->getAccessToken();
-        $access_token = $token->getAccessToken();
-        $refresh_token = $token->getRefreshToken();
-        $access_token_expires = $token->getAccessTokenExpiresAt();
-        $refresh_token_expires = $token->getRefreshTokenExpiresAt();
+        return $token;
+        
+        // $access_token = $token->getAccessToken();
+        // $refresh_token = $token->getRefreshToken();
+        // $access_token_expires = $token->getAccessTokenExpiresAt();
+        // $refresh_token_expires = $token->getRefreshTokenExpiresAt();
 
-        return compact('access_token', 'refresh_token','access_token_expires', 'refresh_token_expires');
+        // return compact('access_token', 'refresh_token','access_token_expires', 'refresh_token_expires');
     }
 
     public function refreshToken(): array
