@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\ImportQuickbooksController;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
 use App\Http\Controllers\Gateways\Checkout3dsController;
 use App\Http\Controllers\Gateways\GoCardlessController;

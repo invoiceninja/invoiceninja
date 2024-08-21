@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "95e7bd229644d1d8e768ecfbc78582cd",
+    "content-hash": "9e7ea46cfef2848f4eac13cc9c0c679a",
     "packages": [
         {
             "name": "adrienrn/php-mimetyper",
@@ -4047,6 +4047,68 @@
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
             "time": "2024-07-22T02:40:27+00:00"
+        },
+        {
+            "name": "invoiceninja/inspector",
+            "version": "v3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/invoiceninja/inspector.git",
+                "reference": "29bc1ee7ae9d967287ecbd3485a2fee41a13e65f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/invoiceninja/inspector/zipball/29bc1ee7ae9d967287ecbd3485a2fee41a13e65f",
+                "reference": "29bc1ee7ae9d967287ecbd3485a2fee41a13e65f",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "illuminate/support": "^11.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.1",
+                "phpunit/phpunit": "^11.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "InvoiceNinja\\Inspector\\InspectorServiceProvider"
+                    ],
+                    "aliases": {
+                        "Inspector": "InvoiceNinja\\Inspector\\InspectorFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "InvoiceNinja\\Inspector\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Benjamin Beganović",
+                    "email": "benjamin.beganovic4@outlook.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Simplified database records management",
+            "homepage": "https://github.com/invoiceninja/inspector",
+            "keywords": [
+                "inspector",
+                "invoiceninja"
+            ],
+            "support": {
+                "issues": "https://github.com/invoiceninja/inspector/issues",
+                "source": "https://github.com/invoiceninja/inspector/tree/v3.0"
+            },
+            "time": "2024-06-04T12:31:47+00:00"
         },
         {
             "name": "invoiceninja/ubl_invoice",
@@ -9088,6 +9150,72 @@
                 "source": "https://github.com/pusher/pusher-http-php/tree/7.2.4"
             },
             "time": "2023-12-15T10:58:53+00:00"
+        },
+        {
+            "name": "quickbooks/v3-php-sdk",
+            "version": "v6.1.4-alpha",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git",
+                "reference": "89ff2b6dcfc94634cf5806cacda1286a6898249f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/karneaud/QuickBooks-V3-PHP-SDK/zipball/89ff2b6dcfc94634cf5806cacda1286a6898249f",
+                "reference": "89ff2b6dcfc94634cf5806cacda1286a6898249f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-mbstring": "*",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.3",
+                "php-mock/php-mock-phpunit": "^2.6",
+                "phpunit/phpunit": "^5.0 || ^6.0 || ^7.0 || ^8"
+            },
+            "suggest": {
+                "ext-curl": "Uses Curl to make HTTP Requests",
+                "guzzlehttp/guzzle": "Uses Guzzle to make HTTP Requests"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "QuickBooksOnline\\API\\": "src/"
+                }
+            },
+            "archive": {
+                "exclude": [
+                    "/docs",
+                    "/src/Utility.Test",
+                    "/src/XSD2PHP/docs",
+                    "/src/XSD2PHP/test",
+                    "/test"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "abisalehalliprasan",
+                    "email": "anil_kumar3@intuit.com"
+                }
+            ],
+            "description": "The Official PHP SDK for QuickBooks Online Accounting API",
+            "homepage": "http://developer.intuit.com",
+            "keywords": [
+                "api",
+                "http",
+                "quickbooks",
+                "rest",
+                "smallbusiness"
+            ],
+            "support": {
+                "source": "https://github.com/karneaud/QuickBooks-V3-PHP-SDK/tree/v6.1.4-alpha"
+            },
+            "time": "2024-08-16T01:21:19+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
