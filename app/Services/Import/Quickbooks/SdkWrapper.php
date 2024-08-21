@@ -48,7 +48,8 @@ final class SdkWrapper implements QuickbooksInterface
     {
         
         $token =($this->sdk->getOAuth2LoginHelper())->getAccessToken();
-        return $token
+        return $token;
+        
         // $access_token = $token->getAccessToken();
         // $refresh_token = $token->getRefreshToken();
         // $access_token_expires = $token->getAccessTokenExpiresAt();
