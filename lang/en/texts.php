@@ -5316,6 +5316,9 @@ $lang = array(
     'ubl_email_attachment_help' => 'For more e-invoice settings please navigate :here',
     'stop_task_to_add_task_entry' => 'You need to stop the task before adding a new item.',
     'xml_file' => 'XML File',
+    'one_page_checkout' => 'One-Page Checkout',
+    'one_page_checkout_help' => 'Enable the new single page payment flow',
+    'applies_to' => 'Applies To',
 );
 
 return $lang;

@@ -45,6 +45,7 @@ return [
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
+    'license_key' => env('LICENSE_KEY', false),
     // Settings used by invoiceninja.com
     'disks' => [
         'backup' => env('BACKUP_DISK', 's3'),
