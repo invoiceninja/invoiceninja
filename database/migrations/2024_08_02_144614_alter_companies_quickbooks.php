@@ -12,11 +12,9 @@ return new class extends Migration
      * @return void
      */
     public function up()
-    {
+    {     
         Schema::table('companies', function (Blueprint $table) {
-            $table->string('quickbooks_realm_id')->nullable();
-            $table->string('quickbooks_refresh_token')->nullable();
-            $table->dateTime('quickbooks_refresh_expires')->nullable();
+            $table->text('quickbooks')->nullable();
         });
     }
 
@@ -27,8 +25,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('companies', function (Blueprint $table) {
-            $table->dropColumn(['quickbooks_realm_id', 'quickbooks_refresh_token','quickbooks_refresh_expires']);
-        });
+        
     }
 };

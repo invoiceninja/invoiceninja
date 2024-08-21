@@ -118,6 +118,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $smtp_port
  * @property string|null $smtp_encryption
  * @property string|null $smtp_local_domain
+ * @property string|null $quickbooks
  * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -390,6 +391,7 @@ class Company extends BaseModel
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
+        'quickbooks' => 'object',
     ];
 
     protected $with = [];
