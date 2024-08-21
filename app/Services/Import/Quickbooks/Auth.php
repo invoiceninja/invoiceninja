@@ -11,11 +11,9 @@
 
 namespace App\Services\Import\Quickbooks;
 
-use QuickBooksOnline\API\DataService\DataService;
-
 final class Auth
 {
-    public function __construct(private DataService $sdk)
+    public function __construct(private SdkWrapper $sdk)
     {
     }
 
