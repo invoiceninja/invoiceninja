@@ -16,6 +16,10 @@ return new class extends Migration
             $table->unsignedInteger('e_invoice_quota')->nullable()->index();
         });
 
+        Schema::table('bank_transaction_rules', function (Blueprint $table){
+            $table->enum('on_credit_match', ['create_payment', 'link_payment'])->default('create_payment');
+        });
+
     }
 
     /**
