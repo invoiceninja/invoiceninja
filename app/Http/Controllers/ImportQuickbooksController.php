@@ -36,14 +36,11 @@ class ImportQuickbooksController extends BaseController
 
         $realm = $request->query('realmId');
         $access_token_object = $qb->getAuth()->accessToken($request->query('code'), $realm);
-        nlog($access_token_object);
+        nlog($access_token_object); //OAuth2AccessToken
         $company->quickbooks = $access_token_object;
         $company->save();
-        // $company_key = $request->input('company.company_key');
-        // $company_id = $request->input('company.id');
-        // $auth_service->saveTokens($company_key, ['realm' => $realm] + $tokens);
         
-        return response()->json(['message' => 'Success'], 200);
+        return response()->json(['message' => 'Success'], 200); //todo swapout for redirect to UI
     }
 
     /**

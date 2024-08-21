@@ -39,12 +39,6 @@ final class Auth
         return $this->sdk->getState();
     }
 
-    public function saveTokens($key, $tokens)
-    {
-        // $token_store = new CompanyTokensRepository($key);
-        // $token_store->save($tokens);
-    }
-
     public function getAccessToken(): array
     {
         $tokens = [];
