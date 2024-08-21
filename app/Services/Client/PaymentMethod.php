@@ -36,14 +36,24 @@ class PaymentMethod
     {
         $this->getGateways()
              ->getMethods();
-            //  ->buildUrls();
 
         return $this->getPaymentUrls();
     }
 
     public function getPaymentUrls()
     {
+        $pu = collect($this->payment_urls);
+        $keys = $pu->pluck('gateway_type_id');
+        $contains_both = $keys->contains('1') && $keys->contains('29'); //handle the case where PayPal Advanced cards + regular CC is present
+
+        $this->payment_urls = $pu->when($contains_both, function ($methods){
+            return $methods->reject(function ($item){
+                return $item['gateway_type_id'] == '29';
+            });
+        })->toArray();
+
         return $this->payment_urls;
+
     }
 
     public function getPaymentMethods()
@@ -168,26 +178,15 @@ class PaymentMethod
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) {
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
-                        // $this->payment_methods[] = [$gateway->id => $type];
-                        //@15-06-2024
                         $this->buildUrl($gateway, $type);
                     }
                 } else {
-                    // $this->payment_methods[] = [$gateway->id => null];
-                    //@15-06-2024
                     $this->buildUrl($gateway, null);
                 }
             }
         }
         
         if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
-            // Show credits as only payment option if both statements are true. //?this does not really make sense as it does nothing....
-            // if (
-            //     $this->client->service()->getCreditBalance() > $this->amount
-            //     && $this->client->getSetting('use_credits_payment') == 'always') {
-            //     $payment_urls = [];
-            // }
-
             $this->payment_urls[] = [
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
@@ -216,49 +215,6 @@ class PaymentMethod
                 'label' => $gateway->getTypeAlias($type).$fee_label,
                 'company_gateway_id'  => $gateway->id,
                 'gateway_type_id' => $type,
-            ];
-        }
-
-        return $this;
-    }
-
-    //@deprecated as buildUrl() supercedes
-    private function buildUrls()
-    {
-        foreach ($this->payment_methods as $key => $child_array) {
-            foreach ($child_array as $gateway_id => $gateway_type_id) {
-                $gateway = CompanyGateway::query()->find($gateway_id);
-
-                $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client, $gateway_type_id);
-
-                if (! $gateway_type_id || (GatewayType::CUSTOM == $gateway_type_id)) {
-                    $this->payment_urls[] = [
-                        'label' => $gateway->getConfigField('name').$fee_label,
-                        'company_gateway_id'  => $gateway_id,
-                        'gateway_type_id' => GatewayType::CREDIT_CARD,
-                    ];
-                } else {
-                    $this->payment_urls[] = [
-                        'label' => $gateway->getTypeAlias($gateway_type_id).$fee_label,
-                        'company_gateway_id'  => $gateway_id,
-                        'gateway_type_id' => $gateway_type_id,
-                    ];
-                }
-            }
-        }
-
-        if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
-            // Show credits as only payment option if both statements are true.
-            if (
-                $this->client->service()->getCreditBalance() > $this->amount
-                && $this->client->getSetting('use_credits_payment') == 'always') {
-                $payment_urls = [];
-            }
-
-            $this->payment_urls[] = [
-                'label' => ctrans('texts.apply_credit'),
-                'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
-                'gateway_type_id' => GatewayType::CREDIT,
             ];
         }
 
