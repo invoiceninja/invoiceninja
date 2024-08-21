@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessPRZELEWY24 {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -113,11 +115,15 @@ class ProcessPRZELEWY24 {
     };
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessPRZELEWY24(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
-new ProcessPRZELEWY24(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-przelewy24-payment').then(() => boot());

@@ -13,6 +13,10 @@ namespace App\Utils;
 
 use Illuminate\Http\File;
 use Illuminate\Http\UploadedFile;
+<<<<<<< HEAD
+=======
+
+>>>>>>> new_payment_flow
 class TempFile
 {
     public static function path($url): string
@@ -64,6 +68,7 @@ class TempFile
         // return UploadedFile object
         return $file;
     }
+<<<<<<< HEAD
 
     /* create a tmp file from a raw string: https://gist.github.com/waska14/8b3bcebfad1f86f7fcd3b82927576e38*/
     public static function UploadedFileFromUrl(string $url, string|null $fileName = null, string|null $mimeType = null): UploadedFile
@@ -93,4 +98,6 @@ class TempFile
         // return UploadedFile object
         return $file;
     }
+=======
+>>>>>>> new_payment_flow
 }

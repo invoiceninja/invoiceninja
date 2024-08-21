@@ -8,7 +8,7 @@
     @else
         <meta name="stripe-publishable-key" content="{{ $gateway->getPublishableKey() }}">
     @endif
-
+    <meta name="instant-payment" content="yes" />
     <meta name="return-url" content="{{ $return_url }}">
     <meta name="amount" content="{{ $stripe_amount }}">
     <meta name="country" content="{{ $country }}">
@@ -60,5 +60,4 @@
 @push('footer')
     <script src="https://js.stripe.com/v3/"></script>
     @vite('resources/js/clients/payments/stripe-acss.js')
- 
 @endpush

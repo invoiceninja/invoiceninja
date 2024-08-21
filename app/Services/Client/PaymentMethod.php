@@ -36,14 +36,24 @@ class PaymentMethod
     {
         $this->getGateways()
              ->getMethods();
-            //  ->buildUrls();
 
         return $this->getPaymentUrls();
     }
 
     public function getPaymentUrls()
     {
+        $pu = collect($this->payment_urls);
+        $keys = $pu->pluck('gateway_type_id');
+        $contains_both = $keys->contains('1') && $keys->contains('29'); //handle the case where PayPal Advanced cards + regular CC is present
+
+        $this->payment_urls = $pu->when($contains_both, function ($methods){
+            return $methods->reject(function ($item){
+                return $item['gateway_type_id'] == '29';
+            });
+        })->toArray();
+
         return $this->payment_urls;
+
     }
 
     public function getPaymentMethods()
@@ -168,16 +178,25 @@ class PaymentMethod
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) { //@phpstan-ignore-line
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
+<<<<<<< HEAD
                         // $this->payment_methods[] = [$gateway->id => $type];
                         // @15-06-2024
+=======
+>>>>>>> new_payment_flow
                         $this->buildUrl($gateway, $type);
                     }
                 } else {
-                    // $this->payment_methods[] = [$gateway->id => null];
-                    //@15-06-2024
                     $this->buildUrl($gateway, null);
                 }
             }
+        }
+        
+        if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
+            $this->payment_urls[] = [
+                'label' => ctrans('texts.apply_credit'),
+                'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
+                'gateway_type_id' => GatewayType::CREDIT,
+            ];
         }
 
         if (($this->client->getSetting('use_credits_payment') == 'option' || $this->client->getSetting('use_credits_payment') == 'always') && $this->client->service()->getCreditBalance() > 0) {
@@ -225,6 +244,7 @@ class PaymentMethod
         return $this;
     }
 
+<<<<<<< HEAD
     //@deprecated as buildUrl() supercedes
     private function buildUrls()
     {
@@ -271,6 +291,8 @@ class PaymentMethod
         return $this;
     }
 
+=======
+>>>>>>> new_payment_flow
     private function validGatewayForAmount($fees_and_limits_for_payment_type): bool
     {
         if (isset($fees_and_limits_for_payment_type)) {

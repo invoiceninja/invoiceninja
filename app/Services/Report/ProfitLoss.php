@@ -99,6 +99,13 @@ class ProfitLoss
 
     public function run()
     {
+
+        MultiDB::setDb($this->company->db);
+        App::forgetInstance('translator');
+        App::setLocale($this->company->locale());
+        $t = app('translator');
+        $t->replace(Ninja::transformTranslations($this->company->settings));
+
         return $this->build()->getCsv();
     }
 
@@ -355,12 +362,6 @@ class ProfitLoss
         nlog($this->income);
         nlog($this->income_taxes);
         nlog(array_sum(array_column($this->expense_break_down, 'total')));
-
-        MultiDB::setDb($this->company->db);
-        App::forgetInstance('translator');
-        App::setLocale($this->company->locale());
-        $t = app('translator');
-        $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $csv = Writer::createFromString();
 

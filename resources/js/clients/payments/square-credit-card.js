@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class SquareCreditCard {
     constructor() {
         this.appId = document.querySelector('meta[name=square-appId]').content;
@@ -180,4 +182,9 @@ class SquareCreditCard {
     }
 }
 
-new SquareCreditCard().handle();
+function boot() {
+    new SquareCreditCard().handle();
+}
+
+instant() ? boot() : wait('#square-credit-card-payment').then(() => boot());
+
