@@ -241,9 +241,8 @@ class Rule extends BaseRule implements RuleInterface
             // nlog("tax exempt");
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
-        } elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->vat_number && $this->eu_business_tax_exempt) {
-            // elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt)
-            // nlog("euro zone and tax exempt");
+        } elseif($this->client_subregion != $this->client->company->tax_data->seller_subregion && in_array($this->client_subregion, $this->eu_country_codes) && $this->client->vat_number && $this->client->has_valid_vat_number && $this->eu_business_tax_exempt) {
+            // nlog("euro zone and tax exempt");            
             $this->tax_rate = 0;
             $this->reduced_tax_rate = 0;
         } elseif(!in_array($this->client_subregion, $this->eu_country_codes) && ($this->foreign_consumer_tax_exempt || $this->foreign_business_tax_exempt)) { //foreign + tax exempt
@@ -252,8 +251,9 @@ class Rule extends BaseRule implements RuleInterface
             $this->reduced_tax_rate = 0;
         } elseif(!in_array($this->client_subregion, $this->eu_country_codes)) {
             $this->defaultForeign();
-        } elseif(in_array($this->client_subregion, $this->eu_country_codes) && !$this->client->vat_number) { //eu country / no valid vat
-            if(($this->client->company->tax_data->seller_subregion != $this->client_subregion) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold) {
+        } elseif(in_array($this->client_subregion, $this->eu_country_codes) && ((strlen($this->client->vat_number ?? '') == 1) || $this->client->has_valid_vat_number)) { //eu country / no valid vat
+            // if(($this->client->company->tax_data->seller_subregion != $this->client_subregion) && $this->client->company->tax_data->regions->EU->has_sales_above_threshold) {
+            if($this->client->company->tax_data->seller_subregion != $this->client_subregion) {
                 // nlog("eu zone with sales above threshold");
                 $this->tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->tax_rate ?? 0;
                 $this->reduced_tax_rate = $this->client->company->tax_data->regions->EU->subregions->{$this->client->country->iso_3166_2}->reduced_tax_rate ?? 0;
