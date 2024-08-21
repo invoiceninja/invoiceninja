@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Quickbooks\AuthorizedQuickbooksRequest;
 use \Closure;
 use App\Utils\Ninja;
 use App\Models\Company;
@@ -18,98 +19,31 @@ use App\Services\Import\Quickbooks\QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
 {
-    // protected QuickbooksService $service; 
 
-    private $import_entities = [
+    private array $import_entities = [
         'client' => 'Customer',
         'invoice' => 'Invoice',
         'product' => 'Item',
         'payment' => 'Payment'
     ];
 
-    // public function __construct(QuickbooksService $service) {
-    //     parent::__construct();
-
-    //     $this->service = $service;
-    //     $this->middleware(
-    //         function (Request $request, Closure $next) {
-               
-    //             // Check for the required query parameters
-    //             if (!$request->has(['code', 'state', 'realmId'])) {
-    //                 return abort(400,'Unauthorized');
-    //             }
-
-    //             $rules = [
-    //                 'state' => [
-    //                     'required',
-    //                     'valid' => function ($attribute, $value, $fail) {
-    //                         if (!Cache::has($value)) {
-    //                             $fail('The state is invalid.');
-    //                         }
-    //                     },
-    //                 ]
-    //             ];
-    //             // Custom error messages
-    //             $messages = [
-    //                 'state.required' => 'The state is required.',
-    //                 'state.valid' => 'state token not valid'
-    //             ];
-    //             // Perform the validation
-    //             $validator = Validator::make($request->all(), $rules, $messages);
-    //             if ($validator->fails()) {
-    //                 // If validation fails, redirect back with errors and input
-    //                 return redirect('/')
-    //                     ->withErrors($validator)
-    //                     ->withInput();
-    //             }
-
-    //             $token = Cache::pull($request->state);
-    //             $request->merge(['company' => Cache::get($token) ]);
-
-    //             return $next($request);
-    //         }
-    //     )->only('onAuthorized');
-    //     $this->middleware(
-    //         function ( Request $request, Closure $next) {
-    //             $rules = [
-    //                 'token' => [
-    //                     'required',
-    //                     'valid' => function ($attribute, $value, $fail) {
-    //                         if (!Cache::has($value) || (!Company::where('company_key', (Cache::get($value))['company_key'])->exists() )) {
-    //                             $fail('The company is invalid.');
-    //                         }
-    //                     },
-    //                 ]
-    //             ];
-    //             // Custom error messages
-    //             $messages = [
-    //                 'token.required' => 'The token is required.',
-    //                 'token.valid' => 'Token note valid!'
-    //             ];
-    //             // Perform the validation
-    //             $validator = Validator::make(['token' => $request->token ], $rules, $messages);
-    //             if ($validator->fails()) {
-    //                 return redirect()
-    //                     ->back()
-    //                     ->withErrors($validator)
-    //                     ->withInput();
-    //             }
-
-    //             //If validation passes, proceed to the next middleware/controller
-    //             return $next($request);
-    //         }
-    //     )->only('authorizeQuickbooks');
-    // }  
-
-    public function onAuthorized(Request $request)
+    public function onAuthorized(AuthorizedQuickbooksRequest $request)
     {
-        $realm = $request->query('realmId');
-        $company_key = $request->input('company.company_key');
-        $company_id = $request->input('company.id');
-        $tokens = ($auth_service = $this->service->getOAuth())->accessToken($request->query('code'), $realm);
-        $auth_service->saveTokens($company_key, ['realm' => $realm] + $tokens);
         
-        return response(200);
+        MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
+        $company = $request->getCompany();
+        $qb = new QuickbooksService($company);
+
+        $realm = $request->query('realmId');
+        $access_token_object = $qb->getAuth()->accessToken($request->query('code'), $realm);
+        nlog($access_token_object);
+        $company->quickbooks = $access_token_object;
+        $company->save();
+        // $company_key = $request->input('company.company_key');
+        // $company_id = $request->input('company.id');
+        // $auth_service->saveTokens($company_key, ['realm' => $realm] + $tokens);
+        
+        return response()->json(['message' => 'Success'], 200);
     }
 
     /**
