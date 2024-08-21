@@ -515,8 +515,6 @@ class CompanySettings extends BaseSettings
     public $quote_schedule_reminder1 = ''; //before_valid_until_date,after_valid_until_date,after_quote_date
     public $quote_late_fee_amount1 = 0;
     public $quote_late_fee_percent1 = 0;
-    
-
 
     public static $casts = [
         'enable_quote_reminder1'             => 'bool',
