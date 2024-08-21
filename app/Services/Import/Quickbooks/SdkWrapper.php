@@ -49,7 +49,7 @@ final class SdkWrapper implements QuickbooksInterface
         
         $token =($this->sdk->getOAuth2LoginHelper())->getAccessToken();
         return $token;
-        
+
         // $access_token = $token->getAccessToken();
         // $refresh_token = $token->getRefreshToken();
         // $access_token_expires = $token->getAccessTokenExpiresAt();
@@ -99,7 +99,7 @@ final class SdkWrapper implements QuickbooksInterface
                 $records = array_merge($records,$recordsChunk);
                 $start += $limit;
             } while ($start < $total);
-            if(empty($records)) throw new \Exceptions("No records retrieved!");
+            if(empty($records)) throw new \Exception("No records retrieved!");
 
         } catch (\Throwable $th) {
             nlog("Fetch Quickbooks API Error: {$th->getMessage()}");

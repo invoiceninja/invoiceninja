@@ -7,7 +7,7 @@ interface SdkInterface
     function getAuthorizationUrl(): string;
     function accessToken(string $code, string $realm): array;
     function refreshToken(): array;
-    function getAccessToken(): array;
+    function getAccessToken();
     function getRefreshToken(): array;
     function totalRecords(string $entity): int;
     function fetchRecords(string $entity, int $max): array;
