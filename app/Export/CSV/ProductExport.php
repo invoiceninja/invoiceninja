@@ -51,7 +51,7 @@ class ProductExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    
+
                     /** @var \App\Models\Product $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
@@ -106,8 +106,8 @@ class ProductExport extends BaseExport
         $query->cursor()
               ->each(function ($entity) {
 
-                /** @var \App\Models\Product $entity */
-                $this->csv->insertOne($this->buildRow($entity));
+                  /** @var \App\Models\Product $entity */
+                  $this->csv->insertOne($this->buildRow($entity));
               });
 
         return $this->csv->toString();

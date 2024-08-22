@@ -457,7 +457,7 @@ class PdfConfiguration
      */
     public function setDateFormat(): self
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
         $date_formats = app('date_formats');
 

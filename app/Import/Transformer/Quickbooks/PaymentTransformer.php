@@ -21,7 +21,7 @@ use Illuminate\Support\Arr;
 use App\Models\Invoice;
 
 /**
- * 
+ *
  * Class PaymentTransformer.
  */
 class PaymentTransformer extends BaseTransformer
@@ -44,10 +44,11 @@ class PaymentTransformer extends BaseTransformer
     {
         parent::__construct($company);
 
-        $this->model = new Model;
+        $this->model = new Model();
     }
 
-    public function getTotalAmt($data, $field = null) {
+    public function getTotalAmt($data, $field = null)
+    {
         return (float) $this->getString($data, $field);
     }
 
@@ -56,12 +57,12 @@ class PaymentTransformer extends BaseTransformer
         return $this->parseDateOrNull($data, $field);
     }
 
-    public function getCustomerRef($data, $field = null )
+    public function getCustomerRef($data, $field = null)
     {
-        return $this->getClient($this->getString($data, 'CustomerRef.name'),null);
+        return $this->getClient($this->getString($data, 'CustomerRef.name'), null);
     }
 
-    public function getCurrencyRef($data, $field = null) 
+    public function getCurrencyRef($data, $field = null)
     {
         return $this->getCurrencyByCode($data['CurrencyRef'], 'value');
     }
@@ -69,26 +70,32 @@ class PaymentTransformer extends BaseTransformer
     public function getLine($data, $field = null)
     {
         $invoices = [];
-        $invoice = $this->getString($data,'Line.LinkedTxn.TxnType');
-        if(is_null($invoice) || $invoice !== 'Invoice') return $invoices;
-        if( is_null( ($invoice_id = $this->getInvoiceId($this->getString($data, 'Line.LinkedTxn.TxnId.value')))) ) return $invoices;
-        
+        $invoice = $this->getString($data, 'Line.LinkedTxn.TxnType');
+        if(is_null($invoice) || $invoice !== 'Invoice') {
+            return $invoices;
+        }
+        if(is_null(($invoice_id = $this->getInvoiceId($this->getString($data, 'Line.LinkedTxn.TxnId.value'))))) {
+            return $invoices;
+        }
+
         return [[
             'amount' => (float) $this->getString($data, 'Line.Amount'),
             'invoice_id' => $invoice_id
         ]];
     }
 
-     /**
-     * @param $invoice_number
-     *
-     * @return int|null
-     */
+    /**
+    * @param $invoice_number
+    *
+    * @return int|null
+    */
     public function getInvoiceId($invoice_number)
     {
         $invoice = Invoice::query()->where('company_id', $this->company->id)
             ->where('is_deleted', false)
-            ->where("number", "LIKE", 
+            ->where(
+                "number",
+                "LIKE",
                 "%-$invoice_number%",
             )
             ->first();

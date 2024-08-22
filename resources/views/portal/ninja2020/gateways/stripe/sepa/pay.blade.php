@@ -18,8 +18,6 @@
     <meta name="translation-name-required" content="{{ ctrans('texts.missing_account_holder_name') }}">
     <meta name="translation-email-required" content="{{ ctrans('texts.provide_email') }}">
     <meta name="translation-terms-required" content="{{ ctrans('texts.you_need_to_accept_the_terms_before_proceeding') }}">
-
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

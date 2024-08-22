@@ -20,7 +20,6 @@ use Illuminate\Http\Request;
  */
 class MailgunWebhookController extends BaseController
 {
-
     public function __construct()
     {
     }
@@ -35,7 +34,7 @@ class MailgunWebhookController extends BaseController
         }
 
         if(\hash_equals(\hash_hmac('sha256', $input['signature']['timestamp'] . $input['signature']['token'], config('services.mailgun.webhook_signing_key')), $input['signature']['signature'])) {
-            ProcessMailgunWebhook::dispatch($request->all())->delay(rand(2,10));
+            ProcessMailgunWebhook::dispatch($request->all())->delay(rand(2, 10));
         }
 
         return response()->json(['message' => 'Success.'], 200);

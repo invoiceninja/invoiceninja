@@ -64,7 +64,7 @@ class InvoiceSumInclusive
     {
         $this->invoice = $invoice;
         $this->client = $invoice->client ?? $invoice->vendor;
-        
+
         $this->precision = $this->client->currency()->precision;
         $this->rappen_rounding = $this->client->getSetting('enable_rappen_rounding');
 

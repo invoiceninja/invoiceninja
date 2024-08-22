@@ -42,6 +42,6 @@ class InvoiceSummary extends Component
             'invoice' => $this->invoices,
             'client' => $this->invoices->first()->client,
         ]);
-        
+
     }
 }

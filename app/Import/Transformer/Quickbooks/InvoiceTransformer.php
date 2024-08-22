@@ -11,10 +11,11 @@
 
 namespace App\Import\Transformer\Quickbooks;
 
-use Illuminate\Support\Str;
+use App\Models\Invoice;
 use Illuminate\Support\Arr;
-use App\Import\ImportException;
+use Illuminate\Support\Str;
 use App\DataMapper\InvoiceItem;
+use App\Import\ImportException;
 use App\Models\Invoice as Model;
 use App\Import\Transformer\BaseTransformer;
 use App\Import\Transformer\Quickbooks\CommonTrait;
@@ -48,7 +49,7 @@ class InvoiceTransformer extends BaseTransformer
     {
         parent::__construct($company);
 
-        $this->model = new Model;
+        $this->model = new Model();
     }
 
     public function getInvoiceStatus($data)
@@ -58,33 +59,34 @@ class InvoiceTransformer extends BaseTransformer
 
     public function transform($data)
     {
-       return $this->preTransform($data) + $this->getInvoiceClient($data);
+        return $this->preTransform($data) + $this->getInvoiceClient($data);
     }
 
     public function getTotalAmt($data)
     {
-        return (float) $this->getString($data,'TotalAmt');
+        return (float) $this->getString($data, 'TotalAmt');
     }
 
     public function getLine($data)
     {
         return array_map(function ($item) {
             return [
-                'description' => $this->getString($item,'Description'),
-                'product_key' => $this->getString($item,'Description'),
-                'quantity' => (int) $this->getString($item,'SalesItemLineDetail.Qty'),
-                'unit_price' =>(double) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
-                'line_total' => (double) $this->getString($item,'Amount'),
-                'cost' =>(double) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
-                'product_cost' => (double) $this->getString($item,'SalesItemLineDetail.UnitPrice'),
-                'tax_amount' => (double) $this->getString($item,'TxnTaxDetail.TotalTax'),
+                'description' => $this->getString($item, 'Description'),
+                'product_key' => $this->getString($item, 'Description'),
+                'quantity' => (int) $this->getString($item, 'SalesItemLineDetail.Qty'),
+                'unit_price' => (float) $this->getString($item, 'SalesItemLineDetail.UnitPrice'),
+                'line_total' => (float) $this->getString($item, 'Amount'),
+                'cost' => (float) $this->getString($item, 'SalesItemLineDetail.UnitPrice'),
+                'product_cost' => (float) $this->getString($item, 'SalesItemLineDetail.UnitPrice'),
+                'tax_amount' => (float) $this->getString($item, 'TxnTaxDetail.TotalTax'),
             ];
-        }, array_filter($this->getString($data,'Line'), function ($item) {
-            return $this->getString($item,'DetailType') !== 'SubTotalLineDetail';
+        }, array_filter($this->getString($data, 'Line'), function ($item) {
+            return $this->getString($item, 'DetailType') !== 'SubTotalLineDetail';
         }));
     }
 
-    public function getInvoiceClient($data, $field = null) {
+    public function getInvoiceClient($data, $field = null)
+    {
         /**
          *  "CustomerRef": {
                 "value": "23",
@@ -135,23 +137,22 @@ class InvoiceTransformer extends BaseTransformer
         $customer = explode(" ", $this->getString($data, 'CustomerRef.name'));
         $customer = ['GivenName' => $customer[0], 'FamilyName' => $customer[1]];
         $has_company = property_exists($bill_address, 'Line4');
-        $address = $has_company?  $bill_address->Line4 : $bill_address->Line3;
-        $address_1 = substr($address, 0, stripos($address,','));
-        $address =array_filter( [$address_1] + (explode(' ', substr($address, stripos($address,",") + 1 ))));
+        $address = $has_company ? $bill_address->Line4 : $bill_address->Line3;
+        $address_1 = substr($address, 0, stripos($address, ','));
+        $address = array_filter([$address_1] + (explode(' ', substr($address, stripos($address, ",") + 1))));
         $client_id = null;
-        $client = 
+        $client =
         [
-            "CompanyName" => $has_company?  $bill_address->Line2 : $bill_address->Line1,
-            "BillAddr" => array_combine(['City','CountrySubDivisionCode','PostalCode'], array_pad($address,3,'N/A') ) + ['Line1' => $has_company? $bill_address->Line3 : $bill_address->Line2 ],
+            "CompanyName" => $has_company ? $bill_address->Line2 : $bill_address->Line1,
+            "BillAddr" => array_combine(['City','CountrySubDivisionCode','PostalCode'], array_pad($address, 3, 'N/A')) + ['Line1' => $has_company ? $bill_address->Line3 : $bill_address->Line2 ],
             "ShipAddr" => $ship_address
         ] + $customer + ['PrimaryEmailAddr' => ['Address' => $this->getString($data, 'BillEmail.Address') ]];
-        if($this->hasClient($client['CompanyName']))
-        {
-            $client_id = $this->getClient($client['CompanyName'],$this->getString($client, 'PrimaryEmailAddr.Address'));
+        if($this->hasClient($client['CompanyName'])) {
+            $client_id = $this->getClient($client['CompanyName'], $this->getString($client, 'PrimaryEmailAddr.Address'));
         }
-        
-       
-        return ['client'=> (new ClientTransformer($this->company))->transform($client), 'client_id'=> $client_id ];
+
+
+        return ['client' => (new ClientTransformer($this->company))->transform($client), 'client_id' => $client_id ];
     }
 
     public function getDueDate($data)
@@ -161,36 +162,39 @@ class InvoiceTransformer extends BaseTransformer
 
     public function getDeposit($data)
     {
-        return (double) $this->getString($data,'Deposit');
+        return (float) $this->getString($data, 'Deposit');
     }
 
     public function getBalance($data)
     {
-        return (double) $this->getString($data,'Balance');
+        return (float) $this->getString($data, 'Balance');
     }
 
     public function getCustomerMemo($data)
     {
-        return $this->getString($data,'CustomerMemo.value');
+        return $this->getString($data, 'CustomerMemo.value');
     }
 
-    public function getDocNumber($data, $field = null) 
+    public function getDocNumber($data, $field = null)
     {
-        return sprintf("%s-%s", 
-                    $this->getString($data, 'DocNumber'), 
-                    $this->getString($data, 'Id.value')
-                );
+        return sprintf(
+            "%s-%s",
+            $this->getString($data, 'DocNumber'),
+            $this->getString($data, 'Id.value')
+        );
     }
 
     public function getLinkedTxn($data)
     {
-        $payments = $this->getString($data,'LinkedTxn');
-        if(empty($payments)) return [];
+        $payments = $this->getString($data, 'LinkedTxn');
+        if(empty($payments)) {
+            return [];
+        }
 
-       return [[
-            'amount' => $this->getTotalAmt($data),
-            'date' => $this->parseDateOrNull($data, 'TxnDate')
-        ]];
+        return [[
+             'amount' => $this->getTotalAmt($data),
+             'date' => $this->parseDateOrNull($data, 'TxnDate')
+         ]];
 
     }
 }

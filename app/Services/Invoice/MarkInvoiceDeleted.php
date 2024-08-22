@@ -187,7 +187,7 @@ class MarkInvoiceDeleted extends AbstractService
 
     private function triggeredActions(): self
     {
-        if($this->invoice->quote){
+        if($this->invoice->quote) {
             $this->invoice->quote->invoice_id = null;
             $this->invoice->quote->status_id = Quote::STATUS_SENT;
             $this->invoice->pushQuietly();

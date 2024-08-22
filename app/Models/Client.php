@@ -123,7 +123,7 @@ class Client extends BaseModel implements HasLocalePreference
     use AppSetup;
     use ClientGroupSettingsSaver;
     use Excludable;
-    
+
     protected $presenter = ClientPresenter::class;
 
     protected $hidden = [

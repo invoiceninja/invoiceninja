@@ -293,8 +293,7 @@ class ReminderTest extends TestCase
 
         } while($x === false);
 
-        nlog($invoice->toArray());
-
+        
         $this->assertEquals(now()->addDays(14), $invoice->next_send_date);
 
     }   

@@ -535,29 +535,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-<<<<<<< HEAD
-            "version": "3.320.4",
+            "version": "3.320.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "e6af3e760864d43a30d8b7deb4f9dc6a49a5f66a"
+                "reference": "afda5aefd59da90208d2f59427ce81e91535b1f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/e6af3e760864d43a30d8b7deb4f9dc6a49a5f66a",
-                "reference": "e6af3e760864d43a30d8b7deb4f9dc6a49a5f66a",
-=======
-            "version": "3.315.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "13871330833e167d098240dab74b8b069b9b07e3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/13871330833e167d098240dab74b8b069b9b07e3",
-                "reference": "13871330833e167d098240dab74b8b069b9b07e3",
->>>>>>> new_payment_flow
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/afda5aefd59da90208d2f59427ce81e91535b1f2",
+                "reference": "afda5aefd59da90208d2f59427ce81e91535b1f2",
                 "shasum": ""
             },
             "require": {
@@ -640,15 +627,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-<<<<<<< HEAD
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.5"
             },
-            "time": "2024-08-20T18:20:32+00:00"
-=======
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.315.1"
-            },
-            "time": "2024-06-27T18:03:53+00:00"
->>>>>>> new_payment_flow
+            "time": "2024-08-21T18:14:31+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -2541,7 +2522,6 @@
         },
         {
             "name": "google/apiclient-services",
-<<<<<<< HEAD
             "version": "v0.369.0",
             "source": {
                 "type": "git",
@@ -2552,18 +2532,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/002f610e4c3acf0636b4fb1f46314a2097e1c8b4",
                 "reference": "002f610e4c3acf0636b4fb1f46314a2097e1c8b4",
-=======
-            "version": "v0.361.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "f90e9a059ce5a6076b4fc8571a4fac6564012782"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/f90e9a059ce5a6076b4fc8571a4fac6564012782",
-                "reference": "f90e9a059ce5a6076b4fc8571a4fac6564012782",
->>>>>>> new_payment_flow
                 "shasum": ""
             },
             "require": {
@@ -2592,15 +2560,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.369.0"
             },
             "time": "2024-08-14T20:31:16+00:00"
-=======
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.361.0"
-            },
-            "time": "2024-06-23T01:02:19+00:00"
->>>>>>> new_payment_flow
         },
         {
             "name": "google/auth",
@@ -4589,7 +4551,6 @@
         },
         {
             "name": "laravel/framework",
-<<<<<<< HEAD
             "version": "v11.21.0",
             "source": {
                 "type": "git",
@@ -4600,18 +4561,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/laravel/framework/zipball/9d9d36708d56665b12185493f684abce38ad2d30",
                 "reference": "9d9d36708d56665b12185493f684abce38ad2d30",
-=======
-            "version": "v11.13.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laravel/framework.git",
-                "reference": "92deaa4f037ff100e36809443811301819a8cf84"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/92deaa4f037ff100e36809443811301819a8cf84",
-                "reference": "92deaa4f037ff100e36809443811301819a8cf84",
->>>>>>> new_payment_flow
                 "shasum": ""
             },
             "require": {
@@ -4804,11 +4753,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-<<<<<<< HEAD
             "time": "2024-08-20T15:00:52+00:00"
-=======
-            "time": "2024-06-27T09:04:50+00:00"
->>>>>>> new_payment_flow
         },
         {
             "name": "laravel/pint",
@@ -6448,7 +6393,6 @@
         },
         {
             "name": "mollie/mollie-api-php",
-<<<<<<< HEAD
             "version": "v2.71.0",
             "source": {
                 "type": "git",
@@ -6459,18 +6403,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/dff324f0621ff134fbefffa42ee511833a58578f",
                 "reference": "dff324f0621ff134fbefffa42ee511833a58578f",
-=======
-            "version": "v2.69.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mollie/mollie-api-php.git",
-                "reference": "9a53f8bd6c89ae3e62982921a2f9d8ed68f9900d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mollie/mollie-api-php/zipball/9a53f8bd6c89ae3e62982921a2f9d8ed68f9900d",
-                "reference": "9a53f8bd6c89ae3e62982921a2f9d8ed68f9900d",
->>>>>>> new_payment_flow
                 "shasum": ""
             },
             "require": {
@@ -6547,103 +6479,9 @@
             ],
             "support": {
                 "issues": "https://github.com/mollie/mollie-api-php/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/mollie/mollie-api-php/tree/v2.71.0"
             },
             "time": "2024-07-17T08:02:14+00:00"
-=======
-                "source": "https://github.com/mollie/mollie-api-php/tree/v2.69.0"
-            },
-            "time": "2024-06-24T11:52:46+00:00"
-        },
-        {
-            "name": "moneyphp/money",
-            "version": "v4.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/moneyphp/money.git",
-                "reference": "a1daa7daf159b4044e3d0c34c41fe2be5860e850"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/moneyphp/money/zipball/a1daa7daf159b4044e3d0c34c41fe2be5860e850",
-                "reference": "a1daa7daf159b4044e3d0c34c41fe2be5860e850",
-                "shasum": ""
-            },
-            "require": {
-                "ext-bcmath": "*",
-                "ext-filter": "*",
-                "ext-json": "*",
-                "php": "~8.1.0 || ~8.2.0 || ~8.3.0"
-            },
-            "require-dev": {
-                "cache/taggable-cache": "^1.1.0",
-                "doctrine/coding-standard": "^12.0",
-                "doctrine/instantiator": "^1.5.0 || ^2.0",
-                "ext-gmp": "*",
-                "ext-intl": "*",
-                "florianv/exchanger": "^2.8.1",
-                "florianv/swap": "^4.3.0",
-                "moneyphp/crypto-currencies": "^1.1.0",
-                "moneyphp/iso-currencies": "^3.4",
-                "php-http/message": "^1.16.0",
-                "php-http/mock-client": "^1.6.0",
-                "phpbench/phpbench": "^1.2.5",
-                "phpunit/phpunit": "^10.5.9",
-                "psalm/plugin-phpunit": "^0.18.4",
-                "psr/cache": "^1.0.1 || ^2.0 || ^3.0",
-                "vimeo/psalm": "~5.20.0"
-            },
-            "suggest": {
-                "ext-gmp": "Calculate without integer limits",
-                "ext-intl": "Format Money objects with intl",
-                "florianv/exchanger": "Exchange rates library for PHP",
-                "florianv/swap": "Exchange rates library for PHP",
-                "psr/cache-implementation": "Used for Currency caching"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Money\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Mathias Verraes",
-                    "email": "mathias@verraes.net",
-                    "homepage": "http://verraes.net"
-                },
-                {
-                    "name": "Márk Sági-Kazár",
-                    "email": "mark.sagikazar@gmail.com"
-                },
-                {
-                    "name": "Frederik Bosch",
-                    "email": "f.bosch@genkgo.nl"
-                }
-            ],
-            "description": "PHP implementation of Fowler's Money pattern",
-            "homepage": "http://moneyphp.org",
-            "keywords": [
-                "Value Object",
-                "money",
-                "vo"
-            ],
-            "support": {
-                "issues": "https://github.com/moneyphp/money/issues",
-                "source": "https://github.com/moneyphp/money/tree/v4.5.0"
-            },
-            "time": "2024-02-15T19:47:21+00:00"
->>>>>>> new_payment_flow
         },
         {
             "name": "monolog/monolog",
@@ -8444,7 +8282,6 @@
         },
         {
             "name": "phpseclib/phpseclib",
-<<<<<<< HEAD
             "version": "3.0.41",
             "source": {
                 "type": "git",
@@ -8455,18 +8292,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/621c73f7dcb310b61de34d1da4c4204e8ace6ceb",
                 "reference": "621c73f7dcb310b61de34d1da4c4204e8ace6ceb",
-=======
-            "version": "3.0.39",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "211ebc399c6e73c225a018435fe5ae209d1d1485"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/211ebc399c6e73c225a018435fe5ae209d1d1485",
-                "reference": "211ebc399c6e73c225a018435fe5ae209d1d1485",
->>>>>>> new_payment_flow
                 "shasum": ""
             },
             "require": {
@@ -8547,11 +8372,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/phpseclib/phpseclib/tree/3.0.41"
-=======
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.39"
->>>>>>> new_payment_flow
             },
             "funding": [
                 {
@@ -8567,11 +8388,7 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
             "time": "2024-08-12T00:13:54+00:00"
-=======
-            "time": "2024-06-24T06:27:33+00:00"
->>>>>>> new_payment_flow
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -9095,16 +8912,16 @@
         },
         {
             "name": "psr/log",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001"
+                "reference": "79dff0b268932c640297f5208d6298f71855c03e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/fe5ea303b0887d5caefd3d431c3e61ad47037001",
-                "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/79dff0b268932c640297f5208d6298f71855c03e",
+                "reference": "79dff0b268932c640297f5208d6298f71855c03e",
                 "shasum": ""
             },
             "require": {
@@ -9139,9 +8956,9 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https://github.com/php-fig/log/tree/3.0.0"
+                "source": "https://github.com/php-fig/log/tree/3.0.1"
             },
-            "time": "2021-07-14T16:46:02+00:00"
+            "time": "2024-08-21T13:31:24+00:00"
         },
         {
             "name": "psr/simple-cache",
@@ -18599,7 +18416,6 @@
         },
         {
             "name": "spatie/error-solutions",
-<<<<<<< HEAD
             "version": "1.1.1",
             "source": {
                 "type": "git",
@@ -18610,18 +18426,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/spatie/error-solutions/zipball/ae7393122eda72eed7cc4f176d1e96ea444f2d67",
                 "reference": "ae7393122eda72eed7cc4f176d1e96ea444f2d67",
-=======
-            "version": "1.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/spatie/error-solutions.git",
-                "reference": "55ea4117e0fde89d520883734ab9b71064c48876"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/spatie/error-solutions/zipball/55ea4117e0fde89d520883734ab9b71064c48876",
-                "reference": "55ea4117e0fde89d520883734ab9b71064c48876",
->>>>>>> new_payment_flow
                 "shasum": ""
             },
             "require": {
@@ -18674,11 +18478,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/error-solutions/issues",
-<<<<<<< HEAD
                 "source": "https://github.com/spatie/error-solutions/tree/1.1.1"
-=======
-                "source": "https://github.com/spatie/error-solutions/tree/1.0.3"
->>>>>>> new_payment_flow
             },
             "funding": [
                 {
@@ -18686,11 +18486,7 @@
                     "type": "github"
                 }
             ],
-<<<<<<< HEAD
             "time": "2024-07-25T11:06:04+00:00"
-=======
-            "time": "2024-06-27T12:22:48+00:00"
->>>>>>> new_payment_flow
         },
         {
             "name": "spatie/flare-client-php",

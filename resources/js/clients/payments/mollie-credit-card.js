@@ -8,8 +8,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait, instant } from '../wait';
-
 class _Mollie {
     constructor() {
         this.mollie = Mollie(
@@ -168,9 +166,4 @@ class _Mollie {
     }
 }
 
-
-function boot() {
-    new _Mollie().handle();
-}
-
-instant() ? boot(): wait('#mollie-credit-card-payment').then(() => boot());
+new _Mollie().handle();

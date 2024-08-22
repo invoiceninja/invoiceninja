@@ -134,11 +134,9 @@ class CompanyGatewayResolutionTest extends TestCase
         });
 
         $this->assertInstanceOf('\\stdClass', $this->cg->fees_and_limits);
-        // $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
         $this->assertNotNull($this->cg->fees_and_limits->{1}->min_limit);
         $payment_methods = $this->client->service()->getPaymentMethods($amount);
-        
-        nlog($payment_methods);
+
 
         $this->assertEquals(2, count($payment_methods));
     }

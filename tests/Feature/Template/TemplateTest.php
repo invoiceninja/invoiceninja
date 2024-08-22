@@ -802,7 +802,7 @@ class TemplateTest extends TestCase
 
         $this->assertNotNull($pdf);
 
-        nlog("Twig + PDF Gen Time: " . $end-$start);
+        // nlog("Twig + PDF Gen Time: " . $end-$start);
 
     }
 
@@ -816,7 +816,7 @@ class TemplateTest extends TestCase
 
         $this->assertNotNull($pdf);
 
-        nlog("Plain PDF Gen Time: " . $end-$start);
+        // nlog("Plain PDF Gen Time: " . $end-$start);
     }
 
     public function testTemplateGeneration()
@@ -892,7 +892,7 @@ class TemplateTest extends TestCase
         $this->assertNotNull($html);
         $this->assertStringContainsStringIgnoringCase($this->company->settings->name, $html);
  
-        nlog("Twig Solo Gen Time: ". $end - $start);
+        // nlog("Twig Solo Gen Time: ". $end - $start);
     }
 
 }

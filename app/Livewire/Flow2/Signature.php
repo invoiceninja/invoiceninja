@@ -16,10 +16,8 @@ use Livewire\Component;
 
 class Signature extends Component
 {
-    
     public function render()
     {
         return render('components.livewire.signature');
     }
 }
-

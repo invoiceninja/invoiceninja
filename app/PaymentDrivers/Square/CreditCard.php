@@ -21,7 +21,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\SquarePaymentDriver;
 use App\Utils\Traits\MakesHash;
@@ -30,7 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Square\Http\ApiResponse;
 
-class CreditCard implements MethodInterface, LivewireMethodInterface
+class CreditCard implements MethodInterface
 {
     use MakesHash;
 
@@ -65,7 +64,10 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
 
     public function paymentView($data)
     {
-        $data = $this->paymentData($data);
+        $data['gateway'] = $this->square_driver;
+        $data['amount'] = $this->square_driver->payment_hash->data->amount_with_fee;
+        $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
+        $data['square_contact'] = $this->buildClientObject();
 
         return render('gateways.square.credit_card.pay', $data);
     }
@@ -236,24 +238,5 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         return false;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string 
-    {
-        return 'gateways.square.credit_card.pay_livewire';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array 
-    {
-        $data['gateway'] = $this->square_driver;
-        $data['amount'] = $this->square_driver->payment_hash->data->amount_with_fee;
-        $data['currencyCode'] = $this->square_driver->client->getCurrencyCode();
-        $data['square_contact'] = $this->buildClientObject();
 
-        return $data;
-    }
 }

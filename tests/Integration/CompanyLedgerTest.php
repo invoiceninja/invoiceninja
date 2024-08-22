@@ -284,14 +284,10 @@ class CompanyLedgerTest extends TestCase
             'date' => '2020/12/11',
         ];
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments/', $data);
-        } catch (ValidationException $e) {
-            nlog(print_r($e->validator->getMessageBag(), 1));
-        }
+            ])->postJson('/api/v1/payments/', $data);
 
         $acc = $response->json();
 

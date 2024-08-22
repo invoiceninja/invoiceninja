@@ -2,7 +2,6 @@
 
 @section('gateway_head')
     <meta name="client-token" content="{{ $client_token ?? '' }}"/>
-    <meta name="instant-payment" content="yes" />
 
     <script src='https://js.braintreegateway.com/web/dropin/1.33.4/js/dropin.min.js'></script>
     {{-- <script src="https://js.braintreegateway.com/web/3.76.2/js/client.min.js"></script> --}}

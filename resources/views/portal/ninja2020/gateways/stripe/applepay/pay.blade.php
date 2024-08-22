@@ -1,7 +1,7 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'Apple Pay', 'card_title' => 'Apple Pay'])
 
 @section('gateway_head')
-  <meta name="instant-payment" content="yes" />
+
 @endsection
 
 @section('gateway_content')

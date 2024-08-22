@@ -106,9 +106,9 @@ class TaskExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                
-                /** @var \App\Models\Task $entity*/
-                $this->buildRow($entity);
+
+                  /** @var \App\Models\Task $entity*/
+                  $this->buildRow($entity);
               });
 
         $this->csv->insertAll($this->storage_array);
@@ -209,7 +209,7 @@ class TaskExport extends BaseExport
                 $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
 
                 $entity['task.time_log'] = (isset($item[1]) && $item[1] != 0) ? $item[1] - $item[0] : ctrans('texts.is_running');
- 
+
             }
 
             if (in_array('task.billable', $this->input['report_keys']) || in_array('billable', $this->input['report_keys'])) {

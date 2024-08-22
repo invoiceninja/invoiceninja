@@ -8,7 +8,6 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-import { wait, instant } from '../wait';
 
 class BraintreeCreditCard {
     initBraintreeDataCollector() {
@@ -44,7 +43,8 @@ class BraintreeCreditCard {
         }
 
         let payNow = document.getElementById('pay-now');
-        let params = JSON.parse(document.querySelector('input[name=threeds]').value);
+
+        params = JSON.parse(document.querySelector('input[name=threeds]').value);
 
         payNow.addEventListener('click', () => {
             dropinInstance.requestPaymentMethod({
@@ -138,8 +138,4 @@ class BraintreeCreditCard {
     }
 }
 
-function boot() {
-    new BraintreeCreditCard().handle();
-}
-
-instant() ? boot() : wait('#braintree-credit-card-payment', 'meta[name=client-token]').then(() => boot());
+new BraintreeCreditCard().handle();

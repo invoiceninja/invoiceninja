@@ -11,8 +11,6 @@
     <meta name="stripe-pi-client-secret" content="{{ $pi_client_secret }}">
     <meta name="no-available-methods" content="{{ json_encode(ctrans('texts.no_available_methods')) }}">
     <meta name="payment-request-data" content="{{ json_encode($payment_request_data) }}">
-
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

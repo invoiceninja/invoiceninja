@@ -3,7 +3,6 @@ ctrans('texts.aio_checkout')])
 
 @section('gateway_head')
     <meta name="razorpay-options" content="{{ \json_encode($options) }}">
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

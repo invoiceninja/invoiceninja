@@ -53,7 +53,7 @@ class GmailTransport extends AbstractTransport
         if ($bccs) {
             $bcc_list = 'Bcc: ';
 
-            foreach ($bccs->getAddresses() as $address) { 
+            foreach ($bccs->getAddresses() as $address) {
 
                 $bcc_list .= $address->getAddress() .',';
             }

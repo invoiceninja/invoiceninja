@@ -20,7 +20,6 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use App\Utils\Traits\MakesHash;
@@ -30,7 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
-class SEPA implements MethodInterface, LivewireMethodInterface
+class SEPA implements MethodInterface
 {
     use MakesHash;
 
@@ -146,7 +145,9 @@ class SEPA implements MethodInterface, LivewireMethodInterface
      */
     public function paymentView(array $data): View
     {
-        $data = $this->paymentData($data);
+        $data['gateway'] = $this->go_cardless;
+        $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
+        $data['currency'] = $this->go_cardless->client->getCurrencyCode();
 
         return render('gateways.gocardless.sepa.pay', $data);
     }
@@ -255,25 +256,5 @@ class SEPA implements MethodInterface, LivewireMethodInterface
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string 
-    {
-        return 'gateways.gocardless.sepa.pay_livewire';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array 
-    {
-        $data['gateway'] = $this->go_cardless;
-        $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
-        $data['currency'] = $this->go_cardless->client->getCurrencyCode();
-
-        return $data;
     }
 }

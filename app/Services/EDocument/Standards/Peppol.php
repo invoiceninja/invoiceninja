@@ -59,31 +59,31 @@ class Peppol extends AbstractService
 {
     use Taxer;
     use NumberFormatter;
-    
+
     /**
-     * Assumptions: 
-     * 
+     * Assumptions:
+     *
      * Line Item Taxes Only
      * Exclusive Taxes
-     * 
-     * 
-     * used as a proxy for 
+     *
+     *
+     * used as a proxy for
      * the schemeID of partyidentification
      * property - for Storecove only:
-     * 
+     *
      * Used in the format key:value
-     * 
+     *
      * ie. IT:IVA / DE:VAT
-     * 
+     *
      * Note there are multiple options for the following countries:
-     * 
+     *
      * US (EIN/SSN) employer identification number / social security number
      * IT (CF/IVA) Codice Fiscale (person/company identifier) / company vat number
      *
      * @var array
      */
     private array $schemeIdIdentifiers = [
-        'US' => 'EIN', 
+        'US' => 'EIN',
         'US' => 'SSN',
         'NZ' => 'GST',
         'CH' => 'VAT', // VAT number = CHE - 999999999 - MWST|IVA|VAT
@@ -96,7 +96,7 @@ class Peppol extends AbstractService
         'BA' => 'VAT',
         'BE' => 'VAT',
         'BG' => 'VAT',
-        'AU' => 'ABN', //Australia	
+        'AU' => 'ABN', //Australia
         'CA' => 'CBN', //Canada
         'MX' => 'RFC', //Mexico
         'NZ' => 'GST', //Nuuu zulund
@@ -157,7 +157,7 @@ class Peppol extends AbstractService
         "896" => "Debit note related to self-billed invoice"
     ];
 
-            //         0       1      2      3 
+    //         0       1      2      3
     // ["Country" => ["B2X","Legal","Tax","Routing"],
     private array $routing_rules = [
         "US" => [
@@ -261,7 +261,7 @@ class Peppol extends AbstractService
         $this->e = new EInvoice();
         $this->setSettings()->setInvoice();
     }
-    
+
     /**
      * Rehydrates an existing e invoice - or - scaffolds a new one
      *
@@ -270,7 +270,7 @@ class Peppol extends AbstractService
     private function setInvoice(): self
     {
 
-        if($this->invoice->e_invoice){
+        if($this->invoice->e_invoice) {
 
             $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
 
@@ -284,7 +284,7 @@ class Peppol extends AbstractService
 
         return $this;
     }
-    
+
     /**
      * Transforms the settings props into usable models we can merge.
      *
@@ -293,7 +293,7 @@ class Peppol extends AbstractService
     private function setSettings(): self
     {
         $this->_client_settings = isset($this->invoice->client->e_invoice->Invoice) ? $this->e->decode('Peppol', json_encode($this->invoice->client->e_invoice->Invoice), 'json') : null;
-        
+
         $this->_company_settings = isset($this->invoice->company->e_invoice->Invoice) ? $this->e->decode('Peppol', json_encode($this->invoice->company->e_invoice->Invoice), 'json') : null;
 
         return $this;
@@ -328,7 +328,7 @@ class Peppol extends AbstractService
         $json =  $e->encode($this->p_invoice, 'json');
 
         return $json;
-        
+
     }
 
     public function toArray(): array
@@ -341,20 +341,21 @@ class Peppol extends AbstractService
         $this->p_invoice->ID = $this->invoice->number;
         $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
 
-        if($this->invoice->due_date)
+        if($this->invoice->due_date) {
             $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
+        }
 
         $this->p_invoice->InvoiceTypeCode = 380; //
         $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
         $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
-        
+
         // $this->p_invoice->TaxTotal = $this->getTotalTaxes(); it only wants the aggregate here!!
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
 
         $this->senderSpecificLevelMutators()
              ->receiverSpecificLevelMutators();
-        
+
         return $this;
 
     }
@@ -372,7 +373,7 @@ class Peppol extends AbstractService
 
         $tea = new TaxExclusiveAmount();
         $tea->currencyID = $this->invoice->client->currency()->code;
-        $tea->amount = $this->invoice->uses_inclusive_taxes ? round($this->invoice->amount - $this->invoice->total_taxes,2) : $taxable;
+        $tea->amount = $this->invoice->uses_inclusive_taxes ? round($this->invoice->amount - $this->invoice->total_taxes, 2) : $taxable;
         $lmt->TaxExclusiveAmount = $tea;
 
         $tia = new TaxInclusiveAmount();
@@ -390,11 +391,12 @@ class Peppol extends AbstractService
 
     private function getTotalTaxAmount(): float
     {
-        if(!$this->invoice->total_taxes)
+        if(!$this->invoice->total_taxes) {
             return 0;
-        elseif($this->invoice->uses_inclusive_taxes)
+        } elseif($this->invoice->uses_inclusive_taxes) {
             return $this->invoice->total_taxes;
-        
+        }
+
         return $this->calcAmountLineTax($this->invoice->tax_rate1, $this->invoice->amount) ?? 0;
     }
 
@@ -406,31 +408,31 @@ class Peppol extends AbstractService
 
         // if(strlen($this->invoice->tax_name1 ?? '') > 1) {
 
-            $tax_amount = new TaxAmount();
-            $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            $tax_amount->amount = $this->getTotalTaxAmount();
+        $tax_amount = new TaxAmount();
+        $tax_amount->currencyID = $this->invoice->client->currency()->code;
+        $tax_amount->amount = $this->getTotalTaxAmount();
 
-            $tax_subtotal = new TaxSubtotal();
-            $tax_subtotal->TaxAmount = $tax_amount;
+        $tax_subtotal = new TaxSubtotal();
+        $tax_subtotal->TaxAmount = $tax_amount;
 
-            $taxable_amount = new TaxableAmount();
-            $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount - $this->invoice->total_taxes : $this->invoice->amount;
-            $tax_subtotal->TaxableAmount = $taxable_amount;
+        $taxable_amount = new TaxableAmount();
+        $taxable_amount->currencyID = $this->invoice->client->currency()->code;
+        $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount - $this->invoice->total_taxes : $this->invoice->amount;
+        $tax_subtotal->TaxableAmount = $taxable_amount;
 
-            $tc = new TaxCategory();
-            $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
-            $tc->Percent = $this->invoice->tax_rate1;
-            $ts = new PeppolTaxScheme();
-            $ts->ID = strlen($this->invoice->tax_name1 ?? '') > 1 ? $this->invoice->tax_name1 : '0'; 
-            $tc->TaxScheme = $ts;
-            $tax_subtotal->TaxCategory = $tc;
+        $tc = new TaxCategory();
+        $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
+        $tc->Percent = $this->invoice->tax_rate1;
+        $ts = new PeppolTaxScheme();
+        $ts->ID = strlen($this->invoice->tax_name1 ?? '') > 1 ? $this->invoice->tax_name1 : '0';
+        $tc->TaxScheme = $ts;
+        $tax_subtotal->TaxCategory = $tc;
 
-            $tax_total = new TaxTotal();
-            $tax_total->TaxAmount = $tax_amount;
-            $tax_total->TaxSubtotal[] = $tax_subtotal;
+        $tax_total = new TaxTotal();
+        $tax_total->TaxAmount = $tax_amount;
+        $tax_total->TaxSubtotal[] = $tax_subtotal;
 
-            $taxes[] = $tax_total;
+        $taxes[] = $tax_total;
         // }
 
 
@@ -446,7 +448,7 @@ class Peppol extends AbstractService
 
             $taxable_amount = new TaxableAmount();
             $taxable_amount->currencyID = $this->invoice->client->currency()->code;
-            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount- $this->invoice->total_taxes : $this->invoice->amount;
+            $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount - $this->invoice->total_taxes : $this->invoice->amount;
             $tax_subtotal->TaxableAmount = $taxable_amount;
 
 
@@ -536,7 +538,7 @@ class Peppol extends AbstractService
             $price = new Price();
             $pa = new PriceAmount();
             $pa->currencyID = $this->invoice->client->currency()->code;
-            $pa->amount = $this->costWithDiscount($item) - ( $this->invoice->uses_inclusive_taxes ? ($this->calcInclusiveLineTax($item->tax_rate1, $item->line_total)/$item->quantity) : 0);
+            $pa->amount = $this->costWithDiscount($item) - ($this->invoice->uses_inclusive_taxes ? ($this->calcInclusiveLineTax($item->tax_rate1, $item->line_total) / $item->quantity) : 0);
             $price->PriceAmount = $pa;
 
             $line->Price = $price;
@@ -630,7 +632,7 @@ class Peppol extends AbstractService
 
             $tax_amount = new TaxAmount();
             $tax_amount->currencyID = $this->invoice->client->currency()->code;
-            
+
             $tax_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->calcInclusiveLineTax($item->tax_rate2, $item->line_total) : $this->calcAmountLineTax($item->tax_rate2, $item->line_total);
 
             $tax_subtotal = new TaxSubtotal();
@@ -738,7 +740,7 @@ class Peppol extends AbstractService
 
         $code = false;
 
-        match($this->invoice->client->classification){
+        match($this->invoice->client->classification) {
             "business" => $code = "B",
             "government" => $code = "G",
             "individual" => $code = "C",
@@ -746,11 +748,11 @@ class Peppol extends AbstractService
         };
 
         //single array
-        if(is_array($rules) && !is_array($rules[0]))
+        if(is_array($rules) && !is_array($rules[0])) {
             return $rules[2];
+        }
 
-        foreach($rules as $rule)
-        {
+        foreach($rules as $rule) {
             if(stripos($rule[0], $code) !== false) {
                 return $rule[2];
             }
@@ -763,18 +765,19 @@ class Peppol extends AbstractService
     {
 
         $acp = new AccountingCustomerParty();
-        
+
         $party = new Party();
 
         if(strlen($this->invoice->client->vat_number ?? '') > 1) {
-            
-            $pi = new PartyIdentification;
 
-            $vatID = new ID;
-            
-            if($scheme = $this->resolveTaxScheme())
+            $pi = new PartyIdentification();
+
+            $vatID = new ID();
+
+            if($scheme = $this->resolveTaxScheme()) {
                 $vatID->schemeID = $scheme;
-            
+            }
+
             $vatID->value = $this->invoice->client->vat_number;
             $pi->ID = $vatID;
 
@@ -804,7 +807,8 @@ class Peppol extends AbstractService
         $physical_location = new PhysicalLocation();
         $physical_location->Address = $address;
 
-        $party->PhysicalLocation = $physical_location;;
+        $party->PhysicalLocation = $physical_location;
+        ;
 
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->client->present()->email();
@@ -861,7 +865,7 @@ class Peppol extends AbstractService
 
         return $total;
     }
-    
+
     /////////////////  Helper Methods /////////////////////////
 
     private function getClientRoutingCode(): string
@@ -871,18 +875,16 @@ class Peppol extends AbstractService
 
         if(count($receiver_identifiers) > 1) {
 
-            foreach($receiver_identifiers as $ident)
-            {
-                if(str_contains($ident[0], $client_classification))
-                {
+            foreach($receiver_identifiers as $ident) {
+                if(str_contains($ident[0], $client_classification)) {
                     return $ident[3];
                 }
             }
 
-        }
-        elseif(count($receiver_identifiers) == 1)  
+        } elseif(count($receiver_identifiers) == 1) {
             return $receiver_identifiers[3];
-    
+        }
+
         throw new \Exception("e-invoice generation halted:: Could not resolve the Tax Code for this client? {$this->invoice->client->hashed_id}");
 
     }
@@ -912,32 +914,33 @@ class Peppol extends AbstractService
         ];
 
         //only scans for top level props
-        foreach($settings as $prop => $visibility){
+        foreach($settings as $prop => $visibility) {
 
-            if($prop_value = $this->getSetting($prop))        
+            if($prop_value = $this->getSetting($prop)) {
                 $this->p_invoice->{$prop} = $prop_value;
+            }
 
         }
 
         return $this;
     }
-    
+
     /**
      * getSetting
      *
      * Attempts to harvest and return a preconfigured prop from company / client / invoice settings
-     * 
+     *
      * @param  string $property_path
      * @return mixed
      */
     public function getSetting(string $property_path): mixed
     {
-    
+
         if($prop_value = PropertyResolver::resolve($this->p_invoice, $property_path)) {
             return $prop_value;
-        }elseif($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) {
+        } elseif($prop_value = PropertyResolver::resolve($this->_client_settings, $property_path)) {
             return $prop_value;
-        }elseif($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) {
+        } elseif($prop_value = PropertyResolver::resolve($this->_company_settings, $property_path)) {
             return $prop_value;
         }
         return null;
@@ -948,7 +951,7 @@ class Peppol extends AbstractService
     {
         return PropertyResolver::resolve($this->_client_settings, $property_path);
     }
-    
+
     private function getCompanySetting(string $property_path): mixed
     {
         return PropertyResolver::resolve($this->_company_settings, $property_path);
@@ -957,33 +960,35 @@ class Peppol extends AbstractService
      * senderSpecificLevelMutators
      *
      * Runs sender level specific requirements for the e-invoice,
-     * 
+     *
      * ie, mutations that are required by the senders country.
-     * 
+     *
      * @return self
      */
-    private function senderSpecificLevelMutators():self
+    private function senderSpecificLevelMutators(): self
     {
 
-        if(method_exists($this, $this->invoice->company->country()->iso_3166_2))
+        if(method_exists($this, $this->invoice->company->country()->iso_3166_2)) {
             $this->{$this->invoice->company->country()->iso_3166_2}();
+        }
 
         return $this;
     }
-    
+
     /**
      * receiverSpecificLevelMutators
      *
      * Runs receiver level specific requirements for the e-invoice
-     * 
+     *
      * ie mutations that are required by the receiving country
      * @return self
      */
-    private function receiverSpecificLevelMutators():self
+    private function receiverSpecificLevelMutators(): self
     {
 
-        if(method_exists($this, "client_{$this->invoice->company->country()->iso_3166_2}"))
+        if(method_exists($this, "client_{$this->invoice->company->country()->iso_3166_2}")) {
             $this->{"client_{$this->invoice->company->country()->iso_3166_2}"}();
+        }
 
         return $this;
     }
@@ -999,9 +1004,9 @@ class Peppol extends AbstractService
     private function setPaymentMeans(bool $required = false): self
     {
 
-        if(isset($this->p_invoice->PaymentMeans))
+        if(isset($this->p_invoice->PaymentMeans)) {
             return $this;
-        elseif($paymentMeans = $this->getSetting('Invoice.PaymentMeans')){
+        } elseif($paymentMeans = $this->getSetting('Invoice.PaymentMeans')) {
             $this->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
             return $this;
         }
@@ -1009,12 +1014,12 @@ class Peppol extends AbstractService
         return $this->checkRequired($required, "Payment Means");
 
     }
-        
+
     /**
      * setOrderReference
      *
      * sets the order reference - if it exists (Never rely on settings for this)
-     * 
+     *
      * @param  bool $required
      * @return self
      */
@@ -1022,8 +1027,7 @@ class Peppol extends AbstractService
     {
         $this->p_invoice->BuyerReference = $this->invoice->po_number ?? '';
 
-        if(strlen($this->invoice->po_number ?? '') > 1)
-        {
+        if(strlen($this->invoice->po_number ?? '') > 1) {
             $order_reference = new OrderReference();
             $id = new ID();
             $id->value = $this->invoice->po_number;
@@ -1036,41 +1040,39 @@ class Peppol extends AbstractService
             //                             "invoice" => [
             //                                 [
             //                                 "references" => [
-            //                                     "documentType" => "purchase_order", 
+            //                                     "documentType" => "purchase_order",
             //                                     "documentId" => $this->invoice->po_number,
             //                                 ],
             //                             ],
             //                         ],
-            //                     ]   
+            //                     ]
             //                 ]);
 
             return $this;
         }
-        
+
         return $this->checkRequired($required, 'Order Reference');
 
     }
-    
+
     /**
      * setCustomerAssignedAccountId
      *
      * Sets the client id_number CAN rely on settings
-     * 
+     *
      * @param  bool $required
      * @return self
      */
     private function setCustomerAssignedAccountId(bool $required = false): self
     {
         //@phpstan-ignore-next-line
-        if(isset($this->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID)){
+        if(isset($this->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID)) {
             return $this;
-        }
-        elseif($customer_assigned_account_id = $this->getSetting('Invoice.AccountingCustomerParty.CustomerAssignedAccountID')){
-        
+        } elseif($customer_assigned_account_id = $this->getSetting('Invoice.AccountingCustomerParty.CustomerAssignedAccountID')) {
+
             $this->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
             return $this;
-        }
-        elseif(strlen($this->invoice->client->id_number ?? '') > 1){
+        } elseif(strlen($this->invoice->client->id_number ?? '') > 1) {
 
             $customer_assigned_account_id = new CustomerAssignedAccountID();
             $customer_assigned_account_id->value = $this->invoice->client->id_number;
@@ -1083,12 +1085,12 @@ class Peppol extends AbstractService
         return $this->checkRequired($required, 'Client ID Number');
 
     }
-    
+
     /**
      * Check Required
      *
      * Throws if a required field is missing.
-     * 
+     *
      * @param  bool $required
      * @param  string $section
      * @return self
@@ -1100,7 +1102,7 @@ class Peppol extends AbstractService
 
     }
 
-        
+
     /**
      * Builds the Routing object for StoreCove
      *
@@ -1109,13 +1111,13 @@ class Peppol extends AbstractService
      */
     private function buildRouting(array $identifiers): array
     {
-  
-        return 
+
+        return
         [
             "routing" => [
-                "eIdentifiers" => 
+                "eIdentifiers" =>
                     $identifiers,
-                
+
             ]
         ];
     }
@@ -1126,12 +1128,11 @@ class Peppol extends AbstractService
 
         $meta = $this->getStorecoveMeta();
 
-        if(isset($meta['routing']['emails'])){
+        if(isset($meta['routing']['emails'])) {
             $emails = $meta['routing']['emails'];
             array_push($emails, $email);
             $meta['routing']['emails'] = $emails;
-        }
-        else {
+        } else {
             $meta['routing']['emails'] = [$email];
         }
 
@@ -1144,13 +1145,13 @@ class Peppol extends AbstractService
      * setStorecoveMeta
      *
      * updates the storecove payload for sending documents
-     * 
+     *
      * @param  array $meta
      * @return self
      */
     private function setStorecoveMeta(array $meta): self
     {
-        
+
         $this->storecove_meta = array_merge($this->storecove_meta, $meta);
 
         return $this;
@@ -1174,22 +1175,22 @@ class Peppol extends AbstractService
      *
      * @Completed
      * @Tested
-     * 
+     *
      * @return self
      */
     private function DE(): self
     {
-        
+
         $this->setPaymentMeans(true);
 
         return $this;
     }
-    
+
     /**
      * CH
      *
      * @Completed
-     * 
+     *
      * Completed - QR-Bill to be implemented at a later date.
      * @return self
      */
@@ -1197,23 +1198,23 @@ class Peppol extends AbstractService
     {
         return $this;
     }
-    
+
     /**
      * AT
      *
      * @Pending
-     * 
+     *
      * Need to ensure when sending to government entities that we route appropriately
      * Also need to ensure customerAssignedAccountIdValue is set so that the sender can be resolved.
-     * 
+     *
      * Need a way to define if the client is a government entity.
-     * 
+     *
      * @return self
      */
     private function AT(): self
     {
         //special fields for sending to AT:GOV
-                
+
         if($this->invoice->client->classification == 'government') {
             //routing "b" for production "test" for test environment
             $this->setStorecoveMeta($this->buildRouting(["scheme" => 'AT:GOV', "id" => 'b']));
@@ -1227,55 +1228,56 @@ class Peppol extends AbstractService
 
     private function AU(): self
     {
-        
+
         //if payment means are included, they must be the same `type`
         return $this;
     }
-    
+
     /**
      * ES
      *
-     * @Pending 
+     * @Pending
      * B2G configuration
      * B2G Testing
-     * 
+     *
      * testing. // routing identifier - 293098
-     * 
+     *
      * @return self
      */
     private function ES(): self
     {
 
-        if(!isset($this->invoice->due_date))
+        if(!isset($this->invoice->due_date)) {
             $this->p_invoice->DueDate = new \DateTime($this->invoice->date);
+        }
 
         if($this->invoice->client->classification == 'business' && $this->invoice->company->getSetting('classification') == 'business') {
             //must have a paymentmeans as credit_transfer
             $this->setPaymentMeans(true);
         }
 
-// For B2G, provide three ES:FACE identifiers in the routing object, 
-// as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers. 
-// The invoice will then be routed through the FACe network. The three required ES:FACE identifiers are as follows:
-//   "routing": {
-//     "eIdentifiers":[
-//       {
-//         "scheme": "ES:FACE",
-//         "id": "L01234567",
-//         "role": "ES-01-FISCAL"
-//       },
-//       {
-//         "scheme": "ES:FACE",
-//         "id": "L01234567",
-//         "role": "ES-02-RECEPTOR"
-//       },
-//       {
-//         "scheme": "ES:FACE",
-//         "id": "L01234567",
-//         "role": "ES-03-PAGADOR"
-//       }
-//     ]
-//   }
+        // For B2G, provide three ES:FACE identifiers in the routing object,
+        // as well as the ES:VAT tax identifier in the accountingCustomerParty.publicIdentifiers.
+        // The invoice will then be routed through the FACe network. The three required ES:FACE identifiers are as follows:
+        //   "routing": {
+        //     "eIdentifiers":[
+        //       {
+        //         "scheme": "ES:FACE",
+        //         "id": "L01234567",
+        //         "role": "ES-01-FISCAL"
+        //       },
+        //       {
+        //         "scheme": "ES:FACE",
+        //         "id": "L01234567",
+        //         "role": "ES-02-RECEPTOR"
+        //       },
+        //       {
+        //         "scheme": "ES:FACE",
+        //         "id": "L01234567",
+        //         "role": "ES-03-PAGADOR"
+        //       }
+        //     ]
+        //   }
 
         return $this;
     }
@@ -1283,13 +1285,13 @@ class Peppol extends AbstractService
     private function FI(): self
     {
 
-        // For Finvoice, provide an FI:OPID routing identifier and an FI:OVT legal identifier. 
-        // An FI:VAT is recommended. In many cases (depending on the sender/receiver country and the type of service/goods) 
+        // For Finvoice, provide an FI:OPID routing identifier and an FI:OVT legal identifier.
+        // An FI:VAT is recommended. In many cases (depending on the sender/receiver country and the type of service/goods)
         // an FI:VAT is required. So we recommend always including this.
 
         return $this;
     }
-    
+
     /**
      * FR
      * @Pending - clarification on codes needed
@@ -1303,7 +1305,7 @@ class Peppol extends AbstractService
         // All invoices have to be routed to SIRET 0009:11000201100044. There is no test environment for sending to public entities.
         // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
 
-        if($this->invoice->client->classification == 'government'){
+        if($this->invoice->client->classification == 'government') {
             //route to SIRET 0009:11000201100044
             $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => 'FR:SIRET', "id" => '11000201100044']
@@ -1313,7 +1315,7 @@ class Peppol extends AbstractService
 
             // The SIRET / 0009 identifier of the final recipient is to be included in the invoice.accountingCustomerParty.publicIdentifiers array.
             $this->setCustomerAssignedAccountId(true);
-        
+
         }
 
         if(strlen($this->invoice->client->id_number ?? '') == 9) {
@@ -1323,8 +1325,7 @@ class Peppol extends AbstractService
 
                 // ["scheme" => 'FR:SIRET', "id" => "0002:{$this->invoice->client->id_number}"]
             ]));
-        }
-        else {
+        } else {
             //SIRET
             $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => 'FR:SIRET', "id" => "{$this->invoice->client->id_number}"]
@@ -1337,7 +1338,7 @@ class Peppol extends AbstractService
         // sounds like it is optional
         // The service code must be sent in invoice.buyerReference (deprecated) or the invoice.references array (documentType buyer_reference)
 
-        if(strlen($this->invoice->po_number ?? '') >1) {
+        if(strlen($this->invoice->po_number ?? '') > 1) {
             $this->setOrderReference(false);
         }
 
@@ -1362,7 +1363,7 @@ class Peppol extends AbstractService
         // IT Sender, IT Receiver, B2C
         // Provide the receiver IT:CF and the receiver IT:CUUO (codice destinatario)
         if($this->invoice->client->classification == 'individual' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
-           
+
             $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => 'IT:CF', "id" => $this->invoice->client->vat_number],
                 // ["scheme" => 'IT:CUUO', "id" => $this->invoice->client->routing_id]
@@ -1372,7 +1373,7 @@ class Peppol extends AbstractService
 
             return $this;
         }
-        
+
         // IT Sender, non-IT Receiver
         // Provide the receiver tax identifier and any routing identifier applicable to the receiving country (see Receiver Identifiers).
         if($this->invoice->client->country->iso_3166_2 != 'IT' && $this->invoice->company->country()->iso_3166_2 == 'IT') {
@@ -1450,7 +1451,7 @@ class Peppol extends AbstractService
         //     }
         //   ]
         // }
-        // Note this will only work if your LegalEntity has been setup for this network. 
+        // Note this will only work if your LegalEntity has been setup for this network.
 
         return $this;
     }
@@ -1461,14 +1462,14 @@ class Peppol extends AbstractService
         $meta = ["networks" => [
                     [
                         "application" => "ro-anaf",
-                        "settings"=> [
+                        "settings" => [
                             "enabled" => true
                         ],
                     ],
                 ]];
-        
+
         $this->setStorecoveMeta($meta);
-        
+
         $this->setStorecoveMeta($this->buildRouting([
                ["scheme" => 'RO:VAT', "id" => $this->invoice->client->vat_number],
            ]));
@@ -1482,7 +1483,7 @@ class Peppol extends AbstractService
         $resolved_city = $ro->getSectorCode($client_city);
 
         $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CountrySubentity = $resolved_state;
-        $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;        
+        $this->p_invoice->AccountingCustomerParty->Party->PostalAddress->CityName = $resolved_city;
         $this->p_invoice->AccountingCustomerParty->Party->PhysicalLocation->Address->CountrySubentity = $resolved_state;
         $this->p_invoice->AccountingCustomerParty->Party->PhysicalLocation->Address->CityName = $resolved_city;
 
@@ -1498,7 +1499,7 @@ class Peppol extends AbstractService
     //Sweden
     private function SE(): self
     {
-        // Deliver invoices to the "Svefaktura" co-operation of local Swedish service providers. 
+        // Deliver invoices to the "Svefaktura" co-operation of local Swedish service providers.
         // Routing is through the SE:ORGNR together with a network specification:
 
         // "routing": {

@@ -20,13 +20,12 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Stripe\Jobs\UpdateCustomer;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Number;
 use Stripe\Checkout\Session;
 
-class BACS implements LivewireMethodInterface
+class BACS
 {
     public $stripe;
 
@@ -70,7 +69,9 @@ class BACS implements LivewireMethodInterface
     }
     public function paymentView(array $data)
     {
-        $data = $this->paymentData($data);
+        $data['gateway'] = $this->stripe;
+        $data['amount'] = $data['total']['amount_with_fee'];
+        $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
         return render('gateways.stripe.bacs.pay', $data);
     }
@@ -185,19 +186,5 @@ class BACS implements LivewireMethodInterface
         } catch (\Exception $e) {
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
-    }
-
-    public function paymentData(array $data): array
-    {
-        $data['gateway'] = $this->stripe;
-        $data['amount'] = $data['total']['amount_with_fee'];
-        $data['payment_hash'] = $this->stripe->payment_hash->hash;
-
-        return $data;
-    }
-
-    public function livewirePaymentView(array $data): string
-    {
-        return 'gateways.stripe.bacs.pay_livewire';
     }
 }

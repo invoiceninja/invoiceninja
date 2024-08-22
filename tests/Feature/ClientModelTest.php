@@ -80,6 +80,8 @@ class ClientModelTest extends TestCase
             'balance' => 10,
             'date' => now()->subDays(2)->format('Y-m-d'),
             'due_date' => now()->addDays(5)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
         ]);
 
 
@@ -92,6 +94,8 @@ class ClientModelTest extends TestCase
             'balance' => 10,
             'date' => now()->subDays(2)->format('Y-m-d'),
             'due_date' => now()->addDays(5)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
         ]);
 
         $response = $this->withHeaders([

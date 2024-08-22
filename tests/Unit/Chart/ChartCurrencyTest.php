@@ -243,7 +243,7 @@ class ChartCurrencyTest extends TestCase
 
         $this->assertCount(2, $results['currencies']);
 
-        nlog($results);
+        // nlog($results);
 
         $this->assertEquals('USD', $results['currencies'][1]);
         $this->assertEquals('GBP', $results['currencies'][2]);
@@ -331,7 +331,7 @@ class ChartCurrencyTest extends TestCase
 
         $this->assertCount(2, $results['currencies']);
 
-        nlog($results);
+        // nlog($results);
 
         // $this->assertEquals('USD', $results['currencies'][1]);
         // $this->assertEquals('GBP', $results['currencies'][2]);

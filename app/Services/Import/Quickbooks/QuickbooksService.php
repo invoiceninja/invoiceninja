@@ -18,7 +18,7 @@ use QuickBooksOnline\API\DataService\DataService;
 // quickbooks_refresh_token
 // quickbooks_refresh_expires
 class QuickbooksService
-{  
+{
     private DataService $sdk;
 
     private Auth $auth;
@@ -26,12 +26,12 @@ class QuickbooksService
     public function __construct(private Company $company)
     {
         $this->init()
-            ->auth();   
+            ->auth();
     }
 
     private function init(): self
     {
-        
+
         $this->sdk = DataService::Configure([
             'ClientID' => config('services.quickbooks.client_id'),
             'ClientSecret' => config('services.quickbooks.client_secret'),

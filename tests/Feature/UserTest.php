@@ -44,13 +44,13 @@ class UserTest extends TestCase
     {
         parent::setUp();
 
-        Session::start();
+        // Session::start();
 
         $this->faker = \Faker\Factory::create();
 
         $this->makeTestData();
 
-        Model::reguard();
+        // Model::reguard();
 
         // $this->withoutExceptionHandling();
 
@@ -276,7 +276,6 @@ class UserTest extends TestCase
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->postJson('/api/v1/users/bulk?action=delete', $data);
 
-        nlog($response);
 
         $response->assertStatus(401);
 
@@ -347,7 +346,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users?include=company_user', $data);
+        ])->postJson('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
     }
@@ -372,7 +371,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users?include=company_user', $data);
+        ])->postJson('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 
@@ -422,7 +421,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->post('/api/v1/users?include=company_user', $data);
+        ])->postJson('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 
@@ -443,19 +442,12 @@ class UserTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
+        $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-            ])->post('/api/v1/users?include=company_user', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-            var_dump($message);
-            $this->assertNotNull($message);
-        }
-
+            ])->postJson('/api/v1/users?include=company_user', $data);
+       
         $response->assertStatus(200);
 
         $arr = $response->json();
@@ -513,7 +505,7 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
-        ])->post('/api/v1/users?include=company_user', $data);
+        ])->postJson('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 
@@ -535,7 +527,7 @@ class UserTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
-        ])->post('/api/v1/users?include=company_user', $data);
+        ])->postJson('/api/v1/users?include=company_user', $data);
 
         $response->assertStatus(200);
 
@@ -570,7 +562,7 @@ class UserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->put('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
+        ])->putJson('/api/v1/users/'.$this->encodePrimaryKey($user->id).'?include=company_user', $data);
 
         $response->assertStatus(200);
 

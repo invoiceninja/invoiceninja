@@ -95,7 +95,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                 ->each(function ($invoice) {
                     $invoice->service()->removeUnpaidGatewayFees();
                 });
-    
+
             \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHours(12))->delete();
 
         }

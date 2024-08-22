@@ -92,7 +92,7 @@ class AutoUnappliedPaymentTest extends TestCase
 
         $this->assertGreaterThan(0, $invoice->balance);
 
-        nlog($invoice->balance);
+        // nlog($invoice->balance);
 
         try{
             $invoice->service()->autoBill()->save();
@@ -104,8 +104,8 @@ class AutoUnappliedPaymentTest extends TestCase
         $invoice = $invoice->fresh();
         $payment = $payment->fresh();
 
-        nlog($invoice->toArray());
-        nlog($payment->toArray());
+        // nlog($invoice->toArray());
+        // nlog($payment->toArray());
 
         $this->assertEquals($payment->applied, $invoice->paid_to_date);
         $this->assertGreaterThan(2, $invoice->status_id);

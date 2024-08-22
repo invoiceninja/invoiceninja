@@ -10,13 +10,12 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class CreditCard implements LivewireMethodInterface
+class CreditCard
 {
     /**
      * @var MolliePaymentDriver
@@ -38,7 +37,7 @@ class CreditCard implements LivewireMethodInterface
      */
     public function paymentView(array $data)
     {
-        $data = $this->paymentData($data);
+        $data['gateway'] = $this->mollie;
 
         return render('gateways.mollie.credit_card.pay', $data);
     }
@@ -257,23 +256,5 @@ class CreditCard implements LivewireMethodInterface
     public function authorizeResponse($request): RedirectResponse
     {
         return redirect()->route('client.payment_methods.index');
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string 
-    {
-        return 'gateways.mollie.credit_card.pay_livewire';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array 
-    {
-        $data['gateway'] = $this->mollie;
-
-        return $data;
     }
 }

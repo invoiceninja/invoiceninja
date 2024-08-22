@@ -61,7 +61,7 @@ class EpcQrGenerator
         } catch(\Throwable $e) {
             nlog("EPC QR failure => ".$e->getMessage());
             return '';
-        } 
+        }
 
     }
 

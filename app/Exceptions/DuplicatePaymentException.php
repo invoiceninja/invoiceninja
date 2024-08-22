@@ -39,6 +39,6 @@ class DuplicatePaymentException extends Exception
         return response()->json([
             'message' => 'Duplicate request',
         ], 400);
-        
+
     }
 }

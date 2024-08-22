@@ -230,7 +230,7 @@ class NotificationTest extends TestCase
 
         $methods = $this->findUserEntityNotificationType($p, $cu, ['inventory_user']);
 
-        nlog($methods);
+        // nlog($methods);
 
         $this->assertCount(1, $methods);
 

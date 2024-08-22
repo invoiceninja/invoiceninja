@@ -9,7 +9,6 @@
     @endif
     <meta name="only-authorization" content="">
     <meta name="translation-payment-method-required" content="{{ ctrans('texts.missing_payment_method') }}">
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

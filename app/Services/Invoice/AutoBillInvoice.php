@@ -42,7 +42,7 @@ class AutoBillInvoice extends AbstractService
 
     public function __construct(private Invoice $invoice, protected string $db)
     {
-        
+
         $this->client = $this->invoice->client;
 
     }
@@ -52,7 +52,7 @@ class AutoBillInvoice extends AbstractService
         MultiDB::setDb($this->db);
 
         /* @var \App\Modesl\Client $client */
-      
+
         $is_partial = false;
 
         /* Is the invoice payable? */
@@ -286,7 +286,7 @@ class AutoBillInvoice extends AbstractService
                                   ->get();
 
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
-        
+
         nlog($this->client->id);
         nlog($this->invoice->id);
         nlog($unapplied_payments->sum('amount'));

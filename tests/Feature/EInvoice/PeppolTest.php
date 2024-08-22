@@ -154,7 +154,6 @@ class PeppolTest extends TestCase
         $peppol->setInvoiceDefaults();
         $peppol->run();
 
-        nlog($peppol->toXml());
 
         $de_invoice = $peppol->getInvoice();
 
@@ -164,7 +163,6 @@ class PeppolTest extends TestCase
         $xml = $e->encode($de_invoice, 'xml');
         $this->assertNotNull($xml);
 
-        nlog($xml);
 
         $errors = $e->validate($de_invoice);
 
@@ -286,9 +284,6 @@ class PeppolTest extends TestCase
         $xml = $e->encode($de_invoice, 'xml');
         $this->assertNotNull($xml);
 
-        nlog("inclusive");
-        nlog($xml);
-
         $errors = $e->validate($de_invoice);
 
         if(count($errors) > 0) {
@@ -386,13 +381,10 @@ class PeppolTest extends TestCase
         $xml = $e->encode($fe, 'xml');
         $this->assertNotNull($xml);
 
-        nlog($xml);
-
         $json = $e->encode($fe, 'json');
         $this->assertNotNull($json);
 
-        nlog($json);
-        
+       
         $decode = $e->decode('Peppol', $json, 'json');
 
         $this->assertInstanceOf(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $decode);
@@ -405,6 +397,6 @@ class PeppolTest extends TestCase
 
         $this->assertCount(0, $errors);
 
-        nlog(json_encode($fe, JSON_PRETTY_PRINT));
+        // nlog(json_encode($fe, JSON_PRETTY_PRINT));
     }
 }

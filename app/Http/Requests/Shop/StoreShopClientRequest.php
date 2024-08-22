@@ -155,7 +155,7 @@ class StoreShopClientRequest extends Request
 
     private function getCountryCode($country_code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
@@ -168,7 +168,7 @@ class StoreShopClientRequest extends Request
 
     private function getCurrencyCode($code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $currencies = app('currencies');
 

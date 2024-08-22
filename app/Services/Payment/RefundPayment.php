@@ -53,7 +53,7 @@ class RefundPayment
 
         $is_gateway_refund = ($this->refund_data['gateway_refund'] !== false || $this->refund_failed || (isset($this->refund_data['via_webhook']) && $this->refund_data['via_webhook'] !== false)) ? ctrans('texts.yes') : ctrans('texts.no');
         $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : " . $is_gateway_refund;
-        
+
         $this->createActivity($notes);
         $this->finalize();
 
@@ -178,7 +178,7 @@ class RefundPayment
      */
     private function setStatus()
     {
-        if ($this->total_refund == $this->payment->amount || floatval($this->payment->amount) == floatval($this->payment->refunded))  {
+        if ($this->total_refund == $this->payment->amount || floatval($this->payment->amount) == floatval($this->payment->refunded)) {
             $this->payment->status_id = Payment::STATUS_REFUNDED;
         } else {
             $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;

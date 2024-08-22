@@ -3,7 +3,6 @@
 @section('gateway_head')
     <meta name="contact-email" content="{{ $contact->email }}">
     <meta name="client-postal-code" content="{{ $contact->client->postal_code }}">
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

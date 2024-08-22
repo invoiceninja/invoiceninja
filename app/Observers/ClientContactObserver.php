@@ -57,7 +57,7 @@ class ClientContactObserver
         $clientContact->recurring_invoice_invitations()->delete();
 
         //ensure entity state is preserved
-       
+
         InvoiceInvitation::withTrashed()->where('client_contact_id', $client_contact_id)->cursor()->each(function ($invite) {
             /** @var \App\Models\InvoiceInvitation $invite */
             if ($invite->invoice()->doesnthave('invitations')) { // @phpstan-ignore-line

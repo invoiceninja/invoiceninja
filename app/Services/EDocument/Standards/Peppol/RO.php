@@ -117,21 +117,24 @@ class RO
     ];
 
 
-    public function __construct(protected Invoice $invoice){}
+    public function __construct(protected Invoice $invoice)
+    {
+    }
 
     public function getStateCode(?string $state_code): string
     {
         $state_code = strlen($state_code ?? '') > 1 ? $state_code : $this->invoice->client->state;
 
         //codes are configured by default
-        if(isset($this->countrySubEntity[$state_code]))
+        if(isset($this->countrySubEntity[$state_code])) {
             return $state_code;
+        }
 
         $key = array_search($state_code, $this->countrySubEntity);
 
         if ($key !== false) {
             return $key;
-        } 
+        }
 
         return 'RO-B';
     }
@@ -140,8 +143,9 @@ class RO
     {
         $client_sector_code = $client_city ?? $this->invoice->client->city;
 
-        if(in_array($this->getStateCode($this->invoice->client->state), ['BUCHAREST', 'RO-B']))
+        if(in_array($this->getStateCode($this->invoice->client->state), ['BUCHAREST', 'RO-B'])) {
             return in_array(strtoupper($this->invoice->client->city), array_keys($this->sectorList)) ? strtoupper($this->invoice->client->city) : 'SECTOR1';
+        }
 
         return $client_sector_code;
     }

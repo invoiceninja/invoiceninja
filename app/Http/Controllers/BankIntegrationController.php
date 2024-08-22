@@ -217,7 +217,7 @@ class BankIntegrationController extends BaseController
         }
 
         if (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key') && (Ninja::isSelfHost() || (Ninja::isHosted() && $user_account->isEnterprisePaidClient()))) {
-            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) {                
+            $user_account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_NORDIGEN)->each(function ($bank_integration) {
                 /** @var \App\Models\BankIntegration $bank_integration */
                 ProcessBankTransactionsNordigen::dispatch($bank_integration);
             });

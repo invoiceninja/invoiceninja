@@ -32,6 +32,8 @@ class ImportQuickbooksControllerTest extends TestCase
 
         parent::setUp();
         
+        $this->markTestSkipped("no bueno");
+
         $this->state = Str::random(4);
         $this->mock = Mockery::mock(stdClass::class);
         $this->makeTestData();

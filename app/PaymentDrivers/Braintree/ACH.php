@@ -20,12 +20,11 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\BraintreePaymentDriver;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 
-class ACH implements MethodInterface, LivewireMethodInterface
+class ACH implements MethodInterface
 {
     use MakesHash;
 
@@ -98,7 +97,10 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
     public function paymentView(array $data)
     {
-        $data = $this->paymentData($data);
+        $data['gateway'] = $this->braintree;
+        $data['currency'] = $this->braintree->client->getCurrencyCode();
+        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
+        $data['amount'] = $this->braintree->payment_hash->data->amount_with_fee;
 
         return render('gateways.braintree.ach.pay', $data);
     }
@@ -178,25 +180,5 @@ class ACH implements MethodInterface, LivewireMethodInterface
         );
 
         throw new PaymentFailed($response->transaction->additionalProcessorResponse, $response->transaction->processorResponseCode);
-    }
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string 
-    {
-        return 'gateways.braintree.ach.pay_livewire';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array 
-    {
-        $data['gateway'] = $this->braintree;
-        $data['currency'] = $this->braintree->client->getCurrencyCode();
-        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
-        $data['amount'] = $this->braintree->payment_hash->data->amount_with_fee;
-
-        return $data;
     }
 }

@@ -64,7 +64,6 @@ class LiveDesignTest extends TestCase
 
         $this->assertIsArray($data);
 
-        nlog($data);
     }
 
     public function testDesignRoute200()

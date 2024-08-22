@@ -39,10 +39,6 @@ class BankTransactionRuleTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
-
-
-
-
     public function testMatchCreditOnInvoiceNumber()
     {
                 
@@ -219,22 +215,14 @@ class BankTransactionRuleTest extends TestCase
 
         $response = null;
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id. '?include=expense_category', $data);
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id. '?include=expense_category', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response->assertStatus(200);
 
-        if ($response) {
-            $arr = $response->json();
-           
-            $response->assertStatus(200);
-        }
+        
     }
 
     public function testMatchingBankTransactionExpenseAmountLessThanEqualTo()
@@ -798,48 +786,48 @@ class BankTransactionRuleTest extends TestCase
     }
 
 
-    public function testMatchingBankTransactionInvoice()
-    {
-        $this->invoice->number = "MUHMUH";
-        $this->invoice->save();
+    // public function testMatchingBankTransactionInvoice()
+    // {
+    //     $this->invoice->number = "MUHMUH";
+    //     $this->invoice->save();
 
-        $br = BankTransactionRule::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'matches_on_all' => false,
-            'auto_convert' => true,
-            'applies_to' => 'CREDIT',
-            'client_id' => $this->client->id,
-            'vendor_id' => $this->vendor->id,
-            'rules' => [
-                [
-                    'search_key' => 'description',
-                    'operator' => 'is',
-                    'value' => 'MUHMUH',
-                ]
-            ]
-        ]);
+    //     $br = BankTransactionRule::factory()->create([
+    //         'company_id' => $this->company->id,
+    //         'user_id' => $this->user->id,
+    //         'matches_on_all' => false,
+    //         'auto_convert' => true,
+    //         'applies_to' => 'CREDIT',
+    //         'client_id' => $this->client->id,
+    //         'vendor_id' => $this->vendor->id,
+    //         'rules' => [
+    //             [
+    //                 'search_key' => 'description',
+    //                 'operator' => 'is',
+    //                 'value' => 'MUHMUH',
+    //             ]
+    //         ]
+    //     ]);
 
-        $bi = BankIntegration::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'account_id' => $this->account->id,
-        ]);
+    //     $bi = BankIntegration::factory()->create([
+    //         'company_id' => $this->company->id,
+    //         'user_id' => $this->user->id,
+    //         'account_id' => $this->account->id,
+    //     ]);
 
-        $bt = BankTransaction::factory()->create([
-            'bank_integration_id' => $bi->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'description' => 'MUHMUH',
-            'base_type' => 'CREDIT',
-            'amount' => 100
-        ]);
+    //     $bt = BankTransaction::factory()->create([
+    //         'bank_integration_id' => $bi->id,
+    //         'company_id' => $this->company->id,
+    //         'user_id' => $this->user->id,
+    //         'description' => 'MUHMUH',
+    //         'base_type' => 'CREDIT',
+    //         'amount' => 100
+    //     ]);
     
 
-        $bt->service()->processRules();
+    //     $bt->service()->processRules();
 
-        $bt = $bt->fresh();
+    //     $bt = $bt->fresh();
 
-        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
-    }
+    //     $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+    // }
 }

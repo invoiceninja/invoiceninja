@@ -99,7 +99,7 @@ class QuoteReminderJob implements ShouldQueue
                      ->whereHas('company', function ($query) {
                          $query->where('is_disabled', 0);
                      })
-                    
+
                      ->with('invitations')->chunk(50, function ($quotes) {
 
                          foreach ($quotes as $quote) {

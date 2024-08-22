@@ -31,23 +31,23 @@ use Illuminate\Support\Str;
 
 /**
  * LivewireInstantPayment
- * 
- * New entry point for livewire component 
+ *
+ * New entry point for livewire component
  * payments.
  */
 class LivewireInstantPayment
 {
     use MakesHash;
     use MakesDates;
-        
-    /** 
-     * (bool) success 
+
+    /**
+     * (bool) success
      * (string) error - "displayed back to the user, either in error div, or in with() on redirect"
      * (string) redirect - ie client.invoices.index
      * (array) payload - the data needed to complete the payment
      * (string) component - the payment component to be displayed
-     * 
-     * @var array $responder 
+     *
+     * @var array $responder
      */
     private array $responder = [
         'success' => true,
@@ -56,7 +56,7 @@ class LivewireInstantPayment
         'payload' => [],
         'component' => '',
     ];
-    
+
     /**
      * is_credit_payment
      *
@@ -64,7 +64,7 @@ class LivewireInstantPayment
      * @var bool
      */
     private $is_credit_payment = false;
-    
+
     /**
      * __construct
      *
@@ -79,7 +79,7 @@ class LivewireInstantPayment
      * ?remaining_cycles
      * ?is_recurring
      * ?hash
-     * 
+     *
      * @param  array $data
      * @return void
      */
@@ -98,7 +98,7 @@ class LivewireInstantPayment
         }
 
         $payable_invoices = collect($this->data['payable_invoices']);
-        
+
         $tokens = [];
 
         $invoices = Invoice::query()
@@ -240,7 +240,7 @@ class LivewireInstantPayment
 
             $this->mergeResponder(['success' => true, 'component' => 'CreditPaymentComponent', 'payload' => $data]);
             return $this->getResponder();
-            
+
         }
 
         $this->mergeResponder(['success' => true, 'payload' => $data]);

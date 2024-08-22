@@ -285,7 +285,7 @@ class BillingPortalPurchase extends Component
         }
 
         if (array_key_exists('currency_id', $this->request_data)) {
-            
+
             /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
             $currencies = app('currencies');
 
@@ -312,7 +312,7 @@ class BillingPortalPurchase extends Component
 
         if (array_key_exists('locale', $this->request_data)) {
             $request = $this->request_data;
-            
+
             /** @var \Illuminate\Support\Collection<\App\Models\Language> */
             $languages = app('languages');
             $record = $languages->first(function ($item) use ($request) {
@@ -363,11 +363,12 @@ class BillingPortalPurchase extends Component
         $method_values = array_column($this->methods, 'is_paypal');
         $is_paypal = in_array('1', $method_values);
 
-        if($is_paypal && !$this->steps['check_rff'])
+        if($is_paypal && !$this->steps['check_rff']) {
             $this->rff();
-        elseif(!$this->steps['check_rff'])
+        } elseif(!$this->steps['check_rff']) {
             $this->steps['fetched_payment_methods'] = true;
-        
+        }
+
         $this->heading_text = ctrans('texts.payment_methods');
 
         return $this;
@@ -422,7 +423,7 @@ class BillingPortalPurchase extends Component
         $this->payment_method_id = $gateway_type_id;
 
         $this->handleBeforePaymentEvents();
-        
+
     }
 
     /**

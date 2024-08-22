@@ -50,9 +50,6 @@ export default defineConfig({
             'resources/js/clients/payments/stripe-przelewy24.js',
             'resources/js/clients/payments/stripe-browserpay.js',
             'resources/js/clients/payments/stripe-fpx.js',
-            'resources/js/clients/payments/stripe-ach-pay.js',
-            'resources/js/clients/payments/stripe-bank-transfer.js',
-            'resources/js/clients/payment_methods/authorize-stripe-acss.js',
         ]),
         viteStaticCopy({
             targets: [
@@ -71,18 +68,4 @@ export default defineConfig({
             ],
         }),
     ],
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks: (id) => {
-                    if (
-                        id.includes('forte-credit-card-payment.js') ||
-                        id.includes('authorize-credit-card-payment')
-                    ) {
-                        return id;
-                    }
-                },
-            },
-        },
-    },
 });

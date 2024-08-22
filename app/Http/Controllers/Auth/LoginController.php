@@ -399,8 +399,8 @@ class LoginController extends BaseController
         $truth->setCompany($set_company);
 
         //21-03-2024
-        
-        
+
+
         $cu->each(function ($cu) {
             /** @var \App\Models\CompanyUser $cu */
             if(CompanyToken::query()->where('company_id', $cu->company_id)->where('user_id', $cu->user_id)->where('is_system', true)->doesntExist()) {

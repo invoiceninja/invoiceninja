@@ -85,13 +85,30 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
      */
     public function processPaymentView($data)
     {
-        $data = $this->processPaymentViewData($data);
+
+        $this->init()->checkPaymentsReceivable();
+
+        $data['gateway'] = $this;
+        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
+        $this->payment_hash->save();
+
+        $data['client_id'] = config('ninja.paypal.client_id');
+        $data['token'] = $this->getClientToken();
+        $data['order_id'] = $this->createOrder($data);
+        $data['funding_source'] = $this->paypal_payment_method;
+        $data['gateway_type_id'] = $this->gateway_type_id;
+        $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
+        $data['currency'] = $this->client->currency()->code;
+        $data['guid'] = $this->risk_guid;
+        $data['identifier'] = "s:INN_".$this->company_gateway->getConfigField('merchantId')."_CHCK";
+        $data['pp_client_reference'] = $this->getClientHash();
 
         if($this->gateway_type_id == 29) {
             return render('gateways.paypal.ppcp.card', $data);
         } else {
             return render('gateways.paypal.ppcp.pay', $data);
         }
+
     }
 
     /**
@@ -463,40 +480,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
     }
 
-<<<<<<< HEAD
 
 
 
-=======
-    public function processPaymentViewData(array $data): array
-    {
-        $this->init()->checkPaymentsReceivable();
-
-        $data['gateway'] = $this;
-        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
-        $this->payment_hash->save();
-
-        $data['client_id'] = config('ninja.paypal.client_id');
-        $data['token'] = $this->getClientToken();
-        $data['order_id'] = $this->createOrder($data);
-        $data['funding_source'] = $this->paypal_payment_method;
-        $data['gateway_type_id'] = $this->gateway_type_id;
-        $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
-        $data['currency'] = $this->client->currency()->code;
-        $data['guid'] = $this->risk_guid;
-        $data['identifier'] = "s:INN_".$this->company_gateway->getConfigField('merchantId')."_CHCK";
-        $data['pp_client_reference'] = $this->getClientHash();
-
-        return $data;
-    } 
-
-    public function livewirePaymentView(array $data): string 
-    {
-        if ($this->gateway_type_id == 29) {
-            return 'gateways.paypal.ppcp.card_livewire';
-        }
-
-        return 'gateways.paypal.ppcp.pay_livewire';
-    }
->>>>>>> new_payment_flow
 }

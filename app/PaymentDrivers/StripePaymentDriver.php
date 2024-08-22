@@ -12,47 +12,6 @@
 
 namespace App\PaymentDrivers;
 
-<<<<<<< HEAD
-=======
-use App\Exceptions\PaymentFailed;
-use App\Exceptions\StripeConnectFailure;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Http\Requests\Request;
-use App\Jobs\Util\SystemLogger;
-use App\Models\Client;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentHash;
-use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
-use App\PaymentDrivers\Stripe\ACH;
-use App\PaymentDrivers\Stripe\ACSS;
-use App\PaymentDrivers\Stripe\Alipay;
-use App\PaymentDrivers\Stripe\BACS;
-use App\PaymentDrivers\Stripe\Bancontact;
-use App\PaymentDrivers\Stripe\BankTransfer;
-use App\PaymentDrivers\Stripe\BECS;
-use App\PaymentDrivers\Stripe\BrowserPay;
-use App\PaymentDrivers\Stripe\Charge;
-use App\PaymentDrivers\Stripe\Connect\Verify;
-use App\PaymentDrivers\Stripe\CreditCard;
-use App\PaymentDrivers\Stripe\EPS;
-use App\PaymentDrivers\Stripe\FPX;
-use App\PaymentDrivers\Stripe\GIROPAY;
-use App\PaymentDrivers\Stripe\iDeal;
-use App\PaymentDrivers\Stripe\ImportCustomers;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
-use App\PaymentDrivers\Stripe\Jobs\PaymentIntentWebhook;
-use App\PaymentDrivers\Stripe\Klarna;
-use App\PaymentDrivers\Stripe\PRZELEWY24;
-use App\PaymentDrivers\Stripe\SEPA;
-use App\PaymentDrivers\Stripe\SOFORT;
-use App\PaymentDrivers\Stripe\Utilities;
-use App\Utils\Traits\MakesHash;
->>>>>>> new_payment_flow
 use Exception;
 use Stripe\Stripe;
 use Stripe\Account;
@@ -458,33 +417,6 @@ class StripePaymentDriver extends BaseDriver
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);
-    }
-
-    public function processPaymentViewData(array $data): array
-    {
-        $data = $this->payment_method->paymentData($data); 
-
-        $data['stripe_account_id'] = $this->company_gateway->getConfigField('account_id');
-
-        if (array_key_exists('intent', $data)) {
-            $data['client_secret'] = $data['intent']->client_secret;
-        }
-
-        unset($data['intent']);
-
-        $token_billing_string = 'true';
-
-        if($this->company_gateway->token_billing == 'off' || $this->company_gateway->token_billing == 'optin') {
-            $token_billing_string = 'false';
-        }
-
-        if (isset($data['pre_payment']) && $data['pre_payment'] == '1' && isset($data['is_recurring']) && $data['is_recurring'] == '1') {
-            $token_billing_string = 'true';
-        }
-
-        $data['token_billing_string'] = $token_billing_string;
-
-        return $data;
     }
 
     public function processPaymentResponse($request)

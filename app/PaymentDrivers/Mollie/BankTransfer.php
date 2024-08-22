@@ -19,7 +19,6 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Exception;
@@ -29,7 +28,7 @@ use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Mollie\Api\Resources\Payment as ResourcesPayment;
 
-class BankTransfer implements MethodInterface, LivewireMethodInterface
+class BankTransfer implements MethodInterface
 {
     protected MolliePaymentDriver $mollie;
 
@@ -206,25 +205,5 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
     public function processOpenPayment(ResourcesPayment $payment): RedirectResponse
     {
         return $this->processSuccessfulPayment($payment, 'open');
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string 
-    {
-        // Doesn't support, it's offsite payment method.
-
-        return '';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array 
-    {
-        $this->paymentView($data);
-
-        return $data;
     }
 }

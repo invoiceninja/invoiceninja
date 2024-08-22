@@ -24,7 +24,6 @@ use App\Models\Payment;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Exception;
@@ -36,7 +35,7 @@ use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\RateLimitException;
 use Stripe\PaymentIntent;
 
-class ACH implements LivewireMethodInterface
+class ACH
 {
     use MakesHash;
 
@@ -200,7 +199,47 @@ class ACH implements LivewireMethodInterface
      */
     public function paymentView(array $data)
     {
-        $this->paymentData($data);
+        $data['gateway'] = $this->stripe;
+        $data['currency'] = $this->stripe->client->getCurrencyCode();
+        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
+        $data['customer'] = $this->stripe->findOrCreateCustomer();
+        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+
+        $description = $this->stripe->getDescription(false);
+
+        $intent = false;
+
+        if (count($data['tokens']) == 1) {
+
+            $token = $data['tokens'][0];
+
+            $meta = $token->meta;
+
+            if(isset($meta->state) && $meta->state == 'unauthorized') {
+                return redirect()->route('client.payment_methods.show', $token->hashed_id);
+            }
+        }
+
+        if (count($data['tokens']) == 0) {
+            $intent =
+            $this->stripe->createPaymentIntent(
+                [
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+                'setup_future_usage' => 'off_session',
+                'customer' => $data['customer']->id,
+                'payment_method_types' => ['us_bank_account'],
+                'description' => $description,
+                'metadata' => [
+                    'payment_hash' => $this->stripe->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                ],
+                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
+            ]
+            );
+        }
+
+        $data['client_secret'] = $intent ? $intent->client_secret : false;
 
         return render('gateways.stripe.ach.pay', $data);
     }
@@ -588,57 +627,5 @@ class ACH implements LivewireMethodInterface
         } catch (Exception $e) {
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
-    }
-
-    public function livewirePaymentView(array $data): string
-    {
-        return 'gateways.stripe.ach.pay_livewire';
-    }
-
-    public function paymentData(array $data): array
-    {
-        $data['gateway'] = $this->stripe;
-        $data['currency'] = $this->stripe->client->getCurrencyCode();
-        $data['payment_method_id'] = GatewayType::BANK_TRANSFER;
-        $data['customer'] = $this->stripe->findOrCreateCustomer();
-        $data['amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-
-        $description = $this->stripe->getDescription(false);
-
-        $intent = false;
-
-        if (count($data['tokens']) == 1) {
-
-            $token = $data['tokens'][0];
-
-            $meta = $token->meta;
-
-            if(isset($meta->state) && $meta->state == 'unauthorized') {
-                return redirect()->route('client.payment_methods.show', $token->hashed_id);
-            }
-        }
-
-        if (count($data['tokens']) == 0) {
-            $intent =
-            $this->stripe->createPaymentIntent(
-                [
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
-                'setup_future_usage' => 'off_session',
-                'customer' => $data['customer']->id,
-                'payment_method_types' => ['us_bank_account'],
-                'description' => $description,
-                'metadata' => [
-                    'payment_hash' => $this->stripe->payment_hash->hash,
-                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
-                ],
-                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
-            ]
-            );
-        }
-
-        $data['client_secret'] = $intent ? $intent->client_secret : false;
-
-        return $data;
     }
 }

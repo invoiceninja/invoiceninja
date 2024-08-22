@@ -6,7 +6,6 @@
     <meta name="ctrans-cvv" content="{{ ctrans('texts.cvv') }}">
     <meta name="ctrans-card_number" content="{{ ctrans('texts.card_number') }}">
     <meta name="ctrans-expires" content="{{ ctrans('texts.expires') }}">
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

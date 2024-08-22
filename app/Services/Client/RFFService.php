@@ -108,7 +108,7 @@ class RFFService
             if ($return_errors) {
                 return $validator->getMessageBag()->getMessages();
             }
-                
+
             session()->flash('validation_errors', $validator->getMessageBag()->getMessages());
 
             return false;
@@ -129,7 +129,7 @@ class RFFService
         $contact = [];
 
         MultiDB::setDb($this->database);
- 
+
         foreach ($data as $field => $value) {
             if (Str::startsWith($field, 'client_')) {
                 $client[$this->mappings[$field]] = $value;

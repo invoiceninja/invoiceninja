@@ -44,7 +44,7 @@ class StoreQuoteRequest extends Request
 
         $rules = [];
 
-        $rules['client_id'] = ['required', 'bail', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted',0)];
+        $rules['client_id'] = ['required', 'bail', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->fileValidation();
@@ -61,7 +61,7 @@ class StoreQuoteRequest extends Request
         }
 
         $rules['number'] = ['bail','nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)];
-        
+
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 

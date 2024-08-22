@@ -468,7 +468,7 @@ class CompanyExport implements ShouldQueue
         $x->addItems($this->export_data['subscriptions']);
         $this->export_data = null;
 
-        
+
         $this->export_data['system_logs'] = $this->company->system_logs->map(function ($log) {
             $log->client_id = $this->encodePrimaryKey($log->client_id);/** @phpstan-ignore-line */
             $log->company_id = $this->encodePrimaryKey($log->company_id);/** @phpstan-ignore-line */

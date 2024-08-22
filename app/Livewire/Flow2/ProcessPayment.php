@@ -64,7 +64,7 @@ class ProcessPayment extends Component
             ->setPaymentHash($responder_data['payload']['ph']);
 
         $this->payment_data_payload = $driver->processPaymentViewData($responder_data['payload']);
-        
+
         $this->payment_view = $driver->livewirePaymentView(
             $this->payment_data_payload,
         );

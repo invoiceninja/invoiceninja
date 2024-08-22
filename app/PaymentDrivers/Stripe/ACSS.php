@@ -17,7 +17,6 @@ use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use Illuminate\Support\Str;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
@@ -30,7 +29,7 @@ use App\PaymentDrivers\StripePaymentDriver;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use Stripe\PaymentIntent;
 
-class ACSS implements LivewireMethodInterface
+class ACSS
 {
     use MakesHash;
 
@@ -128,7 +127,7 @@ class ACSS implements LivewireMethodInterface
             $this->stripe->setClient($hash->fee_invoice->client);
             $this->stripe->setPaymentMethod(GatewayType::ACSS);
 
-            return $this->paymentView($data);
+            return $this->continuePayment($data);
         }
 
         return redirect()->route('client.payment_methods.show', $client_gateway_token->hashed_id);
@@ -162,42 +161,72 @@ class ACSS implements LivewireMethodInterface
         return $intent;
     }
 
-    public function paymentData(array $data)
+    /**
+     * Payment view for ACSS
+     *
+     * Determines if any payment tokens are available and if not, generates a mandate
+     *
+     * @param  array $data
+
+     */
+    public function paymentView(array $data)
     {
+
         if(count($data['tokens']) == 0) {
             $hash = Str::random(32);
-
             Cache::put($hash, $data, 3600);
-
             $data['post_auth_response'] = $hash;
-            $data['needs_mandate_generate'] = true;
 
-            $data['gateway'] = $this->stripe;
-            $data['company_gateway'] = $this->stripe->company_gateway;
-            $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
-            $data['country'] = $this->stripe->client->country->iso_3166_2;
-    
-            $intent = \Stripe\SetupIntent::create([
-                'usage' => 'off_session',
-                'payment_method_types' => ['acss_debit'],
-                'customer' => $data['customer'],
-                'payment_method_options' => [
-                    'acss_debit' => [
-                    'currency' => 'cad',
-                    'mandate_options' => [
-                        'payment_schedule' => 'combined',
-                        'interval_description' => 'On any invoice due date',
-                        'transaction_type' => 'personal',
-                    ],
-                    'verification_method' => 'instant',
-                    ],
-                ],
-            ], $this->stripe->stripe_connect_auth);
-    
-            $data['pi_client_secret'] = $intent->client_secret;
-
-            return $data;
+            return $this->generateMandate($data);
         }
+
+        return $this->continuePayment($data);
+    }
+
+    /**
+     * Generate a payment Mandate for ACSS
+     *
+     * @param  array $data
+
+     */
+    private function generateMandate(array $data)
+    {
+
+        $data['gateway'] = $this->stripe;
+        $data['company_gateway'] = $this->stripe->company_gateway;
+        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
+
+        $intent = \Stripe\SetupIntent::create([
+            'usage' => 'off_session',
+            'payment_method_types' => ['acss_debit'],
+            'customer' => $data['customer'],
+            'payment_method_options' => [
+                'acss_debit' => [
+                'currency' => 'cad',
+                'mandate_options' => [
+                    'payment_schedule' => 'combined',
+                    'interval_description' => 'On any invoice due date',
+                    'transaction_type' => 'personal',
+                ],
+                'verification_method' => 'instant',
+                ],
+            ],
+        ], $this->stripe->stripe_connect_auth);
+
+        $data['pi_client_secret'] = $intent->client_secret;
+
+        return render('gateways.stripe.acss.authorize', array_merge($data));
+
+    }
+
+    /**
+     * Continues the payment flow after a Mandate has been successfully generated
+     *
+     * @param  array $data
+     */
+    private function continuePayment(array $data)
+    {
 
         $this->stripe->init();
 
@@ -210,25 +239,6 @@ class ACSS implements LivewireMethodInterface
 
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
         $this->stripe->payment_hash->save();
-
-        return $data;
-    }
-
-    /**
-     * Payment view for ACSS
-     *
-     * Determines if any payment tokens are available and if not, generates a mandate
-     *
-     * @param  array $data
-
-     */
-    public function paymentView(array $data)
-    {
-        $data = $this->paymentData($data);
-
-        if (array_key_exists('needs_mandate_generate', $data)) {
-            return render('gateways.stripe.acss.authorize', array_merge($data));
-        }
 
         return render('gateways.stripe.acss.pay', $data);
     }
@@ -389,14 +399,5 @@ class ACSS implements LivewireMethodInterface
         } catch (\Exception $e) {
             return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
         }
-    }
-    
-    public function livewirePaymentView(array $data): string 
-    {
-        if (array_key_exists('needs_mandate_generate', $data)) {
-            return 'gateways.stripe.acss.authorize_livewire';
-        }
-
-        return 'gateways.stripe.acss.pay_livewire';
     }
 }

@@ -267,7 +267,7 @@ class CreditService
 
     public function restoreCredit()
     {
-        
+
         $paid_to_date = $this->credit->invoice_id ? $this->credit->balance : 0;
 
         $this->credit

@@ -21,9 +21,8 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\BraintreePaymentDriver;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 
-class CreditCard implements LivewireMethodInterface
+class CreditCard
 {
     /**
      * @var BraintreePaymentDriver
@@ -77,7 +76,6 @@ class CreditCard implements LivewireMethodInterface
 
     public function paymentView(array $data)
     {
-<<<<<<< HEAD
         $data['gateway'] = $this->braintree;
         $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
         $data['threeds'] = $this->threeDParameters($data);
@@ -89,9 +87,6 @@ class CreditCard implements LivewireMethodInterface
                 'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
             ]);
         }
-=======
-       $data = $this->paymentData($data);
->>>>>>> new_payment_flow
 
         return render('gateways.braintree.credit_card.pay', $data);
     }
@@ -282,33 +277,5 @@ class CreditCard implements LivewireMethodInterface
         } catch (\Exception $e) {
             return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string 
-    {
-        return 'gateways.braintree.credit_card.pay_livewire';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array 
-    {
-        $data['gateway'] = $this->braintree;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
-        $data['threeds'] = $this->threeDParameters($data);
-        $data['threeds_enable'] = $this->braintree->company_gateway->getConfigField('threeds') ? "true" : "false";
-
-        if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {
-            /** https://developer.paypal.com/braintree/docs/reference/request/client-token/generate#merchant_account_id */
-            $data['client_token'] = $this->braintree->gateway->clientToken()->generate([
-                'merchantAccountId' => $this->braintree->company_gateway->getConfigField('merchantAccountId'),
-            ]);
-        }
-
-        return $data;
     }
 }

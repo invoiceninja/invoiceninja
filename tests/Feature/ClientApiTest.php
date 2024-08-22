@@ -846,15 +846,11 @@ $this->assertCount(7, $arr['data']);
             'status' => 'paid',
         ];
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
             ])->postJson('/api/v1/client_statement?send_email=true', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+       
 
         $response->assertJson([
             'message' => ctrans('texts.email_queued'),
@@ -1127,15 +1123,11 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+
 
         $response->assertStatus(200);
 
@@ -1164,15 +1156,11 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+        
 
         $response->assertStatus(200);
         $arr = $response->json();
@@ -1190,15 +1178,11 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+
 
         $response->assertStatus(200);
 
@@ -1217,15 +1201,11 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+
 
         $response->assertStatus(200);
 
@@ -1244,15 +1224,11 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+
 
         $response->assertStatus(200);
     }
@@ -1266,15 +1242,10 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
 
         $response->assertStatus(200);
     }
@@ -1288,15 +1259,11 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
+
 
         $response->assertStatus(200);
     }
@@ -1309,17 +1276,11 @@ $this->assertCount(7, $arr['data']);
             'country_code' => 'ARM',
         ];
 
-        $response = false;
-
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data);
+    
 
         $response->assertStatus(200);
     }
@@ -1435,19 +1396,14 @@ $this->assertCount(7, $arr['data']);
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/bulk?action=archive', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/bulk?action=archive', $data);
+        
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertNotNull($arr['data'][0]['archived_at']);
 
-        if ($response) {
-            $arr = $response->json();
-            $this->assertNotNull($arr['data'][0]['archived_at']);
-        }
     }
 
     public function testClientRestored()
@@ -1459,7 +1415,7 @@ $this->assertCount(7, $arr['data']);
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/bulk?action=restore', $data);
+        ])->postJson('/api/v1/clients/bulk?action=restore', $data);
 
         $arr = $response->json();
 
@@ -1475,7 +1431,7 @@ $this->assertCount(7, $arr['data']);
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/clients/bulk?action=delete', $data);
+        ])->postJson('/api/v1/clients/bulk?action=delete', $data);
 
         $arr = $response->json();
 

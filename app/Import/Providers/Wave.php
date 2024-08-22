@@ -244,8 +244,7 @@ class Wave extends BaseImport implements ImportInterface
                 if (empty($expense_data['vendor_id'])) {
                     $vendor_data['user_id'] = $this->getUserIDForRecord($expense_data);
 
-                    if(isset($raw_expense['Vendor Name']) || isset($raw_expense['Vendor']))
-                    {
+                    if(isset($raw_expense['Vendor Name']) || isset($raw_expense['Vendor'])) {
                         $vendor_repository->save(
                             ['name' => isset($raw_expense['Vendor Name']) ? $raw_expense['Vendor Name'] : isset($raw_expense['Vendor'])],
                             $vendor = VendorFactory::create(

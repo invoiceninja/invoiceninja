@@ -237,7 +237,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $amount = $this->bt->amount;
 
-        if ($_invoices->count() >0 && $this->checkPayable($_invoices)) {
+        if ($_invoices->count() > 0 && $this->checkPayable($_invoices)) {
             $this->createPayment($_invoices, $amount);
 
             $this->bts->push($this->bt->id);
@@ -387,7 +387,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $hashed_keys = [];
 
-        foreach($this->attachable_invoices as $attachable_invoice){ //@phpstan-ignore-line
+        foreach($this->attachable_invoices as $attachable_invoice) { //@phpstan-ignore-line
             $hashed_keys[] = $this->encodePrimaryKey($attachable_invoice['id']);
         }
 

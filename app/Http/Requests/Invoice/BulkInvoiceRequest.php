@@ -40,11 +40,12 @@ class BulkInvoiceRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('action', 0)."|".$user->company()->company_key))
+        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('action', 0)."|".$user->company()->company_key)) {
             throw new DuplicatePaymentException('Duplicate request.', 429);
+        }
 
         \Illuminate\Support\Facades\Cache::put(($this->ip()."|".$this->input('action', 0)."|".$user->company()->company_key), true, 1);
 
     }
-    
+
 }

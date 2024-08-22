@@ -186,14 +186,11 @@ class LoginTest extends TestCase
             'password' => '123456',
         ];
 
-        try {
+
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/login', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog(print_r($message, 1));
-        }
+            ])->postJson('/api/v1/login', $data);
+
 
         $arr = $response->json();
 

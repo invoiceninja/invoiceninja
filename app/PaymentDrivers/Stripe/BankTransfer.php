@@ -19,13 +19,12 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 use App\Utils\Number;
 use App\Utils\Traits\MakesHash;
 use Stripe\PaymentIntent;
 
-class BankTransfer implements LivewireMethodInterface
+class BankTransfer
 {
     use MakesHash;
 
@@ -39,7 +38,37 @@ class BankTransfer implements LivewireMethodInterface
 
     public function paymentView(array $data)
     {
-        $data = $this->paymentData($data);
+        $this->stripe->init();
+
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+            'currency' => $this->stripe->client->currency()->code,
+            'customer' => $this->stripe->findOrCreateCustomer()->id,
+            'description' => $this->stripe->getDescription(false),
+            'payment_method_types' => ['customer_balance'],
+            'payment_method_data' => [
+                'type' => 'customer_balance',
+            ],
+            'payment_method_options' => [
+                'customer_balance' => [
+                'funding_type' => 'bank_transfer',
+                'bank_transfer' => $this->resolveBankType()
+                ],
+            ],
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::DIRECT_DEBIT,
+            ],
+        ], $this->stripe->stripe_connect_auth);
+
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency())]);
+        $this->stripe->payment_hash->save();
+
+        $data = [];
+        $data['return_url'] = $this->buildReturnUrl();
+        $data['gateway'] = $this->stripe;
+        $data['client_secret'] = $intent ? $intent->client_secret : false;
 
         return render('gateways.stripe.bank_transfer.pay', $data);
     }
@@ -287,47 +316,5 @@ class BankTransfer implements LivewireMethodInterface
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
-    }
-
-    public function paymentData(array $data): array
-    {
-        $this->stripe->init();
-
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'currency' => $this->stripe->client->currency()->code,
-            'customer' => $this->stripe->findOrCreateCustomer()->id,
-            'description' => $this->stripe->getDescription(false),
-            'payment_method_types' => ['customer_balance'],
-            'payment_method_data' => [
-                'type' => 'customer_balance',
-            ],
-            'payment_method_options' => [
-                'customer_balance' => [
-                'funding_type' => 'bank_transfer',
-                'bank_transfer' => $this->resolveBankType()
-                ],
-            ],
-            'metadata' => [
-                'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::DIRECT_DEBIT,
-            ],
-        ], $this->stripe->stripe_connect_auth);
-
-
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency())]);
-        $this->stripe->payment_hash->save();
-
-        $data = [];
-        $data['return_url'] = $this->buildReturnUrl();
-        $data['gateway'] = $this->stripe;
-        $data['client_secret'] = $intent ? $intent->client_secret : false;
-
-        return $data;
-    }
-    
-    public function livewirePaymentView(array $data): string 
-    {
-        return 'gateways.stripe.bank_transfer.pay_livewire';
     }
 }

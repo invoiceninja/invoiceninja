@@ -22,7 +22,7 @@ interface LivewireMethodInterface
 
     /**
      * Payment data for the gateway method.
-     *  
+     *
      * @param array $data
      * @return array
      */

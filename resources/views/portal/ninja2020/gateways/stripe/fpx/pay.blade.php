@@ -14,8 +14,6 @@
     <meta name="country" content="{{ $country }}">
     <meta name="customer" content="{{ $customer }}">
     <meta name="pi-client-secret" content="{{ $pi_client_secret }}">
-
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

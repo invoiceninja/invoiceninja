@@ -181,7 +181,7 @@ class ArrayFiltersTest extends TestCase
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
             if($version == $key) {
                 $version_index = $index;
-                nlog("version = {$version_index}");
+                // nlog("version = {$version_index}");
             }
             $index++;
             return $value;

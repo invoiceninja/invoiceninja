@@ -3,7 +3,6 @@
 @section('gateway_head')
     <meta name="authorize-public-key" content="{{ $public_client_id }}">
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
-    <meta name="instant-payment" content="yes" />
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">

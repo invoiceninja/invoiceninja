@@ -415,7 +415,7 @@ class BaseApiTest extends TestCase
         collect($this->list_routes)->filter(function ($route) {
             return !in_array($route, ['users','designs','payment_terms']);
         })->each(function ($route) {
-            // nlog($route);
+
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->owner_token,

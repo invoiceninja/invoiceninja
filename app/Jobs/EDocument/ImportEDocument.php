@@ -43,7 +43,7 @@ class ImportEDocument implements ShouldQueue
      */
     public function handle(): Expense
     {
-        
+
         switch (true) {
             case stristr($this->file_content, "urn:cen.eu:en16931:2017"):
             case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):

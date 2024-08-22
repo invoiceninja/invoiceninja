@@ -431,14 +431,14 @@ class ProfitLoss
     // private function paymentIncome()
     // {
     //     return \DB::select('
-    //          SELECT 
+    //          SELECT
     //          SUM(coalesce(payments.amount - payments.refunded,0)) as payments,
     //          SUM(coalesce(payments.amount - payments.refunded,0)) * IFNULL(payments.exchange_rate ,1) as payments_converted,
     //          payments.currency_id as currency_id
-    //          FROM clients 
+    //          FROM clients
     //          INNER JOIN
-    //          payments ON 
-    //          clients.id=payments.client_id 
+    //          payments ON
+    //          clients.id=payments.client_id
     //          WHERE payments.status_id IN (1,4,5,6)
     //          AND clients.is_deleted = false
     //          AND payments.is_deleted = false

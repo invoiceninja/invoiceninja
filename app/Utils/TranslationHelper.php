@@ -19,7 +19,7 @@ class TranslationHelper
 {
     // public static function getIndustries()
     // {
-        
+
     //     /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
     //     $industries = app('industries');
 
@@ -32,7 +32,7 @@ class TranslationHelper
 
     public static function getCountries()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         return app('countries');
 
@@ -40,7 +40,7 @@ class TranslationHelper
 
     // public static function getPaymentTypes()
     // {
-        
+
     //     /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
     //     // $payment_types = app('payment_types');
 
@@ -53,7 +53,7 @@ class TranslationHelper
 
     // public static function getLanguages()
     // {
-        
+
     //     /** @var \Illuminate\Support\Collection<\App\Models\Language> */
     //     // $languages = app('languages');
 
@@ -66,7 +66,7 @@ class TranslationHelper
 
     public static function getCurrencies()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         return app('currencies');
 

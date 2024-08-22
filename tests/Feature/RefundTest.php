@@ -782,7 +782,6 @@ class RefundTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        nlog($cl->id);
 
         $i = Invoice::factory()->create([
             'company_id' => $this->company->id,

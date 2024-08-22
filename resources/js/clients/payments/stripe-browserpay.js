@@ -8,8 +8,6 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-import { wait, instant } from '../wait';
-
 class StripeBrowserPay {
     constructor() {
         this.clientSecret = document.querySelector(
@@ -144,8 +142,4 @@ class StripeBrowserPay {
     }
 }
 
-function boot() {
-    new StripeBrowserPay().handle()
-}
-
-instant() ? boot() : wait('#stripe-browserpay-payment').then(() => boot())
+new StripeBrowserPay().handle();

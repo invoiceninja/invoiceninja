@@ -2,8 +2,6 @@
 
 @section('gateway_head')
     <meta name="forte-api-login-id" content="{{$gateway->company_gateway->getConfigField("apiLoginId")}}">
-    <meta name="instant-payment" content="yes" />
-
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <script src="{{ asset('js/clients/payments/forte-card-js.min.js') }}"></script>
 

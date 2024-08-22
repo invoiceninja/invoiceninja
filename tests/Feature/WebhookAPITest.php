@@ -40,8 +40,6 @@ class WebhookAPITest extends TestCase
 
         $this->faker = \Faker\Factory::create();
 
-        Model::reguard();
-
         $this->makeTestData();
 
         $this->withoutExceptionHandling();
@@ -111,7 +109,7 @@ class WebhookAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/webhooks', $data);
+        ])->postJson('/api/v1/webhooks', $data);
 
         $response->assertStatus(200);
 
@@ -125,7 +123,7 @@ class WebhookAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/webhooks', $data);
+        ])->postJson('/api/v1/webhooks', $data);
 
         $response->assertStatus(200);
 
@@ -142,7 +140,7 @@ class WebhookAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/webhooks/'.$arr['data']['id'], $data);
+        ])->putJson('/api/v1/webhooks/'.$arr['data']['id'], $data);
 
         $response->assertStatus(200);
 
@@ -157,7 +155,7 @@ class WebhookAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/webhooks/'.$arr['data']['id'], $data);
+        ])->putJson('/api/v1/webhooks/'.$arr['data']['id'], $data);
 
         $response->assertStatus(200);
 
@@ -181,7 +179,7 @@ class WebhookAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/webhooks/bulk?action=restore', $data);
+        ])->postJson('/api/v1/webhooks/bulk?action=restore', $data);
 
         $arr = $response->json();
 
@@ -190,7 +188,7 @@ class WebhookAPITest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/webhooks/bulk?action=delete', $data);
+        ])->postJson('/api/v1/webhooks/bulk?action=delete', $data);
 
         $arr = $response->json();
 

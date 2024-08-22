@@ -4,7 +4,6 @@ ctrans('texts.credit_card')])
 @section('gateway_head')
     <meta name="mollie-testmode" content="{{ $gateway->company_gateway->getConfigField('testMode') }}">
     <meta name="mollie-profileId" content="{{ $gateway->company_gateway->getConfigField('profileId') }}">
-    <meta name="instant-payment" content="yes">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     

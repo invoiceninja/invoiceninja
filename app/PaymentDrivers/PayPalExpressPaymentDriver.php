@@ -250,7 +250,7 @@ class PayPalExpressPaymentDriver extends BaseDriver
     public function livewirePaymentView(array $data): string
     {
         $this->processPaymentView($data);
-        
+
         return ''; // Gateway is offsite.
     }
 

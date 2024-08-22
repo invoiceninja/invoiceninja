@@ -192,16 +192,11 @@ class PaymentV2Test extends TestCase
 
         $response = null;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments?include=invoices', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-            $this->assertNotNull($message);
-        }
+            ])->postJson('/api/v1/payments?include=invoices', $data);
+
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -227,7 +222,7 @@ class PaymentV2Test extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk', $data);
+        ])->postJson('/api/v1/invoices/bulk', $data);
 
         $response->assertStatus(200);
 
@@ -249,7 +244,7 @@ class PaymentV2Test extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk', $data);
+        ])->postJson('/api/v1/invoices/bulk', $data);
 
         $invoice = $invoice->fresh();
         $this->assertEquals(false, $invoice->is_deleted);
@@ -334,16 +329,11 @@ class PaymentV2Test extends TestCase
 
         $response = null;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments?include=invoices', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-            $this->assertNotNull($message);
-        }
+            ])->postJson('/api/v1/payments?include=invoices', $data);
+
 
         $arr = $response->json();
         $response->assertStatus(200);
@@ -375,7 +365,7 @@ class PaymentV2Test extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk', $data);
+        ])->postJson('/api/v1/invoices/bulk', $data);
 
         $response->assertStatus(200);
 
@@ -395,7 +385,7 @@ class PaymentV2Test extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/payments/bulk', $data);
+        ])->postJson('/api/v1/payments/bulk', $data);
 
         $payment = $payment->fresh();
         $this->assertTrue($payment->is_deleted);
@@ -410,7 +400,7 @@ class PaymentV2Test extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices/bulk', $data);
+        ])->postJson('/api/v1/invoices/bulk', $data);
 
         $response->assertStatus(200);
         $invoice = $invoice->fresh();

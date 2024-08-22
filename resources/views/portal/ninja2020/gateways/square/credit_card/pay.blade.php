@@ -7,8 +7,6 @@
     <meta name="square_contact" content="{{ json_encode($square_contact) }}">
     <meta name="amount" content="{{ $amount }}">
     <meta name="currencyCode" content="{{ $currencyCode }}">
-    <meta name="instant-payment" content="yes" />
-
    <style>
     .loader {
       border-top-color: #3498db;

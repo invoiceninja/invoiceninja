@@ -1,31 +1,33 @@
 <?php
+
 namespace App\Services\Import\Quickbooks;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Import\Quickbooks\Auth;
 use App\Repositories\Import\Quickbooks\Contracts\RepositoryInterface;
-use App\Services\Import\QuickBooks\Contracts\SdkInterface as QuickbooksInterface;
+use App\Services\Import\Quickbooks\Contracts\SdkInterface as QuickbooksInterface;
 
 final class Service
-{    
+{
     private QuickbooksInterface $sdk;
 
-    public function __construct(QuickbooksInterface $quickbooks) {
+    public function __construct(QuickbooksInterface $quickbooks)
+    {
         $this->sdk = $quickbooks;
     }
 
-    public function getOAuth() : Auth
+    public function getOAuth(): Auth
     {
         return new Auth($this->sdk);
     }
 
-    public function getAccessToken() : array
+    public function getAccessToken(): array
     {
-       return $this->getOAuth()->getAccessToken(); 
+        return $this->getOAuth()->getAccessToken();
     }
 
-    public function getRefreshToken() : array
+    public function getRefreshToken(): array
     {
         // TODO: Check if token is Cached otherwise fetch a new one and Cache token and expire
         return  $this->getAccessToken();
@@ -60,11 +62,12 @@ final class Service
         return $this->fetchRecords('Item', $max) ;
     }
 
-    protected function fetchRecords(string $entity, $max = 100) : Collection {
+    protected function fetchRecords(string $entity, $max = 100): Collection
+    {
         return (self::RepositoryFactory($entity))->get($max);
     }
 
-    private static function RepositoryFactory(string $entity) : RepositoryInterface
+    private static function RepositoryFactory(string $entity): RepositoryInterface
     {
         return app("\\App\\Repositories\\Import\Quickbooks\\{$entity}Repository");
     }
@@ -79,7 +82,7 @@ final class Service
         return $this->fetchRecords('Customer', $max) ;
     }
 
-    public function totalRecords(string $entity) : int
+    public function totalRecords(string $entity): int
     {
         return (self::RepositoryFactory($entity))->count();
     }

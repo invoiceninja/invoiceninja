@@ -102,7 +102,7 @@ class ClientExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($client) {
-                    
+
                     /** @var \App\Models\Client $client */
                     $row = $this->buildRow($client);
                     return $this->processMetaData($row, $client);
@@ -133,7 +133,7 @@ class ClientExport extends BaseExport
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query,' clients');
+        $query = $this->addDateRange($query, ' clients');
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -156,8 +156,8 @@ class ClientExport extends BaseExport
 
         $query->cursor()
               ->each(function ($client) {
-                
-                /** @var \App\Models\Client $client */
+
+                  /** @var \App\Models\Client $client */
                   $this->csv->insertOne($this->buildRow($client));
               });
 

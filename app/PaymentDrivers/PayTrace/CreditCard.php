@@ -18,13 +18,12 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\PaytracePaymentDriver;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class CreditCard implements LivewireMethodInterface
+class CreditCard
 {
     use MakesHash;
 
@@ -37,8 +36,9 @@ class CreditCard implements LivewireMethodInterface
 
     public function authorizeView($data)
     {
-        $data = $this->paymentData($data);
-        
+        $data['client_key'] = $this->paytrace->getAuthToken();
+        $data['gateway'] = $this->paytrace;
+
         return render('gateways.paytrace.authorize', $data);
     }
 
@@ -239,24 +239,5 @@ class CreditCard implements LivewireMethodInterface
         ];
 
         return $this->paytrace->processUnsuccessfulTransaction($data);
-    } 
-
-    /**
-     * @inheritDoc
-     */
-    public function livewirePaymentView(array $data): string
-    {
-        return 'gateways.paytrace.pay_livewire';
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function paymentData(array $data): array
-    {
-        $data['client_key'] = $this->paytrace->getAuthToken();
-        $data['gateway'] = $this->paytrace;
-
-        return $data;
     }
 }

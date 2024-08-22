@@ -7,7 +7,6 @@ ctrans('texts.credit_card')])
     <meta name="translation-expiry_date" content="{{ ctrans('texts.date') }}">
     <meta name="translation-card_number" content="{{ ctrans('texts.card_number') }}">
     <meta name="translation-cvv" content="{{ ctrans('texts.cvv') }}">
-    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

@@ -66,8 +66,7 @@ class ShowCalculatedFieldRequest extends Request
             $input['end_date'] = now()->format('Y-m-d');
         }
 
-        if(isset($input['period']) && $input['period'] == 'previous')
-        {
+        if(isset($input['period']) && $input['period'] == 'previous') {
             $dates = $this->calculatePreviousPeriodStartAndEndDates($input, $user->company());
             $input['start_date'] = $dates[0];
             $input['end_date'] = $dates[1];

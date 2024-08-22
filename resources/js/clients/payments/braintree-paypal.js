@@ -8,8 +8,6 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
-import { wait, instant } from '../wait';
-
 class BraintreePayPal {
     initBraintreeDataCollector() {
         window.braintree.client.create({
@@ -121,8 +119,4 @@ class BraintreePayPal {
     }
 }
 
-function boot() {
-    new BraintreePayPal().handle();
-}
-
-instant() ? boot() : wait('#braintree-paypal-payment').then(() => boot());
+new BraintreePayPal().handle();
