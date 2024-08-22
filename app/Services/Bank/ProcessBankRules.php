@@ -140,7 +140,7 @@ class ProcessBankRules extends AbstractService
                 }
             }
 
-            if (($bank_transaction_rule['matches_on_all'] && (count($match_set) == $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && count($match_set) > 0)) {
+            if (($bank_transaction_rule['matches_on_all'] && $this->checkMatchSetForKey($match_set, $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && count($match_set) > 0)) {
 
                 $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
                 $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
@@ -150,11 +150,71 @@ class ProcessBankRules extends AbstractService
 
 
                 //auto-convert
+
+                if ($bank_transaction_rule['auto_convert']) {
+
+                    //all types must match.
+                    $entity = $match_set[0][0];
+
+                    foreach($match_set as $set)
+                    {
+                        if($set[0] != $entity)
+                            return false;
+                    }
+
+                    
+// $result_set = [];
+
+// foreach($match_set as $key => $set) {
+
+//     $parseable_set = $match_set;
+//     unset($parseable_set[$key]);
+
+//     $entity_ids = $set[1];
+
+//     foreach($parseable_set as $kkey => $vvalue) {
+
+//         $i = array_intersect($vvalue[1], $entity_ids);
+
+//         if(count($i) == 0) {
+//             return false;
+//         }
+
+
+//         $result_set[] = $i;
+
+//     }
+
+
+//     $commonValues = $result_set[0];  // Start with the first sub-array
+
+//     foreach ($result_set as $subArray) {
+//         $commonValues = array_intersect($commonValues, $subArray);
+//     }
+
+//     echo print_r($commonValues, true);
+
+//just need to ensure the result count = rule count
+// }
+
+
+
+                    //there must be a key in each set
+
+                    //no misses allowed
+                    
+                    $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
+                    $this->bank_transaction->save();
+
+                }
             }
 
         }
 
+    }
 
+    private function checkMatchSetForKey(array $match_set, $rule_count)
+    {
 
     }
 
