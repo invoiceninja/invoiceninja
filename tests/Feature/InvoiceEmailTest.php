@@ -34,7 +34,7 @@ class InvoiceEmailTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -56,7 +56,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->assertTrue(strpos($email, '@example.com') !== false);
     }
-    
+
 
     public function testClientEmailHistory()
     {
@@ -83,7 +83,7 @@ class InvoiceEmailTest extends TestCase
                 ],
             ]
         ];
-                
+
         $system_log->save();
 
 
@@ -131,7 +131,7 @@ class InvoiceEmailTest extends TestCase
                 ],
             ]
         ];
-                
+
         $system_log->save();
 
         $data = [
@@ -166,18 +166,18 @@ class InvoiceEmailTest extends TestCase
         $data = [
             "body" => "hey what's up",
             "entity" => 'invoice',
-            "entity_id"=> $this->invoice->hashed_id,
-            "subject"=> 'Reminder $number',
-            "template"=> "first_custom"
+            "entity_id" => $this->invoice->hashed_id,
+            "subject" => 'Reminder $number',
+            "template" => "first_custom"
         ];
 
         $response = false;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/emails', $data);
-       
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/emails', $data);
+
 
         $response->assertStatus(422);
 
@@ -194,10 +194,10 @@ class InvoiceEmailTest extends TestCase
 
         $response = false;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/emails', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/emails', $data);
 
 
         $response->assertStatus(200);
@@ -256,7 +256,7 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                
+
                 Bus::assertDispatched(EmailEntity::class);
 
             }
@@ -287,7 +287,7 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                
+
                 Bus::assertDispatched(EmailEntity::class);
 
             }
@@ -313,7 +313,7 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                
+
                 Bus::assertDispatched(EmailEntity::class);
 
             }

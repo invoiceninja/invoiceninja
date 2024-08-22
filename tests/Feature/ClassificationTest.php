@@ -25,7 +25,7 @@ class ClassificationTest extends TestCase
     use DatabaseTransactions;
     use MockUnitData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

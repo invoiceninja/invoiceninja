@@ -20,7 +20,6 @@ use Tests\TestCase;
 
 class WithTypeHelpersTest extends TestCase
 {
-    
     public function testIsImageHelper(): void
     {
         $account = Account::factory()->create();

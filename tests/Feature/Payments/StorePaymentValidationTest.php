@@ -29,7 +29,7 @@ class StorePaymentValidationTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -74,10 +74,10 @@ class StorePaymentValidationTest extends TestCase
         $response = false;
 
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
 
         $response->assertStatus(200);
     }
@@ -95,10 +95,10 @@ class StorePaymentValidationTest extends TestCase
         $response = false;
 
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
 
 
         $response->assertStatus(422);
@@ -116,10 +116,10 @@ class StorePaymentValidationTest extends TestCase
 
         $response = false;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
 
 
         $response->assertStatus(200);
@@ -147,10 +147,10 @@ class StorePaymentValidationTest extends TestCase
 
         $response = false;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
 
         $response->assertStatus(200);
     }
@@ -176,10 +176,10 @@ class StorePaymentValidationTest extends TestCase
 
         $response = false;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments/', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
 
         $response->assertStatus(422);
     }

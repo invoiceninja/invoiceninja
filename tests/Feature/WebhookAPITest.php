@@ -29,8 +29,8 @@ class WebhookAPITest extends TestCase
     use MockAccountData;
 
     protected $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,7 +47,7 @@ class WebhookAPITest extends TestCase
 
     public function testWebhookRetry()
     {
-        
+
         $data = [
             'target_url' => 'http://hook.com',
             'event_id' => 1, //create client
@@ -73,7 +73,7 @@ class WebhookAPITest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson("/api/v1/webhooks/".$arr['data']['id']."/retry", $data);
-            
+
         $response->assertStatus(200);
 
     }

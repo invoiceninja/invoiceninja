@@ -21,7 +21,7 @@ use App\Http\ValidationRules\Account\EmailBlackListRule;
  */
 class BlacklistValidationTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }
@@ -29,7 +29,7 @@ class BlacklistValidationTest extends TestCase
     public function testValidEmailRule3()
     {
         $rules = [
-            'email' => [new EmailBlackListRule],
+            'email' => [new EmailBlackListRule()],
         ];
 
         $data = [
@@ -44,7 +44,7 @@ class BlacklistValidationTest extends TestCase
     public function testValidEmailRule2()
     {
         $rules = [
-            'email' => [new EmailBlackListRule],
+            'email' => [new EmailBlackListRule()],
         ];
 
         $data = [
@@ -58,7 +58,7 @@ class BlacklistValidationTest extends TestCase
     public function testValidEmailRule()
     {
         $rules = [
-            'email' => [new BlackListRule],
+            'email' => [new BlackListRule()],
         ];
 
         $data = [
@@ -72,7 +72,7 @@ class BlacklistValidationTest extends TestCase
     public function testInValidEmailRule()
     {
         $rules = [
-            'email' => [new BlackListRule],
+            'email' => [new BlackListRule()],
         ];
 
         $data = [
@@ -86,7 +86,7 @@ class BlacklistValidationTest extends TestCase
     public function testInValidEmailRule2()
     {
         $rules = [
-            'email' => [new BlackListRule],
+            'email' => [new BlackListRule()],
         ];
 
         $data = [
@@ -100,7 +100,7 @@ class BlacklistValidationTest extends TestCase
     public function testInValidEmailRule3()
     {
         $rules = [
-            'email' => [new BlackListRule],
+            'email' => [new BlackListRule()],
         ];
 
         $data = [

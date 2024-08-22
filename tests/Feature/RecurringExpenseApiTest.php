@@ -34,7 +34,7 @@ class RecurringExpenseApiTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -135,7 +135,7 @@ class RecurringExpenseApiTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
             'frequency_id' => 5,
-            'remaining_cycles' =>5,
+            'remaining_cycles' => 5,
             'currency_id' => 34545435425
         ];
 
@@ -155,7 +155,7 @@ class RecurringExpenseApiTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
             'frequency_id' => 5,
-            'remaining_cycles' =>5,
+            'remaining_cycles' => 5,
             'currency_id' => 1
         ];
 
@@ -175,7 +175,7 @@ class RecurringExpenseApiTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
             'frequency_id' => 5,
-            'remaining_cycles' =>5,
+            'remaining_cycles' => 5,
             'currency_id' => null
         ];
 
@@ -183,7 +183,7 @@ class RecurringExpenseApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/recurring_expenses?start=true', $data);
-        
+
         $data = $response->json();
 
         $response->assertStatus(200);
@@ -199,7 +199,7 @@ class RecurringExpenseApiTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
             'frequency_id' => 5,
-            'remaining_cycles' =>5,
+            'remaining_cycles' => 5,
             'currency_id' => ""
         ];
 
@@ -207,7 +207,7 @@ class RecurringExpenseApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/recurring_expenses?start=true', $data);
-        
+
         $data = $response->json();
 
         $response->assertStatus(200);
@@ -423,7 +423,7 @@ class RecurringExpenseApiTest extends TestCase
             'client_id' => $this->client->hashed_id,
             'number' => '123321',
             'frequency_id' => 5,
-            'remaining_cycles' =>5,
+            'remaining_cycles' => 5,
         ];
 
         $response = $this->withHeaders([

@@ -21,8 +21,8 @@ use Tests\TestCase;
 class CompanySettingsTest extends TestCase
 {
     protected $company_settings;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 

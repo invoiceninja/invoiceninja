@@ -155,7 +155,7 @@ class InvoicelyTest extends TestCase
 
         $base_transformer = new BaseTransformer($this->company);
 
-        
+
         $this->assertTrue($base_transformer->hasInvoice('INV-1'));
 
         $invoice_id = $base_transformer->getInvoiceId('INV-1');

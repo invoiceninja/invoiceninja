@@ -60,7 +60,7 @@ class PeppolTest extends TestCase
 
         $settings = CompanySettings::defaults();
         $settings->address1 = 'Dudweilerstr. 34b';
-        $settings->city = 'Ost Alessa'; 
+        $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
         $settings->postal_code = '98060';
         $settings->vat_number = 'DE923356489';
@@ -68,11 +68,11 @@ class PeppolTest extends TestCase
         $settings->currency_id = '3';
 
         $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
-        
+
         $fib = new FinancialInstitutionBranch();
         $fib->ID = "DEUTDEMMXXX"; //BIC
         $fib->Name = 'Deutsche Bank';
-        
+
         $pfa = new PayeeFinancialAccount();
         $pfa->ID = 'DE89370400440532013000';
         $pfa->Name = 'PFA-NAME';
@@ -83,10 +83,10 @@ class PeppolTest extends TestCase
         $pfa->FinancialInstitutionBranch = $fib;
 
         $pm = new PaymentMeans();
-        $pm->PayeeFinancialAccount = $pfa;        
+        $pm->PayeeFinancialAccount = $pfa;
         $einvoice->PaymentMeans[] = $pm;
 
-        $stub = new \stdClass;
+        $stub = new \stdClass();
         $stub->Invoice = $einvoice;
 
         $company = Company::factory()->create([
@@ -94,7 +94,7 @@ class PeppolTest extends TestCase
             'settings' => $settings,
             'e_invoice' => $stub,
         ]);
-        
+
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
         $cu->is_owner = true;
         $cu->is_admin = true;
@@ -118,7 +118,7 @@ class PeppolTest extends TestCase
             'settings' => $client_settings,
         ]);
 
-                
+
         $item = new InvoiceItem();
         $item->product_key = "Product Key";
         $item->notes = "Product Description";
@@ -181,7 +181,7 @@ class PeppolTest extends TestCase
 
         $settings = CompanySettings::defaults();
         $settings->address1 = 'Dudweilerstr. 34b';
-        $settings->city = 'Ost Alessa'; 
+        $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
         $settings->postal_code = '98060';
         $settings->vat_number = 'DE923356489';
@@ -189,11 +189,11 @@ class PeppolTest extends TestCase
         $settings->currency_id = '3';
 
         $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
-        
+
         $fib = new FinancialInstitutionBranch();
         $fib->ID = "DEUTDEMMXXX"; //BIC
         $fib->Name = 'Deutsche Bank';
-        
+
         $pfa = new PayeeFinancialAccount();
         $pfa->ID = 'DE89370400440532013000';
         $pfa->Name = 'PFA-NAME';
@@ -204,10 +204,10 @@ class PeppolTest extends TestCase
         $pfa->FinancialInstitutionBranch = $fib;
 
         $pm = new PaymentMeans();
-        $pm->PayeeFinancialAccount = $pfa;        
+        $pm->PayeeFinancialAccount = $pfa;
         $einvoice->PaymentMeans[] = $pm;
 
-        
+
         $stub = new \stdClass();
         $stub->Invoice = $einvoice;
 
@@ -240,7 +240,7 @@ class PeppolTest extends TestCase
             'settings' => $client_settings,
         ]);
 
-                
+
         $item = new InvoiceItem();
         $item->product_key = "Product Key";
         $item->notes = "Product Description";
@@ -315,7 +315,7 @@ class PeppolTest extends TestCase
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
-        
+
 
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
         $cu->is_owner = true;
@@ -384,7 +384,7 @@ class PeppolTest extends TestCase
         $json = $e->encode($fe, 'json');
         $this->assertNotNull($json);
 
-       
+
         $decode = $e->decode('Peppol', $json, 'json');
 
         $this->assertInstanceOf(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $decode);

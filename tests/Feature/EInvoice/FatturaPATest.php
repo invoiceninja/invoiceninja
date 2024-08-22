@@ -42,7 +42,7 @@ class FatturaPATest extends TestCase
 
         $this->makeTestData();
 
-        
+
         // $this->markTestSkipped('prevent running in CI');
 
         $this->withoutMiddleware(
@@ -60,20 +60,20 @@ class FatturaPATest extends TestCase
         $settings->state = 'PA';
 
         // $settings->state = 'Perugia';
-        $settings->postal_code = '61030'; 
+        $settings->postal_code = '61030';
         $settings->country_id = '380';
         $settings->currency_id = '3';
         $settings->vat_number = '01234567890';
         $settings->id_number = '';
 
-        $company = Company::factory()->create([   
+        $company = Company::factory()->create([
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
 
         $client_settings = ClientSettings::defaults();
         $client_settings->currency_id = '3';
-        
+
         $client = Client::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
@@ -88,14 +88,14 @@ class FatturaPATest extends TestCase
             'settings' => $client_settings,
         ]);
 
-        $item = new InvoiceItem;
+        $item = new InvoiceItem();
         $item->product_key = "Product Key";
         $item->notes = "Product Description";
         $item->cost = 10;
         $item->quantity = 10;
         $item->tax_rate1 = 22;
         $item->tax_name1 = 'IVA';
-        
+
         $invoice = Invoice::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
@@ -110,7 +110,7 @@ class FatturaPATest extends TestCase
             'tax_name2' => '',
             'tax_name3' => '',
             'line_items' => [$item],
-            'number' => 'ITA-'.rand(1000,100000)
+            'number' => 'ITA-'.rand(1000, 100000)
         ]);
 
         $invoice->service()->markSent()->save();
@@ -126,11 +126,12 @@ class FatturaPATest extends TestCase
         $this->assertInstanceOf(FatturaElettronicaBody::class, $fe->FatturaElettronicaBody[0]);
         $this->assertInstanceOf(FatturaElettronicaHeader::class, $fe->FatturaElettronicaHeader);
 
-        $e = new EInvoice;
+        $e = new EInvoice();
         $errors = $e->validate($fe);
 
-        if(count($errors) > 0)
+        if(count($errors) > 0) {
             nlog($errors);
+        }
 
         $this->assertCount(0, $errors);
 

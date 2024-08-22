@@ -40,7 +40,7 @@ class UserTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -208,7 +208,7 @@ class UserTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json()['data']);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
@@ -447,7 +447,7 @@ class UserTest extends TestCase
                 'X-API-TOKEN' => $this->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->postJson('/api/v1/users?include=company_user', $data);
-       
+
         $response->assertStatus(200);
 
         $arr = $response->json();
@@ -480,7 +480,7 @@ class UserTest extends TestCase
             'account_id' => $this->account->id,
         ]);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $company2->id;
         $company_token->account_id = $this->account->id;

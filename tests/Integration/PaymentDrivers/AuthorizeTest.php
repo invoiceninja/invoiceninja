@@ -44,7 +44,7 @@ class AuthorizeTest extends TestCase
 
     public $customer_payment_profile = 1512424103;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -172,7 +172,7 @@ class AuthorizeTest extends TestCase
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             // nlog('Succesfully created customer profile : '.$response->getCustomerProfileId()."\n");
             $paymentProfiles = $response->getCustomerPaymentProfileIdList();
-        // nlog(print_r($paymentProfiles, 1));
+            // nlog(print_r($paymentProfiles, 1));
         } else {
             // nlog("ERROR :  Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();

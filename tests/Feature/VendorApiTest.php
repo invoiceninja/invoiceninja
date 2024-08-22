@@ -34,7 +34,7 @@ class VendorApiTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -76,12 +76,12 @@ class VendorApiTest extends TestCase
 
         $this->assertNull($v->last_login);
         $this->assertNull($vc->last_login);
-        
+
         Event::fake();
         event(new VendorContactLoggedIn($vc, $this->company, Ninja::eventVars()));
 
         Event::assertDispatched(VendorContactLoggedIn::class);
-        
+
     }
 
     public function testVendorLocale()
@@ -159,12 +159,12 @@ class VendorApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson("/api/v1/vendors/{$id}", $data);
-        
+
         $response->assertStatus(200);
 
         $arr = $response->json();
         $this->assertEquals('3', $arr['data']['language_id']);
-        
+
     }
 
     public function testAddVendorLanguage422()
@@ -178,7 +178,7 @@ class VendorApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/vendors', $data)->assertStatus(422);
-        
+
     }
 
 
@@ -196,7 +196,7 @@ class VendorApiTest extends TestCase
 
         $response->assertStatus(200);
         $arr = $response->json();
-        
+
         $this->assertEquals('1', $arr['data']['language_id']);
     }
 
@@ -381,7 +381,7 @@ class VendorApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/vendors/', $data)
         ->assertStatus(422);
-        
+
     }
 
     public function testVendorGet()

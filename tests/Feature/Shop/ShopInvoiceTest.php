@@ -29,7 +29,7 @@ class ShopInvoiceTest extends TestCase
     use MockAccountData;
     protected $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

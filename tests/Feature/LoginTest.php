@@ -29,7 +29,7 @@ class LoginTest extends TestCase
 {
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
         Session::start();
@@ -155,7 +155,7 @@ class LoginTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
@@ -187,9 +187,9 @@ class LoginTest extends TestCase
         ];
 
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-            ])->postJson('/api/v1/login', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+        ])->postJson('/api/v1/login', $data);
 
 
         $arr = $response->json();

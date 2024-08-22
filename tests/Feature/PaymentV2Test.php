@@ -37,8 +37,8 @@ class PaymentV2Test extends TestCase
     use MockAccountData;
 
     public $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -130,7 +130,7 @@ class PaymentV2Test extends TestCase
 
     public function testStorePaymentWithCreditsThenDeletingInvoices()
     {
-        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id, 'balance' => 20, 'paid_to_date' => 0]);
+        $client = Client::factory()->create(['company_id' => $this->company->id, 'user_id' => $this->user->id, 'balance' => 20, 'paid_to_date' => 0]);
         ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $client->id,
@@ -192,10 +192,10 @@ class PaymentV2Test extends TestCase
 
         $response = null;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
 
 
         $arr = $response->json();
@@ -258,7 +258,7 @@ class PaymentV2Test extends TestCase
 
     public function testStorePaymentWithCreditsThenDeletingInvoicesAndThenPayments()
     {
-        $client = Client::factory()->create(['company_id' =>$this->company->id, 'user_id' => $this->user->id, 'balance' => 100, 'paid_to_date' => 0]);
+        $client = Client::factory()->create(['company_id' => $this->company->id, 'user_id' => $this->user->id, 'balance' => 100, 'paid_to_date' => 0]);
         ClientContact::factory()->create([
             'user_id' => $this->user->id,
             'client_id' => $client->id,
@@ -329,10 +329,10 @@ class PaymentV2Test extends TestCase
 
         $response = null;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/payments?include=invoices', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
 
 
         $arr = $response->json();
@@ -352,7 +352,7 @@ class PaymentV2Test extends TestCase
         $this->assertEquals(0, $credit->balance);
 
         $invoice = $invoice->fresh();
-        
+
         //delete the invoice
 
         $data = [

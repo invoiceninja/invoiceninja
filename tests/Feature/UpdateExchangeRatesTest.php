@@ -29,13 +29,14 @@ class UpdateExchangeRatesTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        if(empty(config('ninja.currency_converter_api_key')))
+        if(empty(config('ninja.currency_converter_api_key'))) {
             $this->markTestSkipped("no currency key set");
-        
+        }
+
     }
 
     public function testExchangeRate()
@@ -54,7 +55,7 @@ class UpdateExchangeRatesTest extends TestCase
         });
 
         $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
-    
+
     }
 
     public function testExchangeRateConversion()

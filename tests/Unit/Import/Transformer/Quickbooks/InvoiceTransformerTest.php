@@ -27,7 +27,7 @@ class InvoiceTransformerTest extends TestCase
         $this->withoutExceptionHandling();
         Auth::setUser($this->user);
         // Read the JSON string from a file and decode into an associative array
-        $this->invoiceData = json_decode( file_get_contents( app_path('/../tests/Mock/Quickbooks/Data/invoice.json') ), true);
+        $this->invoiceData = json_decode(file_get_contents(app_path('/../tests/Mock/Quickbooks/Data/invoice.json')), true);
         $this->transformer = new InvoiceTransformer($this->company);
         $this->transformedData = $this->transformer->transform($this->invoiceData['Invoice']);
     }
@@ -39,7 +39,7 @@ class InvoiceTransformerTest extends TestCase
 
     public function testTransformReturnsArray()
     {
-       $this->assertIsArray($this->transformedData);
+        $this->assertIsArray($this->transformedData);
     }
 
     public function testTransformContainsNumber()
@@ -65,7 +65,7 @@ class InvoiceTransformerTest extends TestCase
     {
         $this->assertArrayHasKey('line_items', $this->transformedData);
         $this->assertNotNull($this->transformedData['line_items']);
-        $this->assertEquals( count($this->invoiceData['Invoice']["Line"]) - 1, count($this->transformedData['line_items']) );
+        $this->assertEquals(count($this->invoiceData['Invoice']["Line"]) - 1, count($this->transformedData['line_items']));
     }
 
     public function testTransformHasClient()

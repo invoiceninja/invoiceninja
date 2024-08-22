@@ -18,7 +18,7 @@ use Tests\TestCase;
  */
 class S3CleanupTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

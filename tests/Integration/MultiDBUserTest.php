@@ -31,7 +31,7 @@ use Tests\TestCase;
  */
 class MultiDBUserTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -203,7 +203,7 @@ class MultiDBUserTest extends TestCase
 
 
         $response->assertStatus(403);
-        
+
     }
 
     // public function test_cross_db_user_linking_succeeds_appropriately()
@@ -237,7 +237,7 @@ class MultiDBUserTest extends TestCase
     //     }
     // }
 
-    protected function tearDown() :void
+    protected function tearDown(): void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

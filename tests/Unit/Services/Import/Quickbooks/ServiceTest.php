@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit\Services\Import\Quickbooks;
 
 use Mockery;
@@ -16,7 +17,7 @@ class ServiceTest extends TestCase
         parent::setUp();
         $this->markTestSkipped("no bueno");
         // Inject the mock into the IntuitSDKservice instance
-        $this->service = Mockery::mock( new QuickbooksService(Mockery::mock(QuickbooksInterface::class)))->shouldAllowMockingProtectedMethods();
+        $this->service = Mockery::mock(new QuickbooksService(Mockery::mock(QuickbooksInterface::class)))->shouldAllowMockingProtectedMethods();
     }
 
     protected function tearDown(): void
