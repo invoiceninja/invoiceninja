@@ -258,17 +258,12 @@ class ClientSettingsTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            // nlog($message);
-        }
-
-        $response->assertStatus(302);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data);
+     
+        $response->assertStatus(422);
     }
 
     public function testClientIllegalPaymenTerms()
@@ -288,17 +283,13 @@ class ClientSettingsTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/', $data);
 
-        $response->assertStatus(302);
+
+        $response->assertStatus(422);
     }
 
     public function testClientIllegalValidUntil()
@@ -318,17 +309,14 @@ class ClientSettingsTest extends TestCase
 
         $response = false;
 
-        try {
+
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
 
-        $response->assertStatus(302);
+
+        $response->assertStatus(422);
     }
 
     public function testClientIllegalDefaultTaskRate()
@@ -381,17 +369,13 @@ class ClientSettingsTest extends TestCase
 
         $response = false;
 
-        try {
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/clients/', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+            ])->postJson('/api/v1/clients/', $data);
 
-        $response->assertStatus(302);
+
+        $response->assertStatus(422);
     }
 
     public function testClientSettingBools()
