@@ -593,6 +593,6 @@ class ExpenseController extends BaseController
         }
 
         return response()->json(['message' => 'Processing....'], 200);
-        
+
     }
 }

@@ -200,7 +200,7 @@ class StoreClientRequest extends Request
 
     private function getCountryCode(string $country_code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
@@ -209,12 +209,12 @@ class StoreClientRequest extends Request
         });
 
         return $country ? (string) $country->id : '';
-        
+
     }
 
     private function getCurrencyCode($code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
@@ -223,6 +223,6 @@ class StoreClientRequest extends Request
         });
 
         return  $currency ? (string)$currency->id : '';
-        
+
     }
 }

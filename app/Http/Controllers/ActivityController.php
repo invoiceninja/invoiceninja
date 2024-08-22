@@ -117,7 +117,7 @@ class ActivityController extends BaseController
 
     }
 
-        
+
     /**
      * downloadHistoricalEntity
      *
@@ -204,7 +204,7 @@ class ActivityController extends BaseController
         $activity->user_id = $user->id;
         $activity->ip = $request->ip();
         $activity->activity_type_id = Activity::USER_NOTE;
-        
+
         switch (get_class($entity)) {
             case Invoice::class:
                 $activity->invoice_id = $entity->id;
@@ -254,17 +254,20 @@ class ActivityController extends BaseController
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
+                // no break
             case Task::class:
                 $activity->task_id = $entity->id;
                 $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
+                // no break
             case Payment::class:
                 $activity->payment_id = $entity->id;
                 $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
+                // no break
             default:
                 # code...
                 break;

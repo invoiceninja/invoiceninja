@@ -19,7 +19,7 @@ use Tests\TestCase;
  */
 class AmountValidationRuleTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

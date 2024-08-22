@@ -29,7 +29,7 @@ trait AppSetup
 
         return $check['system_health'] == 'true';
     }
-    
+
     /**
      * @deprecated
      *

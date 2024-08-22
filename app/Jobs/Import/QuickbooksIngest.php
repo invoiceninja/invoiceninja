@@ -12,7 +12,10 @@ use Illuminate\Foundation\Bus\Dispatchable;
 
 class QuickbooksIngest implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $engine;
     protected $request;
@@ -35,7 +38,7 @@ class QuickbooksIngest implements ShouldQueue
         MultiDB::setDb($this->company->db);
         set_time_limit(0);
 
-        $engine = new Quickbooks(['import_type' => 'client', 'hash'=> $this->request['hash'] ], $this->company);
+        $engine = new Quickbooks(['import_type' => 'client', 'hash' => $this->request['hash'] ], $this->company);
         foreach ($this->request['import_types'] as $entity) {
             $engine->import($entity);
         }

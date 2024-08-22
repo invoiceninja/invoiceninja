@@ -7,19 +7,20 @@ use App\Libraries\MultiDB;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 
-class CompanyTokensRepository {
-
-
+class CompanyTokensRepository
+{
     private $company_key;
     private $store_key = "quickbooks-token";
 
-    public function __construct(string $key = null) {
+    public function __construct(string $key = null)
+    {
         $this->company_key = $key ?? auth()->user->company()->company_key ?? null;
         $this->store_key .= $key;
         $this->setCompanyDbByKey();
     }
 
-    public function save(array $tokens) {
+    public function save(array $tokens)
+    {
         $this->updateAccessToken($tokens['access_token'], $tokens['access_token_expires']);
         $this->updateRefreshToken($tokens['refresh_token'], $tokens['refresh_token_expires'], $tokens['realm']);
     }
@@ -30,16 +31,17 @@ class CompanyTokensRepository {
         return Company::where('company_key', $this->company_key)->first();
     }
 
-    public function setCompanyDbByKey() 
+    public function setCompanyDbByKey()
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
     }
 
-    public function get() {
+    public function get()
+    {
         return $this->getAccessToken() + $this->getRefreshToken();
     }
 
-    
+
     protected function updateRefreshToken(string $token, string $expires, string $realm)
     {
         DB::table('companies')
@@ -49,16 +51,16 @@ class CompanyTokensRepository {
                                 'quickbooks_refresh_expires' => $expires ]);
     }
 
-    protected function updateAccessToken(string $token, string $expires )
+    protected function updateAccessToken(string $token, string $expires)
     {
 
         Cache::put([$this->store_key => $token], $expires);
     }
 
-    protected function getAccessToken( )
+    protected function getAccessToken()
     {
         $result = Cache::get($this->store_key);
-        
+
         return $result ? ['access_token' => $result] : [];
     }
 
@@ -66,11 +68,11 @@ class CompanyTokensRepository {
     {
         $result = (array) DB::table('companies')
         ->select('quickbooks_refresh_token', 'quickbooks_realm_id')
-        ->where('company_key',$this->company_key)
-        ->where('quickbooks_refresh_expires','>',now())
+        ->where('company_key', $this->company_key)
+        ->where('quickbooks_refresh_expires', '>', now())
         ->first();
-        
-        return $result? array_combine(['refresh_token','realm'], array_values($result) ) : [];
+
+        return $result ? array_combine(['refresh_token','realm'], array_values($result)) : [];
     }
 
 }

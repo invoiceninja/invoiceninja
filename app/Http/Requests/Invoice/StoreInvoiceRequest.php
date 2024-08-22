@@ -89,7 +89,7 @@ class StoreInvoiceRequest extends Request
 
     public function prepareForValidation()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
@@ -106,7 +106,7 @@ class StoreInvoiceRequest extends Request
         }
         if(isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
-        }        
+        }
         if (!isset($input['tax_rate1'])) {
             $input['tax_rate1'] = 0;
         }

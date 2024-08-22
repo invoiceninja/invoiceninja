@@ -31,8 +31,8 @@ class GroupSettingsTest extends TestCase
     public $company_settings;
     public $client_settings;
     public $settings;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 

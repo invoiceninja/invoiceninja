@@ -487,7 +487,7 @@ class BillingPortalPurchasev2 extends Component
         if ($this->contact && $this->float_amount_total >= 0) {
             $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
         }
-        
+
         foreach($this->methods as $method) {
 
             if($method['is_paypal'] == '1' && !$this->check_rff) {
@@ -502,7 +502,7 @@ class BillingPortalPurchasev2 extends Component
 
     protected function rff()
     {
-        
+
         $this->contact_first_name = $this->contact->first_name;
         $this->contact_last_name = $this->contact->last_name;
         $this->contact_email = $this->contact->email;
@@ -515,8 +515,7 @@ class BillingPortalPurchasev2 extends Component
             strlen($this->contact_email ?? '') == 0 ||
             strlen($this->client_city ?? '') == 0 ||
             strlen($this->client_postal_code ?? '') == 0
-        )
-        {
+        ) {
             $this->check_rff = true;
         }
 
@@ -757,7 +756,7 @@ class BillingPortalPurchasev2 extends Component
                 $data['settings']->currency_id = $currency->id;
             }
         } elseif ($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
-            
+
             /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
             $currencies = app('currencies');
 
@@ -775,7 +774,7 @@ class BillingPortalPurchasev2 extends Component
 
             /** @var \Illuminate\Support\Collection<\App\Models\Language> */
             $languages = app('languages');
-            
+
             $record = $languages->first(function ($item) use ($request) {
                 return $item->locale == $request['locale'];
             });

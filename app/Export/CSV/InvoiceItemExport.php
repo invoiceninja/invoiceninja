@@ -113,7 +113,7 @@ class InvoiceItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($resource) {
-                
+
                 /** @var \App\Models\Invoice $resource */
                 $this->iterateItems($resource);
 
@@ -143,7 +143,7 @@ class InvoiceItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
-                
+
                 /** @var \App\Models\Invoice $invoice */
                 $this->iterateItems($invoice);
             });
@@ -262,9 +262,9 @@ class InvoiceItemExport extends BaseExport
         }
 
         if (in_array('invoice.project', $this->input['report_keys'])) {
-            $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line        
+            $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line
         }
-        
+
         return $entity;
     }
 

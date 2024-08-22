@@ -8,8 +8,9 @@ trait CommonTrait
 {
     protected $model;
 
-    public function getString($data,$field) {
-        return Arr::get($data,$field);
+    public function getString($data, $field)
+    {
+        return Arr::get($data, $field);
     }
 
     public function getCreateTime($data, $field = null)
@@ -19,7 +20,7 @@ trait CommonTrait
 
     public function getLastUpdatedTime($data, $field = null)
     {
-        return $this->parseDateOrNull($data,'MetaData.LastUpdatedTime');
+        return $this->parseDateOrNull($data, 'MetaData.LastUpdatedTime');
     }
 
     public function transform($data)
@@ -27,7 +28,7 @@ trait CommonTrait
         $transformed = [];
 
         foreach ($this->fillable as $key => $field) {
-            $transformed[$key] = is_null((($v = $this->getString($data, $field))))? null : (method_exists($this, ($method = "get{$field}")) ? call_user_func([$this, $method], $data, $field ) : $this->getString($data,$field));
+            $transformed[$key] = is_null((($v = $this->getString($data, $field)))) ? null : (method_exists($this, ($method = "get{$field}")) ? call_user_func([$this, $method], $data, $field) : $this->getString($data, $field));
         }
 
         return $this->model->fillable(array_keys($this->fillable))->fill($transformed)->toArray() + ['company_id' => $this->company->id ] ;

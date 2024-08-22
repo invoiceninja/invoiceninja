@@ -65,7 +65,7 @@ class ReportPreviewTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -97,7 +97,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -129,7 +129,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'vendor_id' => $this->vendor->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -150,7 +150,7 @@ class ReportPreviewTest extends TestCase
         $r = Cache::pull('123');
 
         $this->assertNotNull($r);
-        
+
         //nlog($r);
 
     }
@@ -162,7 +162,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -183,7 +183,7 @@ class ReportPreviewTest extends TestCase
         $r = Cache::pull('123');
 
         $this->assertNotNull($r);
-        
+
         //nlog($r);
 
     }
@@ -196,7 +196,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -217,7 +217,7 @@ class ReportPreviewTest extends TestCase
         $r = Cache::pull('123');
 
         $this->assertNotNull($r);
-        
+
         //nlog($r);
 
     }
@@ -231,7 +231,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'vendor_id' => $this->vendor->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -262,7 +262,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -293,7 +293,7 @@ class ReportPreviewTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -323,7 +323,7 @@ class ReportPreviewTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -355,7 +355,7 @@ class ReportPreviewTest extends TestCase
             'documentable_type' => Client::class,
             'documentable_id' => $this->client->id,
         ]);
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -476,7 +476,7 @@ class ReportPreviewTest extends TestCase
 
     public function testCreditExportPreview()
     {
-        
+
         $data = [
             'send_email' => false,
             'date_range' => 'all',
@@ -491,7 +491,7 @@ class ReportPreviewTest extends TestCase
         $r = Cache::pull('123');
 
         $this->assertNotNull($r);
-        
+
     }
 
     public function testCreditPreview()
@@ -509,6 +509,6 @@ class ReportPreviewTest extends TestCase
         ])->postJson('/api/v1/reports/credits?output=json', $data)
         ->assertStatus(200);
 
-    
+
     }
 }

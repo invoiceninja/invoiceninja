@@ -220,7 +220,7 @@ class TemplateAction implements ShouldQueue
             Project::class => 'projects',
             Client::class => 'clients',
             Vendor::class => 'vendors',
-            default =>'invoices',
+            default => 'invoices',
         };
     }
 

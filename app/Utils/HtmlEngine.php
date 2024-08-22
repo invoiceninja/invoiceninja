@@ -1017,98 +1017,98 @@ class HtmlEngine
      * of Repeating headers and footers on the PDF.
      * @return string The css string
      */
-//     private function generateCustomCSS(): string
-//     {
-//         $header_and_footer = '
-// .header, .header-space {
-//   height: 160px;
-// }
+    //     private function generateCustomCSS(): string
+    //     {
+    //         $header_and_footer = '
+    // .header, .header-space {
+    //   height: 160px;
+    // }
 
-// .footer, .footer-space {
-//   height: 160px;
-// }
+    // .footer, .footer-space {
+    //   height: 160px;
+    // }
 
-// .footer {
-//   position: fixed;
-//   bottom: 0;
-//   width: 100%;
-// }
+    // .footer {
+    //   position: fixed;
+    //   bottom: 0;
+    //   width: 100%;
+    // }
 
-// .header {
-//   position: fixed;
-//   top: 0mm;
-//   width: 100%;
-// }
+    // .header {
+    //   position: fixed;
+    //   top: 0mm;
+    //   width: 100%;
+    // }
 
-// @media print {
-//    thead {display: table-header-group;}
-//    tfoot {display: table-footer-group;}
-//    button {display: none;}
-//    body {margin: 0;}
-// }';
+    // @media print {
+    //    thead {display: table-header-group;}
+    //    tfoot {display: table-footer-group;}
+    //    button {display: none;}
+    //    body {margin: 0;}
+    // }';
 
-//         $header = '
-// .header, .header-space {
-//   height: 160px;
-// }
+    //         $header = '
+    // .header, .header-space {
+    //   height: 160px;
+    // }
 
-// .header {
-//   position: fixed;
-//   top: 0mm;
-//   width: 100%;
-// }
+    // .header {
+    //   position: fixed;
+    //   top: 0mm;
+    //   width: 100%;
+    // }
 
-// @media print {
-//    thead {display: table-header-group;}
-//    button {display: none;}
-//    body {margin: 0;}
-// }';
+    // @media print {
+    //    thead {display: table-header-group;}
+    //    button {display: none;}
+    //    body {margin: 0;}
+    // }';
 
-//         $footer = '
+    //         $footer = '
 
-// .footer, .footer-space {
-//   height: 160px;
-// }
+    // .footer, .footer-space {
+    //   height: 160px;
+    // }
 
-// .footer {
-//   position: fixed;
-//   bottom: 0;
-//   width: 100%;
-// }
+    // .footer {
+    //   position: fixed;
+    //   bottom: 0;
+    //   width: 100%;
+    // }
 
-// @media print {
-//    tfoot {display: table-footer-group;}
-//    button {display: none;}
-//    body {margin: 0;}
-// }';
-//         $css = '';
+    // @media print {
+    //    tfoot {display: table-footer-group;}
+    //    button {display: none;}
+    //    body {margin: 0;}
+    // }';
+    //         $css = '';
 
-//         if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
-//             $css .= $header_and_footer;
-//         } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
-//             $css .= $header;
-//         } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
-//             $css .= $footer;
-//         }
+    //         if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
+    //             $css .= $header_and_footer;
+    //         } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
+    //             $css .= $header;
+    //         } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
+    //             $css .= $footer;
+    //         }
 
-//         $css .= '
-// .page {
-//   page-break-after: always;
-// }
+    //         $css .= '
+    // .page {
+    //   page-break-after: always;
+    // }
 
-// @page {
-//   margin: 0mm
-// }
+    // @page {
+    //   margin: 0mm
+    // }
 
-// html {
-//         ';
+    // html {
+    //         ';
 
-//         $css .= 'font-size:'.$this->settings->font_size.'px;';
+    //         $css .= 'font-size:'.$this->settings->font_size.'px;';
 
-//         $css .= '}';
+    //         $css .= '}';
 
-//         return $css;
-//     }
+    //         return $css;
+    //     }
 
     /**
      * Generate markup for HTML images on entity.

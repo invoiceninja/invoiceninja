@@ -27,7 +27,7 @@ class DependencyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->markTestSkipped('No Bueno');
 
     }

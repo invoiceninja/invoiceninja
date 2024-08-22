@@ -24,7 +24,6 @@ use Illuminate\Support\Str;
  */
 class ClientTransformer extends BaseTransformer
 {
-    
     use CommonTrait {
         transform as preTransform;
     }
@@ -49,7 +48,7 @@ class ClientTransformer extends BaseTransformer
     {
         parent::__construct($company);
 
-        $this->model = new Model;
+        $this->model = new Model();
     }
 
 
@@ -68,12 +67,13 @@ class ClientTransformer extends BaseTransformer
         }
 
         $transformed_data = $this->preTransform($data);
-        $transformed_data['contacts'][0] = $this->getContacts($data)->toArray()+['company_id' => $this->company->id ];
-        
+        $transformed_data['contacts'][0] = $this->getContacts($data)->toArray() + ['company_id' => $this->company->id ];
+
         return $transformed_data;
     }
 
-    protected function getContacts($data) {
+    protected function getContacts($data)
+    {
         return (new ClientContact())->fill([
                     'first_name'    => $this->getString($data, 'GivenName'),
                     'last_name'     => $this->getString($data, 'FamilyName'),
@@ -84,12 +84,14 @@ class ClientTransformer extends BaseTransformer
     }
 
 
-    public function getShipAddrCountry($data,$field) {
-        return is_null(($c = $this->getString($data,$field))) ? null : $this->getCountryId($c);
+    public function getShipAddrCountry($data, $field)
+    {
+        return is_null(($c = $this->getString($data, $field))) ? null : $this->getCountryId($c);
     }
 
-    public function getBillAddrCountry($data,$field) {
-        return is_null(($c = $this->getString($data,$field))) ? null : $this->getCountryId($c);
+    public function getBillAddrCountry($data, $field)
+    {
+        return is_null(($c = $this->getString($data, $field))) ? null : $this->getCountryId($c);
     }
 
 }

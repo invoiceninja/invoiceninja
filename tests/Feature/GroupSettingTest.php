@@ -41,7 +41,7 @@ class GroupSettingTest extends TestCase
     public function testCastingMagic()
     {
 
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
         $settings->tax_name1 = '';
         $settings->tax_rate1 = 0;
@@ -51,7 +51,7 @@ class GroupSettingTest extends TestCase
         $this->assertEquals("", $settings->tax_name1);
         $settings = null;
 
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
         $settings->tax_name1 = "1";
         $settings->tax_rate1 = 0;
@@ -63,7 +63,7 @@ class GroupSettingTest extends TestCase
         $settings = $s->cast($settings)->toArray();
         $this->assertEquals("1", $settings['tax_name1']);
 
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
         $settings->tax_name1 = [];
         $settings->tax_rate1 = 0;
@@ -75,9 +75,9 @@ class GroupSettingTest extends TestCase
         $settings = $s->cast($settings)->toArray();
         $this->assertEquals("", $settings['tax_name1']);
 
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
-        $settings->tax_name1 = new \stdClass;
+        $settings->tax_name1 = new \stdClass();
         $settings->tax_rate1 = 0;
 
         $settings = $s->cast($settings)->toObject();
@@ -94,7 +94,7 @@ class GroupSettingTest extends TestCase
 
     public function testTaxNameInGroupFilters()
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
         $settings->tax_name1 = '';
         $settings->tax_rate1 = 0;
@@ -110,17 +110,17 @@ class GroupSettingTest extends TestCase
         ])->postJson('/api/v1/group_settings', $data);
 
         $response->assertStatus(200);
-    
+
         $arr = $response->json();
 
         $this->assertEquals("", (string)null);
         $this->assertNotNull($arr['data']['settings']['tax_name1']);
     }
-            
+
 
     public function testAddGroupFilters()
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
 
         $data = [
@@ -156,7 +156,7 @@ class GroupSettingTest extends TestCase
 
     public function testAddGroupSettings()
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
 
         $data = [
@@ -179,7 +179,7 @@ class GroupSettingTest extends TestCase
 
     public function testArchiveGroupSettings()
     {
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->currency_id = '1';
 
         $data = [

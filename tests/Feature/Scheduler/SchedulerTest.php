@@ -107,16 +107,12 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/task_schedulers', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
 
-            $response->assertStatus(200);
-        } catch(\Exception $e) {
-            nlog($e->getMessage());
-        }
+        $response->assertStatus(200);
 
         $arr = $response->json();
 
@@ -129,9 +125,9 @@ class SchedulerTest extends TestCase
         $this->assertNotNull($scheduler);
 
         $export = (new EmailReport($scheduler))->run();
-              
 
-        nlog($scheduler->fresh()->toArray());
+
+        // nlog($scheduler->fresh()->toArray());
         $this->assertEquals(now()->startOfDay()->addMonthNoOverflow()->format('Y-m-d'), $scheduler->next_run->format('Y-m-d'));
 
     }
@@ -154,16 +150,13 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/task_schedulers', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
 
-            $response->assertStatus(200);
-        } catch(\Exception $e) {
-            nlog($e->getMessage());
-        }
+        $response->assertStatus(200);
+
 
         $arr = $response->json();
 
@@ -199,21 +192,18 @@ class SchedulerTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/task_schedulers', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
 
-            $response->assertStatus(200);
-        } catch(\Exception $e) {
-            nlog($e->getMessage());
-        }
+        $response->assertStatus(200);
+
 
         $arr = $response->json();
 
         $id = $this->decodePrimaryKey($arr['data']['id']);
-        $scheduler = Scheduler::find($id);
+        $scheduler = Scheduler::query()->find($id);
 
         $this->assertNotNull($scheduler);
 
@@ -248,7 +238,7 @@ class SchedulerTest extends TestCase
 
     public function testSchedulerGet3()
     {
-        
+
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
         $scheduler->name = "hello";
         $scheduler->save();
@@ -274,7 +264,7 @@ class SchedulerTest extends TestCase
 
     public function testSchedulerGet2()
     {
-        
+
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
 
         $response = $this->withHeaders([
@@ -449,7 +439,7 @@ class SchedulerTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/task_schedulers', $data);
-        
+
         $response->assertStatus(200);
 
         $data = $response->json();
@@ -507,9 +497,9 @@ class SchedulerTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/task_schedulers', $data);
-        
+
         $response->assertStatus(200);
-        
+
         $data = [
             'name' => 'A single Client',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
@@ -532,7 +522,7 @@ class SchedulerTest extends TestCase
         ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(200);
-        
+
 
         $data = [
             'name' => 'An invalid Client',
@@ -562,7 +552,7 @@ class SchedulerTest extends TestCase
     public function testCalculateNextRun()
     {
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
-        
+
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
@@ -592,7 +582,7 @@ class SchedulerTest extends TestCase
         $this->travelTo(Carbon::parse('2023-01-01'));
 
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
-        
+
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
@@ -627,7 +617,7 @@ class SchedulerTest extends TestCase
     public function testCalculateStatementProperties()
     {
         $scheduler = SchedulerFactory::create($this->company->id, $this->user->id);
-        
+
         $data = [
             'name' => 'A test statement scheduler',
             'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
@@ -780,7 +770,7 @@ class SchedulerTest extends TestCase
             'name' => 'A different Name',
             'frequency_id' => 5,
             'next_run' => now()->addDays(2)->format('Y-m-d'),
-            'template' =>'client_statement',
+            'template' => 'client_statement',
             'parameters' => [],
         ];
 
@@ -798,7 +788,7 @@ class SchedulerTest extends TestCase
             'name' => 'A different Name',
             'frequency_id' => 5,
             'next_run' => now()->addDays(2)->format('Y-m-d'),
-            'template' =>'client_statement',
+            'template' => 'client_statement',
             'parameters' => [],
         ];
 

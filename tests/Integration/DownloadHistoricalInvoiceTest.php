@@ -28,7 +28,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -115,7 +115,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
     {
         $activity_repo = new ActivityRepository();
 
-        $obj = new \stdClass;
+        $obj = new \stdClass();
         $obj->invoice_id = $this->invoice->id;
         $obj->user_id = $this->invoice->user_id;
         $obj->company_id = $this->company->id;

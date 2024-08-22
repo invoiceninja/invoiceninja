@@ -31,15 +31,15 @@ class QuickbooksIngestTest extends TestCase
         $this->makeTestData();
         $this->withoutExceptionHandling();
         Auth::setUser($this->user);
-        
+
     }
-    
+
     /**
      * A basic feature test example.
      */
     public function testCanQuickbooksIngest(): void
     {
-        $data = (json_decode( file_get_contents( base_path('tests/Feature/Import/customers.json') ), true))['Customer'];
+        $data = (json_decode(file_get_contents(base_path('tests/Feature/Import/customers.json')), true))['Customer'];
         $hash = Str::random(32);
         Cache::put($hash.'-client', base64_encode(json_encode($data)), 360);
         QuickbooksIngest::dispatch([
@@ -47,7 +47,7 @@ class QuickbooksIngestTest extends TestCase
             'column_map' => ['client' => ['mapping' => []]],
             'skip_header' => true,
             'import_types' => ['client'],
-        ], $this->company )->handle();
+        ], $this->company)->handle();
         $this->assertTrue(Client::withTrashed()->where(['company_id' => $this->company->id, 'name' => "Freeman Sporting Goods"])->exists());
     }
 }

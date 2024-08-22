@@ -28,7 +28,7 @@ class UploadLogoTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

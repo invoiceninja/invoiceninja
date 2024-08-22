@@ -25,7 +25,7 @@ class Base64Test extends TestCase
      *
      * No method can guarantee against false positives.
      */
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

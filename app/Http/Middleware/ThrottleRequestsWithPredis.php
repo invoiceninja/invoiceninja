@@ -34,7 +34,7 @@ class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\Throttle
      * Create a new request throttler.
      * @return void
      */
-    
+
     /** @phpstan-ignore-next-line */
     public function __construct(RateLimiter $limiter, Redis $redis)
     {
@@ -85,7 +85,10 @@ class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\Throttle
     protected function tooManyAttempts($key, $maxAttempts, $decaySeconds)
     {
         $limiter = new DurationLimiter(
-            $this->getRedisConnection(), $key, $maxAttempts, $decaySeconds
+            $this->getRedisConnection(),
+            $key,
+            $maxAttempts,
+            $decaySeconds
         );
 
         return tap(! $limiter->acquire(), function () use ($key, $limiter) {

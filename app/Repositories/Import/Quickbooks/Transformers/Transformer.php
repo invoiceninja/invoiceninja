@@ -8,7 +8,9 @@ class Transformer
 {
     public function transform(array $items, string $type): Collection
     {
-        if(!method_exists($this, ($method = "transform{$type}s"))) throw new \InvalidArgumentException("Unknown type: $type");
+        if(!method_exists($this, ($method = "transform{$type}s"))) {
+            throw new \InvalidArgumentException("Unknown type: $type");
+        }
 
         return call_user_func([$this, $method], $items);
     }
@@ -78,7 +80,7 @@ class Transformer
         ]);
     }
 
-    protected function transformation(array $items, array $keys) : Collection
+    protected function transformation(array $items, array $keys): Collection
     {
         return collect($items)->select($keys);
     }

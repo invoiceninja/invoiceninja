@@ -22,7 +22,7 @@ class CompareCollectionTest extends TestCase
 {
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

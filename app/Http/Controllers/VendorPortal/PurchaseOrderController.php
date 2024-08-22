@@ -189,7 +189,7 @@ class PurchaseOrderController extends Controller
                             }
 
                             event(new PurchaseOrderWasAccepted($purchase_order, auth()->guard('vendor')->user(), $purchase_order->company, Ninja::eventVars()));
-                            
+
                             WebhookHandler::dispatch(Webhook::EVENT_ACCEPTED_PURCHASE_ORDER, $purchase_order, $purchase_order->company, 'vendor')->delay(0);
 
                         });

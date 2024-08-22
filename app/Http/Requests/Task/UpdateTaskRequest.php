@@ -67,7 +67,7 @@ class UpdateTaskRequest extends Request
             if(is_string($values)) {
                 $values = json_decode($values, true);
             }
-            
+
             if(!is_array($values)) {
                 $fail('The '.$attribute.' must be a valid array.');
                 return;

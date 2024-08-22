@@ -12,23 +12,24 @@
 namespace App\Import\Providers;
 
 use App\Models\Invoice;
-use App\Factory\ProductFactory;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
+use App\Factory\ProductFactory;
+use App\Import\ImportException;
 use Illuminate\Support\Facades\Cache;
 use App\Repositories\ClientRepository;
 use App\Repositories\InvoiceRepository;
-use App\Repositories\ProductRepository;
 use App\Repositories\PaymentRepository;
+use App\Repositories\ProductRepository;
 use App\Http\Requests\Client\StoreClientRequest;
-use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use App\Http\Requests\Payment\StorePaymentRequest;
+use App\Http\Requests\Product\StoreProductRequest;
 use App\Import\Transformer\Quickbooks\ClientTransformer;
 use App\Import\Transformer\Quickbooks\InvoiceTransformer;
-use App\Import\Transformer\Quickbooks\ProductTransformer;
 use App\Import\Transformer\Quickbooks\PaymentTransformer;
+use App\Import\Transformer\Quickbooks\ProductTransformer;
 
 class Quickbooks extends BaseImport
 {
@@ -72,7 +73,7 @@ class Quickbooks extends BaseImport
         $this->transformer = new ClientTransformer($this->company);
         $client_count = $this->ingest($data, $entity_type);
         $this->entity_count['clients'] = $client_count;
-    } 
+    }
 
     public function product()
     {
@@ -92,12 +93,13 @@ class Quickbooks extends BaseImport
         $this->transformer = new ProductTransformer($this->company);
         $count = $this->ingest($data, $entity_type);
         $this->entity_count['products'] = $count;
-    } 
+    }
 
-    public function getData($type) {
+    public function getData($type)
+    {
 
         // get the data from cache? file? or api ?
-        return json_decode(base64_decode(Cache::get("{$this->hash}-$type")), 1);
+        return json_decode(base64_decode(Cache::get("{$this->hash}-{$type}")), true);
     }
 
     public function payment()
@@ -122,7 +124,7 @@ class Quickbooks extends BaseImport
 
     public function invoice()
     {
-        //make sure we update and create products 
+        //make sure we update and create products
         $initial_update_products_value = $this->company->update_products;
         $this->company->update_products = true;
 
@@ -143,7 +145,7 @@ class Quickbooks extends BaseImport
         $this->repository = app()->make($this->repository_name);
         $this->repository->import_mode = true;
         $this->transformer = new InvoiceTransformer($this->company);
-        $invoice_count = $this->ingestInvoices($data,'');
+        $invoice_count = $this->ingestInvoices($data, '');
         $this->entity_count['invoices'] = $invoice_count;
         $this->company->update_products = $initial_update_products_value;
         $this->company->save();
@@ -158,7 +160,7 @@ class Quickbooks extends BaseImport
         $client_repository->import_mode = true;
         $invoice_repository = new InvoiceRepository();
         $invoice_repository->import_mode = true;
-        
+
         foreach ($invoices as $raw_invoice) {
             if(!is_array($raw_invoice)) {
                 continue;
@@ -171,7 +173,7 @@ class Quickbooks extends BaseImport
                 $invoice_data['line_items'] = $this->cleanItems(
                     $invoice_data['line_items'] ?? []
                 );
-                
+
                 if (
                     empty($invoice_data['client_id']) &&
                     ! empty($invoice_data['client'])
@@ -189,7 +191,7 @@ class Quickbooks extends BaseImport
                     );
                     $invoice_data['client_id'] = $client->id;
                     unset($invoice_data['client']);
-                } 
+                }
 
                 $validator = $this->request_name::runFormRequest($invoice_data);
                 if ($validator->fails()) {
@@ -198,8 +200,7 @@ class Quickbooks extends BaseImport
                         'error' => $validator->errors()->all(),
                     ];
                 } else {
-                    if(!Invoice::where('number',$invoice_data['number'])->get()->first())
-                    {
+                    if(!Invoice::where('number', $invoice_data['number'])->first()) {
                         $invoice = InvoiceFactory::create(
                             $this->company->id,
                             $this->company->owner()->id
@@ -208,16 +209,16 @@ class Quickbooks extends BaseImport
                         if (! empty($invoice_data['status_id'])) {
                             $invoice->status_id = $invoice_data['status_id'];
                         }
-                        
+
                         $saveable_invoice_data = $invoice_data;
                         if(array_key_exists('payments', $saveable_invoice_data)) {
                             unset($saveable_invoice_data['payments']);
                         }
-                        
+
                         $invoice->fill($saveable_invoice_data);
                         $invoice->save();
                         $count++;
-                        
+
                     }
                     // $this->actionInvoiceStatus(
                     //     $invoice,
@@ -245,7 +246,7 @@ class Quickbooks extends BaseImport
                 ];
             }
         }
-        
+
         return $count;
     }
 

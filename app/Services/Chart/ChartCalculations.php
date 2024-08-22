@@ -23,7 +23,6 @@ use Illuminate\Contracts\Database\Eloquent\Builder;
  */
 trait ChartCalculations
 {
-
     public function getActiveInvoices($data): int|float
     {
         $result = 0;
@@ -34,8 +33,9 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3,4]);
 
-        if(in_array($data['period'],['current,previous']))
+        if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
+        }
 
         match ($data['calculation']) {
             'sum' => $result = $q->sum('amount'),
@@ -58,8 +58,9 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3]);
 
-        if(in_array($data['period'],['current,previous']))
+        if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
+        }
 
         match ($data['calculation']) {
             'sum' => $result = $q->sum('balance'),
@@ -82,8 +83,9 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->where('status_id', 4);
 
-        if(in_array($data['period'],['current,previous']))
+        if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
+        }
 
         match ($data['calculation']) {
             'sum' => $result = $q->sum('amount'),
@@ -106,8 +108,9 @@ trait ChartCalculations
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [5,6]);
 
-        if(in_array($data['period'],['current,previous']))
+        if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
+        }
 
         match ($data['calculation']) {
             'sum' => $result = $q->sum('refunded'),
@@ -129,12 +132,13 @@ trait ChartCalculations
                     ->where('company_id', $this->company->id)
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2,3])
-                    ->where(function ($qq){
+                    ->where(function ($qq) {
                         $qq->where('due_date', '>=', now()->toDateString())->orWhereNull('due_date');
                     });
 
-        if(in_array($data['period'],['current,previous']))
+        if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
+        }
 
         match ($data['calculation']) {
             'sum' => $result = $q->sum('refunded'),
@@ -156,12 +160,13 @@ trait ChartCalculations
                     ->where('company_id', $this->company->id)
                     ->where('is_deleted', 0)
                     ->whereIn('status_id', [2])
-                    ->where(function ($qq){
+                    ->where(function ($qq) {
                         $qq->where('due_date', '>=', now()->toDateString())->orWhereNull('due_date');
                     });
 
-        if(in_array($data['period'],['current,previous']))
+        if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('date', [$data['start_date'], $data['end_date']]);
+        }
 
         match ($data['calculation']) {
             'sum' => $result = $q->sum('refunded'),
@@ -186,7 +191,7 @@ trait ChartCalculations
     public function getPaidTasks($data): int|float
     {
         $q = $this->taskQuery($data);
-        $q->whereHas('invoice', function ($query){
+        $q->whereHas('invoice', function ($query) {
             $query->where('status_id', 4)->where('is_deleted', 0);
         });
 
@@ -203,7 +208,7 @@ trait ChartCalculations
         return $this->taskCalculations($q, $data);
 
     }
-    
+
     /**
      * All Expenses
      */
@@ -214,7 +219,7 @@ trait ChartCalculations
         return $this->expenseCalculations($q, $data);
     }
 
-        
+
     /**
      * Expenses that should be invoiced - but are not yet invoiced.
      */
@@ -264,7 +269,7 @@ trait ChartCalculations
 
         $result = 0;
         $calculated = $this->expenseCalculator($query, $data);
-        
+
         match ($data['calculation']) {
             'sum' => $result = $calculated->sum(),
             'avg' => $result = $calculated->avg(),
@@ -279,7 +284,7 @@ trait ChartCalculations
 
     private function expenseCalculator(Builder $query, array $data)
     {
-        
+
         return $query->get()
                     ->when($data['currency_id'] == '999', function ($collection) {
                         $collection->map(function ($e) {
@@ -290,7 +295,7 @@ trait ChartCalculations
                     ->when($data['currency_id'] != '999', function ($collection) {
 
                         $collection->map(function ($e) {
-                            
+
                             /** @var \App\Models\Expense $e */
                             return $e->amount;
                         });
@@ -305,11 +310,11 @@ trait ChartCalculations
                         ->withTrashed()
                         ->where('company_id', $this->company->id)
                         ->where('is_deleted', 0);
-         
+
         if(in_array($data['period'], ['current,previous'])) {
             $query->whereBetween('date', [$data['start_date'], $data['end_date']]);
         }
-              
+
         return $query;
     }
 
@@ -339,7 +344,7 @@ trait ChartCalculations
                     ->withTrashed()
                     ->where('company_id', $this->company->id)
                     ->where('is_deleted', 0);
-        
+
         if(in_array($data['period'], ['current,previous'])) {
             $q->whereBetween('calculated_start_date', [$data['start_date'], $data['end_date']]);
         }
@@ -350,7 +355,7 @@ trait ChartCalculations
 
     private function taskCalculations(Builder $q, array $data): int|float
     {
-        
+
         $result = 0;
         $calculated = collect();
 

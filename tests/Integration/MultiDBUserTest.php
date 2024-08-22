@@ -31,7 +31,7 @@ use Tests\TestCase;
  */
 class MultiDBUserTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -195,21 +195,15 @@ class MultiDBUserTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-                'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-            ])->post('/api/v1/users?include=company_user', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            $this->assertNotNull($message);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->postJson('/api/v1/users?include=company_user', $data);
 
-        if ($response) {
-            $response->assertStatus(403);
-        }
+
+        $response->assertStatus(403);
+
     }
 
     // public function test_cross_db_user_linking_succeeds_appropriately()
@@ -243,7 +237,7 @@ class MultiDBUserTest extends TestCase
     //     }
     // }
 
-    protected function tearDown() :void
+    protected function tearDown(): void
     {
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

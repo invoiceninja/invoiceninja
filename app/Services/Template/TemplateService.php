@@ -319,7 +319,7 @@ class TemplateService
                 nlog("error = " . $e->getMessage());
                 throw ($e);
             }
-            
+
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
@@ -916,7 +916,7 @@ class TemplateService
             'custom_value4' => $entity->client->custom_value4 ?? '',
             'address' => $entity->client->present()->address(),
             'shipping_address' => $entity->client->present()->shipping_address(),
-            'locale' => substr($entity->client->locale(), 0, 2),      
+            'locale' => substr($entity->client->locale(), 0, 2),
             ] : [];
     }
     /**

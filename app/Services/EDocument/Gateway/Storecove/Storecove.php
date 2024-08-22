@@ -23,8 +23,8 @@ enum HttpVerb: string
     case DELETE = 'delete';
 }
 
-class Storecove {
-
+class Storecove
+{
     private string $base_url = 'https://api.storecove.com/api/v2/';
 
     private array $peppol_discovery = [
@@ -42,9 +42,11 @@ class Storecove {
         "scheme" =>  "gln",
         "identifier" => "1200109963131"
     ];
-    
 
-    public function __construct(){}
+
+    public function __construct()
+    {
+    }
 
     //config('ninja.storecove_api_key');
 
@@ -67,16 +69,16 @@ class Storecove {
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $network_data, $this->getHeaders());
 
         return ($r->successful() && $r->json()['code'] == 'OK') ? true : false;
-            
+
     }
 
     //response = "guid" : "xx",
 
     /**
      * If the receiver cannot be found, then an
-     * email is sent to that user if a appropriate 
+     * email is sent to that user if a appropriate
      * email is included in the document payload
-     * 
+     *
      * {
             "routing":  {
                 "emails": [
@@ -86,8 +88,8 @@ class Storecove {
             }
         }
      *
-     * 
-     * 
+     *
+     *
         // documentType : invoice/invoice_response/order
         // rawDocumentData : {
         // document: base64_encode($ubl)
@@ -113,12 +115,12 @@ class Storecove {
             //         "parseStrategy" => "ubl",
             //     ],
             // ],
-            "document"=> [
+            "document" => [
                 "documentType" => "invoice",
             "invoice" => $document,
             ],
         ];
-        
+
         $uri = "document_submissions";
 
         nlog($payload);
@@ -141,13 +143,13 @@ class Storecove {
 
         $payload = [
             "legalEntityId" => $routing_id,
-            "idempotencyGuid"=> \Illuminate\Support\Str::uuid(),
+            "idempotencyGuid" => \Illuminate\Support\Str::uuid(),
             "routing" => [
                 "eIdentifiers" => [],
                 "emails" => ["david@invoiceninja.com"]
             ],
-            "document"=> [
-                
+            "document" => [
+
             ],
         ];
 
@@ -156,22 +158,23 @@ class Storecove {
 
         $payload['document']['documentType'] = 'invoice';
         $payload['document']["rawDocumentData"] = [
-                    "document" => base64_encode($document), 
+                    "document" => base64_encode($document),
                     "parse" => true,
-                    "parseStrategy"=> "ubl",
+                    "parseStrategy" => "ubl",
         ];
 
         $uri = "document_submissions";
-        
+
         nlog($payload);
-        
+
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
 
         nlog($r->body());
         nlog($r->json());
 
-        if($r->successful())
+        if($r->successful()) {
             return $r->json()['guid'];
+        }
 
         return false;
 
@@ -210,13 +213,13 @@ class Storecove {
     // "acts_as_sender": true,
     // "acts_as_receiver": true,
     // "tax_registered": true
-    // }    
+    // }
 
     // acts_as_receiver - optional - Default : true
     // acts_as_sender - optional - Default : true
     // advertisements - optional < enum (invoice, invoice_response, order, ordering, order_response, selfbilling) > array
     // city - required - Length : 2 - 64
-    // country - required - ISO 3166-1 alpha-2 
+    // country - required - ISO 3166-1 alpha-2
     // county - optional - Maximal length : 64
     // line1 - required - The first address line - Length : 2 - 192
     // line2 - optional - The second address line, if applicable Maximal length : 192
@@ -224,11 +227,11 @@ class Storecove {
     // public - optional - Whether or not this LegalEntity is public. Public means it will be entered into the PEPPOL directory at https://directory.peppol.eu/ Default : true
     // rea - optional - The REA details for the LegalEntity. Only applies to IT (Italian) LegalEntities. - https://www.storecove.com/docs/#_openapi_rea (schema)
 
-        // capital - optional - The captial for the company. - number
-        // identifier - optional - The identifier. Length : 2 - 20
-        // liquidation_status - optional - The liquidation status of the company. enum (LN, LS)
-        // partners - optional - The number of partners. enum (SU, SM)
-        // province - optional - The provincia of the ufficio that issued the identifier.enum (AG, AL, AN, AO, AQ, AR, AP, AT, AV, BA, BT, BL, BN, BG, BI, BO, BZ, BS, BR, CA, CL, CB, CI, CE, CT, CZ, CH, CO, CS, CR, KR, CN, EN, FM, FE, FI, FG, FC, FR, GE, GO, GR, IM, IS, SP, LT, LE, LC, LI, LO, LU, MC, MN, MS, MT, VS, ME, MI, MO, MB, NA, NO, NU, OG, OT, OR, PD, PA, PR, PV, PG, PU, PE, PC, PI, PT, PN, PZ, PO, RG, RA, RC, RE, RI, RN, RO, SA, SS, SV, SI, SR, SO, TA, TE, TR, TO, TP, TN, TV, TS, UD, VA, VE, VB, VC, VR, VV, VI, VT)
+    // capital - optional - The captial for the company. - number
+    // identifier - optional - The identifier. Length : 2 - 20
+    // liquidation_status - optional - The liquidation status of the company. enum (LN, LS)
+    // partners - optional - The number of partners. enum (SU, SM)
+    // province - optional - The provincia of the ufficio that issued the identifier.enum (AG, AL, AN, AO, AQ, AR, AP, AT, AV, BA, BT, BL, BN, BG, BI, BO, BZ, BS, BR, CA, CL, CB, CI, CE, CT, CZ, CH, CO, CS, CR, KR, CN, EN, FM, FE, FI, FG, FC, FR, GE, GO, GR, IM, IS, SP, LT, LE, LC, LI, LO, LU, MC, MN, MS, MT, VS, ME, MI, MO, MB, NA, NO, NU, OG, OT, OR, PD, PA, PR, PV, PG, PU, PE, PC, PI, PT, PN, PZ, PO, RG, RA, RC, RE, RI, RN, RO, SA, SS, SV, SI, SR, SO, TA, TE, TR, TO, TP, TN, TV, TS, UD, VA, VE, VB, VC, VR, VV, VI, VT)
 
     // tax_registered - optional - Whether or not this LegalEntity is tax registered. This influences the validation of the data presented when sending documents. Default : true
     // tenant_id - optional - The id of the tenant, to be used in case of single-tenant solutions that share webhook URLs. This property will included in webhook events. Maximal length : 64
@@ -238,7 +241,7 @@ class Storecove {
 
     /**
      * CreateLegalEntity
-     * 
+     *
      * @url https://www.storecove.com/docs/#_openapi_legalentitycreate
      * @return mixed
      */
@@ -265,8 +268,9 @@ class Storecove {
 
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload);
 
-        if($r->successful())
+        if($r->successful()) {
             return $r->json();
+        }
 
         return $r;
 
@@ -309,7 +313,7 @@ class Storecove {
         $data = [
             "identifier" => $identifier,
             "scheme" => $scheme,
-            "superscheme" => "iso6523-actorid-upis",  
+            "superscheme" => "iso6523-actorid-upis",
         ];
 
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $data);
@@ -335,12 +339,12 @@ class Storecove {
 
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
-        
+
         $r = Http::withToken(config('ninja.storecove_api_key'))
                 ->withHeaders($this->getHeaders($headers))
                 ->{$verb}("{$this->base_url}{$uri}", $data);
 
         return $r;
     }
-    
+
 }

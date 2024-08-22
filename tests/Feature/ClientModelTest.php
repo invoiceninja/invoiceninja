@@ -27,7 +27,7 @@ class ClientModelTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,8 +41,9 @@ class ClientModelTest extends TestCase
             $this->markTestSkipped('Skip test no company gateways installed');
         }
 
-        if(CompanyGateway::count() == 0)
+        if(CompanyGateway::count() == 0) {
             $this->markTestSkipped('Skip test no company gateways installed');
+        }
 
     }
 
@@ -51,7 +52,7 @@ class ClientModelTest extends TestCase
 
         $this->invoice->amount = 10;
         $this->invoice->balance = 10;
-        $this->invoice->status_id=2;
+        $this->invoice->status_id = 2;
         $this->invoice->date = now()->subDays(2);
         $this->invoice->due_date = now()->addDays(2);
         $this->invoice->save();
@@ -61,7 +62,7 @@ class ClientModelTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
-        
+
         $cd2 = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -80,6 +81,8 @@ class ClientModelTest extends TestCase
             'balance' => 10,
             'date' => now()->subDays(2)->format('Y-m-d'),
             'due_date' => now()->addDays(5)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
         ]);
 
 
@@ -92,6 +95,8 @@ class ClientModelTest extends TestCase
             'balance' => 10,
             'date' => now()->subDays(2)->format('Y-m-d'),
             'due_date' => now()->addDays(5)->format('Y-m-d'),
+            'partial' => 0,
+            'partial_due_date' => null,
         ]);
 
         $response = $this->withHeaders([
@@ -102,7 +107,7 @@ class ClientModelTest extends TestCase
         $response->assertStatus(200);
         $arr = $response->json();
 
-        $this->assertEquals($invoice_count+2, count($arr['data']));
+        $this->assertEquals($invoice_count + 2, count($arr['data']));
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
@@ -164,7 +169,7 @@ class ClientModelTest extends TestCase
 
     public function testPaymentMethodsWithCreditsEnforced()
     {
-        
+
         $payment_methods = $this->client->service()->getPaymentMethods(40);
 
         $this->assertGreaterThan(0, CompanyGateway::count());

@@ -22,9 +22,8 @@ use App\Import\ImportException;
  */
 class ProductTransformer extends BaseTransformer
 {
-
     use CommonTrait;
-    
+
     protected $fillable = [
         'product_key' => 'Name',
         'notes' => 'Description',
@@ -41,19 +40,22 @@ class ProductTransformer extends BaseTransformer
     {
         parent::__construct($company);
 
-        $this->model = new Model;
+        $this->model = new Model();
     }
 
-    public function getQtyOnHand($data, $field = null) {
+    public function getQtyOnHand($data, $field = null)
+    {
         return (int) $this->getString($data, $field);
     }
 
-    public function getPurchaseCost($data, $field = null) {
-        return (double) $this->getString($data, $field);
+    public function getPurchaseCost($data, $field = null)
+    {
+        return (float) $this->getString($data, $field);
     }
 
 
-    public function getUnitPrice($data, $field = null) {
+    public function getUnitPrice($data, $field = null)
+    {
         return (float) $this->getString($data, $field);
     }
 }

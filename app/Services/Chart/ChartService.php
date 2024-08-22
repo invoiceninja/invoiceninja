@@ -62,7 +62,7 @@ class ChartService
         /* Merge and filter by unique */
         $currencies = $currencies->merge($expense_currencies)->unique();
 
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $cache_currencies = app('currencies');
 
@@ -76,7 +76,7 @@ class ChartService
 
         return $final_currencies;
     }
-    
+
     /* Chart Data */
     public function chart_summary($start_date, $end_date): array
     {
@@ -186,7 +186,7 @@ class ChartService
 
     private function addCurrencyCodes($data_set): array
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
@@ -217,15 +217,15 @@ class ChartService
 
     /**
      * calculatedField
-     * 
-     * @param  array $data - 
-     * 
+     *
+     * @param  array $data -
+     *
      * field - list of fields for calculation
      * period - current/previous
      * calculation - sum/count/avg
      *
      * May require currency_id
-     * 
+     *
      * date_range - this_month
      * or
      * start_date - end_date
@@ -234,19 +234,19 @@ class ChartService
     {
         $results = 0;
 
-        match($data['field']){
-            'active_invoices' => $results = $this->getActiveInvoices($data), 
-            'outstanding_invoices' => $results = $this->getOutstandingInvoices($data), 
-            'completed_payments' => $results = $this->getCompletedPayments($data), 
-            'refunded_payments' => $results = $this->getRefundedPayments($data), 
-            'active_quotes' => $results = $this->getActiveQuotes($data), 
-            'unapproved_quotes' => $results = $this->getUnapprovedQuotes($data), 
-            'logged_tasks' => $results = $this->getLoggedTasks($data), 
-            'invoiced_tasks' => $results = $this->getInvoicedTasks($data), 
-            'paid_tasks' => $results = $this->getPaidTasks($data), 
-            'logged_expenses' => $results = $this->getLoggedExpenses($data), 
-            'pending_expenses' => $results = $this->getPendingExpenses($data), 
-            'invoiced_expenses' => $results = $this->getInvoicedExpenses($data), 
+        match($data['field']) {
+            'active_invoices' => $results = $this->getActiveInvoices($data),
+            'outstanding_invoices' => $results = $this->getOutstandingInvoices($data),
+            'completed_payments' => $results = $this->getCompletedPayments($data),
+            'refunded_payments' => $results = $this->getRefundedPayments($data),
+            'active_quotes' => $results = $this->getActiveQuotes($data),
+            'unapproved_quotes' => $results = $this->getUnapprovedQuotes($data),
+            'logged_tasks' => $results = $this->getLoggedTasks($data),
+            'invoiced_tasks' => $results = $this->getInvoicedTasks($data),
+            'paid_tasks' => $results = $this->getPaidTasks($data),
+            'logged_expenses' => $results = $this->getLoggedExpenses($data),
+            'pending_expenses' => $results = $this->getPendingExpenses($data),
+            'invoiced_expenses' => $results = $this->getInvoicedExpenses($data),
             'invoice_paid_expenses' => $results = $this->getInvoicedPaidExpenses($data),
             default => $results = 0,
         };

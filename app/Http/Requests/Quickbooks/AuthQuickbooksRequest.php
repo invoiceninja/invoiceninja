@@ -64,6 +64,6 @@ class AuthQuickbooksRequest extends FormRequest
 
     public function getCompany(): ?Company
     {
-        return Company::where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
+        return Company::query()->where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
     }
 }

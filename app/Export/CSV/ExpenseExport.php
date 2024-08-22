@@ -52,7 +52,7 @@ class ExpenseExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    
+
                     /** @var \App\Models\Expense $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
@@ -134,7 +134,7 @@ class ExpenseExport extends BaseExport
 
         $query->cursor()
                 ->each(function ($expense) {
-                    
+
                     /** @var \App\Models\Expense $expense */
                     $this->csv->insertOne($this->buildRow($expense));
                 });
@@ -266,11 +266,10 @@ class ExpenseExport extends BaseExport
         if($expense->calculate_tax_by_amount) {
 
             $total_tax_amount = round($expense->tax_amount1 + $expense->tax_amount2 + $expense->tax_amount3, $precision);
-            
+
             if($expense->uses_inclusive_taxes) {
                 $entity['expense.net_amount'] = round($expense->amount, $precision) - $total_tax_amount;
-            }
-            else {
+            } else {
                 $entity['expense.net_amount'] = round($expense->amount, $precision);
             }
 
