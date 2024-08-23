@@ -10,7 +10,7 @@
 
 import axios from 'axios';
 import cardValidator from 'card-validator';
-import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm';
+import { Livewire, Alpine } from './livewire_temp.esm';
 
 Livewire.start()
 window.axios = axios;

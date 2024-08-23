@@ -71,18 +71,4 @@ export default defineConfig({
             ],
         }),
     ],
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks: (id) => {
-                    if (
-                        id.includes('forte-credit-card-payment.js') ||
-                        id.includes('authorize-credit-card-payment')
-                    ) {
-                        return id;
-                    }
-                },
-            },
-        },
-    },
 });
