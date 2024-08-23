@@ -11,40 +11,45 @@
 
 namespace App\Services\Import\Quickbooks;
 
+use Carbon\Carbon;
 use App\Models\Company;
+use QuickBooksOnline\API\Core\CoreConstants;
 use QuickBooksOnline\API\DataService\DataService;
+use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 
 // quickbooks_realm_id
 // quickbooks_refresh_token
 // quickbooks_refresh_expires
 class QuickbooksService
 {
-    private DataService $sdk;
+    public DataService $sdk;
 
-    private Auth $auth;
+    private bool $testMode = true;
 
     public function __construct(private Company $company)
     {
-        $this->init()
-            ->auth();
+        $this->init();
     }
 
     private function init(): self
     {
 
-        $this->sdk = DataService::Configure([
+        $config = [
             'ClientID' => config('services.quickbooks.client_id'),
             'ClientSecret' => config('services.quickbooks.client_secret'),
             'auth_mode' => 'oauth2',
             'scope' => "com.intuit.quickbooks.accounting",
-            'RedirectURI' => 'https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
-            // 'RedirectURI' => route('quickbooks.authorized'),
-        ]);
+            // 'RedirectURI' => 'https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
+            'RedirectURI' => 'https://above-distinctly-teal.ngrok-free.app/quickbooks/authorized',
+            'baseUrl' => $this->testMode ?  CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
+        ];
 
-        // if (env('APP_DEBUG')) {
-        //     $sdk->setLogLocation(storage_path("logs/quickbooks.log"));
-        //     $sdk->enableLog();
-        // }
+        $merged = array_merge($config, $this->ninjaAccessToken());
+        nlog($merged);
+        $this->sdk = DataService::Configure($merged);
+
+        $this->sdk->setLogLocation(storage_path("logs/quickbooks.log"));
+        $this->sdk->enableLog();
 
         $this->sdk->setMinorVersion("73");
         $this->sdk->throwExceptionOnError(true);
@@ -52,12 +57,13 @@ class QuickbooksService
         return $this;
     }
 
-    private function auth(): self
+    private function ninjaAccessToken()
     {
-        $wrapper = new SdkWrapper($this->sdk);
-        $this->auth = new Auth($wrapper);
-
-        return $this;
+        return isset($this->company->quickbooks->accessTokenKey) ? [
+            'accessTokenKey' => $this->company->quickbooks->accessTokenKey,
+            'refreshTokenKey' => $this->company->quickbooks->refresh_token,
+            'QBORealmID' => $this->company->quickbooks->realmID,
+        ] : [];
     }
 
     public function getSdk(): DataService
@@ -65,8 +71,9 @@ class QuickbooksService
         return $this->sdk;
     }
 
-    public function getAuth(): Auth
+    public function getAuth(): SdkWrapper
     {
-        return $this->auth;
+        return new SdkWrapper($this->sdk, $this->company);
     }
+    
 }
