@@ -1,30 +1,30 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Quickbooks\AuthorizedQuickbooksRequest;
-use Closure;
-use App\Utils\Ninja;
-use App\Models\Company;
 use App\Libraries\MultiDB;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use App\Utils\Traits\MakesHash;
-use App\Jobs\Import\QuickbooksIngest;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Quickbooks\AuthQuickbooksRequest;
 use App\Services\Import\Quickbooks\QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
 {
-    private array $import_entities = [
-        'client' => 'Customer',
-        'invoice' => 'Invoice',
-        'product' => 'Item',
-        'payment' => 'Payment'
-    ];
+    // private array $import_entities = [
+    //     'client' => 'Customer',
+    //     'invoice' => 'Invoice',
+    //     'product' => 'Item',
+    //     'payment' => 'Payment'
+    // ];
 
     public function onAuthorized(AuthorizedQuickbooksRequest $request)
     {
@@ -34,12 +34,11 @@ class ImportQuickbooksController extends BaseController
         $qb = new QuickbooksService($company);
 
         $realm = $request->query('realmId');
-        $access_token_object = $qb->getAuth()->accessToken($request->query('code'), $realm);
-        nlog($access_token_object); //OAuth2AccessToken
-        $company->quickbooks = $access_token_object;
-        $company->save();
+        $access_token_object = $qb->sdk()->accessTokenFromCode($request->query('code'), $realm);
+        $qb->sdk()->saveOAuthToken($access_token_object);
 
-        return response()->json(['message' => 'Success'], 200); //todo swapout for redirect to UI
+        return redirect(config('ninja.react_url'));
+
     }
 
     /**
@@ -53,8 +52,8 @@ class ImportQuickbooksController extends BaseController
         $company = $request->getCompany();
         $qb = new QuickbooksService($company);
 
-        $authorizationUrl = $qb->getAuth()->getAuthorizationUrl();
-        $state = $qb->getAuth()->getState();
+        $authorizationUrl = $qb->sdk()->getAuthorizationUrl();
+        $state = $qb->sdk()->getState();
 
         Cache::put($state, $token, 190);
 
@@ -63,29 +62,29 @@ class ImportQuickbooksController extends BaseController
 
     public function preimport(string $type, string $hash)
     {
-        // Check for authorization otherwise
-        // Create a reference
-        $data = [
-            'hash' => $hash,
-            'type' => $type
-        ];
-        $this->getData($data);
+        // // Check for authorization otherwise
+        // // Create a reference
+        // $data = [
+        //     'hash' => $hash,
+        //     'type' => $type
+        // ];
+        // $this->getData($data);
     }
 
     protected function getData($data)
     {
 
-        $entity = $this->import_entities[$data['type']];
-        $cache_name = "{$data['hash']}-{$data['type']}";
-        // TODO: Get or put cache  or DB?
-        if(! Cache::has($cache_name)) {
-            $contents = call_user_func([$this->service, "fetch{$entity}s"]);
-            if($contents->isEmpty()) {
-                return;
-            }
+        // $entity = $this->import_entities[$data['type']];
+        // $cache_name = "{$data['hash']}-{$data['type']}";
+        // // TODO: Get or put cache  or DB?
+        // if(! Cache::has($cache_name)) {
+        //     $contents = call_user_func([$this->service, "fetch{$entity}s"]);
+        //     if($contents->isEmpty()) {
+        //         return;
+        //     }
 
-            Cache::put($cache_name, base64_encode($contents->toJson()), 600);
-        }
+        //     Cache::put($cache_name, base64_encode($contents->toJson()), 600);
+        // }
     }
 
     /**

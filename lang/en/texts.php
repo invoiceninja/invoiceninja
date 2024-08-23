@@ -5319,6 +5319,8 @@ $lang = array(
     'one_page_checkout' => 'One-Page Checkout',
     'one_page_checkout_help' => 'Enable the new single page payment flow',
     'applies_to' => 'Applies To',
+    'accept_purchase_order' => 'Accept Purchase Order',
+    'round_to_seconds' => 'Round To Seconds',
 );
 
 return $lang;

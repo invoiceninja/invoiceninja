@@ -67,7 +67,7 @@ class ClientTransformer extends BaseTransformer
         }
 
         $transformed_data = $this->preTransform($data);
-        $transformed_data['contacts'][0] = $this->getContacts($data)->toArray() + ['company_id' => $this->company->id ];
+        $transformed_data['contacts'][0] = $this->getContacts($data)->toArray() + ['company_id' => $this->company->id, 'user_id' => $this->company->owner()->id ];
 
         return $transformed_data;
     }
@@ -79,7 +79,9 @@ class ClientTransformer extends BaseTransformer
                     'last_name'     => $this->getString($data, 'FamilyName'),
                     'phone'         => $this->getString($data, 'PrimaryPhone.FreeFormNumber'),
                     'email'         => $this->getString($data, 'PrimaryEmailAddr.Address'),
-                    'company_id' => $this->company->id
+                    'company_id' => $this->company->id,
+                    'user_id' => $this->company->owner()->id,
+                    'send_email' => true,
                 ]);
     }
 
