@@ -24,7 +24,7 @@ class DatesTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -35,7 +35,7 @@ class DatesTest extends TestCase
     {
         $this->travelTo(now()->createFromDate(2024, 6, 20));
         $date = '2024-05-20';
-        
+
         $this->assertTrue(\Carbon\Carbon::parse($date)->endOfMonth()->lte(now()));
 
         $this->travelBack();
@@ -46,14 +46,14 @@ class DatesTest extends TestCase
     {
         $this->travelTo(now()->createFromDate(2024, 5, 30));
         $date = '2024-05-20';
-        
+
         $this->assertFalse(\Carbon\Carbon::parse($date)->endOfMonth()->lte(now()));
 
         $this->travelBack();
 
     }
 
-    
+
     public function testLastFinancialYear3()
     {
         $this->travelTo(now()->createFromDate(2020, 6, 30));
@@ -67,7 +67,7 @@ class DatesTest extends TestCase
         if(now()->subYear()->lt($fin_year_start)) {
             $fin_year_start->subYearNoOverflow();
         }
-                    
+
         $this->assertEquals('2018-07-01', $fin_year_start->format('Y-m-d'));
         $this->assertEquals('2019-06-30', $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d'));
 
@@ -88,7 +88,7 @@ class DatesTest extends TestCase
         if(now()->subYear()->lt($fin_year_start)) {
             $fin_year_start->subYearNoOverflow();
         }
-                    
+
         $this->assertEquals('2019-07-01', $fin_year_start->format('Y-m-d'));
         $this->assertEquals('2020-06-30', $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d'));
 
@@ -109,7 +109,7 @@ class DatesTest extends TestCase
         if(now()->subYear()->lt($fin_year_start)) {
             $fin_year_start->subYearNoOverflow();
         }
-                    
+
         $this->assertEquals('2019-07-01', $fin_year_start->format('Y-m-d'));
         $this->assertEquals('2020-06-30', $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d'));
 
@@ -135,7 +135,7 @@ class DatesTest extends TestCase
         $this->assertEquals('2021-06-30', $fin_year_end->format('Y-m-d'));
 
         $this->travelBack();
-        
+
     }
 
     public function testFinancialYearDates3()
@@ -156,7 +156,7 @@ class DatesTest extends TestCase
         $this->assertEquals('2022-06-30', $fin_year_end->format('Y-m-d'));
 
         $this->travelBack();
-        
+
     }
 
     public function testFinancialYearDates2()
@@ -177,7 +177,7 @@ class DatesTest extends TestCase
         $this->assertEquals('2022-06-30', $fin_year_end->format('Y-m-d'));
 
         $this->travelBack();
-        
+
     }
 
 

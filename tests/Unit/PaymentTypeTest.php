@@ -21,8 +21,7 @@ use Tests\TestCase;
  */
 class PaymentTypeTest extends TestCase
 {
-
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +29,7 @@ class PaymentTypeTest extends TestCase
 
     public function testTranslationsExist()
     {
-        $payment_type_class = new PaymentType;
+        $payment_type_class = new PaymentType();
 
         foreach($payment_type_class->type_names as $type) {
             $this->assertTrue(Lang::has("texts.{$type}"));

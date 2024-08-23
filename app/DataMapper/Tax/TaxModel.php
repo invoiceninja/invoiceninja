@@ -34,10 +34,10 @@ class TaxModel
         if(!$model) {
             $this->regions = $this->init();
         } else {
-            
+
             //@phpstan-ignore-next-line
             foreach($model as $key => $value) {
-                $this->{$key} = $value; 
+                $this->{$key} = $value;
             }
 
         }
@@ -48,8 +48,7 @@ class TaxModel
     public function migrate(): self
     {
 
-        if($this->version == 'alpha')
-        {
+        if($this->version == 'alpha') {
             $this->regions->EU->subregions->PL = new \stdClass();
             $this->regions->EU->subregions->PL->tax_rate = 23;
             $this->regions->EU->subregions->PL->tax_name = 'VAT';

@@ -68,11 +68,12 @@ class StoreNoteRequest extends Request
 
     public function getEntity()
     {
-        if(!$this->entity)
+        if(!$this->entity) {
             return false;
+        }
 
         $class = "\\App\\Models\\".ucfirst(Str::camel(rtrim($this->entity, 's')));
-        return $class::withTrashed()->find(is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) :  $this->entity_id);
+        return $class::withTrashed()->find(is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id);
 
     }
 

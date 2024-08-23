@@ -165,7 +165,7 @@ class TransactionTransformer implements BankRevenueInterface
 
         /** @var \App\Models\Currency $currency */
         return $currency ? $currency->id : 1; //@phpstan-ignore-line
-        
+
     }
 
     private function formatDate(string $input)

@@ -19,7 +19,7 @@ use Tests\TestCase;
  */
 class PhantomJsTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

@@ -65,9 +65,9 @@ class DesignRepository extends BaseRepository
         $design->name = str_ireplace("_deleted_", "_restored_", $design->name);
 
         parent::restore($design);
-                
+
         return $design;
-        
+
     }
 
 

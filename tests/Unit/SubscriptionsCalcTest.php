@@ -89,13 +89,13 @@ class SubscriptionsCalcTest extends TestCase
         $this->assertEquals(10, $invoice->amount);
         $this->assertEquals(0, $invoice->balance);
 
-        $pro_rata = new ProRata;
+        $pro_rata = new ProRata();
 
         $refund = $pro_rata->refund($invoice->amount, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
 
         // $this->assertEquals(1.61, $refund);
 
-        $pro_rata = new ProRata;
+        $pro_rata = new ProRata();
 
         $upgrade = $pro_rata->charge($target->price, Carbon::parse('2021-01-01'), Carbon::parse('2021-01-06'), $subscription->frequency_id);
 

@@ -120,7 +120,7 @@ class EmailTemplateDefaults
 
             case 'email_quote_subject_reminder1':
                 return self::emailQuoteReminder1Subject();
-                
+
             default:
                 return self::emailInvoiceTemplate();
 
@@ -131,7 +131,7 @@ class EmailTemplateDefaults
     {
         return ctrans('texts.quote_reminder_subject', ['quote' => '$number', 'company' => '$company.name']);
     }
-    
+
     public static function emailQuoteReminder1Body()
     {
 
@@ -140,7 +140,7 @@ class EmailTemplateDefaults
         return $invoice_message;
 
     }
-    
+
     public static function emailVendorNotificationSubject()
     {
         return self::transformText('vendor_notification_subject');

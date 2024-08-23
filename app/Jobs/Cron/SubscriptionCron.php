@@ -65,7 +65,7 @@ class SubscriptionCron
     //Requires the crons to be updated and set to hourly @ 00:01
     private function timezoneAware()
     {
-        
+
         Invoice::query()
                 ->with('company')
                 ->where('is_deleted', 0)

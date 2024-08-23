@@ -53,7 +53,7 @@ class ChartServiceLegacy
         /* Merge and filter by unique */
         $currencies = $currencies->merge($expense_currencies)->unique();
 
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $cache_currencies = app('currencies');
 
@@ -137,7 +137,7 @@ class ChartServiceLegacy
 
     private function addCurrencyCodes($data_set): array
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 

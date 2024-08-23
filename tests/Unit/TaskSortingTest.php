@@ -20,18 +20,18 @@ class TaskSortingTest extends TestCase
 {
     public $collection;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->collection = collect([
-            ['id' => 1, 'name' =>'pizza', 'order' => 9999],
-            ['id' => 2, 'name' =>'pineapple', 'order' => 9999],
-            ['id' => 3, 'name' =>'ethereum', 'order' => 9999],
-            ['id' => 4, 'name' =>'bitcoin', 'order' => 9999],
-            ['id' => 5, 'name' =>'zulu', 'order' => 9999],
-            ['id' => 6, 'name' =>'alpha', 'order' => 9999],
-            ['id' => 7, 'name' =>'ninja', 'order' => 9999],
+            ['id' => 1, 'name' => 'pizza', 'order' => 9999],
+            ['id' => 2, 'name' => 'pineapple', 'order' => 9999],
+            ['id' => 3, 'name' => 'ethereum', 'order' => 9999],
+            ['id' => 4, 'name' => 'bitcoin', 'order' => 9999],
+            ['id' => 5, 'name' => 'zulu', 'order' => 9999],
+            ['id' => 6, 'name' => 'alpha', 'order' => 9999],
+            ['id' => 7, 'name' => 'ninja', 'order' => 9999],
         ]);
     }
 

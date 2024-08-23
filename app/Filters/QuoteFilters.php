@@ -53,7 +53,7 @@ class QuoteFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
                             ) LIKE ?", ['%'.$filter.'%']);
-                //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
+            //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
 

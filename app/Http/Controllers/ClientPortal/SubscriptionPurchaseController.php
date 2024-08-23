@@ -94,7 +94,7 @@ class SubscriptionPurchaseController extends Controller
      */
     private function setLocale(string $locale): string
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
@@ -104,6 +104,6 @@ class SubscriptionPurchaseController extends Controller
         });
 
         return $record ? $record->locale : 'en';
-        
+
     }
 }

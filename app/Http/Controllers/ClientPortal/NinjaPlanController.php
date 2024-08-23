@@ -80,7 +80,7 @@ class NinjaPlanController extends Controller
 
         $data['intent'] = $setupIntent;
         $data['client'] = Auth::guard('contact')->user()->client;
-        
+
         return $this->render('plan.trial', $data);
     }
 

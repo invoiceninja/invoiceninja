@@ -118,6 +118,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $smtp_port
  * @property string|null $smtp_encryption
  * @property string|null $smtp_local_domain
+ * @property object|null $quickbooks
  * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -373,6 +374,7 @@ class Company extends BaseModel
         'ip',
         'smtp_username',
         'smtp_password',
+        'quickbooks',
     ];
 
     protected $casts = [
@@ -390,6 +392,7 @@ class Company extends BaseModel
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
+        'quickbooks' => 'object',
     ];
 
     protected $with = [];
@@ -684,7 +687,7 @@ class Company extends BaseModel
 
     public function language()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
@@ -733,7 +736,7 @@ class Company extends BaseModel
 
     public function currency()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
@@ -951,7 +954,7 @@ class Company extends BaseModel
 
     public function date_format()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
         $date_formats = app('date_formats');
 

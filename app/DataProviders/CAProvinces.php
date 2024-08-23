@@ -11,7 +11,8 @@
 
 namespace App\DataProviders;
 
-final class CAProvinces {
+final class CAProvinces
+{
     /**
      * The provinces and territories of Canada
      *
@@ -39,7 +40,8 @@ final class CAProvinces {
      * @param  string  $abbreviation
      * @return string
      */
-    public static function getName($abbreviation) {
+    public static function getName($abbreviation)
+    {
         return self::$provinces[$abbreviation];
     }
 
@@ -48,7 +50,8 @@ final class CAProvinces {
      *
      * @return array
      */
-    public static function get() {
+    public static function get()
+    {
         return self::$provinces;
     }
 
@@ -58,7 +61,8 @@ final class CAProvinces {
      * @param  string  $name
      * @return string
      */
-    public static function getAbbreviation($name) {
+    public static function getAbbreviation($name)
+    {
         return array_search(ucwords($name), self::$provinces);
     }
 }

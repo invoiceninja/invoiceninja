@@ -26,7 +26,8 @@ use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
 use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
 
-class ZugferdEDocument extends AbstractService {
+class ZugferdEDocument extends AbstractService
+{
     public ZugferdDocumentReader|string $document;
 
     /**
@@ -67,7 +68,7 @@ class ZugferdEDocument extends AbstractService {
             $expense->currency_id = Currency::whereCode($invoiceCurrency)->first()->id ?? $this->company->settings->currency_id;
             $expense->save();
 
-            $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml"); 
+            $origin_file = TempFile::UploadedFileFromRaw($this->tempdocument, $this->documentname, "application/xml");
             (new UploadFile($origin_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
             $uploaded_file = TempFile::UploadedFileFromRaw($visualizer->renderPdf(), $documentno."_visualiser.pdf", "application/pdf");
             (new UploadFile($uploaded_file, UploadFile::DOCUMENT, $user, $expense->company, $expense, null, false))->handle();
@@ -75,7 +76,7 @@ class ZugferdEDocument extends AbstractService {
             if ($taxCurrency && $taxCurrency != $invoiceCurrency) {
                 $expense->private_notes = ctrans("texts.tax_currency_mismatch");
             }
-            $expense->uses_inclusive_taxes = True;
+            $expense->uses_inclusive_taxes = true;
             $expense->amount = $grandTotalAmount;
             $counter = 1;
             if ($this->document->firstDocumentTax()) {
@@ -117,8 +118,7 @@ class ZugferdEDocument extends AbstractService {
                 $expense->vendor_id = $vendor->id;
             }
             $expense->transaction_reference = $documentno;
-        }
-        else {
+        } else {
             // The document exists as an expense
             // Handle accordingly
             nlog("Document already exists");
@@ -128,4 +128,3 @@ class ZugferdEDocument extends AbstractService {
         return $expense;
     }
 }
-

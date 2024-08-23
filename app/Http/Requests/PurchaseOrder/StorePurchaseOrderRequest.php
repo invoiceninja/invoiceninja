@@ -50,7 +50,7 @@ class StorePurchaseOrderRequest extends Request
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
 
-        
+
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.vendor_contact_id'] = 'bail|required|distinct';
 

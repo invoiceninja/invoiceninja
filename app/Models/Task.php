@@ -296,19 +296,18 @@ class Task extends BaseModel
         $client_currency = $this->client->getSetting('currency_id');
         $company_currency = $this->company->getSetting('currency_id');
 
-        if($client_currency != $company_currency)
-        {
+        if($client_currency != $company_currency) {
             $converter = new CurrencyApi();
             return $converter->convert($this->taskValue(), $client_currency, $company_currency);
         }
-        
+
         return $this->taskValue();
 
     }
 
     public function taskValue(): float
     {
-        return round(($this->calcDuration() / 3600) * $this->getRate(),2);
+        return round(($this->calcDuration() / 3600) * $this->getRate(), 2);
     }
 
     public function processLogs()
@@ -374,8 +373,9 @@ class Task extends BaseModel
 
     public function assignedCompanyUser()
     {
-        if(!$this->assigned_user_id)
+        if(!$this->assigned_user_id) {
             return false;
+        }
 
         return CompanyUser::where('company_id', $this->company_id)->where('user_id', $this->assigned_user_id)->first();
     }

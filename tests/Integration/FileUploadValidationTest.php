@@ -27,7 +27,7 @@ class FileUploadValidationTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -37,11 +37,11 @@ class FileUploadValidationTest extends TestCase
 
     public function testIteratingThroughAllEntities()
     {
-     
+
         Storage::fake('local');
 
         $file = UploadedFile::fake()->image('avatar.jpg');
-        
+
         $data = [
             'documents' => [$file],
             'is_public' => false,
@@ -76,7 +76,7 @@ class FileUploadValidationTest extends TestCase
             $this->assertCount(1, $acc['data']['documents']);
             $this->assertFalse($acc['data']['documents'][0]['is_public']);
         }
-    
+
     }
 
     public function testFileUploadIsPublicSetsAppropriately()
@@ -84,7 +84,7 @@ class FileUploadValidationTest extends TestCase
         Storage::fake('local');
 
         $file = UploadedFile::fake()->image('avatar.jpg');
-        
+
         $data = [
             'documents' => [$file],
             'is_public' => false,
@@ -126,7 +126,7 @@ class FileUploadValidationTest extends TestCase
         Storage::fake('local');
 
         $file = UploadedFile::fake()->image('avatar.jpg');
-        
+
         $data = [
             'documents' => [$file, $file],
             'is_public' => false,

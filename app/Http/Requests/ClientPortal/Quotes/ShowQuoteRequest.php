@@ -19,7 +19,7 @@ class ShowQuoteRequest extends FormRequest
 {
     public function authorize()
     {
-        
+
         auth()->guard('contact')->user()->loadMissing(['company']);
 
         return (int)auth()->guard('contact')->user()->client->id === (int) $this->quote->client_id

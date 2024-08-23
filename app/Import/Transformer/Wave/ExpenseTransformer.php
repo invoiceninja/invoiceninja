@@ -38,13 +38,14 @@ class ExpenseTransformer extends BaseTransformer
 
         $tax_rate = $total_tax > 0 ? round(($total_tax / $amount) * 100, 3) : 0;
 
-        if(isset($data['Notes / Memo']) && strlen($data['Notes / Memo']) > 1)
+        if(isset($data['Notes / Memo']) && strlen($data['Notes / Memo']) > 1) {
             $public_notes = $data['Notes / Memo'];
-        elseif (isset($data['Transaction Description']) && strlen($data['Transaction Description']) > 1)
+        } elseif (isset($data['Transaction Description']) && strlen($data['Transaction Description']) > 1) {
             $public_notes = $data['Transaction Description'];
-        else
+        } else {
             $public_notes = '';
-        
+        }
+
 
         $transformed = [
             'company_id'  => $this->company->id,

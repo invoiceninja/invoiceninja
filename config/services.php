@@ -120,5 +120,17 @@ return [
     'chorus' => [
         'client_id' => env('CHORUS_CLIENT_ID', false),
         'secret' => env('CHORUS_SECRET', false),
-    ]
+    ],
+    'quickbooks' => [
+        // 'auth_mode' => 'oauth2',
+        'client_id' => env('QUICKBOOKS_CLIENT_ID', false),
+        'client_secret' => env('QUICKBOOKS_CLIENT_SECRET', false),
+        // 'ClientID' => env('QUICKBOOKS_CLIENT_ID', false),
+        // 'ClientSecret' => env('QUICKBOOKS_CLIENT_SECRET', false),
+        // TODO use env('QUICKBOOKS_REDIRECT_URI') or route()/ url()
+        // 'RedirectURI' => url("/quickbooks/authorized"),
+        // 'scope' => "com.intuit.quickbooks.accounting",
+        // 'baseUrl' => ucfirst(env('APP_URL'))
+        'debug' => env('APP_DEBUG',false)
+    ],
 ];

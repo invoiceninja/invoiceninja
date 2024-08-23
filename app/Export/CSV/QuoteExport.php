@@ -127,7 +127,7 @@ class QuoteExport extends BaseExport
 
         $query->cursor()
             ->each(function ($quote) {
-                
+
                 /** @var \App\Models\Quote $quote */
                 $this->csv->insertOne($this->buildRow($quote));
             });

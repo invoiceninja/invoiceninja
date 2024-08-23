@@ -24,7 +24,7 @@ class CreditBalanceTest extends TestCase
     use MockUnitData;
     use AppSetup;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

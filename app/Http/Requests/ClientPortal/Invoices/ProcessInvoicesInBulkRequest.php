@@ -19,7 +19,7 @@ class ProcessInvoicesInBulkRequest extends FormRequest
 {
     public function authorize()
     {
-        
+
         auth()->guard('contact')->user()->loadMissing(['company']);
 
         return (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES);

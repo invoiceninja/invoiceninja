@@ -20,7 +20,7 @@ use Tests\TestCase;
  */
 class CollectionMergingTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

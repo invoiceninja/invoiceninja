@@ -20,7 +20,7 @@ class PDF extends FPDI
     public function Footer()
     {
         $this->SetXY(0, -6);
-        
+
         $this->SetFont('Arial', 'I', 9);
 
         $this->SetTextColor(135, 135, 135);
@@ -28,10 +28,10 @@ class PDF extends FPDI
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
 
         try {
-        $trans = mb_convert_encoding($trans, 'ISO-8859-1', 'UTF-8');
+            $trans = mb_convert_encoding($trans, 'ISO-8859-1', 'UTF-8');
+        } catch(\Exception $e) {
         }
-        catch(\Exception $e){}
-        
+
         $this->Cell(0, 5, $trans, 0, 0, $this->text_alignment);
     }
 

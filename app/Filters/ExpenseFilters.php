@@ -162,8 +162,9 @@ class ExpenseFilters extends QueryFilters
     {
         $categories_exploded = explode(",", $categories);
 
-        if(empty($categories) || count(array_filter($categories_exploded)) == 0) 
+        if(empty($categories) || count(array_filter($categories_exploded)) == 0) {
             return $this->builder;
+        }
 
         $categories_keys = $this->transformKeys($categories_exploded);
 
