@@ -218,6 +218,11 @@ class ExpenseFilters extends QueryFilters
                     ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
         }
 
+        if ($sort_col[0] == 'payment_date' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(payment_date), payment_date '. $sort_col[1]);
+        }
+
         if($sort_col[0] == 'number') {
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
