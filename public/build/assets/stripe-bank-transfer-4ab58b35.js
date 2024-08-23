@@ -1,4 +1,4 @@
-import{i as p,w as y}from"./authorize-credit-card-payment-bd9c9d4d.js";/**
+import{i as p,w as y}from"./wait-8f4ae121.js";/**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
