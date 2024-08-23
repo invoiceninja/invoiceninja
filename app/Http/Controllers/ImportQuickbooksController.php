@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\Controllers;
 
@@ -25,8 +34,8 @@ class ImportQuickbooksController extends BaseController
         $qb = new QuickbooksService($company);
 
         $realm = $request->query('realmId');
-        $access_token_object = $qb->getAuth()->accessTokenFromCode($request->query('code'), $realm);
-        $qb->getAuth()->saveOAuthToken($access_token_object);
+        $access_token_object = $qb->sdk()->accessTokenFromCode($request->query('code'), $realm);
+        $qb->sdk()->saveOAuthToken($access_token_object);
 
         return redirect(config('ninja.react_url'));
 
@@ -43,8 +52,8 @@ class ImportQuickbooksController extends BaseController
         $company = $request->getCompany();
         $qb = new QuickbooksService($company);
 
-        $authorizationUrl = $qb->getAuth()->getAuthorizationUrl();
-        $state = $qb->getAuth()->getState();
+        $authorizationUrl = $qb->sdk()->getAuthorizationUrl();
+        $state = $qb->sdk()->getState();
 
         Cache::put($state, $token, 190);
 

@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Services\Import\Quickbooks;
 
@@ -99,7 +108,7 @@ class SdkWrapper
 
         if($token_object->accessTokenExpiresAt < time()){
             $new_token = $this->sdk->getOAuth2LoginHelper()->refreshToken();
-nlog("getting new token");
+
             $this->setAccessToken($new_token);
             $this->saveOAuthToken($this->accessToken());
         }
@@ -118,9 +127,7 @@ nlog("getting new token");
         // $this->sdk = $this->sdk->updateOAuth2Token($token);
 
         $this->token = $token;
-nlog("set access token");
 
-nlog($token);
         return $this;
     }
 
@@ -144,10 +151,12 @@ nlog($token);
         $this->company->save();
     }
 
-    public function totalRecords(string $entity) //returns an array not int
+
+    /// Data Access ///
+
+    public function totalRecords(string $entity): int
     {
-        nlog($this->sdk->Query("select count(*) from $entity"));
-        return $this->sdk->Query("select count(*) from $entity");
+        return (int)$this->sdk->Query("select count(*) from $entity");
     }
 
     private function queryData(string $query, int $start = 1, $limit = 100): array
@@ -155,39 +164,39 @@ nlog($token);
         return (array) $this->sdk->Query($query, $start, $limit);
     }
 
-    // public function fetchRecords(string $entity, int $max = 1000): array
-    // {
+    public function fetchRecords(string $entity, int $max = 1000): array
+    {
 
-    //     if(!in_array($entity, $this->entities)) {
-    //         return [];
-    //     }
+        if(!in_array($entity, $this->entities)) {
+            return [];
+        }
 
-    //     $records = [];
-    //     $start = 0;
-    //     $limit = 100;
-    //     try {
-    //         $total = $this->totalRecords($entity);
-    //         $total = min($max, $total);
+        $records = [];
+        $start = 0;
+        $limit = 100;
+        try {
+            $total = $this->totalRecords($entity);
+            $total = min($max, $total);
 
-    //         // Step 3 & 4: Get chunks of records until the total required records are retrieved
-    //         do {
-    //             $limit = min(self::MAXRESULTS, $total - $start);
-    //             $recordsChunk = $this->queryData("select * from $entity", $start, $limit);
-    //             if(empty($recordsChunk)) {
-    //                 break;
-    //             }
+            // Step 3 & 4: Get chunks of records until the total required records are retrieved
+            do {
+                $limit = min(self::MAXRESULTS, $total - $start);
+                $recordsChunk = $this->queryData("select * from $entity", $start, $limit);
+                if(empty($recordsChunk)) {
+                    break;
+                }
 
-    //             $records = array_merge($records, $recordsChunk);
-    //             $start += $limit;
-    //         } while ($start < $total);
-    //         if(empty($records)) {
-    //             throw new \Exception("No records retrieved!");
-    //         }
+                $records = array_merge($records, $recordsChunk);
+                $start += $limit;
+            } while ($start < $total);
+            if(empty($records)) {
+                throw new \Exception("No records retrieved!");
+            }
 
-    //     } catch (\Throwable $th) {
-    //         nlog("Fetch Quickbooks API Error: {$th->getMessage()}");
-    //     }
+        } catch (\Throwable $th) {
+            nlog("Fetch Quickbooks API Error: {$th->getMessage()}");
+        }
 
-    //     return $records;
-    // }
+        return $records;
+    }
 }

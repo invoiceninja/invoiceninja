@@ -11,11 +11,9 @@
 
 namespace App\Services\Import\Quickbooks;
 
-use Carbon\Carbon;
 use App\Models\Company;
 use QuickBooksOnline\API\Core\CoreConstants;
 use QuickBooksOnline\API\DataService\DataService;
-use QuickBooksOnline\API\Core\OAuth\OAuth2\OAuth2AccessToken;
 
 // quickbooks_realm_id
 // quickbooks_refresh_token
@@ -40,12 +38,12 @@ class QuickbooksService
             'auth_mode' => 'oauth2',
             'scope' => "com.intuit.quickbooks.accounting",
             // 'RedirectURI' => 'https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
-            'RedirectURI' => 'https://above-distinctly-teal.ngrok-free.app/quickbooks/authorized',
+            'RedirectURI' => $this->testMode ? 'https://above-distinctly-teal.ngrok-free.app/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
             'baseUrl' => $this->testMode ?  CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
         ];
 
         $merged = array_merge($config, $this->ninjaAccessToken());
-        nlog($merged);
+        
         $this->sdk = DataService::Configure($merged);
 
         $this->sdk->setLogLocation(storage_path("logs/quickbooks.log"));
@@ -71,7 +69,7 @@ class QuickbooksService
         return $this->sdk;
     }
 
-    public function getAuth(): SdkWrapper
+    public function sdk(): SdkWrapper
     {
         return new SdkWrapper($this->sdk, $this->company);
     }
