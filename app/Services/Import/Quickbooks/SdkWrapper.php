@@ -55,9 +55,6 @@ class SdkWrapper
     
     public function company()
     {
-        nlog("getting company info");
-        // nlog($this->sdk->getAccessToken());
-
         return $this->sdk->getCompanyInfo();
     }
     /*
@@ -124,8 +121,6 @@ class SdkWrapper
      */
     public function setAccessToken(OAuth2AccessToken $token): self
     {
-        // $this->sdk = $this->sdk->updateOAuth2Token($token);
-
         $this->token = $token;
 
         return $this;

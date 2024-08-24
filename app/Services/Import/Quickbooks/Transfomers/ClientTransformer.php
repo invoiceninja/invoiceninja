@@ -10,24 +10,14 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Import\Transformer\Quickbooks;
-
-use App\Import\Transformer\Quickbooks\CommonTrait;
-use App\Import\Transformer\BaseTransformer;
-use App\Models\Client as Model;
-use App\Models\ClientContact;
-use App\Import\ImportException;
-use Illuminate\Support\Str;
+namespace App\Services\Import\Quickbooks\Transformers;
 
 /**
  * Class ClientTransformer.
  */
-class ClientTransformer extends BaseTransformer
+class ClientTransformer
 {
-    use CommonTrait {
-        transform as preTransform;
-    }
-
+    
     private $fillable = [
         'name'              => 'CompanyName',
         'phone'             => 'PrimaryPhone.FreeFormNumber',
@@ -44,20 +34,12 @@ class ClientTransformer extends BaseTransformer
         'public_notes'      => 'Notes'
     ];
 
-    public function __construct($company)
+    public function __invoke($qb_data)
     {
-        parent::__construct($company);
-
-        $this->model = new Model();
+        return $this->transform($qb_data);
     }
 
 
-    /**
-     * Transforms a Customer array into a ClientContact model.
-     *
-     * @param array $data
-     * @return array|bool
-     */
     public function transform($data)
     {
         $transformed_data = [];
