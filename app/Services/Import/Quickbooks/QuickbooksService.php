@@ -11,9 +11,12 @@
 
 namespace App\Services\Import\Quickbooks;
 
+use App\Factory\ClientFactory;
+use App\Models\Client;
 use App\Models\Company;
 use QuickBooksOnline\API\Core\CoreConstants;
 use QuickBooksOnline\API\DataService\DataService;
+use App\Services\Import\Quickbooks\Transformers\ClientTransformer;
 
 // quickbooks_realm_id
 // quickbooks_refresh_token
@@ -21,12 +24,24 @@ use QuickBooksOnline\API\DataService\DataService;
 class QuickbooksService
 {
     public DataService $sdk;
+    
+    private $entities = [
+        'client' => 'Customer',
+        'invoice' => 'Invoice',
+        'quote' => 'Estimate',
+        'purchase_order' => 'PurchaseOrder',
+        'payment' => 'Payment',
+        'product' => 'Item',
+    ];
 
     private bool $testMode = true;
+
+    private array $settings = [];
 
     public function __construct(private Company $company)
     {
         $this->init();
+        $this->settings = $this->company->quickbooks->settings;
     }
 
     private function init(): self
@@ -64,14 +79,91 @@ class QuickbooksService
         ] : [];
     }
 
-    public function getSdk(): DataService
-    {
-        return $this->sdk;
-    }
-
     public function sdk(): SdkWrapper
     {
         return new SdkWrapper($this->sdk, $this->company);
     }
-    
+        
+    /**
+     * //@todo - refactor to a job
+     *
+     * @return void
+     */
+    public function sync()
+    {
+        //syncable_records.
+
+        foreach($this->entities as $entity)
+        {
+
+            $records = $this->sdk()->fetchRecords($entity);
+
+            $this->processEntitySync($entity, $records);
+            
+
+        }
+
+    }
+
+    private function processEntitySync(string $entity, $records)
+    {
+        match($entity){
+            'client' => $this->syncQbToNinjaClients($records),
+            // 'vendor' => $this->syncQbToNinjaClients($records),
+            // 'invoice' => $this->syncInvoices($records),
+            // 'quote' => $this->syncInvoices($records),
+            // 'purchase_order' => $this->syncInvoices($records),
+            // 'payment' => $this->syncPayment($records), 
+            // 'product' => $this->syncItem($records),
+        };
+    }
+
+    private function syncQbToNinjaClients(array $records)
+    {
+        foreach($records as $record)
+        {
+            $ninja_client_data = new ClientTransformer($record);
+
+            if($client = $this->findClient($ninja_client_data))
+            {
+                $client->fill($ninja_client_data[0]);
+            }
+
+        }
+    }
+
+    private function findClient(array $qb_data)
+    {
+        $client = $qb_data[0];
+        $contact = $qb_data[1];
+        $client_meta = $qb_data[2];
+
+        $search = Client::query()
+                        ->withTrashed()
+                        ->where('company', $this->company->id)
+                        ->where(function ($q) use ($client, $client_meta, $contact){
+
+                            $q->where('client_hash', $client_meta['client_hash'])
+                            ->orWhere('id_number', $client['id_number'])
+                            ->orWhereHas('contacts', function ($q) use ($contact){
+                                $q->where('email', $contact['email']);
+                            });
+
+                        });
+                        
+        if($search->count() == 0) {
+            //new client
+            $client = ClientFactory::create($this->company->id, $this->company->owner()->id);
+            $client->client_hash = $client_meta['client_hash'];
+            $client->settings = $client_meta['settings'];
+
+            return $client;
+        }
+        elseif($search->count() == 1) {
+            // ? sync / update
+        }
+        else {
+            //potentially multiple matching clients?
+        }
+    }
 }

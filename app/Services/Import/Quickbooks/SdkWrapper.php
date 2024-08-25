@@ -154,12 +154,17 @@ class SdkWrapper
         return (int)$this->sdk->Query("select count(*) from $entity");
     }
 
-    private function queryData(string $query, int $start = 1, $limit = 100): array
+    private function queryData(string $query, int $start = 1, $limit = 1000): array
     {
         return (array) $this->sdk->Query($query, $start, $limit);
     }
 
-    public function fetchRecords(string $entity, int $max = 1000): array
+    public function fetchById(string $entity, $id)
+    {   
+        return $this->sdk->FindById($entity, $id);
+    }
+
+    public function fetchRecords(string $entity, int $max = 100000): array
     {
 
         if(!in_array($entity, $this->entities)) {
@@ -168,7 +173,7 @@ class SdkWrapper
 
         $records = [];
         $start = 0;
-        $limit = 100;
+        $limit = 1000;
         try {
             $total = $this->totalRecords($entity);
             $total = min($max, $total);
