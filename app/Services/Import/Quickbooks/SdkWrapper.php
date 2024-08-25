@@ -11,6 +11,7 @@
 
 namespace App\Services\Import\Quickbooks;
 
+use App\DataMapper\QuickbooksSettings;
 use Carbon\Carbon;
 use App\Models\Company;
 use QuickBooksOnline\API\DataService\DataService;
@@ -82,10 +83,10 @@ class SdkWrapper
     /**
      * Set Stored NinjaAccessToken
      *
-     * @param  mixed $token_object
+     * @param  QuickbooksSettings $token_object
      * @return self
      */
-    public function setNinjaAccessToken(mixed $token_object): self
+    public function setNinjaAccessToken(QuickbooksSettings $token_object): self
     {
         $token = new OAuth2AccessToken(
             config('services.quickbooks.client_id'),
@@ -133,7 +134,7 @@ class SdkWrapper
 
     public function saveOAuthToken(OAuth2AccessToken $token): void
     {
-        $obj = new \stdClass();
+        $obj = $this->company->quickbooks ?? new QuickbooksSettings();
         $obj->accessTokenKey = $token->getAccessToken();
         $obj->refresh_token = $token->getRefreshToken();
         $obj->accessTokenExpiresAt = Carbon::createFromFormat('Y/m/d H:i:s', $token->getAccessTokenExpiresAt())->timestamp; //@phpstan-ignore-line - QB phpdoc wrong types!!

@@ -20,12 +20,21 @@ use App\DataMapper\ClientSettings;
 class ClientTransformer
 {
 
-    public function __invoke($qb_data): array
+    public function __construct()
+    {
+    }
+
+    public function qbToNinja(mixed $qb_data)
     {
         return $this->transform($qb_data);
     }
 
-    public function transform($data): array
+    public function ninjaToQb()
+    {
+
+    }
+
+    public function transform(mixed $data): array
     {
 
         $contact = [
@@ -33,7 +42,7 @@ class ClientTransformer
             'last_name' => data_get($data, 'FamilyName'),
             'phone' => data_get($data, 'PrimaryPhone.FreeFormNumber'),
             'email' =>  data_get($data, 'PrimaryEmailAddr.Address'),
-            ];
+        ];
 
         $client = [
             'name' => data_get($data,'CompanyName', ''),
@@ -49,7 +58,7 @@ class ClientTransformer
             'shipping_country_id' => $this->resolveCountry(data_get($data, 'ShipAddr.Country', '')),
             'shipping_state' => data_get($data, 'ShipAddr.CountrySubDivisionCode', ''),
             'shipping_postal_code' =>  data_get($data, 'BillAddr.PostalCode', ''),
-            'id_number' => data_get($data, 'Id', ''),
+            'id_number' => data_get($data, 'Id.value', ''),
         ];
         
             $settings = ClientSettings::defaults();
@@ -65,16 +74,20 @@ class ClientTransformer
 
     private function resolveCountry(string $iso_3_code)
     {
-        return (string) app('countries')->first(function ($c) use ($iso_3_code){
+        $country = app('countries')->first(function ($c) use ($iso_3_code){
             return $c->iso_3166_3 == $iso_3_code;
-        })->id ?? 840;
+        });
+        
+        return $country ? (string) $country->id : '840';
     }
 
     private function resolveCurrency(string $currency_code)
     {
-        return (string) app('currencies')->first(function($c) use ($currency_code){
+        $currency = app('currencies')->first(function($c) use ($currency_code){
             return $c->code == $currency_code;
-        }) ?? 'USD';
+        });
+        
+        return $currency ? (string) $currency->id : '1';
     }
 
     public function getShipAddrCountry($data, $field)

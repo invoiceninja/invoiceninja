@@ -11,6 +11,7 @@
 
 namespace App\Services\Import\Quickbooks;
 
+use App\Factory\ClientContactFactory;
 use App\Factory\ClientFactory;
 use App\Models\Client;
 use App\Models\Company;
@@ -36,7 +37,7 @@ class QuickbooksService
 
     private bool $testMode = true;
 
-    private array $settings = [];
+    private mixed $settings;
 
     public function __construct(private Company $company)
     {
@@ -89,24 +90,44 @@ class QuickbooksService
      *
      * @return void
      */
-    public function sync()
+    public function syncFromQb()
     {
         //syncable_records.
 
-        foreach($this->entities as $entity)
+        foreach($this->entities as $key => $entity)
         {
+            if(!$this->syncGate($key, 'pull'))
+                continue;
 
             $records = $this->sdk()->fetchRecords($entity);
 
-            $this->processEntitySync($entity, $records);
-            
+            nlog($records);
+
+            $this->processEntitySync($key, $records);
 
         }
 
     }
 
+    private function syncGate(string $entity, string $direction): bool
+    {
+        return (bool) $this->settings[$entity]['sync'] && in_array($this->settings[$entity]['direction'], [$direction,'bidirectional']);
+    }
+
+    private function updateGate(string $entity): bool
+    {
+        return (bool) $this->settings[$entity]['sync'] && $this->settings[$entity]['update_record'];
+    }
+
+    private function harvestQbEntityName(string $entity): string
+    {
+        return $this->entities[$entity];
+    }
+
     private function processEntitySync(string $entity, $records)
     {
+        nlog($entity);
+        nlog($records);
         match($entity){
             'client' => $this->syncQbToNinjaClients($records),
             // 'vendor' => $this->syncQbToNinjaClients($records),
@@ -115,32 +136,57 @@ class QuickbooksService
             // 'purchase_order' => $this->syncInvoices($records),
             // 'payment' => $this->syncPayment($records), 
             // 'product' => $this->syncItem($records),
+            default => false,
         };
     }
 
     private function syncQbToNinjaClients(array $records)
     {
+        nlog("qb => ninja");
+
+        $client_transformer = new ClientTransformer();
+
         foreach($records as $record)
         {
-            $ninja_client_data = new ClientTransformer($record);
+            $ninja_client_data = $client_transformer->qbToNinja($record);
 
             if($client = $this->findClient($ninja_client_data))
             {
                 $client->fill($ninja_client_data[0]);
+                $client->saveQuietly();
+
+                $contact = $client->contacts()->where('email', $ninja_client_data[1]['email'])->first();
+
+                if(!$contact)
+                {
+                    $contact = ClientContactFactory::create($this->company->id, $this->company->owner()->id);
+                    $contact->client_id = $client->id;
+                    $contact->send_email = true;
+                    $contact->is_primary = true;
+                    $contact->fill($ninja_client_data[1]);
+                    $contact->saveQuietly(); 
+                }
+                elseif($this->updateGate('client')){
+                    $contact->fill($ninja_client_data[1]);
+                    $contact->saveQuietly();
+                }
+
             }
 
         }
     }
 
-    private function findClient(array $qb_data)
+    private function findClient(array $qb_data) :?Client
     {
         $client = $qb_data[0];
         $contact = $qb_data[1];
         $client_meta = $qb_data[2];
 
+        nlog($qb_data);
+        
         $search = Client::query()
                         ->withTrashed()
-                        ->where('company', $this->company->id)
+                        ->where('company_id', $this->company->id)
                         ->where(function ($q) use ($client, $client_meta, $contact){
 
                             $q->where('client_hash', $client_meta['client_hash'])
@@ -160,7 +206,7 @@ class QuickbooksService
             return $client;
         }
         elseif($search->count() == 1) {
-            // ? sync / update
+            return $this->settings['client']['update_record'] ? $search->first() : null;
         }
         else {
             //potentially multiple matching clients?

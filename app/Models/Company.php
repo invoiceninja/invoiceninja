@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Casts\EncryptedCast;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\QuickbooksSettings;
 use App\Models\Presenters\CompanyPresenter;
 use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
@@ -392,7 +393,7 @@ class Company extends BaseModel
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
-        'quickbooks' => 'object',
+        'quickbooks' => QuickbooksSettings::class,
     ];
 
     protected $with = [];
