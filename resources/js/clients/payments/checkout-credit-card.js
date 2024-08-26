@@ -8,7 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { wait } from '../wait';
+import { wait, instant } from '../wait';
 
 class CheckoutCreditCard {
     constructor() {
@@ -109,6 +109,10 @@ class CheckoutCreditCard {
     }
 }
 
-wait('#checkout-credit-card-payment').then(() =>
+function boot() {
+    new CheckoutCreditCard().handle()
+}
+
+instant() ? boot() : wait('#checkout-credit-card-payment').then(() =>
     new CheckoutCreditCard().handle()
 );
