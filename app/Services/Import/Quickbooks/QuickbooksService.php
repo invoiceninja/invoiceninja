@@ -108,7 +108,7 @@ class QuickbooksService
 
             $records = $this->sdk()->fetchRecords($entity);
 
-            nlog(json_encode($records));
+            // nlog(json_encode($records));
 
             $this->processEntitySync($key, $records);
 
@@ -261,7 +261,7 @@ class QuickbooksService
         foreach($records as $record)
         {
             $ninja_data = $product_transformer->qbToNinja($record);
-nlog($ninja_data);
+// nlog($ninja_data);
 
             if($product = $this->findProduct($ninja_data['hash']))
             {
@@ -315,7 +315,8 @@ nlog($ninja_data);
         if($search->count() == 0) {
             //new product
             $product = ProductFactory::create($this->company->id, $this->company->owner()->id);
-
+            $product->hash = $key;
+            
             return $product;
         } elseif($search->count() == 1) {
             return $this->settings['product']['update_record'] ? $search->first() : null;
