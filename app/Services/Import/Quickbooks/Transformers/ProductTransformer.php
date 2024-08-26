@@ -32,6 +32,7 @@ class ProductTransformer extends BaseTransformer
     {
         
         return [
+            'hash' => data_get($data, 'ItemRef.value', null)),
             'product_key' => data_get($data, 'Name', data_get($data, 'FullyQualifiedName','')),
             'notes' => data_get($data, 'Description', ''),
             'cost' => data_get($data, 'PurchaseCost', 0),

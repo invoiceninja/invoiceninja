@@ -135,8 +135,8 @@ class QuickbooksService
     {
         match($entity){
             // 'client' => $this->syncQbToNinjaClients($records),
-            // 'product' => $this->syncQbToNinjaProducts($records),
-            'invoice' => $this->syncQbToNinjaInvoices($records),
+            'product' => $this->syncQbToNinjaProducts($records),
+            // 'invoice' => $this->syncQbToNinjaInvoices($records),
             // 'vendor' => $this->syncQbToNinjaClients($records),
             // 'quote' => $this->syncInvoices($records),
             // 'purchase_order' => $this->syncInvoices($records),
@@ -262,7 +262,7 @@ class QuickbooksService
         {
             $ninja_data = $product_transformer->qbToNinja($record);
 
-            if($product = $this->findProduct($ninja_data['product_key']))
+            if($product = $this->findProduct($ninja_data['hash']))
             {
                 $product->fill($ninja_data);
                 $product->save();
@@ -309,7 +309,7 @@ class QuickbooksService
         $search = Product::query()
                          ->withTrashed()
                          ->where('company_id', $this->company->id)
-                         ->where('product_key', $key);
+                         ->where('hash', $key);
              
         if($search->count() == 0) {
             //new product

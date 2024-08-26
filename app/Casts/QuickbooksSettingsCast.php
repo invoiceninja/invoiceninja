@@ -20,6 +20,9 @@ class QuickbooksSettingsCast implements CastsAttributes
     {
         $data = json_decode($value, true);
 
+        if(!is_array($data))
+            return null;
+
         $qb = new QuickbooksSettings();
         $qb->accessTokenKey =  $data['accessTokenKey'];
         $qb->refresh_token =  $data['refresh_token'];
