@@ -261,6 +261,7 @@ class QuickbooksService
         foreach($records as $record)
         {
             $ninja_data = $product_transformer->qbToNinja($record);
+nlog($ninja_data);
 
             if($product = $this->findProduct($ninja_data['hash']))
             {
