@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\Rotessa;
 
 use App\Models\Payment;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use Illuminate\View\View;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
@@ -28,7 +29,7 @@ use App\PaymentDrivers\Common\MethodInterface;
 use Omnipay\Common\Exception\InvalidResponseException;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
-class PaymentMethod implements MethodInterface
+class PaymentMethod implements MethodInterface, LivewireMethodInterface
 {
 
     private array $transaction = [
@@ -123,14 +124,8 @@ class PaymentMethod implements MethodInterface
      */
     public function paymentView(array $data): View
     {
-        $data['gateway'] = $this->rotessa;
-        $data['amount'] = $data['total']['amount_with_fee'];
-        $data['due_date'] = date('Y-m-d', min(max(strtotime($data['invoices']->max('due_date')), strtotime('now')), strtotime('+1 day')));
-        $data['process_date'] = $data['due_date'];
-        $data['currency'] = $this->rotessa->client->getCurrencyCode();
-        $data['frequency'] = 'Once';
-        $data['installments'] = 1;
-        $data['invoice_nums'] = $data['invoices']->pluck('invoice_number')->join(', '); 
+        $data = $this->paymentData($data);
+
         return render('gateways.rotessa.bank_transfer.pay', $data );
     }
 
@@ -219,5 +214,30 @@ class PaymentMethod implements MethodInterface
         );
 
         throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.rotessa.bank_transfer.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $data['gateway'] = $this->rotessa;
+        $data['amount'] = $data['total']['amount_with_fee'];
+        $data['due_date'] = date('Y-m-d', min(max(strtotime($data['invoices']->max('due_date')), strtotime('now')), strtotime('+1 day')));
+        $data['process_date'] = $data['due_date'];
+        $data['currency'] = $this->rotessa->client->getCurrencyCode();
+        $data['frequency'] = 'Once';
+        $data['installments'] = 1;
+        $data['invoice_nums'] = $data['invoices']->pluck('invoice_number')->join(', '); 
+
+        return $data;
     }
 }
