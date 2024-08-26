@@ -15,7 +15,7 @@
     "file": "assets/wait-8f4ae121.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-c51a8745.js",
+    "file": "assets/app-234e3402.js",
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"
@@ -95,7 +95,7 @@
     "src": "resources/js/clients/payments/braintree-paypal.js"
   },
   "resources/js/clients/payments/checkout-credit-card.js": {
-    "file": "assets/checkout-credit-card-eba516f2.js",
+    "file": "assets/checkout-credit-card-2cca8b36.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -368,6 +368,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
@@ -387,6 +388,9 @@
 =======
     "file": "assets/app-4e969b65.css",
 >>>>>>> 05d7211c4c (PayPal: New payment flow (#81))
+=======
+    "file": "assets/app-15411b02.css",
+>>>>>>> fba29de459 (New payment flow: Various fixes (#88))
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
