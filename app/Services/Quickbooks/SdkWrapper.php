@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Import\Quickbooks;
+namespace App\Services\Quickbooks;
 
 use App\DataMapper\QuickbooksSettings;
 use Carbon\Carbon;

@@ -9,31 +9,38 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Import\Quickbooks;
+namespace App\Services\Quickbooks\Jobs;
 
-use App\Factory\ClientContactFactory;
-use App\Factory\ClientFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\ProductFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
-use QuickBooksOnline\API\Core\CoreConstants;
-use QuickBooksOnline\API\DataService\DataService;
-use App\Services\Import\Quickbooks\Transformers\ClientTransformer;
-use App\Services\Import\Quickbooks\Transformers\InvoiceTransformer;
-use App\Services\Import\Quickbooks\Transformers\PaymentTransformer;
-use App\Services\Import\Quickbooks\Transformers\ProductTransformer;
+use App\Libraries\MultiDB;
+use Illuminate\Bus\Queueable;
+use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\ProductFactory;
+use App\Factory\ClientContactFactory;
+use App\DataMapper\QuickbooksSettings;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\Quickbooks\QuickbooksService;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use App\Services\Quickbooks\Transformers\ClientTransformer;
+use App\Services\Quickbooks\Transformers\InvoiceTransformer;
+use App\Services\Quickbooks\Transformers\PaymentTransformer;
+use App\Services\Quickbooks\Transformers\ProductTransformer;
 
-// quickbooks_realm_id
-// quickbooks_refresh_token
-// quickbooks_refresh_expires
-class QuickbooksService
+class QuickbooksSync implements ShouldQueue
 {
-    public DataService $sdk;
-    
-    private $entities = [
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
+
+    private array $entities = [
         'product' => 'Item',
         'client' => 'Customer',
         'invoice' => 'Invoice',
@@ -42,73 +49,34 @@ class QuickbooksService
         'payment' => 'Payment',
     ];
 
-    private bool $testMode = true;
+    private QuickbooksService $qbs;
 
-    private mixed $settings;
+    private ?array $settings;
 
-    public function __construct(private Company $company)
+    private Company $company;
+
+    public function __construct(public int $company_id, public string $db)
     {
-        $this->init();
-        $this->settings = $this->company->quickbooks->settings;
     }
 
-    private function init(): self
-    {
-
-        $config = [
-            'ClientID' => config('services.quickbooks.client_id'),
-            'ClientSecret' => config('services.quickbooks.client_secret'),
-            'auth_mode' => 'oauth2',
-            'scope' => "com.intuit.quickbooks.accounting",
-            // 'RedirectURI' => 'https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
-            'RedirectURI' => $this->testMode ? 'https://above-distinctly-teal.ngrok-free.app/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
-            'baseUrl' => $this->testMode ?  CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
-        ];
-
-        $merged = array_merge($config, $this->ninjaAccessToken());
-        
-        $this->sdk = DataService::Configure($merged);
-
-        $this->sdk->setLogLocation(storage_path("logs/quickbooks.log"));
-        $this->sdk->enableLog();
-
-        $this->sdk->setMinorVersion("73");
-        $this->sdk->throwExceptionOnError(true);
-
-        return $this;
-    }
-
-    private function ninjaAccessToken()
-    {
-        return isset($this->company->quickbooks->accessTokenKey) ? [
-            'accessTokenKey' => $this->company->quickbooks->accessTokenKey,
-            'refreshTokenKey' => $this->company->quickbooks->refresh_token,
-            'QBORealmID' => $this->company->quickbooks->realmID,
-        ] : [];
-    }
-
-    public function sdk(): SdkWrapper
-    {
-        return new SdkWrapper($this->sdk, $this->company);
-    }
-        
     /**
-     * //@todo - refactor to a job
-     *
-     * @return void
+     * Execute the job.
      */
-    public function syncFromQb()
+    public function handle()
     {
-        //syncable_records.
-
-        foreach($this->entities as $key => $entity)
-        {
-            if(!$this->syncGate($key, 'pull'))
+        MultiDB::setDb($this->db);
+     
+        $this->company = Company::find($this->company_id);
+        $this->qbs = new QuickbooksService($this->company);
+        $this->settings =  $this->company->quickbooks->settings;
+   
+        nlog("here we go!");
+        foreach($this->entities as $key => $entity) {
+            if(!$this->syncGate($key, 'pull')) {
                 continue;
+            }
 
-            $records = $this->sdk()->fetchRecords($entity);
-
-            // nlog(json_encode($records));
+            $records = $this->qbs->sdk()->fetchRecords($entity);
 
             $this->processEntitySync($key, $records);
 
@@ -126,10 +94,10 @@ class QuickbooksService
         return (bool) $this->settings[$entity]['sync'] && $this->settings[$entity]['update_record'];
     }
 
-    private function harvestQbEntityName(string $entity): string
-    {
-        return $this->entities[$entity];
-    }
+    // private function harvestQbEntityName(string $entity): string
+    // {
+    //     return $this->entities[$entity];
+    // }
 
     private function processEntitySync(string $entity, $records)
     {
@@ -171,7 +139,7 @@ class QuickbooksService
                 foreach($payment_ids as $payment_id)
                 {
 
-                    $payment = $this->sdk->FindById('Payment', $payment_id);
+                    $payment = $this->qbs->sdk->FindById('Payment', $payment_id);
                     $payment_transformer = new PaymentTransformer($this->company);
 
                     $transformed = $payment_transformer->qbToNinja($payment);
@@ -261,7 +229,6 @@ class QuickbooksService
         foreach($records as $record)
         {
             $ninja_data = $product_transformer->qbToNinja($record);
-// nlog($ninja_data);
 
             if($product = $this->findProduct($ninja_data['hash']))
             {
@@ -324,6 +291,18 @@ class QuickbooksService
 
         return null;
 
+
+    }
+
+    public function middleware()
+    {
+        return [new WithoutOverlapping("qbs-{$this->company_id}-{$this->db}")];
+    }
+
+    public function failed($exception)
+    {
+        nlog("QuickbooksSync failed => ".$exception->getMessage());
+        config(['queue.failed.driver' => null]);
 
     }
 }

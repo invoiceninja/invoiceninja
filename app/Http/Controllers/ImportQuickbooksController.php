@@ -15,7 +15,7 @@ use App\Http\Requests\Quickbooks\AuthorizedQuickbooksRequest;
 use App\Libraries\MultiDB;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\Quickbooks\AuthQuickbooksRequest;
-use App\Services\Import\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
 {

@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Import\Quickbooks\Transformers;
+namespace App\Services\Quickbooks\Transformers;
 
 /**
  * Class ProductTransformer.
