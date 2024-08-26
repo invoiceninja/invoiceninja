@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Casts\EncryptedCast;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\QuickbooksSettings;
 use App\Models\Presenters\CompanyPresenter;
 use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
@@ -118,7 +119,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $smtp_port
  * @property string|null $smtp_encryption
  * @property string|null $smtp_local_domain
- * @property object|null $quickbooks
+ * @property \App\DataMapper\QuickbooksSettings|null $quickbooks
  * @property boolean $smtp_verify_peer
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
@@ -392,7 +393,7 @@ class Company extends BaseModel
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
-        'quickbooks' => 'object',
+        'quickbooks' => QuickbooksSettings::class,
     ];
 
     protected $with = [];

@@ -9,8 +9,9 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Import\Quickbooks;
+namespace App\Services\Quickbooks;
 
+use App\DataMapper\QuickbooksSettings;
 use Carbon\Carbon;
 use App\Models\Company;
 use QuickBooksOnline\API\DataService\DataService;
@@ -20,7 +21,7 @@ class SdkWrapper
 {
     public const MAXRESULTS = 10000;
 
-    private $entities = ['Customer','Invoice','Payment','Item'];
+    private $entities = ['Customer','Invoice','Item'];
 
     private OAuth2AccessToken $token;
 
@@ -55,9 +56,6 @@ class SdkWrapper
     
     public function company()
     {
-        nlog("getting company info");
-        // nlog($this->sdk->getAccessToken());
-
         return $this->sdk->getCompanyInfo();
     }
     /*
@@ -85,10 +83,10 @@ class SdkWrapper
     /**
      * Set Stored NinjaAccessToken
      *
-     * @param  mixed $token_object
+     * @param  QuickbooksSettings $token_object
      * @return self
      */
-    public function setNinjaAccessToken(mixed $token_object): self
+    public function setNinjaAccessToken(QuickbooksSettings $token_object): self
     {
         $token = new OAuth2AccessToken(
             config('services.quickbooks.client_id'),
@@ -124,8 +122,6 @@ class SdkWrapper
      */
     public function setAccessToken(OAuth2AccessToken $token): self
     {
-        // $this->sdk = $this->sdk->updateOAuth2Token($token);
-
         $this->token = $token;
 
         return $this;
@@ -138,7 +134,7 @@ class SdkWrapper
 
     public function saveOAuthToken(OAuth2AccessToken $token): void
     {
-        $obj = new \stdClass();
+        $obj = $this->company->quickbooks ?? new QuickbooksSettings();
         $obj->accessTokenKey = $token->getAccessToken();
         $obj->refresh_token = $token->getRefreshToken();
         $obj->accessTokenExpiresAt = Carbon::createFromFormat('Y/m/d H:i:s', $token->getAccessTokenExpiresAt())->timestamp; //@phpstan-ignore-line - QB phpdoc wrong types!!
@@ -159,12 +155,17 @@ class SdkWrapper
         return (int)$this->sdk->Query("select count(*) from $entity");
     }
 
-    private function queryData(string $query, int $start = 1, $limit = 100): array
+    private function queryData(string $query, int $start = 1, $limit = 1000): array
     {
         return (array) $this->sdk->Query($query, $start, $limit);
     }
 
-    public function fetchRecords(string $entity, int $max = 1000): array
+    public function fetchById(string $entity, $id)
+    {   
+        return $this->sdk->FindById($entity, $id);
+    }
+
+    public function fetchRecords(string $entity, int $max = 100000): array
     {
 
         if(!in_array($entity, $this->entities)) {
@@ -173,7 +174,7 @@ class SdkWrapper
 
         $records = [];
         $start = 0;
-        $limit = 100;
+        $limit = 1000;
         try {
             $total = $this->totalRecords($entity);
             $total = min($max, $total);
@@ -197,6 +198,7 @@ class SdkWrapper
             nlog("Fetch Quickbooks API Error: {$th->getMessage()}");
         }
 
+        nlog($records);
         return $records;
     }
 }

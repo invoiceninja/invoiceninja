@@ -9,11 +9,23 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\Import\Quickbooks;
+namespace App\Services\Quickbooks;
 
+use App\Factory\ClientContactFactory;
+use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\ProductFactory;
+use App\Models\Client;
 use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Product;
+use App\Services\Quickbooks\Jobs\QuickbooksSync;
 use QuickBooksOnline\API\Core\CoreConstants;
 use QuickBooksOnline\API\DataService\DataService;
+use App\Services\Quickbooks\Transformers\ClientTransformer;
+use App\Services\Quickbooks\Transformers\InvoiceTransformer;
+use App\Services\Quickbooks\Transformers\PaymentTransformer;
+use App\Services\Quickbooks\Transformers\ProductTransformer;
 
 // quickbooks_realm_id
 // quickbooks_refresh_token
@@ -64,14 +76,19 @@ class QuickbooksService
         ] : [];
     }
 
-    public function getSdk(): DataService
-    {
-        return $this->sdk;
-    }
-
     public function sdk(): SdkWrapper
     {
         return new SdkWrapper($this->sdk, $this->company);
     }
-    
+        
+    /**
+     * //@todo - refactor to a job
+     *
+     * @return void
+     */
+    public function syncFromQb()
+    {
+        QuickbooksSync::dispatch($this->company);
+    }
+
 }

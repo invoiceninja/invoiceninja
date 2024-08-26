@@ -7,8 +7,8 @@ namespace Tests\Unit\Services\Import\Quickbooks;
 use Mockery;
 use Tests\TestCase;
 use Illuminate\Support\Arr;
-use App\Services\Import\Quickbooks\Contracts\SdkInterface;
-use App\Services\Import\Quickbooks\SdkWrapper as QuickbookSDK;
+use App\Services\Quickbooks\Contracts\SdkInterface;
+use App\Services\Quickbooks\SdkWrapper as QuickbookSDK;
 
 class SdkWrapperTest extends TestCase
 {

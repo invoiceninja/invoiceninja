@@ -2,9 +2,9 @@
 
 namespace Tests\Integration\Services\Import\Quickbooks;
 
-use App\Services\Import\Quickbooks\Contracts\SdkInterface as QuickbooksInterface;
-use App\Services\Import\Quickbooks\Service as QuickbooksService;
-use App\Services\Import\Quickbooks\SdkWrapper as QuickbooksSDK;
+use App\Services\Quickbooks\Contracts\SdkInterface as QuickbooksInterface;
+use App\Services\Quickbooks\Service as QuickbooksService;
+use App\Services\Quickbooks\SdkWrapper as QuickbooksSDK;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Arr;
 use Tests\TestCase;
