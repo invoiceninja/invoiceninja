@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Invoice Ninja (https://Productninja.com).
+ * Invoice Ninja (https://clientninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
@@ -10,52 +10,35 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Import\Transformer\Quickbooks;
-
-use App\Import\Transformer\Quickbooks\CommonTrait;
-use App\Import\Transformer\BaseTransformer;
-use App\Models\Product as Model;
-use App\Import\ImportException;
+namespace App\Services\Import\Quickbooks\Transformers;
 
 /**
  * Class ProductTransformer.
  */
 class ProductTransformer extends BaseTransformer
 {
-    use CommonTrait;
 
-    protected $fillable = [
-        'product_key' => 'Name',
-        'notes' => 'Description',
-        'cost' => 'PurchaseCost',
-        'price' => 'UnitPrice',
-        'quantity' => 'QtyOnHand',
-        'in_stock_quantity' => 'QtyOnHand',
-        'created_at' => 'CreateTime',
-        'updated_at' => 'LastUpdatedTime',
-    ];
-
-
-    public function __construct($company)
+    public function qbToNinja(mixed $qb_data)
     {
-        parent::__construct($company);
-
-        $this->model = new Model();
+        return $this->transform($qb_data);
     }
 
-    public function getQtyOnHand($data, $field = null)
+    public function ninjaToQb()
     {
-        return (int) $this->getString($data, $field);
+
     }
 
-    public function getPurchaseCost($data, $field = null)
+    public function transform(mixed $data): array
     {
-        return (float) $this->getString($data, $field);
+        
+        return [
+            'product_key' => data_get($data, 'Name', data_get($data, 'FullyQualifiedName','')),
+            'notes' => data_get($data, 'Description', ''),
+            'cost' => data_get($data, 'PurchaseCost', 0),
+            'price' => data_get($data, 'UnitPrice', 0),
+            'in_stock_quantity' => data_get($data, 'QtyOnHand', 0),
+        ];
+
     }
 
-
-    public function getUnitPrice($data, $field = null)
-    {
-        return (float) $this->getString($data, $field);
-    }
 }

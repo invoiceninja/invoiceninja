@@ -17,12 +17,8 @@ use App\DataMapper\ClientSettings;
 /**
  * Class ClientTransformer.
  */
-class ClientTransformer
+class ClientTransformer extends BaseTransformer
 {
-
-    public function __construct()
-    {
-    }
 
     public function qbToNinja(mixed $qb_data)
     {
@@ -31,7 +27,6 @@ class ClientTransformer
 
     public function ninjaToQb()
     {
-
     }
 
     public function transform(mixed $data): array
@@ -70,34 +65,6 @@ class ClientTransformer
             ];
 
         return [$client, $contact, $new_client_merge];
-    }
-
-    private function resolveCountry(string $iso_3_code)
-    {
-        $country = app('countries')->first(function ($c) use ($iso_3_code){
-            return $c->iso_3166_3 == $iso_3_code;
-        });
-        
-        return $country ? (string) $country->id : '840';
-    }
-
-    private function resolveCurrency(string $currency_code)
-    {
-        $currency = app('currencies')->first(function($c) use ($currency_code){
-            return $c->code == $currency_code;
-        });
-        
-        return $currency ? (string) $currency->id : '1';
-    }
-
-    public function getShipAddrCountry($data, $field)
-    {
-        return is_null(($c = $this->getString($data, $field))) ? null : $this->getCountryId($c);
-    }
-
-    public function getBillAddrCountry($data, $field)
-    {
-        return is_null(($c = $this->getString($data, $field))) ? null : $this->getCountryId($c);
     }
 
 }

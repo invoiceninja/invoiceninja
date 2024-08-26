@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://Paymentninja.com).
  *
@@ -10,15 +9,11 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Import\Transformer\Quickbooks;
+namespace App\Services\Import\Quickbooks\Transformers;
 
-use App\Import\Transformer\Quickbooks\CommonTrait;
-use App\Import\Transformer\BaseTransformer;
-use App\Models\Payment as Model;
-use App\Import\ImportException;
-use Illuminate\Support\Str;
-use Illuminate\Support\Arr;
-use App\Models\Invoice;
+use App\Models\Company;
+use App\Models\Payment;
+use App\Factory\PaymentFactory;
 
 /**
  *
@@ -26,45 +21,48 @@ use App\Models\Invoice;
  */
 class PaymentTransformer extends BaseTransformer
 {
-    use CommonTrait;
 
-    protected $fillable = [
-        'number' => "PaymentRefNum",
-        'amount' => "TotalAmt",
-        "client_id" => "CustomerRef",
-        "currency_id" => "CurrencyRef",
-        'date' => "TxnDate",
-        "invoices" => "Line",
-        'private_notes' => "PrivateNote",
-        'created_at' => "CreateTime",
-        'updated_at' => "LastUpdatedTime"
-    ];
-
-    public function __construct($company)
+    public function qbToNinja(mixed $qb_data)
     {
-        parent::__construct($company);
-
-        $this->model = new Model();
+        return $this->transform($qb_data);
     }
 
-    public function getTotalAmt($data, $field = null)
+    public function ninjaToQb()
     {
-        return (float) $this->getString($data, $field);
     }
 
-    public function getTxnDate($data, $field = null)
+    public function transform(mixed $qb_data)
     {
-        return $this->parseDateOrNull($data, $field);
-    }
 
-    public function getCustomerRef($data, $field = null)
-    {
-        return $this->getClient($this->getString($data, 'CustomerRef.name'), null);
+        return [
+            'date' => data_get($qb_data, 'TxnDate', now()->format('Y-m-d')),  
+            'amount' => floatval(data_get($qb_data, 'TotalAmt', 0)), 
+            'applied' => data_get($qb_data, 'TotalAmt', 0) - data_get($qb_data, 'UnappliedAmt', 0), 
+            'number' => data_get($qb_data, 'DocNumber', null),
+            'private_notes' => data_get($qb_data, 'PrivateNote', null),
+            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef.value')),
+            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef.value', null)),    
+        ];
     }
-
-    public function getCurrencyRef($data, $field = null)
+ 
+    public function buildPayment($qb_data): ?Payment
     {
-        return $this->getCurrencyByCode($data['CurrencyRef'], 'value');
+        $ninja_payment_data = $this->transform($qb_data);
+
+        if($ninja_payment_data['client_id'])
+        {
+            $payment = PaymentFactory::create($this->company->id, $this->company->owner()->id,$ninja_payment_data['client_id']);
+            $payment->amount = $ninja_payment_data['amount'];
+            $payment->applied = $ninja_payment_data['applied'];
+            $payment->status_id = 4;
+            $payment->fill($ninja_payment_data);
+            
+            $payment->client->service()->updatePaidToDate($payment->amount);
+
+            return $payment;
+        }
+
+        return null;
     }
 
     public function getLine($data, $field = null)
@@ -82,25 +80,6 @@ class PaymentTransformer extends BaseTransformer
             'amount' => (float) $this->getString($data, 'Line.Amount'),
             'invoice_id' => $invoice_id
         ]];
-    }
-
-    /**
-    * @param $invoice_number
-    *
-    * @return int|null
-    */
-    public function getInvoiceId($invoice_number)
-    {
-        $invoice = Invoice::query()->where('company_id', $this->company->id)
-            ->where('is_deleted', false)
-            ->where(
-                "number",
-                "LIKE",
-                "%-$invoice_number%",
-            )
-            ->first();
-
-        return $invoice ? $invoice->id : null;
     }
 
 }

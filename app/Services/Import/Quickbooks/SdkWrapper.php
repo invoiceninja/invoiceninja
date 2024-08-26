@@ -21,7 +21,7 @@ class SdkWrapper
 {
     public const MAXRESULTS = 10000;
 
-    private $entities = ['Customer','Invoice','Payment','Item'];
+    private $entities = ['Customer','Invoice','Item'];
 
     private OAuth2AccessToken $token;
 
@@ -198,6 +198,7 @@ class SdkWrapper
             nlog("Fetch Quickbooks API Error: {$th->getMessage()}");
         }
 
+        nlog($records);
         return $records;
     }
 }
