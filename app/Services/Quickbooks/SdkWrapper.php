@@ -97,8 +97,8 @@ class SdkWrapper
             8726400
         );
 
-        $token->setAccessTokenExpiresAt($token_object->accessTokenExpiresAt);
-        $token->setRefreshTokenExpiresAt($token_object->refreshTokenExpiresAt);
+        $token->setAccessTokenExpiresAt($token_object->accessTokenExpiresAt); //@phpstan-ignore-line
+        $token->setRefreshTokenExpiresAt($token_object->refreshTokenExpiresAt); //@phpstan-ignore-line
         $token->setAccessTokenValidationPeriodInSeconds(3600);
         $token->setRefreshTokenValidationPeriodInSeconds(8726400);
 

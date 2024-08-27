@@ -13,6 +13,9 @@ namespace App\Services\EDocument\Gateway\Storecove;
 
 use App\Models\Company;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use Illuminate\Http\Client\RequestException;
 
 enum HttpVerb: string
 {
@@ -24,9 +27,11 @@ enum HttpVerb: string
 }
 
 class Storecove
-{
+{    
+    /** @var mixed $base_url */
     private string $base_url = 'https://api.storecove.com/api/v2/';
-
+    
+    /** @var mixed $peppol_discovery */
     private array $peppol_discovery = [
         "documentTypes" =>  ["invoice"],
         "network" =>  "peppol",
@@ -34,7 +39,8 @@ class Storecove
         "scheme" =>  "de:lwid",
         "identifier" => "DE:VAT"
     ];
-
+    
+    /** @var mixed $dbn_discovery */
     private array $dbn_discovery = [
         "documentTypes" =>  ["invoice"],
         "network" =>  "dbnalliance",
@@ -43,18 +49,19 @@ class Storecove
         "identifier" => "1200109963131"
     ];
 
-
     public function __construct()
     {
     }
-
-    //config('ninja.storecove_api_key');
-
-    //https://app.storecove.com/en/docs#_test_identifiers
-    //check if identifier is able to send on the network.
-
-    //response = {  "code": "OK",  "email": false}
-    public function discovery($identifier, $scheme, $network = 'peppol')
+    
+    /**
+     * Discovery
+     *
+     * @param  string $identifier
+     * @param  string $scheme
+     * @param  string $network
+     * @return bool
+     */
+    public function discovery(string $identifier, string $scheme, string $network = 'peppol'): bool
     {
         $network_data = [];
 
@@ -71,50 +78,23 @@ class Storecove
         return ($r->successful() && $r->json()['code'] == 'OK') ? true : false;
 
     }
-
-    //response = "guid" : "xx",
-
+    
     /**
-     * If the receiver cannot be found, then an
-     * email is sent to that user if a appropriate
-     * email is included in the document payload
+     * Unused as yet
      *
-     * {
-            "routing":  {
-                "emails": [
-                "test@example.com"
-                ],
-                "eIdentifiers": []
-            }
-        }
-     *
-     *
-     *
-        // documentType : invoice/invoice_response/order
-        // rawDocumentData : {
-        // document: base64_encode($ubl)
-        // parse: true
-        // parseStrategy: ubl
-        // }
+     * @param  mixed $document
+     * @return void
      */
     public function sendJsonDocument($document)
     {
 
         $payload = [
-            "legalEntityId" => 290868,
+            // "legalEntityId" => 290868,
             "idempotencyGuid" => \Illuminate\Support\Str::uuid(),
             "routing" => [
                 "eIdentifiers" => [],
                 "emails" => ["david@invoiceninja.com"]
             ],
-            // "document" => [
-            //     'documentType' => 'invoice',
-            //     "rawDocumentData" => [
-            //         "document" => base64_encode($document),
-            //         "parse" => true,
-            //         "parseStrategy" => "ubl",
-            //     ],
-            // ],
             "document" => [
                 "documentType" => "invoice",
             "invoice" => $document,
@@ -123,12 +103,7 @@ class Storecove
 
         $uri = "document_submissions";
 
-        nlog($payload);
-
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
-
-        nlog($r->body());
-        nlog($r->json());
 
         if($r->successful()) {
             return $r->json()['guid'];
@@ -137,8 +112,17 @@ class Storecove
         return false;
 
     }
-
-    public function sendDocument(string $document, int $routing_id, array $override_payload = [])
+    
+    /**
+     * Send Document via StoreCove
+     *
+     * @param  string $document
+     * @param  int $routing_id
+     * @param  array $override_payload
+     * 
+     * @return string|null
+     */
+    public function sendDocument(string $document, int $routing_id, array $override_payload = []): ?string
     {
 
         $payload = [
@@ -155,7 +139,6 @@ class Storecove
 
         $payload = array_merge($payload, $override_payload);
 
-
         $payload['document']['documentType'] = 'invoice';
         $payload['document']["rawDocumentData"] = [
                     "document" => base64_encode($document),
@@ -165,84 +148,45 @@ class Storecove
 
         $uri = "document_submissions";
 
-        nlog($payload);
-
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload, $this->getHeaders());
 
         nlog($r->body());
-        nlog($r->json());
+        // nlog($r->json());
 
         if($r->successful()) {
             return $r->json()['guid'];
         }
 
-        return false;
+        return null;
 
     }
 
-    //document submission sending evidence
+    /**
+     * Get Sending Evidence
+     *
+     * @param  string $guid
+     * @return array
+     */
     public function getSendingEvidence(string $guid)
     {
         $uri = "document_submissions/{$guid}";
+
         $r = $this->httpClient($uri, (HttpVerb::GET)->value, [], $this->getHeaders());
 
+        if($r->successful())
+            return $r->json();
+
     }
-
-    // {
-    // "party_name": "<string>",
-    // "line1": "<string>",
-    // "city": "<string>",
-    // "zip": "<string>",
-    // "country": "EH",
-    // "line2": "<string>",
-    // "county": "<string>",
-    // "tenant_id": "<string>",
-    // "public": true,
-    // "advertisements": [
-    //     "invoice"
-    // ],
-    // "third_party_username": "<string>",
-    // "third_party_password": "<string>",
-    // "rea": {
-    //     "province": "AR",
-    //     "identifier": "<string>",
-    //     "capital": "<number>",
-    //     "partners": "SM",
-    //     "liquidation_status": "LN"
-    // },
-    // "acts_as_sender": true,
-    // "acts_as_receiver": true,
-    // "tax_registered": true
-    // }
-
-    // acts_as_receiver - optional - Default : true
-    // acts_as_sender - optional - Default : true
-    // advertisements - optional < enum (invoice, invoice_response, order, ordering, order_response, selfbilling) > array
-    // city - required - Length : 2 - 64
-    // country - required - ISO 3166-1 alpha-2
-    // county - optional - Maximal length : 64
-    // line1 - required - The first address line - Length : 2 - 192
-    // line2 - optional - The second address line, if applicable Maximal length : 192
-    // party_name - required - The name of the company. Length : 2 - 64
-    // public - optional - Whether or not this LegalEntity is public. Public means it will be entered into the PEPPOL directory at https://directory.peppol.eu/ Default : true
-    // rea - optional - The REA details for the LegalEntity. Only applies to IT (Italian) LegalEntities. - https://www.storecove.com/docs/#_openapi_rea (schema)
-
-    // capital - optional - The captial for the company. - number
-    // identifier - optional - The identifier. Length : 2 - 20
-    // liquidation_status - optional - The liquidation status of the company. enum (LN, LS)
-    // partners - optional - The number of partners. enum (SU, SM)
-    // province - optional - The provincia of the ufficio that issued the identifier.enum (AG, AL, AN, AO, AQ, AR, AP, AT, AV, BA, BT, BL, BN, BG, BI, BO, BZ, BS, BR, CA, CL, CB, CI, CE, CT, CZ, CH, CO, CS, CR, KR, CN, EN, FM, FE, FI, FG, FC, FR, GE, GO, GR, IM, IS, SP, LT, LE, LC, LI, LO, LU, MC, MN, MS, MT, VS, ME, MI, MO, MB, NA, NO, NU, OG, OT, OR, PD, PA, PR, PV, PG, PU, PE, PC, PI, PT, PN, PZ, PO, RG, RA, RC, RE, RI, RN, RO, SA, SS, SV, SI, SR, SO, TA, TE, TR, TO, TP, TN, TV, TS, UD, VA, VE, VB, VC, VR, VV, VI, VT)
-
-    // tax_registered - optional - Whether or not this LegalEntity is tax registered. This influences the validation of the data presented when sending documents. Default : true
-    // tenant_id - optional - The id of the tenant, to be used in case of single-tenant solutions that share webhook URLs. This property will included in webhook events. Maximal length : 64
-    // third_party_password - optional - The password to use to authenticate to a system through which to send the document, or to obtain tax authority approval to send it. This field is currently relevant only for India and mandatory when creating an IN LegalEntity. Length : 2 - 64
-    // third_party_username - optional - The username to use to authenticate to a system through which to send the document, or to obtain tax authority approval to send it. This field is currently relevant only for India and mandatory when creating an IN LegalEntity. Length : 2 - 64
-    // zip - required - The zipcode. Length : 2 - 32
 
     /**
      * CreateLegalEntity
      *
+     * Creates a base entity. 
+     * 
+     * Following creation, you will also need to create a Peppol Identifier
+     * 
      * @url https://www.storecove.com/docs/#_openapi_legalentitycreate
+     * 
      * @return mixed
      */
     public function createLegalEntity(array $data, Company $company)
@@ -275,7 +219,13 @@ class Storecove
         return $r;
 
     }
-
+    
+    /**
+     * GetLegalEntity
+     *
+     * @param  int $id
+     * @return mixed
+     */
     public function getLegalEntity($id)
     {
 
@@ -290,8 +240,15 @@ class Storecove
         return $r;
 
     }
-
-    public function updateLegalEntity($id, array $data)
+    
+    /**
+     * UpdateLegalEntity
+     *
+     * @param  int $id
+     * @param  array $data
+     * @return void
+     */
+    public function updateLegalEntity(int $id, array $data)
     {
 
         $uri = "legal_entities/{$id}";
@@ -305,7 +262,17 @@ class Storecove
         return $r;
 
     }
-
+    
+    /**
+     * AddIdentifier
+     * 
+     * Add a Peppol identifier to the legal entity
+     *
+     * @param  int $legal_entity_id
+     * @param  string $identifier
+     * @param  string $scheme
+     * @return mixed
+     */
     public function addIdentifier(int $legal_entity_id, string $identifier, string $scheme)
     {
         $uri = "legal_entities/{$legal_entity_id}/peppol_identifiers";
@@ -325,6 +292,21 @@ class Storecove
         return $r;
 
     }
+    
+    /**
+     * deleteIdentifier
+     *
+     * @param  int $legal_entity_id
+     * @return bool
+     */
+    public function deleteIdentifier(int $legal_entity_id): bool
+    {
+        $uri = "/legal_entities/{$legal_entity_id}";
+
+        $r = $this->httpClient($uri, (HttpVerb::DELETE)->value, []);
+
+        return $r->successful();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private function getHeaders(array $headers = [])
@@ -340,9 +322,25 @@ class Storecove
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
-        $r = Http::withToken(config('ninja.storecove_api_key'))
-                ->withHeaders($this->getHeaders($headers))
-                ->{$verb}("{$this->base_url}{$uri}", $data);
+        try {
+            $r = Http::withToken(config('ninja.storecove_api_key'))
+                    ->withHeaders($this->getHeaders($headers))
+                    ->{$verb}("{$this->base_url}{$uri}", $data)->throw();
+        }
+        catch (ClientException $e) {
+            // 4xx errors
+            nlog("Client error: " . $e->getMessage());
+            nlog("\nResponse body: " . $e->getResponse()->getBody()->getContents());
+        } catch (ServerException $e) {
+            // 5xx errors
+            nlog("Server error: " . $e->getMessage());
+            nlog("\nResponse body: " . $e->getResponse()->getBody()->getContents());
+        } catch (RequestException $e) {
+            nlog("Request error: " . $e->getMessage());       
+            if ($e->hasResponse()) {
+                nlog("\nResponse body: " . $e->getResponse()->getBody()->getContents());
+            }
+        }
 
         return $r;
     }

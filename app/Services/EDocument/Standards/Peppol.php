@@ -42,7 +42,6 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSubtotalType\TaxSubtotal;
-use InvoiceNinja\EInvoice\Models\Peppol\TaxScheme as PeppolTaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxExclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxInclusiveAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\LineExtensionAmount;
@@ -421,10 +420,14 @@ class Peppol extends AbstractService
         $tax_subtotal->TaxableAmount = $taxable_amount;
 
         $tc = new TaxCategory();
-        $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
+        $id = new ID();
+        $id->value = $type_id == '2' ? 'HUR' : 'C62';
+        $tc->ID = $id;
         $tc->Percent = $this->invoice->tax_rate1;
-        $ts = new PeppolTaxScheme();
-        $ts->ID = strlen($this->invoice->tax_name1 ?? '') > 1 ? $this->invoice->tax_name1 : '0';
+        $ts = new TaxScheme();
+        $id = new ID();
+        $id->value = strlen($this->invoice->tax_name1 ?? '') > 1 ? $this->invoice->tax_name1 : '0';
+        $ts->ID = $id;
         $tc->TaxScheme = $ts;
         $tax_subtotal->TaxCategory = $tc;
 
@@ -453,10 +456,14 @@ class Peppol extends AbstractService
 
 
             $tc = new TaxCategory();
-            $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
+            $id = new ID();
+            $id->value = $type_id == '2' ? 'HUR' : 'C62';
+            $tc->ID = $id;
             $tc->Percent = $this->invoice->tax_rate2;
-            $ts = new PeppolTaxScheme();
-            $ts->ID = $this->invoice->tax_name2;
+            $ts = new TaxScheme();
+            $id = new ID();
+            $id->value = $this->invoice->tax_name2;
+            $ts->ID = $id;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
@@ -483,15 +490,20 @@ class Peppol extends AbstractService
             $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $this->invoice->amount - $this->invoice->total_taxes : $this->invoice->amount;
             $tax_subtotal->TaxableAmount = $taxable_amount;
 
-
             $tc = new TaxCategory();
-            $tc->ID = $type_id == '2' ? 'HUR' : 'C62';
+            
+            $id = new ID();
+            $id->value = $type_id == '2' ? 'HUR' : 'C62';
+            $tc->ID = $id;
             $tc->Percent = $this->invoice->tax_rate3;
-            $ts = new PeppolTaxScheme();
-            $ts->ID = $this->invoice->tax_name3;
+            $ts = new TaxScheme();
+
+            $id = new ID();
+            $id->value = $this->invoice->tax_name3;
+
+            $ts->ID = $id;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
-
 
             $tax_total = new TaxTotal();
             $tax_total->TaxAmount = $tax_amount;
@@ -500,7 +512,6 @@ class Peppol extends AbstractService
             $taxes[] = $tax_total;
 
         }
-
 
         return $taxes;
     }
@@ -516,7 +527,10 @@ class Peppol extends AbstractService
             $_item->Description = $item->notes;
 
             $line = new InvoiceLine();
-            $line->ID = $key + 1;
+            
+            $id = new ID();
+            $id->value = (string) ($key+1);
+            $line->ID = $id;
             $line->InvoicedQuantity = $item->quantity;
 
             $lea = new LineExtensionAmount();
@@ -538,7 +552,7 @@ class Peppol extends AbstractService
             $price = new Price();
             $pa = new PriceAmount();
             $pa->currencyID = $this->invoice->client->currency()->code;
-            $pa->amount = $this->costWithDiscount($item) - ($this->invoice->uses_inclusive_taxes ? ($this->calcInclusiveLineTax($item->tax_rate1, $item->line_total) / $item->quantity) : 0);
+            $pa->amount = (string) ($this->costWithDiscount($item) - ($this->invoice->uses_inclusive_taxes ? ($this->calcInclusiveLineTax($item->tax_rate1, $item->line_total) / $item->quantity) : 0));
             $price->PriceAmount = $pa;
 
             $line->Price = $price;
@@ -579,10 +593,15 @@ class Peppol extends AbstractService
         $taxable_amount->amount = '0';
         $tax_subtotal->TaxableAmount = $taxable_amount;
         $tc = new TaxCategory();
-        $tc->ID = 'Z';
-        $tc->Percent = 0;
-        $ts = new PeppolTaxScheme();
-        $ts->ID = '0';
+        $id = new ID();
+        $id->value = 'Z';
+        $tc->ID = $id;
+        $tc->Percent = '0';
+        $ts = new TaxScheme();
+        
+        $id = new ID();
+        $id->value = '0';
+        $ts->ID = $id;
         $tc->TaxScheme = $ts;
         $tax_subtotal->TaxCategory = $tc;
 
@@ -612,10 +631,18 @@ class Peppol extends AbstractService
             $taxable_amount->amount = $this->invoice->uses_inclusive_taxes ? $item->line_total - $tax_amount->amount : $item->line_total;
             $tax_subtotal->TaxableAmount = $taxable_amount;
             $tc = new TaxCategory();
-            $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
+            
+            $id = new ID();
+            $id->value = $item->type_id == '2' ? 'HUR' : 'C62';
+
+            $tc->ID = $id;
             $tc->Percent = $item->tax_rate1;
-            $ts = new PeppolTaxScheme();
-            $ts->ID = $item->tax_name1;
+            $ts = new TaxScheme();
+
+            $id = new ID();
+            $id->value = $item->tax_name1;
+
+            $ts->ID = $id;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
@@ -645,10 +672,18 @@ class Peppol extends AbstractService
 
 
             $tc = new TaxCategory();
-            $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
+            
+            $id = new ID();
+            $id->value = $item->type_id == '2' ? 'HUR' : 'C62';
+
+            $tc->ID = $id;
             $tc->Percent = $item->tax_rate2;
-            $ts = new PeppolTaxScheme();
-            $ts->ID = $item->tax_name2;
+            $ts = new TaxScheme();
+
+            $id = new ID();
+            $id->value = $item->tax_name2;
+
+            $ts->ID = $id;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 
@@ -657,7 +692,6 @@ class Peppol extends AbstractService
             $tax_total->TaxAmount = $tax_amount;
             $tax_total->TaxSubtotal[] = $tax_subtotal;
             $item_taxes[] = $tax_total;
-
 
         }
 
@@ -679,10 +713,18 @@ class Peppol extends AbstractService
 
 
             $tc = new TaxCategory();
-            $tc->ID = $item->type_id == '2' ? 'HUR' : 'C62';
+
+            $id = new ID();
+            $id->value = $item->type_id == '2' ? 'HUR' : 'C62';
+
+            $tc->ID = $id;
             $tc->Percent = $item->tax_rate3;
-            $ts = new PeppolTaxScheme();
-            $ts->ID = $item->tax_name3;
+            $ts = new TaxScheme();
+
+            $id = new ID();
+            $id->value = $item->tax_name3;
+
+            $ts->ID = $id;
             $tc->TaxScheme = $ts;
             $tax_subtotal->TaxCategory = $tc;
 

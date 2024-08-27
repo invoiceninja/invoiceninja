@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table){
             $table->string('hash')->nullable();
         });
+
+        Schema::table('companies', function (Blueprint $table){
+            $table->bigInteger('legal_entity_id')->nullable();
+        })
     }
 
     /**
