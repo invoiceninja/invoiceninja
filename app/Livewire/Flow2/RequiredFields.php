@@ -88,7 +88,7 @@ class RequiredFields extends Component
         $rff = new RFFService(
             fields: $this->getContext()['fields'],
             database: $this->getContext()['db'],
-            company_gateway_id: $this->company_gateway->id,
+            company_gateway_id: (string)$this->company_gateway->id,
         );
 
         /** @var \App\Models\ClientContact $contact */
@@ -111,7 +111,7 @@ class RequiredFields extends Component
         $rff = new RFFService(
             fields: $this->fields,
             database: $this->getContext()['db'],
-            company_gateway_id: $this->company_gateway->id,
+            company_gateway_id: (string) $this->company_gateway->id,
         );
 
         $contact = auth()->user();

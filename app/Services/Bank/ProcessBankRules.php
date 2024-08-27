@@ -163,7 +163,7 @@ class ProcessBankRules extends AbstractService
                 }
 
                 if ($bank_transaction_rule['auto_convert']) {
-                    (new MatchBankTransactions($this->company->id, $this->company->db, [
+                    (new MatchBankTransactions($this->bank_transaction->company->id, $this->bank_transaction->company->db, [
                         'transactions' => [
                             [
                             'id' => $this->bank_transaction->id,

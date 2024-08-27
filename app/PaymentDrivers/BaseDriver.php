@@ -232,7 +232,6 @@ class BaseDriver extends AbstractPaymentDriver
      *
      * @param ClientGatewayToken $cgt The client gateway token object
      * @param PaymentHash $payment_hash The Payment hash containing the payment meta data
-     * @return ?Payment|bool  The payment response
      */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {

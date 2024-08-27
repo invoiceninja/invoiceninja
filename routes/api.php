@@ -428,8 +428,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::get('nordigen/institutions', [NordigenController::class, 'institutions'])->name('nordigen.institutions');
 
-    Route::post('import/quickbooks', [ImportQuickbooksController::class, 'import'])->name('import.quickbooks');
-
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:3,1');

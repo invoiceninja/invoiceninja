@@ -66,7 +66,7 @@ class QuickbooksSync implements ShouldQueue
     {
         MultiDB::setDb($this->db);
      
-        $this->company = Company::find($this->company_id);
+        $this->company = Company::query()->find($this->company_id);
         $this->qbs = new QuickbooksService($this->company);
         $this->settings =  $this->company->quickbooks->settings;
    

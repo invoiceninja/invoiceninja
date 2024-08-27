@@ -88,7 +88,7 @@ class QuickbooksService
      */
     public function syncFromQb()
     {
-        QuickbooksSync::dispatch($this->company);
+        QuickbooksSync::dispatch($this->company->id, $this->company->db);
     }
 
 }
