@@ -165,7 +165,7 @@ class Storecove
      * Get Sending Evidence
      *
      * @param  string $guid
-     * @return array
+     * @return mixed
      */
     public function getSendingEvidence(string $guid)
     {
@@ -176,6 +176,7 @@ class Storecove
         if($r->successful())
             return $r->json();
 
+        return $r;
     }
 
     /**
