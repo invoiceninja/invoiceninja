@@ -13,6 +13,7 @@ namespace App\Services\Bank;
 
 use App\Factory\ExpenseCategoryFactory;
 use App\Factory\ExpenseFactory;
+use App\Jobs\Bank\MatchBankTransactions;
 use App\Models\BankTransaction;
 use App\Models\Client;
 use App\Models\ExpenseCategory;
@@ -28,7 +29,7 @@ class ProcessBankRules extends AbstractService
 {
     use GeneratesCounter;
     use MakesHash;
-    
+
     protected $credit_rules;
 
     protected $debit_rules;
@@ -89,6 +90,8 @@ class ProcessBankRules extends AbstractService
 
             foreach ($bank_transaction_rule['rules'] as $rule) {
 
+                $results = [];
+                
                 $payments = Payment::query()
                                     ->withTrashed()
                                     ->whereIn('status_id', [1,4])
@@ -102,8 +105,6 @@ class ProcessBankRules extends AbstractService
                         ->whereIn('status_id', [1,2,3])
                         ->where('is_deleted', 0)
                         ->get();
-
-                $results = [];
 
                 match($rule['search_key']) {
                     '$payment.amount' => $results = [Payment::class, $this->searchPaymentResource('amount', $rule, $payments)],
@@ -141,84 +142,50 @@ class ProcessBankRules extends AbstractService
                     $match_set[] = $results;
                 }
             }
+            
+            if (($bank_transaction_rule['matches_on_all'] && $this->checkMatchSetForKey($match_set, $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && count($match_set) > 0)) 
+            {
 
-            if (($bank_transaction_rule['matches_on_all'] && $this->checkMatchSetForKey($match_set, $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && count($match_set) > 0)) {
-
-                // $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
-                // $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
                 $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
                 $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
-                
+                $this->bank_transaction->save();
+
                 $first_result = reset($match_set);
-                
+
+                $invoice_id = false;
+                $payment_id = false;
+    
                 if($first_result[0] == Payment::class) {
                     $payment_id = $first_result[1][0];
-                    $this->bank_transaction->payment_id = $payment_id;
                 }                
                 elseif($first_result[0] == Invoice::class) {
                     $invoice_id = $first_result[1][0];
-                    $this->bank_transaction->invoice_ids = $this->encodePrimaryKey($invoice_id);
                 }
 
-                $this->bank_transaction->save();
-                //auto-convert
-
                 if ($bank_transaction_rule['auto_convert']) {
+                    (new MatchBankTransactions($this->company->id, $this->company->db, [
+                        'transactions' => [
+                            [
+                            'id' => $this->bank_transaction->id,
+                            'invoice_ids' => $invoice_id ?? '',
+                            'payment_id' => $payment_id ?? '',
+                            ],
+                    ],
+                    ]))->handle();
+                }
+                else {
 
-                    //all types must match.
-                    $entity = $match_set[0][0];
-
-                    foreach($match_set as $set)
-                    {
-                        if($set[0] != $entity)
-                            return false;
+                    if($invoice_id){
+                        $this->bank_transaction->invoice_ids = $this->encodePrimaryKey($invoice_id);
+                    }
+                    elseif($payment_id){
+                        $this->bank_transaction->payment_id = $payment_id;
                     }
 
-                    
-// $result_set = [];
-
-// foreach($match_set as $key => $set) {
-
-//     $parseable_set = $match_set;
-//     unset($parseable_set[$key]);
-
-//     $entity_ids = $set[1];
-
-//     foreach($parseable_set as $kkey => $vvalue) {
-
-//         $i = array_intersect($vvalue[1], $entity_ids);
-
-//         if(count($i) == 0) {
-//             return false;
-//         }
-
-
-//         $result_set[] = $i;
-
-//     }
-
-
-//     $commonValues = $result_set[0];  // Start with the first sub-array
-
-//     foreach ($result_set as $subArray) {
-//         $commonValues = array_intersect($commonValues, $subArray);
-//     }
-
-//     echo print_r($commonValues, true);
-
-//just need to ensure the result count = rule count
-// }
-
-
-
-                    //there must be a key in each set
-
-                    //no misses allowed
-                    
-                    $this->bank_transaction->status_id = BankTransaction::STATUS_CONVERTED;
                     $this->bank_transaction->save();
 
                 }
+
             }
 
         }

@@ -95,7 +95,7 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($i->id);
@@ -215,7 +215,7 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($i->id);
@@ -332,7 +332,7 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -389,7 +389,8 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+
+$bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -446,7 +447,8 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+
+$bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -503,7 +505,8 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+
+$bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -560,7 +563,8 @@ class BankTransactionRuleTest extends TestCase
 
         (new ProcessBankRules($bt))->run();
 
-        $bt->fresh();
+
+$bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
