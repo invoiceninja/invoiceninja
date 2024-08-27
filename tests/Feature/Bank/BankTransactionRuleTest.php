@@ -13,10 +13,12 @@
 namespace Tests\Feature\Bank;
 
 use Tests\TestCase;
+use App\Models\Payment;
 use Tests\MockAccountData;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
+use App\Services\Bank\ProcessBankRules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -38,6 +40,66 @@ class BankTransactionRuleTest extends TestCase
 
         $this->withoutExceptionHandling();
     }
+
+    public function testNewCreditMatchingRules()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = md5(time());
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+        
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$payment.amount',
+                    'operator' => '=',
+                ]
+            ]
+        ]);
+
+        $p = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'transaction_reference' => 'nein'
+        ]);
+
+        nlog($p->id);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+        $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($p->id);
+        $this->assertNotNull($bt->payment_id);
+        $this->assertEquals($p->id, $bt->payment_id);
+    }
+
 
     public function testMatchCreditOnInvoiceNumber()
     {

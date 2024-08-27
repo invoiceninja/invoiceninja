@@ -142,13 +142,20 @@ class ProcessBankRules extends AbstractService
 
             if (($bank_transaction_rule['matches_on_all'] && $this->checkMatchSetForKey($match_set, $rule_count)) || (!$bank_transaction_rule['matches_on_all'] && count($match_set) > 0)) {
 
-                $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
-                $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
+                // $this->bank_transaction->vendor_id = $bank_transaction_rule->vendor_id;
+                // $this->bank_transaction->ninja_category_id = $bank_transaction_rule->category_id;
                 $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
                 $this->bank_transaction->bank_transaction_rule_id = $bank_transaction_rule->id;
+                
+
+                $first_result = reset($match_set);
+                
+                if($first_result[0] == Payment::class) {
+                    $payment_id = $first_result[1][0];
+                    $this->bank_transaction->payment_id = $payment_id;
+                }
+                
                 $this->bank_transaction->save();
-
-
                 //auto-convert
 
                 if ($bank_transaction_rule['auto_convert']) {
@@ -221,13 +228,13 @@ class ProcessBankRules extends AbstractService
     private function searchInvoiceResource(string $column, array $rule, $invoices)
     {
 
-        return $invoices->when($rule['search_key'] == 'description', function ($q) use ($rule, $column) {
-            return $q->cursor()->filter(function ($record) use ($rule, $column) {
+        return $invoices->when($column != 'amount', function ($q) use ($rule, $column) {
+            return $q->filter(function ($record) use ($rule, $column) {
                 return $this->matchStringOperator($this->bank_transaction->description, $record->{$column}, $rule['operator']);
             });
         })
-                ->when($rule['search_key'] == 'amount', function ($q) use ($rule, $column) {
-                    return $q->cursor()->filter(function ($record) use ($rule, $column) {
+                ->when($column == 'amount', function ($q) use ($rule, $column) {
+                    return $q->filter(function ($record) use ($rule, $column) {
                         return $this->matchNumberOperator($this->bank_transaction->amount, $record->{$column}, $rule['operator']);
                     });
                 })->pluck("id");
@@ -236,17 +243,16 @@ class ProcessBankRules extends AbstractService
 
     private function searchPaymentResource(string $column, array $rule, $payments)
     {
-
-        return $payments->when($rule['search_key'] == 'description', function ($q) use ($rule, $column) {
-            return $q->cursor()->filter(function ($record) use ($rule, $column) {
+        return $payments->when($column != 'amount', function ($q) use ($rule, $column) {
+            return $q->filter(function ($record) use ($rule, $column) {
                 return $this->matchStringOperator($this->bank_transaction->description, $record->{$column}, $rule['operator']);
             });
         })
-                ->when($rule['search_key'] == 'amount', function ($q) use ($rule, $column) {
-                    return $q->cursor()->filter(function ($record) use ($rule, $column) {
-                        return $this->matchNumberOperator($this->bank_transaction->amount, $record->{$column}, $rule['operator']);
-                    });
-                })->pluck("id");
+        ->when($column == 'amount', function ($q) use ($rule, $column) {
+            return $q->filter(function ($record) use ($rule, $column) {
+                return $this->matchNumberOperator($this->bank_transaction->amount, $record->{$column}, $rule['operator']);
+            });
+        })->pluck("id");
 
     }
 
