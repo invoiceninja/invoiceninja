@@ -24,7 +24,7 @@ class Portal extends Component
     public function mount()
     {
 
-        $this->companies = auth()->user()->account->companies->map(function ($company) {
+        $this->companies = auth()->guard('user')->check() ? auth()->guard('user')->user()->account->companies->map(function ($company) {
             return [
                 'key' => $company->company_key,
                 'city' => $company->settings->city,
@@ -37,7 +37,7 @@ class Portal extends Component
                 'zip' => $company->settings->postal_code,
                 'legal_entity_id' => $company->legal_entity_id
             ];
-        })->toArray();
+        })->toArray() : [];
 
     }
 
@@ -48,6 +48,8 @@ class Portal extends Component
         if (Auth::attempt($credentials)) {
             session()->flash('message', 'Logged in successfully.');
     
+            App::setLocale(auth()->guard('user')->user()->account->companies->first()->getLocale());
+
             $this->companies = auth()->user()->account->companies->map(function ($c){
                 return ['name' => $c->settings->name, 'company_key' => $c->company_key, 'legal_entity_id' => $c->legal_entity_id];
             })->toArray();
@@ -63,6 +65,12 @@ class Portal extends Component
         
         session()->flash('message', 'Logged out!');
 
+    }
+
+    public function register(string $company_key)
+    {
+        nlog("Please register {$company_key}");
+        sleep(5);
     }
 
     public function render()

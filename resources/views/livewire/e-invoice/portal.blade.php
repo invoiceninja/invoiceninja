@@ -1,4 +1,4 @@
-<div class="flex flex-col h-screen bg-gray-100 p-10">
+<div class="flex flex-col bg-gray-100 p-10">
 
     @if (Auth::guard('user')->check())
     <div class="w-full">
@@ -20,24 +20,64 @@
 
             @foreach($companies as $company)
 
-            <div class="w-full mx-6 md:mx-0">
-                <dl class="grid grid-cols-2 gap-4">
-                    <div class="flex items-center">
-                        <span class="font-semibold text-gray-700">Company Name:</span>
+            <div class="w-full mx-6 md:mx-0  border-b border-gray-300">
+                <dl class="grid grid-cols-2 gap-4 mb-4">
+
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.name') }}:</span>
                         <span class="ml-2 text-gray-600">{{ $company['name'] }}</span>
                     </div>
                 
-                </dl>
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.address1') }}:</span>
+                        <span class="ml-2 text-gray-600">{{ $company['line1'] }}</span>
+                    </div>
+                
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.address2') }}:</span>
+                        <span class="ml-2 text-gray-600">{{ $company['line2'] }}</span>
+                    </div>
+                
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.city') }}:</span>
+                        <span class="ml-2 text-gray-600">{{ $company['city'] }}</span>
+                    </div>
 
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.state') }}:</span>
+                        <span class="ml-2 text-gray-600">{{ $company['county'] }}</span>
+                    </div>
+                
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.postal_code') }}:</span>
+                        <span class="ml-2 text-gray-600">{{ $company['zip'] }}</span>
+                    </div>
+                
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.country') }}:</span>
+                        <span class="ml-2 text-gray-600">{{ $company['country'] }}</span>
+                    </div>
+
+                    <div class="flex items-center p-1">
+                        <span class="font-semibold text-gray-700">{{ ctrans('texts.vat_number') }}</span>
+                        <span class="ml-2 text-gray-600">{{ $company['vat_number'] }}</span>
+                    </div>
+                </dl>
                   
             </div>
 
-            <div class="p-2 border-b border-gray-300">{{ $company['legal_entity_id'] }}</div>
             <div class="p-2 border-b border-gray-300">
-                <button class="text-blue-500 hover:underline">Register</button>
+                {{ $company['legal_entity_id'] }}
             </div>
 
-        
+            <div class="p-2 border-b border-gray-300">
+                @if($company['legal_entity_id'])
+                    <p>Registered</p>
+                @else
+                    <button class="bg-blue-500 justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" wire:click="register('{{ $company['key'] }}')" wire:loading.attr="disabled">Register</button>
+                @endif
+            </div>
+
             @endforeach
 
         </div>
@@ -63,6 +103,7 @@
                     Login
                 </button>
             </div>
+            
         </form>
 
         @if (session()->has('error'))
