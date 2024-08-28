@@ -140,7 +140,7 @@ class ZugferdEDocument extends AbstractService
         } else {
             // The document exists as an expense
             // Handle accordingly
-            nlog("Document already exists");
+            nlog("Zugferd: Document already exists");
             $expense->private_notes = $expense->private_notes . ctrans("texts.edocument_import_already_exists", ["date" => time()]);
         }
         $expense->save();

@@ -162,23 +162,23 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
                     // download file and save to tmp dir
                     if (!empty($company_brevo_secret)) {
 
-                        $attachment = null;
+                        $data = null;
                         try {
 
                             $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", $company_brevo_secret));
-                            $attachment = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
+                            $data = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
 
                         } catch (\Error $e) {
                             if (config('services.brevo.secret')) {
                                 nlog("[ProcessBrevoInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                                 $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
-                                $attachment = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
+                                $data = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
 
                             } else
                                 throw $e;
                         }
-                        $inboundMail->documents[] = TempFile::UploadedFileFromRaw($attachment, $attachment["Name"], $attachment["ContentType"]);
+                        $inboundMail->documents[] = TempFile::UploadedFileFromRaw($data, $attachment["Name"], $attachment["ContentType"]);
 
                     } else {
 
