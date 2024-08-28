@@ -11,11 +11,13 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
+use App\DataMapper\Analytics\LegalEntityCreated;
 use App\Models\Company;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Http\Client\RequestException;
+use Turbo124\Beacon\Facades\LightLogs;
 
 enum HttpVerb: string
 {
@@ -240,6 +242,8 @@ class Storecove
     public function getLegalEntity($id)
     {
 
+        // $uri = "legal_entities";
+
         $uri = "legal_entities/{$id}";
 
         $r = $this->httpClient($uri, (HttpVerb::GET)->value, []);
@@ -297,7 +301,11 @@ class Storecove
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $data);
 
         if($r->successful()) {
-            return $r->json();
+            $data = $r->json();
+
+            LightLogs::create(new LegalEntityCreated($data['id'], $legal_entity_id))->batch();
+
+            return $data;
         }
 
         return $r;
@@ -347,10 +355,7 @@ class Storecove
             nlog("Server error: " . $e->getMessage());
             nlog("Response body: " . $e->getResponse()->getBody()->getContents());
         } catch (RequestException $e) {
-            nlog("Request error: " . $e->getMessage());       
-            if ($e->hasResponse()) {
-                nlog("Response body: " . $e->getResponse()->getBody()->getContents());
-            }
+            nlog("Request error: {$e->getCode()}: " . $e->getMessage());       
         }
 
         return $r;
