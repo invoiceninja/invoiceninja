@@ -65,7 +65,7 @@ class StorecoveTest extends TestCase
     // ];
 
     // $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-    // $r = $sc->createLegalEntity($data, $this->company);
+    // $r = $sc->createLegalEntity($data);
 
     //     $this->assertIsArray($r);
 

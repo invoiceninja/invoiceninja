@@ -775,32 +775,39 @@ class Peppol extends AbstractService
 
         return $asp;
     }
-
-    private function resolveTaxScheme(): mixed
+    
+    /**
+     * resolveTaxScheme
+     *
+     * @return string
+     */
+    private function resolveTaxScheme(): string
     {
-        $rules = isset($this->routing_rules[$this->invoice->client->country->iso_3166_2]) ? $this->routing_rules[$this->invoice->client->country->iso_3166_2] : [false, false, false, false,];
+        return (new StorecoveRouter())->resolveTaxScheme($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification)
 
-        $code = false;
+        // $rules = isset($this->routing_rules[$this->invoice->client->country->iso_3166_2]) ? $this->routing_rules[$this->invoice->client->country->iso_3166_2] : [false, false, false, false,];
 
-        match($this->invoice->client->classification) {
-            "business" => $code = "B",
-            "government" => $code = "G",
-            "individual" => $code = "C",
-            default => $code = false,
-        };
+        // $code = false;
 
-        //single array
-        if(is_array($rules) && !is_array($rules[0])) {
-            return $rules[2];
-        }
+        // match($this->invoice->client->classification) {
+        //     "business" => $code = "B",
+        //     "government" => $code = "G",
+        //     "individual" => $code = "C",
+        //     default => $code = false,
+        // };
 
-        foreach($rules as $rule) {
-            if(stripos($rule[0], $code) !== false) {
-                return $rule[2];
-            }
-        }
+        // //single array
+        // if(is_array($rules) && !is_array($rules[0])) {
+        //     return $rules[2];
+        // }
 
-        return false;
+        // foreach($rules as $rule) {
+        //     if(stripos($rule[0], $code) !== false) {
+        //         return $rule[2];
+        //     }
+        // }
+
+        // return false;
     }
 
     private function getAccountingCustomerParty(): AccountingCustomerParty
@@ -912,20 +919,22 @@ class Peppol extends AbstractService
 
     private function getClientRoutingCode(): string
     {
-        $receiver_identifiers = $this->routing_rules[$this->invoice->client->country->iso_3166_2];
-        $client_classification = $this->invoice->client->classification == 'government' ? 'G' : 'B';
+        // $receiver_identifiers = $this->routing_rules[$this->invoice->client->country->iso_3166_2];
+        // $client_classification = $this->invoice->client->classification == 'government' ? 'G' : 'B';
 
-        if(count($receiver_identifiers) > 1) {
+        // if(count($receiver_identifiers) > 1) {
 
-            foreach($receiver_identifiers as $ident) {
-                if(str_contains($ident[0], $client_classification)) {
-                    return $ident[3];
-                }
-            }
+        //     foreach($receiver_identifiers as $ident) {
+        //         if(str_contains($ident[0], $client_classification)) {
+        //             return $ident[3];
+        //         }
+        //     }
 
-        } elseif(count($receiver_identifiers) == 1) {
-            return $receiver_identifiers[3];
-        }
+        // } elseif(count($receiver_identifiers) == 1) {
+        //     return $receiver_identifiers[3];
+        // }
+        
+        return (new StorecoveRouter())->resolveRouting($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification)
 
         throw new \Exception("e-invoice generation halted:: Could not resolve the Tax Code for this client? {$this->invoice->client->hashed_id}");
 

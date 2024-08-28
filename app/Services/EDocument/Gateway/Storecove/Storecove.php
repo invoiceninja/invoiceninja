@@ -49,8 +49,11 @@ class Storecove
         "identifier" => "1200109963131"
     ];
 
+    public StorecoveRouter $router;
+
     public function __construct()
     {
+        $this->router = new StorecoveRouter();
     }
     
     /**
@@ -190,23 +193,30 @@ class Storecove
      * 
      * @return mixed
      */
-    public function createLegalEntity(array $data, Company $company)
+    public function createLegalEntity(array $data, ?Company $company = null)
     {
         $uri = 'legal_entities';
+
+        if($company){
+
+            $data = array_merge([            
+                'city' => $company->settings->city,
+                'country' => $company->country()->iso_3166_2,
+                'county' => $company->settings->state,
+                'line1' => $company->settings->address1,
+                'line2' => $company->settings->address2,
+                'party_name' => $company->settings->name,
+                'tax_registered' => (bool)strlen($company->settings->vat_number ?? '') > 2,
+                'tenant_id' => $company->company_key,
+                'zip' => $company->settings->postal_code,
+            ], $data);
+
+        }
 
         $company_defaults = [
             'acts_as_receiver' => true,
             'acts_as_sender' => true,
             'advertisements' => ['invoice'],
-            'city' => $company->settings->city,
-            'country' => $company->country()->iso_3166_2,
-            'county' => $company->settings->state,
-            'line1' => $company->settings->address1,
-            'line2' => $company->settings->address2,
-            'party_name' => $company->settings->name,
-            'tax_registered' => true,
-            'tenant_id' => $company->company_key,
-            'zip' => $company->settings->postal_code,
         ];
 
         $payload = array_merge($company_defaults, $data);
@@ -331,15 +341,15 @@ class Storecove
         catch (ClientException $e) {
             // 4xx errors
             nlog("Client error: " . $e->getMessage());
-            nlog("\nResponse body: " . $e->getResponse()->getBody()->getContents());
+            nlog("Response body: " . $e->getResponse()->getBody()->getContents());
         } catch (ServerException $e) {
             // 5xx errors
             nlog("Server error: " . $e->getMessage());
-            nlog("\nResponse body: " . $e->getResponse()->getBody()->getContents());
+            nlog("Response body: " . $e->getResponse()->getBody()->getContents());
         } catch (RequestException $e) {
             nlog("Request error: " . $e->getMessage());       
             if ($e->hasResponse()) {
-                nlog("\nResponse body: " . $e->getResponse()->getBody()->getContents());
+                nlog("Response body: " . $e->getResponse()->getBody()->getContents());
             }
         }
 

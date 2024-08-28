@@ -12,6 +12,7 @@
 namespace App\Livewire\EInvoice;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 
 class Portal extends Component
@@ -20,6 +21,8 @@ class Portal extends Component
     public $password = '';
 
     public array $companies;
+
+    private string $api_url = 'https://invoicing.co'
 
     public function mount()
     {
@@ -50,9 +53,24 @@ class Portal extends Component
     
             App::setLocale(auth()->guard('user')->user()->account->companies->first()->getLocale());
 
-            $this->companies = auth()->user()->account->companies->map(function ($c){
-                return ['name' => $c->settings->name, 'company_key' => $c->company_key, 'legal_entity_id' => $c->legal_entity_id];
-            })->toArray();
+            $this->companies = auth()->guard('user')->check() ? auth()->guard('user')->user()->account->companies->map(function ($company) {
+                return [
+                    'key' => $company->company_key,
+                    'city' => $company->settings->city,
+                    'country' => $company->country()->iso_3166_2,
+                    'county' => $company->settings->state,
+                    'line1' => $company->settings->address1,
+                    'line2' => $company->settings->address2,
+                    'party_name' => $company->settings->name,
+                    'vat_number' => $company->settings->vat_number,
+                    'zip' => $company->settings->postal_code,
+                    'legal_entity_id' => $company->legal_entity_id,
+                    'tax_registered' => (bool) strlen($company->settings->vat_number ?? '') > 2,
+                    'tenant_id' => $company->company_key,
+                    'classification' => strlen($company->settings->classification ?? '') > 2 ? $company->settings->classification : 'business',
+                ];
+            })->toArray() : [];
+
 
         } else {
             session()->flash('error', 'Invalid credentials.');
@@ -69,8 +87,33 @@ class Portal extends Component
 
     public function register(string $company_key)
     {
-        nlog("Please register {$company_key}");
-        sleep(5);
+
+        $register_company = [            
+            'acts_as_receiver' => true,
+            'acts_as_sender' => true,
+            'advertisements' => ['invoice']
+        ];
+
+        foreach($this->companies as $company)
+        {
+            if($company['key'] == $company_key)
+                $register_company = array_merge($company, $register_company);
+        }
+
+        $r = Http::withHeaders($this->getHeaders())
+                    ->post("{$api_url}/api/einvoice/createLegalEntity", $register_company);
+
+        if($r->successful())
+        {
+            $response = $r->json();
+        }
+    }
+
+    private function getHeaders()
+    {
+        return [
+            'X-API-SELF-HOST-TOKEN' => config('ninja.license_key'),
+        ];
     }
 
     public function render()

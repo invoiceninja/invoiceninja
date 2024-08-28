@@ -1,18 +1,33 @@
-<div class="flex flex-col bg-gray-100 p-10">
+<div class="flex flex-col p-10">
 
     @if (Auth::guard('user')->check())
-    <div class="w-full">
-        <div class="w-1/4 float-right">
+    <div class="flex mx-auto gap-4">
+
+        <div class="w-7/8 mr-auto">
+            <h2 class="text-2xl font-semibold text-gray-800">E-Invoice Beta Phase</h2>
+            <p class="py-2">Hey there!</p>
+            <p class="py-2">Thanks for joining us on our pilot program for e-invoicing for self hosted users. Our aim is to allow you to send your einvoices through the PEPPOL network via Invoice Ninja.</p>
+            <p class="py-2">Our hosted servers will proxy your einvoices into the PEPPOL network for you, and also route einvoices back to you via Webhooks.</p>
+            <h3 class="text-2xl font-semibold text-gray-800 py-4">Configuration:</h3>
+            <p class="py-2">To start sending einvoices via the PEPPOL network, you are required to create a Legal Entity ID, this will be your network address in the PEPPOL network. The tabled data below is what will be used to register your legal entity, please confirm the details are correct prior to registering.</p>
+            <p class="py-2">If you are in a region which requires routing directly to the government, such as Spain, Italy or Romania, you are required to have already registered with your government for the sending of einvoices.</p>
+            <p class="py-2">In your .env file, add the variable LICENSE_KEY= with your self hosted white label license key - this is used for authentication with our servers, and to register the sending entity. You will also want to contact us to ensure we have configured your license for this beta test! 
+            <p class="py-2">For discussion, help and troubleshooting, please use the slack channel #einvoicing.</p>
+        </div>
+
+        <div class="w-1/8 ml-auto">
             <h1 class="text-2xl font-semibold text-gray-800">Welcome, {{ Auth::guard('user')->user()->first_name }}!</h1>
-                <div class="flex justify-between">
-                    <button wire:click="logout" class="w-full flex bg-blue-500 justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Logout
-                    </button>
-                </div>
+            <div class="flex justify-between">
+                <button wire:click="logout" class="w-full flex bg-blue-500 justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Logout
+                </button>
+            </div>
         </div>
     </div>
+    
     <div class="w-full flex-grow py-10 items-center justify-between">
-        <div class="grid lg:grid-cols-3 mx-6 md:mx-0 md:my-2 border border-gray-300 rounded-lg shadow-md">
+
+        <div class="grid lg:grid-cols-3 mx-6 md:mx-0 md:my-2 border border-gray-300 rounded-lg shadow-md  bg-gray-100">
 
         <div class="font-semibold p-2 bg-gray-200 border-b border-gray-300">Name</div>
         <div class="font-semibold p-2 bg-gray-200 border-b border-gray-300">Legal Entity Id</div>
@@ -25,7 +40,7 @@
 
                     <div class="flex items-center p-1">
                         <span class="font-semibold text-gray-700">{{ ctrans('texts.name') }}:</span>
-                        <span class="ml-2 text-gray-600">{{ $company['name'] }}</span>
+                        <span class="ml-2 text-gray-600">{{ $company['party_name'] }}</span>
                     </div>
                 
                     <div class="flex items-center p-1">
@@ -79,6 +94,7 @@
             </div>
 
             @endforeach
+            
 
         </div>
     </div>
