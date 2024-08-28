@@ -99,10 +99,10 @@ class StorecoveRouter
      * Return the routing code based on country and entity classification
      *
      * @param  string $country
-     * @param  string $classification
+     * @param  ?string $classification
      * @return string
      */
-    public function resolveRouting(string $country, string $classification): string
+    public function resolveRouting(string $country, ?string $classification = 'business'): string
     {
         $rules = $this->routing_rules[$country];
         
@@ -133,7 +133,7 @@ class StorecoveRouter
      * @param  ?string $classification
      * @return string
      */
-    public function resolveTaxScheme(string $country, ?string $classification): string
+    public function resolveTaxScheme(string $country, ?string $classification = "business"): string
     {
                 
         $rules = isset($this->routing_rules[$country]) ? $this->routing_rules[$country] : [false, false, false, false];
