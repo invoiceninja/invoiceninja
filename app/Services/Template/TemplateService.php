@@ -980,6 +980,7 @@ class TemplateService
         return [
             'name' => $user->present()->name(),
             'email' => $user->email,
+            'signature' => $user->signature ?? '',
         ];
     }
 
