@@ -302,9 +302,7 @@ class Storecove
 
         if($r->successful()) {
             $data = $r->json();
-
-            LightLogs::create(new LegalEntityCreated($data['id'], $legal_entity_id))->batch();
-
+            
             return $data;
         }
 

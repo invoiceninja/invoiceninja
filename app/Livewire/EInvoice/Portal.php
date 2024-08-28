@@ -14,6 +14,7 @@ namespace App\Livewire\EInvoice;
 use Livewire\Component;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class Portal extends Component
 {
@@ -25,10 +26,17 @@ class Portal extends Component
     // private string $api_url = 'https://invoicing.co'
 
     private string $api_url = 'http://ninja.test:8000';
-    
+
     public function mount()
     {
 
+        $this->getCompanies();
+
+    }
+
+    private function getCompanies(): self
+    {
+                
         $this->companies = auth()->guard('user')->check() ? auth()->guard('user')->user()->account->companies->map(function ($company) {
             return [
                 'key' => $company->company_key,
@@ -37,12 +45,17 @@ class Portal extends Component
                 'county' => $company->settings->state,
                 'line1' => $company->settings->address1,
                 'line2' => $company->settings->address2,
-                'name' => $company->settings->name,
+                'party_name' => $company->settings->name,
                 'vat_number' => $company->settings->vat_number,
                 'zip' => $company->settings->postal_code,
-                'legal_entity_id' => $company->legal_entity_id
+                'legal_entity_id' => $company->legal_entity_id,
+                'tax_registered' => (bool) strlen($company->settings->vat_number ?? '') > 2,
+                'tenant_id' => $company->company_key,
+                'classification' => strlen($company->settings->classification ?? '') > 2 ? $company->settings->classification : 'business',
             ];
         })->toArray() : [];
+
+        return $this;
 
     }
 
@@ -55,23 +68,7 @@ class Portal extends Component
     
             App::setLocale(auth()->guard('user')->user()->account->companies->first()->getLocale());
 
-            $this->companies = auth()->guard('user')->check() ? auth()->guard('user')->user()->account->companies->map(function ($company) {
-                return [
-                    'key' => $company->company_key,
-                    'city' => $company->settings->city,
-                    'country' => $company->country()->iso_3166_2,
-                    'county' => $company->settings->state,
-                    'line1' => $company->settings->address1,
-                    'line2' => $company->settings->address2,
-                    'party_name' => $company->settings->name,
-                    'vat_number' => $company->settings->vat_number,
-                    'zip' => $company->settings->postal_code,
-                    'legal_entity_id' => $company->legal_entity_id,
-                    'tax_registered' => (bool) strlen($company->settings->vat_number ?? '') > 2,
-                    'tenant_id' => $company->company_key,
-                    'classification' => strlen($company->settings->classification ?? '') > 2 ? $company->settings->classification : 'business',
-                ];
-            })->toArray() : [];
+            $this->getCOmpanies();
 
 
         } else {
@@ -102,18 +99,30 @@ class Portal extends Component
                 $register_company = array_merge($company, $register_company);
         }
 
+        nlog("{$this->api_url}/api/einvoice/createLegalEntity");
+        nlog($register_company);
+
         $r = Http::withHeaders($this->getHeaders())
-                    ->post("{$api_url}/api/einvoice/createLegalEntity", $register_company);
+                    ->post("{$this->api_url}/api/einvoice/createLegalEntity", $register_company);
 
         if($r->successful())
         {
+            nlog($r->json());
+            nlog($r->body());
             $response = $r->json();
             
-            $_company = auth()->guard('user')->user()->account->companies()->where('company_id', $company_key)->first();
+            $_company = auth()->guard('user')->user()->account->companies()->where('company_key', $company_key)->first();
             $_company->legal_entity_id = $response['id'];
             $_company->save();
+
+            $this->getCompanies();
+            
             return;
         }
+
+        if($r->failed())
+            nlog($r->getBody()->getContents());
+
 
         $error = json_decode($r->getBody()->getContents(),true);
 
@@ -125,6 +134,8 @@ class Portal extends Component
     {
         return [
             'X-API-SELF-HOST-TOKEN' => config('ninja.license_key'),
+            "X-Requested-With" => "XMLHttpRequest",
+            "Content-Type" => "application/json",
         ];
     }
 
