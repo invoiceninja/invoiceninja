@@ -46,11 +46,11 @@ class ParseEDocument extends AbstractService
 
         // ZUGFERD - try to parse via Zugferd lib
         switch (true) {
-            case $this->file->getExtension() == 'pdf':
-            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
-            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
-            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
-            case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
+            case ($this->file->getExtension() == 'pdf' || $this->file->getMimeType() == 'application/pdf'):
+            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
+            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
+            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
+            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
                 try {
                     return (new ZugferdEDocument($this->file, $this->company))->run();
                 } catch (Exception $e) {

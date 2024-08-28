@@ -229,19 +229,19 @@ class InboundMailEngine
             if (!$expense->vendor_id && $expense_vendor)
                 $expense->vendor_id = $expense_vendor->id;
 
+            if ($is_imported_by_parser)
+                $expense->saveQuietly();
+            else
+                $expense->save();
+
             // save document only, when not imported by parser
             $documents = [];
-            if ($is_imported_by_parser)
+            if (!$is_imported_by_parser)
                 array_push($documents, $document);
 
             // email document
             if ($email->body_document !== null)
                 array_push($documents, $email->body_document);
-
-            if ($is_imported_by_parser)
-                $expense->saveQuietly();
-            else
-                $expense->save();
 
             $this->saveDocuments($documents, $expense);
 
