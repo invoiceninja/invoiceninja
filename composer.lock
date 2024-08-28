@@ -535,16 +535,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.320.5",
+            "version": "3.320.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "afda5aefd59da90208d2f59427ce81e91535b1f2"
+                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/afda5aefd59da90208d2f59427ce81e91535b1f2",
-                "reference": "afda5aefd59da90208d2f59427ce81e91535b1f2",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1284cecc00d4ac80815c542ef3882d3a7a25ac50",
+                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50",
                 "shasum": ""
             },
             "require": {
@@ -627,9 +627,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.9"
             },
-            "time": "2024-08-21T18:14:31+00:00"
+            "time": "2024-08-27T18:06:27+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -975,16 +975,16 @@
         },
         {
             "name": "checkout/checkout-sdk-php",
-            "version": "3.2.2",
+            "version": "3.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/checkout/checkout-sdk-php.git",
-                "reference": "ac757648271894e3c30b7bc58ff08ba1b5b84de8"
+                "reference": "637444a331271a925a9e77fbc49adf2ea2dbd976"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/ac757648271894e3c30b7bc58ff08ba1b5b84de8",
-                "reference": "ac757648271894e3c30b7bc58ff08ba1b5b84de8",
+                "url": "https://api.github.com/repos/checkout/checkout-sdk-php/zipball/637444a331271a925a9e77fbc49adf2ea2dbd976",
+                "reference": "637444a331271a925a9e77fbc49adf2ea2dbd976",
                 "shasum": ""
             },
             "require": {
@@ -1037,9 +1037,9 @@
             ],
             "support": {
                 "issues": "https://github.com/checkout/checkout-sdk-php/issues",
-                "source": "https://github.com/checkout/checkout-sdk-php/tree/3.2.2"
+                "source": "https://github.com/checkout/checkout-sdk-php/tree/3.2.3"
             },
-            "time": "2024-08-02T08:07:53+00:00"
+            "time": "2024-08-27T13:59:31+00:00"
         },
         {
             "name": "composer/ca-bundle",
@@ -2522,16 +2522,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.369.0",
+            "version": "v0.370.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "002f610e4c3acf0636b4fb1f46314a2097e1c8b4"
+                "reference": "25ad8515701dd832313d0f5f0a828670d60e541a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/002f610e4c3acf0636b4fb1f46314a2097e1c8b4",
-                "reference": "002f610e4c3acf0636b4fb1f46314a2097e1c8b4",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/25ad8515701dd832313d0f5f0a828670d60e541a",
+                "reference": "25ad8515701dd832313d0f5f0a828670d60e541a",
                 "shasum": ""
             },
             "require": {
@@ -2560,22 +2560,22 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.369.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.370.0"
             },
-            "time": "2024-08-14T20:31:16+00:00"
+            "time": "2024-08-26T01:04:18+00:00"
         },
         {
             "name": "google/auth",
-            "version": "v1.41.0",
+            "version": "v1.42.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-auth-library-php.git",
-                "reference": "1043ea18fe7f5dfbf5b208ce3ee6d6b6ab8cb038"
+                "reference": "0c25599a91530b5847f129b271c536f75a7563f5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/1043ea18fe7f5dfbf5b208ce3ee6d6b6ab8cb038",
-                "reference": "1043ea18fe7f5dfbf5b208ce3ee6d6b6ab8cb038",
+                "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/0c25599a91530b5847f129b271c536f75a7563f5",
+                "reference": "0c25599a91530b5847f129b271c536f75a7563f5",
                 "shasum": ""
             },
             "require": {
@@ -2620,9 +2620,9 @@
             "support": {
                 "docs": "https://googleapis.github.io/google-auth-library-php/main/",
                 "issues": "https://github.com/googleapis/google-auth-library-php/issues",
-                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.41.0"
+                "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.42.0"
             },
-            "time": "2024-07-10T15:21:07+00:00"
+            "time": "2024-08-26T18:33:48+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -3999,12 +3999,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "d4f80316744bbd31245900ec9799a6f66a663ed6"
+                "reference": "a737e30c522358d07a191145958f65f73f1e2bab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/d4f80316744bbd31245900ec9799a6f66a663ed6",
-                "reference": "d4f80316744bbd31245900ec9799a6f66a663ed6",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/a737e30c522358d07a191145958f65f73f1e2bab",
+                "reference": "a737e30c522358d07a191145958f65f73f1e2bab",
                 "shasum": ""
             },
             "require": {
@@ -4046,7 +4046,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-07-22T02:40:27+00:00"
+            "time": "2024-08-28T02:59:05+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -15659,16 +15659,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.62.0",
+            "version": "v3.63.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "627692f794d35c43483f34b01d94740df2a73507"
+                "reference": "ee3cc2e1fbfbddf98c17d4615db574a2a311c1ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/627692f794d35c43483f34b01d94740df2a73507",
-                "reference": "627692f794d35c43483f34b01d94740df2a73507",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/ee3cc2e1fbfbddf98c17d4615db574a2a311c1ea",
+                "reference": "ee3cc2e1fbfbddf98c17d4615db574a2a311c1ea",
                 "shasum": ""
             },
             "require": {
@@ -15750,7 +15750,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.62.0"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.63.1"
             },
             "funding": [
                 {
@@ -15758,7 +15758,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-07T17:03:09+00:00"
+            "time": "2024-08-26T14:03:20+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -16427,16 +16427,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.11.11",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "707c2aed5d8d0075666e673a5e71440c1d01a5a3"
+                "reference": "384af967d35b2162f69526c7276acadce534d0e1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/707c2aed5d8d0075666e673a5e71440c1d01a5a3",
-                "reference": "707c2aed5d8d0075666e673a5e71440c1d01a5a3",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/384af967d35b2162f69526c7276acadce534d0e1",
+                "reference": "384af967d35b2162f69526c7276acadce534d0e1",
                 "shasum": ""
             },
             "require": {
@@ -16481,36 +16481,36 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-19T14:37:29+00:00"
+            "time": "2024-08-27T09:18:05+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "10.1.15",
+            "version": "10.1.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "5da8b1728acd1e6ffdf2ff32ffbdfd04307f26ae"
+                "reference": "7e308268858ed6baedc8704a304727d20bc07c77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/5da8b1728acd1e6ffdf2ff32ffbdfd04307f26ae",
-                "reference": "5da8b1728acd1e6ffdf2ff32ffbdfd04307f26ae",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/7e308268858ed6baedc8704a304727d20bc07c77",
+                "reference": "7e308268858ed6baedc8704a304727d20bc07c77",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^4.18 || ^5.0",
+                "nikic/php-parser": "^4.19.1 || ^5.1.0",
                 "php": ">=8.1",
-                "phpunit/php-file-iterator": "^4.0",
-                "phpunit/php-text-template": "^3.0",
-                "sebastian/code-unit-reverse-lookup": "^3.0",
-                "sebastian/complexity": "^3.0",
-                "sebastian/environment": "^6.0",
-                "sebastian/lines-of-code": "^2.0",
-                "sebastian/version": "^4.0",
-                "theseer/tokenizer": "^1.2.0"
+                "phpunit/php-file-iterator": "^4.1.0",
+                "phpunit/php-text-template": "^3.0.1",
+                "sebastian/code-unit-reverse-lookup": "^3.0.0",
+                "sebastian/complexity": "^3.2.0",
+                "sebastian/environment": "^6.1.0",
+                "sebastian/lines-of-code": "^2.0.2",
+                "sebastian/version": "^4.0.1",
+                "theseer/tokenizer": "^1.2.3"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.1"
@@ -16522,7 +16522,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "10.1-dev"
+                    "dev-main": "10.1.x-dev"
                 }
             },
             "autoload": {
@@ -16551,7 +16551,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/10.1.15"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/10.1.16"
             },
             "funding": [
                 {
@@ -16559,7 +16559,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-06-29T08:25:15+00:00"
+            "time": "2024-08-22T04:31:57+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",

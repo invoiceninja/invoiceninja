@@ -11,8 +11,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Company;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Repositories\BaseRepository;
 
 /**
  * CompanyRepository.
@@ -57,10 +58,36 @@ class CompanyRepository extends BaseRepository
             $company->smtp_password = $data['smtp_password'];
         }
 
+        if(isset($data['e_invoice'])){
+            //ensure it is normalized first!
+
+            $data['e_invoice'] = $this->arrayFilterRecursive($data['e_invoice']);
+
+            $company->e_invoice = $data['e_invoice'];
+        }
+
         $company->save();
 
         return $company;
     }
+
+    
+    private function arrayFilterRecursive(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                // Recursively filter the nested array
+                $array[$key] = $this->arrayFilterRecursive($value);
+            }
+            // Remove null values
+            if (is_null($array[$key])) {
+                unset($array[$key]);
+            }
+        }
+
+        return $array;
+    }
+
 
     /**
      * parseCustomFields
