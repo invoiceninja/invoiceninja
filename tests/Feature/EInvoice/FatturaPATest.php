@@ -129,6 +129,8 @@ class FatturaPATest extends TestCase
         $e = new EInvoice();
         $errors = $e->validate($fe);
 
+        
+
         if(count($errors) > 0) {
             nlog($errors);
         }
