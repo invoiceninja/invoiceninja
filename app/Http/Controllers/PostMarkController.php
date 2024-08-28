@@ -320,7 +320,9 @@ class PostMarkController extends BaseController
 
         // perform
         try {
+
             $inboundEngine->handleExpenseMailbox($inboundMail);
+
         } catch (\Exception $e) {
             if ($e->getCode() == 409)
                 return response()->json(['message' => $e->getMessage()], 409);

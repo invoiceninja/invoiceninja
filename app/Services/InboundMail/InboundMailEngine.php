@@ -204,18 +204,18 @@ class InboundMailEngine
                 // throw error, only, when its not expected
                 switch (true) {
                     case ($err->getMessage() === 'E-Invoice standard not supported'):
-                    case ($err->getMessage() === 'File type not supported'):
+                    case ($err->getMessage() === 'File type not supported or issue while parsing'):
                         break;
                     default:
                         throw $err;
                 }
             }
 
-            $is_imported_by_parser = array_search($expense->id, $parsed_expense_ids);
-
             // populate missing data with data from email
             if (!$expense)
                 $expense = ExpenseFactory::create($company->id, $company->owner()->id);
+
+            $is_imported_by_parser = array_search($expense->id, $parsed_expense_ids);
 
             if ($is_imported_by_parser)
                 $expense->public_notes = $expense->public_notes . $email->subject;
@@ -238,12 +238,12 @@ class InboundMailEngine
             if ($email->body_document !== null)
                 array_push($documents, $email->body_document);
 
-            $this->saveDocuments($documents, $expense);
-
             if ($is_imported_by_parser)
                 $expense->saveQuietly();
             else
                 $expense->save();
+
+            $this->saveDocuments($documents, $expense);
 
         }
     }
