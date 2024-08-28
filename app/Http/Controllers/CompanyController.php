@@ -707,7 +707,7 @@ class CompanyController extends BaseController
     }
 
     /**
-     * 
+     *
      *
      * @return \Symfony\Component\HttpFoundation\StreamedResponse | \Illuminate\Http\JsonResponse
      */

@@ -99,7 +99,7 @@ class TransactionTransformer implements BankRevenueInterface
         } elseif (array_key_exists('internalTransactionId', $transaction)) {
             $transactionId = $transaction["internalTransactionId"];
         } else {
-            nlog(`Invalid Input for nordigen transaction transformer: ` . $transaction);
+            nlog('Invalid Input for nordigen transaction transformer: ' . $transaction);
             throw new \Exception('invalid dataset: missing transactionId - Please report this error to the developer');
         }
 
@@ -165,7 +165,7 @@ class TransactionTransformer implements BankRevenueInterface
 
         /** @var \App\Models\Currency $currency */
         return $currency ? $currency->id : 1; //@phpstan-ignore-line
-        
+
     }
 
     private function formatDate(string $input)

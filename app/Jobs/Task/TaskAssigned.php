@@ -48,12 +48,11 @@ class TaskAssigned implements ShouldQueue
 
         $company_user = $this->task->assignedCompanyUser();
 
-        if(($company_user instanceof CompanyUser) && $this->findEntityAssignedNotification($company_user, 'task'))
-        {
+        if(($company_user instanceof CompanyUser) && $this->findEntityAssignedNotification($company_user, 'task')) {
             $mo = new EmailObject();
             $mo->subject = ctrans('texts.task_assigned_subject', ['task' => $this->task->number, 'date' => now()->setTimeZone($this->task->company->timezone()->name)->format($this->task->company->date_format()) ]);
-            $mo->body = ctrans('texts.task_assigned_body',['task' => $this->task->number, 'description' => $this->task->description ?? '', 'client' => $this->task->client ? $this->task->client->present()->name() : ' ']);
-            $mo->text_body = ctrans('texts.task_assigned_body',['task' => $this->task->number, 'description' => $this->task->description ?? '', 'client' => $this->task->client ? $this->task->client->present()->name() : ' ']);
+            $mo->body = ctrans('texts.task_assigned_body', ['task' => $this->task->number, 'description' => $this->task->description ?? '', 'client' => $this->task->client ? $this->task->client->present()->name() : ' ']);
+            $mo->text_body = ctrans('texts.task_assigned_body', ['task' => $this->task->number, 'description' => $this->task->description ?? '', 'client' => $this->task->client ? $this->task->client->present()->name() : ' ']);
             $mo->company_key = $this->task->company->company_key;
             $mo->html_template = 'email.template.generic';
             $mo->to = [new Address($this->task->assigned_user->email, $this->task->assigned_user->present()->name())];
@@ -61,7 +60,7 @@ class TaskAssigned implements ShouldQueue
             $mo->email_template_subject = 'task_assigned_subject';
 
             (new Email($mo, $this->task->company))->handle();
-            
+
         }
 
     }

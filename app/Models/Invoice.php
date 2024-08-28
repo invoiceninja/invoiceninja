@@ -431,9 +431,9 @@ class Invoice extends BaseModel
 
     public function isPayable(): bool
     {
-        if($this->is_deleted)
+        if($this->is_deleted || $this->status_id == self::STATUS_PAID) {
             return false;
-        elseif ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
+        } elseif ($this->status_id == self::STATUS_DRAFT && $this->is_deleted == false) {
             return true;
         } elseif ($this->status_id == self::STATUS_SENT && $this->is_deleted == false) {
             return true;
@@ -614,17 +614,17 @@ class Invoice extends BaseModel
                 event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
                 break;
             case 'reminder1':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
             case 'reminder2':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
             case 'reminder3':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
             case 'reminder_endless':
             case 'endless_reminder':
-                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $template));
+                event(new InvoiceReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
             case 'custom1':
             case 'custom2':
@@ -714,22 +714,22 @@ class Invoice extends BaseModel
         return $tax_type;
     }
 
-    public function typeIdString($id)
-    {
-        $type = '';
-        match($id) {
-            '1' => $type = ctrans('texts.product'),
-            '2' => $type = ctrans('texts.service'),
-            '3' => $type = ctrans('texts.gateway_fees'),
-            '4' => $type = ctrans('texts.gateway_fees'),
-            '5' => $type = ctrans('texts.late_fees'),
-            '6' => $type = ctrans('texts.expense'),
-            default => $type = ctrans('texts.product'),
-        };
+    // public function typeIdString($id)
+    // {
+    //     $type = '';
+    //     match($id) {
+    //         '1' => $type = ctrans('texts.product'),
+    //         '2' => $type = ctrans('texts.service'),
+    //         '3' => $type = ctrans('texts.gateway_fees'),
+    //         '4' => $type = ctrans('texts.gateway_fees'),
+    //         '5' => $type = ctrans('texts.late_fees'),
+    //         '6' => $type = ctrans('texts.expense'),
+    //         default => $type = ctrans('texts.product'),
+    //     };
 
-        return $type;
+    //     return $type;
 
-    }
+    // }
 
     public function reminderSchedule(): string
     {

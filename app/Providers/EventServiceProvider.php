@@ -536,7 +536,7 @@ class EventServiceProvider extends ServiceProvider
         QuoteWasRestored::class => [
             QuoteRestoredActivity::class,
         ],
-        QuoteReminderWasEmailed::class =>[
+        QuoteReminderWasEmailed::class => [
             QuoteReminderEmailActivity::class,
             // QuoteEmailedNotification::class,
         ],

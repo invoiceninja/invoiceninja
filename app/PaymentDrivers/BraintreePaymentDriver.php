@@ -241,7 +241,6 @@ class BraintreePaymentDriver extends BaseDriver
         ]);
 
         if ($result->success) {
-            $this->confirmGatewayFee();
 
             $data = [
                 'payment_type' => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
@@ -249,6 +248,8 @@ class BraintreePaymentDriver extends BaseDriver
                 'transaction_reference' => $result->transaction->id,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
             ];
+            
+            $this->confirmGatewayFee($data);
 
             $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 

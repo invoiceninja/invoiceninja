@@ -934,7 +934,7 @@ class BaseController extends Controller
             } elseif (in_array($this->entity_type, [Design::class, GroupSetting::class, PaymentTerm::class, TaskStatus::class])) {
                 // nlog($this->entity_type);
             } else {
-                $query->where(function ($q) use ($user){ //grouping these together improves query performance significantly)
+                $query->where(function ($q) use ($user) { //grouping these together improves query performance significantly)
                     $q->where('user_id', '=', $user->id)->orWhere('assigned_user_id', $user->id);
                 });
             }
@@ -996,7 +996,7 @@ class BaseController extends Controller
 
                 if(request()->has('einvoice')) {
 
-                    if(class_exists(Schema::class)){
+                    if(class_exists(Schema::class)) {
                         $ro = new Schema();
                         $response_data['einvoice_schema'] = $ro('Peppol');
                     }

@@ -256,7 +256,7 @@ class RegisterOrLogin extends Component
 
     public function render()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 

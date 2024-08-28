@@ -98,7 +98,7 @@ class PurchaseOrderExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    
+
                     /** @var \App\Models\PurchaseOrder $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
@@ -121,9 +121,9 @@ class PurchaseOrderExport extends BaseExport
 
         $query->cursor()
             ->each(function ($purchase_order) {
-                
-            /** @var \App\Models\PurchaseOrder $purchase_order */
-            $this->csv->insertOne($this->buildRow($purchase_order));
+
+                /** @var \App\Models\PurchaseOrder $purchase_order */
+                $this->csv->insertOne($this->buildRow($purchase_order));
             });
 
         return $this->csv->toString();

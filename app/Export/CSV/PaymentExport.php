@@ -92,7 +92,7 @@ class PaymentExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    
+
                     /** @var \App\Models\Payment $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
@@ -114,8 +114,8 @@ class PaymentExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                
-                    /** @var \App\Models\Payment $entity */
+
+                  /** @var \App\Models\Payment $entity */
                   $this->csv->insertOne($this->buildRow($entity));
               });
 

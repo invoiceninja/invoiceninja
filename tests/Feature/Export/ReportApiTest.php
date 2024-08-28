@@ -23,10 +23,10 @@ class ReportApiTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    
+
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

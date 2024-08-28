@@ -273,14 +273,14 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                 ]
             ];
 
-
-        if($shipping = $this->getShippingAddress()) {
+        if($shipping = $this->getShippingAddress()) 
             $order['purchase_units'][0]["shipping"] = $shipping;
-        }
 
-        if(isset($data['payment_source'])) {
+        if(isset($data['payment_source'])) 
             $order['payment_source'] = $data['payment_source'];
-        }
+
+        if(isset($data['payer']))
+            $order['payer'] = $data['payer'];
 
         $r = $this->gatewayRequest('/v2/checkout/orders', 'post', $order);
 
@@ -316,7 +316,16 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                                  ->firstOrFail();
 
         $orderId = $response['orderID'];
+
         $r = $this->gatewayRequest("/v1/checkout/orders/{$orderId}/", 'delete', ['body' => '']);
+
+        $data["payer"] = [
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name()
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
 
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
@@ -392,6 +401,14 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
     {
         $data = [];
         $this->payment_hash = $payment_hash;
+
+        $data["payer"] = [
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name()
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
 
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [

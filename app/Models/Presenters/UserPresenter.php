@@ -95,4 +95,9 @@ class UserPresenter extends EntityPresenter
     {
         return $this->entity->phone ?? ' ';
     }
+
+    public function email(): string
+    {
+        return $this->entity->email ?? ' ';
+    }
 }

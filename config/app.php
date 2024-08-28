@@ -217,7 +217,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Collector' => Turbo124\Beacon\CollectorFacade::class,
         'CustomMessage' => App\Utils\ClientPortal\CustomMessage\CustomMessageFacade::class,
-        'Redis'        => Illuminate\Support\Facades\Redis::class,
+        'Redis'        => Illuminate\Support\Facades\Redis::class
     ])->toArray(),
 
 ];

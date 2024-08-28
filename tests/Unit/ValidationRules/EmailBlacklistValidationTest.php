@@ -20,14 +20,14 @@ use Tests\TestCase;
  */
 class EmailBlacklistValidationTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }
 
     public function testValidEmailRule()
     {
-        $email_rule = new EmailBlackListRule;
+        $email_rule = new EmailBlackListRule();
         $email_rule->blacklist = ['gimmy@gmail.com'];
 
         $rules = [
@@ -45,7 +45,7 @@ class EmailBlacklistValidationTest extends TestCase
     public function testInValidEmailRule()
     {
         $rules = [
-            'email' => [new EmailBlackListRule],
+            'email' => [new EmailBlackListRule()],
         ];
 
         $data = [

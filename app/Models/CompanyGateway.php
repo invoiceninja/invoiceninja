@@ -155,6 +155,7 @@ class CompanyGateway extends BaseModel
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
         'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTPay
+        '91be24c7b792230bced33e930ac61676' => 325,
     ];
 
     protected $touches = [];

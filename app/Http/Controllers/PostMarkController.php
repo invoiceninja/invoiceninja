@@ -24,7 +24,6 @@ use Illuminate\Http\Request;
  */
 class PostMarkController extends BaseController
 {
-
     public function __construct()
     {
     }

@@ -51,7 +51,9 @@ All Pro and Enterprise features from the hosted app are included in the open-sou
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
 * [Cloudron](https://www.cloudron.io/store/com.invoiceninja.cloudronapp2.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
- 
+* [Elestio](https://elest.io/open-source/invoiceninja)
+* [YunoHost](https://apps.yunohost.org/app/invoiceninja5)
+
 ### Recommended Providers
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)

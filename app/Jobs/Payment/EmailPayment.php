@@ -58,10 +58,6 @@ class EmailPayment implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->company->is_disabled || (!$this->contact?->email ?? false)) {
-            nlog("company disabled - or - contact email not found");
-            return;
-        }
 
         MultiDB::setDb($this->company->db);
 
@@ -69,6 +65,11 @@ class EmailPayment implements ShouldQueue
 
         if (!$this->contact) {
             $this->contact = $this->payment->client->contacts()->orderBy('is_primary', 'desc')->first();
+        }
+
+        if ($this->company->is_disabled || (!$this->contact?->email ?? false)) {
+            nlog("company disabled - or - contact email not found");
+            return;
         }
 
         $this->contact->load('client');

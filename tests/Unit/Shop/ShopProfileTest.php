@@ -24,7 +24,7 @@ class ShopProfileTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -51,12 +51,12 @@ class ShopProfileTest extends TestCase
 
     public function testProfileSettingsUpdate()
     {
-        
+
         $this->company->enable_shop_api = true;
-        
+
         $settings = $this->company->settings;
 
-        $trans = new \stdClass;
+        $trans = new \stdClass();
         $trans->product = "Service";
         $trans->products = "Services";
 
@@ -82,7 +82,7 @@ class ShopProfileTest extends TestCase
 
     public function testProfileSettingsUpdate2()
     {
-        
+
         $this->company->enable_shop_api = true;
 
         $this->company->save();
@@ -103,5 +103,5 @@ class ShopProfileTest extends TestCase
 
     }
 
-    
+
 }

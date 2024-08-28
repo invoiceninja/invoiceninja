@@ -451,6 +451,7 @@ class BaseExport
         'project' => 'task.project_id',
         'billable' => 'task.billable',
         'item_notes' => 'task.item_notes',
+        'time_log' => 'task.time_log',
     ];
 
     protected array $forced_client_fields = [
@@ -1040,7 +1041,7 @@ class BaseExport
 
         $recurring_filters = [];
 
-        if($this->company->getSetting('report_include_drafts')){
+        if($this->company->getSetting('report_include_drafts')) {
             $recurring_filters[] = RecurringInvoice::STATUS_DRAFT;
         }
 
@@ -1188,7 +1189,7 @@ class BaseExport
      */
     protected function addInvoiceStatusFilter(Builder $query, string $status): Builder
     {
-               
+
         /** @var array $status_parameters */
         $status_parameters = explode(',', $status);
 
@@ -1258,7 +1259,7 @@ class BaseExport
 
         $date_range = $this->input['date_range'];
 
-        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key']) > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
+        if (array_key_exists('date_key', $this->input) && strlen($this->input['date_key'] ?? '') > 1 && ($table_name && $this->columnExists($table_name, $this->input['date_key']))) {
             $this->date_key = $this->input['date_key'];
         }
 
@@ -1615,10 +1616,10 @@ class BaseExport
             ZipDocuments::dispatch($documents, $this->company, $user);
         }
     }
-    
+
     /**
      * Tests that the column exists
-     * on the table prior to adding it to 
+     * on the table prior to adding it to
      * the query builder
      *
      * @param  string $table

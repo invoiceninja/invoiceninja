@@ -35,7 +35,7 @@ class InvitationTest extends TestCase
     use DatabaseTransactions;
     // use RefreshDatabase;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

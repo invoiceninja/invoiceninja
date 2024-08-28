@@ -197,8 +197,8 @@ class RequiredClientInfo extends Component
 
         MultiDB::setDb($this->db);
         $contact = ClientContact::withTrashed()->with(['client' => function ($query) {
-                $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
-            }])->find($this->contact_id);
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }])->find($this->contact_id);
 
         $this->company_gateway = CompanyGateway::withTrashed()->with('company')->find($this->company_gateway_id);
         $company = $this->company_gateway->company;

@@ -85,12 +85,12 @@ class SearchController extends Controller
                     //  ->whereHas('client', function ($q) {
                     //      $q->where('is_deleted', 0);
                     //  })
-                
+
                     ->leftJoin('clients', function ($join) {
                         $join->on('invoices.client_id', '=', 'clients.id')
                             ->where('clients.is_deleted', 0);
                     })
-                     
+
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_invoice'), function ($query) use ($user) {
                          $query->where('invoices.user_id', $user->id);
                      })

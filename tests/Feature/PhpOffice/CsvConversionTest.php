@@ -16,7 +16,6 @@ use Tests\TestCase;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-
 class CsvConversionTest extends TestCase
 {
     protected function setUp(): void
@@ -26,29 +25,27 @@ class CsvConversionTest extends TestCase
 
     public function testExample()
     {
-        
-            $spreadsheet = new Spreadsheet();
-            $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
 
-            /* Set CSV parsing options */
+        $spreadsheet = new Spreadsheet();
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Csv();
 
-            $reader->setDelimiter(',');
-            // $reader->setEnclosure('"');
-            $reader->setSheetIndex(0);
+        /* Set CSV parsing options */
 
-            /* Load a CSV file and save as a XLS */
+        $reader->setDelimiter(',');
+        // $reader->setEnclosure('"');
+        $reader->setSheetIndex(0);
 
-            $spreadsheet = $reader->load(base_path().'/tests/Feature/Import/expenses.csv');
-            $writer = new Xlsx($spreadsheet);
-            $writer->save(storage_path('/test.xlsx'));
+        /* Load a CSV file and save as a XLS */
 
-            $spreadsheet->disconnectWorksheets();
+        $spreadsheet = $reader->load(base_path().'/tests/Feature/Import/expenses.csv');
+        $writer = new Xlsx($spreadsheet);
+        $writer->save(storage_path('/test.xlsx'));
 
-            $this->assertTrue(file_exists(storage_path('/test.xlsx')));
-            unlink(storage_path('/test.xlsx'));
+        $spreadsheet->disconnectWorksheets();
+
+        $this->assertTrue(file_exists(storage_path('/test.xlsx')));
+        unlink(storage_path('/test.xlsx'));
 
 
     }
 }
-
-

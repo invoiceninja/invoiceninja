@@ -40,6 +40,7 @@
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
+        "aws/aws-sdk-php": "^3.319",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.0",
@@ -74,8 +75,7 @@
         "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/fractal": "^0.20.0",
-        "league/omnipay": "^3.1",
-        "livewire/livewire": "^3.0",
+        "livewire/livewire": "^3",
         "mailgun/mailgun-php": "^3.6",
         "microsoft/microsoft-graph": "^1.69",
         "mindee/mindee": "^1.8",
@@ -83,12 +83,12 @@
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^11.0",
-        "omnipay/paypal": "^3.0",
         "phpoffice/phpspreadsheet": "^1.29",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",
         "psr/http-message": "^1.0",
         "pusher/pusher-php-server": "^7.2",
+        "quickbooks/v3-php-sdk": "6.1.4-alpha",
         "razorpay/razorpay": "2.*",
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
@@ -133,7 +133,8 @@
             "app/Helpers/TranslationHelper.php",
             "app/Helpers/Generic.php",
             "app/Helpers/ClientPortal.php"
-        ]
+        ],
+        "classmap": []
     },
     "autoload-dev": {
         "psr-4": {
@@ -186,7 +187,7 @@
             "url": "https://github.com/turbo124/apple"
         },
         {
-            "type":"vcs",
+            "type": "vcs",
             "url": "https://github.com/invoiceninja/einvoice"
         },
         {
@@ -200,6 +201,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/turbo124/snappdf"
+        },
+        {
+            "type":"vcs",
+            "url":"https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git"
         }
     ],
     "minimum-stability": "dev",

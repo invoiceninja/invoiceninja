@@ -176,7 +176,10 @@ class Webhook extends BaseModel
 
     public const EVENT_REMIND_QUOTE = 64;
 
+    public const EVENT_ACCEPTED_PURCHASE_ORDER = 65;
+
     public static $valid_events = [
+        self::EVENT_ACCEPTED_PURCHASE_ORDER,
         self::EVENT_REMIND_QUOTE,
         self::EVENT_CREATE_PURCHASE_ORDER,
         self::EVENT_UPDATE_PURCHASE_ORDER,

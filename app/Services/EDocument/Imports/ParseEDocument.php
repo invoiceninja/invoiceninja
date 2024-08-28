@@ -11,6 +11,7 @@
 
 namespace App\Services\EDocument\Imports;
 
+use App\Models\Company;
 use App\Models\Expense;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
@@ -23,7 +24,7 @@ class ParseEDocument extends AbstractService
     /**
      * @throws Exception
      */
-    public function __construct(private UploadedFile $file)
+    public function __construct(private UploadedFile $file, private Company $company)
     {
 
     }
@@ -41,7 +42,7 @@ class ParseEDocument extends AbstractService
     {
 
         /** @var \App\Models\Account $account */
-        $account = auth()->user()->account;
+        $account = $this->company->owner()->account;
 
         // ZUGFERD - try to parse via Zugferd lib
         switch (true) {
@@ -51,7 +52,7 @@ class ParseEDocument extends AbstractService
             case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
             case $this->file->getExtension() == 'xml' && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
                 try {
-                    return (new ZugferdEDocument($this->file))->run();
+                    return (new ZugferdEDocument($this->file, $this->company))->run();
                 } catch (Exception $e) {
                     nlog("Zugferd Exception: " . $e->getMessage());
                 }

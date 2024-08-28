@@ -31,7 +31,6 @@ use Tests\TestCase;
  */
 class PdfmockTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -98,7 +97,7 @@ class PdfmockTest extends TestCase
         $pdf_config->setPdfVariables();
         $pdf_config->design = Design::find(2);
         $pdf_config->currency_entity = $mock->client;
-        
+
         $pdf_service->config = $pdf_config;
 
         $pdf_designer = (new \App\Services\Pdf\PdfDesigner($pdf_service))->build();

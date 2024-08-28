@@ -34,7 +34,7 @@ class VendorContactHashLoginController extends Controller
     {
         return redirect($this->setRedirectPath());
     }
-    
+
     /**
      * errorPage
      *
