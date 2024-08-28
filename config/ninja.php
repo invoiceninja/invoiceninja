@@ -84,6 +84,7 @@ return [
         'gocardless' => env('GOCARDLESS_KEYS', ''),
         'square' => env('SQUARE_KEYS', ''),
         'eway' => env('EWAY_KEYS', ''),
+        'mollie' => env('MOLLIE_KEYS', ''),
         'paytrace' => env('PAYTRACE_KEYS', ''),
         'stripe' => env('STRIPE_KEYS', ''),
         'paypal' => env('PAYPAL_KEYS', ''),
@@ -96,7 +97,6 @@ return [
         'test_email' => env('TEST_EMAIL', 'test@example.com'),
         'wepay' => env('WEPAY_KEYS', ''),
         'braintree' => env('BRAINTREE_KEYS', ''),
-        'mollie' => env('MOLLIE_KEYS', ''),
     ],
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
