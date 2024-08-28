@@ -232,7 +232,7 @@ return [
     ],
     'inbound_mailbox' => [
         'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
-        'inbound_webhook_key' => env('INBOUND_WEBHOOK_KEY', null),
+        'inbound_webhook_token' => env('INBOUND_WEBHOOK_TOKEN', null),
         'global_inbound_blacklist' => env('GLOBAL_INBOUND_BLACKLIST', ''),
         'global_inbound_whitelist' => env('GLOBAL_INBOUND_WHITELIST', ''),
         'global_inbound_sender_block_mailcount' => env('GLOBAL_INBOUND_SENDER_BLOCK_MAILCOUNT', 1000),

@@ -38,8 +38,8 @@ class InboundMailEngine
     public function __construct()
     {
 
-        $this->globalBlacklist = explode(",", config('global_inbound_blocklist'));
-        $this->globalWhitelist = explode(",", config('global_inbound_whitelist')); // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
+        $this->globalBlacklist = explode(",", config('ninja.inbound_mailbox.global_inbound_blocklist'));
+        $this->globalWhitelist = explode(",", config('ninja.inbound_mailbox.global_inbound_whitelist')); // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
 
     }
     /**
@@ -101,18 +101,19 @@ class InboundMailEngine
         }
 
         if (Cache::has('inboundMailBlockedSender:' . $from)) { // was marked as blocked before, so we block without any console output
+            // nlog('E-Mail was marked as blocked before: ' . $from);
             return true;
         }
 
         // sender occured in more than 500 emails in the last 12 hours
         $senderMailCountTotal = Cache::get('inboundMailCountSender:' . $from, 0);
-        if ($senderMailCountTotal >= config('global_inbound_sender_permablock_mailcount')) {
+        if ($senderMailCountTotal >= config('ninja.inbound_mailbox.global_inbound_sender_permablock_mailcount')) {
             nlog('E-Mail blocked permanent, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->blockSender($from);
             $this->saveMeta($from, $to);
             return true;
         }
-        if ($senderMailCountTotal >= config('global_inbound_sender_block_mailcount')) {
+        if ($senderMailCountTotal >= config('ninja.inbound_mailbox.global_inbound_sender_block_mailcount')) {
             nlog('E-Mail blocked, because the sender sended more than ' . $senderMailCountTotal . ' emails in the last 12 hours: ' . $from);
             $this->saveMeta($from, $to);
             return true;
@@ -120,7 +121,7 @@ class InboundMailEngine
 
         // sender sended more than 50 emails to the wrong mailbox in the last 6 hours
         $senderMailCountUnknownRecipent = Cache::get('inboundMailCountSenderUnknownRecipent:' . $from, 0);
-        if ($senderMailCountUnknownRecipent >= config('company_inbound_sender_block_unknown_reciepent')) {
+        if ($senderMailCountUnknownRecipent >= config('ninja.inbound_mailbox.company_inbound_sender_block_unknown_reciepent')) {
             nlog('E-Mail blocked, because the sender sended more than ' . $senderMailCountUnknownRecipent . ' emails to the wrong mailbox in the last 6 hours: ' . $from);
             $this->saveMeta($from, $to);
             return true;
@@ -191,7 +192,7 @@ class InboundMailEngine
             // check if document can be parsed to an expense
             try {
 
-                $expense = (new ParseEDocument($document))->run();
+                $expense = (new ParseEDocument($document, $company))->run();
 
                 // check if expense was already matched within this job and skip if true
                 if (array_search($expense->id, $parsed_expense_ids))
