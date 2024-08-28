@@ -10,14 +10,15 @@
     <meta name="return_url" content="{{ $return_url }}">
     <meta name="ci_intent" content="{{ $ci_intent }}">
 
-    @section('gateway_content')
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
-    {{ ctrans('texts.alipay') }}
+        {{ ctrans('texts.alipay') }}
     @endcomponent
+
+    @include('portal.ninja2020.gateways.includes.pay_now')
 </div>
 
 @assets

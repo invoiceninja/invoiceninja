@@ -200,7 +200,7 @@ class ACH implements LivewireMethodInterface
      */
     public function paymentView(array $data)
     {
-        $this->paymentData($data);
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.ach.pay', $data);
     }

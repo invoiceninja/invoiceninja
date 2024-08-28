@@ -9,14 +9,13 @@
  */
 
 import { wait, instant } from '../wait';
-import { SimpleCard } from '@invoiceninja/simple-card';
 
 class ForteAuthorizeCard {
     constructor(apiLoginId) {
         this.apiLoginId = apiLoginId;
         this.cardHolderName = document.getElementById('cardholder_name');
 
-        this.sc = new SimpleCard({
+        this.sc = createSimpleCard({
             fields: {
                 card: {
                     number: '#number',
