@@ -198,7 +198,7 @@ class InboundMailEngine
                 if (array_search($expense->id, $parsed_expense_ids))
                     continue;
 
-                array_push($parsed_expenses, $expense->id);
+                array_push($parsed_expense_ids, $expense->id);
 
             } catch (\Exception $err) {
                 // throw error, only, when its not expected
