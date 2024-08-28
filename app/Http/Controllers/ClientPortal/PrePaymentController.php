@@ -39,7 +39,12 @@ class PrePaymentController extends Controller
      */
     public function index()
     {
+
         $client = auth()->guard('contact')->user()->client;
+        
+        if(!$client->getSetting('client_initiated_payments'))
+            return redirect()->route('client.dashboard.index');
+
         $minimum = $client->getSetting('client_initiated_payments_minimum');
         $minimum_amount = $minimum == 0 ? "" : Number::formatMoney($minimum, $client);
 
