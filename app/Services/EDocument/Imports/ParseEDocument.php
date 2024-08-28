@@ -44,13 +44,16 @@ class ParseEDocument extends AbstractService
         /** @var \App\Models\Account $account */
         $account = $this->company->owner()->account;
 
+        $extension = $this->file->getClientOriginalExtension() ?: $this->file->getExtension();
+        $mimetype = $this->file->getClientMimeType() ?: $$this->file->getMimeType();
+
         // ZUGFERD - try to parse via Zugferd lib
         switch (true) {
-            case ($this->file->getExtension() == 'pdf' || $this->file->getMimeType() == 'application/pdf'):
-            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
-            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
-            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
-            case ($this->file->getExtension() == 'xml' || $this->file->getMimeType() == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
+            case ($extension == 'pdf' || $mimetype == 'application/pdf'):
+            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
+            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
+            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
+            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
                 try {
                     return (new ZugferdEDocument($this->file, $this->company))->run();
                 } catch (Exception $e) {
@@ -60,11 +63,15 @@ class ParseEDocument extends AbstractService
 
         // MINDEE OCR - try to parse via mindee external service
         if (config('services.mindee.api_key') && !(Ninja::isHosted() && !($account->isPaid() && $account->plan == 'enterprise')))
-            try {
-                return (new MindeeEDocument($this->file))->run();
-            } catch (Exception $e) {
-                if (!($e->getMessage() == 'Unsupported document type'))
-                    nlog("Mindee Exception: " . $e->getMessage());
+            switch (true) {
+                case ($extension == 'pdf' || $mimetype == 'application/pdf'):
+                case ($extension == 'heic' || $extension == 'heic' || $extension == 'png' || $extension == 'jpg' || $extension == 'jpeg' || $extension == 'webp' || str_starts_with($mimetype, 'image/')):
+                    try {
+                        return (new MindeeEDocument($this->file, $this->company))->run();
+                    } catch (Exception $e) {
+                        if (!($e->getMessage() == 'Unsupported document type'))
+                            nlog("Mindee Exception: " . $e->getMessage());
+                    }
             }
 
         // NO PARSER OR ERROR

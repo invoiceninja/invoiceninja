@@ -289,7 +289,7 @@ class PostMarkController extends BaseController
 
         $company = MultiDB::findAndSetDbByExpenseMailbox($input["To"]);
         if (!$company) {
-            nlog('[PostmarkInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $input["To"]);
+            nlog('[PostmarkInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from postmark: ' . $input["To"]);
             $inboundEngine->saveMeta($input["From"], $input["To"], true); // important to save this, to protect from spam
             return;
         }

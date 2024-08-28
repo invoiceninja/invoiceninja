@@ -50,7 +50,7 @@ class ZugferdEDocument extends AbstractService
         /** @var \App\Models\User $user */
         $user = $this->company->owner();
 
-        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->tempdocument);
+        $this->document = ZugferdDocumentReader::readAndGuessFromContent($this->file->get());
         $this->document->getDocumentInformation($documentno, $documenttypecode, $documentdate, $invoiceCurrency, $taxCurrency, $documentname, $documentlanguage, $effectiveSpecifiedPeriod);
         $this->document->getDocumentSummation($grandTotalAmount, $duePayableAmount, $lineTotalAmount, $chargeTotalAmount, $allowanceTotalAmount, $taxBasisTotalAmount, $taxTotalAmount, $roundingAmount, $totalPrepaidAmount);
 
