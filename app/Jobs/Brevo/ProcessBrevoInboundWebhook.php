@@ -23,6 +23,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Http\UploadedFile;
 
 class ProcessBrevoInboundWebhook implements ShouldQueue
 {
@@ -162,29 +163,44 @@ class ProcessBrevoInboundWebhook implements ShouldQueue
                     // download file and save to tmp dir
                     if (!empty($company_brevo_secret)) {
 
-                        $data = null;
                         try {
 
                             $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", $company_brevo_secret));
-                            $data = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
+                            $inboundMail->documents[] = new UploadedFile(
+                                $brevo->getInboundEmailAttachment($attachment["DownloadToken"])->getPathname(),
+                                $attachment["Name"],
+                                $attachment["ContentType"],
+                                0,
+                                true // Mark it as test, since the file isn't from real HTTP POST.
+                            );
 
                         } catch (\Error $e) {
                             if (config('services.brevo.secret')) {
                                 nlog("[ProcessBrevoInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                                 $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
-                                $data = $brevo->getInboundEmailAttachment($attachment["DownloadToken"]);
+                                $inboundMail->documents[] = new UploadedFile(
+                                    $brevo->getInboundEmailAttachment($attachment["DownloadToken"])->getPathname(),
+                                    $attachment["Name"],
+                                    $attachment["ContentType"],
+                                    0,
+                                    true // Mark it as test, since the file isn't from real HTTP POST.
+                                );
 
                             } else
                                 throw $e;
                         }
-                        $inboundMail->documents[] = TempFile::UploadedFileFromRaw($data, $attachment["Name"], $attachment["ContentType"]);
 
                     } else {
 
                         $brevo = new InboundParsingApi(null, Configuration::getDefaultConfiguration()->setApiKey("api-key", config('services.brevo.secret')));
-                        $inboundMail->documents[] = TempFile::UploadedFileFromRaw($brevo->getInboundEmailAttachment($attachment["DownloadToken"]), $attachment["Name"], $attachment["ContentType"]);
-
+                        $inboundMail->documents[] = new UploadedFile(
+                            $brevo->getInboundEmailAttachment($attachment["DownloadToken"])->getPathname(),
+                            $attachment["Name"],
+                            $attachment["ContentType"],
+                            0,
+                            true // Mark it as test, since the file isn't from real HTTP POST.
+                        );
                     }
 
                 }
