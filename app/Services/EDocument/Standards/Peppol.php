@@ -783,7 +783,7 @@ class Peppol extends AbstractService
      */
     private function resolveTaxScheme(): string
     {
-        return (new StorecoveRouter())->resolveTaxScheme($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification)
+        return (new StorecoveRouter())->resolveTaxScheme($this->invoice->client->country->iso_3166_2, $this->invoice->client->classification);
 
         // $rules = isset($this->routing_rules[$this->invoice->client->country->iso_3166_2]) ? $this->routing_rules[$this->invoice->client->country->iso_3166_2] : [false, false, false, false,];
 

@@ -106,7 +106,17 @@ class Portal extends Component
         if($r->successful())
         {
             $response = $r->json();
+            
+            $_company = auth()->guard('user')->user()->account->companies()->where('company_id', $company_key)->first();
+            $_company->legal_entity_id = $response['id'];
+            $_company->save();
+            return;
         }
+
+        $error = json_decode($r->getBody()->getContents(),true);
+
+        session()->flash('error', $error['message']);
+
     }
 
     private function getHeaders()

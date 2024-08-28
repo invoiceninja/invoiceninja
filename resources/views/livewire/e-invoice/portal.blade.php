@@ -24,8 +24,14 @@
             </div>
         </div>
     </div>
-    
+
     <div class="w-full flex-grow py-10 items-center justify-between">
+        
+        @if (session()->has('error'))
+            <div class="mt-4 text-red-600 text-sm font-semibold">
+                {{ session('error') }}
+            </div>
+        @endif
 
         <div class="grid lg:grid-cols-3 mx-6 md:mx-0 md:my-2 border border-gray-300 rounded-lg shadow-md  bg-gray-100">
 
