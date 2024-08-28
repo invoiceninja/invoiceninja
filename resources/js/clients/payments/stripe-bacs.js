@@ -11,7 +11,7 @@
 import { instant, wait } from '../wait';
 
 class ProcessBACS {
-    constructor(key, stripeConnect) {
+    constructor(key, stripeConnect, onlyAuthorization) {
         this.key = key;
         this.errors = document.getElementById('errors');
         this.stripeConnect = stripeConnect;
@@ -87,7 +87,7 @@ function boot() {
     const onlyAuthorization =
         document.querySelector('meta[name="only-authorization"]')?.content ?? '';
     
-    new ProcessBACS(publishableKey, stripeConnect).setupStripe().handle();
+    new ProcessBACS(publishableKey, stripeConnect, onlyAuthorization).setupStripe().handle();
 }
 
 instant() ? boot() : wait('#stripe-bacs-payment').then(() => boot());

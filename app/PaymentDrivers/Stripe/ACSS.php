@@ -162,7 +162,7 @@ class ACSS implements LivewireMethodInterface
         return $intent;
     }
 
-    public function paymentData(array $data)
+    public function paymentData(array $data): array
     {
         if(count($data['tokens']) == 0) {
             $hash = Str::random(32);

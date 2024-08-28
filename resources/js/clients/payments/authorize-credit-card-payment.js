@@ -8,7 +8,6 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-import { SimpleCard } from '@invoiceninja/simple-card';
 import { wait, instant } from '../wait';
 
 class AuthorizeAuthorizeCard {
@@ -17,7 +16,7 @@ class AuthorizeAuthorizeCard {
         this.loginId = loginId;
         this.cardHolderName = document.getElementById('cardholder_name');
 
-        this.sc = new SimpleCard({
+        this.sc = createSimpleCard({
             fields: {
                 card: {
                     number: '#number',

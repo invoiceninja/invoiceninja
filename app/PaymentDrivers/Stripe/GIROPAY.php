@@ -153,6 +153,6 @@ class GIROPAY implements LivewireMethodInterface
 
     public function livewirePaymentView(array $data): string 
     {
-        return 'gateways.giropay.pay_livewire';
+        return 'gateways.stripe.giropay.pay_livewire';
     }
 }
