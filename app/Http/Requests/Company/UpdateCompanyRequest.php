@@ -76,7 +76,7 @@ class UpdateCompanyRequest extends Request
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
-        $rules['expense_mailbox'] = new ValidExpenseMailbox();
+        $rules['expense_mailbox'] = ['email', 'nullable', new ValidExpenseMailbox()];
 
         return $rules;
     }

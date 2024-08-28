@@ -14,6 +14,7 @@ namespace App\Http\ValidationRules\Company;
 use App\Libraries\MultiDB;
 use App\Utils\Ninja;
 use Illuminate\Contracts\Validation\Rule;
+use Symfony\Component\Validator\Constraints\EmailValidator;
 
 /**
  * Class ValidCompanyQuantity.
@@ -47,7 +48,7 @@ class ValidExpenseMailbox implements Rule
         // Validate Schema
         $validated = false;
         foreach ($this->endings as $ending) {
-            if (str_ends_with($ending, $value)) {
+            if (str_ends_with($value, $ending)) {
                 $validated = true;
                 break;
             }

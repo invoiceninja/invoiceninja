@@ -113,7 +113,7 @@ class MultiDB
     {
 
         if (!config('ninja.db.multi_db_enabled')) {
-            return Company::where("expense_mailbox", $expense_mailbox)->exists();
+            return !Company::where("expense_mailbox", $expense_mailbox)->exists();
         }
 
         if (in_array($expense_mailbox, self::$protected_expense_mailboxes)) {
