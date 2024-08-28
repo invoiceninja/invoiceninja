@@ -22,8 +22,10 @@ class Portal extends Component
 
     public array $companies;
 
-    private string $api_url = 'https://invoicing.co'
+    // private string $api_url = 'https://invoicing.co'
 
+    private string $api_url = 'http://ninja.test:8000';
+    
     public function mount()
     {
 
