@@ -110,6 +110,8 @@ class StorecoveRouter
             return $rules[3];
         }
     
+        $code = 'B';
+        
         match($classification) {
             "business" => $code = "B",
             "government" => $code = "G",

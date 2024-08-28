@@ -535,16 +535,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.320.9",
+            "version": "3.321.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50"
+                "reference": "cea02601e77af2b164746087aa4f75270cfd0426"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/1284cecc00d4ac80815c542ef3882d3a7a25ac50",
-                "reference": "1284cecc00d4ac80815c542ef3882d3a7a25ac50",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/cea02601e77af2b164746087aa4f75270cfd0426",
+                "reference": "cea02601e77af2b164746087aa4f75270cfd0426",
                 "shasum": ""
             },
             "require": {
@@ -627,9 +627,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.320.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.321.0"
             },
-            "time": "2024-08-27T18:06:27+00:00"
+            "time": "2024-08-28T18:11:46+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3999,12 +3999,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/invoiceninja/einvoice.git",
-                "reference": "a737e30c522358d07a191145958f65f73f1e2bab"
+                "reference": "1ec178ec134981629932aae12677e947ee3df091"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/a737e30c522358d07a191145958f65f73f1e2bab",
-                "reference": "a737e30c522358d07a191145958f65f73f1e2bab",
+                "url": "https://api.github.com/repos/invoiceninja/einvoice/zipball/1ec178ec134981629932aae12677e947ee3df091",
+                "reference": "1ec178ec134981629932aae12677e947ee3df091",
                 "shasum": ""
             },
             "require": {
@@ -4046,7 +4046,7 @@
                 "source": "https://github.com/invoiceninja/einvoice/tree/main",
                 "issues": "https://github.com/invoiceninja/einvoice/issues"
             },
-            "time": "2024-08-28T02:59:05+00:00"
+            "time": "2024-08-28T07:20:26+00:00"
         },
         {
             "name": "invoiceninja/inspector",
@@ -15254,16 +15254,16 @@
         },
         {
             "name": "composer/pcre",
-            "version": "3.3.0",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/pcre.git",
-                "reference": "1637e067347a0c40bbb1e3cd786b20dcab556a81"
+                "reference": "63aaeac21d7e775ff9bc9d45021e1745c97521c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/pcre/zipball/1637e067347a0c40bbb1e3cd786b20dcab556a81",
-                "reference": "1637e067347a0c40bbb1e3cd786b20dcab556a81",
+                "url": "https://api.github.com/repos/composer/pcre/zipball/63aaeac21d7e775ff9bc9d45021e1745c97521c4",
+                "reference": "63aaeac21d7e775ff9bc9d45021e1745c97521c4",
                 "shasum": ""
             },
             "require": {
@@ -15313,7 +15313,7 @@
             ],
             "support": {
                 "issues": "https://github.com/composer/pcre/issues",
-                "source": "https://github.com/composer/pcre/tree/3.3.0"
+                "source": "https://github.com/composer/pcre/tree/3.3.1"
             },
             "funding": [
                 {
@@ -15329,7 +15329,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-08-19T19:43:53+00:00"
+            "time": "2024-08-27T18:44:43+00:00"
         },
         {
             "name": "composer/semver",
@@ -15659,16 +15659,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.63.1",
+            "version": "v3.63.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "ee3cc2e1fbfbddf98c17d4615db574a2a311c1ea"
+                "reference": "9d427f3f14984403a6ae9fc726b61765ca0c005e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/ee3cc2e1fbfbddf98c17d4615db574a2a311c1ea",
-                "reference": "ee3cc2e1fbfbddf98c17d4615db574a2a311c1ea",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/9d427f3f14984403a6ae9fc726b61765ca0c005e",
+                "reference": "9d427f3f14984403a6ae9fc726b61765ca0c005e",
                 "shasum": ""
             },
             "require": {
@@ -15750,7 +15750,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.63.1"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.63.2"
             },
             "funding": [
                 {
@@ -15758,7 +15758,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-26T14:03:20+00:00"
+            "time": "2024-08-28T10:47:21+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
