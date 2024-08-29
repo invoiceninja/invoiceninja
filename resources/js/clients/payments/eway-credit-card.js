@@ -433,6 +433,11 @@ class EwayRapid {
     completeAuthorization(event) {
         event.target.parentElement.disabled = true;
 
+        const button = document.getElementById('authorize-card');
+
+        button.querySelector('svg').classList.remove('hidden');
+        button.querySelector('span').classList.add('hidden');
+
         document.getElementById('server-response').submit();
     }
 
@@ -500,8 +505,13 @@ class EwayRapid {
                 });
         }
 
+        const payNowButton = document.getElementById('pay-now');
+
         document.getElementById('pay-now')?.addEventListener('click', (e) => {
             let tokenInput = document.querySelector('input[name=token]');
+
+            payNowButton.querySelector('svg').classList.remove('hidden');
+            payNowButton.querySelector('span').classList.add('hidden');
 
             if (tokenInput.value) {
                 return this.completePaymentUsingToken(e);
