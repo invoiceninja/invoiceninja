@@ -7,6 +7,7 @@
     <meta name="month-invalid" content="{{ ctrans('texts.month_invalid') }}">
     <meta name="credit-card-invalid" content="{{ ctrans('texts.credit_card_invalid') }}">
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
+    <meta name="instant-payment" content="yes">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 
