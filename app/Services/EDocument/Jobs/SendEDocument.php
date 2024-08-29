@@ -9,7 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Services\EDocument\Jobes;
+namespace App\Services\EDocument\Jobs;
 
 use App\Utils\Ninja;
 use App\Models\Invoice;
@@ -124,6 +124,9 @@ class SendEDocument implements ShouldQueue
         $activity->invoice_id = $model->id;
         $activity->notes = $guid;
         $activity->save();
+
+        $model->backup = $guid;
+        $model->saveQuietly();
 
     }
     

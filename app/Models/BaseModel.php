@@ -17,6 +17,7 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
+use App\Services\EDocument\Jobes\SendEDocument;
 use App\Services\PdfMaker\PdfMerge;
 use Illuminate\Database\Eloquent\Model;
 use App\Utils\Traits\UserSessionAttributes;
@@ -297,8 +298,8 @@ class BaseModel extends Model
         }
 
         // special catch here for einvoicing eventing
-        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && $this->e_invoice){
-            // Einvoice
+        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && is_null($this->backup)){
+            \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
         }
 
     }

@@ -272,7 +272,7 @@ class Peppol extends AbstractService
 
         if($this->invoice->e_invoice) {
 
-            $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
+            $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice), 'json');
 
             return $this;
 
@@ -331,6 +331,11 @@ class Peppol extends AbstractService
 
     }
 
+    public function toObject(): mixed
+    {
+        return json_decode($this->toJson());
+    }
+
     public function toArray(): array
     {
         return json_decode($this->toJson(), true);
@@ -355,6 +360,9 @@ class Peppol extends AbstractService
 
         $this->senderSpecificLevelMutators()
              ->receiverSpecificLevelMutators();
+
+        $this->invoice->e_invoice = $this->toObject();
+        $this->invoice->save();
 
         return $this;
 
