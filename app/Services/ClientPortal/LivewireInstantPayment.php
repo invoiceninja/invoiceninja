@@ -109,11 +109,10 @@ class LivewireInstantPayment
         $client = $invoices->first()->client;
 
         /* pop non payable invoice from the $payable_invoices array */
-        $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
+        $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) { // @phpstan-ignore-line
             return $invoices->where('hashed_id', $payable_invoice['invoice_id'])->first();
         });
 
-        //$payable_invoices = $payable_invoices->map(function ($payable_invoice) use ($invoices, $settings) {
         $payable_invoice_collection = collect();
 
         foreach ($payable_invoices as $payable_invoice) {

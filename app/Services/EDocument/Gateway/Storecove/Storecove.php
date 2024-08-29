@@ -30,10 +30,10 @@ enum HttpVerb: string
 
 class Storecove
 {    
-    /** @var mixed $base_url */
+    /** @var string $base_url */
     private string $base_url = 'https://api.storecove.com/api/v2/';
     
-    /** @var mixed $peppol_discovery */
+    /** @var array $peppol_discovery */
     private array $peppol_discovery = [
         "documentTypes" =>  ["invoice"],
         "network" =>  "peppol",
@@ -42,7 +42,7 @@ class Storecove
         "identifier" => "DE:VAT"
     ];
     
-    /** @var mixed $dbn_discovery */
+    /** @var array $dbn_discovery */
     private array $dbn_discovery = [
         "documentTypes" =>  ["invoice"],
         "network" =>  "dbnalliance",
@@ -88,7 +88,7 @@ class Storecove
      * Unused as yet
      *
      * @param  mixed $document
-     * @return void
+     * @return string|bool
      */
     public function sendJsonDocument($document)
     {
@@ -125,9 +125,9 @@ class Storecove
      * @param  int $routing_id
      * @param  array $override_payload
      * 
-     * @return string|null
+     * @return string|\Illuminate\Http\Client\Response
      */
-    public function sendDocument(string $document, int $routing_id, array $override_payload = []): ?string
+    public function sendDocument(string $document, int $routing_id, array $override_payload = [])
     {
 
         $payload = [
@@ -162,7 +162,7 @@ class Storecove
             return $r->json()['guid'];
         }
 
-        return null;
+        return $r;
 
     }
 
@@ -261,7 +261,7 @@ class Storecove
      *
      * @param  int $id
      * @param  array $data
-     * @return void
+     * @return array
      */
     public function updateLegalEntity(int $id, array $data)
     {
@@ -335,7 +335,16 @@ class Storecove
         ], $headers);
 
     }
-
+    
+    /**
+     * httpClient
+     *
+     * @param  string $uri
+     * @param  string $verb
+     * @param  array $data
+     * @param  array $headers
+     * @return \Illuminate\Http\Client\Response
+     */
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
@@ -356,7 +365,7 @@ class Storecove
             nlog("Request error: {$e->getCode()}: " . $e->getMessage());       
         }
 
-        return $r;
+        return $r; // @phpstan-ignore-line
     }
 
 }

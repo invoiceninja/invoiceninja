@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @package App\Models
  * @property-read mixed $hashed_id
  * @property string $number
- * @property object|null $e_invoice
+ * @property object|array|null $e_invoice
  * @property int $company_id
  * @property int $id
  * @property int $user_id
