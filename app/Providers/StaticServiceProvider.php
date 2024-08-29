@@ -222,6 +222,10 @@ class StaticServiceProvider extends ServiceProvider
                     'subject' => EmailTemplateDefaults::emailPaymentSubject(),
                     'body' => EmailTemplateDefaults::emailPaymentTemplate(),
                 ],
+                'payment_failed' => [
+                    'subject' => EmailTemplateDefaults::emailPaymentFailedSubject(),
+                    'body' => EmailTemplateDefaults::emailPaymentFailedTemplate(),
+                ],
                 'quote_reminder1' => [
                     'subject' => EmailTemplateDefaults::emailQuoteReminder1Subject(),
                     'body' => EmailTemplateDefaults::emailQuoteReminder1Body(),

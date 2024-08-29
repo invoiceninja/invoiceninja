@@ -518,7 +518,12 @@ class CompanySettings extends BaseSettings
 
     public string $payment_flow = 'default'; //smooth
 
+    public string $email_subject_payment_failed = '';
+    public string $email_template_payment_failed = '';
+
     public static $casts = [
+        'email_template_payment_failed'      => 'string',
+        'email_subject_payment_failed'       => 'string',
         'payment_flow'                       => 'string',
         'enable_quote_reminder1'             => 'bool',
         'quote_num_days_reminder1'           => 'int',

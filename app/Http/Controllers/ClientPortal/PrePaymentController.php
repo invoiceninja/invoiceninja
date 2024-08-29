@@ -35,7 +35,7 @@ class PrePaymentController extends Controller
     /**
      * Show the list of payments.
      *
-     * @return Factory|View
+     * @return Factory|View|\Illuminate\Http\RedirectResponse
      */
     public function index()
     {

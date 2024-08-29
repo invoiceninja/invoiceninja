@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @package App\Models
  * @property-read mixed $hashed_id
  * @property string $number
+ * @property object|null $e_invoice
  * @property int $company_id
  * @property int $id
  * @property int $user_id
@@ -296,15 +297,10 @@ class BaseModel extends Model
         }
 
         // special catch here for einvoicing eventing
-        if($event_id == Webhook::EVENT_SENT_INVOICE && $this->e_invoice){
-            $this->handleEinvoiceSending();
+        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && $this->e_invoice){
+            // Einvoice
         }
 
-    }
-
-    private function handleEinvoiceSending()
-    {
-        
     }
 
     /**
