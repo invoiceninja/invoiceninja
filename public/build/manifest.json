@@ -131,7 +131,7 @@
     "src": "resources/js/clients/payments/mollie-credit-card.js"
   },
   "resources/js/clients/payments/paytrace-credit-card.js": {
-    "file": "assets/paytrace-credit-card-7f87b811.js",
+    "file": "assets/paytrace-credit-card-d29797c1.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],

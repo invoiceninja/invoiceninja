@@ -585,7 +585,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $message = [
             'server_response' => $response,
-            'data' => $this->payment_hash->data,
+            'data' => $this->payment_hash?->data,
         ];
 
         SystemLogger::dispatch(

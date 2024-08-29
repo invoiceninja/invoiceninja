@@ -124,6 +124,11 @@ class PayTraceCreditCard {
     }
 
     handlePaymentWithCreditCard(event) {
+        const button = document.getElementById('pay-now');
+
+        button.querySelector('svg').classList.remove('hidden');
+        button.querySelector('span').classList.add('hidden');
+
         event.target.parentElement.disabled = true;
         document.getElementById('errors').hidden = true;
 
@@ -133,6 +138,10 @@ class PayTraceCreditCard {
 
                 errorsContainer.textContent = errors[0].description;
                 errorsContainer.hidden = false;
+
+
+                button.querySelector('svg').classList.add('hidden');
+                button.querySelector('span').classList.remove('hidden');
 
                 return (event.target.parentElement.disabled = false);
             }
@@ -163,6 +172,9 @@ class PayTraceCreditCard {
                     ).textContent = JSON.stringify(error);
                     document.getElementById('errors').hidden = false;
 
+                    button.querySelector('svg').classList.add('hidden');
+                    button.querySelector('span').classList.remove('hidden');
+
                     console.log(error);
                 });
         });
@@ -170,6 +182,11 @@ class PayTraceCreditCard {
 
     handlePaymentWithToken(event) {
         event.target.parentElement.disabled = true;
+
+        const button = document.getElementById('pay-now');
+
+        button.querySelector('svg').classList.remove('hidden');
+        button.querySelector('span').classList.add('hidden');
 
         document.getElementById('server_response').submit();
     }
