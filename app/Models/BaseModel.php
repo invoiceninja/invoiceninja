@@ -294,6 +294,17 @@ class BaseModel extends Model
         if ($subscriptions) {
             WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
+
+        // special catch here for einvoicing eventing
+        if($event_id == Webhook::EVENT_SENT_INVOICE && $this->e_invoice){
+            $this->handleEinvoiceSending();
+        }
+
+    }
+
+    private function handleEinvoiceSending()
+    {
+        
     }
 
     /**
