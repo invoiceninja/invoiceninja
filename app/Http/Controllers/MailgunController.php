@@ -128,7 +128,7 @@ class MailgunController extends BaseController
         if (!$authorizedByHash && !$authorizedByToken)
             return response()->json(['message' => 'Unauthorized'], 403);
 
-        ProcessMailgunInboundWebhook::dispatch($input["sender"] . "|" . $input["recipient"] . "|" . $input["message-url"])->delay(rand(2, 10));
+        ProcessMailgunInboundWebhook::dispatch($input["sender"], $input["recipient"], $input["message-url"])->delay(rand(2, 10));
 
         return response()->json(['message' => 'Success.'], 200);
     }

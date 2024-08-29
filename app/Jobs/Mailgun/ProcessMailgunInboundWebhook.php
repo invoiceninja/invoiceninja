@@ -34,7 +34,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
      * Create a new job instance.
      * $input consists of 3 informations: sender/from|recipient/to|messageUrl
      */
-    public function __construct(private string $input)
+    public function __construct(private string $sender, private string $recipient, private string $message_url)
     {
         $this->engine = new InboundMailEngine();
     }
@@ -167,8 +167,8 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
      */
     public function handle()
     {
-        $from = explode("|", $this->input)[0];
-        $to = explode("|", $this->input)[1];
+        $from = $this->sender;//explode("|", $this->input)[0];
+        $to = $this->recipient; //explode("|", $this->input)[1];
         // $messageId = explode("|", $this->input)[2]; // used as base in download function
 
         // Spam protection
@@ -196,7 +196,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
             if ($company_mailgun_domain && $company_mailgun_secret) {
 
                 $credentials = $company_mailgun_domain . ":" . $company_mailgun_secret . "@";
-                $messageUrl = explode("|", $this->input)[2];
+                $messageUrl = $this->message_url;//explode("|", $this->input)[2];
                 $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
                 $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
 
@@ -207,7 +207,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
                         nlog("[ProcessMailgunInboundWebhook] Error while downloading with company credentials, we try to use default credentials now...");
 
                         $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
-                        $messageUrl = explode("|", $this->input)[2];
+                        $messageUrl = $this->message_url;//explode("|", $this->input)[2];
                         $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
                         $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
                         $mail = json_decode(file_get_contents($messageUrl));
@@ -219,7 +219,7 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
             } else {
 
                 $credentials = config('services.mailgun.domain') . ":" . config('services.mailgun.secret') . "@";
-                $messageUrl = explode("|", $this->input)[2];
+                $messageUrl = $this->message_url; //explode("|", $this->input)[2];
                 $messageUrl = str_replace("http://", "http://" . $credentials, $messageUrl);
                 $messageUrl = str_replace("https://", "https://" . $credentials, $messageUrl);
                 $mail = json_decode(file_get_contents($messageUrl));

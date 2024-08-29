@@ -310,7 +310,7 @@ class InboundMailEngine
     }
     private function logBlocked(Company $company, string $data)
     {
-        nlog("[InboundMailEngine][company:" . $company->id . "] " . $data);
+        nlog("[InboundMailEngine][company:" . $company->company_key . "] " . $data);
 
         (
             new SystemLogger(
