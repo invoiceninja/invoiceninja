@@ -261,6 +261,38 @@ class Peppol extends AbstractService
         $this->e = new EInvoice();
         $this->setSettings()->setInvoice();
     }
+    
+    /**
+     * Entry point for building document
+     *
+     * @return self
+     */
+    public function run(): self
+    {
+        $this->p_invoice->ID = $this->invoice->number;
+        $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
+
+        if($this->invoice->due_date) {
+            $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
+        }
+
+        $this->p_invoice->InvoiceTypeCode = 380; //
+        $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
+        $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
+        $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
+
+        // $this->p_invoice->TaxTotal = $this->getTotalTaxes(); it only wants the aggregate here!!
+        $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
+
+        $this->senderSpecificLevelMutators()
+             ->receiverSpecificLevelMutators();
+
+        $this->invoice->e_invoice = $this->toObject();
+        $this->invoice->save();
+
+        return $this;
+
+    }
 
     /**
      * Rehydrates an existing e invoice - or - scaffolds a new one
@@ -299,14 +331,24 @@ class Peppol extends AbstractService
         return $this;
 
     }
-
+    
+    /**
+     * getInvoice
+     *
+     * @return InvoiceNinja\EInvoice\Models\Peppol\Invoice
+     */
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
     {
         //@todo - need to process this and remove null values
         return $this->p_invoice;
 
     }
-
+    
+    /**
+     * toXml
+     *
+     * @return string
+     */
     public function toXml(): string
     {
         $e = new EInvoice();
@@ -321,7 +363,12 @@ class Peppol extends AbstractService
         return str_ireplace(['\n','<?xml version="1.0"?>'], ['', $prefix], $xml);
 
     }
-
+    
+    /**
+     * toJson
+     *
+     * @return string
+     */
     public function toJson(): string
     {
         $e = new EInvoice();
@@ -330,44 +377,32 @@ class Peppol extends AbstractService
         return $json;
 
     }
-
+    
+    /**
+     * toObject
+     *
+     * @return mixed
+     */
     public function toObject(): mixed
     {
         return json_decode($this->toJson());
     }
-
+    
+    /**
+     * toArray
+     *
+     * @return array
+     */
     public function toArray(): array
     {
         return json_decode($this->toJson(), true);
     }
-
-    public function run()
-    {
-        $this->p_invoice->ID = $this->invoice->number;
-        $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
-
-        if($this->invoice->due_date) {
-            $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
-        }
-
-        $this->p_invoice->InvoiceTypeCode = 380; //
-        $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
-        $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
-        $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
-
-        // $this->p_invoice->TaxTotal = $this->getTotalTaxes(); it only wants the aggregate here!!
-        $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
-
-        $this->senderSpecificLevelMutators()
-             ->receiverSpecificLevelMutators();
-
-        $this->invoice->e_invoice = $this->toObject();
-        $this->invoice->save();
-
-        return $this;
-
-    }
-
+    
+    /**
+     * getLegalMonetaryTotal
+     *
+     * @return LegalMonetaryTotal
+     */
     private function getLegalMonetaryTotal(): LegalMonetaryTotal
     {
         $taxable = $this->getTaxable();
@@ -396,7 +431,12 @@ class Peppol extends AbstractService
 
         return $lmt;
     }
-
+    
+    /**
+     * getTotalTaxAmount
+     *
+     * @return float
+     */
     private function getTotalTaxAmount(): float
     {
         if(!$this->invoice->total_taxes) {
@@ -407,7 +447,12 @@ class Peppol extends AbstractService
 
         return $this->calcAmountLineTax($this->invoice->tax_rate1, $this->invoice->amount) ?? 0;
     }
-
+    
+    /**
+     * getTotalTaxes
+     *
+     * @return array
+     */
     private function getTotalTaxes(): array
     {
         $taxes = [];
@@ -571,8 +616,14 @@ class Peppol extends AbstractService
 
         return $lines;
     }
-
-    private function costWithDiscount($item)
+    
+    /**
+     * costWithDiscount
+     *
+     * @param  mixed $item
+     * @return float
+     */
+    private function costWithDiscount($item): float
     {
         $cost = $item->cost;
 
@@ -586,7 +637,12 @@ class Peppol extends AbstractService
 
         return $cost;
     }
-
+    
+    /**
+     * zeroTaxAmount
+     *
+     * @return array
+     */
     private function zeroTaxAmount(): array
     {
         $blank_tax = [];
@@ -622,7 +678,13 @@ class Peppol extends AbstractService
 
         return $blank_tax;
     }
-
+    
+    /**
+     * getItemTaxes
+     *
+     * @param  object $item
+     * @return array
+     */
     private function getItemTaxes(object $item): array
     {
         $item_taxes = [];
@@ -747,7 +809,12 @@ class Peppol extends AbstractService
 
         return $item_taxes;
     }
-
+    
+    /**
+     * getAccountingSupplierParty
+     *
+     * @return AccountingSupplierParty
+     */
     private function getAccountingSupplierParty(): AccountingSupplierParty
     {
 
@@ -818,7 +885,12 @@ class Peppol extends AbstractService
 
         // return false;
     }
-
+    
+    /**
+     * getAccountingCustomerParty
+     *
+     * @return AccountingCustomerParty
+     */
     private function getAccountingCustomerParty(): AccountingCustomerParty
     {
 
@@ -877,7 +949,12 @@ class Peppol extends AbstractService
 
         return $acp;
     }
-
+    
+    /**
+     * getTaxable
+     *
+     * @return float
+     */
     private function getTaxable(): float
     {
         $total = 0;
@@ -925,7 +1002,12 @@ class Peppol extends AbstractService
     }
 
     /////////////////  Helper Methods /////////////////////////
-
+    
+    /**
+     * getClientRoutingCode
+     *
+     * @return string
+     */
     private function getClientRoutingCode(): string
     {
         // $receiver_identifiers = $this->routing_rules[$this->invoice->client->country->iso_3166_2];
@@ -1006,16 +1088,29 @@ class Peppol extends AbstractService
         return null;
 
     }
-
+    
+    /**
+     * getClientSetting
+     *
+     * @param  string $property_path
+     * @return mixed
+     */
     private function getClientSetting(string $property_path): mixed
     {
         return PropertyResolver::resolve($this->_client_settings, $property_path);
     }
-
+    
+    /**
+     * getCompanySetting
+     *
+     * @param  string $property_path
+     * @return mixed
+     */
     private function getCompanySetting(string $property_path): mixed
     {
         return PropertyResolver::resolve($this->_company_settings, $property_path);
     }
+
     /**
      * senderSpecificLevelMutators
      *
@@ -1171,7 +1266,6 @@ class Peppol extends AbstractService
      */
     private function buildRouting(array $identifiers): array
     {
-
         return
         [
             "routing" => [
@@ -1181,7 +1275,13 @@ class Peppol extends AbstractService
             ]
         ];
     }
-
+    
+    /**
+     * setEmailRouting
+     *
+     * @param  string $email
+     * @return self
+     */
     private function setEmailRouting(string $email): self
     {
         nlog($email);
@@ -1216,14 +1316,16 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * getStorecoveMeta
+     *
+     * @return array
+     */
     public function getStorecoveMeta(): array
     {
         return $this->storecove_meta;
     }
-
-
-
 
 
 
@@ -1341,7 +1443,12 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * FI
+     *
+     * @return self
+     */
     private function FI(): self
     {
 
@@ -1404,7 +1511,12 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * IT
+     *
+     * @return self
+     */
     private function IT(): self
     {
 
@@ -1450,7 +1562,12 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * client_IT
+     *
+     * @return self
+     */
     private function client_IT(): self
     {
 
@@ -1467,13 +1584,23 @@ class Peppol extends AbstractService
         return $this;
 
     }
-
+    
+    /**
+     * MY
+     *
+     * @return self
+     */
     private function MY(): self
     {
         //way too much to digest here, delayed.
         return $this;
     }
-
+    
+    /**
+     * NL
+     *
+     * @return self
+     */
     private function NL(): self
     {
 
@@ -1483,13 +1610,23 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * NZ
+     *
+     * @return self
+     */
     private function NZ(): self
     {
         // New Zealand uses a GLN to identify businesses. In addition, when sending invoices to a New Zealand customer, make sure you include the pseudo identifier NZ:GST as their tax identifier.
         return $this;
     }
-
+    
+    /**
+     * PL
+     *
+     * @return self
+     */
     private function PL(): self
     {
 
@@ -1515,7 +1652,12 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * RO
+     *
+     * @return self
+     */
     private function RO(): self
     {
         // Because using this network is not yet mandatory, the default workflow is to not use this network. Therefore, you have to force its use, as follows:
@@ -1549,7 +1691,12 @@ class Peppol extends AbstractService
 
         return $this;
     }
-
+    
+    /**
+     * SG
+     *
+     * @return self
+     */
     private function SG(): self
     {
         //delayed  - stage 2
