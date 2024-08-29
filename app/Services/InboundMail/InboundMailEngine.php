@@ -38,9 +38,9 @@ class InboundMailEngine
     public function __construct()
     {
 
-        $this->globalBlacklist = explode(",", config('ninja.inbound_mailbox.global_inbound_blocklist'));
-        $this->globalWhitelist = explode(",", config('ninja.inbound_mailbox.global_inbound_whitelist')); // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
-
+        // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
+        $this->globalBlacklist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_blocklist')) : [];
+        $this->globalWhitelist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_whitelist')) : [];
     }
     /**
      * if there is not a company with an matching mailbox, we only do monitoring

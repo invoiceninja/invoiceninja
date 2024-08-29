@@ -15,7 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 
 /**
- * EmailObject.
+ * InboundMail.
  */
 class InboundMail
 {
