@@ -12,6 +12,8 @@
 namespace App\Services\EDocument\Jobes;
 
 use App\Libraries\MultiDB;
+use App\Models\Invoice;
+use App\Utils\Ninja;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -48,7 +50,18 @@ class SendEDocument implements ShouldQueue
 
         if($e_invoice_standard != 'PEPPOL')
             return;
-        
+
+        if(Ninja::isSelfHost() && ($model instanceof Invoice) && $model->company->legal_entity_id)
+        {
+            //self hosted sender
+        }
+
+        if(Ninja::isHosted() && ($model instanceof Invoice) && $model->company->legal_entity_id)
+        {
+            //hosted sender
+        }
+
+        return;
     }
 
     public function failed($exception = null)
