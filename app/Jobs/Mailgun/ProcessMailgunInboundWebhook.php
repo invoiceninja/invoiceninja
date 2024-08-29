@@ -187,10 +187,10 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
         try { // important to save meta if something fails here to prevent spam
 
             // fetch message from mailgun-api
-            $company_mailgun_domain = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_domain ? $company->settings?->mailgun_domain : null;
-            $company_mailgun_secret = $company->settings?->email_sending_method === 'client_mailgun' && $company->settings?->mailgun_secret ? $company->settings?->mailgun_secret : null;
+            $company_mailgun_domain = $company->getSetting('email_sending_method') == 'client_mailgun' && strlen($company->getSetting('mailgun_domain') ?? '') > 2 ? $company->getSetting('mailgun_domain') : null;
+            $company_mailgun_secret = $company->getSetting('email_sending_method') == 'client_mailgun' && strlen($company->getSetting('mailgun_secret') ?? '') > 2 ? $company->getSetting('mailgun_secret') : null;
             if (!($company_mailgun_domain && $company_mailgun_secret) && !(config('services.mailgun.domain') && config('services.mailgun.secret')))
-                throw new \Error("[ProcessMailgunInboundWebhook] no mailgun credenitals found, we cannot get the attachements and files");
+                throw new \Error("[ProcessMailgunInboundWebhook] no mailgun credentials found, we cannot get the attachements and files");
 
             $mail = null;
             if ($company_mailgun_domain && $company_mailgun_secret) {
