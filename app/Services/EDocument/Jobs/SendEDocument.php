@@ -11,15 +11,19 @@
 
 namespace App\Services\EDocument\Jobes;
 
-use App\Libraries\MultiDB;
-use App\Models\Invoice;
 use App\Utils\Ninja;
+use App\Models\Invoice;
+use App\Libraries\MultiDB;
+use App\Models\Activity;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Services\EDocument\Standards\Peppol;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 
 class SendEDocument implements ShouldQueue
 {
@@ -53,15 +57,88 @@ class SendEDocument implements ShouldQueue
 
         if(Ninja::isSelfHost() && ($model instanceof Invoice) && $model->company->legal_entity_id)
         {
+        
+            $p = new Peppol($model);
+
+            $p->run();
+            $xml = $p->toXml();
+            $identifiers = $p->getStorecoveMeta();
+
+            $payload = [
+                'legal_entity_id' => $model->company->legal_entity_id,
+                'document' => base64_encode($xml),
+                'tenant_id' => $model->company->company_key,
+                'identifiers' => $identifiers,
+            ];
+
+            $r = Http::withHeaders($this->getHeaders())
+                ->post(config('ninja.hosted_ninja_url')."/api/einvoice/submission", $payload);
+
+            if($r->successful()) {
+                nlog("Model {$model->number} was successfully sent for third party processing via hosted Invoice Ninja");
+            
+                $data = $r->json();
+                return $this->writeActivity($model, $data['guid']);
+
+            }
+
+            if($r->failed()) {
+                nlog("Model {$model->number} failed to be accepted by invoice ninja, error follows:");
+                nlog($r->getBody()->getContents());
+            }
+
             //self hosted sender
         }
 
         if(Ninja::isHosted() && ($model instanceof Invoice) && $model->company->legal_entity_id)
         {
             //hosted sender
+            $p = new Peppol($model);
+
+            $p->run();
+            $xml = $p->toXml();
+            $identifiers = $p->getStorecoveMeta();
+
+            $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+            $r = $sc->sendDocument($xml, $model->company->legal_entity_id, $identifiers);
+
+            if(is_string($r))
+                return $this->writeActivity($model, $r);
+                
+            if($r->failed()) {
+                nlog("Model {$model->number} failed to be accepted by invoice ninja, error follows:");
+                nlog($r->getBody()->getContents());
+            }
+
         }
 
-        return;
+    }
+
+    private function writeActivity($model, string $guid)
+    {
+        $activity = new Activity();
+        $activity->user_id = $model->user_id;
+        $activity->client_id = $model->client_id ?? $model->vendor_id;
+        $activity->company_id = $model->company_id;
+        $activity->activity_type_id = Activity::EMAIL_EINVOICE_SUCCESS;
+        $activity->invoice_id = $model->id;
+        $activity->notes = $guid;
+        $activity->save();
+
+    }
+    
+    /**
+     * Self hosted request headers
+     *
+     * @return array
+     */
+    private function getHeaders(): array
+    {
+        return [
+            'X-API-SELF-HOST-TOKEN' => config('ninja.license_key'),
+            "X-Requested-With" => "XMLHttpRequest",
+            "Content-Type" => "application/json",
+        ];
     }
 
     public function failed($exception = null)

@@ -23,13 +23,13 @@ class Portal extends Component
 
     public array $companies;
 
-    // private string $api_url = 'https://invoicing.co'
-
-    private string $api_url = 'http://ninja.test:8000';
+    private string $api_url = '';
 
     public function mount()
     {
 
+        $this->api_url = config('ninja.hosted_ninja_url');
+        
         $this->getCompanies();
 
     }
@@ -99,15 +99,12 @@ class Portal extends Component
                 $register_company = array_merge($company, $register_company);
         }
 
-        nlog("{$this->api_url}/api/einvoice/createLegalEntity");
-        nlog($register_company);
-
         $r = Http::withHeaders($this->getHeaders())
                     ->post("{$this->api_url}/api/einvoice/createLegalEntity", $register_company);
 
         if($r->successful())
         {
-            nlog($r->json());
+
             nlog($r->body());
             $response = $r->json();
             
@@ -122,7 +119,6 @@ class Portal extends Component
 
         if($r->failed())
             nlog($r->getBody()->getContents());
-
 
         $error = json_decode($r->getBody()->getContents(),true);
 

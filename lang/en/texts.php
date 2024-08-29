@@ -5324,6 +5324,7 @@ $lang = array(
     'activity_142' => 'Quote :number Reminder 1 Sent',
     'activity_143' => 'Auto Bill succeeded for Invoice :invoice',
     'activity_144' => 'Auto Bill failed for Invoice :invoice. :notes',
+    'activity_145' => 'EInvoice :invoice for :client was e-delivered. :notes',
 );
 
 return $lang;

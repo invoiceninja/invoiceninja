@@ -265,9 +265,11 @@ class Activity extends StaticModel
 
     public const QUOTE_REMINDER1_SENT = 142;
 
-    public const AUTOBILL_SUCCESS = 143; //:invoice auto billing succeeded
+    public const AUTOBILL_SUCCESS = 143; 
 
-    public const AUTOBILL_FAILURE = 144; //:invoice autobilling failed :note
+    public const AUTOBILL_FAILURE = 144; 
+
+    public const EMAIL_EINVOICE_SUCCESS = 145;
 
     protected $casts = [
         'is_system' => 'boolean',
@@ -283,7 +285,6 @@ class Activity extends StaticModel
     protected $with = [
         'backup',
     ];
-
 
     public function getHashedIdAttribute(): string
     {
