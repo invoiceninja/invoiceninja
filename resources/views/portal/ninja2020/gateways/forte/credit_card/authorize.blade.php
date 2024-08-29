@@ -6,9 +6,8 @@
     <meta name="credit-card-invalid" content="{{ ctrans('texts.credit_card_invalid') }}">
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-    <script src="{{ asset('js/clients/payments/forte-card-js.min.js') }}"></script>
+    <script src="{{ asset('vendor/simple-card@0.0.3/simple-card.js') }}"></script> 
 
-    <link href="{{ asset('css/card-js.min.css') }}" rel="stylesheet" type="text/css">
     @if($gateway->company_gateway->getConfigField('testMode'))
         <script type="text/javascript" src="https://sandbox.forte.net/api/js/v1"></script>
     @else
@@ -70,7 +69,19 @@
 @endsection
 
 @section('gateway_footer')
-    <script>
+    <script defer>
+        const sc = createSimpleCard({
+            fields: {
+                card: {
+                    number: '#number',
+                    date: '#date',
+                    cvv: '#cvv',
+                },
+            },
+        });
+
+        sc.mount();
+
         function onTokenCreated(params) {
             document.getElementById('one_time_token').value=params.onetime_token;
             document.getElementById('last_4').value=params.last_4;
@@ -82,9 +93,9 @@
             document.getElementById("forte_errors").innerHTML = errors;
         }
         function submitCard(){
-            var doc = document.getElementsByClassName("card-number-wrapper");
-            var cardType=doc[0].childNodes[1].classList[2];
-            if (cardType=='master-card') {
+            let cardType = sc.type();            
+
+            if (cardType=='mastercard') {
                 document.getElementById('card_type').value='mast';
             } else if(cardType=='visa') {
                 document.getElementById('card_type').value='visa';
@@ -92,30 +103,27 @@
                 document.getElementById('card_type').value='jcb';
             }else if(cardType=='discover') {
                 document.getElementById('card_type').value='disc';
-            }else if(cardType=='american-express') {
+            }else if(cardType=='amex') {
                 document.getElementById('card_type').value='amex';
             }else{
                 document.getElementById('card_type').value=cardType;
             }
-            var month=document.querySelector('input[name=expiry-month]').value;
-            var year=document.querySelector('input[name=expiry-year]').value;
-            var cc=document.getElementById('card_number').value.replaceAll(' ','');
-            var cvv=document.getElementById('cvv').value;
-            
-            document.getElementById('expire_year').value=year;
-            document.getElementById('expire_month').value=month;
+
+            document.getElementById('expire_year').value = `20${sc.value('year')?.replace(/[^\d]/g, '')}`;
+            document.getElementById('expire_month').value= sc.value('month')?.replace(/[^\d]/g, '');
             
             var data = {
-               api_login_id: '{{$gateway->company_gateway->getConfigField("apiLoginId")}}',
-               card_number: cc,
-               expire_year: year, 
-               expire_month: month,
-               cvv: cvv,
+               api_login_id: '{{ $gateway->company_gateway->getConfigField("apiLoginId") }}',
+               card_number: sc.value('number')?.replace(/[^\d]/g, ''),
+               expire_year: `20${sc.value('year')?.replace(/[^\d]/g, '')}`, 
+               expire_month: sc.value('month')?.replace(/[^\d]/g, ''),
+               cvv: sc.value('cvv')?.replace(/[^\d]/g, ''),
             }
 
             forte.createToken(data)
                .success(onTokenCreated)
                .error(onTokenFailed);
+
             return false;
         }
     </script>
