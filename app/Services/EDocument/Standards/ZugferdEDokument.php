@@ -124,9 +124,9 @@ class ZugferdEDokument extends AbstractService
 
         //Payment Means - Switcher
         if($company->settings->custom_value1 == '42') {
-            $this->xdocument->addDocumentPaymentMean(typecode: 42, payeeIban: $company->settings->custom_value2, payeeAccountName: $company->settings->custom_value4, payeeBic: $company->settings->custom_value3);
+            $this->xdocument->addDocumentPaymentMean(typecode: '42', payeeIban: $company->settings->custom_value2, payeeAccountName: $company->settings->custom_value4, payeeBic: $company->settings->custom_value3);
         } else {
-            $this->xdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
+            $this->xdocument->addDocumentPaymentMean('68', ctrans("texts.xinvoice_online_payment"));
         }
 
         if (str_contains($company->getSetting('vat_number'), "/")) {

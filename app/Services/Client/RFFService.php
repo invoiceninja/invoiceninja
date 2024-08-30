@@ -69,7 +69,7 @@ class RFFService
             if (Str::startsWith($field['name'], 'client_')) {
                 if (
                     empty($_contact->client->{$_field})
-                    || is_null($_contact->client->{$_field})
+                    || is_null($_contact->client->{$_field}) //@phpstan-ignore-line
                 ) {
                     // $this->show_form = true;
                     $this->unfilled_fields++;
@@ -79,7 +79,7 @@ class RFFService
             }
 
             if (Str::startsWith($field['name'], 'contact_')) {
-                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) {
+                if (empty($_contact->{$_field}) || is_null($_contact->{$_field}) || str_contains($_contact->{$_field}, '@example.com')) { //@phpstan-ignore-line
                     $this->unfilled_fields++;
                 } else {
                     $this->fields[$index]['filled'] = true;

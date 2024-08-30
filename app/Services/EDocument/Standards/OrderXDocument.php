@@ -100,7 +100,7 @@ class OrderXDocument extends AbstractService
             $this->orderxdocument->setDocumentShipToAddress($settings_entity->shipping_address1, $settings_entity->shipping_address2, "", $settings_entity->shipping_postal_code, $settings_entity->shipping_city, $settings_entity->shipping_country->iso_3166_2, $settings_entity->shipping_state);
         }
 
-        $this->orderxdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
+        $this->orderxdocument->addDocumentPaymentMean('68', ctrans("texts.xinvoice_online_payment"));
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
             $this->orderxdocument->addDocumentSellerTaxRegistration("FC", $company->getSetting('vat_number'));

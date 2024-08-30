@@ -165,6 +165,7 @@ class InvoicePay extends Component
             return $this->required_fields = true;
         }
 
+        /** @var \App\Models\ClientContact $contact */
         $contact = $this->getContext()['contact'];
 
         foreach ($fields as $index => $field) {
@@ -173,7 +174,7 @@ class InvoicePay extends Component
             if (\Illuminate\Support\Str::startsWith($field['name'], 'client_')) {
                 if (
                     empty($contact->client->{$_field})
-                    || is_null($contact->client->{$_field})
+                    || is_null($contact->client->{$_field}) //@phpstan-ignore-line
                 ) {
 
                     return $this->required_fields = true;
@@ -182,7 +183,7 @@ class InvoicePay extends Component
             }
 
             if (\Illuminate\Support\Str::startsWith($field['name'], 'contact_')) {
-                if (empty($contact->{$_field}) || is_null($contact->{$_field}) || str_contains($contact->{$_field}, '@example.com')) {
+                if (empty($contact->{$_field}) || is_null($contact->{$_field}) || str_contains($contact->{$_field}, '@example.com')) { //@phpstan-ignore-line
                     return $this->required_fields = true;
                 }
             }
