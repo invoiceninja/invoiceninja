@@ -49,6 +49,18 @@ class UpdatePaymentMethods
             $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::CREDIT_CARD);
         }
 
+        $link_methods = PaymentMethod::all(
+            [
+                'customer' => $customer->id,
+                'type' => 'link',
+            ],
+            $this->stripe->stripe_connect_auth
+        );
+
+        foreach ($link_methods as $method) {
+            $this->addOrUpdateCard($method, $customer->id, $client, GatewayType::CREDIT_CARD);
+        }
+
         $alipay_methods = PaymentMethod::all(
             [
             'customer' => $customer->id,
@@ -217,8 +229,13 @@ class UpdatePaymentMethods
 
     private function buildPaymentMethodMeta(PaymentMethod $method, $type_id)
     {
+        nlog($method->type);
+        
         switch ($type_id) {
             case GatewayType::CREDIT_CARD:
+
+                if($method->type == 'link')
+                    return new \stdClass();
 
                 /**
                  * @class \Stripe\PaymentMethod $method
@@ -240,7 +257,7 @@ class UpdatePaymentMethods
                 return $payment_meta;
             case GatewayType::ALIPAY:
             case GatewayType::SOFORT:
-
+            
                 return new \stdClass();
 
             case GatewayType::SEPA:

@@ -221,6 +221,7 @@ class TemplateService
         $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first();
 
         $this->data = $tm->engines;
+
         $this->variables = $tm->variables[0];
         $this->twig->addGlobal('currency_code', $this->company->currency()->code);
         $this->twig->addGlobal('show_credits', true);
@@ -979,6 +980,7 @@ class TemplateService
         return [
             'name' => $user->present()->name(),
             'email' => $user->email,
+            'signature' => $user->signature ?? '',
         ];
     }
 

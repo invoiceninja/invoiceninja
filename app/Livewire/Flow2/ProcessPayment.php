@@ -59,7 +59,7 @@ class ProcessPayment extends Component
         }
 
         $driver = $company_gateway
-            ->driver($invitation->contact->client)
+            ->driver($invitation->contact->client) // @phpstan-ignore-line
             ->setPaymentMethod($data['payment_method_id'])
             ->setPaymentHash($responder_data['payload']['ph']);
 

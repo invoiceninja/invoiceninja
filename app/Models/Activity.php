@@ -265,6 +265,12 @@ class Activity extends StaticModel
 
     public const QUOTE_REMINDER1_SENT = 142;
 
+    public const AUTOBILL_SUCCESS = 143; 
+
+    public const AUTOBILL_FAILURE = 144; 
+
+    public const EMAIL_EINVOICE_SUCCESS = 145;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -280,12 +286,10 @@ class Activity extends StaticModel
         'backup',
     ];
 
-
     public function getHashedIdAttribute(): string
     {
         return $this->encodePrimaryKey($this->id);
     }
-
 
     public function getEntityType()
     {

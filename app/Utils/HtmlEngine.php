@@ -399,7 +399,9 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
+
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
+        $data['$user.signature'] = ['value' => $this->entity->user->signature ?? '', 'label' => ctrans('texts.signature')];
         $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
         $data['$user.last_name'] = ['value' => $this->entity->user->last_name, 'label' => ctrans('texts.last_name')];
         $data['$created_by_user'] = &$data['$user.name'];
@@ -731,6 +733,7 @@ class HtmlEngine
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
         $data['$payment.refunded'] = ['value' => '', 'label' => ctrans('texts.refund')];
+        $data['$gateway_payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';

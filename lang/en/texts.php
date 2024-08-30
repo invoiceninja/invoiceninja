@@ -5321,6 +5321,11 @@ $lang = array(
     'applies_to' => 'Applies To',
     'accept_purchase_order' => 'Accept Purchase Order',
     'round_to_seconds' => 'Round To Seconds',
+    'activity_142' => 'Quote :number reminder 1 sent',
+    'activity_143' => 'Auto Bill succeeded for invoice :invoice',
+    'activity_144' => 'Auto Bill failed for invoice :invoice. :notes',
+    'activity_145' => 'EInvoice :invoice for :client was e-delivered. :notes',
+
 );
 
 return $lang;

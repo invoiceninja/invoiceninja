@@ -46,6 +46,7 @@ return [
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
     'license_key' => env('LICENSE_KEY', false),
+    'hosted_ninja_url' => env('HOSTED_NINJA_URL', 'https://invoicing.co'),
     // Settings used by invoiceninja.com
     'disks' => [
         'backup' => env('BACKUP_DISK', 's3'),

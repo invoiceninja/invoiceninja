@@ -17,6 +17,7 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
+use App\Services\EDocument\Jobes\SendEDocument;
 use App\Services\PdfMaker\PdfMerge;
 use Illuminate\Database\Eloquent\Model;
 use App\Utils\Traits\UserSessionAttributes;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @package App\Models
  * @property-read mixed $hashed_id
  * @property string $number
+ * @property object|array|null $e_invoice
  * @property int $company_id
  * @property int $id
  * @property int $user_id
@@ -294,6 +296,12 @@ class BaseModel extends Model
         if ($subscriptions) {
             WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
+
+        // special catch here for einvoicing eventing
+        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && is_null($this->backup)){
+            \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
+        }
+
     }
 
     /**

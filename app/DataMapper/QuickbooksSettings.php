@@ -29,6 +29,7 @@ class QuickbooksSettings implements Castable
 
     public int $refreshTokenExpiresAt;
     
+    public string $baseURL;
     /** 
      * entity client,invoice,quote,purchase_order,vendor,payment
      * sync true/false

@@ -65,7 +65,7 @@ class StorecoveTest extends TestCase
     // ];
 
     // $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-    // $r = $sc->createLegalEntity($data, $this->company);
+    // $r = $sc->createLegalEntity($data);
 
     //     $this->assertIsArray($r);
 
@@ -358,7 +358,19 @@ class StorecoveTest extends TestCase
 
         }
     */
-    public function XXestCreateCHClient()
+    public function testCreateTestData()
+    {
+      $this->createESData();
+      $this->createATData();
+      $this->createDEData();
+      $this->createFRData();
+      $this->createITData();
+      $this->createROData();
+
+      $this->assertTrue(true);
+    }
+
+    public function testCreateCHClient()
     {
 
         Client::unguard();
@@ -553,6 +565,115 @@ class StorecoveTest extends TestCase
             'tax_name3' => '',
             'line_items' => [$item],
             'number' => 'IT-'.rand(1000, 100000),
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(14)->format('Y-m-d'),
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+        $invoice->service()->markSent()->save();
+
+        return $invoice;
+
+    }
+
+    private function createDEData()
+    {
+        // $this->routing_id = 293098;
+
+        $settings = CompanySettings::defaults();
+
+        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+        $settings->website = 'www.invoiceninja.de';
+        $settings->address1 = 'Musterstraße 12';
+        $settings->address2 = 'Gebäude B';
+        $settings->city = 'Berlin';
+        $settings->state = 'Berlin';
+        $settings->postal_code = '10115';
+        $settings->phone = '030 1234567';
+        $settings->email = $this->faker->unique()->safeEmail();
+        $settings->country_id = '276'; // Germany's ISO country code
+        $settings->vat_number = 'DE123456789';
+        $settings->id_number = 'HRB 98765';
+        $settings->use_credits_payment = 'always';
+        $settings->timezone_id = '1'; // CET (Central European Time)
+        $settings->entity_send_time = 0;
+        $settings->e_invoice_type = 'PEPPOL';
+        $settings->currency_id = '3'; // Euro
+        $settings->classification = 'business';
+
+
+        $company = Company::factory()->create([
+          'account_id' => $this->account->id,
+          'settings' => $settings,
+        ]);
+
+        $this->user->companies()->attach($company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => true,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'notifications' => CompanySettings::notificationAdminDefaults(),
+            'settings' => null,
+        ]);
+
+        Client::unguard();
+
+        $c =
+        Client::create([
+        'company_id' => $company->id,
+        'user_id' => $this->user->id,
+        'name' => 'Beispiel GmbH',
+        'website' => 'https://www.beispiel.de',
+        'private_notes' => 'Dies sind private Notizen für den Testkunden.',
+        'balance' => 0,
+        'paid_to_date' => 0,
+        'vat_number' => 'DE123456789', // German VAT number with DE prefix
+        'id_number' => 'HRB 12345', // Typical format for German company registration numbers
+        'custom_value1' => '2024-07-22 10:00:00',
+        'custom_value2' => 'blau', // German for blue
+        'custom_value3' => 'beispielwort', // German for sample word
+        'custom_value4' => 'test@beispiel.de',
+        'address1' => 'Beispielstraße 123',
+        'address2' => '2. Stock, Büro 45',
+        'city' => 'Berlin',
+        'state' => 'Berlin',
+        'postal_code' => '10115',
+        'country_id' => '276', // Germany
+        'shipping_address1' => 'Beispielstraße 123',
+        'shipping_address2' => '2. Stock, Büro 45',
+        'shipping_city' => 'Berlin',
+        'shipping_state' => 'Berlin',
+        'shipping_postal_code' => '10115',
+        'shipping_country_id' => '276', // Germany
+        'settings' => ClientSettings::Defaults(),
+        'client_hash' => \Illuminate\Support\Str::random(32),
+        'routing_id' => 'DEDEDE',
+        ]);
+
+        $item = new InvoiceItem();
+        $item->product_key = "Product Key";
+        $item->notes = "Product Description";
+        $item->cost = 10;
+        $item->quantity = 10;
+        $item->tax_rate1 = 19;
+        $item->tax_name1 = 'mwst';
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $c->id,
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'status_id' => 1,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'line_items' => [$item],
+            'number' => 'DE-'.rand(1000, 100000),
             'date' => now()->format('Y-m-d'),
             'due_date' => now()->addDays(14)->format('Y-m-d'),
         ]);

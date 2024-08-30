@@ -23,6 +23,8 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use Illuminate\Support\Str;
 use App\DataMapper\InvoiceItem;
+use App\Events\Invoice\InvoiceAutoBillFailed;
+use App\Events\Invoice\InvoiceAutoBillSuccess;
 use App\Factory\PaymentFactory;
 use App\Services\AbstractService;
 use App\Models\ClientGatewayToken;
@@ -157,6 +159,8 @@ class AutoBillInvoice extends AbstractService
         } catch (\Exception $e) {
 
             nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
+            event(new InvoiceAutoBillFailed($this->invoice, $this->invoice->company, Ninja::eventVars(), $e->getMessage()));
+
         }
 
         $this->invoice->auto_bill_tries += 1;
@@ -170,6 +174,7 @@ class AutoBillInvoice extends AbstractService
 
         if ($payment) {
             info('Auto Bill payment captured for '.$this->invoice->number);
+            event(new InvoiceAutoBillSuccess($this->invoice, $this->invoice->company, Ninja::eventVars()));
         }
     }
 
