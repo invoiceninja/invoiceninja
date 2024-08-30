@@ -102,17 +102,20 @@ class ZugferdEDocument extends AbstractService
             if (array_key_exists("VA", $taxtype)) {
                 $taxid = $taxtype["VA"];
             }
-            $vendor = Vendor::where("company_id", $user->company()->id)->where('vat_number', $taxid)->first();
-            if (!$vendor) {
-                $vendor_contact = VendorContact::where("company_id", $user->company()->id)->where("email", $contact_email)->first();
-                if ($vendor_contact)
-                    $vendor = $vendor_contact->vendor;
-            }
-            if (!$vendor)
-                $vendor = Vendor::where("company_id", $user->company()->id)->where("name", $person_name)->first();
 
-            if (!empty($vendor)) {
-                // Vendor found
+            $vendor = Vendor::query()
+                            ->where("company_id", $user->company()->id)
+                            ->where(function ($q) use($taxid, $person_name, $contact_email){
+                                $q->when(!is_null($taxid), function ($when_query) use($taxid){
+                                    $when_query->orWhere('vat_number', $taxid); 
+                                }) 
+                                ->orWhere("name", $person_name)
+                                ->orWhereHas('contacts', function ($qq) use ($contact_email){
+                                $qq->where("email", $contact_email);
+                                });
+                            })->first();
+                            
+            if ($vendor) {
                 $expense->vendor_id = $vendor->id;
             } else {
                 $vendor = VendorFactory::create($this->company->id, $user->id);

@@ -11,16 +11,17 @@
 
 namespace App\Jobs\Mailgun;
 
-use App\Libraries\MultiDB;
-use App\Services\InboundMail\InboundMail;
-use App\Services\InboundMail\InboundMailEngine;
+use App\Models\Company;
 use App\Utils\TempFile;
-use Illuminate\Support\Carbon;
+use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Carbon;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use App\Services\InboundMail\InboundMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use App\Services\InboundMail\InboundMailEngine;
 
 class ProcessMailgunInboundWebhook implements ShouldQueue
 {
@@ -34,9 +35,9 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
      * Create a new job instance.
      * $input consists of 3 informations: sender/from|recipient/to|messageUrl
      */
-    public function __construct(private string $sender, private string $recipient, private string $message_url)
+    public function __construct(private string $sender, private string $recipient, private string $message_url, private Company $company)
     {
-        $this->engine = new InboundMailEngine();
+        $this->engine = new InboundMailEngine($company);
     }
 
     /**
@@ -176,19 +177,20 @@ class ProcessMailgunInboundWebhook implements ShouldQueue
             return;
         }
 
+        // lets assess this at a higher level to ensure that only valid email inboxes are processed.
         // match company
-        $company = MultiDB::findAndSetDbByExpenseMailbox($to);
-        if (!$company) {
-            nlog('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
-            $this->engine->saveMeta($from, $to, true); // important to save this, to protect from spam
-            return;
-        }
+        // $company = MultiDB::findAndSetDbByExpenseMailbox($to);
+        // if (!$company) {
+        //     nlog('[ProcessMailgunInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from mailgun: ' . $to);
+        //     $this->engine->saveMeta($from, $to, true); // important to save this, to protect from spam
+        //     return;
+        // }
 
         try { // important to save meta if something fails here to prevent spam
 
             // fetch message from mailgun-api
-            $company_mailgun_domain = $company->getSetting('email_sending_method') == 'client_mailgun' && strlen($company->getSetting('mailgun_domain') ?? '') > 2 ? $company->getSetting('mailgun_domain') : null;
-            $company_mailgun_secret = $company->getSetting('email_sending_method') == 'client_mailgun' && strlen($company->getSetting('mailgun_secret') ?? '') > 2 ? $company->getSetting('mailgun_secret') : null;
+            $company_mailgun_domain = $this->company->getSetting('email_sending_method') == 'client_mailgun' && strlen($this->company->getSetting('mailgun_domain') ?? '') > 2 ? $this->company->getSetting('mailgun_domain') : null;
+            $company_mailgun_secret = $this->company->getSetting('email_sending_method') == 'client_mailgun' && strlen($this->company->getSetting('mailgun_secret') ?? '') > 2 ? $this->company->getSetting('mailgun_secret') : null;
             if (!($company_mailgun_domain && $company_mailgun_secret) && !(config('services.mailgun.domain') && config('services.mailgun.secret')))
                 throw new \Error("[ProcessMailgunInboundWebhook] no mailgun credentials found, we cannot get the attachements and files");
 

@@ -35,7 +35,7 @@ class InboundMailEngine
 
     private array $globalBlacklist;
     private array $globalWhitelist; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
-    public function __construct()
+    public function __construct(private Company $company)
     {
 
         // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
@@ -52,19 +52,19 @@ class InboundMailEngine
             return;
 
         // Expense Mailbox => will create an expense
-        $company = MultiDB::findAndSetDbByExpenseMailbox($email->to);
-        if (!$company) {
-            $this->saveMeta($email->from, $email->to, true);
-            return;
-        }
+        // $company = MultiDB::findAndSetDbByExpenseMailbox($email->to);
+        // if (!$company) {
+        //     $this->saveMeta($email->from, $email->to, true);
+        //     return;
+        // }
 
         // check if company plan matches requirements
-        if (Ninja::isHosted() && !($company->account->isPaid() && $company->account->plan == 'enterprise')) {
+        if (Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
             $this->saveMeta($email->from, $email->to);
             return;
         }
 
-        $this->createExpenses($company, $email);
+        $this->createExpenses($email);
         $this->saveMeta($email->from, $email->to);
     }
 
@@ -145,6 +145,8 @@ class InboundMailEngine
         // TODO: ignore, when known sender (for heavy email-usage mostly on isHosted())
         // TODO: handle external blocking
     }
+
+    //@todo - refactor
     public function saveMeta(string $from, string $to, bool $isUnknownRecipent = false)
     {
         // save cache
@@ -161,24 +163,24 @@ class InboundMailEngine
     }
 
     // MAIN-PROCESSORS
-    protected function createExpenses(Company $company, InboundMail $email)
+    protected function createExpenses(InboundMail $email)
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
-        if (!($company?->expense_mailbox_active ?: false)) {
-            $this->logBlocked($company, 'mailbox not active for this company. from: ' . $email->from);
+        if (!$this->company->expense_mailbox_active) {
+            $this->logBlocked($this->company, 'mailbox not active for this company. from: ' . $email->from);
             return;
         }
-        if (!$this->validateExpenseSender($company, $email)) {
-            $this->logBlocked($company, 'invalid sender of an ingest email for this company. from: ' . $email->from);
+        if (!$this->validateExpenseSender($email)) {
+            $this->logBlocked($this->company, 'invalid sender of an ingest email for this company. from: ' . $email->from);
             return;
         }
         if (sizeOf($email->documents) == 0) {
-            $this->logBlocked($company, 'email does not contain any attachments and is likly not an expense. from: ' . $email->from);
+            $this->logBlocked($this->company, 'email does not contain any attachments and is likly not an expense. from: ' . $email->from);
             return;
         }
 
         // prepare data
-        $expense_vendor = $this->getVendor($company, $email);
+        $expense_vendor = $this->getVendor($email);
         $this->processHtmlBodyToDocument($email);
 
         $parsed_expense_ids = []; // used to check if an expense was already matched within this job
@@ -192,7 +194,7 @@ class InboundMailEngine
             // check if document can be parsed to an expense
             try {
 
-                $expense = (new ParseEDocument($document, $company))->run();
+                $expense = (new ParseEDocument($document, $this->company))->run();
 
                 // check if expense was already matched within this job and skip if true
                 if (array_search($expense->id, $parsed_expense_ids))
@@ -213,7 +215,7 @@ class InboundMailEngine
 
             // populate missing data with data from email
             if (!$expense)
-                $expense = ExpenseFactory::create($company->id, $company->owner()->id);
+                $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
 
             $is_imported_by_parser = array_search($expense->id, $parsed_expense_ids);
 
@@ -256,61 +258,61 @@ class InboundMailEngine
             $email->body_document = TempFile::UploadedFileFromRaw($email->body, "E-Mail.html", "text/html");
 
     }
-    private function validateExpenseSender(Company $company, InboundMail $email)
+    private function validateExpenseSender(InboundMail $email)
     {
         $parts = explode('@', $email->from);
         $domain = array_pop($parts);
 
         // whitelists
-        $whitelist = explode(",", $company->inbound_mailbox_whitelist);
+        $whitelist = explode(",", $this->company->inbound_mailbox_whitelist);
         if (in_array($email->from, $whitelist))
             return true;
         if (in_array($domain, $whitelist))
             return true;
-        $blacklist = explode(",", $company->inbound_mailbox_blacklist);
+        $blacklist = explode(",", $this->company->inbound_mailbox_blacklist);
         if (in_array($email->from, $blacklist))
             return false;
         if (in_array($domain, $blacklist))
             return false;
 
         // allow unknown
-        if ($company->inbound_mailbox_allow_unknown)
+        if ($this->company->inbound_mailbox_allow_unknown)
             return true;
 
         // own users
-        if ($company->inbound_mailbox_allow_company_users && $company->users()->where("email", $email->from)->exists())
+        if ($this->company->inbound_mailbox_allow_company_users && $this->company->users()->where("email", $email->from)->exists())
             return true;
 
         // from vendors
-        if ($company->inbound_mailbox_allow_vendors && VendorContact::where("company_id", $company->id)->where("email", $email->from)->exists())
+        if ($this->company->inbound_mailbox_allow_vendors && VendorContact::where("company_id", $this->company->id)->where("email", $email->from)->exists())
             return true;
 
         // from clients
-        if ($company->inbound_mailbox_allow_clients && ClientContact::where("company_id", $company->id)->where("email", $email->from)->exists())
+        if ($this->company->inbound_mailbox_allow_clients && ClientContact::where("company_id", $this->company->id)->where("email", $email->from)->exists())
             return true;
 
         // denie
         return false;
     }
-    private function getClient(Company $company, InboundMail $email)
-    {
-        $clientContact = ClientContact::where("company_id", $company->id)->where("email", $email->from)->first();
-        if (!$clientContact)
-            return null;
 
-        return $clientContact->client();
-    }
-    private function getVendor(Company $company, InboundMail $email)
-    {
-        $vendorContact = VendorContact::where("company_id", $company->id)->where("email", $email->from)->first();
-        if (!$vendorContact)
-            return null;
+    // private function getClient(InboundMail $email)
+    // {
+    //     $clientContact = ClientContact::where("company_id", $this->company->id)->where("email", $email->from)->first();
+    //     if (!$clientContact)
+    //         return null;
 
-        return $vendorContact->vendor();
+    //     return $clientContact->client();
+    // }
+    private function getVendor(InboundMail $email)
+    {
+        $vendorContact = VendorContact::with('vendor')->where("company_id", $this->company->id)->where("email", $email->from)->first();
+
+        return $vendorContact ? $vendorContact->vendor : null;
     }
+
     private function logBlocked(Company $company, string $data)
     {
-        nlog("[InboundMailEngine][company:" . $company->company_key . "] " . $data);
+        nlog("[InboundMailEngine][company:" . $this->company->company_key . "] " . $data);
 
         (
             new SystemLogger(

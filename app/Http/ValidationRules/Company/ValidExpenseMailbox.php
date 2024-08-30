@@ -23,10 +23,7 @@ class ValidExpenseMailbox implements Rule
 {
 
     private $validated_schema = false;
-    private $isEnterprise = false;
     private array $endings;
-    private bool $hasCompanyKey;
-    private array $enterprise_endings;
 
     public function __construct()
     {

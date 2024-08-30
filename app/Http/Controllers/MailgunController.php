@@ -11,9 +11,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\Mailgun\ProcessMailgunInboundWebhook;
-use App\Jobs\Mailgun\ProcessMailgunWebhook;
+use App\Models\Company;
+use App\Libraries\MultiDB;
 use Illuminate\Http\Request;
+use App\Jobs\Mailgun\ProcessMailgunWebhook;
+use App\Jobs\Mailgun\ProcessMailgunInboundWebhook;
 
 /**
  * Class MailgunController.
@@ -126,9 +128,15 @@ class MailgunController extends BaseController
         $authorizedByHash = \hash_equals(\hash_hmac('sha256', $input['timestamp'] . $input['token'], config('services.mailgun.webhook_signing_key')), $input['signature']);
         $authorizedByToken = $request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token');
         if (!$authorizedByHash && !$authorizedByToken)
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Unauthorized'], 403); 
 
-        ProcessMailgunInboundWebhook::dispatch($input["sender"], $input["recipient"], $input["message-url"])->delay(rand(2, 10));
+        /** @var \App\Models\Company $company */
+        $company = MultiDB::findAndSetDbByExpenseMailbox($input["recipient"]);
+
+        if(!$company)
+            return response()->json(['message' => 'Ok'], 200);  // Fail gracefully
+
+        ProcessMailgunInboundWebhook::dispatch($input["sender"], $input["recipient"], $input["message-url"], $company)->delay(rand(2, 10));
 
         return response()->json(['message' => 'Success.'], 200);
     }

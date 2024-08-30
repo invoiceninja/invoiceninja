@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->boolean("expense_mailbox_active")->default(true);
+            $table->boolean("expense_mailbox_active")->default(false);
             $table->string("expense_mailbox")->nullable();
             $table->boolean("inbound_mailbox_allow_company_users")->default(false);
             $table->boolean("inbound_mailbox_allow_vendors")->default(false);
