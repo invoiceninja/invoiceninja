@@ -276,7 +276,7 @@ class Peppol extends AbstractService
             $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
         }
 
-        $this->p_invoice->InvoiceTypeCode = 380; //
+        $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381; //
         $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
         $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();

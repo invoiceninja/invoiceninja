@@ -60,7 +60,7 @@ class CompanyRepository extends BaseRepository
 
         if(isset($data['e_invoice']) && is_array($data['e_invoice'])){
             //ensure it is normalized first!
-            $data['e_invoice'] = $this->arrayFilterRecursive($data['e_invoice']);
+            $data['e_invoice'] = $company->arrayFilterRecursive($data['e_invoice']);
 
             $company->e_invoice = $data['e_invoice'];
         }
@@ -69,24 +69,6 @@ class CompanyRepository extends BaseRepository
 
         return $company;
     }
-
-    
-    private function arrayFilterRecursive(array $array): array
-    {
-        foreach ($array as $key => $value) {
-            if (is_array($value)) {
-                // Recursively filter the nested array
-                $array[$key] = $this->arrayFilterRecursive($value);
-            }
-            // Remove null values
-            if (is_null($array[$key])) {
-                unset($array[$key]);
-            }
-        }
-
-        return $array;
-    }
-
 
     /**
      * parseCustomFields

@@ -201,8 +201,8 @@
             "url": "https://github.com/turbo124/snappdf"
         },
         {
-            "type":"vcs",
-            "url":"https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git"
+            "type": "vcs",
+            "url": "https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git"
         }
     ],
     "minimum-stability": "dev",

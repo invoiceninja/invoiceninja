@@ -123,10 +123,11 @@ class SendEDocument implements ShouldQueue
         $activity->company_id = $model->company_id;
         $activity->activity_type_id = Activity::EMAIL_EINVOICE_SUCCESS;
         $activity->invoice_id = $model->id;
-        $activity->notes = $guid;
+        $activity->notes = str_replace('"', '', $guid);
+
         $activity->save();
 
-        $model->backup = $guid;
+        $model->backup = str_replace('"', '', $guid);
         $model->saveQuietly();
 
     }

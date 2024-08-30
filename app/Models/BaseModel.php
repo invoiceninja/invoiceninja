@@ -304,6 +304,31 @@ class BaseModel extends Model
 
     }
 
+    
+    /**
+     * arrayFilterRecursive
+     *
+     * Removes null properties from an array
+     * 
+     * @param  array $array
+     * @return array
+     */
+    public function arrayFilterRecursive(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                // Recursively filter the nested array
+                $array[$key] = $this->arrayFilterRecursive($value);
+            }
+            // Remove null values
+            if (is_null($array[$key])) {
+                unset($array[$key]);
+            }
+        }
+
+        return $array;
+    }
+
     /**
      * Returns the base64 encoded PDF string of the entity
      * @deprecated - unused implementation
