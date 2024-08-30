@@ -335,7 +335,7 @@ class Peppol extends AbstractService
     /**
      * getInvoice
      *
-     * @return InvoiceNinja\EInvoice\Models\Peppol\Invoice
+     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice
      */
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
     {

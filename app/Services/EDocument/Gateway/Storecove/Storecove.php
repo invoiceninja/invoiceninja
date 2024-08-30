@@ -261,7 +261,7 @@ class Storecove
      *
      * @param  int $id
      * @param  array $data
-     * @return array
+     * @return mixed
      */
     public function updateLegalEntity(int $id, array $data)
     {

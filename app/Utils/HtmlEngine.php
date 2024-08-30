@@ -733,7 +733,7 @@ class HtmlEngine
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
         $data['$payment.refunded'] = ['value' => '', 'label' => ctrans('texts.refund')];
-        $data['$gateway_payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
+        $data['$payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
@@ -1166,7 +1166,7 @@ class HtmlEngine
         }
 
         return '
-<div>
+<div class=\"center\">
 <!--[if (gte mso 9)|(IE)]>
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>

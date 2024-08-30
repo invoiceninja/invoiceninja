@@ -5319,6 +5319,13 @@ E-mail: :email<b><br><b>',
     'one_page_checkout' => 'Afrekenen op één pagina',
     'one_page_checkout_help' => 'Schakel de nieuwe betaalflow \'afrekenen op één pagina\' in',
     'applies_to' => 'Is van toepassing op',
+    'accept_purchase_order' => 'Accepteer inkooporder',
+    'round_to_seconds' => 'Afronden op seconden',
+    'activity_142' => 'Quote :number reminder 1 sent',
+    'activity_143' => 'Auto Bill succeeded for invoice :invoice',
+    'activity_144' => 'Auto Bill failed for invoice :invoice. :notes',
+    'activity_145' => 'EInvoice :invoice for :client was e-delivered. :notes',
+
 );
 
 return $lang;

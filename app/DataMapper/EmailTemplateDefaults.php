@@ -140,7 +140,7 @@ class EmailTemplateDefaults
 
     public static function emailPaymentFailedTemplate()
     {
-        return '<p>$client<br><br>'.ctrans('texts.client_payment_failure_body', ['invoice' => '$number', 'amount' => '$amount']).'</p><div class="center">$gateway_payment_error</div><br><div class="center">$payment_button</div>';
+        return '<p>$client<br><br>'.ctrans('texts.client_payment_failure_body', ['invoice' => '$number', 'amount' => '$amount']).'</p><div>$payment_error</div><br><div>$payment_button</div>';
     }
 
     public static function emailQuoteReminder1Subject()
@@ -151,7 +151,7 @@ class EmailTemplateDefaults
     public static function emailQuoteReminder1Body()
     {
 
-        return '<p>$client<br><br>'.self::transformText('quote_reminder_message').'</p><div class="center">$view_button</div>';
+        return '<p>$client<br><br>'.self::transformText('quote_reminder_message').'</p><div>$view_button</div>';
 
     }
 
@@ -177,14 +177,14 @@ class EmailTemplateDefaults
 
     public static function emailInvoiceTemplate()
     {
-        $invoice_message = '<p>$client<br><br>'.self::transformText('invoice_message').'</p><div class="center">$view_button</div>';
+        $invoice_message = '<p>$client<br><br>'.self::transformText('invoice_message').'</p><div>$view_button</div>';
 
         return $invoice_message;
     }
 
     public static function emailInvoiceReminderTemplate()
     {
-        $invoice_message = '<p>$client<br><br>'.self::transformText('reminder_message').'</p><div class="center">$view_button</div>';
+        $invoice_message = '<p>$client<br><br>'.self::transformText('reminder_message').'</p><div>$view_button</div>';
 
         return $invoice_message;
     }
@@ -196,7 +196,7 @@ class EmailTemplateDefaults
 
     public static function emailQuoteTemplate()
     {
-        $quote_message = '<p>$client<br><br>'.self::transformText('quote_message').'</p><div class="center">$view_button</div>';
+        $quote_message = '<p>$client<br><br>'.self::transformText('quote_message').'</p><div>$view_button</div>';
 
         return $quote_message;
     }
@@ -213,28 +213,28 @@ class EmailTemplateDefaults
 
     public static function emailPurchaseOrderTemplate()
     {
-        $purchase_order_message = '<p>$vendor<br><br>'.self::transformText('purchase_order_message').'</p><div class="center">$view_button</div>';
+        $purchase_order_message = '<p>$vendor<br><br>'.self::transformText('purchase_order_message').'</p><div>$view_button</div>';
 
         return $purchase_order_message;
     }
 
     public static function emailPaymentTemplate()
     {
-        $payment_message = '<p>$client<br><br>'.self::transformText('payment_message').'<br><br>$invoices</p><div class="center">$view_button</div>';
+        $payment_message = '<p>$client<br><br>'.self::transformText('payment_message').'<br><br>$invoices</p><div>$view_button</div>';
 
         return $payment_message;
     }
 
     public static function emailCreditTemplate()
     {
-        $credit_message = '<p>$client<br><br>'.self::transformText('credit_message').'</p><div class="center">$view_button</div>';
+        $credit_message = '<p>$client<br><br>'.self::transformText('credit_message').'</p><div>$view_button</div>';
 
         return $credit_message;
     }
 
     public static function emailPaymentPartialTemplate()
     {
-        $payment_message = '<p>$client<br><br>'.self::transformText('payment_message').'<br><br>$invoices</p><div class="center">$view_button</div>';
+        $payment_message = '<p>$client<br><br>'.self::transformText('payment_message').'<br><br>$invoices</p><div>$view_button</div>';
 
         return $payment_message;
     }
