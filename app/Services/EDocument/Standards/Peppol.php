@@ -287,8 +287,11 @@ class Peppol extends AbstractService
         $this->senderSpecificLevelMutators()
              ->receiverSpecificLevelMutators();
 
-        $this->invoice->e_invoice = $this->toObject();
-        $this->invoice->save();
+        if(strlen($this->invoice->backup ?? '') == 0)
+        {
+            $this->invoice->e_invoice = $this->toObject();
+            $this->invoice->save();
+        }
 
         return $this;
 

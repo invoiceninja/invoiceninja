@@ -320,6 +320,17 @@ class BaseRepository
                 UpdateTaxData::dispatch($client, $client->company);
             }
 
+            /** If Peppol is enabled - we will save the e_invoice document here at this point, document will not update after being sent */
+            if(strlen($model->backup ?? '') == 0 && $client->getSetting('e_invoice_type') == 'PEPPOL' && $model->company->legal_entity_id)
+            {
+                try{
+                    $model->service()->getEInvoice();
+                }
+                catch(\Exception $e){
+                    nlog("EXCEPTION:: BASEREPOSITORY:: Error generating e_invoice for model {$model->id}");
+                    nlog($e->getMessage());
+                }
+            }
         }
 
         if ($model instanceof Credit) {
