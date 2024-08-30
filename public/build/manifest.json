@@ -369,6 +369,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
@@ -394,6 +395,9 @@
 =======
     "file": "assets/app-4e969b65.css",
 >>>>>>> 48fdf6a85c (New payment flow: Various fixes (#89))
+=======
+    "file": "assets/app-15411b02.css",
+>>>>>>> f77bfe2bc7 (Fixes for required fields for paytrace)
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
