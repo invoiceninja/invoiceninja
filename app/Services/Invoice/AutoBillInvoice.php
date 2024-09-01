@@ -148,9 +148,9 @@ class AutoBillInvoice extends AbstractService
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
+        $this->invoice->saveQuietly();
 
         $payment = false;
-
         try {
             $payment = $gateway_token->gateway
                 ->driver($this->client)
@@ -163,6 +163,7 @@ class AutoBillInvoice extends AbstractService
 
         }
 
+        $this->invoice = $this->invoice->fresh();
         $this->invoice->auto_bill_tries += 1;
 
         if ($this->invoice->auto_bill_tries == 3) {

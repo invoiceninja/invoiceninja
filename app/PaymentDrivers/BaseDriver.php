@@ -400,8 +400,12 @@ class BaseDriver extends AbstractPaymentDriver
         $invoice = $this->payment_hash->fee_invoice;
 
         $fee_count = collect($invoice->line_items)
+                        ->map(function ($item){
+                            $item->gross_line_total = round($item->gross_line_total, 2);
+                            return $item;
+                        })
                         ->whereIn('type_id', ['3','4'])
-                        ->where('gross_line_total', $fee_total)
+                        ->where('gross_line_total', round($fee_total,2))
                         ->count();
 
         if($invoice && $fee_count == 0){
