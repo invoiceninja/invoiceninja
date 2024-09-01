@@ -425,15 +425,15 @@ class BaseDriver extends AbstractPaymentDriver
             $invoice_items = (array) $invoice->line_items;
             $invoice_items[] = $invoice_item;
 
-                if (isset($data['gateway_type_id']) && $fees_and_limits = $this->company_gateway->getFeesAndLimits($data['gateway_type_id'])) {
-                    $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
-                    $invoice_item->tax_name1 = $fees_and_limits->fee_tax_name1;
-                    $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
-                    $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
-                    $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
-                    $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-                    $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
-                }
+            if (isset($data['gateway_type_id']) && $fees_and_limits = $this->company_gateway->getFeesAndLimits($data['gateway_type_id'])) {
+                $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
+                $invoice_item->tax_name1 = $fees_and_limits->fee_tax_name1;
+                $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
+                $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
+                $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
+                $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
+                $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
+            }
 
             $invoice->line_items = $invoice_items;
 
