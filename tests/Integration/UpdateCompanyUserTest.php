@@ -101,11 +101,12 @@ class UpdateCompanyUserTest extends TestCase
                         ->first();
 
         $this->assertNotNull($company_user);
-        
+
         $company_user->settings = $settings;
 
         $this->user->company_user = $company_user;
-
+        $this->user->setRelation('company_user', $company_user);
+        
         $user['company_user'] = $company_user->toArray();
 
         $response = null;
