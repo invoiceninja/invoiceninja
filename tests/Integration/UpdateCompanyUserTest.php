@@ -95,7 +95,13 @@ class UpdateCompanyUserTest extends TestCase
         $settings = new \stdClass();
         $settings->invoice = 'ninja';
 
-        $company_user = CompanyUser::whereUserId($this->user->id)->whereCompanyId($this->company->id)->first();
+        $company_user = CompanyUser::query()
+                        ->where('user_id', $this->user->id)
+                        ->where('company_id', $this->company->id)
+                        ->first();
+
+        $this->assertNotNull($company_user);
+        
         $company_user->settings = $settings;
 
         $this->user->company_user = $company_user;
