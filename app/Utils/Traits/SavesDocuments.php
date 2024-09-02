@@ -49,7 +49,7 @@ trait SavesDocuments
             ))->handle();
         }
 
-        // $entity->touch();
+        $entity->touch();
     }
 
     public function saveDocument($document, $entity, $is_public = true)
@@ -78,7 +78,7 @@ trait SavesDocuments
             $is_public
         ))->handle();
 
-        // $entity->touch();
+        $entity->touch();
 
     }
 }

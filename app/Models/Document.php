@@ -86,7 +86,7 @@ class Document extends BaseModel
     ];
 
     protected $touches = [
-        'documentable'
+        // 'documentable'
     ];
     
     /**

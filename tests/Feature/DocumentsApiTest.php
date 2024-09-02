@@ -47,7 +47,7 @@ class DocumentsApiTest extends TestCase
 
     public function testDocumentFilters()
     {
-        Document::query()->withoutEvents()->withTrashed()->cursor()->each(function ($d) {
+        Document::query()->withTrashed()->cursor()->each(function ($d) {
             $d->forceDelete();
         });
 

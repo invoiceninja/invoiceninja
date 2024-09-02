@@ -150,6 +150,10 @@ class DocumentController extends BaseController
         $document->fill($request->all());
         $document->save();
 
+        if($document->documentable) {
+            $document->documentable->touch();
+        }
+
         return $this->itemResponse($document->fresh());
     }
 
