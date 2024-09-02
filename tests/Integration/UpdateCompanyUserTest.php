@@ -104,9 +104,9 @@ class UpdateCompanyUserTest extends TestCase
 
         $company_user->settings = $settings;
 
-        $this->user->company_user = $company_user;
-        $this->user->setRelation('company_user', $company_user);
-        
+        // $this->user->company_user = $company_user;
+        // $this->user->setRelation('company_user', $company_user);
+
         $user['company_user'] = $company_user->toArray();
 
         $response = null;
