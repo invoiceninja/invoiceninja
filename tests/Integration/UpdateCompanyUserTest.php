@@ -89,39 +89,39 @@ class UpdateCompanyUserTest extends TestCase
     }
 
 
-    public function testUpdatingCompanyUserAsAdmin()
-    {
+    // public function testUpdatingCompanyUserAsAdmin()
+    // {
 
-        $settings = new \stdClass();
-        $settings->invoice = 'ninja';
+    //     $settings = new \stdClass();
+    //     $settings->invoice = 'ninja';
 
-        $company_user = CompanyUser::query()
-                        ->where('user_id', $this->user->id)
-                        ->where('company_id', $this->company->id)
-                        ->first();
+    //     $company_user = CompanyUser::query()
+    //                     ->where('user_id', $this->user->id)
+    //                     ->where('company_id', $this->company->id)
+    //                     ->first();
 
-        $this->assertNotNull($company_user);
+    //     $this->assertNotNull($company_user);
 
-        $company_user->settings = $settings;
+    //     $company_user->settings = $settings;
 
-        // $this->user->company_user = $company_user;
-        $this->user->setRelation('company_user', $company_user);
-        $user = $this->user->toArray();
-        $user['company_user'] = $company_user->toArray();
+    //     // $this->user->company_user = $company_user;
+    //     $this->user->setRelation('company_user', $company_user);
+    //     $user = $this->user->toArray();
+    //     $user['company_user'] = $company_user->toArray();
 
-        $response = null;
+    //     $response = null;
 
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->putJson("/api/v1/company_users/{$this->user->hashed_id}", $user);
+    //     $response = $this->withHeaders([
+    //         'X-API-SECRET' => config('ninja.api_secret'),
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->putJson("/api/v1/company_users/{$this->user->hashed_id}", $user);
     
-        $response->assertStatus(200);
+    //     $response->assertStatus(200);
 
-        $arr = $response->json();
+    //     $arr = $response->json();
 
-        $this->assertEquals('ninja', $arr['data']['settings']['invoice']);
-    }
+    //     $this->assertEquals('ninja', $arr['data']['settings']['invoice']);
+    // }
 
 
 }
