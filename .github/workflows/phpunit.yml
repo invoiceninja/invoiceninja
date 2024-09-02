@@ -103,7 +103,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-${{ matrix.php }}-composer-
 
-
     - name: Install composer dependencies
       run: |
         composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
