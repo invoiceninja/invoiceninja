@@ -83,7 +83,7 @@
     "src": "resources/js/clients/payments/braintree-credit-card.js"
   },
   "resources/js/clients/payments/braintree-paypal.js": {
-    "file": "assets/braintree-paypal-16e2f577.js",
+    "file": "assets/braintree-paypal-f78ad64b.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
