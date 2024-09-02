@@ -36,6 +36,17 @@ class Blockonomics implements MethodInterface
         $this->driver_class->init();
     }
 
+    public function authorizeView($data)
+    {
+    }
+
+    public function authorizeRequest($request)
+    {
+    }
+    public function authorizeResponse($request)
+    {
+    }
+
     public function paymentView($data)
     {
         $data['gateway'] = $this->driver_class;
