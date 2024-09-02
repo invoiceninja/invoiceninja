@@ -15,34 +15,49 @@ class AuthorizeAuthorizeCard {
         this.loginId = loginId;
         this.cardHolderName = document.getElementById("cardholder_name");
         this.cardButton = document.getElementById("card_button");
+
+        this.sc = createSimpleCard({
+            fields: {
+                card: {
+                    number: '#number',
+                    date: '#date',
+                    cvv: '#cvv',
+                },
+            },
+        });
+
+        this.sc.mount();
     }
 
     handleAuthorization() {
+        if (
+            this.cvvRequired == '1' &&
+            document.getElementById('cvv').value.length < 3
+        ) {
+            const $errors = document.getElementById('errors');
+            
+            if ($errors) {
+                $errors.innerText = 'CVV is required';
+                $errors.style.display = 'block';
+            }
 
-
-        if (cvvRequired == "1" && document.getElementById("cvv").value.length < 3) {
-
-            var $errors = $('#errors');
-            $errors.show().html("<p>CVV is required</p>");
-
-            document.getElementById('card_button').disabled = false;
-            document.querySelector('#card_button > svg').classList.add('hidden');
-            document.querySelector('#card_button > span').classList.remove('hidden');
-
+            document.getElementById('pay-now').disabled = false;
+            document.querySelector('#pay-now > svg').classList.add('hidden');
+            document
+                .querySelector('#pay-now > span')
+                .classList.remove('hidden');
             return;
         }
-
-        var myCard = $('#my-card');
 
         var authData = {};
         authData.clientKey = this.publicKey;
         authData.apiLoginID = this.loginId;
 
         var cardData = {};
-        cardData.cardNumber = myCard.CardJs('cardNumber').replace(/[^\d]/g, '');
-        cardData.month = myCard.CardJs('expiryMonth').replace(/[^\d]/g, '');
-        cardData.year = myCard.CardJs('expiryYear').replace(/[^\d]/g, '');
-        cardData.cardCode = document.getElementById("cvv").value.replace(/[^\d]/g, '');;
+        cardData.cardNumber = this.sc.value('number')?.replace(/[^\d]/g, '');
+        cardData.month = this.sc.value('month')?.replace(/[^\d]/g, '');
+        cardData.year = `20${this.sc.value('year')?.replace(/[^\d]/g, '')}`;
+        cardData.cardCode = this.sc.value('cvv')?.replace(/[^\d]/g, '');
 
         var secureData = {};
         secureData.authData = authData;
@@ -61,8 +76,12 @@ class AuthorizeAuthorizeCard {
 	    if (response.messages.resultCode === "Error") {
 	        var i = 0;
 
-            var $errors = $('#errors'); // get the reference of the div
-            $errors.show().html("<p>" + response.messages.message[i].code + ": " + response.messages.message[i].text + "</p>");
+            const $errors = document.getElementById('errors'); // get the reference of the div
+
+            if ($errors) {
+                $errors.innerText = `${response.messages.message[i].code}: ${response.messages.message[i].text}`;
+                $errors.style.display = 'block';
+            }
 
             document.getElementById('card_button').disabled = false;
             document.querySelector('#card_button > svg').classList.add('hidden');
