@@ -307,7 +307,7 @@ class Peppol extends AbstractService
 
         if($this->invoice->e_invoice) {
 
-            $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice), 'json');
+            $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
 
             return $this;
 
@@ -402,7 +402,7 @@ class Peppol extends AbstractService
      */
     public function toArray(): array
     {
-        return json_decode($this->toJson(), true);
+        return ['Invoice' => json_decode($this->toJson(), true)];
     }
     
     /**
@@ -1046,32 +1046,50 @@ class Peppol extends AbstractService
      */
     public function setInvoiceDefaults(): self
     {
-        $settings = [
-            'AccountingCostCode' => 7,
-            'AccountingCost' => 7,
-            'BuyerReference' => 6,
-            'AccountingSupplierParty' => 1,
-            'AccountingCustomerParty' => 2,
-            'PayeeParty' => 1,
-            'BuyerCustomerParty' => 2,
-            'SellerSupplierParty' => 1,
-            'TaxRepresentativeParty' => 1,
-            'Delivery' => 1,
-            'DeliveryTerms' => 7,
-            'PaymentMeans' => 7,
-            'PaymentTerms' => 7,
-        ];
 
-        //only scans for top level props
-        foreach($settings as $prop => $visibility) {
-
-            if($prop_value = $this->getSetting($prop)) {
-                $this->p_invoice->{$prop} = $prop_value;
+            // Stub new invoice with company settings.
+            if($this->_company_settings)
+            {
+                foreach(get_object_vars($this->_company_settings) as $prop => $value){
+                    $this->p_invoice->{$prop} = $value;
+                }
             }
 
-        }
+            // Overwrite with any client level settings
+            if($this->_client_settings)
+            {
+                foreach (get_object_vars($this->_client_settings) as $prop => $value) {
+                    $this->p_invoice->{$prop} = $value;
+                }
+            }
 
-        return $this;
+            // Plucks special overriding properties scanning the correct settings level
+            $settings = [
+                'AccountingCostCode' => 7,
+                'AccountingCost' => 7,
+                'BuyerReference' => 6,
+                'AccountingSupplierParty' => 1,
+                'AccountingCustomerParty' => 2,
+                'PayeeParty' => 1,
+                'BuyerCustomerParty' => 2,
+                'SellerSupplierParty' => 1,
+                'TaxRepresentativeParty' => 1,
+                'Delivery' => 1,
+                'DeliveryTerms' => 7,
+                'PaymentMeans' => 7,
+                'PaymentTerms' => 7,
+            ];
+
+            //only scans for top level props
+            foreach($settings as $prop => $visibility) {
+
+                if($prop_value = $this->getSetting($prop)) {
+                    $this->p_invoice->{$prop} = $prop_value;
+                }
+
+            }
+
+            return $this;
     }
 
     /**
