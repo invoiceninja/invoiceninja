@@ -300,11 +300,11 @@ class PostMarkController extends BaseController
             // prepare data for ingresEngine
             $inboundMail = new InboundMail();
 
-            $inboundMail->from = $input["From"];
-            $inboundMail->to = $input["To"]; // usage of data-input, because we need a single email here
-            $inboundMail->subject = $input["Subject"];
-            $inboundMail->body = $input["HtmlBody"];
-            $inboundMail->text_body = $input["TextBody"];
+            $inboundMail->from = $input["From"] ?? '';
+            $inboundMail->to = $input["To"] ; // usage of data-input, because we need a single email here
+            $inboundMail->subject = $input["Subject"] ?? '';
+            $inboundMail->body = $input["HtmlBody"] ?? '';
+            $inboundMail->text_body = $input["TextBody"] ?? '';
             $inboundMail->date = Carbon::createFromTimeString($input["Date"]);
 
             // parse documents as UploadedFile from webhook-data

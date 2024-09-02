@@ -104,7 +104,7 @@ class ZugferdEDocument extends AbstractService
             }
 
             $vendor = Vendor::query()
-                            ->where("company_id", $user->company()->id)
+                            ->where("company_id", $this->company->id)
                             ->where(function ($q) use($taxid, $person_name, $contact_email){
                                 $q->when(!is_null($taxid), function ($when_query) use($taxid){
                                     $when_query->orWhere('vat_number', $taxid); 
