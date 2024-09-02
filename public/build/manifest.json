@@ -39,7 +39,7 @@
     "src": "resources/js/clients/linkify-urls.js"
   },
   "resources/js/clients/payment_methods/authorize-authorize-card.js": {
-    "file": "assets/authorize-authorize-card-7da1185c.js",
+    "file": "assets/authorize-authorize-card-39be6d93.js",
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/authorize-authorize-card.js"
   },
@@ -372,6 +372,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
 =======
     "file": "assets/app-8e387ada.css",
@@ -406,6 +407,9 @@
 =======
     "file": "assets/app-15411b02.css",
 >>>>>>> 11d32d2569 (Fixes for namespace)
+=======
+    "file": "assets/app-4e969b65.css",
+>>>>>>> 0695e5bfc1 (Authorize.net: Upgrade authorize to use Simple Card (#95))
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
