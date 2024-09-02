@@ -401,11 +401,17 @@ class HtmlEngine
 
 
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
+
         $data['$user.signature'] = ['value' => $this->entity->user->signature ?? '', 'label' => ctrans('texts.signature')];
         $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
         $data['$user.last_name'] = ['value' => $this->entity->user->last_name, 'label' => ctrans('texts.last_name')];
         $data['$created_by_user'] = &$data['$user.name'];
+
         $data['$assigned_to_user'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->present()->name() : '', 'label' => ctrans('texts.name')];
+        $data['$assigned_user.signature'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->signature : '', 'label' => ctrans('texts.signature')];
+
+        $data['$assigned_user.first_name'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->first_name : '', 'label' => ctrans('texts.first_name')];
+        $data['$assigned_user.last_name'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->last_name : '', 'label' => ctrans('texts.last_name')];
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
