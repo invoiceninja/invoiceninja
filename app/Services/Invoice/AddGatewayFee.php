@@ -92,6 +92,8 @@ class AddGatewayFee extends AbstractService
         /**Refresh Invoice values*/
         $this->invoice = $this->invoice->calc()->getInvoice();
 
+        nlog($this->invoice->line_items);
+        
         $new_balance = $this->invoice->balance;
 
         if (floatval($new_balance) - floatval($balance) != 0) {
@@ -140,12 +142,6 @@ class AddGatewayFee extends AbstractService
 
         if (floatval($new_balance) - floatval($balance) != 0) {
             $adjustment = $new_balance - $balance;
-
-            // $this->invoice
-            // ->client
-            // ->service()
-            // ->updateBalance($adjustment * -1)
-            // ->save();
 
             $this->invoice
             ->ledger()

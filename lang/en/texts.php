@@ -5325,7 +5325,9 @@ $lang = array(
     'activity_143' => 'Auto Bill succeeded for invoice :invoice',
     'activity_144' => 'Auto Bill failed for invoice :invoice. :notes',
     'activity_145' => 'EInvoice :invoice for :client was e-delivered. :notes',
-
+    'payment_failed' => 'Payment Failed',
+    'ssl_host_override' => 'SSL Host Override',
+    'upload_logo_short' => 'Upload Logo',
 );
 
 return $lang;

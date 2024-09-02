@@ -400,8 +400,12 @@ class BaseDriver extends AbstractPaymentDriver
         $invoice = $this->payment_hash->fee_invoice;
 
         $fee_count = collect($invoice->line_items)
+                        ->map(function ($item){
+                            $item->gross_line_total = round($item->gross_line_total, 2);
+                            return $item;
+                        })
                         ->whereIn('type_id', ['3','4'])
-                        ->where('gross_line_total', $fee_total)
+                        ->where('gross_line_total', round($fee_total,2))
                         ->count();
 
         if($invoice && $fee_count == 0){
@@ -425,15 +429,15 @@ class BaseDriver extends AbstractPaymentDriver
             $invoice_items = (array) $invoice->line_items;
             $invoice_items[] = $invoice_item;
 
-                if (isset($data['gateway_type_id']) && $fees_and_limits = $this->company_gateway->getFeesAndLimits($data['gateway_type_id'])) {
-                    $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
-                    $invoice_item->tax_name1 = $fees_and_limits->fee_tax_name1;
-                    $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
-                    $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
-                    $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
-                    $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-                    $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
-                }
+            if (isset($data['gateway_type_id']) && $fees_and_limits = $this->company_gateway->getFeesAndLimits($data['gateway_type_id'])) {
+                $invoice_item->tax_rate1 = $fees_and_limits->fee_tax_rate1;
+                $invoice_item->tax_name1 = $fees_and_limits->fee_tax_name1;
+                $invoice_item->tax_rate2 = $fees_and_limits->fee_tax_rate2;
+                $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
+                $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
+                $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
+                $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
+            }
 
             $invoice->line_items = $invoice_items;
 

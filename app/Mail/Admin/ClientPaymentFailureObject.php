@@ -123,7 +123,7 @@ class ClientPaymentFailureObject
         $signature = $this->client->getSetting('email_signature');
         $html_variables = (new HtmlEngine($invitation))->makeValues();
         
-        $html_variables['$gateway_payment_error'] = $this->error ?? '';
+        $html_variables['$payment_error'] = $this->error ?? '';
         $html_variables['$total'] = $this->getAmount();
 
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);

@@ -125,6 +125,13 @@ class ImportCustomers
                 $settings->currency_id = (string) $currency->id;
                 $client->settings = $settings;
             }
+
+        }else {
+
+            $settings = $client->settings;
+            $settings->currency_id = (string) $this->stripe->company_gateway->company->settings->currency_id;
+            $client->settings = $settings;
+            
         }
 
         $client->name = $customer->name ? $customer->name : $customer->email;

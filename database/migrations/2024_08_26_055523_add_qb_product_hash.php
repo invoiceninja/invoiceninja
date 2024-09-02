@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Gateway;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,6 +25,12 @@ return new class extends Migration
         {
             $currency->symbol = 'лв';
             $currency->save();
+        }
+
+        if($gateway = Gateway::find(15))
+        {
+            $gateway->visible = 0;
+            $gateway->save();
         }
     }
 

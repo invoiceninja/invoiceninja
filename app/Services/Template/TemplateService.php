@@ -949,6 +949,7 @@ class TemplateService
                 'custom_value4' => $task->custom_value4 ?: '',
                 'status' => $task->status ? $task->status->name : '',
                 'user' => $this->userInfo($task->user),
+                'assigned_user' => $task->assigned_user ? $this->userInfo($task->assigned_user) : [],
                 'client' => $this->getClient($task),
             ];
 
@@ -1007,6 +1008,7 @@ class TemplateService
             'tasks' => ($project->tasks && !$nested) ? $this->processTasks($project->tasks, true) : [], //@phpstan-ignore-line
             'client' => $this->getClient($project),
             'user' => $this->userInfo($project->user),
+            'assigned_user' => $project->assigned_user ? $this->userInfo($project->assigned_user) : [],
             'invoices' => $this->processInvoices($project->invoices)
         ];
 

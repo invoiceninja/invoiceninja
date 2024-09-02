@@ -276,7 +276,7 @@ class Peppol extends AbstractService
             $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
         }
 
-        $this->p_invoice->InvoiceTypeCode = 380; //
+        $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381; //
         $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
         $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
@@ -287,8 +287,11 @@ class Peppol extends AbstractService
         $this->senderSpecificLevelMutators()
              ->receiverSpecificLevelMutators();
 
-        $this->invoice->e_invoice = $this->toObject();
-        $this->invoice->save();
+        if(strlen($this->invoice->backup ?? '') == 0)
+        {
+            $this->invoice->e_invoice = $this->toObject();
+            $this->invoice->save();
+        }
 
         return $this;
 
@@ -335,7 +338,7 @@ class Peppol extends AbstractService
     /**
      * getInvoice
      *
-     * @return InvoiceNinja\EInvoice\Models\Peppol\Invoice
+     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice
      */
     public function getInvoice(): \InvoiceNinja\EInvoice\Models\Peppol\Invoice
     {

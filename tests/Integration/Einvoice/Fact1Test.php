@@ -67,7 +67,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 /**
  * @test
  */
-class FACT1Test extends TestCase
+class Fact1Test extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;

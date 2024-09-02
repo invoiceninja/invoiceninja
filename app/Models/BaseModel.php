@@ -298,10 +298,35 @@ class BaseModel extends Model
         }
 
         // special catch here for einvoicing eventing
-        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && is_null($this->backup)){
+        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && is_null($this->backup) && $this->client->getSetting('e_invoice_type') == 'PEPPOL'){
             \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
         }
 
+    }
+
+    
+    /**
+     * arrayFilterRecursive
+     *
+     * Removes null properties from an array
+     * 
+     * @param  array $array
+     * @return array
+     */
+    public function arrayFilterRecursive(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                // Recursively filter the nested array
+                $array[$key] = $this->arrayFilterRecursive($value);
+            }
+            // Remove null values
+            if (is_null($array[$key])) {
+                unset($array[$key]);
+            }
+        }
+
+        return $array;
     }
 
     /**
