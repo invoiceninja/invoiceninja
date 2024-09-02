@@ -74,11 +74,11 @@ class UpdateCompanyUserTest extends TestCase
 
         $response = null;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
-        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
+    
         $response->assertStatus(200);
 
         $arr = $response->json();
@@ -91,7 +91,6 @@ class UpdateCompanyUserTest extends TestCase
 
     public function testUpdatingCompanyUserAsAdmin()
     {
-        // User::unguard();
 
         $settings = new \stdClass();
         $settings->invoice = 'ninja';
@@ -105,11 +104,11 @@ class UpdateCompanyUserTest extends TestCase
 
         $response = null;
 
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id), $user);
-        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/company_users/{$this->user->hashed_id}", $user);
+    
         $response->assertStatus(200);
 
         $arr = $response->json();
