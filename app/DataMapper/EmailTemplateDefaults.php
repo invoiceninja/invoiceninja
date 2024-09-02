@@ -140,7 +140,7 @@ class EmailTemplateDefaults
 
     public static function emailPaymentFailedTemplate()
     {
-        return '<p>$client<br><br>'.ctrans('texts.client_payment_failure_body', ['invoice' => '$number', 'amount' => '$amount']).'</p><div>$payment_error</div><br><div>$payment_button</div>';
+        return '<p>$client<br><br>'.ctrans('texts.client_payment_failure_body', ['invoice' => '$number', 'amount' => '$amount']).'</p><div>$payment_error</div><br><div>$view_button</div>';
     }
 
     public static function emailQuoteReminder1Subject()
