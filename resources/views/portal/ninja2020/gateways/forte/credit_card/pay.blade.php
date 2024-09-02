@@ -46,7 +46,7 @@
         <script type="text/javascript" src="https://api.forte.net/js/v1"></script>
     @endif
 
-    <script src="{{ asset('vendor/simple-card@0.0.3/simple-card.js') }}"></script> 
+    <script src="{{ asset('vendor/simple-card@0.0.4/simple-card.js') }}"></script> 
     
     @vite('resources/js/clients/payments/forte-credit-card-payment.js')
 @endsection
