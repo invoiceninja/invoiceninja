@@ -388,7 +388,11 @@ class Peppol extends AbstractService
      */
     public function toObject(): mixed
     {
-        return json_decode($this->toJson());
+
+        $invoice = new \stdClass;
+        $invoice->Invoice = json_decode($this->toJson());
+        return $invoice;
+
     }
     
     /**
