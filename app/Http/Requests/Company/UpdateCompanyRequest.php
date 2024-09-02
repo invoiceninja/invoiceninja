@@ -115,6 +115,11 @@ class UpdateCompanyRequest extends Request
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 
+        if (isset($input['e_invoice']) && is_array($input['e_invoice'])) {
+            //ensure it is normalized first!
+            $input['e_invoice'] = $this->company->filterNullsRecursive($input['e_invoice']);
+        }
+
         $this->replace($input);
     }
 

@@ -58,13 +58,6 @@ class CompanyRepository extends BaseRepository
             $company->smtp_password = $data['smtp_password'];
         }
 
-        if(isset($data['e_invoice']) && is_array($data['e_invoice'])){
-            //ensure it is normalized first!
-            $data['e_invoice'] = $company->arrayFilterRecursive($data['e_invoice']);
-
-            $company->e_invoice = $data['e_invoice'];
-        }
-
         $company->save();
 
         return $company;
