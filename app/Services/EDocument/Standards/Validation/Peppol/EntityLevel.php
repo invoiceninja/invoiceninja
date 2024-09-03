@@ -11,8 +11,15 @@
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
+use App\Exceptions\PeppolValidationException;
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\PurchaseOrder;
+use App\Services\EDocument\Standards\Peppol;
 use Illuminate\Support\Facades\App;
 
 class EntityLevel
@@ -44,32 +51,68 @@ class EntityLevel
 
     private array $errors = [];
 
-    public function __invoke($entity): array
+    public function __construct()
+    {
+    }
+
+    private function init(string $locale): self
     {
 
         App::forgetInstance('translator');
         $t = app('translator');
-        App::setLocale($entity->company->locale());
+        App::setLocale($locale);
 
-        $this->errors['status'] = false;
-        $this->errors['client'] = $entity->client ? $this->testClientState($entity) : [];
-        $this->errors['company'] = $this->testCompanyState($entity->company);
-        $this->errors['invoice'] = $entity instanceof Invoice ? $this->testInvoiceState($entity) : [];
-        
-        // $this->errors['vendor']= $entity->client ? $this->testClientState($entity) : [];
+        return $this;
 
-        if(
-            count($this->errors['client']) == 0 && 
-            count($this->errors['company']) == 0
-        ){
-            $this->errors['status'] = true;
-        }
+    }
+
+    public function checkClient(Client $client): array
+    {
+        $this->init($client->locale());
+        $this->errors['client'] = $this->testClientState($client);
+        $this->errors['passes'] = count($this->errors['client']) == 0;
 
         return $this->errors;
 
     }
 
-    private function testClientState($entity): array
+    public function checkCompany(Company $company): array
+    {
+
+        $this->init($company->locale());
+        $this->errors['company'] = $this->testCompanyState($company);
+        $this->errors['passes'] = count($this->errors['company']) == 0;
+
+        return $this->errors;
+
+    }
+
+    public function checkInvoice(Invoice $invoice): array
+    {
+        $this->init($invoice->client->locale());
+
+        $this->errors['invoice'] = [];
+        $this->testClientState($invoice->client);
+        $this->testCompanyState($invoice->client); // uses client level settings which is what we want
+
+        $p = new Peppol($invoice);
+
+        try{
+            $p->run()->toXml();
+        }
+        catch(PeppolValidationException $e) {
+
+            $this->errors['invoice'] = ['field' => $e->getInvalidField()];
+
+        };
+
+        $this->errors['status'] = count($this->errors['invoice']) == 0 && count($this->errors['client']) == 0 && count($this->errors['company']) == 0;
+
+        return $this->errors;
+
+    }
+
+    private function testClientState(Client $client): array
     {
 
         $errors = [];
@@ -77,7 +120,10 @@ class EntityLevel
         foreach($this->client_fields as $field)
         {
 
-            if($this->validString($entity->client->{$field}))
+            if($this->validString($client->{$field}))
+                continue;
+
+            if($field == 'country_id' && $client->country_id >=1)
                 continue;
 
             $errors[] = ['field' => ctrans("texts.{$field}")];
@@ -93,14 +139,44 @@ class EntityLevel
 
     }
 
-    private function testCompanyState($entity): array
+    private function testCompanyState(mixed $entity): array
     {
+        
+        $client = false;
+        $vendor = false;
+        $settings_object = false;
+        $company =false;
 
-        $settings_object = $entity->client ? $entity->client : $entity->company;
+        if($entity instanceof Client){
+            $client = $entity;
+            $company = $entity->company;
+            $settings_object = $client;
+        }
+        elseif($entity instanceof Company){
+            $company = $entity;
+            $settings_object = $company;    
+        }
+        elseif($entity instanceof Vendor){
+            $vendor = $entity;    
+            $company = $entity->company;
+            $settings_object = $company;
+        }
+        elseif($entity instanceof Invoice || $entity instanceof Credit || $entity instanceof Quote){
+            $client = $entity->client;
+            $company = $entity->company;
+            $settings_object = $entity->client;
+        }
+        elseif($entity instanceof PurchaseOrder){
+            $vendor = $entity->vendor;
+            $company = $entity->company;
+            $settings_object = $company;
+        }
+
         $errors = [];
 
         foreach($this->company_settings_fields as $field)
         {
+
             if($this->validString($settings_object->getSetting($field)))
                 continue;
     
@@ -109,11 +185,11 @@ class EntityLevel
         }
 
         //test legal entity id present
-        if(!is_int($entity->company->legal_entity_id))
+        if(!is_int($company->legal_entity_id))
             $errors[] = ['field' => "You have not registered a legal entity id as yet."];
 
         //If not an individual, you MUST have a VAT number
-        if($settings_object->getSetting('classification') != 'individual' && !$this->validString($settings_object->getSetting('vat_number')))
+        if($company->getSetting('classification') != 'individual' && !$this->validString($company->getSetting('vat_number')))
         {
             $errors[] = ['field' => ctrans("texts.vat_number")];
         }
@@ -127,17 +203,17 @@ class EntityLevel
 
     }
 
-    private function testInvoiceState(): array
-    {
-        $errors = [];
+    // private function testInvoiceState($entity): array
+    // {
+    //     $errors = [];
 
-        foreach($this->invoice_fields as $field)
-        {
+    //     foreach($this->invoice_fields as $field)
+    //     {
 
-        }
+    //     }
 
-        return $errors;
-    }
+    //     return $errors;
+    // }
 
     // private function testVendorState(): array
     // {
@@ -146,9 +222,9 @@ class EntityLevel
 
 
     /************************************ helpers ************************************/
-    private function validString(?string $string)
+    private function validString(?string $string): bool
     {
-        return iconv_strlen($string) > 1;
+        return iconv_strlen($string) >= 1;
     }
 
 }

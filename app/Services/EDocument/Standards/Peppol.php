@@ -11,6 +11,7 @@
 
 namespace App\Services\EDocument\Standards;
 
+use App\Exceptions\PeppolValidationException;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Helpers\Invoice\Taxer;
@@ -1277,9 +1278,7 @@ class Peppol extends AbstractService
      */
     private function checkRequired(bool $required, string $section): self
     {
-
-        return $required ? throw new \Exception("e-invoice generation halted:: {$section} required", 400) : $this;
-
+        return $required ? throw new PeppolValidationException("e-invoice generation halted:: {$section} required", $section, 400) : $this;
     }
 
 
