@@ -16,10 +16,8 @@ return new class extends Migration
         {
 
             $fields =  new \stdClass;
-            $fields->blockonomicsUrl  = "";
             $fields->apiKey  = "";
-            $fields->storeId = "";
-            $fields->webhookSecret = "";
+            $fields->callbackUrl = "";
 
             $gateway = new Gateway;
             $gateway->id = 64;

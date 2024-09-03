@@ -28,7 +28,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
 {
     use MakesHash;
 
-    public $refundable = true; //does this gateway support refunds?
+    public $refundable = false; //does this gateway support refunds?
 
     public $token_billing = false; //does this gateway support token billing?
 
@@ -44,19 +44,31 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
-    public $blockonomics_url  = "";
-    public $api_key  = "";
-    public $store_id = "";
-    public $webhook_secret = "";
+    public const api_key  = "";
     public $blockonomics;
+    public $BASE_URL = 'https://www.blockonomics.co';
+    public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
+    public $PRICE_URL = 'https://www.blockonomics.co/api/price';
+    public $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
+    public $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
+
+    public function get_callbacks($crypto)
+    {
+        $response = $this->get($GET_CALLBACKS_URL, $this->api_key);
+        return $response;
+    }
+
+    public function get_callbackSecret()
+    {
+        return md5(uniqid(rand(), true));
+    }
 
     public function init()
     {
-        $this->blockonomics_url = $this->company_gateway->getConfigField('blockonomicsUrl');
+        $response = $this->get_callbacks();
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
-        $this->store_id = $this->company_gateway->getConfigField('storeId');
-        $this->webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+        $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 
@@ -118,11 +130,11 @@ class BlockonomicsPaymentDriver extends BaseDriver
         }
 
         $this->init();
-        $webhookClient = new Webhook($this->blockonomics_url, $this->api_key);
+        $webhookClient = new Webhook($this->btcpay_url, $this->api_key);
 
         if (!$webhookClient->isIncomingWebhookRequestValid($webhook_payload, $sig, $this->webhook_secret)) {
             throw new \RuntimeException(
-                'Invalid payment notification message received - signature did not match.'
+                'Invalid BTCPayServer payment notification message received - signature did not match.'
             );
         }
 

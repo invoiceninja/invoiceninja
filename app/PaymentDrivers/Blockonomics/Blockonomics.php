@@ -67,15 +67,9 @@ class Blockonomics implements MethodInterface
 
         $drv = $this->driver_class;
         if (
-            strlen($drv->blockonomics_url) < 1
-            || strlen($drv->api_key) < 1
-            || strlen($drv->store_id) < 1
-            || strlen($drv->webhook_secret) < 1
+            strlen($drv->api_key) < 1
         ) {
             throw new PaymentFailed('Blockonomics is not well configured');
-        }
-        if (!filter_var($this->driver_class->blockonomics_url, FILTER_VALIDATE_URL)) {
-            throw new PaymentFailed('Wrong format for Blockonomics Url');
         }
 
         try {
