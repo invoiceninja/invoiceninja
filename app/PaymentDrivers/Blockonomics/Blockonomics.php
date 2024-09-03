@@ -73,6 +73,11 @@ class Blockonomics implements MethodInterface
         }
 
         try {
+            // This is where the payment happens
+            // Will probably have to implement a curl request to the blockonomics API 
+            // to create a new payment request
+            // Or potentially use an off-site solution
+
             $_invoice = collect($drv->payment_hash->data->invoices)->first();
             $cli = $drv->client;
 
@@ -92,63 +97,15 @@ class Blockonomics implements MethodInterface
 
             $urlRedirect = redirect()->route('client.invoice.show', ['invoice' => $_invoice->invoice_id])->getTargetUrl();
 
-            $rep = $client->createInvoice(
-                $drv->store_id,
-                $request->currency,
-                $_invoice->invoice_number,
-                $cli->present()->email(),
-                $metaData,
-                $checkoutOptions
-            );
-
-            return redirect($rep->getCheckoutLink());
         } catch (\Throwable $e) {
             PaymentFailureMailer::dispatch($drv->client, $drv->payment_hash->data, $drv->client->company, $request->amount);
             throw new PaymentFailed('Error during Blockonomics payment : ' . $e->getMessage());
         }
     }
 
+    // Not supported yet
     public function refund(Payment $payment, $amount)
     {
-        try {
-            if ($amount == $payment->amount) {
-                $refundVariant = "Fiat";
-                $refundPaymentMethod = "BTC";
-                $refundDescription = "Full refund";
-                $refundCustomCurrency = null;
-                $refundCustomAmount = null;
-            } else {
-                $refundVariant = "Custom";
-                $refundPaymentMethod = "";
-                $refundDescription = "Partial refund";
-                $refundCustomCurrency = $payment->currency;
-                $refundCustomAmount = $amount;
-            }
-            App::setLocale($payment->company->getLocale());
 
-            $email_object = new EmailObject();
-            $email_object->subject = ctrans('texts.blockonomics_refund_subject');
-            $email_object->body = ctrans('texts.blockonomics_refund_body') . '<br>' . $refund->getViewLink();
-            $email_object->text_body = ctrans('texts.blockonomics_refund_body') . '\n' . $refund->getViewLink();
-            $email_object->company_key = $payment->company->company_key;
-            $email_object->html_template = 'email.template.generic';
-            $email_object->to = [new Address($payment->client->present()->email(), $payment->client->present()->name())];
-            $email_object->email_template_body = 'blockonomics_refund_subject';
-            $email_object->email_template_subject = 'blockonomics_refund_body';
-
-            Email::dispatch($email_object, $payment->company);
-
-            $data = [
-                'transaction_reference' => $refund->getId(),
-                'transaction_response' => json_encode($refund),
-                'success' => true,
-                'description' => "Please follow this link to claim your refund: " . $refund->getViewLink(),
-                'code' => 202,
-            ];
-
-            return $data;
-        } catch (\Throwable $e) {
-            throw new PaymentFailed('Error during Blockonomics refund : ' . $e->getMessage());
-        }
     }
 }
