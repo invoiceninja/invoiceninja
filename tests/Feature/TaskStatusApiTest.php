@@ -46,11 +46,15 @@ class TaskStatusApiTest extends TestCase
 
     public function testSorting()
     {
-        TaskStatus::factory()->count(5)->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id
-        ]);
+        TaskStatus::query()->where('company_id', $this->company->id)->cursor()->each(function ($ts){
+            $ts->forceDelete();
+        });
 
+        TaskStatus::factory()->count(10)->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'status_order' => 99999,
+        ]);
 
         $t = TaskStatus::where('company_id', '=', $this->company->id)->orderBy('id', 'desc');
 
@@ -58,7 +62,6 @@ class TaskStatusApiTest extends TestCase
         $task_status = $t->first();
 
         $id = $task_status->id;
-
 
         $data = [
             'status_order' => 1,
@@ -69,7 +72,10 @@ class TaskStatusApiTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->put('/api/v1/task_statuses/'.$task_status->hashed_id, $data);
 
-        $t = TaskStatus::where('company_id', '=', $this->company->id)->orderBy('status_order', 'asc')->first();
+
+        $xx = TaskStatus::where('company_id', $this->company->id)->pluck('status_order');
+
+        $t = TaskStatus::where('company_id', $this->company->id)->orderBy('status_order', 'asc')->first();
 
         $this->assertEquals($id, $t->id);
 
