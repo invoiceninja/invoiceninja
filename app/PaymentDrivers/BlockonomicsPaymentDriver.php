@@ -53,7 +53,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
 
 
-    public function get_callbacks($crypto)
+    public function get_callbacks()
     {
         $response = $this->get($GET_CALLBACKS_URL, $this->api_key);
         return $response;
