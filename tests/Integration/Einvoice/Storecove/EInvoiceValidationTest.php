@@ -41,6 +41,44 @@ class EInvoiceValidationTest extends TestCase
 
     }
 
+    public function testEinvoiceValidationEndpointInvoice()
+    {
+
+        $data =[
+            'entity' => 'invoices',
+            'entity_id' => $this->invoice->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/einvoice/validateEntity', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+    }
+
+    public function testEinvoiceValidationEndpoint()
+    {
+
+        $data =[
+            'entity' => 'companies',
+            'entity_id' => $this->company->hashed_id,
+        ];
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/einvoice/validateEntity', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+    }
+
     public function testInvalidCompanySettings()
     {
         
@@ -171,13 +209,9 @@ class EInvoiceValidationTest extends TestCase
         $el = new EntityLevel();
         $validation = $el->checkCompany($company);
 
-        nlog($validation);
-
         $this->assertFalse($validation['passes']);
 
     }
-
-
 
     public function testInvalidClientSettings()
     {
