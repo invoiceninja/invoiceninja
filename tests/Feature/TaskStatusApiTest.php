@@ -73,8 +73,6 @@ class TaskStatusApiTest extends TestCase
         ])->put('/api/v1/task_statuses/'.$task_status->hashed_id, $data);
 
 
-        $xx = TaskStatus::where('company_id', $this->company->id)->pluck('status_order');
-
         $t = TaskStatus::where('company_id', $this->company->id)->orderBy('status_order', 'asc')->first();
 
         $this->assertEquals($id, $t->id);

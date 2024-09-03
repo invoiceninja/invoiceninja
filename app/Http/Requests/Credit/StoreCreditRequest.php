@@ -107,6 +107,7 @@ class StoreCreditRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        $input['line_items'] = $this->cleanFeeItems($input['line_items']);
         $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {
