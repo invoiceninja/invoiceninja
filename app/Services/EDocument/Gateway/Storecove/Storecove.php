@@ -348,10 +348,11 @@ class Storecove
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
-        try {
-            $r = Http::withToken(config('ninja.storecove_api_key'))
-                    ->withHeaders($this->getHeaders($headers))
-                    ->{$verb}("{$this->base_url}{$uri}", $data)->throw();
+        $r = Http::withToken(config('ninja.storecove_api_key'));
+
+        try {            
+            $r->withHeaders($this->getHeaders($headers))
+            ->{$verb}("{$this->base_url}{$uri}", $data)->throw();
         }
         catch (ClientException $e) {
             // 4xx errors

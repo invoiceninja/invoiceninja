@@ -132,7 +132,7 @@ class PaymentMethodController extends Controller
     public function destroy(ClientGatewayToken $payment_method)
     {
         /** @var \App\Models\ClientContact auth()->user() **/
-        $client_contact = auth()->user();
+        $client_contact = auth()->guard('contact')->user();
 
         if ($payment_method->gateway()->exists()) {
             $payment_method->gateway
@@ -145,8 +145,18 @@ class PaymentMethodController extends Controller
             event(new MethodDeleted($payment_method, auth()->guard('contact')->user()->company, Ninja::eventVars(auth()->guard('contact')->user()->id)));
 
             $payment_method->is_deleted = true;
+            $payment_method->is_default = false;
             $payment_method->delete();
             $payment_method->save();
+
+
+            $def_cgt = auth()->guard('contact')->user()->client->gateway_tokens()->orderBy('id','desc')->first();
+            
+            if($def_cgt)
+            {
+                $def_cgt->is_default = true;
+                $def_cgt->save();
+            }
 
         } catch (Exception $e) {
             nlog($e->getMessage());

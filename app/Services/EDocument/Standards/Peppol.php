@@ -1278,7 +1278,7 @@ class Peppol extends AbstractService
     private function checkRequired(bool $required, string $section): self
     {
 
-        return $required ? throw new \Exception("e-invoice generation halted:: {$section} required") : $this;
+        return $required ? throw new \Exception("e-invoice generation halted:: {$section} required", 400) : $this;
 
     }
 

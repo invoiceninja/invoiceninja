@@ -515,7 +515,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $cgt->save();
 
-        if ($this->client->gateway_tokens->count() == 1) {
+        if ($this->client->gateway_tokens->count() > 1) {
             $this->client->gateway_tokens()->update(['is_default' => 0]);
         }
 
