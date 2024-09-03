@@ -501,28 +501,28 @@ class BaseDriver extends AbstractPaymentDriver
      */
     public function storeGatewayToken(array $data, array $additional = []): ?ClientGatewayToken
     {
-        $company_gateway_token = new ClientGatewayToken();
-        $company_gateway_token->company_id = $this->client->company->id;
-        $company_gateway_token->client_id = $this->client->id;
-        $company_gateway_token->token = $data['token'];
-        $company_gateway_token->company_gateway_id = $this->company_gateway->id;
-        $company_gateway_token->gateway_type_id = $data['payment_method_id'];
-        $company_gateway_token->meta = $data['payment_meta'];
+        $cgt = new ClientGatewayToken();
+        $cgt->company_id = $this->client->company->id;
+        $cgt->client_id = $this->client->id;
+        $cgt->token = $data['token'];
+        $cgt->company_gateway_id = $this->company_gateway->id;
+        $cgt->gateway_type_id = $data['payment_method_id'];
+        $cgt->meta = $data['payment_meta'];
 
         foreach ($additional as $key => $value) {
-            $company_gateway_token->{$key} = $value;
+            $cgt->{$key} = $value;
         }
 
-        $company_gateway_token->save();
+        $cgt->save();
 
         if ($this->client->gateway_tokens->count() == 1) {
             $this->client->gateway_tokens()->update(['is_default' => 0]);
-
-            $company_gateway_token->is_default = 1;
-            $company_gateway_token->save();
         }
 
-        return $company_gateway_token;
+        $cgt->is_default = 1;
+        $cgt->save();
+
+        return $cgt;
     }
 
     public function processInternallyFailedPayment($gateway, $e)
