@@ -44,33 +44,60 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
-    public const api_key  = "";
     public $blockonomics;
     public $BASE_URL = 'https://www.blockonomics.co';
     public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     public $PRICE_URL = 'https://www.blockonomics.co/api/price';
     public $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
-    public $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-
-
-    public function get_callbacks()
-    {
-        $response = $this->get($GET_CALLBACKS_URL, $this->api_key);
-        return $response;
-    }
-
-    public function get_callbackSecret()
-    {
-        return md5(uniqid(rand(), true));
-    }
 
     public function init()
     {
-        $response = $this->get_callbacks();
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
-        $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
+        $response = $this->get_callbacks($this->api_key);
+        $this->callback_url = $response;
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
+
+    private function get($url, $apiKey)
+    {
+        // Initialize cURL session
+        $ch = curl_init();
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $apiKey,
+            'Content-Type: application/json'
+        ]);
+
+        // Execute cURL session and get the response
+        $response = curl_exec($ch);
+
+        // Check for errors
+        if (curl_errno($ch)) {
+            throw new Exception(curl_error($ch));
+        }
+
+        // Close cURL session
+        curl_close($ch);
+
+        // Return the response
+        return json_decode($response, true);
+    }
+
+    public function get_callbacks($api_key)
+    {
+        $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+        $response = $this->get($GET_CALLBACKS_URL, $api_key);
+        return $response;
+    }
+
+    // public function get_callbackSecret()
+    // {
+    //     return md5(uniqid(rand(), true));
+    // }
+
 
     /* Returns an array of gateway types for the payment gateway */
     public function gatewayTypes(): array
@@ -130,7 +157,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
         }
 
         $this->init();
-        $webhookClient = new Webhook($this->btcpay_url, $this->api_key);
+        $webhookClient = new Webhook($this->callback_url , $this->api_key);
 
         if (!$webhookClient->isIncomingWebhookRequestValid($webhook_payload, $sig, $this->webhook_secret)) {
             throw new \RuntimeException(
