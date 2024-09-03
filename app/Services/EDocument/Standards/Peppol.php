@@ -305,7 +305,7 @@ class Peppol extends AbstractService
     private function setInvoice(): self
     {
 
-        if($this->invoice->e_invoice) {
+        if($this->invoice->e_invoice && isset($this->invoice->e_invoice->Invoice)) {
 
             $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
 
