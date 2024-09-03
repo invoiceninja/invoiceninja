@@ -78,8 +78,8 @@ class ValidateEInvoiceRequest extends Request
         $class = Invoice::class;
 
         match ($this->entity) {
-          'invoice' => $class = Invoice::class,
-          'client' => $class = Client::class,
+          'invoices' => $class = Invoice::class,
+          'clients' => $class = Client::class,
           'companies' => $class = Company::class,
           default => $class = Invoice::class,
         };

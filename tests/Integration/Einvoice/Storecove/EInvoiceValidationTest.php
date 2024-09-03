@@ -44,6 +44,9 @@ class EInvoiceValidationTest extends TestCase
     public function testEinvoiceValidationEndpointInvoice()
     {
 
+        $this->company->legal_entity_id = 123432;
+        $this->company->save();
+
         $data =[
             'entity' => 'invoices',
             'entity_id' => $this->invoice->hashed_id,
@@ -62,6 +65,9 @@ class EInvoiceValidationTest extends TestCase
 
     public function testEinvoiceValidationEndpoint()
     {
+
+        $this->company->legal_entity_id = 123432;
+        $this->company->save();
 
         $data =[
             'entity' => 'companies',

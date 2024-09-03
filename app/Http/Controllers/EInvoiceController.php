@@ -33,7 +33,7 @@ class EInvoiceController extends BaseController
             'companies' => $data = $el->checkCompany($request->getEntity()),
             default => $data['passes'] = false,
         };
-
+nlog($data);
         return response()->json($data, $data['passes'] ? 200 : 400);
 
     }

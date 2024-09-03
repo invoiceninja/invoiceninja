@@ -92,8 +92,8 @@ class EntityLevel
         $this->init($invoice->client->locale());
 
         $this->errors['invoice'] = [];
-        $this->testClientState($invoice->client);
-        $this->testCompanyState($invoice->client); // uses client level settings which is what we want
+        $this->errors['client'] = $this->testClientState($invoice->client);
+        $this->errors['company'] = $this->testCompanyState($invoice->client); // uses client level settings which is what we want
 
         $p = new Peppol($invoice);
 
@@ -106,7 +106,7 @@ class EntityLevel
 
         };
 
-        $this->errors['status'] = count($this->errors['invoice']) == 0 && count($this->errors['client']) == 0 && count($this->errors['company']) == 0;
+        $this->errors['passes'] = count($this->errors['invoice']) == 0 && count($this->errors['client']) == 0 && count($this->errors['company']) == 0;
 
         return $this->errors;
 
