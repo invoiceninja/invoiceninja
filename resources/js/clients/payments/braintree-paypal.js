@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class BraintreePayPal {
     initBraintreeDataCollector() {
         window.braintree.client.create({
@@ -86,9 +88,6 @@ class BraintreePayPal {
 
                     onApprove: function (data, actions) {
                         return paypalCheckoutInstance.tokenizePayment(data).then(function (payload) {
-                            document.querySelector('#paypal-button')?.classList.add('hidden');
-                            document.querySelector('#paypal-spinner')?.classList.remove('hidden');
-
                             let tokenBillingCheckbox = document.querySelector(
                                 'input[name="token-billing-checkbox"]:checked'
                             );
@@ -122,4 +121,8 @@ class BraintreePayPal {
     }
 }
 
-new BraintreePayPal().handle();
+function boot() {
+    new BraintreePayPal().handle();
+}
+
+instant() ? boot() : wait('#braintree-paypal-payment').then(() => boot());

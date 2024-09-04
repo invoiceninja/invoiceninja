@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class EwayRapid {
     constructor() {
         this.cardStyles =
@@ -431,11 +433,6 @@ class EwayRapid {
     completeAuthorization(event) {
         event.target.parentElement.disabled = true;
 
-        const button = document.getElementById('authorize-card');
-
-        button.querySelector('svg').classList.remove('hidden');
-        button.querySelector('span').classList.add('hidden');
-
         document.getElementById('server-response').submit();
     }
 
@@ -488,8 +485,7 @@ class EwayRapid {
             })
         );
 
-        if (document.getElementById('toggle-payment-with-credit-card'))
-        {
+        if (document.getElementById('toggle-payment-with-credit-card')) {
             document
                 .getElementById('toggle-payment-with-credit-card')
                 .addEventListener('click', (element) => {
@@ -503,13 +499,8 @@ class EwayRapid {
                 });
         }
 
-        const payNowButton = document.getElementById('pay-now');
-
         document.getElementById('pay-now')?.addEventListener('click', (e) => {
             let tokenInput = document.querySelector('input[name=token]');
-
-            payNowButton.querySelector('svg').classList.remove('hidden');
-            payNowButton.querySelector('span').classList.add('hidden');
 
             if (tokenInput.value) {
                 return this.completePaymentUsingToken(e);
@@ -520,4 +511,8 @@ class EwayRapid {
     }
 }
 
-new EwayRapid().handle();
+function boot() {
+    new EwayRapid().handle();
+}
+
+instant() ? boot() : wait('#eway-credit-card-payment').then(() => boot());
