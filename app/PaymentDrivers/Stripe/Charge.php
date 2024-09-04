@@ -50,7 +50,7 @@ class Charge
     {
         if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
             return (new ACH($this->stripe))->tokenBilling($cgt, $payment_hash);
-        } elseif($cgt->gateway_type_id == GatewayType::ACSS) {
+        } elseif ($cgt->gateway_type_id == GatewayType::ACSS) {
             return (new ACSS($this->stripe))->tokenBilling($cgt, $payment_hash);
         }
 
@@ -82,8 +82,8 @@ class Charge
             if ($cgt->gateway_type_id == GatewayType::BACS) {
                 $data['payment_method_types'] = ['bacs_debit'];
             }
-            if($cgt->gateway_type_id == GatewayType::CREDIT_CARD){
-                 $data['payment_method_types'] = ["card","link"];
+            if ($cgt->gateway_type_id == GatewayType::CREDIT_CARD) {
+                $data['payment_method_types'] = ["card","link"];
             }
 
             /* Should improve token billing with client not present */

@@ -18,9 +18,10 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 
-class GIROPAY
+class GIROPAY implements LivewireMethodInterface
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
@@ -37,31 +38,7 @@ class GIROPAY
 
     public function paymentView(array $data)
     {
-        $this->stripe->init();
-
-        $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $data['client'] = $this->stripe->client;
-        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
-        $data['country'] = $this->stripe->client->country->iso_3166_2;
-
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => $data['stripe_amount'],
-            'currency' => 'eur',
-            'payment_method_types' => ['giropay'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->getDescription(false),
-            'metadata' => [
-                'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::GIROPAY,
-            ],
-        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
-
-        $data['pi_client_secret'] = $intent->client_secret;
-
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
-        $this->stripe->payment_hash->save();
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.giropay.pay', $data);
     }
@@ -142,7 +119,7 @@ class GIROPAY
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-    
+
     public function paymentData(array $data): array
     {
         $this->stripe->init();
@@ -174,8 +151,8 @@ class GIROPAY
         return $data;
     }
 
-    public function livewirePaymentView(array $data): string 
+    public function livewirePaymentView(array $data): string
     {
-        return 'gateways.stripe.giropay.pay_livewire';
+        return 'gateways.giropay.pay_livewire';
     }
 }
