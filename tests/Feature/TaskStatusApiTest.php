@@ -48,17 +48,18 @@ class TaskStatusApiTest extends TestCase
     {
         TaskStatus::factory()->count(5)->create([
             'company_id' => $this->company->id,
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
+            'status_order' => 99999,
         ]);
-        
-        
+
+
         $t = TaskStatus::where('company_id', '=', $this->company->id)->orderBy('id', 'desc');
-        
+
         $this->assertEquals(10, $t->count());
         $task_status = $t->first();
 
         $id = $task_status->id;
-        
+
         nlog("setting {$id} to index 1");
 
         $data = [
@@ -73,7 +74,7 @@ class TaskStatusApiTest extends TestCase
         $t = TaskStatus::where('company_id', '=', $this->company->id)->orderBy('status_order', 'asc')->first();
 
         $this->assertEquals($id, $t->id);
-        
+
     }
 
     public function testTaskStatusGetFilter()
