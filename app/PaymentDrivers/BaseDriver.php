@@ -656,6 +656,16 @@ class BaseDriver extends AbstractPaymentDriver
         }
     }
 
+    public function livewirePaymentView(array $data): string 
+    {
+        return $this->payment_method->livewirePaymentView($data);
+    }
+
+    public function processPaymentViewData(array $data): array
+    {
+        return $this->payment_method->paymentData($data); 
+    }
+
     public function checkRequirements()
     {
         if ($this->company_gateway->require_billing_address) {
