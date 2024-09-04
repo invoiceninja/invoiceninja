@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessSEPA {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -106,9 +108,9 @@ class ProcessSEPA {
                 this.stripe
                     .confirmSepaDebitPayment(
                         document.querySelector('meta[name=pi-client-secret')
-                        .content, {
-                            payment_method: document.querySelector('input[name=token]').value
-                        }
+                            .content, {
+                        payment_method: document.querySelector('input[name=token]').value
+                    }
                     )
                     .then((result) => {
                         if (result.error) {
@@ -157,18 +159,18 @@ class ProcessSEPA {
                 this.stripe
                     .confirmSepaDebitPayment(
                         document.querySelector('meta[name=pi-client-secret')
-                        .content, {
-                            payment_method: {
-                                sepa_debit: this.iban,
-                                billing_details: {
-                                    name: document.getElementById('sepa-name')
-                                        .value,
-                                    email: document.getElementById(
-                                        'sepa-email-address'
-                                    ).value,
-                                },
+                            .content, {
+                        payment_method: {
+                            sepa_debit: this.iban,
+                            billing_details: {
+                                name: document.getElementById('sepa-name')
+                                    .value,
+                                email: document.getElementById(
+                                    'sepa-email-address'
+                                ).value,
                             },
-                        }
+                        },
+                    }
                     )
                     .then((result) => {
                         if (result.error) {
@@ -197,7 +199,7 @@ class ProcessSEPA {
                 tokenBillingCheckbox.value;
         }
 
-        if(document.querySelector('input[name=token]').value.length > 2){
+        if (document.querySelector('input[name=token]').value.length > 2) {
             document.querySelector('input[name="store_card"]').value = false;
         }
 
@@ -233,11 +235,15 @@ class ProcessSEPA {
     }
 }
 
-const publishableKey =
-    document.querySelector('meta[name="stripe-publishable-key"]')?.content ??
-    '';
+function boot() {
+    const publishableKey =
+        document.querySelector('meta[name="stripe-publishable-key"]')?.content ??
+        '';
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
-new ProcessSEPA(publishableKey, stripeConnect).setupStripe().handle();
+    new ProcessSEPA(publishableKey, stripeConnect).setupStripe().handle();
+}
+
+instant() ? boot() : wait('#stripe-sepa-payment').then(() => boot());

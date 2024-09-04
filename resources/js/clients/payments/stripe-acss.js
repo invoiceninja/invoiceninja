@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { instant, wait } from '../wait';
+
 class ProcessACSS {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -17,13 +19,13 @@ class ProcessACSS {
 
     setupStripe = () => {
 
-        if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+            // this.stripe.stripeAccount = this.stripeConnect;
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
@@ -41,8 +43,7 @@ class ProcessACSS {
                 console.log(element.target.dataset.token);
             }));
 
-        if(document.getElementById('toggle-payment-with-new-account'))
-        {
+        if (document.getElementById('toggle-payment-with-new-account')) {
             document
                 .getElementById('toggle-payment-with-new-account')
                 .addEventListener('click', (element) => {
@@ -52,19 +53,18 @@ class ProcessACSS {
 
         }
 
-        if (document.getElementById('pay-now-with-token'))
-        {
+        if (document.getElementById('pay-now-with-token')) {
             document.getElementById('pay-now-with-token').addEventListener('click', (e) => {
 
                 const token = document
                     .querySelector('input[name=token]')
                     .value;
 
-                    document.getElementById('pay-now-with-token').disabled = true;
-                    document.querySelector('#pay-now-with-token > svg').classList.remove('hidden');
-                    document.querySelector('#pay-now-with-token > span').classList.add('hidden');
-                    document.getElementById('server-response').submit();
-            
+                document.getElementById('pay-now-with-token').disabled = true;
+                document.querySelector('#pay-now-with-token > svg').classList.remove('hidden');
+                document.querySelector('#pay-now-with-token > span').classList.add('hidden');
+                document.getElementById('server-response').submit();
+
             });
         }
         else {
@@ -80,23 +80,23 @@ class ProcessACSS {
                         tokenBillingCheckbox.value;
                 }
 
-            let errors = document.getElementById('errors');
-            errors.textContent = '';
-            errors.hidden = true;
-            
-            if (document.getElementById('acss-name').value === "") {
-                document.getElementById('acss-name').focus();
-                errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
-                errors.hidden = false;
-                return;
-            }
+                let errors = document.getElementById('errors');
+                errors.textContent = '';
+                errors.hidden = true;
 
-            if (document.getElementById('acss-email-address').value === "") {
-                document.getElementById('acss-email-address').focus();
-                errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
-                errors.hidden = false;
-                return ;
-            }
+                if (document.getElementById('acss-name').value === "") {
+                    document.getElementById('acss-name').focus();
+                    errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
+                    errors.hidden = false;
+                    return;
+                }
+
+                if (document.getElementById('acss-email-address').value === "") {
+                    document.getElementById('acss-email-address').focus();
+                    errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
+                    errors.hidden = false;
+                    return;
+                }
 
                 document.getElementById('pay-now').disabled = true;
                 document.querySelector('#pay-now > svg').classList.remove('hidden');
@@ -139,17 +139,21 @@ class ProcessACSS {
         errors.textContent = message;
         errors.hidden = false;
 
-            document.getElementById('pay-now').disabled = false;
-            document.querySelector('#pay-now > svg').classList.add('hidden');
-            document.querySelector('#pay-now > span').classList.remove('hidden');
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
-new ProcessACSS(publishableKey, stripeConnect).setupStripe().handle();
+    new ProcessACSS(publishableKey, stripeConnect).setupStripe().handle();
+}
+
+instant() ? boot() : wait('#stripe-acss-payment').then(() => boot());
