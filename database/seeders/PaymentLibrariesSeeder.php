@@ -24,6 +24,16 @@ class PaymentLibrariesSeeder extends Seeder
     {
         Model::unguard();
 
+        // TODO: use get callbacks API to get the callback URL
+        $callbackUrl = config('ninja.app_url') . '/payment/callback';
+        $callbackSecret = md5(uniqid(rand(), true));
+        $blockonomics_fields = "{
+            \"apiKey\": \"\",
+            \"callbackUrl\": \"$callbackUrl\",
+            \"callbackSecret\": \"$callbackSecret\"
+        }";
+
+
         $gateways = [
             ['id' => 1, 'name' => 'Authorize.Net', 'provider' => 'Authorize', 'sort_order' => 5, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'fields' => '{"apiLoginId":"","transactionKey":"","testMode":false,"developerMode":false,"liveEndpoint":"https:\/\/api2.authorize.net\/xml\/v1\/request.api","developerEndpoint":"https:\/\/apitest.authorize.net\/xml\/v1\/request.api"}
 '],
@@ -89,7 +99,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 61, 'name' => 'PayPal Platform', 'provider' => 'PayPal_PPCP', 'key' => '80af24a6a691230bbec33e930ab40666', 'fields' => '{"testMode":false}'],
             ['id' => 62, 'name' => 'BTCPay', 'provider' => 'BTCPay', 'key' => 'vpyfbmdrkqcicpkjqdusgjfluebftuva', 'fields' => '{"btcpayUrl":"", "apiKey":"", "storeId":"", "webhookSecret":""}'],
             ['id' => 63, 'name' => 'Rotessa', 'is_offsite' => false, 'sort_order' => 22, 'provider' => 'Rotessa', 'key' => '91be24c7b792230bced33e930ac61676', 'fields' => '{"apiKey":"", "testMode":""}'],
-            ['id' => 64, 'name' => 'Blockonomics', 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => '{"apiKey":"", "callbackUrl":"", "callbackSecret": ""}'],
+            ['id' => 64, 'name' => 'Blockonomics', 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => "$blockonomics_fields"],
         ];
 
         foreach ($gateways as $gateway) {

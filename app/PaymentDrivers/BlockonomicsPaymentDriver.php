@@ -53,8 +53,8 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public function init()
     {
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
-        $response = $this->get_callbacks($this->api_key);
-        $this->callback_url = $response;
+        $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
+        $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 
@@ -91,6 +91,20 @@ class BlockonomicsPaymentDriver extends BaseDriver
         $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
         $response = $this->get($GET_CALLBACKS_URL, $api_key);
         return $response;
+    }
+
+    public function getBTCPrice($id_currency)
+    {
+        $BLOCKONOMICS_BASE_URL = 'https://www.blockonomics.co';
+        $BLOCKONOMICS_PRICE_URL = $BLOCKONOMICS_BASE_URL . '/api/price?currency=';
+        // Getting price
+        // $currency = new Currency((int) $id_currency);
+        // $options = ['http' => ['method' => 'GET']];
+        // $context = stream_context_create($options);
+        // $contents = Tools::file_get_contents(Configuration::get('BLOCKONOMICS_PRICE_URL') . $currency->iso_code, false, $context);
+        // $priceObj = Tools::jsonDecode($contents);
+
+        return $priceObj->price;
     }
 
     // public function get_callbackSecret()
@@ -161,7 +175,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
         if (!$webhookClient->isIncomingWebhookRequestValid($webhook_payload, $sig, $this->webhook_secret)) {
             throw new \RuntimeException(
-                'Invalid BTCPayServer payment notification message received - signature did not match.'
+                'Invalid blockonomics payment notification message received - signature did not match.'
             );
         }
 

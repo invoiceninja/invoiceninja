@@ -13,6 +13,8 @@
 namespace App\PaymentDrivers\Blockonomics;
 
 use App\Models\Payment;
+use App\Models\PaymentType;
+use App\Models\GatewayType;
 use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Common\MethodInterface;
@@ -67,35 +69,24 @@ class Blockonomics implements MethodInterface
 
         $drv = $this->driver_class;
         if (
-            strlen($drv->api_key) < 1
+            strlen($drv->api_key) < 1 ||
+            strlen($drv->callback_secret) < 1 ||
+            strlen($drv->callback_url) < 1
         ) {
             throw new PaymentFailed('Blockonomics is not well configured');
         }
 
         try {
-            // This is where the payment happens
-            // Will probably have to implement a curl request to the blockonomics API 
-            // to create a new payment request
-            // Or potentially use an off-site solution
+            // $data = [
+            //     'payment_method' => '',
+            //     'payment_type' => PaymentType::CRYPTO,
+            //     'amount' => 200,
+            //     'transaction_reference' => 123,
+            //     'gateway_type_id' => GatewayType::CRYPTO,
+            // ];
 
-            $_invoice = collect($drv->payment_hash->data->invoices)->first();
-            $cli = $drv->client;
-
-            $metaData = [
-                'buyerName' => $cli->name,
-                'buyerAddress1' => $cli->address1,
-                'buyerAddress2' =>  $cli->address2,
-                'buyerCity' =>  $cli->city,
-                'buyerState' => $cli->state,
-                'buyerZip' => $cli->postal_code,
-                'buyerCountry' => $cli->country_id,
-                'buyerPhone' => $cli->phone,
-                'itemDesc' => "From InvoiceNinja",
-                'InvoiceNinjaPaymentHash' => $drv->payment_hash->hash
-            ];
-
-
-            $urlRedirect = redirect()->route('client.invoice.show', ['invoice' => $_invoice->invoice_id])->getTargetUrl();
+            // $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey(6)]);
 
         } catch (\Throwable $e) {
             PaymentFailureMailer::dispatch($drv->client, $drv->payment_hash->data, $drv->client->company, $request->amount);

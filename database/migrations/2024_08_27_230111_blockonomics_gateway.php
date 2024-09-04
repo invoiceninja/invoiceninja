@@ -15,13 +15,10 @@ return new class extends Migration
         if(!Gateway::find(64))
         {
 
-            $BLOCKONOMICS_BASE_URL = 'https://www.blockonomics.co';
-            $BLOCKONOMICS_GET_CALLBACKS_URL = $BLOCKONOMICS_BASE_URL . '/api/address?&no_balance=true&only_xpub=true&get_callback=true';
             $fields =  new \stdClass;
             $fields->apiKey  = "";
-            // insert call to get callback url and set callback url based on response
-            $fields->callbackUrl = config('ninja.app_url');
-            $fields->callbackSecret = md5(uniqid(rand(), true));
+            $fields->callbackUrl = "";
+            $fields->callbackSecret = "";
 
             $gateway = new Gateway;
             $gateway->id = 64;
