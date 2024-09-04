@@ -15,7 +15,7 @@ class StorePrePaymentRequest extends FormRequest
      */
     public function authorize()
     {
-        
+
         auth()->guard('contact')->user()->loadMissing(['company']);
 
         auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {

@@ -120,5 +120,13 @@ return [
     'chorus' => [
         'client_id' => env('CHORUS_CLIENT_ID', false),
         'secret' => env('CHORUS_SECRET', false),
-    ]
+    ],
+    'quickbooks' => [
+        'client_id' => env('QUICKBOOKS_CLIENT_ID', false),
+        'client_secret' => env('QUICKBOOKS_CLIENT_SECRET', false),
+        'debug' => env('APP_DEBUG',false)
+    ],
+    'quickbooks_webhook' => [
+        'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),
+    ],
 ];

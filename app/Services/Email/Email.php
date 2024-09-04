@@ -250,7 +250,7 @@ class Email implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
+        if(in_array($this->email_object->settings->email_sending_method, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
         }
     }
@@ -526,7 +526,7 @@ class Email implements ShouldQueue
     {
 
         /** Force free/trials onto specific mail driver */
-        if($this->mailer == 'default' && $this->company->account->isNewHostedAccount()) {
+        if($this->email_object->settings->email_sending_method == 'default' && $this->company->account->isNewHostedAccount()) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
@@ -646,7 +646,7 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && (stripos($this->email_object->settings->custom_sending_email, "@")) !== false) ? $this->email_object->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable
@@ -677,7 +677,6 @@ class Email implements ShouldQueue
             }
         }
     }
-
 
     /**
      * Ensure we discard any data that is not required

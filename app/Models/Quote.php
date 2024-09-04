@@ -396,7 +396,7 @@ class Quote extends BaseModel
      */
     public function calculateTemplate(string $entity_string): string
     {
-                
+
         $client = $this->client;
 
         if ($entity_string != 'quote') {
@@ -408,35 +408,36 @@ class Quote extends BaseModel
             $client->getSetting('quote_num_days_reminder1')
         ) && ! $this->reminder1_sent) {
             return 'reminder1';
-        // } elseif ($this->inReminderWindow(
-        //     $client->getSetting('schedule_reminder2'),
-        //     $client->getSetting('num_days_reminder2')
-        // ) && ! $this->reminder2_sent) {
-        //     return 'reminder2';
-        // } elseif ($this->inReminderWindow(
-        //     $client->getSetting('schedule_reminder3'),
-        //     $client->getSetting('num_days_reminder3')
-        // ) && ! $this->reminder3_sent) {
-        //     return 'reminder3';
-        // } elseif ($this->checkEndlessReminder(
-        //     $this->reminder_last_sent,
-        //     $client->getSetting('endless_reminder_frequency_id')
-        // )) {
-        //     return 'endless_reminder';
+            // } elseif ($this->inReminderWindow(
+            //     $client->getSetting('schedule_reminder2'),
+            //     $client->getSetting('num_days_reminder2')
+            // ) && ! $this->reminder2_sent) {
+            //     return 'reminder2';
+            // } elseif ($this->inReminderWindow(
+            //     $client->getSetting('schedule_reminder3'),
+            //     $client->getSetting('num_days_reminder3')
+            // ) && ! $this->reminder3_sent) {
+            //     return 'reminder3';
+            // } elseif ($this->checkEndlessReminder(
+            //     $this->reminder_last_sent,
+            //     $client->getSetting('endless_reminder_frequency_id')
+            // )) {
+            //     return 'endless_reminder';
         } else {
             return $entity_string;
         }
 
     }
 
-        
+
     /**
      * @return bool
      */
     public function canRemind(): bool
     {
-        if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED]) || $this->is_deleted) 
+        if (in_array($this->status_id, [self::STATUS_DRAFT, self::STATUS_APPROVED, self::STATUS_CONVERTED]) || $this->is_deleted) {
             return false;
+        }
 
         return true;
 

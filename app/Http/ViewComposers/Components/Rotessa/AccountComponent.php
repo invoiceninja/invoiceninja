@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\ViewComposers\Components\Rotessa;
 
@@ -33,10 +42,11 @@ class AccountComponent extends Component
         "authorization_type" => 'Online'
     ];
 
-    public function __construct(public array $account) {
-        $this->attributes = $this->newAttributeBag(Arr::only($this->account, $this->fields) );
+    public function __construct(public array $account)
+    {
+        $this->attributes = $this->newAttributeBag(Arr::only($this->account, $this->fields));
     }
-    
+
     public function render()
     {
 

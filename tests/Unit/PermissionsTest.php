@@ -37,7 +37,7 @@ class PermissionsTest extends TestCase
 
     public $token;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -70,7 +70,7 @@ class PermissionsTest extends TestCase
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $account->id;
@@ -104,16 +104,16 @@ class PermissionsTest extends TestCase
         $low_cu->permissions = '["edit_client","create_client","create_invoice","edit_invoice","create_quote","edit_quote"]';
         $low_cu->save();
 
-    
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->get('/api/v1/invoices');
-        
+
         $response->assertStatus(200);
 
         $data = $response->json();
-        
+
         $this->assertEquals(2, count($data));
 
         $response = $this->withHeaders([
@@ -143,7 +143,7 @@ class PermissionsTest extends TestCase
         $low_cu->save();
 
         $this->assertTrue($this->user->hasExcludedPermissions(["view_client"]));
-    
+
     }
 
     public function testHasExcludedPermissions2()
@@ -348,13 +348,13 @@ class PermissionsTest extends TestCase
         $all_permission = ' ';
         $this->assertFalse(stripos($all_permission, "view_client") !== false);
         $this->assertFalse(is_int(stripos($all_permission, "view_client")));
-        
+
         $all_permission = "";//problems are empty strings
         $this->assertTrue(empty($all_permission));
 
         $this->assertFalse(stripos($all_permission, "view_client") !== false);
         $this->assertFalse(is_int(stripos($all_permission, "view_client")));
-        
+
         $all_permission = 'view';//will always pass currently
         $this->assertFalse(stripos($all_permission, "view_client") !== false);
         $this->assertFalse(is_int(stripos($all_permission, "view_client")));

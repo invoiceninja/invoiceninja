@@ -1169,10 +1169,10 @@ class CheckData extends Command
                 ->whereNull('exchange_rate')
                 ->orWhere('exchange_rate', 0)
                 ->cursor()
-                ->each(function ($expense){
+                ->each(function ($expense) {
                     $expense->exchange_rate = 1;
                     $expense->saveQuietly();
-                    
+
                     $this->logMessage("Fixing - exchange rate for expense :: {$expense->id}");
 
                 });

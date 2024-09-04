@@ -58,7 +58,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
         }
     }
 
@@ -84,7 +84,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
         }
     }
 
@@ -105,7 +105,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Deleted');
 
         if (class_exists($className) && !($entity instanceof Company)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
         }
     }
 
@@ -147,8 +147,7 @@ class BaseRepository
      * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
-    {   //$start = microtime(true);
-        //forces the client_id if it doesn't exist
+    {   
         if (array_key_exists('client_id', $data)) {
             $model->client_id = $data['client_id'];
         }
@@ -167,7 +166,7 @@ class BaseRepository
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $data['exchange_rate'] = $company_defaults['exchange_rate'];
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
-            // $data = array_merge($company_defaults, $data);
+
             $data = array_merge($data, $company_defaults);
         }
 
@@ -321,6 +320,17 @@ class BaseRepository
                 UpdateTaxData::dispatch($client, $client->company);
             }
 
+            /** If Peppol is enabled - we will save the e_invoice document here at this point, document will not update after being sent */
+            if(strlen($model->backup ?? '') == 0 && $client->getSetting('e_invoice_type') == 'PEPPOL' && $model->company->legal_entity_id)
+            {
+                try{
+                    $model->service()->getEInvoice();
+                }
+                catch(\Exception $e){
+                    nlog("EXCEPTION:: BASEREPOSITORY:: Error generating e_invoice for model {$model->id}");
+                    nlog($e->getMessage());
+                }
+            }
         }
 
         if ($model instanceof Credit) {

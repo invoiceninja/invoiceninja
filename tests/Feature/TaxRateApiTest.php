@@ -31,8 +31,8 @@ class TaxRateApiTest extends TestCase
     use MockAccountData;
 
     public $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 

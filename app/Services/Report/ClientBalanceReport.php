@@ -39,6 +39,7 @@ class ClientBalanceReport extends BaseExport
         'invoices',
         'invoice_balance',
         'credit_balance',
+        'payment_balance',
     ];
 
     /**
@@ -119,6 +120,7 @@ class ClientBalanceReport extends BaseExport
             $query->count(),
             $query->sum('balance'),
             $client->credit_balance,
+            $client->payment_balance,
         ];
     }
 }

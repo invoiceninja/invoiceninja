@@ -118,8 +118,35 @@ class ImportController extends Controller
 
         })->toArray();
 
-
+        //Exact string match
         foreach($headers as $key => $value) {
+
+            foreach($translated_keys as $tkey => $tvalue) {
+
+                $concat_needle = str_ireplace(" ", "", $tvalue['index'].$tvalue['label']);
+                $concat_value = str_ireplace(" ", "", $value);
+
+                if($this->testMatch($concat_value, $concat_needle)) {
+
+                $hit = $tvalue['key'];
+                $hints[$key] = $hit;
+                unset($translated_keys[$tkey]);
+                break;
+
+                } else {
+                    $hints[$key] = null;
+                }
+
+            }
+
+        }
+
+        //Label Match
+        foreach($headers as $key => $value) {
+
+            if(isset($hints[$key])) {
+                continue;
+            }
 
             foreach($translated_keys as $tkey => $tvalue) {
 
@@ -134,10 +161,9 @@ class ImportController extends Controller
 
             }
 
-
         }
 
-        //second pass using the index of the translation here
+        //Index matching pass using the index of the translation here
         foreach($headers as $key => $value) {
             if(isset($hints[$key])) {
                 continue;

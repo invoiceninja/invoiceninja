@@ -241,7 +241,7 @@ class TemplateEngine
             $data['signature'] = $this->settings->email_signature;
             $data['settings'] = $this->settings;
             // $data['whitelabel'] = $this->entity_obj ? $this->entity_obj->company->account->isPaid() : true;
-            // $data['company'] = $this->entity_obj ? $this->entity_obj->company : '';            
+            // $data['company'] = $this->entity_obj ? $this->entity_obj->company : '';
             $data['whitelabel'] = $this->entity_obj->company->account->isPaid();
             $data['company'] = $this->entity_obj->company;
             $data['settings'] = $this->settings;

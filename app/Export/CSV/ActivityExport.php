@@ -129,8 +129,8 @@ class ActivityExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                
-                /** @var \App\Models\Activity $entity */
+
+                  /** @var \App\Models\Activity $entity */
 
                   $this->buildRow($entity);
               });

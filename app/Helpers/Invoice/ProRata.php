@@ -23,12 +23,12 @@ class ProRata
      * the time interval and the frequency duration
      *
      * @param float $amount
-     * @param Carbon $from_date
-     * @param Carbon $to_date
+     * @param \Illuminate\Support\Carbon | \Carbon\Carbon $from_date
+     * @param \Illuminate\Support\Carbon | \Carbon\Carbon $to_date
      * @param int $frequency
      * @return float
      */
-    public function refund(float $amount, Carbon $from_date, Carbon $to_date, int $frequency): float
+    public function refund(float $amount, $from_date, $to_date, int $frequency): float
     {
         $days = intval(abs($from_date->copy()->diffInDays($to_date)));
         $days_in_frequency = $this->getDaysInFrequency($frequency);
@@ -41,12 +41,12 @@ class ProRata
      * the time interval and the frequency duration
      *
      * @param float $amount
-     * @param Carbon $from_date
-     * @param Carbon $to_date
+     * @param \Illuminate\Support\Carbon | \Carbon\Carbon  $from_date
+     * @param \Illuminate\Support\Carbon | \Carbon\Carbon  $to_date
      * @param int $frequency
      * @return float
      */
-    public function charge(float $amount, Carbon $from_date, Carbon $to_date, int $frequency): float
+    public function charge(float $amount, $from_date, $to_date, int $frequency): float
     {
         $days = intval(abs($from_date->copy()->diffInDays($to_date)));
         $days_in_frequency = $this->getDaysInFrequency($frequency);

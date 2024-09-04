@@ -66,10 +66,10 @@ class Statics
     public static function company($locale = 'en'): array
     {
         $data = [];
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Industry> */
         $industries = app('industries');
-    
+
         $data['industries'] = $industries->each(function ($industry) {
             $industry->name = ctrans('texts.industry_'.$industry->name);
         })->sortBy(function ($industry) {
@@ -88,14 +88,14 @@ class Statics
 
         /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
         $payment_types = app('payment_types');
-    
+
         $data['payment_types'] = $payment_types->each(function ($pType) {
             $pType->name = ctrans('texts.payment_type_'.$pType->name);
             $pType->id = (string) $pType->id;
         })->sortBy(function ($pType) {
             return $pType->name;
         })->values();
-    
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
@@ -105,7 +105,7 @@ class Statics
             return $lang->name;
         })->values();
 
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
@@ -121,7 +121,7 @@ class Statics
         $data['timezones'] = app('timezones');
         $data['date_formats'] = app('date_formats');
         $data['templates'] = app('templates');
-    
+
         $data['bulk_updates'] = [
             'client' => \App\Models\Client::$bulk_update_columns,
         ];

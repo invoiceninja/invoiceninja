@@ -119,8 +119,9 @@ class BaseTransformer
     {
         $code = array_key_exists($key, $data) ? $data[$key] : false;
 
-        if(!$code)
+        if(!$code) {
             return $this->company->settings->currency_id;
+        }
 
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');

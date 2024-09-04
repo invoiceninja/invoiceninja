@@ -33,7 +33,7 @@ class BankTransactionApiTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -48,8 +48,7 @@ class BankTransactionApiTest extends TestCase
 
     public function testBankTransactionCreate()
     {
-        nlog("creeeeate");
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -130,7 +129,7 @@ class BankTransactionApiTest extends TestCase
     public function testBankTransactionUnlink()
     {
         BankTransaction::truncate();
-        
+
         $bi = BankIntegration::factory()->create([
             'account_id' => $this->account->id,
             'company_id' => $this->company->id,
@@ -150,7 +149,7 @@ class BankTransactionApiTest extends TestCase
             'expense_id' => "{$this->expense->hashed_id},{$e->hashed_id}",
             'invoice_ids' => $this->invoice->hashed_id,
         ]);
-        
+
         $e->transaction_id = $bank_transaction->id;
         $e->save();
 
@@ -161,7 +160,6 @@ class BankTransactionApiTest extends TestCase
             'ids' => [$this->encodePrimaryKey($bank_transaction->id)],
         ];
 
-        // nlog($bank_transaction->toArray());
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

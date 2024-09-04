@@ -567,14 +567,14 @@ class VendorHtmlEngine
 
     private function getCountryName(): string
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
         $country = $countries->first(function ($item) {
             return $item->id == $this->settings->country_id;
         });
-        
+
         return $country ? ctrans('texts.country_' . $country->name) : '&nbsp;';
     }
 

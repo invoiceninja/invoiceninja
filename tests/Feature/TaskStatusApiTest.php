@@ -31,7 +31,7 @@ class TaskStatusApiTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -60,7 +60,6 @@ class TaskStatusApiTest extends TestCase
 
         $id = $task_status->id;
 
-        nlog("setting {$id} to index 1");
 
         $data = [
             'status_order' => 1,

@@ -2069,7 +2069,7 @@ class Import implements ShouldQueue
         nlog($exception->getMessage());
 
         app('sentry')->captureException($exception);
-        
+
     }
 
 

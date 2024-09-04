@@ -34,7 +34,7 @@ class InvoiceEmailTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -56,7 +56,7 @@ class InvoiceEmailTest extends TestCase
 
         $this->assertTrue(strpos($email, '@example.com') !== false);
     }
-    
+
 
     public function testClientEmailHistory()
     {
@@ -69,7 +69,7 @@ class InvoiceEmailTest extends TestCase
         $system_log->log = [
             'history' => [
                 'entity_id' => $this->invoice->hashed_id,
-                'entity_type' => 'invoice',
+                'entity' => 'invoice',
                 'subject' => 'Invoice #1',
                 'events' => [
                     [
@@ -83,7 +83,7 @@ class InvoiceEmailTest extends TestCase
                 ],
             ]
         ];
-                
+
         $system_log->save();
 
 
@@ -96,7 +96,7 @@ class InvoiceEmailTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals('invoice', $arr[0]['entity_type']);
+        $this->assertEquals('invoice', $arr[0]['entity']);
 
         $count = SystemLog::where('client_id', $this->client->id)
                 ->where('category_id', SystemLog::CATEGORY_MAIL)
@@ -117,7 +117,7 @@ class InvoiceEmailTest extends TestCase
         $system_log->log = [
             'history' => [
                 'entity_id' => $this->invoice->hashed_id,
-                'entity_type' => 'invoice',
+                'entity' => 'invoice',
                 'subject' => 'Invoice #1',
                 'events' => [
                     [
@@ -131,7 +131,7 @@ class InvoiceEmailTest extends TestCase
                 ],
             ]
         ];
-                
+
         $system_log->save();
 
         $data = [
@@ -148,7 +148,7 @@ class InvoiceEmailTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertEquals('invoice', $arr[0]['entity_type']);
+        $this->assertEquals('invoice', $arr[0]['entity']);
         $this->assertEquals($this->invoice->hashed_id, $arr[0]['entity_id']);
 
         $count = SystemLog::where('company_id', $this->company->id)
@@ -166,22 +166,18 @@ class InvoiceEmailTest extends TestCase
         $data = [
             "body" => "hey what's up",
             "entity" => 'invoice',
-            "entity_id"=> $this->invoice->hashed_id,
-            "subject"=> 'Reminder $number',
-            "template"=> "first_custom"
+            "entity_id" => $this->invoice->hashed_id,
+            "subject" => 'Reminder $number',
+            "template" => "first_custom"
         ];
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/emails', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/emails', $data);
+
 
         $response->assertStatus(422);
 
@@ -198,15 +194,11 @@ class InvoiceEmailTest extends TestCase
 
         $response = false;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->postJson('/api/v1/emails', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/emails', $data);
+
 
         $response->assertStatus(200);
 
@@ -264,7 +256,7 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                
+
                 Bus::assertDispatched(EmailEntity::class);
 
             }
@@ -295,7 +287,7 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                
+
                 Bus::assertDispatched(EmailEntity::class);
 
             }
@@ -321,7 +313,7 @@ class InvoiceEmailTest extends TestCase
             if ($invitation->contact->send_email && $invitation->contact->email) {
                 EmailEntity::dispatch($invitation, $invitation->company);
 
-                
+
                 Bus::assertDispatched(EmailEntity::class);
 
             }

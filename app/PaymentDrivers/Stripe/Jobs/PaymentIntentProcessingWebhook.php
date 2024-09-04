@@ -59,38 +59,22 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
     /* Stub processing payment intents with a pending payment */
     public function handle()
     {
+        nlog($this->stripe_request);
+        // The first payment will always be a PI payment - subsequent are PY
+
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
 
-
             $payment = Payment::query()
                 ->where('company_id', $company->id)
-                ->where(function ($query) use ($transaction) {
-
-                    if(isset($transaction['payment_intent'])) {
-                        $query->where('transaction_reference', $transaction['payment_intent']);
-                    }
-
-                    if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->orWhere('transaction_reference', $transaction['id']);
-                    }
-
-                    if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
-                        $query->where('transaction_reference', $transaction['id']);
-                    }
-
-                })
+                ->where('transaction_reference', $transaction['id'])
                 ->first();
 
-
-
             if ($payment) {
-                $payment->status_id = Payment::STATUS_PENDING;
-                $payment->save();
-
+                nlog("found payment");
                 $this->payment_completed = true;
             }
 

@@ -55,7 +55,7 @@ class ProcessBrevoWebhook implements ShouldQueue
         'events' => [],
     ];
 
-    
+
     /** @var ?\App\Models\Company $company*/
     private ?Company $company = null;
 

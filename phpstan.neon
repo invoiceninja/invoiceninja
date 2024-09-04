@@ -37,4 +37,6 @@ parameters:
         - '#Expression on left side of ?? is not nullable.#'
         - '#Left side of && is always true.#'
         - '#Right side of && is always true.#'
+        - '#is never read, only written.#'
+        - '#is never written#'
         

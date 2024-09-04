@@ -73,7 +73,7 @@ class ChartController extends BaseController
         $user = auth()->user();
         $cs = new ChartService($user->company(), $user, $user->isAdmin());
         $result = $cs->getCalculatedField($request->all());
-        
+
         return response()->json($result, 200);
 
     }

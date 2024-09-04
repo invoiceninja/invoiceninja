@@ -30,7 +30,7 @@ class UniqueEmailTest extends TestCase
 
     protected $rule;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -104,7 +104,7 @@ class UniqueEmailTest extends TestCase
         $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
     }
 
-    protected function tearDown() :void
+    protected function tearDown(): void
     {
         parent::tearDown();
 

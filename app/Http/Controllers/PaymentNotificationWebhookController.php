@@ -25,7 +25,7 @@ class PaymentNotificationWebhookController extends Controller
     {
         /** @var \App\Models\CompanyGateway $company_gateway */
         $company_gateway = CompanyGateway::find($this->decodePrimaryKey($company_gateway_id));
-        
+
         /** @var \App\Models\Client $client */
         $client = Client::find($this->decodePrimaryKey($client_hash));
 

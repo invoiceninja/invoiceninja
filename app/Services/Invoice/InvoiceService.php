@@ -109,6 +109,8 @@ class InvoiceService
 
     /**
      * Apply a payment amount to an invoice.
+     * 
+     * *** does not create a paymentable ****
      * @param  Payment $payment        The Payment
      * @param  float   $payment_amount The Payment amount
      * @return InvoiceService          Parent class object

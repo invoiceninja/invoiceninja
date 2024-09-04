@@ -48,6 +48,7 @@ class NinjaMailerJob implements ShouldQueue
     use MakesHash;
 
     public $tries = 4; //number of retries
+    
     public $deleteWhenMissingModels = true;
 
     /** @var null|\App\Models\Company $company  **/
@@ -254,7 +255,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
+        if(in_array($this->nmo->settings->email_sending_method, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
         }
 
@@ -298,7 +299,7 @@ class NinjaMailerJob implements ShouldQueue
 
         /** Force free/trials onto specific mail driver */
 
-        if($this->mailer == 'default' && $this->company->account->isNewHostedAccount()) {
+        if($this->nmo->settings->email_sending_method == 'default' && $this->company->account->isNewHostedAccount()) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;

@@ -36,7 +36,7 @@ class BulkRecurringExpenseRequest extends Request
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         return $user->can('edit', RecurringExpense::class);
     }
 

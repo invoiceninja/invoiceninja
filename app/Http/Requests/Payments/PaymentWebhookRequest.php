@@ -74,7 +74,7 @@ class PaymentWebhookRequest extends Request
     public function getCompany(): ?Company
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
-    
+
         /** @var \App\Models\Company */
         return Company::where('company_key', $this->company_key)->firstOrFail();
     }

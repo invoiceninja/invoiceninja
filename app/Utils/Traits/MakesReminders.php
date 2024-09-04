@@ -84,9 +84,10 @@ trait MakesReminders
     {
         $interval = $this->addTimeInterval($last_sent_date, $endless_reminder_frequency_id);
 
-        if(is_null($interval))
+        if(is_null($interval)) {
             return false;
-        
+        }
+
         if (Carbon::now()->startOfDay()->eq($interval)) {
             return true;
         }

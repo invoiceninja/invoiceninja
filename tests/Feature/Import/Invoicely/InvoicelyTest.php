@@ -154,7 +154,8 @@ class InvoicelyTest extends TestCase
         $count = $csv_importer->import('invoice');
 
         $base_transformer = new BaseTransformer($this->company);
-        nlog($count);
+
+
         $this->assertTrue($base_transformer->hasInvoice('INV-1'));
 
         $invoice_id = $base_transformer->getInvoiceId('INV-1');

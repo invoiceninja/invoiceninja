@@ -60,21 +60,19 @@ class PeppolTest extends TestCase
 
         $settings = CompanySettings::defaults();
         $settings->address1 = 'Dudweilerstr. 34b';
-        $settings->city = 'Ost Alessa'; 
+        $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
         $settings->postal_code = '98060';
         $settings->vat_number = 'DE923356489';
         $settings->country_id = '276';
         $settings->currency_id = '3';
 
-        
         $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
-        
-        
+
         $fib = new FinancialInstitutionBranch();
         $fib->ID = "DEUTDEMMXXX"; //BIC
         $fib->Name = 'Deutsche Bank';
-        
+
         $pfa = new PayeeFinancialAccount();
         $pfa->ID = 'DE89370400440532013000';
         $pfa->Name = 'PFA-NAME';
@@ -85,15 +83,18 @@ class PeppolTest extends TestCase
         $pfa->FinancialInstitutionBranch = $fib;
 
         $pm = new PaymentMeans();
-        $pm->PayeeFinancialAccount = $pfa;        
+        $pm->PayeeFinancialAccount = $pfa;
         $einvoice->PaymentMeans[] = $pm;
+
+        $stub = new \stdClass();
+        $stub->Invoice = $einvoice;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
             'settings' => $settings,
-            'e_invoice' => $einvoice,
+            'e_invoice' => $stub,
         ]);
-        
+
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
         $cu->is_owner = true;
         $cu->is_admin = true;
@@ -117,7 +118,7 @@ class PeppolTest extends TestCase
             'settings' => $client_settings,
         ]);
 
-                
+
         $item = new InvoiceItem();
         $item->product_key = "Product Key";
         $item->notes = "Product Description";
@@ -149,10 +150,10 @@ class PeppolTest extends TestCase
 
         $this->assertEquals(119, $invoice->amount);
 
-       
         $peppol = new Peppol($invoice);
         $peppol->setInvoiceDefaults();
         $peppol->run();
+
 
         $de_invoice = $peppol->getInvoice();
 
@@ -162,7 +163,6 @@ class PeppolTest extends TestCase
         $xml = $e->encode($de_invoice, 'xml');
         $this->assertNotNull($xml);
 
-        nlog($xml);
 
         $errors = $e->validate($de_invoice);
 
@@ -181,7 +181,7 @@ class PeppolTest extends TestCase
 
         $settings = CompanySettings::defaults();
         $settings->address1 = 'Dudweilerstr. 34b';
-        $settings->city = 'Ost Alessa'; 
+        $settings->city = 'Ost Alessa';
         $settings->state = 'Bayern';
         $settings->postal_code = '98060';
         $settings->vat_number = 'DE923356489';
@@ -189,11 +189,11 @@ class PeppolTest extends TestCase
         $settings->currency_id = '3';
 
         $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
-        
+
         $fib = new FinancialInstitutionBranch();
         $fib->ID = "DEUTDEMMXXX"; //BIC
         $fib->Name = 'Deutsche Bank';
-        
+
         $pfa = new PayeeFinancialAccount();
         $pfa->ID = 'DE89370400440532013000';
         $pfa->Name = 'PFA-NAME';
@@ -204,13 +204,17 @@ class PeppolTest extends TestCase
         $pfa->FinancialInstitutionBranch = $fib;
 
         $pm = new PaymentMeans();
-        $pm->PayeeFinancialAccount = $pfa;        
+        $pm->PayeeFinancialAccount = $pfa;
         $einvoice->PaymentMeans[] = $pm;
+
+
+        $stub = new \stdClass();
+        $stub->Invoice = $einvoice;
 
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
             'settings' => $settings,
-            'e_invoice' => $einvoice,
+            'e_invoice' => $stub,
         ]);
 
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
@@ -236,7 +240,7 @@ class PeppolTest extends TestCase
             'settings' => $client_settings,
         ]);
 
-                
+
         $item = new InvoiceItem();
         $item->product_key = "Product Key";
         $item->notes = "Product Description";
@@ -280,9 +284,6 @@ class PeppolTest extends TestCase
         $xml = $e->encode($de_invoice, 'xml');
         $this->assertNotNull($xml);
 
-        nlog("inclusive");
-        nlog($xml);
-
         $errors = $e->validate($de_invoice);
 
         if(count($errors) > 0) {
@@ -314,7 +315,7 @@ class PeppolTest extends TestCase
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
-        
+
 
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
         $cu->is_owner = true;
@@ -380,13 +381,10 @@ class PeppolTest extends TestCase
         $xml = $e->encode($fe, 'xml');
         $this->assertNotNull($xml);
 
-        nlog($xml);
-
         $json = $e->encode($fe, 'json');
         $this->assertNotNull($json);
 
-        nlog($json);
-        
+
         $decode = $e->decode('Peppol', $json, 'json');
 
         $this->assertInstanceOf(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $decode);
@@ -399,6 +397,6 @@ class PeppolTest extends TestCase
 
         $this->assertCount(0, $errors);
 
-        nlog(json_encode($fe, JSON_PRETTY_PRINT));
+        // nlog(json_encode($fe, JSON_PRETTY_PRINT));
     }
 }

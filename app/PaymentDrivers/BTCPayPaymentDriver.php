@@ -12,18 +12,19 @@
 
 namespace App\PaymentDrivers;
 
-use App\Utils\Traits\MakesHash;
-use App\Models\PaymentHash;
-use App\Models\GatewayType;
-use App\PaymentDrivers\BTCPay\BTCPay;
-use App\Models\SystemLog;
-use App\Models\Payment;
 use App\Models\Client;
-use App\Exceptions\PaymentFailed;
-use App\Models\PaymentType;
-use BTCPayServer\Client\Webhook;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
 use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
+use App\Models\PaymentType;
+use App\Utils\Traits\MakesHash;
+use BTCPayServer\Client\Webhook;
+use App\Exceptions\PaymentFailed;
+use App\PaymentDrivers\BTCPay\BTCPay;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
 
 class BTCPayPaymentDriver extends BaseDriver
 {
@@ -90,6 +91,8 @@ class BTCPayPaymentDriver extends BaseDriver
 
     public function processWebhookRequest()
     {
+        sleep(2);
+
         $webhook_payload = file_get_contents('php://input');
 
         /** @var \stdClass $btcpayRep */
@@ -128,12 +131,14 @@ class BTCPayPaymentDriver extends BaseDriver
         }
 
         $this->setPaymentMethod(GatewayType::CRYPTO);
-        $this->payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$btcpayRep->metadata->InvoiceNinjaPaymentHash])->firstOrFail();
+        $this->payment_hash = PaymentHash::where('hash', $btcpayRep->metadata->InvoiceNinjaPaymentHash)->firstOrFail();
+
         $StatusId = Payment::STATUS_PENDING;
+
         if ($this->payment_hash->payment_id == null) {
             
-            $_invoice = Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
-
+            $_invoice = $this->payment_hash->fee_invoice;
+            
             $this->client = $_invoice->client;
 
             $dataPayment = [
@@ -144,6 +149,7 @@ class BTCPayPaymentDriver extends BaseDriver
                 'transaction_reference' => $btcpayRep->invoiceId
             ];
             $payment = $this->createPayment($dataPayment, $StatusId);
+
         } else {
             /** @var \App\Models\Payment $payment */
             $payment = Payment::withTrashed()->find($this->payment_hash->payment_id);
@@ -151,21 +157,49 @@ class BTCPayPaymentDriver extends BaseDriver
         }
         switch ($btcpayRep->type) {
             case "InvoiceExpired":
+                
+                if ($payment->status_id == Payment::STATUS_PENDING) {
+                    $payment->service()->deletePayment();
+                    $this->failedPaymentNotification($payment);
+                }
+
                 $StatusId = Payment::STATUS_CANCELLED;
                 break;
             case "InvoiceInvalid":
+                
+                if ($payment->status_id == Payment::STATUS_PENDING) {
+                    $payment->service()->deletePayment();
+                    $this->failedPaymentNotification($payment);
+                }
+
                 $StatusId = Payment::STATUS_FAILED;
                 break;
             case "InvoiceSettled":
                 $StatusId = Payment::STATUS_COMPLETED;
                 break;
         }
+
         if ($payment->status_id != $StatusId) {
             $payment->status_id = $StatusId;
             $payment->save();
         }
     }
 
+    private function failedPaymentNotification(Payment $payment): void
+    {
+        
+        $error = ctrans('texts.client_payment_failure_body', [
+            'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
+            'amount' => array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total, ]);
+
+        PaymentFailedMailer::dispatch(
+            $this->payment_hash,
+            $payment->client->company,
+            $payment->client,
+            $error
+        );
+
+    }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {

@@ -181,8 +181,9 @@ class SelfUpdateController extends BaseController
 
     public function checkVersion()
     {
-        if(Ninja::isHosted())
+        if(Ninja::isHosted()) {
             return '5.10.SaaS';
+        }
 
         return trim(file_get_contents(config('ninja.version_url')));
     }

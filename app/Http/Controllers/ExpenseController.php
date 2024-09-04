@@ -584,14 +584,15 @@ class ExpenseController extends BaseController
         return $this->itemResponse($expense->fresh());
     }
 
-    public function edocument(EDocumentRequest $request): string
+    public function edocument(EDocumentRequest $request)
     {
-        if ($request->hasFile("documents")) {
-            return (new ImportEDocument($request->file("documents")[0]->get(), $request->file("documents")[0]->getClientOriginalName()))->handle();
+        $user = auth()->user();
+
+        foreach($request->file("documents") as $file) {
+            ImportEDocument::dispatch($file->get(), $file->getClientOriginalName(), $user->company());
         }
-        else {
-            return "No file found";
-        }
+
+        return response()->json(['message' => 'Processing....'], 200);
 
     }
 }

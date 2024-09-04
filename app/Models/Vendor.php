@@ -177,7 +177,7 @@ class Vendor extends BaseModel
 
     public function currency()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 

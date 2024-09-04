@@ -44,7 +44,7 @@ class RecurringInvoiceTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -68,14 +68,14 @@ class RecurringInvoiceTest extends TestCase
             'frequency_id' => 5,
             'next_send_date' => '0001-01-01',
         ];
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/recurring_invoices', $data)
           ->assertStatus(422);
 
-    }    
+    }
 
     public function testLinkingSubscription()
     {
@@ -106,11 +106,11 @@ class RecurringInvoiceTest extends TestCase
        ])->postJson('/api/v1/recurring_invoices/bulk', $data)
        ->assertStatus(200);
 
-       $arr = $response->json();
+        $arr = $response->json();
 
-       $r = $r->fresh();
+        $r = $r->fresh();
 
-       $this->assertEquals($s2->id, $r->subscription_id);
+        $this->assertEquals($s2->id, $r->subscription_id);
 
 
     }
@@ -200,7 +200,7 @@ class RecurringInvoiceTest extends TestCase
             ->assertStatus(200);
 
         $arr = $response->json();
-        
+
         $this->assertEquals(now()->startOfDay(), $arr['data']['next_send_date']);
 
     }

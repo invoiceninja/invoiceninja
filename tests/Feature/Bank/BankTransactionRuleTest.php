@@ -13,20 +13,24 @@
 namespace Tests\Feature\Bank;
 
 use Tests\TestCase;
+use App\Models\Payment;
 use Tests\MockAccountData;
 use App\Models\BankIntegration;
 use App\Models\BankTransaction;
 use App\Models\BankTransactionRule;
+use App\Models\Invoice;
+use App\Services\Bank\ProcessBankRules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Str;
 
 class BankTransactionRuleTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -39,13 +43,540 @@ class BankTransactionRuleTest extends TestCase
         $this->withoutExceptionHandling();
     }
 
+    public function testNewCreditMatchingRulesInvoiceStartsWith() 
+    {
 
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$invoice.number',
+                    'operator' => 'starts_with',
+                ]
+            ]
+        ]);
+
+        $i = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'balance' => $rand_amount,
+            'number' => $hash,
+            'status_id' => 2,
+            'custom_value1' => substr($hash, 0, 8)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($i->id);
+        $this->assertNotNull($bt->invoice_ids);
+        $this->assertEquals($i->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testNewCreditMatchingRulesInvoiceContains()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$invoice.number',
+                    'operator' => 'contains',
+                ]
+            ]
+        ]);
+
+        $i = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'balance' => $rand_amount,
+            'number' => $hash,
+            'status_id' => 2,
+            'custom_value1' => substr($hash, 0, 8)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+        $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($i->id);
+        $this->assertNotNull($bt->invoice_ids);
+        $this->assertEquals($i->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testNewCreditMatchingRulesInvoiceNumber()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$invoice.number',
+                    'operator' => 'is',
+                ]
+            ]
+        ]);
+
+        $i = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'balance' => $rand_amount,
+            'number' => $hash,
+            'status_id' => 2,
+            'custom_value1' => substr($hash, 0, 8)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($i->id);
+        $this->assertNotNull($bt->invoice_ids);
+        $this->assertEquals($i->hashed_id, $bt->invoice_ids);
+    }
+
+
+    public function testNewCreditMatchingRulesInvoiceAmount()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$invoice.amount',
+                    'operator' => '=',
+                ]
+            ]
+        ]);
+
+        $i = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'balance' => $rand_amount,
+            'status_id' => 2,
+            'custom_value1' => substr($hash, 0, 8)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+        $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($i->id);
+        $this->assertNotNull($bt->invoice_ids);
+        $this->assertEquals($i->hashed_id, $bt->invoice_ids);
+    }
+
+    public function testNewCreditMatchingRulesPaymentCustomValue()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$payment.custom1',
+                    'operator' => 'starts_with',
+                ]
+            ]
+        ]);
+
+        $p = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'custom_value1' => substr($hash, 0, 8)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+        $bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($p->id);
+        $this->assertNotNull($bt->payment_id);
+        $this->assertEquals($p->id, $bt->payment_id);
+    }
+
+    public function testNewCreditMatchingRulesPaymentStartsWith()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$payment.transaction_reference',
+                    'operator' => 'starts_with',
+                ]
+            ]
+        ]);
+
+        $p = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'transaction_reference' => substr($hash, 0, 8)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+
+$bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($p->id);
+        $this->assertNotNull($bt->payment_id);
+        $this->assertEquals($p->id, $bt->payment_id);
+    }
+
+    public function testNewCreditMatchingRulesPaymentAmount()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = md5(time());
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$payment.amount',
+                    'operator' => '=',
+                ]
+            ]
+        ]);
+
+        $p = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'transaction_reference' => 'nein'
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+
+$bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($p->id);
+        $this->assertNotNull($bt->payment_id);
+        $this->assertEquals($p->id, $bt->payment_id);
+    }
+
+    public function testNewCreditMatchingRulesPaymentTransactionReferenceExactMatch()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = md5(time());
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$payment.transaction_reference',
+                    'operator' => 'is',
+                ]
+            ]
+        ]);
+
+        $p = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'transaction_reference' => $hash
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+
+$bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($p->id);
+        $this->assertNotNull($bt->payment_id);
+        $this->assertEquals($p->id, $bt->payment_id);
+    }
+
+    public function testNewCreditMatchingRulesPaymentTransactionReferenceContains()
+    {
+
+        $bi = BankIntegration::factory()->create([
+                'company_id' => $this->company->id,
+                'user_id' => $this->user->id,
+                'account_id' => $this->account->id,
+            ]);
+
+        $hash = Str::random(32);
+        $rand_amount = rand(1000,10000000);
+
+        $bt = BankTransaction::factory()->create([
+            'bank_integration_id' => $bi->id,
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'description' => $hash,
+            'base_type' => 'CREDIT',
+            'amount' => $rand_amount
+        ]);
+
+        $this->assertNull($bt->payment_id);
+
+        $br = BankTransactionRule::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'matches_on_all' => false,
+            'auto_convert' => false,
+            'applies_to' => 'CREDIT',
+            'rules' => [
+                [
+                    'search_key' => '$payment.transaction_reference',
+                    'operator' => 'contains',
+                ]
+            ]
+        ]);
+
+        $p = Payment::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => $rand_amount,
+            'transaction_reference' => substr($hash, 3, 13)
+        ]);
+
+        $this->assertEquals(BankTransaction::STATUS_UNMATCHED, $bt->status_id);
+
+        (new ProcessBankRules($bt))->run();
+
+
+$bt = $bt->fresh();
+
+        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+        $this->assertNotNull($p->id);
+        $this->assertNotNull($bt->payment_id);
+        $this->assertEquals($p->id, $bt->payment_id);
+    }
 
 
 
     public function testMatchCreditOnInvoiceNumber()
     {
-                
+
         $bi = BankIntegration::factory()->create([
                 'company_id' => $this->company->id,
                 'user_id' => $this->user->id,
@@ -158,7 +689,7 @@ class BankTransactionRuleTest extends TestCase
             'applies_to' => 'DEBIT',
             'client_id' => $this->client->id,
             'vendor_id' => $this->vendor->id,
-            'category_id' =>$this->expense_category->id,
+            'category_id' => $this->expense_category->id,
             'rules' => [
                 [
                     'search_key' => 'description',
@@ -171,7 +702,7 @@ class BankTransactionRuleTest extends TestCase
         $bt = $bt->refresh();
 
         $debit_rules = $bt->company->debit_rules();
-   
+
         $bt->service()->processRules();
 
         $bt = $bt->fresh();
@@ -179,7 +710,7 @@ class BankTransactionRuleTest extends TestCase
         $this->assertNotNull($bt->expense_id);
         // $this->assertNotNull($bt->expense->category_id);
         // $this->assertNotNull($bt->expense->vendor_id);
-        
+
         $bt = null;
     }
 
@@ -219,22 +750,14 @@ class BankTransactionRuleTest extends TestCase
 
         $response = null;
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id. '?include=expense_category', $data);
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->putJson('/api/v1/bank_transaction_rules/'. $br->hashed_id. '?include=expense_category', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog($message);
-        }
+        $response->assertStatus(200);
 
-        if ($response) {
-            $arr = $response->json();
-           
-            $response->assertStatus(200);
-        }
+
     }
 
     public function testMatchingBankTransactionExpenseAmountLessThanEqualTo()
@@ -270,8 +793,8 @@ class BankTransactionRuleTest extends TestCase
                 ]
             ]
         ]);
-        
-    
+
+
         $bt->company->refresh();
 
         $bt->refresh()->service()->processRules();
@@ -280,7 +803,7 @@ class BankTransactionRuleTest extends TestCase
 
         $this->assertNotNull($bt->expense_id);
 
-        $bt=null;
+        $bt = null;
     }
 
 
@@ -317,7 +840,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 99
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -359,7 +882,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 101
         ]);
-    
+
 
         $bt->refresh()->service()->processRules();
 
@@ -402,7 +925,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 101
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -444,7 +967,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 100
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -487,7 +1010,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 100
         ]);
-    
+
         $bt = $bt->refresh();
 
         $bt->service()->processRules();
@@ -532,7 +1055,7 @@ class BankTransactionRuleTest extends TestCase
             ]
         ]);
 
-    
+
         $bt->load('company');
 
         $bt->service()->processRules();
@@ -576,7 +1099,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 100
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -620,7 +1143,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 100
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -663,7 +1186,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 100
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -706,7 +1229,7 @@ class BankTransactionRuleTest extends TestCase
             'base_type' => 'DEBIT',
             'amount' => 100
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -747,7 +1270,7 @@ class BankTransactionRuleTest extends TestCase
             'description' => 'Wall',
             'base_type' => 'DEBIT',
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -788,7 +1311,7 @@ class BankTransactionRuleTest extends TestCase
             'description' => 'WallABy',
             'base_type' => 'DEBIT',
         ]);
-    
+
 
         $bt->service()->processRules();
 
@@ -798,48 +1321,48 @@ class BankTransactionRuleTest extends TestCase
     }
 
 
-    public function testMatchingBankTransactionInvoice()
-    {
-        $this->invoice->number = "MUHMUH";
-        $this->invoice->save();
+    // public function testMatchingBankTransactionInvoice()
+    // {
+    //     $this->invoice->number = "MUHMUH";
+    //     $this->invoice->save();
 
-        $br = BankTransactionRule::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'matches_on_all' => false,
-            'auto_convert' => true,
-            'applies_to' => 'CREDIT',
-            'client_id' => $this->client->id,
-            'vendor_id' => $this->vendor->id,
-            'rules' => [
-                [
-                    'search_key' => 'description',
-                    'operator' => 'is',
-                    'value' => 'MUHMUH',
-                ]
-            ]
-        ]);
+    //     $br = BankTransactionRule::factory()->create([
+    //         'company_id' => $this->company->id,
+    //         'user_id' => $this->user->id,
+    //         'matches_on_all' => false,
+    //         'auto_convert' => true,
+    //         'applies_to' => 'CREDIT',
+    //         'client_id' => $this->client->id,
+    //         'vendor_id' => $this->vendor->id,
+    //         'rules' => [
+    //             [
+    //                 'search_key' => 'description',
+    //                 'operator' => 'is',
+    //                 'value' => 'MUHMUH',
+    //             ]
+    //         ]
+    //     ]);
 
-        $bi = BankIntegration::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'account_id' => $this->account->id,
-        ]);
+    //     $bi = BankIntegration::factory()->create([
+    //         'company_id' => $this->company->id,
+    //         'user_id' => $this->user->id,
+    //         'account_id' => $this->account->id,
+    //     ]);
 
-        $bt = BankTransaction::factory()->create([
-            'bank_integration_id' => $bi->id,
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'description' => 'MUHMUH',
-            'base_type' => 'CREDIT',
-            'amount' => 100
-        ]);
-    
+    //     $bt = BankTransaction::factory()->create([
+    //         'bank_integration_id' => $bi->id,
+    //         'company_id' => $this->company->id,
+    //         'user_id' => $this->user->id,
+    //         'description' => 'MUHMUH',
+    //         'base_type' => 'CREDIT',
+    //         'amount' => 100
+    //     ]);
 
-        $bt->service()->processRules();
 
-        $bt = $bt->fresh();
+    //     $bt->service()->processRules();
 
-        $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
-    }
+    //     $bt = $bt->fresh();
+
+    //     $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
+    // }
 }

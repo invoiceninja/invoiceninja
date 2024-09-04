@@ -17,7 +17,6 @@ use Illuminate\Database\QueryException;
 
 class VendorService
 {
-    
     use GeneratesCounter;
 
     private bool $completed = true;

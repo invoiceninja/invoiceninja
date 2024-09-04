@@ -25,7 +25,7 @@ class InvitationTest extends TestCase
     use DatabaseTransactions;
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -57,14 +57,10 @@ class InvitationTest extends TestCase
 
         $response = null;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
-        } catch (ValidationException $e) {
-            nlog($e->getMessage());
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray());
 
         $response->assertStatus(200);
 
@@ -86,13 +82,13 @@ class InvitationTest extends TestCase
 
         /** @phpstan-ignore-next-line **/
         $this->invoice->invitations = $invitations->toArray();
-        
+
         $this->invoice->line_items = [];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray())
+        ])->putJson('/api/v1/invoices/'.$this->encodePrimaryKey($this->invoice->id), $this->invoice->toArray())
         ->assertStatus(200);
 
         $arr = $response->json();

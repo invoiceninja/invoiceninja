@@ -237,7 +237,8 @@ class MatchBankTransactions implements ShouldQueue
 
         $amount = $this->bt->amount;
 
-        if ($_invoices->count() >0 && $this->checkPayable($_invoices)) {
+        if ($_invoices->count() > 0 && $this->checkPayable($_invoices)) {
+
             $this->createPayment($_invoices, $amount);
 
             $this->bts->push($this->bt->id);
@@ -293,6 +294,8 @@ class MatchBankTransactions implements ShouldQueue
         $this->attachable_invoices = [];
         $this->available_balance = $amount;
 
+        nlog($invoices->count());
+
         \DB::connection(config('database.default'))->transaction(function () use ($invoices) {
             $invoices->each(function ($invoice) {
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
@@ -326,10 +329,15 @@ class MatchBankTransactions implements ShouldQueue
             });
         }, 2);
 
+        nlog("pre");
+
         // @phpstan-ignore-next-line
         if (!$this->invoice) {
             return;
         }
+
+        
+nlog("post");
 
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
@@ -387,7 +395,7 @@ class MatchBankTransactions implements ShouldQueue
 
         $hashed_keys = [];
 
-        foreach($this->attachable_invoices as $attachable_invoice){ //@phpstan-ignore-line
+        foreach($this->attachable_invoices as $attachable_invoice) { //@phpstan-ignore-line
             $hashed_keys[] = $this->encodePrimaryKey($attachable_invoice['id']);
         }
 
@@ -395,6 +403,9 @@ class MatchBankTransactions implements ShouldQueue
         $this->bt->status_id = BankTransaction::STATUS_CONVERTED;
         $this->bt->payment_id = $payment->id;
         $this->bt->save();
+
+nlog($this->bt->toArray());
+
     }
 
     private function resolveCategory($input): ?int

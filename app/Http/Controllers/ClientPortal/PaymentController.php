@@ -126,7 +126,7 @@ class PaymentController extends Controller
         // if($payment_hash)
         $invoice = $payment_hash->fee_invoice;
         // else
-            // $invoice = Invoice::with('client')->where('id',$payment_hash->fee_invoice_id)->orderBy('id','desc')->first();
+        // $invoice = Invoice::with('client')->where('id',$payment_hash->fee_invoice_id)->orderBy('id','desc')->first();
 
         // $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
 

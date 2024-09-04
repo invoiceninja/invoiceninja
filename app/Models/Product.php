@@ -30,6 +30,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property string|null $custom_value4
  * @property string|null $product_key
  * @property string|null $notes
+ * @property string|null $hash
  * @property float $cost
  * @property float $price
  * @property float $quantity

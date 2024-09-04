@@ -17,77 +17,67 @@ use Illuminate\Support\Str;
 
 class TranslationHelper
 {
-    public static function getIndustries()
-    {
-        
-        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
-        $industries = app('industries');
+    // public static function getIndustries()
+    // {
 
-        return $industries->each(function ($industry) {
-            $industry->name = ctrans('texts.industry_'.$industry->name);
-        })->sortBy(function ($industry) {
-            return $industry->name;
-        });
-    }
+    //     /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+    //     $industries = app('industries');
+
+    //     return $industries->each(function ($industry) {
+    //         $industry->name = ctrans('texts.industry_'.$industry->name);
+    //     })->sortBy(function ($industry) {
+    //         return $industry->name;
+    //     });
+    // }
 
     public static function getCountries()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
-        // $countries = app('countries');
+        return app('countries');
 
-        return \App\Models\Country::all()->each(function ($country) {
-            $country->name = ctrans('texts.country_'.$country->name);
-        })->sortBy(function ($country) {
-            return $country->iso_3166_2;
-        });
     }
 
-    public static function getPaymentTypes()
-    {
-        
-        /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
-        // $payment_types = app('payment_types');
+    // public static function getPaymentTypes()
+    // {
 
-        return \App\Models\PaymentType::all()->each(function ($pType) {
-            $pType->name = ctrans('texts.payment_type_'.$pType->name);
-        })->sortBy(function ($pType) {
-            return $pType->name;
-        });
-    }
+    //     /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
+    //     // $payment_types = app('payment_types');
 
-    public static function getLanguages()
-    {
-        
-        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
-        // $languages = app('languages');
+    //     return \App\Models\PaymentType::all()->each(function ($pType) {
+    //         $pType->name = ctrans('texts.payment_type_'.$pType->name);
+    //     })->sortBy(function ($pType) {
+    //         return $pType->name;
+    //     });
+    // }
 
-        return \App\Models\Language::all()->each(function ($lang) {
-            $lang->name = ctrans('texts.lang_'.$lang->name);
-        })->sortBy(function ($lang) {
-            return $lang->name;
-        });
-    }
+    // public static function getLanguages()
+    // {
+
+    //     /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+    //     // $languages = app('languages');
+
+    //     return \App\Models\Language::all()->each(function ($lang) {
+    //         $lang->name = ctrans('texts.lang_'.$lang->name);
+    //     })->sortBy(function ($lang) {
+    //         return $lang->name;
+    //     });
+    // }
 
     public static function getCurrencies()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
-        // $currencies = app('currencies');
+        return app('currencies');
 
-        return \App\Models\Currency::all()->each(function ($currency) {
-            $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
-        })->sortBy(function ($currency) {
-            return $currency->name;
-        });
     }
 
-    public static function getPaymentTerms()
-    {
-        return PaymentTerm::getCompanyTerms()->map(function ($term) {
-            $term['name'] = ctrans('texts.payment_terms_net').' '.$term['num_days'];
+    // public static function getPaymentTerms()
+    // {
+    //     return PaymentTerm::getCompanyTerms()->map(function ($term) {
+    //         $term['name'] = ctrans('texts.payment_terms_net').' '.$term['num_days'];
 
-            return $term;
-        });
-    }
+    //         return $term;
+    //     });
+    // }
 }

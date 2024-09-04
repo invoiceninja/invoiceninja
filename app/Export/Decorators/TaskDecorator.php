@@ -96,7 +96,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return '';
 
     }
-    
+
     /**
      * billable
      *
@@ -106,7 +106,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
         return '';
     }
-    
+
     /**
      * items_notes
      * @todo
@@ -115,7 +115,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
         return '';
     }
-    
+
     public function duration(Task $task)
     {
         return $task->calcDuration();
