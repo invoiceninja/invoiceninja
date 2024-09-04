@@ -4,6 +4,8 @@
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     @include('portal.ninja2020.gateways.includes.payment_details')
+    
+    <div>this is where the blockonomics QR code goes, or if needed we can redirect them to an offsite url and handle the payment there </div>
 
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
