@@ -41,6 +41,10 @@
     {{-- @vite('resources/js/clients/payments/paytrace-credit-card.js') --}}
 
     <script>
+
+    const button = document.getElementById('pay-now');
+
+
           // Minimal Protect.js setup call
     PTPayment.setup({   
     
@@ -127,6 +131,9 @@
     e.preventDefault();
     e.stopPropagation();
 
+    button.querySelector('svg').classList.remove('hidden');
+    button.querySelector('span').classList.add('hidden');
+
     e.target.parentElement.disabled = true;
     document.getElementById('errors').hidden = true;
 
@@ -139,6 +146,9 @@
 
                 errorsContainer.textContent = errors[0].description;
                 errorsContainer.hidden = false;
+
+                button.querySelector('svg').classList.add('hidden');
+                button.querySelector('span').classList.remove('hidden');
 
                 return (e.target.parentElement.disabled = false);
             }

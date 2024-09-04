@@ -8,12 +8,31 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class AuthorizeAuthorizeCard {
 
     constructor(publicKey, loginId) {
         this.publicKey = publicKey;
         this.loginId = loginId;
-        this.cardHolderName = document.getElementById("cardholder_name");
+        this.cardHolderName = document.getElementById('cardholder_name');
+
+        this.sc = createSimpleCard({
+            fields: {
+                card: {
+                    number: '#number',
+                    date: '#date',
+                    cvv: '#cvv',
+                },
+            },
+        });
+
+        this.sc.mount();
+
+        this.cvvRequired = document.querySelector(
+            'meta[name="authnet-require-cvv"]'
+        ).content;
+    
     }
 
     handleAuthorization = () => {

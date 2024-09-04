@@ -8,10 +8,24 @@
  * @license https://opensource.org/licenses/AAL
  */
 
+import { wait, instant } from '../wait';
+
 class ForteAuthorizeCard {
     constructor(apiLoginId) {
         this.apiLoginId = apiLoginId;
         this.cardHolderName = document.getElementById('cardholder_name');
+
+        this.sc = createSimpleCard({
+            fields: {
+                card: {
+                    number: '#number',
+                    date: '#date',
+                    cvv: '#cvv',
+                },
+            },
+        });
+
+        this.sc.mount();
     }
 
     handleAuthorization = () => {

@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class CheckoutCreditCard {
     constructor() {
         this.tokens = [];
@@ -101,4 +103,10 @@ class CheckoutCreditCard {
     }
 }
 
-new CheckoutCreditCard().handle();
+function boot() {
+    new CheckoutCreditCard().handle()
+}
+
+instant() ? boot() : wait('#checkout-credit-card-payment').then(() =>
+    new CheckoutCreditCard().handle()
+);

@@ -161,15 +161,7 @@ class ACSS
         return $intent;
     }
 
-    /**
-     * Payment view for ACSS
-     *
-     * Determines if any payment tokens are available and if not, generates a mandate
-     *
-     * @param  array $data
-
-     */
-    public function paymentView(array $data)
+    public function paymentData(array $data): array
     {
 
         if(count($data['tokens']) == 0) {

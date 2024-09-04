@@ -153,6 +153,11 @@ class CreditCard implements MethodInterface
         return render('gateways.checkout.credit_card.pay', $data);
     }
 
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.checkout.credit_card.pay_livewire'; 
+    }
+
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $state = [
