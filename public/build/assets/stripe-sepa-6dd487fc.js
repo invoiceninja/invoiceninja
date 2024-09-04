@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/stripe-sepa-6dd487fc.js
 var s=Object.defineProperty;var l=(a,e,t)=>e in a?s(a,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):a[e]=t;var o=(a,e,t)=>(l(a,typeof e!="symbol"?e+"":e,t),t);/**
-========
-var s=Object.defineProperty;var c=(a,e,t)=>e in a?s(a,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):a[e]=t;var o=(a,e,t)=>(c(a,typeof e!="symbol"?e+"":e,t),t);import{i,w as l}from"./wait-8f4ae121.js";/**
->>>>>>>> new_payment_flow:public/build/assets/stripe-sepa-9ab85221.js
  * Invoice Ninja (https://invoiceninja.com)
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository

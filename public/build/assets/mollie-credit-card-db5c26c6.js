@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/mollie-credit-card-db5c26c6.js
 /**
-========
-import{i as d,w as l}from"./wait-8f4ae121.js";/**
->>>>>>>> new_payment_flow:public/build/assets/mollie-credit-card-d81afbd4.js
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository

@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/forte-ach-payment-2f7fa236.js
 var a=Object.defineProperty;var s=(t,e,n)=>e in t?a(t,e,{enumerable:!0,configurable:!0,writable:!0,value:n}):t[e]=n;var o=(t,e,n)=>(s(t,typeof e!="symbol"?e+"":e,n),n);/**
-========
-var s=Object.defineProperty;var d=(n,e,t)=>e in n?s(n,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):n[e]=t;var o=(n,e,t)=>(d(n,typeof e!="symbol"?e+"":e,t),t);import{i,w as u}from"./wait-8f4ae121.js";/**
->>>>>>>> new_payment_flow:public/build/assets/forte-ach-payment-546428ee.js
  * Invoice Ninja (https://invoiceninja.com)
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository

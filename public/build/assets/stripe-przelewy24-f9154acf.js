@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/stripe-przelewy24-f9154acf.js
 var d=Object.defineProperty;var s=(n,t,e)=>t in n?d(n,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):n[t]=e;var o=(n,t,e)=>(s(n,typeof t!="symbol"?t+"":t,e),e);/**
-========
-var c=Object.defineProperty;var s=(n,t,e)=>t in n?c(n,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):n[t]=e;var o=(n,t,e)=>(s(n,typeof t!="symbol"?t+"":t,e),e);import{i as d,w as m}from"./wait-8f4ae121.js";/**
->>>>>>>> new_payment_flow:public/build/assets/stripe-przelewy24-5db060c5.js
  * Invoice Ninja (https://invoiceninja.com)
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository

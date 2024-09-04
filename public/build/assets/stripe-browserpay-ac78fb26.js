@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:public/build/assets/stripe-browserpay-ac78fb26.js
 /**
-========
-import{i as o,w as i}from"./wait-8f4ae121.js";/**
->>>>>>>> new_payment_flow:public/build/assets/stripe-browserpay-c23582f0.js
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
