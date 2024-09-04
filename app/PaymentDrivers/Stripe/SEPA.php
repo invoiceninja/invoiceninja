@@ -142,7 +142,7 @@ class SEPA implements LivewireMethodInterface
                 'company_id' => $this->stripe->client->company_id,
             ])->first();
 
-            if($token) {
+            if ($token) {
                 return $token;
             }
 
@@ -185,7 +185,7 @@ class SEPA implements LivewireMethodInterface
         return $data;
     }
 
-    public function livewirePaymentView(array $data): string 
+    public function livewirePaymentView(array $data): string
     {
         return 'gateways.stripe.sepa.pay_livewire';
     }

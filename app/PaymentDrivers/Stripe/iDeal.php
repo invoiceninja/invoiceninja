@@ -151,7 +151,7 @@ class iDeal implements LivewireMethodInterface
         return $data;
     }
 
-    public function livewirePaymentView(array $data): string 
+    public function livewirePaymentView(array $data): string
     {
         return 'gateways.stripe.ideal.pay_livewire';
     }

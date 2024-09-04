@@ -119,7 +119,7 @@ class PRZELEWY24 implements LivewireMethodInterface
 
         throw new PaymentFailed('Failed to process the payment.', 500);
     }
-    
+
     public function paymentData(array $data): array
     {
         $this->stripe->init();
@@ -151,7 +151,7 @@ class PRZELEWY24 implements LivewireMethodInterface
         return $data;
     }
 
-    public function livewirePaymentView(array $data): string 
+    public function livewirePaymentView(array $data): string
     {
         return 'gateways.stripe.przelewy24.pay_livewire';
     }
