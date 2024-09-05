@@ -56,7 +56,6 @@ class LivewireInstantPayment
         'payload' => [],
         'component' => '',
     ];
-
     /**
      * is_credit_payment
      *
@@ -64,7 +63,6 @@ class LivewireInstantPayment
      * @var bool
      */
     private $is_credit_payment = false;
-
     /**
      * __construct
      *
@@ -98,7 +96,6 @@ class LivewireInstantPayment
         }
 
         $payable_invoices = collect($this->data['payable_invoices']);
-
         $tokens = [];
 
         $invoices = Invoice::query()
@@ -239,7 +236,6 @@ class LivewireInstantPayment
 
             $this->mergeResponder(['success' => true, 'component' => 'CreditPaymentComponent', 'payload' => $data]);
             return $this->getResponder();
-
         }
 
         $this->mergeResponder(['success' => true, 'payload' => $data]);

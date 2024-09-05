@@ -39,6 +39,7 @@ class Bancontact implements LivewireMethodInterface
     public function paymentView(array $data)
     {
         $data = $this->paymentData($data);
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.bancontact.pay', $data);
     }

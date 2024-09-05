@@ -98,11 +98,13 @@ function boot() {
     const publishableKey = document.querySelector(
         'meta[name="stripe-publishable-key"]'
     )?.content ?? '';
-
+    
     const stripeConnect =
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
+    
     new ProcessKlarna(publishableKey, stripeConnect).setupStripe().handle();
 }
+
+instant() ? boot() : wait('#stripe-klarna-payment').then(() => boot());
 
 instant() ? boot() : wait('#stripe-klarna-payment').then(() => boot());

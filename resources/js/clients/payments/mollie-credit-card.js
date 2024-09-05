@@ -173,4 +173,4 @@ function boot() {
     new _Mollie().handle();
 }
 
-instant() ? boot() : wait('#mollie-credit-card-payment').then(() => boot());
+instant() ? boot(): wait('#mollie-credit-card-payment').then(() => boot());

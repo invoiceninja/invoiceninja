@@ -41,7 +41,7 @@ class InvoicePay extends Component
         'client_postal_code' => 'postal_code',
         'client_country_id' => 'country_id',
 
-        'client_shipping_address_line_1' => 'shipping_address1',
+        'client_shipping_address_line_1' => 'shipping_address1',  
         'client_shipping_address_line_2' => 'shipping_address2',
         'client_shipping_city' => 'shipping_city',
         'client_shipping_state' => 'shipping_state',
@@ -188,7 +188,7 @@ class InvoicePay extends Component
                 }
             }
         }
-
+        
         return $this->required_fields = false;
 
     }
@@ -241,10 +241,9 @@ class InvoicePay extends Component
 
         nlog($this->invoices);
 
-        if(is_array($this->invoices)) {
+        if(is_array($this->invoices))
             $this->invoices = Invoice::find($this->transformKeys($this->invoices));
-        }
-
+        
         $invoices = $this->invoices->filter(function ($i) {
             $i = $i->service()
                 ->markSent()

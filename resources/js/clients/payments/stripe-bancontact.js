@@ -69,10 +69,10 @@ function boot() {
     const publishableKey = document.querySelector(
         'meta[name="stripe-publishable-key"]'
     )?.content ?? '';
-
+    
     const stripeConnect =
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
+    
     new ProcessBANCONTACTPay(publishableKey, stripeConnect).setupStripe().handle();
 }
 

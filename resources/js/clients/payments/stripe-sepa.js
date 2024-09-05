@@ -149,12 +149,9 @@ class ProcessSEPA {
                     return;
                 }
 
-
                 document.getElementById('pay-now').disabled = true;
                 document.querySelector('#pay-now > svg').classList.remove('hidden');
                 document.querySelector('#pay-now > span').classList.add('hidden');
-
-
 
                 this.stripe
                     .confirmSepaDebitPayment(
@@ -238,12 +235,14 @@ class ProcessSEPA {
 function boot() {
     const publishableKey =
         document.querySelector('meta[name="stripe-publishable-key"]')?.content ??
-        '';
+    '';
 
     const stripeConnect =
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
 
     new ProcessSEPA(publishableKey, stripeConnect).setupStripe().handle();
 }
+
+instant() ? boot() : wait('#stripe-sepa-payment').then(() => boot());
 
 instant() ? boot() : wait('#stripe-sepa-payment').then(() => boot());

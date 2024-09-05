@@ -88,6 +88,9 @@ class BraintreePayPal {
 
                     onApprove: function (data, actions) {
                         return paypalCheckoutInstance.tokenizePayment(data).then(function (payload) {
+                            document.querySelector('#paypal-button')?.classList.add('hidden');
+                            document.querySelector('#paypal-spinner')?.classList.remove('hidden');
+
                             let tokenBillingCheckbox = document.querySelector(
                                 'input[name="token-billing-checkbox"]:checked'
                             );

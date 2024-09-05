@@ -83,7 +83,7 @@
     "src": "resources/js/clients/payments/braintree-credit-card.js"
   },
   "resources/js/clients/payments/braintree-paypal.js": {
-    "file": "assets/braintree-paypal-16e2f577.js",
+    "file": "assets/braintree-paypal-f78ad64b.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -91,7 +91,7 @@
     "src": "resources/js/clients/payments/braintree-paypal.js"
   },
   "resources/js/clients/payments/checkout-credit-card.js": {
-    "file": "assets/checkout-credit-card-fbe72284.js",
+    "file": "assets/checkout-credit-card-2cca8b36.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -99,7 +99,7 @@
     "src": "resources/js/clients/payments/checkout-credit-card.js"
   },
   "resources/js/clients/payments/eway-credit-card.js": {
-    "file": "assets/eway-credit-card-0119725d.js",
+    "file": "assets/eway-credit-card-150298fa.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -131,7 +131,7 @@
     "src": "resources/js/clients/payments/mollie-credit-card.js"
   },
   "resources/js/clients/payments/paytrace-credit-card.js": {
-    "file": "assets/paytrace-credit-card-7f87b811.js",
+    "file": "assets/paytrace-credit-card-d29797c1.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -139,7 +139,10 @@
     "src": "resources/js/clients/payments/paytrace-credit-card.js"
   },
   "resources/js/clients/payments/razorpay-aio.js": {
-    "file": "assets/razorpay-aio-3d02ff1d.js",
+    "file": "assets/razorpay-aio-f8e8c7f0.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/payments/razorpay-aio.js"
   },
@@ -181,7 +184,7 @@
     "src": "resources/js/clients/payments/stripe-alipay.js"
   },
   "resources/js/clients/payments/stripe-bacs.js": {
-    "file": "assets/stripe-bacs-c9a61b93.js",
+    "file": "assets/stripe-bacs-425cb13e.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -195,6 +198,14 @@
     ],
     "isEntry": true,
     "src": "resources/js/clients/payments/stripe-bancontact.js"
+  },
+  "resources/js/clients/payments/stripe-bank-transfer.js": {
+    "file": "assets/stripe-bank-transfer-4ab58b35.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/clients/payments/stripe-bank-transfer.js"
   },
   "resources/js/clients/payments/stripe-becs.js": {
     "file": "assets/stripe-becs-483b1b23.js",
@@ -245,7 +256,7 @@
     "src": "resources/js/clients/payments/stripe-giropay.js"
   },
   "resources/js/clients/payments/stripe-ideal.js": {
-    "file": "assets/stripe-ideal-95836518.js",
+    "file": "assets/stripe-ideal-2110e54f.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -253,7 +264,7 @@
     "src": "resources/js/clients/payments/stripe-ideal.js"
   },
   "resources/js/clients/payments/stripe-klarna.js": {
-    "file": "assets/stripe-klarna-93dcc6f1.js",
+    "file": "assets/stripe-klarna-0c59275f.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -261,7 +272,7 @@
     "src": "resources/js/clients/payments/stripe-klarna.js"
   },
   "resources/js/clients/payments/stripe-przelewy24.js": {
-    "file": "assets/stripe-przelewy24-5db060c5.js",
+    "file": "assets/stripe-przelewy24-07696bca.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -269,7 +280,7 @@
     "src": "resources/js/clients/payments/stripe-przelewy24.js"
   },
   "resources/js/clients/payments/stripe-sepa.js": {
-    "file": "assets/stripe-sepa-9ab85221.js",
+    "file": "assets/stripe-sepa-23154322.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -277,7 +288,7 @@
     "src": "resources/js/clients/payments/stripe-sepa.js"
   },
   "resources/js/clients/payments/stripe-sofort.js": {
-    "file": "assets/stripe-sofort-fbef42bb.js",
+    "file": "assets/stripe-sofort-92ec46e7.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],

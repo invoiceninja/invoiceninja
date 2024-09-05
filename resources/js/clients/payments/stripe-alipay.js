@@ -48,9 +48,10 @@ class ProcessAlipay {
                     document.querySelector('meta[name=ci_intent]').content,
                     {
                         // Return URL where the customer should be redirected after the authorization
-                        return_url: `${document.querySelector('meta[name=return_url]')
+                        return_url: `${
+                            document.querySelector('meta[name=return_url]')
                                 .content
-                            }`,
+                        }`,
                     }
                 );
 

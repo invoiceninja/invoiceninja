@@ -27,6 +27,8 @@
     <meta name="only-authorization" content="">
     <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
     <meta name="stripe-require-postal-code" content="{{ $gateway->company_gateway->require_postal_code }}">
+
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')
