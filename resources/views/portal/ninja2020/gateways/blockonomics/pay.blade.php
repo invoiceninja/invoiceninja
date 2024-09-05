@@ -10,7 +10,36 @@
     <input name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
     <div>To this bitcoin address</div>
     <input name="btcAddress" value="{{$btc_address}}" readonly>
+    <div id="countdown"></div>
+    <script>
+        // Get the end time as a Unix timestamp (seconds)
+        var endTimeUnix = {{ $end_time }};
+        console.log("End time (Unix timestamp):", endTimeUnix); // For debugging
 
+        // Convert Unix timestamp to milliseconds for JavaScript Date
+        var countDownDate = endTimeUnix * 1000;
+
+        function updateCountdown() {
+            var now = new Date().getTime();
+            var distance = countDownDate - now;
+
+            if (distance < 0) {
+                document.getElementById("countdown").innerHTML = "EXPIRED";
+                return;
+            }
+
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = 
+                "0" + minutes + ":" +
+                (seconds < 10 ? "0" : "") + seconds + " min";
+        }
+
+        // Update immediately and then every second
+        updateCountdown();
+        var x = setInterval(updateCountdown, 1000);
+    </script>
 
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf

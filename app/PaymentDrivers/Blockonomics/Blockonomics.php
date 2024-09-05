@@ -85,6 +85,13 @@ class Blockonomics implements MethodInterface
         return "Something went wrong";
     }
 
+    public function getTenMinutesCountDownEndTime()
+    {
+        $duration_in_sec = 10 * 60; // 10 minutes in seconds
+        $current_time = time();
+        return $current_time + $duration_in_sec;
+    }
+
     public function getBTCPrice()
     {
         $currency_code = $this->driver_class->client->getCurrencyCode();
@@ -105,6 +112,7 @@ class Blockonomics implements MethodInterface
         $data['btc_amount'] = round($btc_amount, 10);
         $data['btc_address'] = $this->getBTCAddress();
         $data['invoice_id'] = $this->invoice_id;
+        $data['end_time'] = $this->getTenMinutesCountDownEndTime();
         return render('gateways.blockonomics.pay', $data);
     }
 
