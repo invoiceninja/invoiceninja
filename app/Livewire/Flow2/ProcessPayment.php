@@ -86,9 +86,16 @@ class ProcessPayment extends Component
 
     public function exception($e, $stopPropagation) 
     {
-       
-        nlog($e->getMessage());
+      
+        $errors = session()->get('errors', new \Illuminate\Support\ViewErrorBag());
 
+        $bag = new \Illuminate\Support\MessageBag();
+        $bag->add('gateway_error', $e->getMessage());
+
+        session()->put('errors', $errors->put('default', $bag));
+
+        $invoice_id = $this->getContext()['payable_invoices'][0]['invoice_id'];
+        $this->redirectRoute('client.invoice.show', ['invoice' => $invoice_id]);
         $stopPropagation();
 
     }
