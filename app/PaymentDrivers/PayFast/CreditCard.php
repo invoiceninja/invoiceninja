@@ -226,7 +226,7 @@ class CreditCard implements LivewireMethodInterface
 
         $payment = $this->payfast->createPayment($payment_record, Payment::STATUS_COMPLETED);
 
-        //return redirect()->route('client.payments.show', ['payment' => $this->payfast->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     private function processUnsuccessfulPayment($server_response)
@@ -265,8 +265,8 @@ class CreditCard implements LivewireMethodInterface
         $payfast_data = [
             'merchant_id' => $this->payfast->company_gateway->getConfigField('merchantId'),
             'merchant_key' => $this->payfast->company_gateway->getConfigField('merchantKey'),
-            'return_url' => route('client.payments.index'),
-            'cancel_url' => route('client.payment_methods.index'),
+            'return_url' => route('client.invoice.show',['invoice' => $this->payfast->payment_hash->fee_invoice->hashed_id]), //route('client.payments.index'), 
+            'cancel_url' => route('client.invoice.show',['invoice' => $this->payfast->payment_hash->fee_invoice->hashed_id]), //route('client.payment_methods.index'),
             'notify_url' => $this->payfast->genericWebhookUrl(),
             'm_payment_id' => $data['payment_hash'],
             'amount' => $data['amount_with_fee'],
