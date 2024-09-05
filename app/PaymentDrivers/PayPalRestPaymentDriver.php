@@ -434,7 +434,8 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $data['guid'] = $this->risk_guid;
         $data['identifier'] = "s:INN_ACDC_CHCK";
         $data['pp_client_reference'] = $this->getClientHash();
-
+        $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
+        
         return $data;
     }
 

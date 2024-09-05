@@ -185,8 +185,7 @@
 
         },
         onCancel: function() {
-
-            window.location.href = "/client/invoices/";
+            window.location.href = "/client/invoices/{{ $invoice_hash }}";
         },
         onClick: function (){
            

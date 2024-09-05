@@ -481,6 +481,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data['guid'] = $this->risk_guid;
         $data['identifier'] = "s:INN_".$this->company_gateway->getConfigField('merchantId')."_CHCK";
         $data['pp_client_reference'] = $this->getClientHash();
+        $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
 
         return $data;
     } 
