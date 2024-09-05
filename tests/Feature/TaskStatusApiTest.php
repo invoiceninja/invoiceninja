@@ -48,7 +48,8 @@ class TaskStatusApiTest extends TestCase
     {
         TaskStatus::factory()->count(5)->create([
             'company_id' => $this->company->id,
-            'user_id' => $this->user->id
+            'user_id' => $this->user->id,
+            'status_order' => 99999,
         ]);
 
 
