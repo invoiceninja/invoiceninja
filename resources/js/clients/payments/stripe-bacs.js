@@ -91,6 +91,15 @@ function boot() {
         document.querySelector('meta[name="only-authorization"]')?.content ?? '';
     
     new ProcessBACS(publishableKey, stripeConnect, onlyAuthorization).setupStripe().handle();
+
+    /**
+    * @type {HTMLInputElement|null}
+    */
+    const first = document.querySelector('input[name="payment-type"]');
+
+    if (first) {
+        first.click();
+    }
 }
 
 instant() ? boot() : wait('#stripe-bacs-payment').then(() => boot());

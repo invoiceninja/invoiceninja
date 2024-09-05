@@ -184,7 +184,7 @@
     "src": "resources/js/clients/payments/stripe-alipay.js"
   },
   "resources/js/clients/payments/stripe-bacs.js": {
-    "file": "assets/stripe-bacs-425cb13e.js",
+    "file": "assets/stripe-bacs-eff96e18.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
