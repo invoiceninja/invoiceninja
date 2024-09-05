@@ -33,7 +33,7 @@
                     <dt class="text-muted-foreground">{{ ctrans('texts.amount_due') }}</dt>
                     <dd>
                         {{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})
-                        {{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}
+                        {{ $invoice->partial > 0 ? \App\Utils\Number::formatValue($invoice->partial, $invoice->client->currency()) : \App\Utils\Number::formatValue($invoice->balance, $invoice->client->currency()) }}
                     </dd>
                 </div>
                 </dl>
