@@ -95,11 +95,14 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
 
     public function paymentResponse($request)
     {
+
         $this->go_cardless->setPaymentHash(
             $request->getPaymentHash()
         );
 
         $this->go_cardless->init();
+
+        nlog($request->all());
 
         try {
             $billing_request = $this->go_cardless->gateway->billingRequests()->get(
@@ -117,12 +120,13 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
                 return $this->processSuccessfulPayment($payment);
             }
 
-            if ($billing_request->status === 'submitted') {
+            if (in_array($billing_request->status, ['fulfilling', 'submitted'])) {
                 return $this->processPendingPayment($payment);
             }
 
             $this->processUnsuccessfulPayment($payment);
         } catch (\Exception $exception) {
+
             throw new PaymentFailed(
                 $exception->getMessage(),
                 $exception->getCode()
@@ -158,7 +162,7 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
             $this->go_cardless->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
 
