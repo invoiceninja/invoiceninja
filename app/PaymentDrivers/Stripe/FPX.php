@@ -79,7 +79,7 @@ class FPX implements LivewireMethodInterface
             'gateway_type_id' => GatewayType::FPX,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -89,8 +89,9 @@ class FPX implements LivewireMethodInterface
             $this->stripe->client,
             $this->stripe->client->company,
         );
+        
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
 
-        return redirect()->route('client.payments.index');
     }
 
     public function processUnsuccessfulPayment()

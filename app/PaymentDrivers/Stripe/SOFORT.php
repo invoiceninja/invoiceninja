@@ -79,7 +79,7 @@ class SOFORT implements LivewireMethodInterface
             'gateway_type_id' => GatewayType::SOFORT,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -90,7 +90,7 @@ class SOFORT implements LivewireMethodInterface
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     public function processUnsuccessfulPayment()

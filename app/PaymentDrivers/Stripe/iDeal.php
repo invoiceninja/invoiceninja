@@ -71,8 +71,8 @@ class iDeal implements LivewireMethodInterface
         $this->stripe->init();
 
         //catch duplicate submissions.
-        if (Payment::where('transaction_reference', $payment_intent)->exists()) {
-            return redirect()->route('client.payments.index');
+        if ($pay_exists = Payment::query()->where('transaction_reference', $payment_intent)->first()) {
+            return redirect()->route('client.payments.show', ['payment' => $pay_exists->hashed_id]);
         }
 
         $data = [
@@ -83,7 +83,7 @@ class iDeal implements LivewireMethodInterface
             'gateway_type_id' => GatewayType::IDEAL,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -94,7 +94,7 @@ class iDeal implements LivewireMethodInterface
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+            return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     public function processUnsuccessfulPayment()
