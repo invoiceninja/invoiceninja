@@ -48,7 +48,6 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public $BASE_URL = 'https://www.blockonomics.co';
     public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     public $PRICE_URL = 'https://www.blockonomics.co/api/price';
-    public $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
 
     public function init()
     {

@@ -24,8 +24,7 @@ class PaymentLibrariesSeeder extends Seeder
     {
         Model::unguard();
 
-        // TODO: use get callbacks API to get the callback URL
-        $callbackUrl = config('ninja.app_url') . '/payment/callback';
+        $callbackUrl = config('ninja.app_url') . '/client/payments/process/?secret=';
         $callbackSecret = md5(uniqid(rand(), true));
         $blockonomics_fields = "{
             \"apiKey\": \"\",
