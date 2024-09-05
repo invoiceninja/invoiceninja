@@ -52,6 +52,39 @@ class Blockonomics implements MethodInterface
     {
     }
 
+    public function getBTCAddress()
+    {
+        $api_key = $this->driver_class->api_key;
+        $url = 'https://www.blockonomics.co/api/new_address';
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+
+        $header = "Authorization: Bearer " . $api_key;
+        $headers = array();
+        $headers[] = $header;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $contents = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo "Error:" . curl_error($ch);
+        }
+
+        $responseObj = json_decode($contents);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close ($ch);
+
+        if ($status == 200) {
+            return $responseObj->address;
+        } else {
+            echo "ERROR: " . $status . ' ' . $responseObj->message;
+        }
+        return "Something went wrong";
+    }
+
     public function getBTCPrice()
     {
         $currency_code = $this->driver_class->client->getCurrencyCode();
@@ -70,6 +103,7 @@ class Blockonomics implements MethodInterface
         $data['currency'] = $this->driver_class->client->getCurrencyCode();
         $btc_amount = $data['amount'] / $this->getBTCPrice();
         $data['btc_amount'] = round($btc_amount, 10);
+        $data['btc_address'] = $this->getBTCAddress();
         $data['invoice_id'] = $this->invoice_id;
         return render('gateways.blockonomics.pay', $data);
     }
@@ -81,7 +115,6 @@ class Blockonomics implements MethodInterface
             'payment_hash' => ['required'],
             'amount' => ['required'],
             'currency' => ['required'],
-            'btc_amount' => ['required'],
         ]);
 
         $drv = $this->driver_class;

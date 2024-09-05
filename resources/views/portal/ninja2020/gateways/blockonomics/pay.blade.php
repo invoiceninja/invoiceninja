@@ -9,7 +9,7 @@
     <div>To pay, send exactly this BTC amount</div>
     <input name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
     <div>To this bitcoin address</div>
-    <input name="btcAddress" value="WIP" readonly>
+    <input name="btcAddress" value="{{$btc_address}}" readonly>
 
 
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
