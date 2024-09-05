@@ -3,9 +3,14 @@
 @section('gateway_content')
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
-    @include('portal.ninja2020.gateways.includes.payment_details')
+    <!-- @include('portal.ninja2020.gateways.includes.payment_details') -->
     
-    <div>this is where the blockonomics QR code goes, or if needed we can redirect them to an offsite url and handle the payment there </div>
+    <div>Invoice #{{$invoice_id}}</div>
+    <div>To pay, send exactly this BTC amount</div>
+    <input name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
+    <div>To this bitcoin address</div>
+    <input name="btcAddress" value="WIP" readonly>
+
 
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
@@ -18,13 +23,13 @@
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
     </form>
 
-    @include('portal.ninja2020.gateways.includes.pay_now')
+    <!-- @include('portal.ninja2020.gateways.includes.pay_now') -->
 @endsection
 
-@push('footer')
+<!-- @push('footer')
     <script>
         document.getElementById('pay-now').addEventListener('click', function() {
             document.getElementById('server-response').submit();
         });
     </script>
-@endpush
+@endpush -->

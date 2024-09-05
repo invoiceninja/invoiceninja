@@ -25,6 +25,7 @@ use Illuminate\Mail\Mailables\Address;
 use App\Services\Email\EmailObject;
 use App\Services\Email\Email;
 use Illuminate\Support\Facades\App;
+use App\Models\Invoice;
 
 class Blockonomics implements MethodInterface
 {
@@ -36,6 +37,8 @@ class Blockonomics implements MethodInterface
     {
         $this->driver_class = $driver_class;
         $this->driver_class->init();
+        // TODO: set invoice_id
+        $this->invoice_id = "123";
     }
 
     public function authorizeView($data)
@@ -49,12 +52,25 @@ class Blockonomics implements MethodInterface
     {
     }
 
+    public function getBTCPrice()
+    {
+        $currency_code = $this->driver_class->client->getCurrencyCode();
+        $BLOCKONOMICS_BASE_URL = 'https://www.blockonomics.co';
+        $BLOCKONOMICS_PRICE_URL = $BLOCKONOMICS_BASE_URL . '/api/price?currency=';
+        $response = file_get_contents($BLOCKONOMICS_PRICE_URL . $currency_code);
+        $data = json_decode($response, true);
+        // TODO: handle error
+        return $data['price'];
+    }
+
     public function paymentView($data)
     {
         $data['gateway'] = $this->driver_class;
         $data['amount'] = $data['total']['amount_with_fee'];
         $data['currency'] = $this->driver_class->client->getCurrencyCode();
-
+        $btc_amount = $data['amount'] / $this->getBTCPrice();
+        $data['btc_amount'] = round($btc_amount, 10);
+        $data['invoice_id'] = $this->invoice_id;
         return render('gateways.blockonomics.pay', $data);
     }
 
@@ -65,6 +81,7 @@ class Blockonomics implements MethodInterface
             'payment_hash' => ['required'],
             'amount' => ['required'],
             'currency' => ['required'],
+            'btc_amount' => ['required'],
         ]);
 
         $drv = $this->driver_class;

@@ -58,7 +58,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 
-    private function get($url, $apiKey)
+    public function get($url, $apiKey = null)
     {
         // Initialize cURL session
         $ch = curl_init();
@@ -66,10 +66,13 @@ class BlockonomicsPaymentDriver extends BaseDriver
         // Set cURL options
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $apiKey,
-            'Content-Type: application/json'
-        ]);
+
+        // Set HTTP headers
+        $headers = ['Content-Type: application/json'];
+        if ($apiKey) {
+            $headers[] = 'Authorization: Bearer ' . $apiKey;
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         // Execute cURL session and get the response
         $response = curl_exec($ch);
@@ -91,20 +94,6 @@ class BlockonomicsPaymentDriver extends BaseDriver
         $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
         $response = $this->get($GET_CALLBACKS_URL, $api_key);
         return $response;
-    }
-
-    public function getBTCPrice($id_currency)
-    {
-        $BLOCKONOMICS_BASE_URL = 'https://www.blockonomics.co';
-        $BLOCKONOMICS_PRICE_URL = $BLOCKONOMICS_BASE_URL . '/api/price?currency=';
-        // Getting price
-        // $currency = new Currency((int) $id_currency);
-        // $options = ['http' => ['method' => 'GET']];
-        // $context = stream_context_create($options);
-        // $contents = Tools::file_get_contents(Configuration::get('BLOCKONOMICS_PRICE_URL') . $currency->iso_code, false, $context);
-        // $priceObj = Tools::jsonDecode($contents);
-
-        return $priceObj->price;
     }
 
     // public function get_callbackSecret()
