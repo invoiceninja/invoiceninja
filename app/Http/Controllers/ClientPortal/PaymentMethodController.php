@@ -56,8 +56,8 @@ class PaymentMethodController extends Controller
 
         $data['gateway'] = $gateway;
 
-        /** @var \App\Models\ClientContact auth()->user() **/
-        $client_contact = auth()->user();
+        /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
+        $client_contact = auth()->guard('contact')->user();
         $data['client'] = $client_contact->client;
 
         return $gateway
@@ -77,8 +77,8 @@ class PaymentMethodController extends Controller
     {
         $gateway = $this->getClientGateway();
 
-        /** @var \App\Models\ClientContact auth()->user() **/
-        $client_contact = auth()->user();
+        /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
+        $client_contact = auth()->guard('contact')->user();
 
         return $gateway
             ->driver($client_contact->client)
@@ -103,8 +103,8 @@ class PaymentMethodController extends Controller
     public function verify(ClientGatewayToken $payment_method)
     {
 
-        /** @var \App\Models\ClientContact auth()->user() **/
-        $client_contact = auth()->user();
+        /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
+        $client_contact = auth()->guard('contact')->user();
 
         return $payment_method->gateway
             ->driver($client_contact->client)
@@ -114,8 +114,8 @@ class PaymentMethodController extends Controller
 
     public function processVerification(Request $request, ClientGatewaytoken $payment_method)
     {
-        /** @var \App\Models\ClientContact auth()->user() **/
-        $client_contact = auth()->user();
+        /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
+        $client_contact = auth()->guard('contact')->user();
 
         return $payment_method->gateway
             ->driver($client_contact->client)
@@ -131,7 +131,7 @@ class PaymentMethodController extends Controller
      */
     public function destroy(ClientGatewayToken $payment_method)
     {
-        /** @var \App\Models\ClientContact auth()->user() **/
+        /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
         $client_contact = auth()->guard('contact')->user();
 
         if ($payment_method->gateway()->exists()) {
@@ -171,8 +171,8 @@ class PaymentMethodController extends Controller
 
     private function getClientGateway()
     {
-        /** @var \App\Models\ClientContact auth()->user() **/
-        $client_contact = auth()->user();
+        /** @var \App\Models\ClientContact auth()->guard('contact')->user() **/
+        $client_contact = auth()->guard('contact')->user();
 
         if (request()->query('method') == GatewayType::CREDIT_CARD) {
             return $client_contact->client->getCreditCardGateway();

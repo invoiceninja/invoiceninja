@@ -63,7 +63,7 @@ class ACSS implements LivewireMethodInterface
         'customer' => $data['customer'],
         'payment_method_options' => [
             'acss_debit' => [
-            'currency' => 'cad',
+            'currency' => strtolower($this->stripe->client->currency()->code),
             'mandate_options' => [
                 'payment_schedule' => 'combined',
                 'interval_description' => 'On any invoice due date',
@@ -183,7 +183,7 @@ class ACSS implements LivewireMethodInterface
                 'customer' => $data['customer'],
                 'payment_method_options' => [
                     'acss_debit' => [
-                    'currency' => 'cad',
+                    'currency' => strtolower($this->stripe->client->currency()->code),
                     'mandate_options' => [
                         'payment_schedule' => 'combined',
                         'interval_description' => 'On any invoice due date',
