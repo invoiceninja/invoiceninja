@@ -86,6 +86,9 @@ class InvoiceController extends Controller
             return render('invoices.show-fullscreen', $data);
         }
 
+        if(!$invoice->isPayable())
+            return $this->render('invoices.show',$data);
+
         return auth()->guard('contact')->user()->client->getSetting('payment_flow') == 'default' ? $this->render('invoices.show', $data) : $this->render('invoices.show_smooth', $data);
 
         // return $this->render('invoices.show_smooth', $data);
