@@ -4,13 +4,26 @@
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     <!-- @include('portal.ninja2020.gateways.includes.payment_details') -->
-    
-    <div>Invoice #{{$invoice_id}}</div>
-    <div>To pay, send exactly this BTC amount</div>
-    <input name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
-    <div>To this bitcoin address</div>
-    <input name="btcAddress" value="{{$btc_address}}" readonly>
-    <div id="countdown"></div>
+    <div class="blockonomics-payment-wrapper">
+        <div>Invoice #{{$invoice_id}}</div>
+        <div>To pay, send exactly this BTC amount</div>
+        <input class="full-width-input" name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
+        <div>To this bitcoin address</div>
+        <input class="full-width-input" name="btcAddress" value="{{$btc_address}}" readonly>
+        <div id="countdown"></div>
+    </div>
+
+    <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
+        @csrf
+        <input type="hidden" name="gateway_response">
+        <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
+        <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
+        <input type="hidden" name="token">
+        <input type="hidden" name="amount" value="{{ $amount }}">
+        <input type="hidden" name="currency" value="{{ $currency }}">
+        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
+    </form>
+
     <script>
         // Get the end time as a Unix timestamp (seconds)
         var endTimeUnix = {{ $end_time }};
@@ -41,16 +54,21 @@
         var x = setInterval(updateCountdown, 1000);
     </script>
 
-    <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
-        @csrf
-        <input type="hidden" name="gateway_response">
-        <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
-        <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
-        <input type="hidden" name="token">
-        <input type="hidden" name="amount" value="{{ $amount }}">
-        <input type="hidden" name="currency" value="{{ $currency }}">
-        <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
-    </form>
+    <style type="text/css">    
+        .blockonomics-payment-wrapper {
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+        }
+        .full-width-input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
 
     <!-- @include('portal.ninja2020.gateways.includes.pay_now') -->
 @endsection
