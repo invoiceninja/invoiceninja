@@ -54,8 +54,6 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
 
-        nlog($response);
-
         if($request->has('token') && strlen($request->input('token')) > 2) {
             return $this->processTokenPayment($request, $response);
         }

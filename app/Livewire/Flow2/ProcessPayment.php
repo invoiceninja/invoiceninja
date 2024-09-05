@@ -55,7 +55,6 @@ class ProcessPayment extends Component
         $company_gateway = CompanyGateway::find($this->getContext()['company_gateway_id']);
 
         if (!$responder_data['success']) {
-            nlog("ouchiees");
             throw new PaymentFailed($responder_data['error'], 400);
         }
 
