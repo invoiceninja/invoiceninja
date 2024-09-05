@@ -168,7 +168,7 @@
     "src": "resources/js/clients/payments/stripe-ach.js"
   },
   "resources/js/clients/payments/stripe-acss.js": {
-    "file": "assets/stripe-acss-1184fda8.js",
+    "file": "assets/stripe-acss-02974bdc.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -345,7 +345,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-fee1da41.css",
+    "file": "assets/app-8ee358d6.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

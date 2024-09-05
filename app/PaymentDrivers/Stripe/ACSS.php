@@ -12,6 +12,8 @@
 
 namespace App\PaymentDrivers\Stripe;
 
+use App\Http\Controllers\ClientPortal\InvoiceController;
+use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use Stripe\PaymentIntent;
@@ -122,7 +124,9 @@ class ACSS implements LivewireMethodInterface
             }
 
             $hash = PaymentHash::with('fee_invoice')->where('hash', $data['payment_hash'])->first();
+
             $data['tokens'] = [$client_gateway_token];
+            $data['one_page_checkout'] = (bool) $request->one_page_checkout;
 
             $this->stripe->setPaymentHash($hash);
             $this->stripe->setClient($hash->fee_invoice->client);
@@ -225,6 +229,20 @@ class ACSS implements LivewireMethodInterface
     public function paymentView(array $data)
     {
         $data = $this->paymentData($data);
+
+        if (isset($data['one_page_checkout']) && $data['one_page_checkout']) {
+            $data = [
+                'invoices' => collect($data['invoices'])->map(fn ($invoice) => $invoice['invoice_id'])->toArray(),
+                'action' => 'payment',
+            ];
+            
+            $request = new ProcessInvoicesInBulkRequest();
+            $request->replace($data);
+
+            session()->flash('message', ctrans('texts.payment_method_added'));
+
+            return app(InvoiceController::class)->bulk($request);
+        }
 
         if (array_key_exists('needs_mandate_generate', $data)) {
             return render('gateways.stripe.acss.authorize', array_merge($data));

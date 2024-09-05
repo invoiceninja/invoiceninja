@@ -35,7 +35,6 @@ class ProcessACSS {
     };
 
     handle = () => {
-
         Array
             .from(document.getElementsByClassName('toggle-payment-with-token'))
             .forEach((element) => element.addEventListener('click', (element) => {
@@ -154,6 +153,15 @@ function boot() {
         document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
     
     new ProcessACSS(publishableKey, stripeConnect).setupStripe().handle();
+
+    /**
+    * @type {HTMLInputElement|null}
+    */
+    const first = document.querySelector('input[name="payment-type"]');
+
+    if (first) {
+        first.click();
+    }
 }
 
 instant() ? boot() : wait('#stripe-acss-payment').then(() => boot());
