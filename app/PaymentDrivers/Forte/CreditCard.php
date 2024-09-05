@@ -258,7 +258,10 @@ class CreditCard implements LivewireMethodInterface
             );
             $error = Validator::make([], []);
             $error->getMessageBag()->add('gateway_error', $response->response->response_desc);
-            return redirect('client/invoices')->withErrors($error);
+
+            return redirect()->route('client.invoice.show', ['invoice' => $payment_hash->fee_invoice->hashed_id])->withErrors($error);
+
+            // return redirect('client/invoices')->withErrors($error);
         }
 
         SystemLogger::dispatch(
