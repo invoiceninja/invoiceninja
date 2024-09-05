@@ -12,7 +12,7 @@
     "file": "assets/wait-8f4ae121.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-234e3402.js",
+    "file": "assets/app-e0713224.js",
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"
@@ -115,26 +115,10 @@
     "src": "resources/js/clients/payments/forte-ach-payment.js"
   },
   "resources/js/clients/payments/forte-credit-card-payment.js": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "file": "assets/forte-credit-card-payment-7bb15431.js",
-=======
-    "file": "assets/forte-credit-card-payment-3ff75b59.js",
-=======
-    "file": "assets/forte-credit-card-payment-5485d5f0.js",
->>>>>>> 044b4bce72 (Fixes for Forte & Authorize.net (#83))
-=======
-    "file": "assets/forte-credit-card-payment-3ff75b59.js",
->>>>>>> 3d69a0b88c (Apply Livewire patch to load assets async (#85))
-=======
-    "file": "assets/forte-credit-card-payment-ea7d8632.js",
->>>>>>> 48fdf6a85c (New payment flow: Various fixes (#89))
+    "file": "assets/forte-credit-card-payment-fc1b837a.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
->>>>>>> fb57d4d9de (Improve new flow)
     "isEntry": true,
     "src": "resources/js/clients/payments/forte-credit-card-payment.js"
   },
@@ -296,7 +280,7 @@
     "src": "resources/js/clients/payments/stripe-przelewy24.js"
   },
   "resources/js/clients/payments/stripe-sepa.js": {
-    "file": "assets/stripe-sepa-9ab85221.js",
+    "file": "assets/stripe-sepa-45ce1293.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -361,55 +345,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     "file": "assets/app-fee1da41.css",
-=======
-    "file": "assets/app-8e387ada.css",
->>>>>>> 3e760e6cc6 (New payment flow)
-=======
-    "file": "assets/app-26306e87.css",
->>>>>>> c315911da4 (Payment float)
-=======
-    "file": "assets/app-4cad835a.css",
->>>>>>> fd7c28880c (Payment methods)
-=======
-    "file": "assets/app-8544e4cc.css",
->>>>>>> c7cc0e084f (updates for html invoice layout)
-=======
-    "file": "assets/app-608daae2.css",
->>>>>>> 2a1947ea6e (New payment flow (#64))
-=======
-    "file": "assets/app-4e969b65.css",
->>>>>>> 05d7211c4c (PayPal: New payment flow (#81))
-=======
-    "file": "assets/app-15411b02.css",
->>>>>>> fba29de459 (New payment flow: Various fixes (#88))
-=======
-    "file": "assets/app-4e969b65.css",
->>>>>>> 48fdf6a85c (New payment flow: Various fixes (#89))
-=======
-    "file": "assets/app-15411b02.css",
->>>>>>> f77bfe2bc7 (Fixes for required fields for paytrace)
-=======
-    "file": "assets/app-4e969b65.css",
->>>>>>> 9c4462d534 (New payment flow: Masking with blank space (#94))
-=======
-    "file": "assets/app-15411b02.css",
->>>>>>> 11d32d2569 (Fixes for namespace)
-=======
-    "file": "assets/app-4e969b65.css",
->>>>>>> 0695e5bfc1 (Authorize.net: Upgrade authorize to use Simple Card (#95))
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

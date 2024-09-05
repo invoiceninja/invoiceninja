@@ -162,6 +162,22 @@ class SEPA implements LivewireMethodInterface
         $data['country'] = $this->stripe->client->country->iso_3166_2;
         $data['payment_hash'] = $this->stripe->payment_hash->hash;
 
+
+        /** if the iban and client country don't match (OR UK IBAN) - need to inject billing details also */
+        // $data['billing_details'] = [
+        //     'name' => $this->stripe->client->present()->name(),
+        //     'email' => $this->stripe->client->present()->email(),
+        //     'address' => [
+        //         'line1' => $this->stripe->client->address1 ?? '',
+        //         'line2' => $this->stripe->client->address2 ?? '',
+        //         'city' => $this->stripe->client->city ?? '',
+        //         'state' => $this->stripe->client->state ?? '',
+        //         'postal_code' => $this->stripe->client->postal_code ?? '',
+        //         'country' => $this->stripe->client->country->iso_3166_2 ?? 'DE',
+        //     ]
+        // ];
+
+
         $intent_data = [
             'amount' => $data['stripe_amount'],
             'currency' => 'eur',

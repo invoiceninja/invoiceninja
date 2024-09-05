@@ -149,12 +149,9 @@ class ProcessSEPA {
                     return;
                 }
 
-
                 document.getElementById('pay-now').disabled = true;
                 document.querySelector('#pay-now > svg').classList.remove('hidden');
                 document.querySelector('#pay-now > span').classList.add('hidden');
-
-
 
                 this.stripe
                     .confirmSepaDebitPayment(
