@@ -196,6 +196,7 @@ class InvoicePay extends Component
     #[Computed()]
     public function component(): string
     {
+
         if (!$this->terms_accepted) {
             return Terms::class;
         }
@@ -217,6 +218,7 @@ class InvoicePay extends Component
         }
 
         return ProcessPayment::class;
+        
     }
 
     #[Computed()]
@@ -238,8 +240,6 @@ class InvoicePay extends Component
         $this->setContext('contact', $invite->contact); // $this->context['contact'] = $invite->contact;
         $this->setContext('settings', $settings); // $this->context['settings'] = $settings;
         $this->setContext('db', $this->db); // $this->context['db'] = $this->db;
-
-        nlog($this->invoices);
 
         if(is_array($this->invoices))
             $this->invoices = Invoice::find($this->transformKeys($this->invoices));
@@ -283,5 +283,14 @@ class InvoicePay extends Component
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         return render('flow2.invoice-pay');
+    }
+
+    public function exception($e, $stopPropagation) 
+    {
+       
+        nlog($e->getMessage());
+
+        $stopPropagation();
+
     }
 }

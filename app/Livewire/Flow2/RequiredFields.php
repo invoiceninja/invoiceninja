@@ -135,4 +135,5 @@ class RequiredFields extends Component
             'contact' => $this->getContext()['contact'],
         ]);
     }
+    
 }

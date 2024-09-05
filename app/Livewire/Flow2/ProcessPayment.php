@@ -29,7 +29,7 @@ class ProcessPayment extends Component
     private array $payment_data_payload = [];
 
     public $isLoading = true;
-
+    
     public function mount()
     {
 
@@ -55,6 +55,7 @@ class ProcessPayment extends Component
         $company_gateway = CompanyGateway::find($this->getContext()['company_gateway_id']);
 
         if (!$responder_data['success']) {
+            nlog("ouchiees");
             throw new PaymentFailed($responder_data['error'], 400);
         }
 
@@ -83,4 +84,14 @@ class ProcessPayment extends Component
 
         return render($this->payment_view, $this->payment_data_payload);
     }
+
+    public function exception($e, $stopPropagation) 
+    {
+       
+        nlog($e->getMessage());
+
+        $stopPropagation();
+
+    }
+ 
 }
