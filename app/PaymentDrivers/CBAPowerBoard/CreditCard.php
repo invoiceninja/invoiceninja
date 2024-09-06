@@ -30,18 +30,20 @@ class CreditCard implements LivewireMethodInterface
 
     public function authorizeView(array $data)
     {
-
         return render('gateways.powerboard.credit_card.authorize', $this->paymentData($data));
     }
 
     public function authorizeResponse($request)
     {
-        $this->powerboard->init();
+        $cgt = $this->storePaymentMethod($request);
 
-        $payment_source = $request->gateway_response;
-        
-        $payload = [
-            'token' => $payment_source,
+        return redirect()->route('client.payment_methods.index');
+
+    }
+
+    private function getCustomer(): array
+    {
+        return [
             'first_name' => $this->powerboard->client->present()->first_name(),
             'last_name' => $this->powerboard->client->present()->first_name(),
             'email' => $this->powerboard->client->present()->email(),
@@ -53,12 +55,21 @@ class CreditCard implements LivewireMethodInterface
             'address_country' => $this->powerboard->client->country->iso_3166_3 ?? '',
             'address_city' => $this->powerboard->client->city ?? '',
             'address_postcode' => $this->powerboard->client->postal_code ?? '',
+        ];
+    }
+    private function storePaymentMethod($request)
+    {
+
+        $this->powerboard->init();
+
+        $payment_source = $request->gateway_response;
+
+        $payload = [
+            'token' => $payment_source,
             'store_ccv' => true,
         ];
 
-
-
-        $r = $this->powerboard->gatewayRequest('/v1/vault/payment_sources', (\App\Enum\HttpVerb::POST)->value, $payload, []);
+        $r = $this->powerboard->gatewayRequest('/v1/vault/payment_sources', (\App\Enum\HttpVerb::POST)->value, array_merge($this->getCustomer(), $payload), []);
 
         // {
         //     "status": 201,
@@ -84,22 +95,11 @@ class CreditCard implements LivewireMethodInterface
         //     }
         // }
 
-        if($r->successful()){
-            
-            $response_payload = $r->object();
 
-            $cgt = $this->storeGatewayToken($request, $response_payload);
+        if($r->failed())
+            return $this->powerboard->processInternallyFailedPayment($this->powerboard, $r->throw());
 
-            return redirect()->route('client.payment_methods.index');
-
-        }
-
-        return $this->powerboard->processInternallyFailedPayment($this->powerboard, $r->throw());
-
-    }
-
-    private function storeGatewayToken($request, $response_payload)
-    {
+        $response_payload = $r->object();
 
         try {
 
@@ -116,7 +116,9 @@ class CreditCard implements LivewireMethodInterface
                 'payment_method_id' => $request->payment_method_id,
             ];
 
-            $this->powerboard->storeGatewayToken($data, ['gateway_customer_reference' => $response_payload->resource->data->ref_token]);
+            $cgt = $this->powerboard->storeGatewayToken($data, ['gateway_customer_reference' => $response_payload->resource->data->ref_token]);
+
+            return $cgt;
 
         } catch (\Exception $e) {
             return $this->powerboard->processInternallyFailedPayment($this->powerboard, $e);
@@ -150,9 +152,38 @@ class CreditCard implements LivewireMethodInterface
         return 'gateways.powerboard.credit_card.pay_livewire';
     }
 
+    public function tokenBilling($request, $cgt, $client_present = false)
+    {
+
+    }
+
     public function paymentResponse(PaymentResponseRequest $request)
     {
         nlog($request->all());
+
+        if($request->store_card) {
+            $cgt = $this->storePaymentMethod($request);
+            $this->tokenBilling($request, $cgt, true);
+        }
+
+        $payload = [
+            'amount' => $this->powerboard->payment_hash->amount_with_fee(),
+            'currency' => $this->powerboard->client->currency()->code,
+            'description' => $this->powerboard->getDescription(),
+            // 'descriptor' => ,
+            // 'reference' => ,
+            // 'reference2' => ,
+            // 'amount_surcharge' => ,
+            // 'amount_original' => ,
+            // 'initialization_source' => ,
+            'bypass_3ds' => false,
+            // 'token'=> ,
+            'payment_source_id' => $request->payment_source,
+            // 'customer_id' => ,
+            'customer' => $this->getCustomer(),
+        ];
+
+
 
         // $this->stripe->init();
 

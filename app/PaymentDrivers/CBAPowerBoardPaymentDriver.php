@@ -107,11 +107,12 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
      * Detach payment method from custom payment driver.
      *
      * @param ClientGatewayToken $token
-     * @return void
+     * @return bool
      */
     public function detach(ClientGatewayToken $token): bool
     {
         // Driver doesn't support this feature.
+        return true;
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
