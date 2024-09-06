@@ -17,7 +17,9 @@ return new class extends Migration
         Model::unguard();
 
         $fields = new \stdClass();
-        $fields->accessToken = '';
+
+        $fields->publicKey = '';
+        $fields->secretKey = '';
         // $fields->applicationId = '';
         // $fields->locationId = '';
         $fields->testMode = false;

@@ -36,6 +36,9 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public $refundable = true;
 
+    protected $api_endpoint = '';
+
+    protected $widget_endpoint = '';
     /**
      * Returns the gateway types.
      */
