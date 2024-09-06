@@ -412,6 +412,10 @@ class BaseDriver extends AbstractPaymentDriver
 
             nlog("apparently no fee, so injecting here!");
 
+            if($invoice->tax_rate1 > 0){
+                $fee_total = round($fee_total / (1+($invoice->tax_rate1/100)),2);
+            }
+
             $balance = $invoice->balance;
 
             App::forgetInstance('translator');
