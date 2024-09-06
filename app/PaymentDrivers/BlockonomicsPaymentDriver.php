@@ -125,86 +125,11 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
-        echo "It reached the processPaymentResponse";
         return $this->payment_method->paymentResponse($request);
     }
 
     public function processWebhookRequest()
     {
-        $webhook_payload = file_get_contents('php://input');
-
-        /** @var \stdClass $blockonomicsRep */
-        $blockonomicsRep = json_decode($webhook_payload);
-        if ($blockonomicsRep == null) {
-            throw new PaymentFailed('Empty data');
-        }
-        if (true === empty($blockonomicsRep->invoiceId)) {
-            throw new PaymentFailed(
-                'Invalid payment notification- did not receive invoice ID.'
-            );
-        }
-        if (
-            str_starts_with($blockonomicsRep->invoiceId, "__test__")
-            || $blockonomicsRep->type == "InvoiceProcessing"
-            || $blockonomicsRep->type == "InvoiceCreated"
-        ) {
-            return;
-        }
-
-        $sig = '';
-        $headers = getallheaders();
-        foreach ($headers as $key => $value) {
-            if (strtolower($key) === 'blockonomics-sig') {
-                $sig = $value;
-            }
-        }
-
-        $this->init();
-        $webhookClient = new Webhook($this->callback_url , $this->api_key);
-
-        if (!$webhookClient->isIncomingWebhookRequestValid($webhook_payload, $sig, $this->webhook_secret)) {
-            throw new \RuntimeException(
-                'Invalid blockonomics payment notification message received - signature did not match.'
-            );
-        }
-
-        $this->setPaymentMethod(GatewayType::CRYPTO);
-        $this->payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$blockonomicsRep->metadata->InvoiceNinjaPaymentHash])->firstOrFail();
-        $StatusId = Payment::STATUS_PENDING;
-        if ($this->payment_hash->payment_id == null) {
-            
-            $_invoice = Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
-
-            $this->client = $_invoice->client;
-
-            $dataPayment = [
-                'payment_method' => $this->payment_method,
-                'payment_type' => PaymentType::CRYPTO,
-                'amount' => $_invoice->amount,
-                'gateway_type_id' => GatewayType::CRYPTO,
-                'transaction_reference' => $blockonomicsRep->invoiceId
-            ];
-            $payment = $this->createPayment($dataPayment, $StatusId);
-        } else {
-            /** @var \App\Models\Payment $payment */
-            $payment = Payment::withTrashed()->find($this->payment_hash->payment_id);
-            $StatusId =  $payment->status_id;
-        }
-        switch ($blockonomicsRep->type) {
-            case "InvoiceExpired":
-                $StatusId = Payment::STATUS_CANCELLED;
-                break;
-            case "InvoiceInvalid":
-                $StatusId = Payment::STATUS_FAILED;
-                break;
-            case "InvoiceSettled":
-                $StatusId = Payment::STATUS_COMPLETED;
-                break;
-        }
-        if ($payment->status_id != $StatusId) {
-            $payment->status_id = $StatusId;
-            $payment->save();
-        }
     }
 
 

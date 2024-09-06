@@ -31,14 +31,12 @@ class Blockonomics implements MethodInterface
 {
     use MakesHash;
 
-    public $driver_class;
+    protected BlockonomicsPaymentDriver $blockonomics;
 
     public function __construct(BlockonomicsPaymentDriver $driver_class)
     {
-        $this->driver_class = $driver_class;
-        $this->driver_class->init();
-        // TODO: set invoice_id
-        $this->invoice_id = "123";
+        $this->blockonomics = $driver_class;
+        $this->blockonomics->init();
     }
 
     public function authorizeView($data)
@@ -138,7 +136,7 @@ class Blockonomics implements MethodInterface
 
     public function getBTCPrice()
     {
-        $currency_code = $this->driver_class->client->getCurrencyCode();
+        $currency_code = $this->blockonomics->client->getCurrencyCode();
         $BLOCKONOMICS_BASE_URL = 'https://www.blockonomics.co';
         $BLOCKONOMICS_PRICE_URL = $BLOCKONOMICS_BASE_URL . '/api/price?currency=';
         $response = file_get_contents($BLOCKONOMICS_PRICE_URL . $currency_code);
@@ -149,14 +147,15 @@ class Blockonomics implements MethodInterface
 
     public function paymentView($data)
     {
-        $data['gateway'] = $this->driver_class;
+        $data['gateway'] = $this->blockonomics;
         $data['amount'] = $data['total']['amount_with_fee'];
-        $data['currency'] = $this->driver_class->client->getCurrencyCode();
+        $data['currency'] = $this->blockonomics->client->getCurrencyCode();
         $btc_amount = $data['amount'] / $this->getBTCPrice();
         $data['btc_amount'] = number_format($btc_amount, 10, '.', '');
         $btc_address = $this->getBTCAddress();
         $data['btc_address'] = $btc_address;
-        $data['invoice_id'] = $this->invoice_id;
+        //TODO: set invoice_id
+        $data['invoice_id'] = "123";
         $data['end_time'] = $this->getTenMinutesCountDownEndTime();
         $data['callback_url'] = $this->setCallbackUrl();
 
@@ -170,29 +169,25 @@ class Blockonomics implements MethodInterface
             'payment_hash' => ['required'],
             'amount' => ['required'],
             'currency' => ['required'],
+            'payment_method_id' => ['required'],
+            'txid' => ['required'],
         ]);
 
-        $drv = $this->driver_class;
-        if (
-            strlen($drv->api_key) < 1 ||
-            strlen($drv->callback_secret) < 1 ||
-            strlen($drv->callback_url) < 1
-        ) {
-            throw new PaymentFailed('Blockonomics is not well configured');
-        }
 
         try {
             $data = [
-                'payment_method' => '',
+                'payment_method' => $request->payment_method_id,
                 'payment_type' => PaymentType::CRYPTO,
-                'amount' => 200,
-                'transaction_reference' => 123,
+                'amount' => $request->amount,
                 'gateway_type_id' => GatewayType::CRYPTO,
+                'transaction_reference' => $request->txid,
             ];
-            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey(6)]);
+            $payment = $this->blockonomics->createPayment($data, Payment::STATUS_COMPLETED);
+            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         } catch (\Throwable $e) {
-            PaymentFailureMailer::dispatch($drv->client, $drv->payment_hash->data, $drv->client->company, $request->amount);
+            $blockonomics = $this->blockonomics;
+            PaymentFailureMailer::dispatch($blockonomics->client, $blockonomics->payment_hash->data, $blockonomics->client->company, $request->amount);
             throw new PaymentFailed('Error during Blockonomics payment : ' . $e->getMessage());
         }
     }

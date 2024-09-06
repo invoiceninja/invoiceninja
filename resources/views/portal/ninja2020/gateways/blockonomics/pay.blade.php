@@ -22,6 +22,7 @@
         <input type="hidden" name="amount" value="{{ $amount }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
+        <input type="hidden" name="txid" value="">
     </form>
 
     <script>
@@ -67,6 +68,7 @@
             console.log('Payment status:', data.status);
             const isPaymentConfirmed = data.status == 2;
             if (isPaymentConfirmed) {
+                document.querySelector('input[name="txid"]').value = data.txid || '';
                 document.getElementById('server-response').submit();
             }
         };
