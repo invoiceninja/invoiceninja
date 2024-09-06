@@ -51,14 +51,14 @@ class OtpCode extends Mailable
         return $this->from(config('mail.from.address'), config('mail.from.name'))
             ->subject(ctrans('texts.otp_code_subject'))
             ->text('email.admin.generic_text')
-            ->view('email.admin.generic')
+            ->view('email.client.generic')
             ->with([
                 'settings' => $this->company->settings,
                 'logo' => $this->company->present()->logo(),
                 'title' => ctrans('texts.otp_code_subject'),
                 'content' => ctrans('texts.otp_code_body', ['code' => $this->code]),
                 'whitelabel' => $this->company->account->isPaid(),
-                'url' => '',
+                'url' => false,
                 'button' => false,
                 'template' => $this->company->account->isPremium() ? 'email.template.admin_premium' : 'email.template.admin',
             ]);
