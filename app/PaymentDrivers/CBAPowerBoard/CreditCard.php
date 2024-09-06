@@ -56,7 +56,10 @@ class CreditCard implements LivewireMethodInterface
     {
         // $description = $this->stripe->getDescription(false);
         $merge = [
-            'publicKey' => $this->powerboard->company_gateway->getConfigField('publicKey'),
+            'public_key' => $this->powerboard->company_gateway->getConfigField('publicKey'),
+            'widget_endpoint' => $this->powerboard->widget_endpoint,
+            'gateway' => $this->powerboard,
+            'environment' => $this->powerboard->environment,
         ];
         // $payment_intent_data = [
         //     'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
@@ -81,7 +84,7 @@ class CreditCard implements LivewireMethodInterface
     {
         $data = $this->paymentData($data);
 
-        return render('gateways.stripe.credit_card.pay', $data);
+        return render('gateways.powerboard.credit_card.pay', $data);
     }
 
     public function livewirePaymentView(array $data): string
@@ -91,6 +94,8 @@ class CreditCard implements LivewireMethodInterface
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        nlog($request->all());
+        
         // $this->stripe->init();
 
         // $state = [

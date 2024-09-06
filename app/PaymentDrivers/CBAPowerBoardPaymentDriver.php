@@ -37,9 +37,11 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public $refundable = true;
 
-    protected $api_endpoint = 'https://api.powerboard.commbank.com.au/';
+    public string $api_endpoint = 'https://api.powerboard.commbank.com.au/';
 
-    protected $widget_endpoint = 'https://widget.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
+    public string $widget_endpoint = 'https://widget.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
+
+    public string $environment = 'production_cba';
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
@@ -60,14 +62,19 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     {
         if($this->company_gateway->getConfigField('testMode')) {
             $this->widget_endpoint = 'https://widget.preproduction.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
-            $this->api_endpoint = 'https://api.preproduction.powerboard.commbank.com.au/';        }
+            $this->api_endpoint = 'https://api.preproduction.powerboard.commbank.com.au/';     
+            $this->environment = 'preproduction_cba';   
+        }
 
         return $this;
     }
 
     public function setPaymentMethod($payment_method_id)
     {
-        $this->payment_method = $payment_method_id;
+
+        $class = self::$methods[$payment_method_id];
+
+        $this->payment_method = new $class($this);
 
         return $this;
     }
@@ -80,6 +87,8 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
      */
     public function processPaymentView($data)
     {
+        $this->init();
+
         return $this->payment_method->paymentView($data);
     }
 
