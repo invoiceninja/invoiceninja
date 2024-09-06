@@ -65,7 +65,10 @@
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
             console.log('Payment status:', data.status);
-            document.getElementById('server-response').submit();
+            const isPaymentConfirmed = data.status == 2;
+            if (isPaymentConfirmed) {
+                document.getElementById('server-response').submit();
+            }
         };
 
         ws.onerror = function(error) {
