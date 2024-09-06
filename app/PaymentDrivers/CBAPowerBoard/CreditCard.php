@@ -30,18 +30,27 @@ class CreditCard implements LivewireMethodInterface
 
     public function authorizeView(array $data)
     {
-        $intent['intent'] = $this->stripe->getSetupIntent();
 
-        return render('gateways.powerboard.credit_card.authorize', array_merge($data, $intent));
+        return render('gateways.powerboard.credit_card.authorize', array_merge($data, []));
     }
 
     public function authorizeResponse($request)
     {
-        $this->stripe->init();
+        $this->powerboard->init();
+
+        $payment_source = $request->gateway_response;
+        
+        $payload = [
+            'token' => $payment_source,
+
+        ];
+
+        $this->powerboard->gatewayRequest('/v1/vault/payment_sources', 'post', $payload, []);
+
 
         // $stripe_response = json_decode($request->input('gateway_response'));
 
-        $customer = $this->powerboard->findOrCreateCustomer();
+        // $customer = $this->powerboard->findOrCreateCustomer();
 
         // $this->stripe->attach($stripe_response->payment_method, $customer);
 
@@ -61,22 +70,8 @@ class CreditCard implements LivewireMethodInterface
             'gateway' => $this->powerboard,
             'environment' => $this->powerboard->environment,
         ];
-        // $payment_intent_data = [
-        //     'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-        //     'currency' => $this->stripe->client->getCurrencyCode(),
-        //     'customer' => $this->stripe->findOrCreateCustomer(),
-        //     'description' => $description,
-        //     'metadata' => [
-        //         'payment_hash' => $this->stripe->payment_hash->hash,
-        //         'gateway_type_id' => GatewayType::CREDIT_CARD,
-        //     ],
-        //     'setup_future_usage' => 'off_session',
-        //     'payment_method_types' => ['card'],
-        // ];
 
-        // $data['intent'] = $this->stripe->createPaymentIntent($payment_intent_data);
-        // $data['gateway'] = $this->stripe;
-
+    
         return array_merge($data, $merge);
     }
 
@@ -95,7 +90,7 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(PaymentResponseRequest $request)
     {
         nlog($request->all());
-        
+
         // $this->stripe->init();
 
         // $state = [

@@ -37,7 +37,7 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public $refundable = true;
 
-    public string $api_endpoint = 'https://api.powerboard.commbank.com.au/';
+    public string $api_endpoint = 'https://api.powerboard.commbank.com.au';
 
     public string $widget_endpoint = 'https://widget.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
 
@@ -62,7 +62,7 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     {
         if($this->company_gateway->getConfigField('testMode')) {
             $this->widget_endpoint = 'https://widget.preproduction.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
-            $this->api_endpoint = 'https://api.preproduction.powerboard.commbank.com.au/';     
+            $this->api_endpoint = 'https://api.preproduction.powerboard.commbank.com.au';     
             $this->environment = 'preproduction_cba';   
         }
 
@@ -151,4 +151,20 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
         // return false;
 
     }
+
+    public function gatewayRequest(string $uri, string $verb, array $payload, array $headers = [])
+    {
+        $r = Http::withHeaders($this->getHeaders($headers))
+                   ->{$verb}($this->api_endpoint.$uri, $payload);
+    }
+
+    public function getHeaders(array $headers = []): array
+    {
+        return array_merge([
+            'x-user-secret-key' => $this->company_gateway->getConfigField('secretKey'),
+            'Content-Type' => 'application/json',
+        ],
+        $headers);
+    }
+
 }
