@@ -235,6 +235,10 @@ class Gateway extends StaticModel
                                 ],
                             GatewayType::ACSS => ['refund' => false, 'token_billing' => true, 'webhooks' => []]
                         ]; // Rotessa
+            case 64: //b67581d804dbad1743b61c57285142ad - powerboard
+                return [
+
+                ]
             default:
                 return [];
         }
