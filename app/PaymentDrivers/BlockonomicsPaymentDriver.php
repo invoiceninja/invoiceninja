@@ -125,6 +125,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processPaymentResponse($request)
     {
+        echo "It reached the processPaymentResponse";
         return $this->payment_method->paymentResponse($request);
     }
 

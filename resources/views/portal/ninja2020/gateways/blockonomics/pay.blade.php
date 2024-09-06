@@ -54,6 +54,30 @@
         var x = setInterval(updateCountdown, 1000);
     </script>
 
+    <script>
+        var webSocketUrl = "{{ $websocket_url }}";
+        const ws = new WebSocket(webSocketUrl);
+
+        ws.onopen = function() {
+            console.log('WebSocket connection established');
+        };
+
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('Payment status:', data.status);
+            document.getElementById('server-response').submit();
+        };
+
+        ws.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+
+        ws.onclose = function() {
+            console.log('WebSocket connection closed');
+        };
+
+    </script>
+
     <style type="text/css">    
         .blockonomics-payment-wrapper {
             justify-content: center;

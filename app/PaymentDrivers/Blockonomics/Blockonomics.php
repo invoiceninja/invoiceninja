@@ -77,11 +77,7 @@ class Blockonomics implements MethodInterface
 
         if ($status != 200) {
             echo "ERROR: " . $status . ' ' . $responseObj->message;
-        } else {
-            echo "Success: " . $status;
-            echo json_encode($responseObj);
         }
-
         return $responseObj;
     }
 
@@ -157,11 +153,14 @@ class Blockonomics implements MethodInterface
         $data['amount'] = $data['total']['amount_with_fee'];
         $data['currency'] = $this->driver_class->client->getCurrencyCode();
         $btc_amount = $data['amount'] / $this->getBTCPrice();
-        $data['btc_amount'] = round($btc_amount, 10);
-        $data['btc_address'] = $this->getBTCAddress();
+        $data['btc_amount'] = number_format($btc_amount, 10, '.', '');
+        $btc_address = $this->getBTCAddress();
+        $data['btc_address'] = $btc_address;
         $data['invoice_id'] = $this->invoice_id;
         $data['end_time'] = $this->getTenMinutesCountDownEndTime();
         $data['callback_url'] = $this->setCallbackUrl();
+
+        $data['websocket_url'] = 'wss://www.blockonomics.co/payment/' . $btc_address;
         return render('gateways.blockonomics.pay', $data);
     }
 
@@ -183,15 +182,13 @@ class Blockonomics implements MethodInterface
         }
 
         try {
-            // $data = [
-            //     'payment_method' => '',
-            //     'payment_type' => PaymentType::CRYPTO,
-            //     'amount' => 200,
-            //     'transaction_reference' => 123,
-            //     'gateway_type_id' => GatewayType::CRYPTO,
-            // ];
-
-            // $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
+            $data = [
+                'payment_method' => '',
+                'payment_type' => PaymentType::CRYPTO,
+                'amount' => 200,
+                'transaction_reference' => 123,
+                'gateway_type_id' => GatewayType::CRYPTO,
+            ];
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey(6)]);
 
         } catch (\Throwable $e) {
