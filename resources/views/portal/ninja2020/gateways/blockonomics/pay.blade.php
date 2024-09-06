@@ -3,15 +3,18 @@
 @section('gateway_content')
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
-    <!-- @include('portal.ninja2020.gateways.includes.payment_details') -->
     <div class="blockonomics-payment-wrapper">
         <div class="invoice-number">Invoice #{{$invoice_number}}</div>
         <div>To pay, send exactly this BTC amount</div>
-        <div class="full-width-input" onclick='copyToClipboard("{{$btc_amount}}")'>
+        <div class="full-width-input" onclick='copyToClipboard("{{$btc_amount}}", this)'>
             {{$btc_amount}} BTC <span style="color: gray;">≈ {{$amount}} {{$currency}}</span>
+            <img src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
         </div>
         <div>To this bitcoin address</div>
-        <input class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly onclick='copyToClipboard("{{$btc_address}}")'>
+        <div class="input-wrapper" onclick='copyToClipboard("{{$btc_address}}", this)'>
+            <input class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly >
+            <img src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
+        </div>
         <div id="countdown"></div>
     </div>
 
@@ -47,14 +50,37 @@
             var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            document.getElementById("countdown").innerHTML = 
-                "0" + minutes + ":" +
-                (seconds < 10 ? "0" : "") + seconds + " min";
+            document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
         }
+        setInterval(updateCountdown, 1000);
+    </script>
+    <script>
+        function copyToClipboard(text, element) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
 
-        // Update immediately and then every second
-        updateCountdown();
-        var x = setInterval(updateCountdown, 1000);
+            // Change the icon to the check icon
+            const iconElement = element.querySelector('.icon');
+            const originalIcon = iconElement.src;
+            iconElement.src = 'data:image/svg+xml;base64,' + btoa(`
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.04706 14C4.04706 8.55609 8.46025 4.1429 13.9042 4.1429C19.3482 4.1429 23.7613 8.55609 23.7613 14C23.7613 19.444 19.3482 23.8572 13.9042 23.8572C8.46025 23.8572 4.04706 19.444 4.04706 14Z" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.52325 14L12.809 17.2858L18.2852 11.8096" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `);
+
+            // Change the icon back to the original after 5 seconds
+            setTimeout(() => {
+                iconElement.src = originalIcon;
+            }, 5000);
+
+            // Optionally, you can show a message to the user
+            console.log(`Copied the text: ${text}`);
+        }
     </script>
 
     <script>
@@ -84,18 +110,6 @@
         };
     </script>
 
-    <script>
-        function copyToClipboard(text) {
-            const tempInput = document.createElement("input");
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            // TODO: Show a success message instead of an alert
-            alert(`Copied the text: ${text}`);
-        }
-    </script>
 
     <style type="text/css">
         .invoice-number {
@@ -120,6 +134,18 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-weight: bold;
+            cursor: pointer;
+            position: relative;
+        }
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             cursor: pointer;
         }
     </style>
