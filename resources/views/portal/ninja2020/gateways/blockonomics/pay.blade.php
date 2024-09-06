@@ -129,7 +129,7 @@
         .full-width-input {
             width: 100%;
             margin: 10px 0;
-            padding: 10px;
+            padding: 10px 40px 10px 10px;
             text-align: center;
             border: 1px solid #ccc;
             border-radius: 5px;
