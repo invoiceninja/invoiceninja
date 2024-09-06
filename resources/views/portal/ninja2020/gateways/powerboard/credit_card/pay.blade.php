@@ -88,39 +88,73 @@
         widget.onFinishInsert('input[name="gateway_response"]', "payment_source");
         widget.load();
     
-        widget.on("systemError", function(data) {
-            console.log("Widget Response", data);
+        widget.trigger('tab', function (data){
 
-            //  document.querySelector(
-            //     'input[name="gateway_response"]'
-            // ).value = JSON.stringify(data);
+            console.log("tab Response", data);
+
+            console.log(widget.isValidForm());
+
+            let payNow = document.getElementById('pay-now');
+
+            payNow.disabled = widget.isInvalidForm();
 
         });
 
+        widget.trigger('submit_form',function (data){
+
+            console.log("submit_form Response", data);
+
+            console.log(widget.isValidForm());
+
+            let payNow = document.getElementById('pay-now');
+
+            payNow.disabled = widget.isInvalidForm();
+
+        });
+
+        widget.trigger('tab',function (data){
+
+            console.log("tab Response", data);
+
+            console.log(widget.isValidForm());
+
+            let payNow = document.getElementById('pay-now');
+
+            payNow.disabled = widget.isInvalidForm();
+
+        });
+
+        widget.on("systemError", function(data) {
+            console.log("systemError Response", data);
+        });
+
         widget.on("validationError", function(data) {
-            console.log("Widget Response", data);
-
-            //  document.querySelector(
-            //     'input[name="gateway_response"]'
-            // ).value = JSON.stringify(data);
-
+            console.log("validationError", data);
         });
 
 
         widget.on("finish", function(data) {
-            console.log("Widget Response", data);
-
-            //  document.querySelector(
-            //     'input[name="gateway_response"]'
-            // ).value = JSON.stringify(data);
-
+            console.log("finish", data);
         });
 
         widget.on('form_submit', function (data) {
+            
+            console.log("form_submit", data);
+
             console.log(data);
         });
 
         widget.on('submit', function (data) {
+            
+            console.log("submit", data);
+
+            console.log(data);
+        });
+
+        widget.on('tab', function (data) {
+            
+            console.log("tab", data);
+
             console.log(data);
         });
 

@@ -24,6 +24,7 @@ use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
 use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\CBAPowerBoard\CreditCard;
+use App\PaymentDrivers\CBAPowerBoard\Customer;
 
 /**
  * Class CBAPowerBoardPaymentDriver.
@@ -43,6 +44,8 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     public string $widget_endpoint = 'https://widget.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
 
     public string $environment = 'production_cba';
+
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_POWERBOARD;
 
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
@@ -156,8 +159,14 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public function gatewayRequest(string $uri, string $verb, array $payload, array $headers = [])
     {
+        $this->init();
+        
         $r = Http::withHeaders($this->getHeaders($headers))
                    ->{$verb}($this->api_endpoint.$uri, $payload);
+
+        nlog($r->body());
+
+        return $r;
     }
 
     public function getHeaders(array $headers = []): array
@@ -169,4 +178,8 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
         $headers);
     }
 
+    public function customer(): Customer
+    {
+        return new Customer($this);
+    }
 }

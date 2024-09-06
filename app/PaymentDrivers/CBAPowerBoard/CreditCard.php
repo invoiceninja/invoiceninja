@@ -64,12 +64,18 @@ class CreditCard implements LivewireMethodInterface
 
         $payment_source = $request->gateway_response;
 
-        $payload = [
+        $customer = $this->powerboard->customer()->findOrCreateCustomer($payment_source);
+
+        nlog($customer);
+        
+        $payload = array_merge($this->getCustomer(), [
             'token' => $payment_source,
             'store_ccv' => true,
-        ];
+        ]);
 
-        $r = $this->powerboard->gatewayRequest('/v1/vault/payment_sources', (\App\Enum\HttpVerb::POST)->value, array_merge($this->getCustomer(), $payload), []);
+        nlog($payload);
+
+        $r = $this->powerboard->gatewayRequest('/v1/vault/payment_sources', (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
         // {
         //     "status": 201,
@@ -116,7 +122,8 @@ class CreditCard implements LivewireMethodInterface
                 'payment_method_id' => $request->payment_method_id,
             ];
 
-            $cgt = $this->powerboard->storeGatewayToken($data, ['gateway_customer_reference' => $response_payload->resource->data->ref_token]);
+            //['gateway_customer_reference' => $response_payload->resource->data->ref_token]
+            $cgt = $this->powerboard->storeGatewayToken($data, []);
 
             return $cgt;
 
