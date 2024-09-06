@@ -61,7 +61,7 @@ class Blockonomics implements MethodInterface
         }
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->driver_class->api_key,
+            'Authorization: Bearer ' . $this->blockonomics->api_key,
             'Content-type: application/x-www-form-urlencoded',
         ]);
 
@@ -85,7 +85,7 @@ class Blockonomics implements MethodInterface
         $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
         $get_callback_response = $this->doCurlCall($GET_CALLBACKS_URL);
 
-        $callback_url = $this->driver_class->callback_url;
+        $callback_url = $this->blockonomics->callback_url;
         $xpub = $get_callback_response[0]->address;
         $post_content = '{"callback": "' . $callback_url . '", "xpub": "' . $xpub . '"}';
 
@@ -95,7 +95,7 @@ class Blockonomics implements MethodInterface
 
     public function getBTCAddress()
     {
-        $api_key = $this->driver_class->api_key;
+        $api_key = $this->blockonomics->api_key;
         // TODO: remove ?reset=1 before marking PR as ready
         $url = 'https://www.blockonomics.co/api/new_address?reset=1';
 
