@@ -4,6 +4,10 @@
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     <div class="blockonomics-payment-wrapper">
+        <div class="progress-message">
+            The payment is unconfirmed but in progress, please stay tuned.
+        </div>
+        <div class="initial-state">
         <div class="invoice-number">Invoice #{{$invoice_number}}</div>
         <div>To pay, send exactly this BTC amount</div>
         <div class="full-width-input" onclick='copyToClipboard("{{$btc_amount}}", this)'>
@@ -16,6 +20,7 @@
             <img src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
         </div>
         <div id="countdown"></div>
+        </div>
     </div>
 
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
@@ -94,7 +99,14 @@
         ws.onmessage = function(event) {
             const data = JSON.parse(event.data);
             console.log('Payment status:', data.status);
-            const isPaymentConfirmed = data.status == 2;
+            const isPaymentUnconfirmed = data.status === 0;
+            const isPaymentConfirmed = data.status === 2;
+            if (isPaymentUnconfirmed) {
+                // Hide all existing content
+                document.querySelector('.initial-state').style.display = 'none';
+                document.querySelector('.progress-message').style.display = 'block';
+                return;
+            }
             if (isPaymentConfirmed) {
                 document.querySelector('input[name="txid"]').value = data.txid || '';
                 document.getElementById('server-response').submit();
@@ -120,6 +132,11 @@
             margin-bottom: 20px;
         }    
         .blockonomics-payment-wrapper {
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+        }
+        .initial-state {
             justify-content: center;
             display: flex;
             flex-direction: column;
@@ -147,6 +164,12 @@
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
+        }
+        .progress-message {
+            display: none;
+            margin: 120px 0;
+            font-weight: bold;
+            font-size: 18px;
         }
     </style>
 
