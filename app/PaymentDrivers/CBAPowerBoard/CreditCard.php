@@ -31,7 +31,7 @@ class CreditCard implements LivewireMethodInterface
     public function authorizeView(array $data)
     {
 
-        return render('gateways.powerboard.credit_card.authorize', array_merge($data, []));
+        return render('gateways.powerboard.credit_card.authorize', $this->paymentData($data));
     }
 
     public function authorizeResponse($request)
@@ -42,28 +42,92 @@ class CreditCard implements LivewireMethodInterface
         
         $payload = [
             'token' => $payment_source,
-
+            'first_name' => $this->powerboard->client->present()->first_name(),
+            'last_name' => $this->powerboard->client->present()->first_name(),
+            'email' => $this->powerboard->client->present()->email(),
+            'phone' => $this->powerboard->client->present()->phone(),
+            'type' => 'card',
+            'address_line1' => $this->powerboard->client->address1 ?? '',
+            'address_line2' => $this->powerboard->client->address2 ?? '',
+            'address_state' => $this->powerboard->client->state ?? '',
+            'address_country' => $this->powerboard->client->country->iso_3166_3 ?? '',
+            'address_city' => $this->powerboard->client->city ?? '',
+            'address_postcode' => $this->powerboard->client->postal_code ?? '',
+            'store_ccv' => true,
         ];
 
-        $this->powerboard->gatewayRequest('/v1/vault/payment_sources', 'post', $payload, []);
 
 
-        // $stripe_response = json_decode($request->input('gateway_response'));
+        $r = $this->powerboard->gatewayRequest('/v1/vault/payment_sources', (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
-        // $customer = $this->powerboard->findOrCreateCustomer();
+        // {
+        //     "status": 201,
+        //     "error": null,
+        //     "resource": {
+        //         "type": "payment_source",
+        //         "data": {
+        //             "type": "card",
+        //             "_source_ip_address": "54.86.50.139",
+        //             "expire_month": 1,
+        //             "expire_year": 2023,
+        //             "card_name": "John  Citizen",
+        //             "card_number_last4": "4242",
+        //             "card_number_bin": "42424242",
+        //             "card_scheme": "visa",
+        //             "ref_token": "cus_hyyau7dpojJttR",
+        //             "status": "active",
+        //             "created_at": "2021-08-05T07:04:25.974Z",
+        //             "company_id": "5d305bfbfac31b4448c738d7",
+        //             "vault_token": "c90dbe45-7a23-4f26-9192-336a01e58e59",
+        //             "updated_at": "2021-08-05T07:05:56.035Z"
+        //         }
+        //     }
+        // }
 
-        // $this->stripe->attach($stripe_response->payment_method, $customer);
+        if($r->successful()){
+            
+            $response_payload = $r->object();
 
-        // $stripe_method = $this->stripe->getStripePaymentMethod($stripe_response->payment_method);
+            $cgt = $this->storeGatewayToken($request, $response_payload);
 
-        // $this->storePaymentMethod($stripe_method, $request->payment_method_id, $customer);
+            return redirect()->route('client.payment_methods.index');
 
-        return redirect()->route('client.payment_methods.index');
+        }
+
+        return $this->powerboard->processInternallyFailedPayment($this->powerboard, $r->throw());
+
     }
+
+    private function storeGatewayToken($request, $response_payload)
+    {
+
+        try {
+
+            $payment_meta = new \stdClass();
+            $payment_meta->exp_month = (string) $response_payload->resource->data->expire_month;
+            $payment_meta->exp_year = (string) $response_payload->resource->data->expire_year;
+            $payment_meta->brand = (string) $response_payload->resource->data->card_scheme;
+            $payment_meta->last4 = (string) $response_payload->resource->data->card_number_last4;
+            $payment_meta->type = GatewayType::CREDIT_CARD;
+
+            $data = [
+                'payment_meta' => $payment_meta,
+                'token' => $response_payload->resource->data->vault_token,
+                'payment_method_id' => $request->payment_method_id,
+            ];
+
+            $this->powerboard->storeGatewayToken($data, ['gateway_customer_reference' => $response_payload->resource->data->ref_token]);
+
+        } catch (\Exception $e) {
+            return $this->powerboard->processInternallyFailedPayment($this->powerboard, $e);
+        }
+
+    }
+
 
     public function paymentData(array $data): array
     {
-        // $description = $this->stripe->getDescription(false);
+        
         $merge = [
             'public_key' => $this->powerboard->company_gateway->getConfigField('publicKey'),
             'widget_endpoint' => $this->powerboard->widget_endpoint,
@@ -71,7 +135,6 @@ class CreditCard implements LivewireMethodInterface
             'environment' => $this->powerboard->environment,
         ];
 
-    
         return array_merge($data, $merge);
     }
 
@@ -193,25 +256,4 @@ class CreditCard implements LivewireMethodInterface
         // throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
-    private function storePaymentMethod($method, $payment_method_id, $customer)
-    {
-        // try {
-        //     $payment_meta = new \stdClass();
-        //     $payment_meta->exp_month = (string) $method->card->exp_month;
-        //     $payment_meta->exp_year = (string) $method->card->exp_year;
-        //     $payment_meta->brand = (string) $method->card->brand;
-        //     $payment_meta->last4 = (string) $method->card->last4;
-        //     $payment_meta->type = GatewayType::CREDIT_CARD;
-
-        //     $data = [
-        //         'payment_meta' => $payment_meta,
-        //         'token' => $method->id,
-        //         'payment_method_id' => $payment_method_id,
-        //     ];
-
-        //     $this->stripe->storeGatewayToken($data, ['gateway_customer_reference' => $customer->id]);
-        // } catch (\Exception $e) {
-        //     return $this->stripe->processInternallyFailedPayment($this->stripe, $e);
-        // }
-    }
 }

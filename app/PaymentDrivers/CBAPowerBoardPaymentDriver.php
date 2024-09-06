@@ -22,6 +22,7 @@ use App\Models\PaymentType;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Models\ClientGatewayToken;
+use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\CBAPowerBoard\CreditCard;
 
 /**
@@ -108,7 +109,7 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
      * @param ClientGatewayToken $token
      * @return void
      */
-    public function detach(ClientGatewayToken $token)
+    public function detach(ClientGatewayToken $token): bool
     {
         // Driver doesn't support this feature.
     }

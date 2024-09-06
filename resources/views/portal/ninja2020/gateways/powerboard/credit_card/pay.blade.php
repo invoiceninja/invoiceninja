@@ -63,6 +63,7 @@
     <div id="powerboard-payment-container" class="w-full">
         <div id="widget" style="block"></div>
     </div>
+    @include('portal.ninja2020.gateways.includes.save_card')
     @include('portal.ninja2020.gateways.includes.pay_now')
     
 @endsection
@@ -134,11 +135,19 @@
                 return;
             }
 
-        //     // payNow.disabled = true;
-        //     // payNow.querySelector('svg').classList.remove('hidden');
-        //     // payNow.querySelector('span').classList.add('hidden');
-        // 
-           document.getElementById('stub').click();
+            payNow.disabled = true;
+            payNow.querySelector('svg').classList.remove('hidden');
+            payNow.querySelector('span').classList.add('hidden');
+        
+            let storeCard = document.querySelector(
+                'input[name=token-billing-checkbox]:checked'
+            );
+
+            if (storeCard) {
+                document.getElementById('store_card').value = storeCard.value;
+            }
+
+            document.getElementById('stub').click();
 
         });
 
