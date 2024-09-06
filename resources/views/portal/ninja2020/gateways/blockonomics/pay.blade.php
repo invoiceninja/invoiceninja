@@ -5,11 +5,13 @@
 
     <!-- @include('portal.ninja2020.gateways.includes.payment_details') -->
     <div class="blockonomics-payment-wrapper">
-        <div>Invoice #{{$invoice_number}}</div>
+        <div class="invoice-number">Invoice #{{$invoice_number}}</div>
         <div>To pay, send exactly this BTC amount</div>
-        <input class="full-width-input" name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
+        <div class="full-width-input" onclick='copyToClipboard("{{$btc_amount}}")'>
+            {{$btc_amount}} BTC <span style="color: gray;">≈ {{$amount}} {{$currency}}</span>
+        </div>
         <div>To this bitcoin address</div>
-        <input class="full-width-input" name="btcAddress" value="{{$btc_address}}" readonly>
+        <input class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly onclick='copyToClipboard("{{$btc_address}}")'>
         <div id="countdown"></div>
     </div>
 
@@ -80,10 +82,29 @@
         ws.onclose = function() {
             console.log('WebSocket connection closed');
         };
-
     </script>
 
-    <style type="text/css">    
+    <script>
+        function copyToClipboard(text) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            // TODO: Show a success message instead of an alert
+            alert(`Copied the text: ${text}`);
+        }
+    </script>
+
+    <style type="text/css">
+        .invoice-number {
+            width: 100%;
+            float: right;
+            text-align: right;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }    
         .blockonomics-payment-wrapper {
             justify-content: center;
             display: flex;
@@ -96,6 +117,10 @@
             margin: 10px 0;
             padding: 10px;
             text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
         }
     </style>
 
