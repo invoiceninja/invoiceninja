@@ -15,11 +15,13 @@ namespace App\PaymentDrivers\Blockonomics;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\GatewayType;
+use App\Models\SystemLog;
 use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Exceptions\PaymentFailed;
+use App\Jobs\Util\SystemLogger;
 use App\Jobs\Mail\PaymentFailureMailer;
 use Illuminate\Mail\Mailables\Address;
 use App\Services\Email\EmailObject;
@@ -147,6 +149,7 @@ class Blockonomics implements MethodInterface
 
     public function paymentView($data)
     {
+        $_invoice = collect($this->blockonomics->payment_hash->data->invoices)->first();
         $data['gateway'] = $this->blockonomics;
         $data['amount'] = $data['total']['amount_with_fee'];
         $data['currency'] = $this->blockonomics->client->getCurrencyCode();
@@ -154,8 +157,8 @@ class Blockonomics implements MethodInterface
         $data['btc_amount'] = number_format($btc_amount, 10, '.', '');
         $btc_address = $this->getBTCAddress();
         $data['btc_address'] = $btc_address;
-        //TODO: set invoice_id
-        $data['invoice_id'] = "123";
+        $data['invoice_id'] = $_invoice->invoice_id;
+        $data['invoice_number'] = $_invoice->invoice_number;
         $data['end_time'] = $this->getTenMinutesCountDownEndTime();
         $data['callback_url'] = $this->setCallbackUrl();
 
@@ -173,16 +176,23 @@ class Blockonomics implements MethodInterface
             'txid' => ['required'],
         ]);
 
-
         try {
-            $data = [
-                'payment_method' => $request->payment_method_id,
-                'payment_type' => PaymentType::CRYPTO,
-                'amount' => $request->amount,
-                'gateway_type_id' => GatewayType::CRYPTO,
-                'transaction_reference' => $request->txid,
-            ];
-            $payment = $this->blockonomics->createPayment($data, Payment::STATUS_COMPLETED);
+            $data = [];
+            $data['amount'] = $request->amount;
+            $data['payment_method_id'] = $request->payment_method_id;
+            $data['payment_type'] = PaymentType::CRYPTO;
+            $data['gateway_type_id'] = GatewayType::CRYPTO;
+            $data['transaction_reference'] = $request->txid;
+            $payment = $this->blockonomics->createPayment($data);
+
+            SystemLogger::dispatch(
+                ['response' => $payment, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_BLOCKONOMICS,
+                $this->blockonomics->client,
+                $this->blockonomics->client->company,
+            );
             return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
 
         } catch (\Throwable $e) {

@@ -5,7 +5,7 @@
 
     <!-- @include('portal.ninja2020.gateways.includes.payment_details') -->
     <div class="blockonomics-payment-wrapper">
-        <div>Invoice #{{$invoice_id}}</div>
+        <div>Invoice #{{$invoice_number}}</div>
         <div>To pay, send exactly this BTC amount</div>
         <input class="full-width-input" name="btcAmount" value="BTC {{$btc_amount}} ≈ {{$amount}} {{$currency}}" readonly>
         <div>To this bitcoin address</div>
