@@ -182,9 +182,11 @@ class Blockonomics implements MethodInterface
             $data['payment_method_id'] = $request->payment_method_id;
             $data['payment_type'] = PaymentType::CRYPTO;
             $data['gateway_type_id'] = GatewayType::CRYPTO;
-            $data['transaction_reference'] = $request->txid;
-            $payment = $this->blockonomics->createPayment($data);
+            $data['transaction_reference'] = "payment hash: " . $request->payment_hash . " txid: " . $request->txid;
+            $data['txid'] = $request->txid;
 
+            $payment = $this->blockonomics->createPayment($data);
+            echo "Payment successful";
             SystemLogger::dispatch(
                 ['response' => $payment, 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
