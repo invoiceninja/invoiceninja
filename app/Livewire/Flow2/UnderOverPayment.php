@@ -47,6 +47,7 @@ class UnderOverPayment extends Component
 
         foreach($payableInvoices as $key => $invoice){
             $payableInvoices[$key]['amount'] = Number::parseFloat($invoice['formatted_amount']);
+            $payableInvoices[$key]['formatted_currency'] = Number::FormatMoney($payableInvoices[$key]['amount'], $this->getContext()['invitation']->contact->client);
         }
 
         $input_amount = collect($payableInvoices)->sum('amount');

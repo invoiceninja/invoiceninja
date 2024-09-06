@@ -128,6 +128,8 @@ class InvoicePay extends Component
     public function payableAmount($payable_amount)
     {
         // $this->setContext('payable_invoices.0.amount', Number::parseFloat($payable_amount)); // $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount); //TODO DB: check parseFloat()
+        
+        $this->setContext('amount', $payable_amount);
         $this->under_over_payment = false;
     }
 
@@ -272,11 +274,14 @@ class InvoicePay extends Component
                 'invoice_id' => $i->hashed_id,
                 'amount' => $i->partial > 0 ? $i->partial : $i->balance,
                 'formatted_amount' => Number::formatValue($i->partial > 0 ? $i->partial : $i->balance, $i->client->currency()),
+                'formatted_currency' => Number::formatMoney($i->partial > 0 ? $i->partial : $i->balance, $i->client),
                 'number' => $i->number,
-                'date' => $i->translateDate($i->date, $i->client->date_format(), $i->client->locale())
+                'date' => $i->translateDate($i->date, $i->client->date_format(), $i->client->locale()),
+                'due_date' => $i->translateDate($i->due_date, $i->client->date_format(), $i->client->locale())
             ];
         })->toArray();
 
+        $this->setContext('amount', array_sum(array_column($payable_invoices, 'amount')));
         $this->setContext('payable_invoices', $payable_invoices);
     }
 
