@@ -12,16 +12,17 @@
 
 namespace App\PaymentDrivers;
 
-use App\Jobs\Util\SystemLogger;
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\PaymentHash;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\Utils\HtmlEngine;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
+use App\Models\PaymentType;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\CBAPowerBoard\CreditCard;
 
 /**
  * Class CBAPowerBoardPaymentDriver.
@@ -36,9 +37,13 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public $refundable = true;
 
-    protected $api_endpoint = '';
+    protected $api_endpoint = 'https://api.powerboard.commbank.com.au/';
 
-    protected $widget_endpoint = '';
+    protected $widget_endpoint = 'https://widget.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
+
+    public static $methods = [
+        GatewayType::CREDIT_CARD => CreditCard::class,
+    ];
     /**
      * Returns the gateway types.
      */
@@ -51,9 +56,11 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
         return $types;
     }
 
-    public function init()
+    public function init(): self
     {
-// $this->company_gateway->getConfigField('account_id')
+        if($this->company_gateway->getConfigField('testMode')) {
+            $this->widget_endpoint = 'https://widget.preproduction.powerboard.commbank.com.au/sdk/latest/widget.umd.min.js';
+            $this->api_endpoint = 'https://api.preproduction.powerboard.commbank.com.au/';        }
 
         return $this;
     }
@@ -113,7 +120,6 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
-        return (new Charge($this))->tokenBilling($cgt, $payment_hash);
     }
 
     public function importCustomers()
@@ -124,6 +130,8 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     {
         $this->init();
 
+
+        return true;
         // try {
         //     $this->verifyConnect();
         //     return true;
