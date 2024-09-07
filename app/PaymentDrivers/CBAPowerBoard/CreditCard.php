@@ -63,17 +63,11 @@ class CreditCard implements LivewireMethodInterface
         $this->powerboard->init();
 
         $payment_source = $request->gateway_response;
-
-        $customer = $this->powerboard->customer()->findOrCreateCustomer($payment_source);
-
-        nlog($customer);
         
         $payload = array_merge($this->getCustomer(), [
             'token' => $payment_source,
             'store_ccv' => true,
         ]);
-
-        nlog($payload);
 
         $r = $this->powerboard->gatewayRequest('/v1/vault/payment_sources', (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
@@ -105,7 +99,11 @@ class CreditCard implements LivewireMethodInterface
         if($r->failed())
             return $this->powerboard->processInternallyFailedPayment($this->powerboard, $r->throw());
 
+        nlog("payment source saving");
+
         $response_payload = $r->object();
+
+        nlog($response_payload);
 
         try {
 
@@ -124,6 +122,42 @@ class CreditCard implements LivewireMethodInterface
 
             //['gateway_customer_reference' => $response_payload->resource->data->ref_token]
             $cgt = $this->powerboard->storeGatewayToken($data, []);
+
+            $customer_payload = [
+                'payment_source' => [
+                    'vault_token' => $cgt->token,
+                    'address_line1' => $this->powerboard->client->address1 ?? '',
+                    'address_line2' => $this->powerboard->client->address1 ?? '',
+                    'address_state' => $this->powerboard->client->state ?? '',
+                    'address_country' => $this->powerboard->client->country->iso_3166_3 ?? '',
+                    'address_city' => $this->powerboard->client->city ?? '',
+                    'address_postcode' => $this->powerboard->client->postcode ?? '',    
+                ],
+            ];
+
+            foreach ($customer_payload['payment_source'] as $key => $value) {
+
+                if (strlen($value ??  '') == 0) {
+                    unset($customer_payload['payment_source'][$key]);
+                }
+
+            }
+
+            $customer = $this->powerboard->customer()->findOrCreateCustomer($customer_payload);
+
+            $cgt->gateway_customer_reference = $customer->_id;
+            $cgt->save();
+
+            //test that payment token is attached to customer here
+            
+            $hit=false;
+            foreach($customer->payment_sources as $source){
+                if($source->vault_token == $cgt->token)
+                    $hit = true;
+            }
+
+            if(!$hit)
+                $this->powerboard->customer()->addTokenToCustomer($cgt->token, $customer);
 
             return $cgt;
 
@@ -168,27 +202,51 @@ class CreditCard implements LivewireMethodInterface
     {
         nlog($request->all());
 
+        $token = $request->payment_source;
+        $payload = [];
+
         if($request->store_card) {
-            $cgt = $this->storePaymentMethod($request);
-            $this->tokenBilling($request, $cgt, true);
+
+            nlog("Store Payment Method");
+
+            $customer = $this->storePaymentMethod($request);
+
+            nlog($customer);
+
+            $payload["customer"] = [
+                    "payment_source" => [
+                        "vault_token" => "c90dbe45-7a23-4f26-9192-336a01e58e59",
+                        "gateway_id" => "5dde1f3799cfea21ed2fc942"
+                    ]
+                ];
         }
 
+        $uri = '/v1/charges';
+
         $payload = [
-            'amount' => $this->powerboard->payment_hash->amount_with_fee(),
-            'currency' => $this->powerboard->client->currency()->code,
-            'description' => $this->powerboard->getDescription(),
-            // 'descriptor' => ,
-            // 'reference' => ,
-            // 'reference2' => ,
-            // 'amount_surcharge' => ,
-            // 'amount_original' => ,
-            // 'initialization_source' => ,
-            'bypass_3ds' => false,
-            // 'token'=> ,
-            'payment_source_id' => $request->payment_source,
-            // 'customer_id' => ,
-            'customer' => $this->getCustomer(),
+            "amount" => "10.00",
+                "currency" =>"AUD",
+                
         ];
+
+        $r = $this->powerboard->gatewayRequest($uri, (\App\Enum\HttpVerb::POST)->value, $payload, []);
+
+        // $payload = [
+        //     'amount' => $this->powerboard->payment_hash->amount_with_fee(),
+        //     'currency' => $this->powerboard->client->currency()->code,
+        //     'description' => $this->powerboard->getDescription(),
+        //     // 'descriptor' => ,
+        //     // 'reference' => ,
+        //     // 'reference2' => ,
+        //     // 'amount_surcharge' => ,
+        //     // 'amount_original' => ,
+        //     // 'initialization_source' => ,
+        //     'bypass_3ds' => false,
+        //     // 'token'=> ,
+        //     'payment_source_id' => $request->payment_source,
+        //     // 'customer_id' => ,
+        //     'customer' => $this->getCustomer(),
+        // ];
 
 
 

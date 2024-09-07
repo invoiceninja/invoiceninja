@@ -21,22 +21,23 @@ class Customer
     {
     }
 
-    public function findOrCreateCustomer(string $payment_source): mixed 
+    public function findOrCreateCustomer(array $customer_data): mixed 
     {
         $token = $this->powerboard
                         ->client
                         ->gateway_tokens()
+                        ->whereNotNull('gateway_customer_reference')
                         ->where('company_gateway_id', $this->powerboard->company_gateway->id)
                         ->first();
 
         if($token && $customer = $this->getCustomer($token->gateway_customer_reference)){
-            return $customer;
+            return $customer->resource->data;
         }
 
         if($customer = $this->findCustomer())
             return $customer;
 
-        return $this->createCustomer(['token' => $payment_source]);
+        return $this->createCustomer($customer_data);
 
     }
 
@@ -65,7 +66,12 @@ class Customer
 
         $search_results = $r->object();
 
-        return reset($search_results->resource->data); // returns first element or false
+        nlog("find customer");
+        nlog($search_results);
+        $customers = $search_results->resource->data;
+
+        nlog($customers);
+        return reset($customers); // returns first element or false
 
     }
 
@@ -97,6 +103,7 @@ class Customer
     */
     public function createCustomer(array $data = []): object
     {
+        nlog("creating customer flow");
 
         // 'address_line1' => $this->powerboard->client->address1 ?? '',
         // 'address_line2' => $this->powerboard->client->address2 ?? '',
@@ -109,11 +116,20 @@ class Customer
             'first_name' => $this->powerboard->client->present()->first_name(),
             'last_name' => $this->powerboard->client->present()->first_name(),
             'email' => $this->powerboard->client->present()->email(),
-            'phone' => $this->powerboard->client->present()->phone(),
             'reference' => $this->powerboard->client->client_hash,
+            'phone' => $this->powerboard->client->present()->phone(),
         ];
 
+        foreach($payload as $key => $value){
+
+            if(strlen($value ??  '') == 0)
+                unset($payload[$key]);
+
+        }
+
         $payload = array_merge($payload, $data);
+
+        nlog($payload);
 
         $uri = "/v1/customers";
 
@@ -122,7 +138,7 @@ class Customer
         if($r->successful())
             $this->storePaymentMethod($r->object());
 
-        return $r->object() ?? $r->throw();
+        return $r->object()->resource->data ?? $r->throw();
 
     }
 
@@ -203,6 +219,23 @@ class Customer
 
         return $cgt;
 
+    }
+
+
+    public function addTokenToCustomer(string $token, mixed $customer): mixed
+    {
+    
+        $uri = "/v1/customers/{$customer->_id}";
+    
+        $payload = [
+            'payment_source' => [
+                'vault_token' => $token,
+            ]
+        ];
+
+        $r = $this->powerboard->gatewayRequest($uri, (\App\Enum\HttpVerb::POST)->value, $payload, []);
+
+        return $r->successful() ? $r->object() : $r->throw();
     }
 
 
