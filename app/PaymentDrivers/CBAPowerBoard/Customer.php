@@ -32,11 +32,12 @@ class Customer
                         ->first();
 
         if($token && $customer = $this->getCustomer($token->gateway_customer_reference)){
-            return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->decode(ModelsCustomer::class, $customer->resource->data);
+            return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(ModelsCustomer::class, $customer->resource->data);
         }
 
         if($customer = $this->findCustomer())
-            return $customer;
+            return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(ModelsCustomer::class, $customer);
+
 
         return $this->createCustomer($customer_data);
 
@@ -140,7 +141,7 @@ class Customer
         if($r->successful())
             $this->storePaymentMethod($r->object());
 
-        return $r->object()->resource->data ?? $r->throw();
+        return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(ModelsCustomer::class, $r->object()->resource->data) ?? $r->throw();
 
     }
 

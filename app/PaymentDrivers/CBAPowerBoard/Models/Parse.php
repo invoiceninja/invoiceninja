@@ -29,7 +29,7 @@ class Parse
     {
     }
     
-    public function decode($object_type, $document)
+    public function encode($object_type, $document)
     {
             
         $phpDocExtractor = new PhpDocExtractor();
@@ -61,7 +61,7 @@ class Parse
         $encoders = [new JsonEncoder()];
 
         $serializer = new Serializer($normalizers, $encoders);
-nlog($document);
+
         $data = $serializer->deserialize(json_encode($document), $object_type, 'json', [\Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer::SKIP_NULL_VALUES => true]);
 
         return $data;
