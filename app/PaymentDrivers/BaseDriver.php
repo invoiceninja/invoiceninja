@@ -412,7 +412,7 @@ class BaseDriver extends AbstractPaymentDriver
 
             nlog("apparently no fee, so injecting here!");
 
-            if($invoice->tax_rate1 > 0 && !$invoice->uses_inclusive_taxes){ //must account for taxes! ? line item taxes also
+            if(!$invoice->uses_inclusive_taxes){ //must account for taxes! ? line item taxes also
                 $fee_total = round($fee_total/(1 + (($invoice->tax_rate1+$invoice->tax_rate2+$invoice->tax_rate3)/100)),2);
             }
 
