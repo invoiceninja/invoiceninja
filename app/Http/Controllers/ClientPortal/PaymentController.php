@@ -117,13 +117,7 @@ class PaymentController extends Controller
         $gateway = CompanyGateway::findOrFail($request->input('company_gateway_id'));
         $payment_hash = PaymentHash::with('fee_invoice')->where('hash', $request->payment_hash)->firstOrFail();
 
-        // if($payment_hash)
         $invoice = $payment_hash->fee_invoice;
-        // else
-        // $invoice = Invoice::with('client')->where('id',$payment_hash->fee_invoice_id)->orderBy('id','desc')->first();
-
-        // $invoice = Invoice::with('client')->find($payment_hash->fee_invoice_id);
-
 
         $client = $invoice ? $invoice->client : auth()->guard('contact')->user()->client;
 
