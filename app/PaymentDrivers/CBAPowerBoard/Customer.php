@@ -13,6 +13,7 @@
 namespace App\PaymentDrivers\CBAPowerBoard;
 
 use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\CBAPowerBoard\Models\Customer as ModelsCustomer;
 use App\PaymentDrivers\CBAPowerBoardPaymentDriver;
 
 class Customer
@@ -31,7 +32,7 @@ class Customer
                         ->first();
 
         if($token && $customer = $this->getCustomer($token->gateway_customer_reference)){
-            return $customer->resource->data;
+            return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->decode(ModelsCustomer::class, $customer->resource->data);
         }
 
         if($customer = $this->findCustomer())
@@ -113,6 +114,7 @@ class Customer
         // 'address_postcode' => $this->powerboard->client->postal_code ?? '',
 
         $payload = [
+            'company_name' => $this->powerboard->client->present()->name(),
             'first_name' => $this->powerboard->client->present()->first_name(),
             'last_name' => $this->powerboard->client->present()->first_name(),
             'email' => $this->powerboard->client->present()->email(),
