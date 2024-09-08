@@ -5,7 +5,8 @@
 
     <div class="blockonomics-payment-wrapper">
         <div class="progress-message">
-            The payment is unconfirmed but in progress, please stay tuned.
+            <!-- TODO: Add way to navigate to invoice -->
+            Your payment txid has been recieved. The <a>invoice</a href=""> will be marked as paid automatically once the payment is confirmed.
         </div>
         <div class="initial-state">
         <div class="invoice-number">Invoice #{{$invoice_number}}</div>
