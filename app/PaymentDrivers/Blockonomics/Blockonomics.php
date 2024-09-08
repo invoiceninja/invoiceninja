@@ -161,6 +161,7 @@ class Blockonomics implements MethodInterface
         $data['invoice_number'] = $_invoice->invoice_number;
         $data['end_time'] = $this->getTenMinutesCountDownEndTime();
         $data['callback_url'] = $this->setCallbackUrl();
+        $data['invoice_redirect_url'] = "/client/invoices/{$_invoice->invoice_id}";
 
         $data['websocket_url'] = 'wss://www.blockonomics.co/payment/' . $btc_address;
         return render('gateways.blockonomics.pay', $data);

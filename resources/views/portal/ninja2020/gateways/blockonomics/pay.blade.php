@@ -5,8 +5,10 @@
 
     <div class="blockonomics-payment-wrapper">
         <div class="progress-message">
-            <!-- TODO: Add way to navigate to invoice -->
-            Your payment txid has been recieved. The <a>invoice</a href=""> will be marked as paid automatically once the payment is confirmed.
+            Your payment txid has been recieved.
+            <!-- <span id="txid"></span>  -->
+            <br/><br/>
+            The <a id="link" href="{{ $invoice_redirect_url }}" target="_blank">invoice</a> will be marked as paid automatically once the payment is confirmed.
         </div>
         <div class="initial-state">
         <div class="invoice-number">Invoice #{{$invoice_number}}</div>
@@ -106,6 +108,7 @@
                 // Hide all existing content
                 document.querySelector('.initial-state').style.display = 'none';
                 document.querySelector('.progress-message').style.display = 'block';
+                document.getElementById('txid').innerText = data.txid || '';
                 return;
             }
             if (isPaymentConfirmed) {
@@ -168,9 +171,14 @@
         }
         .progress-message {
             display: none;
-            margin: 120px 0;
-            font-weight: bold;
-            font-size: 18px;
+            margin: 90px 0;
+            max-width: 400px;
+            font-size: 16px;
+            text-align: center;
+        }
+        #link {
+            color: #007bff;
+            text-decoration: underline;
         }
     </style>
 
