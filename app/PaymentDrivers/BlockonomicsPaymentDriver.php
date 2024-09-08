@@ -130,6 +130,72 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processWebhookRequest()
     {
+        // Get the callback parameters
+        $txid = $_GET['txid'];
+        $value = $_GET['value'];
+        $status = $_GET['status'];
+        $addr = $_GET['addr'];
+        $receivedSecret = $_GET['secret'];
+
+        // Initialize the Webhook client (assuming it can be used for validation)
+        $webhookClient = new Webhook($this->blockonomics_url, $this->api_key);
+
+        // Validate the webhook request
+        if (!$webhookClient->isValidRequest($_GET, $receivedSecret)) {
+            throw new PaymentFailed('Invalid webhook request');
+        }
+
+        // Only accept confirmed transactions
+        if ($status != 2) {
+            throw new PaymentFailed('Transaction not confirmed');
+        }
+
+        // Connect to the database
+        $db = new SQLite3('payments_db.sqlite', SQLITE3_OPEN_READWRITE);
+
+        // Find the payment hash in the database
+        $this->payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$addr])->firstOrFail();
+
+        // Set the payment method to cryptocurrency
+        $this->setPaymentMethod(GatewayType::CRYPTO);
+
+        // Determine the payment status
+        $StatusId = Payment::STATUS_PENDING;
+        if ($this->payment_hash->payment_id == null) {
+            $_invoice = Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
+            $this->client = $_invoice->client;
+
+            $dataPayment = [
+                'payment_method' => $this->payment_method,
+                'payment_type' => PaymentType::CRYPTO,
+                'amount' => $_invoice->amount,
+                'gateway_type_id' => GatewayType::CRYPTO,
+                'transaction_reference' => $txid
+            ];
+            $payment = $this->createPayment($dataPayment, $StatusId);
+        } else {
+            $payment = Payment::withTrashed()->find($this->payment_hash->payment_id);
+            $StatusId = $payment->status_id;
+        }
+
+        // Update the payment status based on the transaction status
+        switch ($status) {
+            case 0:
+                $StatusId = Payment::STATUS_PENDING;
+                break;
+            case 1:
+                $StatusId = Payment::STATUS_PENDING;
+                break;
+            case 2:
+                $StatusId = Payment::STATUS_COMPLETED;
+                break;
+        }
+
+        // Save the updated payment status
+        if ($payment->status_id != $StatusId) {
+            $payment->status_id = $StatusId;
+            $payment->save();
+        }
     }
 
 

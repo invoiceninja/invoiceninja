@@ -186,8 +186,8 @@ class Blockonomics implements MethodInterface
             $data['transaction_reference'] = "payment hash: " . $request->payment_hash . " txid: " . $request->txid;
             $data['txid'] = $request->txid;
 
-            $payment = $this->blockonomics->createPayment($data);
-            echo "Payment successful";
+            $statusId = Payment::STATUS_PENDING;
+            $payment = $this->blockonomics->createPayment($data, $statusId);
             SystemLogger::dispatch(
                 ['response' => $payment, 'data' => $data],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
