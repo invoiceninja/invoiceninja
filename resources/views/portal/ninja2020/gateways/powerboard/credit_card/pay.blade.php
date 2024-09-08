@@ -64,6 +64,7 @@
 
     <div id="powerboard-payment-container" class="w-full">
         <div id="widget" style="block"></div>
+        <div id="widget-3dsecure"></div>
     </div>
 
     @include('portal.ninja2020.gateways.includes.save_card')
@@ -144,45 +145,48 @@
                 console.log("3DS Token:", resource);
 
                 console.log("pre canvas");
-
+                console.log(resource._3ds.token);
+                
                 var canvas = new cba.Canvas3ds('#widget-3dsecure', resource._3ds.token);        
                 canvas.load();
-                
-                console.log("post canvas");
-                
-                canvas.on("chargeAuthSuccess", function(data) {
-                    console.log(data);
+            
+                let widget = document.getElementById('widget');
+                widget.classList.add('hidden');
 
-                    document.querySelector(
-                        'input[name="browser_details"]'
-                    ).value = null;
-                    
-                    document.querySelector(
-                        'input[name="charge"]'
-                    ).value = JSON.stringify(data);
-                    
-
-                    document.getElementById('server-response').submit();
-
-                });
-
-                canvas.on("chargeAuthReject", function(data) {
-                    console.log(data);
-                });
 
             } catch (error) {
                 console.error("Error fetching 3DS Token:", error);
             }
 
+            
+
+            canvas.on("chargeAuthSuccess", function(data) {
+                console.log(data);
+
+                document.querySelector(
+                    'input[name="browser_details"]'
+                ).value = null;
+                
+                document.querySelector(
+                    'input[name="charge"]'
+                ).value = JSON.stringify(data);
+
+                document.getElementById('server-response').submit();
+
+            });
+
+            canvas.on("chargeAuthReject", function(data) {
+                console.log(data);
+            });
+
+
+            canvas.load();
+
         });
 
         widget.on("submit", async function (data){
             console.log("submit");
-            console.log(data);
-        
-        
-
-        
+            console.log(data);        
         })
 
         widget.on('form_submit', function (data) {

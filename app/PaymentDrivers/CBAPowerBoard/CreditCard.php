@@ -165,7 +165,7 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(PaymentResponseRequest $request)
     {
         nlog($request->all());
-        $payment_hash = PaymentHash::where('hash', $request->payment_has)->first();
+        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->first();
 
         // $token = $request->payment_source;
         $payload = [];
@@ -197,21 +197,25 @@ class CreditCard implements LivewireMethodInterface
         }
         elseif($request->charge) {
 
+            $charge_request = json_decode($request->charge, true);
+
+            nlog($charge_request);
+
             $payload = [
-                '3ds' => [
-                    'id' => $request['charge']['charge_3ds_id'],
+                '_3ds' => [
+                    'id' => $charge_request['charge_3ds_id'],
                 ],
                 "amount"=> $payment_hash->data->amount_with_fee,
                 "currency"=> $this->powerboard->client->currency()->code,
                 "store_cvv"=> true,
             ];
 
+            nlog($payload);
+
             $r = $this->powerboard->gatewayRequest("/v1/charges", (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
             if($r->failed())
                 $r->throw();
-
-
 
             $charge = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Charge::class, $r->object()->resource->data) ?? $r->throw();
 
@@ -273,7 +277,7 @@ class CreditCard implements LivewireMethodInterface
         $payment = $this->powerboard->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
-            ['response' => $this->powerboard->payment_hash->data->server_response, 'data' => $data],
+            ['response' => $charge, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_POWERBOARD,

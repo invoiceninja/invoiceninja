@@ -14,56 +14,53 @@ namespace App\PaymentDrivers\CBAPowerBoard\Models;
 
 class Customer
 {
-  /** @var string */
-	public string $_id;
-	/** @var string */
-	public string $_source_ip_address;
-	/** @var string */
-	public string $first_name;
-	/** @var string */
-	public string $last_name;
-	/** @var string */
-	public string $email;
-	/** @var string */
-	public string $reference;
-	/** @var string */
-	public string $default_source;
-	/** @var string */
-	public string $status;
-	/** @var bool */
-	public bool $archived;
-	/** @var string */
-	public string $created_at;
-	/** @var string */
-	public string $updated_at;
-	/** @var bool */
-	public bool $_check_expire_date;
-	/** @var PaymentSource[] */
-	public array $payment_sources;
-	/** @var array */
-	public array $payment_destinations;
-	/** @var string */
-	public string $company_id;
+  /** @var ?string */
+	public ?string $_id;
+	/** @var ?string */
+	public ?string $_source_ip_address;
+	/** @var ?string */
+	public ?string $first_name;
+	/** @var ?string */
+	public ?string $last_name;
+	/** @var ?string */
+	public ?string $email;
+	/** @var ?string */
+	public ?string $reference;
+	/** @var ?string */
+	public ?string $default_source;
+	/** @var ?string */
+	public ?string $status;
+	/** @var ?bool */
+	public ?bool $archived;
+	/** @var ?string */
+	public ?string $created_at;
+	/** @var ?string */
+	public ?string $updated_at;
+	/** @var ?bool */
+	public ?bool $_check_expire_date;
+	/** @var ?PaymentSource[] */
+	public ?array $payment_sources;
+	/** @var ?array */
+	public ?array $payment_destinations;
+	/** @var ?string */
+	public ?string $company_id;
 
-	/**
-	 * @param PaymentSource[] $payment_sources
-	 */
 	public function __construct(
-		string $_id,
-		string $_source_ip_address,
-		string $first_name,
-		string $last_name,
-		string $email,
-		string $reference,
-		string $default_source,
-		string $status,
-		bool $archived,
-		string $created_at,
-		string $updated_at,
-		bool $_check_expire_date,
-		array $payment_sources,
-		array $payment_destinations,
-		string $company_id
+		?string $_id,
+		?string $_source_ip_address,
+		?string $first_name,
+		?string $last_name,
+		?string $email,
+		?string $reference,
+		?string $default_source,
+		?string $status,
+		?bool $archived,
+		?string $created_at,
+		?string $updated_at,
+		?bool $_check_expire_date,
+		?array $payment_sources,
+		?array $payment_destinations,
+		?string $company_id
 	) {
 		$this->_id = $_id;
 		$this->_source_ip_address = $_source_ip_address;
