@@ -38,7 +38,7 @@ class Customer
 	public string $updated_at;
 	/** @var bool */
 	public bool $_check_expire_date;
-	/** @var PaymentSources[] */
+	/** @var PaymentSource[] */
 	public array $payment_sources;
 	/** @var array */
 	public array $payment_destinations;
@@ -46,7 +46,7 @@ class Customer
 	public string $company_id;
 
 	/**
-	 * @param PaymentSources[] $payment_sources
+	 * @param PaymentSource[] $payment_sources
 	 */
 	public function __construct(
 		string $_id,
