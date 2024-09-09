@@ -139,7 +139,7 @@ class CreditCard implements LivewireMethodInterface
 
         nlog($r->body());
 
-        if($r->failed());
+        if($r->failed())
             return $this->processUnsuccessfulPayment($r);
 
         $charge = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Charge::class, $r->object()->resource->data) ?? $r->throw();
