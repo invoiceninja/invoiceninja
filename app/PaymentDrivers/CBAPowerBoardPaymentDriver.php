@@ -84,6 +84,30 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     }
 
     /**
+     * Proxy method to pass the data into payment method authorizeView().
+     *
+     * @param array $data
+     * @return \Illuminate\Http\RedirectResponse|mixed
+     */
+    public function authorizeView(array $data)
+    {
+        $this->init();
+
+        return $this->payment_method->authorizeView($data);
+    }
+
+    /**
+     * Processes the gateway response for credit card authorization.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse|mixed
+     */
+    public function authorizeResponse($request)
+    {
+        return $this->payment_method->authorizeResponse($request);
+    }
+
+    /**
      * View for displaying custom content of the driver.
      *
      * @param array $data
