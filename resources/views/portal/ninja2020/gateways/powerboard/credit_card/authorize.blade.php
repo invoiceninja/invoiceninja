@@ -18,12 +18,10 @@
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
-    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.method')])
     <div id="powerboard-payment-container" class="w-full">
         <div id="widget" style="block"></div>
         <div id="widget-3dsecure"></div>
     </div>  
-    @endcomponent
     
     @component('portal.ninja2020.gateways.includes.pay_now', ['id' => 'authorize-card'])
         {{ ctrans('texts.add_payment_method') }}
@@ -44,7 +42,7 @@
     <script src="{{ $widget_endpoint }}"></script>
     
     <script>
-        var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', 'not_configured');
+        var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', '{{ $gateway_id }}');
         widget.setEnv("{{ $environment }}");
         widget.useAutoResize();
         // widget.interceptSubmitForm('#server-response');

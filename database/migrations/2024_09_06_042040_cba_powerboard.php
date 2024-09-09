@@ -20,9 +20,6 @@ return new class extends Migration
 
         $fields->publicKey = '';
         $fields->secretKey = '';
-        // $fields->applicationId = '';
-        // $fields->locationId = '';
-
         $fields->testMode = false;
         $fields->Threeds = false;
 
@@ -37,6 +34,10 @@ return new class extends Migration
         $powerboard->fields = json_encode($fields);
         $powerboard->save();
 
+
+        Schema::table("company_gateways", function (\Illuminate\Database\Schema\Blueprint $table){
+            $table->text('settings')->nullable();
+        });
     }
 
     /**

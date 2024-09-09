@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $update_details
  * @property bool $is_deleted
  * @property string $config
+ * @property object $settings
  * @property mixed $fees_and_limits
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -74,6 +75,7 @@ class CompanyGateway extends BaseModel
 
     protected $casts = [
         'fees_and_limits' => 'object',
+        'settings' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -482,6 +484,18 @@ class CompanyGateway extends BaseModel
         }
 
         return $fee;
+    }
+
+    public function getSettings()
+    {
+        // return $this->settings;
+        return $this->settings ?? new \stdClass;
+    }
+
+    public function setSettings($settings)
+    {
+        $this->settings = $settings;
+        $this->save();
     }
 
     public function webhookUrl()

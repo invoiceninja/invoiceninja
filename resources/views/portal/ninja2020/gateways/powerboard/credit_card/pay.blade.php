@@ -85,7 +85,7 @@
     <script src="{{ $widget_endpoint }}"></script>
     
     <script>
-        var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', 'not_configured');
+        var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', '{{ $gateway_id }}');
         widget.setEnv("{{ $environment }}");
         widget.useAutoResize();
         // widget.interceptSubmitForm('#server-response');

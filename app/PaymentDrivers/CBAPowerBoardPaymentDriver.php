@@ -25,6 +25,7 @@ use App\Models\ClientGatewayToken;
 use Illuminate\Support\Facades\Http;
 use App\PaymentDrivers\CBAPowerBoard\CreditCard;
 use App\PaymentDrivers\CBAPowerBoard\Customer;
+use App\PaymentDrivers\CBAPowerBoard\Settings;
 
 /**
  * Class CBAPowerBoardPaymentDriver.
@@ -205,5 +206,10 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     public function customer(): Customer
     {
         return new Customer($this);
+    }
+
+    public function settings(): Settings
+    {
+        return new Settings($this);
     }
 }
