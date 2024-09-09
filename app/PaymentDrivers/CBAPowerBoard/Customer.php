@@ -109,11 +109,9 @@ class Customer
 
     }
 
-    public function storePaymentMethod(?PaymentSource $payment_source = null, ?ModelsCustomer $customer = null, bool $store_card = false): ClientGatewayToken
+    public function storePaymentMethod(?PaymentSource $payment_source = null, ?ModelsCustomer $customer = null): ClientGatewayToken
     {
 
-        // $response_payload = $customer->resource->data;
-        // $source = end($customer->resource->data->payment_sources);
         /** @var PaymentSource $source */
         $source = $payment_source ? $payment_source : end($customer->payment_sources);
 
@@ -122,7 +120,7 @@ class Customer
         $payment_meta->exp_year = (string) $source->expire_year;
         $payment_meta->brand = (string) $source->card_scheme;
         $payment_meta->last4 = (string) $source->card_number_last4;
-        $payment_meta->gateway_id = is_null($source->gateway_id) ? (string) $source->gateway_id : false;
+        $payment_meta->gateway_id = $source->gateway_id ?? null;
         $payment_meta->type = \App\Models\GatewayType::CREDIT_CARD;
 
         $data = [
@@ -131,30 +129,10 @@ class Customer
             'payment_method_id' => \App\Models\GatewayType::CREDIT_CARD,
         ];
 
-        $additional_data = $customer ? ['gateway_customer_reference' => $customer->_id] : [];
-        $cgt = $this->powerboard->storeGatewayToken($data, $additional_data);
+        $cgt = $this->powerboard->storeGatewayToken($data, ['gateway_customer_reference' => $source->gateway_id]);
 
-        if($customer || !$store_card)
-            return $cgt;
+        return $cgt;
             
-        $customer_payload = [
-            'payment_source' => [
-                'vault_token' => $cgt->token,
-                'address_line1' => $this->powerboard->client->address1 ?? '',
-                'address_line2' => $this->powerboard->client->address1 ?? '',
-                'address_state' => $this->powerboard->client->state ?? '',
-                'address_country' => $this->powerboard->client->country->iso_3166_3 ?? '',
-                'address_city' => $this->powerboard->client->city ?? '',
-                'address_postcode' => $this->powerboard->client->postcode ?? '',
-            ],
-        ];
-
-        $customer = $this->findOrCreateCustomer($customer_payload);
-
-        $this->addTokenToCustomer($cgt->token, $customer);
-
-        return $cgt->fresh();
-
     }
 
 

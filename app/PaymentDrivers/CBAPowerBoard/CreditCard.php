@@ -231,6 +231,7 @@ class CreditCard implements LivewireMethodInterface
             if ($charge->status == 'complete') {
                 $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
                 
+
                 $vt = $charge->customer->payment_source->vault_token;
 
                 if($request->store_card){
@@ -239,8 +240,9 @@ class CreditCard implements LivewireMethodInterface
                             "vault_token" => $vt,
                         ],
                     ];
-
+                    
                     $customer = $this->powerboard->customer()->findOrCreateCustomer($data);
+                    $cgt = $this->powerboard->customer()->storePaymentMethod($charge->customer->payment_source, $charge->customer);
                 }
 
                 return $this->processSuccessfulPayment($charge);
