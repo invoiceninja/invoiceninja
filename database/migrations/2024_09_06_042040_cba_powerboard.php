@@ -21,7 +21,7 @@ return new class extends Migration
         $fields->publicKey = '';
         $fields->secretKey = '';
         $fields->testMode = false;
-        $fields->Threeds = false;
+        $fields->threeds = false;
 
         $powerboard = new Gateway();
         $powerboard->id = 64;
