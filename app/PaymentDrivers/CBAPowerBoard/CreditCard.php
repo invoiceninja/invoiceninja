@@ -39,7 +39,7 @@ class CreditCard implements LivewireMethodInterface
 
     public function authorizeResponse($request)
     {
-        $cgt = $this->storePaymentMethod($request);
+        $cgt = $this->powerboard->customer()->storePaymentMethod($request);
 
         return redirect()->route('client.payment_methods.index');
 
