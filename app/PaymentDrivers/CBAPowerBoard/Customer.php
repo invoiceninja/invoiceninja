@@ -105,8 +105,6 @@ class Customer
         if($r->failed())
             $r->throw();
 
-        // $this->storePaymentMethod($r->object());
-
         return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(ModelsCustomer::class, $r->object()->resource->data) ?? $r->throw();
 
     }

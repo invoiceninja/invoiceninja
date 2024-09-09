@@ -41,14 +41,14 @@ class PaymentSource
     public int $expire_month;
     /** @var int */
     public int $expire_year;
-    /** @var string */
-    public string $status;
-    /** @var string */
-    public string $created_at;
-    /** @var string */
-    public string $updated_at;
-    /** @var string */
-    public string $vault_type;
+    /** @var ?string */
+    public ?string $status;
+    /** @var ?string */
+    public ?string $created_at;
+    /** @var ?string */
+    public ?string $updated_at;
+    /** @var ?string */
+    public ?string $vault_type;
     /** @var ?string */
     public ?string $gateway_id;
 
@@ -67,10 +67,10 @@ class PaymentSource
         ?string $address_state,
         int $expire_month,
         int $expire_year,
-        string $status,
-        string $created_at,
-        string $updated_at,
-        string $vault_type,
+        ?string $status,
+        ?string $created_at,
+        ?string $updated_at,
+        ?string $vault_type,
         ?string $gateway_id
     ) {
         $this->_id = $_id;

@@ -171,6 +171,14 @@
                     'input[name="charge"]'
                 ).value = JSON.stringify(data);
 
+                let storeCard = document.querySelector(
+                    'input[name=token-billing-checkbox]:checked'
+                );
+
+                if (storeCard) {
+                    document.getElementById('store_card').value = storeCard.value;
+                }
+                
                 document.getElementById('server-response').submit();
 
             });

@@ -40,6 +40,8 @@ class Customer
 	public ?bool $_check_expire_date;
 	/** @var ?PaymentSource[] */
 	public ?array $payment_sources;
+	/** @var ?PaymentSource */
+	public ?PaymentSource $payment_source;
 	/** @var ?array */
 	public ?array $payment_destinations;
 	/** @var ?string */
@@ -60,7 +62,8 @@ class Customer
 		?bool $_check_expire_date,
 		?array $payment_sources,
 		?array $payment_destinations,
-		?string $company_id
+		?string $company_id,
+		?PaymentSource $payment_source
 	) {
 		$this->_id = $_id;
 		$this->_source_ip_address = $_source_ip_address;
@@ -77,5 +80,6 @@ class Customer
 		$this->payment_sources = $payment_sources;
 		$this->payment_destinations = $payment_destinations;
 		$this->company_id = $company_id;
+		$this->payment_source = $payment_source;
 	}
 }

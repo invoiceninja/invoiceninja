@@ -73,7 +73,7 @@ class CreditCard implements LivewireMethodInterface
         
         $payload = array_merge($this->getCustomer(), [
             'token' => $payment_source,
-            "vault_type" => "session",
+            "vault_type" => "permanent",
             'store_ccv' => true,
         ]);
 
@@ -165,7 +165,9 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(PaymentResponseRequest $request)
     {
         nlog($request->all());
-        $payment_hash = PaymentHash::where('hash', $request->payment_hash)->first();
+        $this->powerboard->payment_hash->data = array_merge((array) $this->powerboard->payment_hash->data, ['response' => $request->all()]);
+        $this->powerboard->payment_hash->save();
+
 
         // $token = $request->payment_source;
         $payload = [];
@@ -192,20 +194,22 @@ class CreditCard implements LivewireMethodInterface
         {
             $payment_source = $this->storePaymentSource($request);   
 
+            nlog($payment_source);
+
             return $this->get3dsToken($payment_source, $request);
             
         }
         elseif($request->charge) {
 
             $charge_request = json_decode($request->charge, true);
-
+            nlog("we have the charge request");
             nlog($charge_request);
 
             $payload = [
                 '_3ds' => [
                     'id' => $charge_request['charge_3ds_id'],
                 ],
-                "amount"=> $payment_hash->data->amount_with_fee,
+                "amount"=> $this->powerboard->payment_hash->data->amount_with_fee,
                 "currency"=> $this->powerboard->client->currency()->code,
                 "store_cvv"=> true,
             ];
@@ -219,49 +223,32 @@ class CreditCard implements LivewireMethodInterface
 
             $charge = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Charge::class, $r->object()->resource->data) ?? $r->throw();
 
+            nlog($charge);
+
             if ($charge->status == 'complete') {
                 $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
+                
+                $vt = $charge->customer->payment_source->vault_token;
+                // nlog($this->powerboard->payment_hash->data);
+
+                // $vt = $r->object()->resource->data->_3ds->id;
+
+                if($request->store_card){
+                    $data = [
+                        "payment_source" => [
+                            "vault_token" => $vt,
+                        ],
+                    ];
+
+                    $customer = $this->powerboard->customer()->findOrCreateCustomer($data);
+                }
+
                 return $this->processSuccessfulPayment($charge);
             }
 
 
         }
 
-
-
-        nlog($request->all());
-
-        // else {
-        
-        //     $payload["customer"] = [
-        //         "payment_source" => [
-        //             "vault_token" => $cgt->token,
-        //             "gateway_id" => $cgt->meta->gateway_id
-        //         ]
-        //     ];
-    
-        // }
-
-        // $uri = '/v1/charges';
-
-        // $payload_meta = [
-        //     "amount" => $payment_hash->data->amount_with_fee,
-        //     "currency" => $this->powerboard->client->currency()->code,
-        //     "description" => $this->powerboard->getDescription(), 
-        // ];
-
-        // $payload = array_merge($payload, $payload_meta);
-        
-        // nlog($payload);
-
-        // $r = $this->powerboard->gatewayRequest($uri, (\App\Enum\HttpVerb::POST)->value, $payload, []);
-
-        // if($r->failed())
-        //     $r->throw();
-
-        // nlog($r->object());
-
-        // return $this->processUnsuccessfulPayment($r->body());
     }
 
     public function processSuccessfulPayment(Charge $charge)
