@@ -63,7 +63,7 @@
         @endcomponent
 
     <div id="powerboard-payment-container" class="w-full">
-        <div id="widget" style="block"></div>
+        <div id="widget" style="block" class="hidden"></div>
         <div id="widget-3dsecure"></div>
     </div>
 
@@ -137,6 +137,7 @@
         });
         
         widget.on("finish", async function(data) {
+            document.getElementById('errors').hidden = true;
 
             console.log("finish", data);
         
@@ -185,8 +186,11 @@
 
             canvas.on("chargeAuthReject", function(data) {
                 console.log(data);
-            });
 
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...`;
+                document.getElementById('errors').hidden = false;
+
+            });
 
             canvas.load();
 
@@ -195,6 +199,7 @@
         widget.on("submit", async function (data){
             console.log("submit");
             console.log(data);        
+            document.getElementById('errors').hidden = true;
         })
 
         widget.on('form_submit', function (data) {
@@ -216,12 +221,12 @@
 
         payNow.addEventListener('click', () => {
             
-            widget.getValidationState();
+            // widget.getValidationState();
 
-            if(!widget.isValidForm()){
-                console.log("invalid");
-                return;
-            }
+            // if(!widget.isValidForm()){
+            //     console.log("invalid");
+            //     return;
+            // }
 
             payNow.disabled = true;
             payNow.querySelector('svg').classList.remove('hidden');
@@ -235,7 +240,7 @@
                 document.getElementById('store_card').value = storeCard.value;
             }
 
-            document.getElementById('stub').click();
+            document.getElementById('server-response').submit();
 
         });
 
@@ -286,11 +291,48 @@
             }
             catch(error) {
                 
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
+                document.getElementById('errors').hidden = false;
+
                 console.error('Fetch error:', error); // Log error for debugging
                 throw error; //
            
             }
         }
+        
+        const first = document.querySelector('input[name="payment-type"]');
+
+        if (first) {
+            first.click();
+        }
+
+
+        document
+            .getElementById('toggle-payment-with-credit-card')
+            .addEventListener('click', (element) => {
+
+                let widget = document.getElementById('widget');
+                widget.classList.remove('hidden');
+                document.getElementById('save-card--container').style.display ='grid';
+                document.querySelector('input[name=token]').value = '';
+
+            });
+
+
+            Array.from(
+                document.getElementsByClassName('toggle-payment-with-token')
+            ).forEach((element) =>
+                element.addEventListener('click', (element) => {
+                    document
+                        .getElementById('widget')
+                        .classList.add('hidden');
+                    document.getElementById(
+                        'save-card--container'
+                    ).style.display = 'none';
+                    document.querySelector('input[name=token]').value =
+                        element.target.dataset.token;
+                })
+            );
     </script> 
 
 @endsection

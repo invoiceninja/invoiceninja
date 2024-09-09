@@ -19,6 +19,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
+use Illuminate\Http\Client\RequestException;
 use App\PaymentDrivers\CBAPowerBoardPaymentDriver;
 use App\PaymentDrivers\CBAPowerBoard\Models\Charge;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
@@ -123,6 +124,31 @@ class CreditCard implements LivewireMethodInterface
     public function tokenBilling($request, $cgt, $client_present = false)
     {
 
+        $payload = [
+            "amount" => $this->powerboard->payment_hash->data->amount_with_fee,
+            "currency" => $this->powerboard->client->currency()->code,
+            "customer" => [
+                "payment_source" => [
+                    "vault_token" => $cgt->token,
+                    "gateway_id" => $cgt->gateway_customer_reference
+                ]
+            ]
+        ];
+
+        $r = $this->powerboard->gatewayRequest('/v1/charges', (\App\Enum\HttpVerb::POST)->value, $payload, []);
+
+        nlog($r->body());
+
+        if($r->failed());
+            return $this->processUnsuccessfulPayment($r);
+
+        $charge = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Charge::class, $r->object()->resource->data) ?? $r->throw();
+
+        nlog($charge);
+
+        $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
+
+        return $this->processSuccessfulPayment($charge);
     }
 
     private function get3dsToken(PaymentSource $source, $request)
@@ -167,10 +193,8 @@ class CreditCard implements LivewireMethodInterface
     {
         nlog($request->all());
      
-        $request->headers->set('Accept', 'application/json');
         $this->powerboard->payment_hash->data = array_merge((array) $this->powerboard->payment_hash->data, ['response' => $request->all()]);
         $this->powerboard->payment_hash->save();
-
 
         // $token = $request->payment_source;
         $payload = [];
@@ -185,13 +209,8 @@ class CreditCard implements LivewireMethodInterface
                         ->where('token', $request->token)
                         ->first();
 
-            $payload["customer"] = [
-                    "payment_source" => [
-                        "vault_token" => $cgt->token,
-                        "gateway_id" => $cgt->meta->gateway_id
-                    ]
-                ];
-
+            return $this->tokenBilling($request, $cgt, true);
+            
         }
         elseif($request->browser_details)
         {
@@ -290,7 +309,7 @@ class CreditCard implements LivewireMethodInterface
         try{
             $response->throw();
         }
-        catch(\Throwable $exception){
+        catch(RequestException $exception){
             $error_object = $exception->response->object();
 
             nlog($error_object);
