@@ -22,7 +22,9 @@ return new class extends Migration
         $fields->secretKey = '';
         // $fields->applicationId = '';
         // $fields->locationId = '';
+
         $fields->testMode = false;
+        $fields->Threeds = false;
 
         $powerboard = new Gateway();
         $powerboard->id = 64;

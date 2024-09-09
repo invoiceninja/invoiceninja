@@ -153,8 +153,9 @@ class CreditCard implements LivewireMethodInterface
 
         nlog($r->body());
 
-        if($r->failed())
-            $r->throw();
+        if ($r->failed()) {
+            return $this->processUnsuccessfulPayment($r);
+        }
 
         $charge = $r->json();
         nlog($charge['resource']['data']);
@@ -165,6 +166,8 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(PaymentResponseRequest $request)
     {
         nlog($request->all());
+     
+        $request->headers->set('Accept', 'application/json');
         $this->powerboard->payment_hash->data = array_merge((array) $this->powerboard->payment_hash->data, ['response' => $request->all()]);
         $this->powerboard->payment_hash->save();
 
@@ -219,7 +222,7 @@ class CreditCard implements LivewireMethodInterface
             $r = $this->powerboard->gatewayRequest("/v1/charges", (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
             if($r->failed())
-                $r->throw();
+                return $this->processUnsuccessfulPayment($r);
 
             $charge = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Charge::class, $r->object()->resource->data) ?? $r->throw();
 
@@ -229,9 +232,6 @@ class CreditCard implements LivewireMethodInterface
                 $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
                 
                 $vt = $charge->customer->payment_source->vault_token;
-                // nlog($this->powerboard->payment_hash->data);
-
-                // $vt = $r->object()->resource->data->_3ds->id;
 
                 if($request->store_card){
                     $data = [
@@ -283,8 +283,19 @@ class CreditCard implements LivewireMethodInterface
         return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
-    public function processUnsuccessfulPayment($server_response)
+    public function processUnsuccessfulPayment($response)
     {
+        try{
+            $response->throw();
+        }
+        catch(\Throwable $exception){
+            $error_object = $exception->response->object();
+
+            nlog($error_object);
+            return response()->json(['message' => $error_object->error->details->messages[0]->gateway_specific_code, 'code' => 400], 400);
+        }
+
+
         // $this->stripe->sendFailureMail($server_response->cancellation_reason);
 
         // $message = [

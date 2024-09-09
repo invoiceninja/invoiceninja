@@ -265,16 +265,21 @@
                     headers: {
                         'Content-Type': 'application/json',
                         "X-Requested-With": "XMLHttpRequest",
+                        "Accept": 'application/json',
                         "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
                     },
                     body: formData
                 })
 
+                    if (!response.ok) {
 
-                     if (!response.ok) {
-                       const text = await response.text();
-                         throw new Error(`Network response was not ok: ${response.statusText}. Response text: ${text}`);
-                     }
+                        return await response.json().then(errorData => {      
+                            throw new Error(errorData.message ?? 'Unknown error.');
+                        });
+
+                        // const text = await response.text();
+                        // throw new Error(`Network response was not ok: ${response.statusText}. Response text: ${text}`);
+                    }
 
                     return await response.json()
 
