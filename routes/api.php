@@ -63,6 +63,7 @@ use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\CompanyUserController;
 use App\Http\Controllers\PaymentTermController;
 use App\PaymentDrivers\PayPalPPCPPaymentDriver;
+use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\Http\Controllers\EmailHistoryController;
 use App\Http\Controllers\GroupSettingController;
 use App\Http\Controllers\OneTimeTokenController;
@@ -458,5 +459,6 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
+Route::get('api/v1/blockonomics/callback', [BlockonomicsPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

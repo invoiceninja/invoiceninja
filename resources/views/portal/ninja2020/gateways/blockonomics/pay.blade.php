@@ -103,15 +103,10 @@
             const data = JSON.parse(event.data);
             console.log('Payment status:', data.status);
             const isPaymentUnconfirmed = data.status === 0;
+            const isPaymentPartiallyConfirmed = data.status === 1;
             const isPaymentConfirmed = data.status === 2;
-            if (isPaymentUnconfirmed) {
-                // Hide all existing content
-                document.querySelector('.initial-state').style.display = 'none';
-                document.querySelector('.progress-message').style.display = 'block';
-                document.getElementById('txid').innerText = data.txid || '';
-                return;
-            }
-            if (isPaymentConfirmed) {
+            const shouldSubmitForm = isPaymentUnconfirmed || isPaymentConfirmed || isPaymentPartiallyConfirmed;
+            if (shouldSubmitForm) {
                 document.querySelector('input[name="txid"]').value = data.txid || '';
                 document.getElementById('server-response').submit();
             }

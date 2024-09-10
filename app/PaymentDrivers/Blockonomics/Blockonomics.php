@@ -52,48 +52,6 @@ class Blockonomics implements MethodInterface
     {
     }
 
-    public function doCurlCall($url, $post_content = '')
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if ($post_content) {
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_content);
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->blockonomics->api_key,
-            'Content-type: application/x-www-form-urlencoded',
-        ]);
-
-        $contents = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo "Error:" . curl_error($ch);
-        }
-        $responseObj = json_decode($contents);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close ($ch);
-
-        if ($status != 200) {
-            echo "ERROR: " . $status . ' ' . $responseObj->message;
-        }
-        return $responseObj;
-    }
-
-    public function setCallbackUrl()
-    {
-        $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-        $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
-        $get_callback_response = $this->doCurlCall($GET_CALLBACKS_URL);
-
-        $callback_url = $this->blockonomics->callback_url;
-        $xpub = $get_callback_response[0]->address;
-        $post_content = '{"callback": "' . $callback_url . '", "xpub": "' . $xpub . '"}';
-
-        $responseObj = $this->doCurlCall($SET_CALLBACK_URL, $post_content);
-        return $responseObj;
-    }
 
     public function getBTCAddress()
     {
@@ -160,7 +118,6 @@ class Blockonomics implements MethodInterface
         $data['invoice_id'] = $_invoice->invoice_id;
         $data['invoice_number'] = $_invoice->invoice_number;
         $data['end_time'] = $this->getTenMinutesCountDownEndTime();
-        $data['callback_url'] = $this->setCallbackUrl();
         $data['invoice_redirect_url'] = "/client/invoices/{$_invoice->invoice_id}";
 
         $data['websocket_url'] = 'wss://www.blockonomics.co/payment/' . $btc_address;
@@ -169,12 +126,11 @@ class Blockonomics implements MethodInterface
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
+        echo "Payment response received";
         $request->validate([
             'payment_hash' => ['required'],
             'amount' => ['required'],
             'currency' => ['required'],
-            'payment_method_id' => ['required'],
-            'txid' => ['required'],
         ]);
 
         try {

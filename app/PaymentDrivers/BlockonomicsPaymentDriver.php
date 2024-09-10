@@ -54,51 +54,73 @@ class BlockonomicsPaymentDriver extends BaseDriver
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
         $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
         $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
+        // $this->setCallbackUrl();
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 
-    public function get($url, $apiKey = null)
+    public function doCurlCall($url, $post_content = '')
     {
-        // Initialize cURL session
         $ch = curl_init();
-
-        // Set cURL options
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        // Set HTTP headers
-        $headers = ['Content-Type: application/json'];
-        if ($apiKey) {
-            $headers[] = 'Authorization: Bearer ' . $apiKey;
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if ($post_content) {
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_content);
         }
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Authorization: Bearer ' . $this->api_key,
+            'Content-type: application/x-www-form-urlencoded',
+        ]);
 
-        // Execute cURL session and get the response
-        $response = curl_exec($ch);
-
-        // Check for errors
+        $contents = curl_exec($ch);
         if (curl_errno($ch)) {
-            throw new Exception(curl_error($ch));
+            echo "Error:" . curl_error($ch);
         }
+        $responseObj = json_decode($contents);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close ($ch);
 
-        // Close cURL session
-        curl_close($ch);
-
-        // Return the response
-        return json_decode($response, true);
+        if ($status != 200) {
+            echo "ERROR: " . $status . ' ' . $responseObj->message;
+        }
+        return $responseObj;
     }
 
-    public function get_callbacks($api_key)
+    public function setCallbackUrl()
     {
         $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-        $response = $this->get($GET_CALLBACKS_URL, $api_key);
-        return $response;
+        $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
+        $get_callback_response = $this->doCurlCall($GET_CALLBACKS_URL);
+
+        $callback_url = $this->callback_url;
+        $xpub = $get_callback_response[0]->address;
+        $post_content = '{"callback": "' . $callback_url . '", "xpub": "' . $xpub . '"}';
+
+        $responseObj = $this->doCurlCall($SET_CALLBACK_URL, $post_content);
+        return $responseObj;
     }
 
-    // public function get_callbackSecret()
-    // {
-    //     return md5(uniqid(rand(), true));
-    // }
+    public function findPaymentByTxid($txid)
+    {
+        return Payment::whereRaw('BINARY `transaction_reference` LIKE ? AND BINARY `transaction_reference` LIKE ?', [
+            "%payment hash:%",
+            "%txid: " . $txid . "%"
+        ])->firstOrFail();
+    }
+
+    public function findPaymentHashInTransactionReference($transaction_reference)
+    {
+        $pattern = '/payment hash:\s*([a-zA-Z0-9]+)/';
+        // Perform the regex match
+        if (preg_match($pattern,  $transaction_reference, $matches)) {
+            // Return the matched payment hash
+            return $matches[1];
+        } else {
+            // Return null if no match is found
+            return null;
+        }
+    }
 
 
     /* Returns an array of gateway types for the payment gateway */
@@ -130,70 +152,43 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processWebhookRequest()
     {
-        // Get the callback parameters
+        // TODO: Figure out why init does not work
+        // $this->init();
+        // $secret = $this->company_gateway->getConfigField('callbackSecret');
+        // //Match secret for security
+        // if ($_GET['secret'] != $secret) {
+        //     echo "Invalid Secret";
+        //     return;
+        // }
+
         $txid = $_GET['txid'];
         $value = $_GET['value'];
         $status = $_GET['status'];
         $addr = $_GET['addr'];
-        $receivedSecret = $_GET['secret'];
-
-        // Initialize the Webhook client (assuming it can be used for validation)
-        $webhookClient = new Webhook($this->blockonomics_url, $this->api_key);
-
-        // Validate the webhook request
-        if (!$webhookClient->isValidRequest($_GET, $receivedSecret)) {
-            throw new PaymentFailed('Invalid webhook request');
-        }
 
         // Only accept confirmed transactions
         if ($status != 2) {
             throw new PaymentFailed('Transaction not confirmed');
         }
+        
+        $payment = $this->findPaymentByTxid($txid);
+        $payment_hash = $this->findPaymentHashInTransactionReference($payment->transaction_reference);
 
-        // Connect to the database
-        $db = new SQLite3('payments_db.sqlite', SQLITE3_OPEN_READWRITE);
-
-        // Find the payment hash in the database
-        $this->payment_hash = PaymentHash::whereRaw('BINARY `hash`= ?', [$addr])->firstOrFail();
-
-        // Set the payment method to cryptocurrency
-        $this->setPaymentMethod(GatewayType::CRYPTO);
-
-        // Determine the payment status
-        $StatusId = Payment::STATUS_PENDING;
-        if ($this->payment_hash->payment_id == null) {
-            $_invoice = Invoice::with('client')->withTrashed()->find($this->payment_hash->fee_invoice_id);
-            $this->client = $_invoice->client;
-
-            $dataPayment = [
-                'payment_method' => $this->payment_method,
-                'payment_type' => PaymentType::CRYPTO,
-                'amount' => $_invoice->amount,
-                'gateway_type_id' => GatewayType::CRYPTO,
-                'transaction_reference' => $txid
-            ];
-            $payment = $this->createPayment($dataPayment, $StatusId);
-        } else {
-            $payment = Payment::withTrashed()->find($this->payment_hash->payment_id);
-            $StatusId = $payment->status_id;
-        }
-
-        // Update the payment status based on the transaction status
         switch ($status) {
             case 0:
-                $StatusId = Payment::STATUS_PENDING;
+                $statusId = Payment::STATUS_PENDING;
                 break;
             case 1:
-                $StatusId = Payment::STATUS_PENDING;
+                $statusId = Payment::STATUS_PENDING;
                 break;
             case 2:
-                $StatusId = Payment::STATUS_COMPLETED;
+                $statusId = Payment::STATUS_COMPLETED;
                 break;
         }
 
         // Save the updated payment status
-        if ($payment->status_id != $StatusId) {
-            $payment->status_id = $StatusId;
+        if ($payment->status_id != $statusId) {
+            $payment->status_id = $statusId;
             $payment->save();
         }
     }
