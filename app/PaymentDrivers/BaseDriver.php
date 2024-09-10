@@ -430,7 +430,7 @@ class BaseDriver extends AbstractPaymentDriver
             $invoice_item->quantity = 1;
             $invoice_item->cost = (float)$fee_total;
 
-            $invoice_items = (array) $invoice->line_items;
+            $invoice_items = $invoice->line_items;
             $invoice_items[] = $invoice_item;
 
             if (isset($data['gateway_type_id']) && $fees_and_limits = $this->company_gateway->getFeesAndLimits($data['gateway_type_id'])) {
