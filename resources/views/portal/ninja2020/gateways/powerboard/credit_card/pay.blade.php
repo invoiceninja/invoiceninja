@@ -6,6 +6,11 @@
 
 @section('gateway_content')
 
+    <form action="javascript:void(0);" id="stepone">
+    <input type="hidden" name="gateway_response">
+    <button type="submit" class="hidden" id="stepone_submit">Submit</button>
+    </form>
+
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
@@ -58,9 +63,7 @@
                 </label>
             </li>    
         </ul>
-        
-
-        @endcomponent
+    @endcomponent
 
     <div id="powerboard-payment-container" class="w-full">
         <div id="widget" style="block" class="hidden"></div>
@@ -88,45 +91,45 @@
         var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', '{{ $gateway_id }}');
         widget.setEnv("{{ $environment }}");
         widget.useAutoResize();
-        // widget.interceptSubmitForm('#server-response');
-        widget.onFinishInsert('input[name="gateway_response"]', "payment_source");
+        widget.interceptSubmitForm('#stepone');
+        widget.onFinishInsert('#server-response input[name="gateway_response"]', "payment_source");
         widget.load();
     
-        widget.trigger('tab', function (data){
+        // widget.trigger('tab', function (data){
 
-            console.log("tab Response", data);
+        //     console.log("tab Response", data);
 
-            console.log(widget.isValidForm());
+        //     console.log(widget.isValidForm());
 
-            let payNow = document.getElementById('pay-now');
+        //     let payNow = document.getElementById('pay-now');
 
-            payNow.disabled = widget.isInvalidForm();
+        //     payNow.disabled = widget.isInvalidForm();
 
-        });
+        // });
 
-        widget.trigger('submit_form',function (data){
+        // widget.trigger('submit_form',function (data){
 
-            console.log("submit_form Response", data);
+        //     console.log("submit_form Response", data);
 
-            console.log(widget.isValidForm());
+        //     console.log(widget.isValidForm());
 
-            let payNow = document.getElementById('pay-now');
+        //     let payNow = document.getElementById('pay-now');
 
-            payNow.disabled = widget.isInvalidForm();
+        //     payNow.disabled = widget.isInvalidForm();
 
-        });
+        // });
 
-        widget.trigger('tab',function (data){
+        // widget.trigger('tab',function (data){
 
-            console.log("tab Response", data);
+        //     console.log("tab Response", data);
 
-            console.log(widget.isValidForm());
+        //     console.log(widget.isValidForm());
 
-            let payNow = document.getElementById('pay-now');
+        //     let payNow = document.getElementById('pay-now');
 
-            payNow.disabled = widget.isInvalidForm();
+        //     payNow.disabled = widget.isInvalidForm();
 
-        });
+        // });
 
         widget.on("systemError", function(data) {
             console.log("systemError Response", data);
@@ -139,64 +142,14 @@
         widget.on("finish", async function(data) {
             document.getElementById('errors').hidden = true;
 
-            console.log("finish", data);
-        
-            try {
-                const resource = await get3dsToken();
-                console.log("3DS Token:", resource);
-
-                console.log("pre canvas");
-                console.log(resource._3ds.token);
-                
-                var canvas = new cba.Canvas3ds('#widget-3dsecure', resource._3ds.token);        
-                canvas.load();
+            console.log("finish");
+            console.log(data);
             
-                let widget = document.getElementById('widget');
-                widget.classList.add('hidden');
-
-
-            } catch (error) {
-                console.error("Error fetching 3DS Token:", error);
-            }
-
-            
-
-            canvas.on("chargeAuthSuccess", function(data) {
-                console.log(data);
-
-                document.querySelector(
-                    'input[name="browser_details"]'
-                ).value = null;
-                
-                document.querySelector(
-                    'input[name="charge"]'
-                ).value = JSON.stringify(data);
-
-                let storeCard = document.querySelector(
-                    'input[name=token-billing-checkbox]:checked'
-                );
-
-                if (storeCard) {
-                    document.getElementById('store_card').value = storeCard.value;
-                }
-                
-                document.getElementById('server-response').submit();
-
-            });
-
-            canvas.on("chargeAuthReject", function(data) {
-                console.log(data);
-
-                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...`;
-                document.getElementById('errors').hidden = false;
-
-            });
-
-            canvas.load();
+            process3ds();
 
         });
 
-        widget.on("submit", async function (data){
+        widget.on("submit", function (data){
             console.log("submit");
             console.log(data);        
             document.getElementById('errors').hidden = true;
@@ -204,11 +157,6 @@
 
         widget.on('form_submit', function (data) {
             console.log("form_submit", data);
-            console.log(data);
-        });
-
-        widget.on('submit', function (data) {
-            console.log("submit", data);
             console.log(data);
         });
 
@@ -221,7 +169,7 @@
 
         payNow.addEventListener('click', () => {
             
-            // widget.getValidationState();
+            widget.getValidationState();
 
             // if(!widget.isValidForm()){
             //     console.log("invalid");
@@ -240,9 +188,79 @@
                 document.getElementById('store_card').value = storeCard.value;
             }
 
-            document.getElementById('server-response').submit();
+            if(document.querySelector('#server-response input[name=gateway_response]').value.length > 1)
+                document.getElementById('stepone_submit').click();
+            else
+                document.getElementById('server-response').submit();
 
         });
+
+
+        async function process3ds()
+        {
+
+
+            try {
+                const resource = await get3dsToken();
+                console.log("3DS Token:", resource);
+
+                if(resource.status != 'pre-authenticated')
+                    throw new Error('There was an issue authenticating this payment method.');
+
+                console.log("pre canvas");
+                console.log(resource._3ds.token);
+
+                var canvas = new cba.Canvas3ds('#widget-3dsecure', resource._3ds.token);
+                canvas.load();
+
+                let widget = document.getElementById('widget');
+                widget.classList.add('hidden');
+
+
+            } catch (error) {
+                console.error("Error fetching 3DS Token:", error);
+                
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
+                document.getElementById('errors').hidden = false;
+
+            }
+
+            canvas.on("chargeAuthSuccess", function(data) {
+                console.log(data);
+
+                document.querySelector(
+                    'input[name="browser_details"]'
+                ).value = null;
+
+                document.querySelector(
+                    'input[name="charge"]'
+                ).value = JSON.stringify(data);
+
+                let storeCard = document.querySelector(
+                    'input[name=token-billing-checkbox]:checked'
+                );
+
+                if (storeCard) {
+                    document.getElementById('store_card').value = storeCard.value;
+                }
+
+                document.getElementById('server-response').submit();
+
+            });
+
+            canvas.on("chargeAuthReject", function(data) {
+                console.log(data);
+
+                document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...`;
+                document.getElementById('errors').hidden = false;
+
+            });
+
+            canvas.load();
+
+
+
+        }
 
 
         async function get3dsToken() {
@@ -317,7 +335,6 @@
                 document.querySelector('input[name=token]').value = '';
 
             });
-
 
             Array.from(
                 document.getElementsByClassName('toggle-payment-with-token')
