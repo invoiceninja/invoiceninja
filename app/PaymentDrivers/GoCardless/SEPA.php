@@ -13,11 +13,14 @@
 namespace App\PaymentDrivers\GoCardless;
 
 use App\Exceptions\PaymentFailed;
+use App\Http\Controllers\ClientPortal\InvoiceController;
+use App\Http\Requests\ClientPortal\Invoices\ProcessInvoicesInBulkRequest;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
@@ -61,6 +64,8 @@ class SEPA implements MethodInterface, LivewireMethodInterface
                     'success_redirect_url' => route('client.payment_methods.confirm', [
                         'method' => GatewayType::SEPA,
                         'session_token' => $session_token,
+                        'authorize_then_redirect' => true,
+                        'payment_hash' => $this->go_cardless->payment_hash?->hash,
                     ]),
                     'prefilled_customer' => [
                         'given_name' => auth()->guard('contact')->user()->client->present()->first_name(),
@@ -131,6 +136,22 @@ class SEPA implements MethodInterface, LivewireMethodInterface
             ];
 
             $payment_method = $this->go_cardless->storeGatewayToken($data, ['gateway_customer_reference' => $redirect_flow->links->customer]);
+
+            if ($request->has('authorize_then_redirect') && $request->payment_hash !== null) {
+                $this->go_cardless->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
+
+                $data = [
+                    'invoices' => collect($this->go_cardless->payment_hash->data->invoices)->map(fn ($invoice) => $invoice->invoice_id)->toArray(),
+                    'action' => 'payment',
+                ];
+                
+                $request = new ProcessInvoicesInBulkRequest();
+                $request->replace($data);
+    
+                session()->flash('message', ctrans('texts.payment_method_added'));
+    
+                return app(InvoiceController::class)->bulk($request);
+            }
 
             return redirect()->route('client.payment_methods.show', $payment_method->hashed_id);
         } catch (\Exception $exception) {
@@ -273,6 +294,12 @@ class SEPA implements MethodInterface, LivewireMethodInterface
         $data['gateway'] = $this->go_cardless;
         $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
         $data['currency'] = $this->go_cardless->client->getCurrencyCode();
+
+        if (count($data['tokens']) === 0) {
+            $data['authorize_then_redirect'] = true;
+
+            $this->authorizeView($data);
+        }
 
         return $data;
     }

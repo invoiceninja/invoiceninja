@@ -57,7 +57,10 @@
     "src": "resources/js/clients/payment_methods/authorize-stripe-acss.js"
   },
   "resources/js/clients/payment_methods/braintree-ach.js": {
-    "file": "assets/braintree-ach-b29d040e.js",
+    "file": "assets/braintree-ach-3d6b328f.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/braintree-ach.js"
   },
@@ -345,7 +348,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-fee1da41.css",
+    "file": "assets/app-106dcc58.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
