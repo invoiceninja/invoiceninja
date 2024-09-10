@@ -177,7 +177,7 @@
                 const resource = await get3dsToken();
                 console.log("3DS Token:", resource);
 
-                if(resource.status != "pre_authentication_pending")
+                if(resource.status != "pre-authenticated" || resource.status != "authentication_not_supported")
                     throw new Error('There was an issue authenticating this payment method.');
 
                 console.log("pre canvas");
