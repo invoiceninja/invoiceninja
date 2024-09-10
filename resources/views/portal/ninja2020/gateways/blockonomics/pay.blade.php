@@ -4,12 +4,11 @@
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
 
     <div class="blockonomics-payment-wrapper">
-        <div class="progress-message">
+        <!-- <div class="progress-message">
             Your payment txid has been recieved.
-            <!-- <span id="txid"></span>  -->
             <br/><br/>
             The <a id="link" href="{{ $invoice_redirect_url }}" target="_blank">invoice</a> will be marked as paid automatically once the payment is confirmed.
-        </div>
+        </div> -->
         <div class="initial-state">
         <div class="invoice-number">Invoice #{{$invoice_number}}</div>
         <div>To pay, send exactly this BTC amount</div>
@@ -104,9 +103,9 @@
             console.log('Payment status:', data.status);
             const isPaymentUnconfirmed = data.status === 0;
             const isPaymentPartiallyConfirmed = data.status === 1;
-            const isPaymentConfirmed = data.status === 2;
-            const shouldSubmitForm = isPaymentUnconfirmed || isPaymentConfirmed || isPaymentPartiallyConfirmed;
-            if (shouldSubmitForm) {
+            // TODO: Do we need to handle Payment confirmed status?
+            // This usually takes too long to happen, so we can just wait for the unconfirmed status?
+            if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed) {
                 document.querySelector('input[name="txid"]').value = data.txid || '';
                 document.getElementById('server-response').submit();
             }
@@ -164,7 +163,7 @@
             transform: translateY(-50%);
             cursor: pointer;
         }
-        .progress-message {
+        /* .progress-message {
             display: none;
             margin: 90px 0;
             max-width: 400px;
@@ -174,7 +173,7 @@
         #link {
             color: #007bff;
             text-decoration: underline;
-        }
+        } */
     </style>
 
     <!-- @include('portal.ninja2020.gateways.includes.pay_now') -->
