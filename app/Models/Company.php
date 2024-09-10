@@ -459,7 +459,7 @@ class Company extends BaseModel
 
     public function bank_transactions(): HasMany
     {
-        return $this->hasMany(BankTransaction::class);
+        return $this->hasMany(BankTransaction::class)->withTrashed();
     }
 
     public function bank_transaction_rules(): HasMany
