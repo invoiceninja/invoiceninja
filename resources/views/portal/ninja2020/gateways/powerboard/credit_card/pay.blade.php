@@ -182,6 +182,7 @@
 
                 if (resource.status == "not_authenticated") {
                     throw new Error('There was an issue authenticating this payment method.');
+                    return;
                 }
 
                 var canvas = new cba.Canvas3ds('#widget-3dsecure', resource._3ds.token);
