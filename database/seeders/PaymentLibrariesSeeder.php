@@ -24,12 +24,12 @@ class PaymentLibrariesSeeder extends Seeder
     {
         Model::unguard();
 
-        $callbackUrl = config('ninja.app_url') . '/client/payments/process/?secret=';
         $callbackSecret = md5(uniqid(rand(), true));
+        $callbackUrl = config('ninja.app_url') . "/api/v1/blockonomics/callback/?secret=$callbackSecret";
         $blockonomics_fields = "{
             \"apiKey\": \"\",
             \"callbackUrl\": \"$callbackUrl\",
-            \"callbackSecret\": \"$callbackSecret\"
+            \"callbackSecret\": \"$callbackSecret\",
         }";
 
 

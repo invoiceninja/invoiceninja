@@ -52,75 +52,70 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public function init()
     {
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
-        $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
         $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
         // $this->setCallbackUrl();
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 
-    public function doCurlCall($url, $post_content = '')
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if ($post_content) {
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_content);
-        }
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $this->api_key,
-            'Content-type: application/x-www-form-urlencoded',
-        ]);
+    // public function doCurlCall($url, $post_content = '')
+    // {
+    //     $ch = curl_init();
+    //     curl_setopt($ch, CURLOPT_URL, $url);
+    //     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    //     if ($post_content) {
+    //         curl_setopt($ch, CURLOPT_POST, 1);
+    //         curl_setopt($ch, CURLOPT_POSTFIELDS, $post_content);
+    //     }
+    //     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+    //     curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    //         'Authorization: Bearer ' . $this->api_key,
+    //         'Content-type: application/x-www-form-urlencoded',
+    //     ]);
+    //     $contents = curl_exec($ch);
+    //     if (curl_errno($ch)) {
+    //         echo "Error:" . curl_error($ch);
+    //     }
+    //     $responseObj = json_decode($contents);
+    //     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    //     curl_close ($ch);
+    //     if ($status != 200) {
+    //         echo "ERROR: " . $status . ' ' . $responseObj->message;
+    //     }
+    //     return $responseObj;
+    // }
 
-        $contents = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo "Error:" . curl_error($ch);
-        }
-        $responseObj = json_decode($contents);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close ($ch);
+    // public function setCallbackUrl()
+    // {
+    //     $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
+    //     $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
+    //     $get_callback_response = $this->doCurlCall($GET_CALLBACKS_URL);
 
-        if ($status != 200) {
-            echo "ERROR: " . $status . ' ' . $responseObj->message;
-        }
-        return $responseObj;
-    }
+    //     $callback_url = $this->callback_url;
+    //     $xpub = $get_callback_response[0]->address;
+    //     $post_content = '{"callback": "' . $callback_url . '", "xpub": "' . $xpub . '"}';
 
-    public function setCallbackUrl()
-    {
-        $GET_CALLBACKS_URL = 'https://www.blockonomics.co/api/address?&no_balance=true&only_xpub=true&get_callback=true';
-        $SET_CALLBACK_URL = 'https://www.blockonomics.co/api/update_callback';
-        $get_callback_response = $this->doCurlCall($GET_CALLBACKS_URL);
+    //     $responseObj = $this->doCurlCall($SET_CALLBACK_URL, $post_content);
+    //     return $responseObj;
+    // }
 
-        $callback_url = $this->callback_url;
-        $xpub = $get_callback_response[0]->address;
-        $post_content = '{"callback": "' . $callback_url . '", "xpub": "' . $xpub . '"}';
-
-        $responseObj = $this->doCurlCall($SET_CALLBACK_URL, $post_content);
-        return $responseObj;
-    }
+    // public function findPaymentHashInTransactionReference($transaction_reference)
+    // {
+    //     $pattern = '/payment hash:\s*([a-zA-Z0-9]+)/';
+    //     // Perform the regex match
+    //     if (preg_match($pattern,  $transaction_reference, $matches)) {
+    //         // Return the matched payment hash
+    //         return $matches[1];
+    //     } else {
+    //         // Return null if no match is found
+    //         return null;
+    //     }
+    // }
 
     public function findPaymentByTxid($txid)
     {
-        return Payment::whereRaw('BINARY `transaction_reference` LIKE ? AND BINARY `transaction_reference` LIKE ?', [
-            "%payment hash:%",
-            "%txid: " . $txid . "%"
-        ])->firstOrFail();
+        return Payment::whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid])->firstOrFail();
     }
 
-    public function findPaymentHashInTransactionReference($transaction_reference)
-    {
-        $pattern = '/payment hash:\s*([a-zA-Z0-9]+)/';
-        // Perform the regex match
-        if (preg_match($pattern,  $transaction_reference, $matches)) {
-            // Return the matched payment hash
-            return $matches[1];
-        } else {
-            // Return null if no match is found
-            return null;
-        }
-    }
 
 
     /* Returns an array of gateway types for the payment gateway */
@@ -172,7 +167,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
         }
         
         $payment = $this->findPaymentByTxid($txid);
-        $payment_hash = $this->findPaymentHashInTransactionReference($payment->transaction_reference);
+        // $payment_hash = $this->findPaymentHashInTransactionReference($payment->transaction_reference);
 
         switch ($status) {
             case 0:
