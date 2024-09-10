@@ -68,7 +68,7 @@ class BankTransactionFilters extends QueryFilters
          */
     public function client_status(string $value = ''): Builder
     {
-        if (strlen($value) == 0) {
+        if (strlen($value ?? '') == 0) {
             return $this->builder;
         }
 
@@ -115,6 +115,17 @@ class BankTransactionFilters extends QueryFilters
         return $this->builder;
     }
 
+    public function active_banks(string $value = ''): Builder
+    {
+
+        if (strlen($value) == 0 || $value != 'true') {
+            return $this->builder;
+        }
+
+        return $this->builder->whereHas('bank_integration', function ($query){
+            $query->where('is_deleted', 0)->whereNull('deleted_at');
+        });
+    }
 
     /**
      * Filters the list based on Bank Accounts.
