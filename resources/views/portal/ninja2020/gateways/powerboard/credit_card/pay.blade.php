@@ -180,7 +180,7 @@
                 console.log("pre canvas");
                 console.log(resource._3ds.token);
 
-                if (resource.status == "not_authenticated") {
+                if (resource.status == "not_authenticated" || resource.status == "authentication_not_supported") { // if status = authentication_not_supported, there will be no resource._3ds.token, so we need to fall back to a NON 3ds payment flow from here
                     throw new Error('There was an issue authenticating this payment method.');
                     return;
                 }
