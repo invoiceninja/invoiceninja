@@ -262,6 +262,7 @@ class CreditCard implements LivewireMethodInterface
         if($r->failed()){
 
             $error_payload = $this->getErrorFromResponse($r);
+            
             throw new PaymentFailed($error_payload[0], $error_payload[1]);
 
         }
@@ -301,14 +302,12 @@ class CreditCard implements LivewireMethodInterface
 
         $r = $this->powerboard->gatewayRequest('/v1/charges/3ds', (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
-        nlog($r->body());
-
         if ($r->failed()) {
             return $this->processUnsuccessfulPayment($r);
         }
 
         $charge = $r->json();
-        nlog($charge['resource']['data']);
+
         return response()->json($charge['resource']['data'], 200);
 
     }
@@ -320,7 +319,6 @@ class CreditCard implements LivewireMethodInterface
         $this->powerboard->payment_hash->data = array_merge((array) $this->powerboard->payment_hash->data, ['response' => $request->all()]);
         $this->powerboard->payment_hash->save();
 
-        // $token = $request->payment_source;
         $payload = [];
 
         /** Token Payment */
@@ -348,19 +346,17 @@ class CreditCard implements LivewireMethodInterface
         elseif($request->charge) {
 
             $charge_request = json_decode($request->charge, true);
-            nlog("we have the charge request");
+            
             nlog($charge_request);
 
             $payload = [
                 '_3ds' => [
                     'id' => $charge_request['charge_3ds_id'],
                 ],
-                "amount"=> $this->powerboard->payment_hash->data->amount_with_fee,
+                "amount"=> $this->powerboard->payment_hash->data->amount_with_fee, //@phpstan-ignore-line
                 "currency"=> $this->powerboard->client->currency()->code,
                 "store_cvv"=> true,
             ];
-
-            nlog($payload);
 
             $r = $this->powerboard->gatewayRequest("/v1/charges", (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
@@ -374,7 +370,6 @@ class CreditCard implements LivewireMethodInterface
             if ($charge->status == 'complete') {
                 $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
                 
-
                 $vt = $charge->customer->payment_source->vault_token;
 
                 if($request->store_card){
@@ -391,6 +386,9 @@ class CreditCard implements LivewireMethodInterface
                 return $this->processSuccessfulPayment($charge);
             }
             elseif($charge->error){
+                
+                $this->powerboard->logUnsuccessfulGatewayResponse($charge, SystemLog::TYPE_POWERBOARD);
+
                 throw new PaymentFailed($charge->error->message, $charge->status);
             }
 
@@ -436,10 +434,11 @@ class CreditCard implements LivewireMethodInterface
         try {
             $response->throw();
         } catch (RequestException $exception) {
+
             $error_object = $exception->response->object();
 
-            //todo log this error_object
-            nlog($error_object);
+            $this->powerboard->logUnsuccessfulGatewayResponse($error_object, SystemLog::TYPE_POWERBOARD);
+
             $error_message = "Unknown error";
 
             match($error_object->error->code) {
@@ -461,25 +460,6 @@ class CreditCard implements LivewireMethodInterface
 
         return response()->json(['message' => $error_payload[0], 'code' => $error_payload[1]], $error_payload[1]);
 
-
-
-        // $this->stripe->sendFailureMail($server_response->cancellation_reason);
-
-        // $message = [
-        //     'server_response' => $server_response,
-        //     'data' => $this->stripe->payment_hash->data,
-        // ];
-
-        // SystemLogger::dispatch(
-        //     $message,
-        //     SystemLog::CATEGORY_GATEWAY_RESPONSE,
-        //     SystemLog::EVENT_GATEWAY_FAILURE,
-        //     SystemLog::TYPE_STRIPE,
-        //     $this->stripe->client,
-        //     $this->stripe->client->company,
-        // );
-
-        // throw new PaymentFailed('Failed to process the payment.', 500);
     }
 
 }

@@ -768,6 +768,18 @@ class BaseDriver extends AbstractPaymentDriver
         );
     }
 
+    public function logUnsuccessfulGatewayResponse($response, $gateway_const)
+    {
+        SystemLogger::dispatch(
+            $response,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            $gateway_const,
+            $this->client,
+            $this->client->company,
+        );
+    }
+
     public function genericWebhookUrl()
     {
         return route('payment_notification_webhook', [
