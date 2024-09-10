@@ -7,8 +7,8 @@
 @section('gateway_content')
 
     <form action="javascript:void(0);" id="stepone">
-    <input type="hidden" name="gateway_response">
-    <button type="submit" class="hidden" id="stepone_submit">Submit</button>
+        <input type="hidden" name="gateway_response">
+        <button type="submit" class="hidden" id="stepone_submit">Submit</button>
     </form>
 
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
@@ -145,7 +145,13 @@
             console.log("finish");
             console.log(data);
             
-            process3ds();
+
+            const div = document.getElementById('widget');
+            
+            if(div.offsetParent !== null)
+                process3ds();
+            else
+                processNon3ds();
 
         });
 
@@ -188,13 +194,16 @@
                 document.getElementById('store_card').value = storeCard.value;
             }
 
-            if(document.querySelector('#server-response input[name=gateway_response]').value.length > 1)
-                document.getElementById('stepone_submit').click();
-            else
-                document.getElementById('server-response').submit();
-
+            document.getElementById('stepone_submit').click();
+            
         });
 
+        function processNon3ds()
+        {
+
+            document.getElementById('#server-response').submit();
+            
+        }
 
         async function process3ds()
         {
@@ -204,7 +213,7 @@
                 const resource = await get3dsToken();
                 console.log("3DS Token:", resource);
 
-                if(resource.status != 'pre-authenticated')
+                if(resource.status != "pre_authentication_pending")
                     throw new Error('There was an issue authenticating this payment method.');
 
                 console.log("pre canvas");
