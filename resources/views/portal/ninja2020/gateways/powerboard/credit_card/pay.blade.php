@@ -88,49 +88,15 @@
     <script src="{{ $widget_endpoint }}"></script>
     
     <script>
-        var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', '{{ $gateway_id }}');
+    
+    /** Loads the widget, links the widget to a dummy form */
+    var widget = new cba.HtmlWidget('#widget', '{{ $public_key }}', '{{ $gateway_id }}');
         widget.setEnv("{{ $environment }}");
         widget.useAutoResize();
         widget.interceptSubmitForm('#stepone');
         widget.onFinishInsert('#server-response input[name="gateway_response"]', "payment_source");
         widget.load();
     
-        // widget.trigger('tab', function (data){
-
-        //     console.log("tab Response", data);
-
-        //     console.log(widget.isValidForm());
-
-        //     let payNow = document.getElementById('pay-now');
-
-        //     payNow.disabled = widget.isInvalidForm();
-
-        // });
-
-        // widget.trigger('submit_form',function (data){
-
-        //     console.log("submit_form Response", data);
-
-        //     console.log(widget.isValidForm());
-
-        //     let payNow = document.getElementById('pay-now');
-
-        //     payNow.disabled = widget.isInvalidForm();
-
-        // });
-
-        // widget.trigger('tab',function (data){
-
-        //     console.log("tab Response", data);
-
-        //     console.log(widget.isValidForm());
-
-        //     let payNow = document.getElementById('pay-now');
-
-        //     payNow.disabled = widget.isInvalidForm();
-
-        // });
-
         widget.on("systemError", function(data) {
             console.log("systemError Response", data);
         });
@@ -139,7 +105,8 @@
             console.log("validationError", data);
         });
         
-        widget.on("finish", async function(data) {
+        /** Retrieves the payment_source token and passes this to the 3ds handler */
+        widget.on("finish", function(data) {
             document.getElementById('errors').hidden = true;
 
             console.log("finish");
@@ -168,13 +135,19 @@
         let payNow = document.getElementById('pay-now');
 
         payNow.addEventListener('click', () => {
+
             
+            const div = document.getElementById('widget');
+
             widget.getValidationState();
 
-            // if(!widget.isValidForm()){
-            //     console.log("invalid");
-            //     return;
-            // }
+            if(!widget.isValidForm() && div.offsetParent !== null){
+                console.log("invalid");
+                payNow.disabled = false;
+                payNow.querySelector('svg').classList.add('hidden');
+                payNow.querySelector('span').classList.remove('hidden');
+                return;
+            }
 
             payNow.disabled = true;
             payNow.querySelector('svg').classList.remove('hidden');
@@ -188,7 +161,6 @@
                 document.getElementById('store_card').value = storeCard.value;
             }
 
-            const div = document.getElementById('widget');
             
             if(div.offsetParent !== null)
                 document.getElementById('stepone_submit').click();

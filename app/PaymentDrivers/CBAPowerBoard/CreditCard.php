@@ -260,7 +260,6 @@ class CreditCard implements LivewireMethodInterface
         nlog($r->body());
 
         if($r->failed()){
-            // return $this->processUnsuccessfulPayment($r);
 
             $error_payload = $this->getErrorFromResponse($r);
             throw new PaymentFailed($error_payload[0], $error_payload[1]);
@@ -391,7 +390,9 @@ class CreditCard implements LivewireMethodInterface
 
                 return $this->processSuccessfulPayment($charge);
             }
-
+            elseif($charge->error){
+                throw new PaymentFailed($charge->error->message, $charge->status);
+            }
 
         }
 
