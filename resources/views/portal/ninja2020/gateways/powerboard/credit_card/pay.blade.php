@@ -177,11 +177,12 @@
                 const resource = await get3dsToken();
                 console.log("3DS Token:", resource);
 
-                if(resource.status != "pre-authenticated" || resource.status != "authentication_not_supported")
-                    throw new Error('There was an issue authenticating this payment method.');
-
                 console.log("pre canvas");
                 console.log(resource._3ds.token);
+
+                if (resource.status == "not_authenticated") {
+                    throw new Error('There was an issue authenticating this payment method.');
+                }
 
                 var canvas = new cba.Canvas3ds('#widget-3dsecure', resource._3ds.token);
                 canvas.load();
@@ -195,8 +196,12 @@
                 
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
                 document.getElementById('errors').hidden = false;
-
+                return;
             }
+
+
+
+
 
             canvas.on("chargeAuthSuccess", function(data) {
                 console.log(data);
