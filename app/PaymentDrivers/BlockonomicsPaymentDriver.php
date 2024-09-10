@@ -191,6 +191,10 @@ class BlockonomicsPaymentDriver extends BaseDriver
             $payment->status_id = $statusId;
             $payment->save();
         }
+
+        header('HTTP/1.1 200 OK');
+        echo 'SUCCESS';
+        return;
     }
 
 
