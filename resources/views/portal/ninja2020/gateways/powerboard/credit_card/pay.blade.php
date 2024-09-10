@@ -145,13 +145,7 @@
             console.log("finish");
             console.log(data);
             
-
-            const div = document.getElementById('widget');
-            
-            if(div.offsetParent !== null)
-                process3ds();
-            else
-                processNon3ds();
+            process3ds();
 
         });
 
@@ -194,16 +188,14 @@
                 document.getElementById('store_card').value = storeCard.value;
             }
 
-            document.getElementById('stepone_submit').click();
+            const div = document.getElementById('widget');
             
+            if(div.offsetParent !== null)
+                document.getElementById('stepone_submit').click();
+            else
+                document.getElementById('server-response').submit();
+
         });
-
-        function processNon3ds()
-        {
-
-            document.getElementById('#server-response').submit();
-            
-        }
 
         async function process3ds()
         {
