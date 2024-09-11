@@ -11,17 +11,20 @@
         </div> -->
         <div class="initial-state">
         <div class="invoice-number">Invoice #{{$invoice_number}}</div>
-        <div>To pay, send exactly this BTC amount</div>
-        <div class="full-width-input" onclick='copyToClipboard("{{$btc_amount}}", this)'>
-            {{$btc_amount}} BTC <span style="color: gray;">≈ {{$amount}} {{$currency}}</span>
-            <img src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
-        </div>
-        <div>To this bitcoin address</div>
-        <div class="input-wrapper" onclick='copyToClipboard("{{$btc_address}}", this)'>
-            <input class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly >
-            <img src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
-        </div>
-        <div id="countdown"></div><span class="blockonomics-icon-refresh"></span>
+        <div>To pay, send bitcoin to this address:</div>
+        <span class="input-wrapper">
+            <input class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly>
+            <img onclick='copyToClipboard("{{$btc_address}}", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
+        </span>
+        <div>Amount of bitcoin (BTC) to send:</div>
+        <span class="input-wrapper">
+            <div class="full-width-input">
+                {{$btc_amount}}
+            </div>
+            <img onclick='copyToClipboard("{{$btc_amount}}", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
+            <span class="icon-refresh"></span>
+        </span>
+        <span>1 BTC = {{$amount}} {{$currency}}, updates in <span id="countdown"></span></span>
         </div>
     </div>
 
@@ -39,25 +42,27 @@
 
     <script>
         // Get the end time as a Unix timestamp (seconds)
-        var endTimeUnix = {{ $end_time }};
+        const endTimeUnix = {{ $end_time }};
         console.log("End time (Unix timestamp):", endTimeUnix); // For debugging
 
         // Convert Unix timestamp to milliseconds for JavaScript Date
-        var countDownDate = endTimeUnix * 1000;
+        const countDownDate = endTimeUnix * 1000;
 
         function updateCountdown() {
-            var now = new Date().getTime();
-            var distance = countDownDate - now;
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
 
             if (distance < 0) {
                 document.getElementById("countdown").innerHTML = "EXPIRED";
                 return;
             }
 
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
 
-            document.getElementById("countdown").innerHTML = minutes + "m " + seconds + "s ";
+            document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
         }
         setInterval(updateCountdown, 1000);
     </script>
@@ -130,7 +135,6 @@
             margin-bottom: 20px;
         }    
         .blockonomics-payment-wrapper {
-            padding: 12px;
             display: flex;
             justify-content: center;
         }
@@ -138,13 +142,19 @@
             justify-content: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            text-align: center;
             padding: 12px;
+        }
+        .input-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
         }
         .full-width-input {
             width: 100%;
-            margin: 10px 0;
-            padding: 10px 40px 10px 10px;
+            margin: 10px;
+            padding: 10px;
             text-align: center;
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -152,20 +162,13 @@
             cursor: pointer;
             position: relative;
         }
-        .input-wrapper {
-            position: relative;
-            width: 100%;
-        }
         .icon {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
             cursor: pointer;
         }
         .icon-refresh::before {
-            content: '\e903';
+            content: '\27F3';
             cursor: pointer;
+            margin-left: 5px;
         }
         /* .progress-message {
             display: none;
