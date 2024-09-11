@@ -111,10 +111,12 @@ class Blockonomics implements MethodInterface
         $data['gateway'] = $this->blockonomics;
         $data['amount'] = $data['total']['amount_with_fee'];
         $data['currency'] = $this->blockonomics->client->getCurrencyCode();
-        $btc_amount = $data['amount'] / $this->getBTCPrice();
+        $btc_price = $this->getBTCPrice();
+        $btc_amount = $data['amount'] / $btc_price;
         $data['btc_amount'] = number_format($btc_amount, 10, '.', '');
         $btc_address = $this->getBTCAddress();
         $data['btc_address'] = $btc_address;
+        $data['btc_price'] = $btc_price;
         $data['invoice_id'] = $_invoice->invoice_id;
         $data['invoice_number'] = $_invoice->invoice_number;
         $data['end_time'] = $this->getTenMinutesCountDownEndTime();

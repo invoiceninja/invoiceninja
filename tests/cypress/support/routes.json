@@ -5631,5 +5631,14 @@
     "method": [
       "GET"
     ]
+  },
+  "get-btc-price": {
+    "name": "get-btc-price",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BlockonomicsController@getBTCPrice",
+    "uri": "api/v1/get-btc-price",
+    "method": [
+      "GET"
+    ]
   }
 }

@@ -12,6 +12,7 @@
 */
 use App\Http\Controllers\SubscriptionStepsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Gateways\BlockonomicsController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\BrevoController;
 use App\Http\Controllers\PingController;
@@ -460,5 +461,6 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 Route::get('api/v1/blockonomics/callback', [BlockonomicsPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
+Route::get('api/v1/get-btc-price', [BlockonomicsController::class, 'getBTCPrice'])->middleware('throttle:1000,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

@@ -10,21 +10,24 @@
             The <a id="link" href="{{ $invoice_redirect_url }}" target="_blank">invoice</a> will be marked as paid automatically once the payment is confirmed.
         </div> -->
         <div class="initial-state">
-        <div class="invoice-number">Invoice #{{$invoice_number}}</div>
-        <div>To pay, send bitcoin to this address:</div>
+        <div class="invoice-info-wrapper">
+            <div class="invoice-number">Invoice #{{$invoice_number}}</div>
+            <div class="invoice-amount">{{$amount}} {{$currency}}</div>
+        </div>
+        <b>To pay, send bitcoin to this address:</b>
         <span class="input-wrapper">
-            <input class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly>
-            <img onclick='copyToClipboard("{{$btc_address}}", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
+            <input onclick='copyToClipboard("{{$btc_address}}", this, true)' class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly>
+            <img onclick='copyToClipboard("{{$btc_address}}", this)' style="margin-right: 32px;" src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
         </span>
-        <div>Amount of bitcoin (BTC) to send:</div>
+        <b>Amount of bitcoin (BTC) to send:</b>
         <span class="input-wrapper">
-            <div class="full-width-input">
+            <div class="full-width-input" id="btc-amount" onclick='copyToClipboard("{{$btc_amount}}", this, true)'>
                 {{$btc_amount}}
             </div>
             <img onclick='copyToClipboard("{{$btc_amount}}", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
-            <span class="icon-refresh"></span>
+            <span class="icon-refresh" onclick='refreshBTCPrice()'></span>
         </span>
-        <span>1 BTC = {{$amount}} {{$currency}}, updates in <span id="countdown"></span></span>
+        <div class="btc-value">1 BTC = {{$btc_price}} {{$currency}}, updates in <span id="countdown"></span></div>
         </div>
     </div>
 
@@ -41,19 +44,22 @@
     </form>
 
     <script>
-        // Get the end time as a Unix timestamp (seconds)
-        const endTimeUnix = {{ $end_time }};
-        console.log("End time (Unix timestamp):", endTimeUnix); // For debugging
-
-        // Convert Unix timestamp to milliseconds for JavaScript Date
-        const countDownDate = endTimeUnix * 1000;
+    // Define the startTimer function
+    function startTimer(seconds) {
+        const countDownDate = new Date().getTime() + seconds * 1000;
+        document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
 
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = countDownDate - now;
 
+            const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
+            if (isRefreshing) {
+                return;
+            }
+
             if (distance < 0) {
-                document.getElementById("countdown").innerHTML = "EXPIRED";
+                refreshBTCPrice();
                 return;
             }
 
@@ -64,10 +70,18 @@
 
             document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
         }
-        setInterval(updateCountdown, 1000);
+
+        // Clear any existing intervals to avoid multiple intervals running simultaneously
+        clearInterval(window.countdownInterval);
+        window.countdownInterval = setInterval(updateCountdown, 1000);
+    }
+    // Call startTimer initially with the desired countdown time
+    startTimer(600); // Start the timer for 10 minutes (600 seconds)
     </script>
     <script>
-        function copyToClipboard(text, element) {
+        function copyToClipboard(text, passedElement, shouldGrabNextElementSibling) {
+            const element = shouldGrabNextElementSibling ? passedElement.nextElementSibling : passedElement;
+            const originalIcon = element.src;  // Store the original icon
             const tempInput = document.createElement("input");
             tempInput.value = text;
             document.body.appendChild(tempInput);
@@ -75,10 +89,7 @@
             document.execCommand("copy");
             document.body.removeChild(tempInput);
 
-            // Change the icon to the check icon
-            const iconElement = element.querySelector('.icon');
-            const originalIcon = iconElement.src;
-            iconElement.src = 'data:image/svg+xml;base64,' + btoa(`
+            element.src = 'data:image/svg+xml;base64,' + btoa(`
                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M4.04706 14C4.04706 8.55609 8.46025 4.1429 13.9042 4.1429C19.3482 4.1429 23.7613 8.55609 23.7613 14C23.7613 19.444 19.3482 23.8572 13.9042 23.8572C8.46025 23.8572 4.04706 19.444 4.04706 14Z" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M9.52325 14L12.809 17.2858L18.2852 11.8096" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
@@ -87,11 +98,45 @@
 
             // Change the icon back to the original after 5 seconds
             setTimeout(() => {
-                iconElement.src = originalIcon;
+                element.src = originalIcon;
             }, 5000);
 
             // Optionally, you can show a message to the user
             console.log(`Copied the text: ${text}`);
+        }
+    </script>
+
+    <script>
+        async function getBTCPrice() {
+            try {
+                const response = await fetch(`/api/v1/get-btc-price?currency={{$currency}}`); // New endpoint to call server-side function
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data.price;
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+                // Handle error appropriately
+            }
+        }
+
+        async function refreshBTCPrice() {
+            const refreshIcon = document.querySelector('.icon-refresh');
+            refreshIcon.classList.add('rotating');
+            document.getElementsByClassName("btc-value")[0].innerHTML = "Refreshing...";
+
+            try {
+                const newPrice = await getBTCPrice();
+                if (newPrice) {
+                    document.getElementsByClassName("btc-value")[0].innerHTML = "1 BTC = " + (newPrice || "N/A") + " {{$currency}}, updates in <span id='countdown'></span>";
+                    const newBtcAmount = ({{$amount}} / newPrice).toFixed(10);
+                    document.getElementById('btc-amount').textContent = newBtcAmount;
+                    startTimer(600); // Restart timer for 10 minutes (600 seconds)
+                }
+            } finally {
+                refreshIcon.classList.remove('rotating');
+            }
         }
     </script>
 
@@ -127,23 +172,39 @@
 
 
     <style type="text/css">
-        .invoice-number {
+        .invoice-info-wrapper {
             width: 100%;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }    
+        .invoice-number {
+            width: 50%;
+            float: left;
+            text-align: left;
+        }    
+        .invoice-amount {
+            width: 50%;
             float: right;
             text-align: right;
             text-transform: uppercase;
             margin-bottom: 20px;
+            font-weight: bold;
         }    
         .blockonomics-payment-wrapper {
             display: flex;
             justify-content: center;
+            width: 100%;
         }
         .initial-state {
             justify-content: center;
             display: flex;
             flex-direction: column;
             text-align: center;
-            padding: 12px;
+            width: 100%;
+            padding: 24px;
         }
         .input-wrapper {
             display: flex;
@@ -153,22 +214,43 @@
         }
         .full-width-input {
             width: 100%;
+            max-width: 400px;
             margin: 10px;
             padding: 10px;
-            text-align: center;
+            text-align: left;
             border: 1px solid #ccc;
             border-radius: 5px;
-            font-weight: bold;
+            color: #444;
             cursor: pointer;
             position: relative;
         }
         .icon {
             cursor: pointer;
+            width: 28px;
         }
         .icon-refresh::before {
             content: '\27F3';
             cursor: pointer;
             margin-left: 5px;
+            width: 28px;
+            display: flex;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        .btc-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        @keyframes rotating {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .rotating {
+            animation: rotating 2s linear infinite;
         }
         /* .progress-message {
             display: none;
