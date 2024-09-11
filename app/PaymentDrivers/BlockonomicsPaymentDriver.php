@@ -53,9 +53,101 @@ class BlockonomicsPaymentDriver extends BaseDriver
     {
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
         $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
+        $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
         // $this->setCallbackUrl();
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
+
+
+    public function findPaymentByTxid($txid)
+    {
+        return Payment::whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid])->firstOrFail();
+    }
+
+
+
+    /* Returns an array of gateway types for the payment gateway */
+    public function gatewayTypes(): array
+    {
+        $types = [];
+
+        $types[] = GatewayType::CRYPTO;
+
+        return $types;
+    }
+
+    public function setPaymentMethod($payment_method_id)
+    {
+        $class = self::$methods[$payment_method_id];
+        $this->payment_method = new $class($this);
+        return $this;
+    }
+
+    public function processPaymentView(array $data)
+    {
+        return $this->payment_method->paymentView($data);  //this is your custom implementation from here
+    }
+
+    public function processPaymentResponse($request)
+    {
+        return $this->payment_method->paymentResponse($request);
+    }
+
+    public function processWebhookRequest()
+    {
+        // TODO: Figure out why init does not work
+        $this->init();
+        $secret = $this->callback_secret;
+        //Match secret for security
+        if ($_GET['secret'] != $secret) {
+            echo "Invalid Secret";
+            return;
+        }
+
+        $txid = $_GET['txid'];
+        $value = $_GET['value'];
+        $status = $_GET['status'];
+        $addr = $_GET['addr'];
+
+        // Only accept confirmed transactions
+        if ($status != 2) {
+            throw new PaymentFailed('Transaction not confirmed');
+        }
+        
+        $payment = $this->findPaymentByTxid($txid);
+        // $payment_hash = $this->findPaymentHashInTransactionReference($payment->transaction_reference);
+
+        switch ($status) {
+            case 0:
+                $statusId = Payment::STATUS_PENDING;
+                break;
+            case 1:
+                $statusId = Payment::STATUS_PENDING;
+                break;
+            case 2:
+                $statusId = Payment::STATUS_COMPLETED;
+                break;
+        }
+
+        // Save the updated payment status
+        if ($payment->status_id != $statusId) {
+            $payment->status_id = $statusId;
+            $payment->save();
+        }
+
+        header('HTTP/1.1 200 OK');
+        echo 'SUCCESS';
+        return;
+    }
+
+
+    public function refund(Payment $payment, $amount, $return_client_response = false)
+    {
+        $this->setPaymentMethod(GatewayType::CRYPTO);
+        return $this->payment_method->refund($payment, $amount); //this is your custom implementation from here
+    }
+}
+
 
     // public function doCurlCall($url, $post_content = '')
     // {
@@ -110,92 +202,3 @@ class BlockonomicsPaymentDriver extends BaseDriver
     //         return null;
     //     }
     // }
-
-    public function findPaymentByTxid($txid)
-    {
-        return Payment::whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid])->firstOrFail();
-    }
-
-
-
-    /* Returns an array of gateway types for the payment gateway */
-    public function gatewayTypes(): array
-    {
-        $types = [];
-
-        $types[] = GatewayType::CRYPTO;
-
-        return $types;
-    }
-
-    public function setPaymentMethod($payment_method_id)
-    {
-        $class = self::$methods[$payment_method_id];
-        $this->payment_method = new $class($this);
-        return $this;
-    }
-
-    public function processPaymentView(array $data)
-    {
-        return $this->payment_method->paymentView($data);  //this is your custom implementation from here
-    }
-
-    public function processPaymentResponse($request)
-    {
-        return $this->payment_method->paymentResponse($request);
-    }
-
-    public function processWebhookRequest()
-    {
-        // TODO: Figure out why init does not work
-        // $this->init();
-        // $secret = $this->company_gateway->getConfigField('callbackSecret');
-        // //Match secret for security
-        // if ($_GET['secret'] != $secret) {
-        //     echo "Invalid Secret";
-        //     return;
-        // }
-
-        $txid = $_GET['txid'];
-        $value = $_GET['value'];
-        $status = $_GET['status'];
-        $addr = $_GET['addr'];
-
-        // Only accept confirmed transactions
-        if ($status != 2) {
-            throw new PaymentFailed('Transaction not confirmed');
-        }
-        
-        $payment = $this->findPaymentByTxid($txid);
-        // $payment_hash = $this->findPaymentHashInTransactionReference($payment->transaction_reference);
-
-        switch ($status) {
-            case 0:
-                $statusId = Payment::STATUS_PENDING;
-                break;
-            case 1:
-                $statusId = Payment::STATUS_PENDING;
-                break;
-            case 2:
-                $statusId = Payment::STATUS_COMPLETED;
-                break;
-        }
-
-        // Save the updated payment status
-        if ($payment->status_id != $statusId) {
-            $payment->status_id = $statusId;
-            $payment->save();
-        }
-
-        header('HTTP/1.1 200 OK');
-        echo 'SUCCESS';
-        return;
-    }
-
-
-    public function refund(Payment $payment, $amount, $return_client_response = false)
-    {
-        $this->setPaymentMethod(GatewayType::CRYPTO);
-        return $this->payment_method->refund($payment, $amount); //this is your custom implementation from here
-    }
-}

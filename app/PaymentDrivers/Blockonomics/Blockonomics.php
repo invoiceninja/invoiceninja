@@ -33,7 +33,7 @@ class Blockonomics implements MethodInterface
 {
     use MakesHash;
 
-    protected BlockonomicsPaymentDriver $blockonomics;
+    public $driver_class;
 
     public function __construct(BlockonomicsPaymentDriver $driver_class)
     {
