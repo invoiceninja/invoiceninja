@@ -5312,6 +5312,20 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'comments_only' => 'Commentaires seulement',
     'payment_balance_on_file' => 'Payer le solde inscrit au dossier',
     'ubl_email_attachment_help' => 'Plus de paramètres pour E-facture, cliquez :here',
+    'stop_task_to_add_task_entry' => 'Vous dez arrêter la tâche avant d\'ajouter un nouvel article.',
+    'xml_file' => 'Fichier XML',
+    'one_page_checkout' => 'Paiement simplifié',
+    'one_page_checkout_help' => 'Activer la nouvelle page de paiement simplifiée',
+    'applies_to' => 'S\'applique à',
+    'accept_purchase_order' => 'Accepter le bon d\'achat',
+    'round_to_seconds' => 'Arrondir aux secondes',
+    'activity_142' => 'Le rappel 1 de la soumission :number a été envoyé',
+    'activity_143' => 'La facturation automatique a réussi pour la facture :invoice',
+    'activity_144' => 'La facturation automatique de :invoice_number a échouée. :notes',
+    'activity_145' => 'E-Facture :invoice pour :client à été envoyée. :notes',
+    'payment_failed' => 'Le paiement a échoué',
+    'ssl_host_override' => 'Substitution d\'hôte SSL',
+    'upload_logo_short' => 'Téléverser un logo',
 );
 
 return $lang;

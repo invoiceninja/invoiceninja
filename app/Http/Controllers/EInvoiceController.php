@@ -11,12 +11,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\SystemError;
 use App\Http\Requests\EInvoice\ValidateEInvoiceRequest;
 use App\Services\EDocument\Standards\Validation\Peppol\EntityLevel;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 
 class EInvoiceController extends BaseController
 {
@@ -33,7 +29,9 @@ class EInvoiceController extends BaseController
             'companies' => $data = $el->checkCompany($request->getEntity()),
             default => $data['passes'] = false,
         };
-nlog($data);
+        
+        nlog($data);
+
         return response()->json($data, $data['passes'] ? 200 : 400);
 
     }
