@@ -12,7 +12,6 @@
 */
 use App\Http\Controllers\SubscriptionStepsController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Gateways\BlockonomicsController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\BrevoController;
 use App\Http\Controllers\PingController;
@@ -99,6 +98,7 @@ use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
 use App\Http\Controllers\Reports\ReportExportController;
 use App\Http\Controllers\Reports\VendorReportController;
+use App\Http\Controllers\Gateways\BlockonomicsController;
 use App\Http\Controllers\Reports\ExpenseReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;

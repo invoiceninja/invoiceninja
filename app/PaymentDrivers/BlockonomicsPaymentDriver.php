@@ -18,6 +18,7 @@ use App\Models\GatewayType;
 use App\PaymentDrivers\Blockonomics\Blockonomics;
 use App\Models\SystemLog;
 use App\Models\Payment;
+use App\Models\Gateway;
 use App\Models\Client;
 use App\Exceptions\PaymentFailed;
 use App\Models\PaymentType;
@@ -54,16 +55,26 @@ class BlockonomicsPaymentDriver extends BaseDriver
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
         $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
         $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
-        // $this->setCallbackUrl();
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 
 
-    public function findPaymentByTxid($txid)
+    public function getPaymentByTxid($txid)
     {
         return Payment::whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid])->firstOrFail();
     }
 
+    public function getCallbackSecret()
+    {
+        $blockonomicsGatewayData = Gateway::find(64);
+        $intialData = json_decode($blockonomicsGatewayData, true);
+        $jsonString = $intialData['fields'];
+        $blockonomicsFields = json_decode($jsonString, true);
+
+        // Access the value of callbackSecret
+        $callbackSecret = $blockonomicsFields['callbackSecret'];
+        return $callbackSecret;
+    }
 
 
     /* Returns an array of gateway types for the payment gateway */
@@ -95,27 +106,24 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processWebhookRequest()
     {
-        // TODO: Figure out why init does not work
-        $this->init();
-        $secret = $this->callback_secret;
-        //Match secret for security
-        if ($_GET['secret'] != $secret) {
-            echo "Invalid Secret";
-            return;
-        }
 
         $txid = $_GET['txid'];
         $value = $_GET['value'];
         $status = $_GET['status'];
         $addr = $_GET['addr'];
+                
+        $payment = $this->getPaymentByTxid($txid);
+        $callbackSecret = $this->getCallbackSecret();
 
+        //Match secret for security
+        if ($_GET['secret'] != $callbackSecret) {
+            throw new PaymentFailed('Secret does not match');
+            return;
+        }
         // Only accept confirmed transactions
         if ($status != 2) {
             throw new PaymentFailed('Transaction not confirmed');
         }
-        
-        $payment = $this->findPaymentByTxid($txid);
-        // $payment_hash = $this->findPaymentHashInTransactionReference($payment->transaction_reference);
 
         switch ($status) {
             case 0:
