@@ -23,17 +23,13 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Jobs\Mail\PaymentFailureMailer;
-use Illuminate\Mail\Mailables\Address;
-use App\Services\Email\EmailObject;
-use App\Services\Email\Email;
-use Illuminate\Support\Facades\App;
-use App\Models\Invoice;
 
 class Blockonomics implements MethodInterface
 {
     use MakesHash;
 
     public $driver_class;
+    public $blockonomics;
 
     public function __construct(BlockonomicsPaymentDriver $driver_class)
     {

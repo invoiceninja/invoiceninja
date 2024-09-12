@@ -50,6 +50,10 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     public $PRICE_URL = 'https://www.blockonomics.co/api/price';
 
+    public $api_key; 
+    public $callback_url; 
+    public $callback_secret; 
+
     public function init()
     {
         $this->api_key = $this->company_gateway->getConfigField('apiKey');

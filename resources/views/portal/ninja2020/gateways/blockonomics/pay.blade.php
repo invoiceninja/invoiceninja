@@ -14,20 +14,35 @@
             <div class="invoice-number">Invoice #{{$invoice_number}}</div>
             <div class="invoice-amount">{{$amount}} {{$currency}}</div>
         </div>
-        <b>To pay, send bitcoin to this address:</b>
-        <span class="input-wrapper">
-            <input onclick='copyToClipboard("{{$btc_address}}", this, true)' class="full-width-input" id="btcAddress" value="{{$btc_address}}" readonly>
-            <img onclick='copyToClipboard("{{$btc_address}}", this)' style="margin-right: 32px;" src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
-        </span>
-        <b>Amount of bitcoin (BTC) to send:</b>
-        <span class="input-wrapper">
-            <div class="full-width-input" id="btc-amount" onclick='copyToClipboard("{{$btc_amount}}", this, true)'>
-                {{$btc_amount}}
+        <div class="sections-wrapper">
+            <div class="scan-section">
+                <div class="title">Scan</div>
+                <span class="input-wrapper">
+                    <a href="bitcoin:{{$btc_address}}?amount={{$btc_amount}}" id="qr-code-link" target="_blank">
+                        <div id="qrcode-container"></div>
+                    </a>
+                </span>
+                <a href="bitcoin:{{$btc_address}}?amount={{$btc_amount}}" target="_blank" id="open-in-wallet-link">Open in Wallet</a>
             </div>
-            <img onclick='copyToClipboard("{{$btc_amount}}", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
-            <span class="icon-refresh" onclick='refreshBTCPrice()'></span>
-        </span>
-        <div class="btc-value">1 BTC = {{$btc_price}} {{$currency}}, updates in <span id="countdown"></span></div>
+            <div class="copy-section">
+                <div class="title">Copy</div>
+                <span>To pay, send bitcoin to this address:</span>
+                <span class="input-wrapper">
+                    <input onclick='copyToClipboard("btc-address", this, true)' class="full-width-input" id="btc-address" value="{{$btc_address}}" readonly>
+                    <img onclick='copyToClipboard("btc-address", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
+                </span>
+                <span>Amount of bitcoin (BTC) to send:</span>
+                <span class="input-wrapper">
+                    <div class="full-width-input" id="btc-amount" onclick='copyToClipboard("btc-amount", this, true)''>
+                        {{$btc_amount}}
+                    </div>
+                    <img onclick='copyToClipboard("btc-amount", this)'' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
+                </span>
+                <div class="btc-value-wrapper">
+                    <div class="btc-value">1 BTC = {{$btc_price}} {{$currency}}, updates in <span id="countdown"></span></div>
+                    <span class="icon-refresh" onclick='refreshBTCPrice()'></span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -38,6 +53,7 @@
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="token">
         <input type="hidden" name="amount" value="{{ $amount }}">
+        <input type="hidden" name="btc_amount" value="{{ $btc_amount }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="txid" value="">
@@ -79,10 +95,16 @@
     startTimer(600); // Start the timer for 10 minutes (600 seconds)
     </script>
     <script>
-        function copyToClipboard(text, passedElement, shouldGrabNextElementSibling) {
+        function copyToClipboard(elementId, passedElement, shouldGrabNextElementSibling) {
             const element = shouldGrabNextElementSibling ? passedElement.nextElementSibling : passedElement;
             const originalIcon = element.src;  // Store the original icon
             const tempInput = document.createElement("input");
+            console.log(elementId);
+            const elementWithId = document.getElementById(elementId);
+            const { value, innerText } = elementWithId || {};
+            console.log(value, innerText);
+            // Get the text from the element by ID
+            const text = value || innerText;
             tempInput.value = text;
             document.body.appendChild(tempInput);
             tempInput.select();
@@ -116,10 +138,14 @@
                 const data = await response.json();
                 return data.price;
             } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
+                console.error('There was a problem with the BTC price fetch operation:', error);
                 // Handle error appropriately
             }
         }
+
+        function wait(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
         async function refreshBTCPrice() {
             const refreshIcon = document.querySelector('.icon-refresh');
@@ -127,11 +153,27 @@
             document.getElementsByClassName("btc-value")[0].innerHTML = "Refreshing...";
 
             try {
-                const newPrice = await getBTCPrice();
+                // const newPrice = await getBTCPrice();
+                await wait(2000);
+                const newPrice = Math.floor(Math.random() * (2 * 1000+ 1)) + (211701- 1000);
+
                 if (newPrice) {
+                    // Update the text content of the countdown span to the new bitcoin price
                     document.getElementsByClassName("btc-value")[0].innerHTML = "1 BTC = " + (newPrice || "N/A") + " {{$currency}}, updates in <span id='countdown'></span>";
                     const newBtcAmount = ({{$amount}} / newPrice).toFixed(10);
+
+                    // set the value of the input field and the text content of the span to the new bitcoin amount
+                    document.querySelector('input[name="btc_amount"]').value = newBtcAmount;
                     document.getElementById('btc-amount').textContent = newBtcAmount;
+                    
+                    // set the href attribute of the link to the new bitcoin amount
+                    const qrCodeLink = document.getElementById('qr-code-link');
+                    const openInWalletLink = document.getElementById('open-in-wallet-link');
+                    qrCodeLink.href = `bitcoin:{{$btc_address}}?amount=${newBtcAmount}`;
+                    openInWalletLink.href = `bitcoin:{{$btc_address}}?amount=${newBtcAmount}`;
+                    
+                    // fetch and display the new QR code
+                    fetchAndDisplayQRCode(newBtcAmount);
                     startTimer(600); // Restart timer for 10 minutes (600 seconds)
                 }
             } finally {
@@ -170,13 +212,62 @@
         };
     </script>
 
+    <script>
+        async function fetchAndDisplayQRCode(newBtcAmount = null) {
+            try {
+                const btcAmount = newBtcAmount || '{{$btc_amount}}';
+                const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=bitcoin:${btcAmount}?amount={{$btc_amount}}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const svgText = await response.text();
+                document.getElementById('qrcode-container').innerHTML = svgText;
+            } catch (error) {
+                console.error('Error fetching QR code:', error);
+                document.getElementById('qrcode-container').textContent = 'Error loading QR code';
+            }
+        }
+        fetchAndDisplayQRCode();
+    </script>
+
 
     <style type="text/css">
+        .sections-wrapper {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            /* Mobile devices */
+            @media (max-width: 768px) {
+                flex-direction: column; /* Change to column on smaller screens */
+            }
+        }
+        .copy-section {
+            width: 60%;
+            @media (max-width: 768px) {
+                width: 100%; /* Full width on smaller screens */
+            }
+        }
+        .title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        #open-in-wallet-link {
+            text-align: center;
+            text-decoration: underline;
+            width: 100%;
+            justify-content: center;
+            display: flex;
+            margin-top: 10px;
+            margin-bottom: 20px;
+             &:hover {
+                text-decoration: none;
+            }
+        }
         .invoice-info-wrapper {
             width: 100%;
             text-transform: uppercase;
             margin-bottom: 20px;
-            font-weight: bold;
             display: flex;
             justify-content: space-between;
         }    
@@ -191,7 +282,6 @@
             text-align: right;
             text-transform: uppercase;
             margin-bottom: 20px;
-            font-weight: bold;
         }    
         .blockonomics-payment-wrapper {
             display: flex;
@@ -202,7 +292,6 @@
             justify-content: center;
             display: flex;
             flex-direction: column;
-            text-align: center;
             width: 100%;
             padding: 24px;
         }
@@ -211,11 +300,12 @@
             justify-content: center;
             align-items: center;
             flex-direction: row;
+            width: 100%;
+            margin-bottom: 10px;
         }
         .full-width-input {
             width: 100%;
             max-width: 400px;
-            margin: 10px;
             padding: 10px;
             text-align: left;
             border: 1px solid #ccc;
@@ -227,6 +317,7 @@
         .icon {
             cursor: pointer;
             width: 28px;
+            margin-left: 5px;
         }
         .icon-refresh::before {
             content: '\27F3';
@@ -239,7 +330,13 @@
         }
         .btc-value {
             font-size: 14px;
-            font-weight: bold;
+            text-align: center;
+        }
+        .btc-value-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
         }
         @keyframes rotating {
             from {

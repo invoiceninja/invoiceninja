@@ -462,5 +462,6 @@ Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::cla
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 Route::get('api/v1/blockonomics/callback', [BlockonomicsPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 Route::get('api/v1/get-btc-price', [BlockonomicsController::class, 'getBTCPrice'])->middleware('throttle:1000,1');
+Route::get('api/v1/get-blockonomics-qr-code', [BlockonomicsController::class, 'getQRCode'])->middleware('throttle:1000,1');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');
