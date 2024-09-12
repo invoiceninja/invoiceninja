@@ -153,10 +153,7 @@
             document.getElementsByClassName("btc-value")[0].innerHTML = "Refreshing...";
 
             try {
-                // const newPrice = await getBTCPrice();
-                await wait(2000);
-                const newPrice = Math.floor(Math.random() * (2 * 1000+ 1)) + (211701- 1000);
-
+                const newPrice = await getBTCPrice();
                 if (newPrice) {
                     // Update the text content of the countdown span to the new bitcoin price
                     document.getElementsByClassName("btc-value")[0].innerHTML = "1 BTC = " + (newPrice || "N/A") + " {{$currency}}, updates in <span id='countdown'></span>";
