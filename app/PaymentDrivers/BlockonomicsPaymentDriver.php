@@ -124,22 +124,13 @@ class BlockonomicsPaymentDriver extends BaseDriver
             throw new PaymentFailed('Secret does not match');
             return;
         }
+
         // Only accept confirmed transactions
         if ($status != 2) {
             throw new PaymentFailed('Transaction not confirmed');
         }
 
-        switch ($status) {
-            case 0:
-                $statusId = Payment::STATUS_PENDING;
-                break;
-            case 1:
-                $statusId = Payment::STATUS_PENDING;
-                break;
-            case 2:
-                $statusId = Payment::STATUS_COMPLETED;
-                break;
-        }
+        $statusId = Payment::STATUS_COMPLETED;
 
         // Save the updated payment status
         if ($payment->status_id != $statusId) {
@@ -148,7 +139,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
         }
 
         header('HTTP/1.1 200 OK');
-        echo 'SUCCESS';
+        echo "Success";
         return;
     }
 
