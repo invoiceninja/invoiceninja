@@ -83,13 +83,6 @@ class Blockonomics implements MethodInterface
         return "Something went wrong";
     }
 
-    public function getTenMinutesCountDownEndTime()
-    {
-        $duration_in_sec = 10 * 60; // 10 minutes in seconds
-        $current_time = time();
-        return $current_time + $duration_in_sec;
-    }
-
     public function getBTCPrice()
     {
         $currency_code = $this->blockonomics->client->getCurrencyCode();
@@ -103,22 +96,19 @@ class Blockonomics implements MethodInterface
 
     public function paymentView($data)
     {
+        $btc_price = $this->getBTCPrice();
+        $btc_address = $this->getBTCAddress();
+        $fiat_amount = $data['total']['amount_with_fee'];
+        $btc_amount = $fiat_amount / $btc_price;
         $_invoice = collect($this->blockonomics->payment_hash->data->invoices)->first();
         $data['gateway'] = $this->blockonomics;
-        $data['amount'] = $data['total']['amount_with_fee'];
+        $data['company_gateway_id'] = $this->blockonomics->getCompanyGatewayId();
+        $data['amount'] = $fiat_amount;
         $data['currency'] = $this->blockonomics->client->getCurrencyCode();
-        $btc_price = $this->getBTCPrice();
-        $btc_amount = $data['amount'] / $btc_price;
         $data['btc_amount'] = number_format($btc_amount, 10, '.', '');
-        $btc_address = $this->getBTCAddress();
         $data['btc_address'] = $btc_address;
         $data['btc_price'] = $btc_price;
-        $data['invoice_id'] = $_invoice->invoice_id;
         $data['invoice_number'] = $_invoice->invoice_number;
-        $data['end_time'] = $this->getTenMinutesCountDownEndTime();
-        $data['invoice_redirect_url'] = "/client/invoices/{$_invoice->invoice_id}";
-
-        $data['websocket_url'] = 'wss://www.blockonomics.co/payment/' . $btc_address;
         return render('gateways.blockonomics.pay', $data);
     }
 
@@ -129,16 +119,19 @@ class Blockonomics implements MethodInterface
             'payment_hash' => ['required'],
             'amount' => ['required'],
             'currency' => ['required'],
+            'txid' => ['required'],
+            'payment_method_id' => ['required'],
         ]);
 
         try {
             $data = [];
-            $data['amount'] = $request->amount;
+            $fiat_amount = $request->btc_price * $request->btc_amount;
+            $data['amount'] = $fiat_amount;
+            $data['currency'] = $request->currency;
             $data['payment_method_id'] = $request->payment_method_id;
             $data['payment_type'] = PaymentType::CRYPTO;
             $data['gateway_type_id'] = GatewayType::CRYPTO;
-            $data['transaction_reference'] = "payment hash: " . $request->payment_hash . " txid: " . $request->txid;
-            $data['txid'] = $request->txid;
+            $data['transaction_reference'] = "payment hash: " . $request->payment_hash . " txid: " . $request->txid . " BTC amount: " . $request->btc_amount;
 
             $statusId = Payment::STATUS_PENDING;
             $payment = $this->blockonomics->createPayment($data, $statusId);

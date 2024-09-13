@@ -43,10 +43,11 @@
     <form action="{{ route('client.payments.response') }}" method="post" id="server-response">
         @csrf
         <input type="hidden" name="gateway_response">
-        <input type="hidden" name="company_gateway_id" value="{{ $gateway->getCompanyGatewayId() }}">
+        <input type="hidden" name="company_gateway_id" value="{{ $company_gateway_id }}">
         <input type="hidden" name="payment_method_id" value="{{ $payment_method_id }}">
         <input type="hidden" name="token">
         <input type="hidden" name="amount" value="{{ $amount }}">
+        <input type="hidden" name="btc_price" value="{{ $btc_price }}">
         <input type="hidden" name="btc_amount" value="{{ $btc_amount }}">
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
@@ -54,7 +55,7 @@
     </form>
 
     <script>
-        const = startTimer(seconds) => {
+        const startTimer = (seconds) => {
             const countDownDate = new Date().getTime() + seconds * 1000;
             document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
 
@@ -138,6 +139,7 @@
                     const newBtcAmount = ({{$amount}} / newPrice).toFixed(10);
 
                     // set the value of the input field and the text content of the span to the new bitcoin amount
+                    document.querySelector('input[name="btc_price"]').value = newPrice;
                     document.querySelector('input[name="btc_amount"]').value = newBtcAmount;
                     document.getElementById('btc-amount').textContent = newBtcAmount;
                     
@@ -157,7 +159,7 @@
         }
 
         const connectToWebsocket = () => {
-            const webSocketUrl = "{{ $websocket_url }}";
+            const webSocketUrl = "wss://www.blockonomics.co/payment/{{ $btc_address }}";
             const ws = new WebSocket(webSocketUrl);
 
             ws.onmessage = function(event) {
