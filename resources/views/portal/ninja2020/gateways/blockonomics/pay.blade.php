@@ -179,7 +179,8 @@
         const fetchAndDisplayQRCode = async (newBtcAmount = null) => {
             try {
                 const btcAmount = newBtcAmount || '{{$btc_amount}}';
-                const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=bitcoin:{{$btc_address}}?amount=${btcAmount}`);
+                const qrString = encodeURIComponent(`bitcoin:{{$btc_address}}?amount=${btcAmount}`);
+                const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=${qrString}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
