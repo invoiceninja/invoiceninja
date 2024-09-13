@@ -1116,7 +1116,7 @@ class CreateSingleAccount extends Command
 
     private function countryClients($company, $user)
     {
-        
+
         Client::unguard();
 
         Client::create([

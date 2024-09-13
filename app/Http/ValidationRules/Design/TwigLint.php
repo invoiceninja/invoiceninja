@@ -31,12 +31,8 @@ class TwigLint implements ValidationRule
         try {
             $twig->parse($twig->tokenize(new \Twig\Source(preg_replace('/<!--.*?-->/s', '', $value), '')));
         } catch (\Twig\Error\SyntaxError $e) {
-            // echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
-            nlog($e->getMessage());
             $fail($e->getMessage());
-
         }
-
 
     }
 }

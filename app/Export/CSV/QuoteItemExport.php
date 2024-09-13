@@ -104,7 +104,7 @@ class QuoteItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($resource) {
-                
+
                 /** @var \App\Models\Quote $resource */
                 $this->iterateItems($resource);
 
@@ -136,7 +136,7 @@ class QuoteItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($quote) {
-                
+
                 /** @var \App\Models\Quote $quote */
                 $this->iterateItems($quote);
             });

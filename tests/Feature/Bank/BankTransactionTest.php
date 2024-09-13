@@ -29,7 +29,7 @@ class BankTransactionTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -59,7 +59,7 @@ class BankTransactionTest extends TestCase
         $bt->base_type = 'DEBIT';
         $bt->save();
 
-                
+
         $bi2 = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
         $bi2->bank_account_name = "Bank2";
         $bi2->save();
@@ -86,7 +86,7 @@ class BankTransactionTest extends TestCase
         $arr = $response->json();
 
         $transaction_count = count($arr['data']);
-        
+
         $this->assertGreaterThan(1, $transaction_count);
 
         $response = $this->withHeaders([
@@ -216,7 +216,7 @@ class BankTransactionTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertNotNull($e2->refresh()->transaction_id);
-        
+
         $this->assertEquals("{$this->expense->hashed_id},{$e->hashed_id},{$e2->hashed_id}", $bt->fresh()->expense_id);
 
         $expense_repo = app('App\Repositories\ExpenseRepository');
@@ -475,7 +475,7 @@ class BankTransactionTest extends TestCase
     public function testMatchBankTransactionsValidationShouldFail()
     {
         $data = [];
-        
+
         $data['transactions'][] = [
             'bad_key' => 10,
         ];

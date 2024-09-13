@@ -59,7 +59,6 @@ class Register extends Component
 
     public function register(array $data)
     {
-
         $service = new ClientRegisterService(
             company: $this->subscription->company,
             additional: $this->additional_fields,

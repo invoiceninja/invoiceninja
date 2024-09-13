@@ -142,7 +142,7 @@ class UpdateClientRequest extends Request
 
     private function getCountryCode($country_code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
@@ -155,7 +155,7 @@ class UpdateClientRequest extends Request
 
     private function getLanguageId($language_code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 

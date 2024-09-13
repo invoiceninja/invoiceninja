@@ -70,7 +70,7 @@
                                         @foreach(App\Utils\TranslationHelper::getCurrencies() as $currency)
                                             <option
                                                 {{ $currency->id == $register_company->settings->currency_id ? 'selected' : null }} value="{{ $currency->id }}">
-                                                {{ $currency->name }}
+                                                {{ $currency->getName() }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -83,7 +83,7 @@
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)
                                             <option value="{{ $country->id }}">
                                                 {{ $country->iso_3166_2 }}
-                                                ({{ $country->name }})
+                                                ({{ $country->getName() }})
                                             </option>
                                         @endforeach
                                     </select>

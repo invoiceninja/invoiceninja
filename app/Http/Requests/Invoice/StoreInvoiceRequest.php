@@ -89,9 +89,15 @@ class StoreInvoiceRequest extends Request
 
     public function prepareForValidation()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
+
+        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|INVOICE|".$this->input('client_id', '')."|".$user->company()->company_key)) {
+            usleep(200000);
+        }
+
+        \Illuminate\Support\Facades\Cache::put($this->ip()."|INVOICE|".$this->input('client_id', '')."|".$user->company()->company_key,1);
 
         $input = $this->all();
 
@@ -106,7 +112,7 @@ class StoreInvoiceRequest extends Request
         }
         if(isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;
-        }        
+        }
         if (!isset($input['tax_rate1'])) {
             $input['tax_rate1'] = 0;
         }

@@ -31,7 +31,7 @@ class InvoicesTest extends TestCase
     use AppSetup;
 
     public $faker;
-    
+
     protected function setUp(): void
     {
         parent::setUp();

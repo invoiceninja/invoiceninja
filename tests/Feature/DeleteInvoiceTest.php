@@ -31,7 +31,7 @@ class DeleteInvoiceTest extends TestCase
     use MockAccountData;
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

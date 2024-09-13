@@ -1407,10 +1407,10 @@ class CompanyImport implements ShouldQueue
         switch ($type) {
             case 'invoices':
                 return $this->transformId('invoices', $id);
-                
+
             case Credit::class:
                 return $this->transformId('credits', $id);
-                
+
             case Payment::class:
                 return $this->transformId('payments', $id);
             default:

@@ -353,22 +353,22 @@ class PurchaseOrder extends BaseModel
         return ctrans('texts.purchase_order');
     }
 
-    public function typeIdString($id): string
-    {
-        $type = '';
-        match($id) {
-            '1' => $type = ctrans('texts.product'),
-            '2' => $type = ctrans('texts.service'),
-            '3' => $type = ctrans('texts.gateway_fees'),
-            '4' => $type = ctrans('texts.gateway_fees'),
-            '5' => $type = ctrans('texts.late_fees'),
-            '6' => $type = ctrans('texts.expense'),
-            default => $type = ctrans('texts.product'),
-        };
+    // public function typeIdString($id): string
+    // {
+    //     $type = '';
+    //     match($id) {
+    //         '1' => $type = ctrans('texts.product'),
+    //         '2' => $type = ctrans('texts.service'),
+    //         '3' => $type = ctrans('texts.gateway_fees'),
+    //         '4' => $type = ctrans('texts.gateway_fees'),
+    //         '5' => $type = ctrans('texts.late_fees'),
+    //         '6' => $type = ctrans('texts.expense'),
+    //         default => $type = ctrans('texts.product'),
+    //     };
 
-        return $type;
+    //     return $type;
 
-    }
+    // }
 
     public function taxTypeString($id): string
     {

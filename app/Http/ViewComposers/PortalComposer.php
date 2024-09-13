@@ -88,11 +88,11 @@ class PortalComposer
         $data['sidebar'] = $this->sidebarMenu();
         $data['header'] = [];
         $data['footer'] = [];
-        $data['countries'] = TranslationHelper::getCountries();
+        $data['countries'] = app('countries');
         $data['company'] = auth()->guard('contact')->user()->company;
         $data['client'] = auth()->guard('contact')->user()->client;
         $data['settings'] = $this->settings;
-        $data['currencies'] = TranslationHelper::getCurrencies();
+        $data['currencies'] = app('currencies');
         $data['contact'] = auth()->guard('contact')->user();
 
         $data['multiple_contacts'] = session()->get('multiple_contacts') ?: collect();
@@ -136,11 +136,11 @@ class PortalComposer
 
         $data[] = ['title' => ctrans('texts.statement'), 'url' => 'client.statement', 'icon' => 'activity'];
 
-        if (Ninja::isHosted() && auth()->guard('contact')->user()->company->id == config('ninja.ninja_default_company_id')) {
-            $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card'];
-        } else {
-            $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
-        }
+        // if (Ninja::isHosted() && auth()->guard('contact')->user()->company->id == config('ninja.ninja_default_company_id')) {
+        $data[] = ['title' => ctrans('texts.plan'), 'url' => 'client.plan', 'icon' => 'credit-card'];
+        // } else {
+        $data[] = ['title' => ctrans('texts.subscriptions'), 'url' => 'client.subscriptions.index', 'icon' => 'calendar'];
+        // }
 
         if (auth()->guard('contact')->user()->client->getSetting('client_initiated_payments')) {
             $data[] = ['title' => ctrans('texts.pre_payment'), 'url' => 'client.pre_payments.index', 'icon' => 'dollar-sign'];

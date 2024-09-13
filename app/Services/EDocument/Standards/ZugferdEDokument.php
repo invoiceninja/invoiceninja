@@ -127,7 +127,7 @@ class ZugferdEDokument extends AbstractService
         if(isset($custom_value1) && !empty($custom_value1) && ($custom_value1 == '30'|| $custom_value1=='58')) {
             $this->xdocument->addDocumentPaymentMean(typecode: $company->settings->custom_value1, payeeIban: $company->settings->custom_value2, payeeAccountName: $company->settings->custom_value4, payeeBic: $company->settings->custom_value3);
         } else {
-            $this->xdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
+            $this->xdocument->addDocumentPaymentMean('68', ctrans("texts.xinvoice_online_payment"));
         }
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
@@ -145,7 +145,6 @@ class ZugferdEDokument extends AbstractService
         foreach ($this->document->line_items as $index => $item) {
             /** @var InvoiceItem $item **/
             $this->xdocument->addNewPosition($index)
-                ->setDocumentPositionGrossPrice($item->gross_line_total)
                 ->setDocumentPositionNetPrice($item->line_total);
             if (!empty($item->product_key)) {
                 if (!empty($item->notes)) {

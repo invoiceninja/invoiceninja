@@ -33,8 +33,8 @@ class ExpenseApiTest extends TestCase
     use MockAccountData;
 
     public $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -78,7 +78,7 @@ class ExpenseApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/expenses/'.$arr['data']['id'], $data);
-        
+
         $arr = $response->json();
         $response->assertStatus(200);
 
@@ -89,8 +89,8 @@ class ExpenseApiTest extends TestCase
 
     public function testExpensePutWithVendorStatus()
     {
-    
-    
+
+
         $data =
         [
             'vendor_id' => $this->vendor->hashed_id,
@@ -105,7 +105,7 @@ class ExpenseApiTest extends TestCase
 
         $arr = $response->json();
         $response->assertStatus(200);
-    
+
 
         $this->assertEquals($this->vendor->hashed_id, $arr['data']['vendor_id']);
 
@@ -144,7 +144,7 @@ class ExpenseApiTest extends TestCase
             'user_id' => $this->user->id,
             'transaction_id' => $bt->id,
         ]);
-        
+
         $this->assertNotNull($e->transaction_id);
 
         $expense_repo = app('App\Repositories\ExpenseRepository');
@@ -314,20 +314,22 @@ class ExpenseApiTest extends TestCase
     public function testExpenseBulkCategorize()
     {
 
+        $eXX = Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
 
         $e = Expense::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
 
-
         $ec = ExpenseCategory::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'name' => 'Test Category',
         ]);
-
-        nlog("expense category id = {$ec->hashed_id}");
 
         $data = [
             'category_id' => $ec->hashed_id,
@@ -341,11 +343,32 @@ class ExpenseApiTest extends TestCase
         ])->post('/api/v1/expenses/bulk', $data);
 
         $arr = $response->json();
-        nlog($arr);
 
         $this->assertEquals($ec->hashed_id, $arr['data'][0]['category_id']);
-    }
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/expenses");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertGreaterThan(1, count($arr['data']));
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/expenses?categories={$ec->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
+
+    }
 
     public function testAddingExpense()
     {

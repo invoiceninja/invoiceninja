@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\ViewComposers\Components\Rotessa;
 
@@ -9,21 +18,20 @@ use App\Models\ClientContact;
 use Illuminate\Support\Arr;
 use Illuminate\View\View;
 
-
 // Contact Component
 class ContactComponent extends Component
 {
+    public function __construct(ClientContact $contact)
+    {
 
-    public function __construct(ClientContact $contact) {
-        
         $contact = collect($contact->client->contacts->firstWhere('is_primary', 1)->toArray())->merge([
-            'home_phone' =>$contact->client->phone, 
+            'home_phone' => $contact->client->phone,
             'custom_identifier' => $contact->client->client_hash,
-            'name' =>$contact->client->name,
+            'name' => $contact->client->name,
             'id' => null,
-        ] )->all();
-        
-        $this->attributes = $this->newAttributeBag(Arr::only($contact, $this->fields) );
+        ])->all();
+
+        $this->attributes = $this->newAttributeBag(Arr::only($contact, $this->fields));
     }
 
     private $fields = [
@@ -44,7 +52,6 @@ class ContactComponent extends Component
 
     public function render()
     {
-        \Debugbar::debug($this->attributes->getAttributes() + $this->defaults);
-        return render('gateways.rotessa.components.contact', $this->attributes->getAttributes() + $this->defaults );
+        return render('gateways.rotessa.components.contact', $this->attributes->getAttributes() + $this->defaults);
     }
 }

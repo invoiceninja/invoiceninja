@@ -20,7 +20,8 @@ class PropertyResolver
         return self::traverse($object, $pathSegments);
     }
 
-    private static function traverse($object, array $pathSegments) {
+    private static function traverse($object, array $pathSegments)
+    {
         if (empty($pathSegments)) {
             return null;
         }

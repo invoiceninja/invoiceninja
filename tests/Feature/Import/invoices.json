@@ -1,0 +1,4101 @@
+{
+  "Invoice": [
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "130",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-19T13:16:17-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-19T13:16:17-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1037",
+    "TxnDate": "2024-06-19",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "100",
+      "TxnType": "Estimate"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "LinkedTxn": [
+       {
+        "TxnId": "100",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Fountain Pump",
+      "Amount": 12.75,
+      "LinkedTxn": [
+       {
+        "TxnId": "100",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "11",
+        "name": "Pump"
+       },
+       "UnitPrice": 12.75,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Concrete for fountain installation",
+      "Amount": 47.5,
+      "LinkedTxn": [
+       {
+        "TxnId": "100",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "3",
+        "name": "Concrete"
+       },
+       "UnitPrice": 9.5,
+       "Qty": 5,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 335.25,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 26.82,
+     "TaxLine": [
+      {
+       "Amount": 26.82,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 335.25
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "24",
+     "name": "Sonnenschein Family Store"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "95",
+     "Line1": "Russ Sonnenschein",
+     "Line2": "Sonnenschein Family Store",
+     "Line3": "5647 Cypress Hill Ave.",
+     "Line4": "Middlefield, CA  94303",
+     "Lat": "37.4238562",
+     "Long": "-122.1141681"
+    },
+    "ShipAddr": {
+     "Id": "25",
+     "Line1": "5647 Cypress Hill Ave.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94303",
+     "Lat": "37.4238562",
+     "Long": "-122.1141681"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-19",
+    "TotalAmt": 362.07,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Familiystore@intuit.com"
+    },
+    "Balance": 362.07
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "129",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-19T13:15:36-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-19T13:15:36-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1036",
+    "TxnDate": "2024-06-19",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Sod",
+      "Amount": 50,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "14",
+        "name": "Sod"
+       },
+       "UnitPrice": 10,
+       "Qty": 5,
+       "ItemAccountRef": {
+        "value": "49",
+        "name": "Landscaping Services:Job Materials:Plants and Soil"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "2 cubic ft. bag",
+      "Amount": 50,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "15",
+        "name": "Soil"
+       },
+       "UnitPrice": 10,
+       "Qty": 5,
+       "ItemAccountRef": {
+        "value": "49",
+        "name": "Landscaping Services:Job Materials:Plants and Soil"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Weekly Gardening Service",
+      "Amount": 87.5,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 3.5,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "4",
+      "LineNum": 4,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "5",
+      "LineNum": 5,
+      "Description": "Fountain Pump",
+      "Amount": 15,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "11",
+        "name": "Pump"
+       },
+       "UnitPrice": 15,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 477.5,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "8",
+     "name": "0969 Ocean View Road"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "94",
+     "Line1": "Sasha Tillou",
+     "Line2": "Freeman Sporting Goods",
+     "Line3": "370 Easy St.",
+     "Line4": "Middlefield, CA  94482",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "8",
+     "Line1": "370 Easy St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94482",
+     "Lat": "37.4031672",
+     "Long": "-122.0642815"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-19",
+    "TotalAmt": 477.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sporting_goods@intuit.com"
+    },
+    "Balance": 477.5
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "96",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:30:49-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-19T13:13:33-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1031",
+    "TxnDate": "2024-04-04",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "128",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 90,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 30,
+       "Qty": 3,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 365,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 22,
+     "TaxLine": [
+      {
+       "Amount": 22,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 275
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "8",
+     "name": "0969 Ocean View Road"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "84",
+     "Line1": "Sasha Tillou",
+     "Line2": "Freeman Sporting Goods",
+     "Line3": "370 Easy St.",
+     "Line4": "Middlefield, CA  94482",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "8",
+     "Line1": "370 Easy St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94482",
+     "Lat": "37.4031672",
+     "Long": "-122.0642815"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-05-04",
+    "TotalAmt": 387,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sporting_goods@intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "12",
+    "SyncToken": "3",
+    "MetaData": {
+     "CreateTime": "2024-06-16T15:04:04-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-19T12:59:21-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1004",
+    "TxnDate": "2024-06-07",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "120",
+      "TxnType": "Payment"
+     },
+     {
+      "TxnId": "61",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Sprinkler Heads",
+      "Amount": 20,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "16",
+        "name": "Sprinkler Heads"
+       },
+       "UnitPrice": 2,
+       "Qty": 10,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Sprinkler Pipes",
+      "Amount": 24,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "17",
+        "name": "Sprinkler Pipes"
+       },
+       "UnitPrice": 4,
+       "Qty": 6,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Sod",
+      "Amount": 1750,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "14",
+        "name": "Sod"
+       },
+       "UnitPrice": 35,
+       "Qty": 50,
+       "ItemAccountRef": {
+        "value": "49",
+        "name": "Landscaping Services:Job Materials:Plants and Soil"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "4",
+      "LineNum": 4,
+      "Description": "Installation Hours",
+      "Amount": 400,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "1",
+        "name": "Services"
+       },
+       "UnitPrice": 50,
+       "Qty": 8,
+       "ItemAccountRef": {
+        "value": "1",
+        "name": "Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 2194,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 175.52,
+     "TaxLine": [
+      {
+       "Amount": 175.52,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 2194
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "3",
+     "name": "Cool Cars"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "50",
+     "Line1": "Grace Pariente",
+     "Line2": "Cool Cars",
+     "Line3": "65 Ocean Dr.",
+     "Line4": "Half Moon Bay, CA  94213",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-07",
+    "TotalAmt": 2369.52,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Cool_Cars@intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "119",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-19T12:57:24-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-19T12:57:24-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1035",
+    "TxnDate": "2024-06-19",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Sprinkler Pipes",
+      "Amount": 16,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "17",
+        "name": "Sprinkler Pipes"
+       },
+       "UnitPrice": 4,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "79",
+        "name": "Sales of Product Income"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 291,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 23.28,
+     "TaxLine": [
+      {
+       "Amount": 23.28,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 291
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "17",
+     "name": "Mark Cho"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "91",
+     "Line1": "Mark Cho",
+     "Line2": "36 Willow Rd",
+     "Line3": "Menlo Park, CA  94304",
+     "Lat": "37.3813444",
+     "Long": "-122.1802812"
+    },
+    "ShipAddr": {
+     "Id": "17",
+     "Line1": "36 Willow Rd",
+     "City": "Menlo Park",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94304",
+     "Lat": "37.450412",
+     "Long": "-122.170593"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-19",
+    "TotalAmt": 314.28,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Mark@Cho.com"
+    },
+    "Balance": 314.28
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "63",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-17T15:28:08-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-19T12:52:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1017",
+    "TxnDate": "2024-06-03",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "116",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 80,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 20,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 80,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "25",
+     "name": "Sushi by Katsuyuki"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "70",
+     "Line1": "Katsuyuki Yanagawa",
+     "Line2": "Sushi by Katsuyuki",
+     "Line3": "898 Elm St.",
+     "Line4": "Maplewood, NJ  07040",
+     "Lat": "40.7312956",
+     "Long": "-74.2707509"
+    },
+    "ShipAddr": {
+     "Id": "26",
+     "Line1": "898 Elm St.",
+     "City": "Maplewood",
+     "CountrySubDivisionCode": "NJ",
+     "PostalCode": "07040",
+     "Lat": "40.7312816",
+     "Long": "-74.2652908"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-03",
+    "TotalAmt": 80,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sushi@intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "106",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:45:12-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:45:12-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1034",
+    "TxnDate": "2024-06-18",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "4",
+      "TxnType": "TimeActivity"
+     },
+     {
+      "TxnId": "5",
+      "TxnType": "TimeActivity"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Tree and Shrub Trimming",
+      "Amount": 30,
+      "LinkedTxn": [
+       {
+        "TxnId": "4",
+        "TxnType": "TimeActivity"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ServiceDate": "2024-06-17",
+       "ItemRef": {
+        "value": "18",
+        "name": "Trimming"
+       },
+       "UnitPrice": 15,
+       "Qty": 2,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Garden Lighting",
+      "Amount": 45,
+      "LinkedTxn": [
+       {
+        "TxnId": "5",
+        "TxnType": "TimeActivity"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ServiceDate": "2024-06-17",
+       "ItemRef": {
+        "value": "8",
+        "name": "Lighting"
+       },
+       "UnitPrice": 15,
+       "Qty": 3,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 75,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 3.6,
+     "TaxLine": [
+      {
+       "Amount": 3.6,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 45
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "21",
+     "name": "Rondonuwu Fruit and Vegi"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "88",
+     "Line1": "Rondonuwu Fruit and Vegi",
+     "Line2": "847 California Ave.",
+     "Line3": "San Jose, CA  95021",
+     "Lat": "37.01",
+     "Long": "-121.57"
+    },
+    "ShipAddr": {
+     "Id": "22",
+     "Line1": "847 California Ave.",
+     "City": "San Jose",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "95021",
+     "Lat": "37.3313585",
+     "Long": "-121.911372"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-18",
+    "TotalAmt": 78.6,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Tony@Rondonuwu.com"
+    },
+    "Balance": 78.6
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "103",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:41:59-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:42:08-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1033",
+    "TxnDate": "2024-06-18",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "41",
+      "TxnType": "Estimate"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "LinkedTxn": [
+       {
+        "TxnId": "41",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Custom Design",
+      "Amount": 262.5,
+      "LinkedTxn": [
+       {
+        "TxnId": "41",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "4",
+        "name": "Design"
+       },
+       "UnitPrice": 75,
+       "Qty": 3.5,
+       "ItemAccountRef": {
+        "value": "82",
+        "name": "Design income"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Fountain Pump",
+      "Amount": 45,
+      "LinkedTxn": [
+       {
+        "TxnId": "41",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "11",
+        "name": "Pump"
+       },
+       "UnitPrice": 22.5,
+       "Qty": 2,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 582.5,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 46.6,
+     "TaxLine": [
+      {
+       "Amount": 46.6,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 582.5
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "10",
+     "name": "Geeta Kalapatapu"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "87",
+     "Line1": "Geeta Kalapatapu",
+     "Line2": "1987 Main St.",
+     "Line3": "Middlefield, CA  94303",
+     "Lat": "37.4530553",
+     "Long": "-122.1178261"
+    },
+    "ShipAddr": {
+     "Id": "10",
+     "Line1": "1987 Main St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94303",
+     "Lat": "37.445013",
+     "Long": "-122.1391443"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-18",
+    "TotalAmt": 629.1,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Geeta@Kalapatapu.com"
+    },
+    "Balance": 629.1
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "67",
+    "SyncToken": "2",
+    "MetaData": {
+     "CreateTime": "2024-06-18T12:40:06-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:39:32-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1021",
+    "TxnDate": "2024-05-28",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "101",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "2 cubic ft. bag",
+      "Amount": 150,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "15",
+        "name": "Soil"
+       },
+       "UnitPrice": 10,
+       "Qty": 15,
+       "ItemAccountRef": {
+        "value": "49",
+        "name": "Landscaping Services:Job Materials:Plants and Soil"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 425,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 34,
+     "TaxLine": [
+      {
+       "Amount": 34,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 425
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "1",
+     "name": "Amy's Bird Sanctuary"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "74",
+     "Line1": "Amy Lauterbach",
+     "Line2": "Amy's Bird Sanctuary",
+     "Line3": "4581 Finch St.",
+     "Line4": "Bayshore, CA  94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "2",
+     "Line1": "4581 Finch St.",
+     "City": "Bayshore",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-27",
+    "TotalAmt": 459,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Birds@Intuit.com"
+    },
+    "Balance": 239
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "99",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:36:31-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:36:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1032",
+    "TxnDate": "2024-06-16",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Sod",
+      "Amount": 300,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "14",
+        "name": "Sod"
+       },
+       "UnitPrice": 15,
+       "Qty": 20,
+       "ItemAccountRef": {
+        "value": "49",
+        "name": "Landscaping Services:Job Materials:Plants and Soil"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Garden Rocks",
+      "Amount": 84,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "13",
+        "name": "Rocks"
+       },
+       "UnitPrice": 12,
+       "Qty": 7,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 384,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 30.72,
+     "TaxLine": [
+      {
+       "Amount": 30.72,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 384
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "26",
+     "name": "Travis Waldron"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "85",
+     "Line1": "Travis Waldron",
+     "Line2": "78 First St.",
+     "Line3": "Monlo Park, CA  94304",
+     "Lat": "37.3813444",
+     "Long": "-122.1802812"
+    },
+    "ShipAddr": {
+     "Id": "27",
+     "Line1": "78 First St.",
+     "City": "Monlo Park",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94304",
+     "Lat": "37.4585825",
+     "Long": "-122.1352789"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-16",
+    "TotalAmt": 414.72,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Travis@Waldron.com"
+    },
+    "Balance": 414.72
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "42",
+    "SyncToken": "2",
+    "MetaData": {
+     "CreateTime": "2024-06-17T11:24:29-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:35:42-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1013",
+    "TxnDate": "2024-06-07",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "29",
+      "TxnType": "StatementCharge"
+     },
+     {
+      "TxnId": "98",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Amount": 75,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 6,
+     "TaxLine": [
+      {
+       "Amount": 6,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 75
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "26",
+     "name": "Travis Waldron"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "60",
+     "Line1": "Travis Waldron",
+     "Line2": "78 First St.",
+     "Line3": "Monlo Park, CA  94304",
+     "Lat": "37.3813444",
+     "Long": "-122.1802812"
+    },
+    "ShipAddr": {
+     "Id": "27",
+     "Line1": "78 First St.",
+     "City": "Monlo Park",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94304",
+     "Lat": "37.4585825",
+     "Long": "-122.1352789"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-07",
+    "TotalAmt": 81,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Travis@Waldron.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "95",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:29:56-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:31:45-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1030",
+    "TxnDate": "2024-03-04",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "97",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 50,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 2,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Pest Control Services",
+      "Amount": 35,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "10",
+        "name": "Pest Control"
+       },
+       "UnitPrice": 35,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "54",
+        "name": "Pest Control Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Sod",
+      "Amount": 131.25,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "14",
+        "name": "Sod"
+       },
+       "UnitPrice": 8.75,
+       "Qty": 15,
+       "ItemAccountRef": {
+        "value": "49",
+        "name": "Landscaping Services:Job Materials:Plants and Soil"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 216.25,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 10.5,
+     "TaxLine": [
+      {
+       "Amount": 10.5,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 131.25
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "8",
+     "name": "0969 Ocean View Road"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "83",
+     "Line1": "Sasha Tillou",
+     "Line2": "Freeman Sporting Goods",
+     "Line3": "370 Easy St.",
+     "Line4": "Middlefield, CA  94482",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "8",
+     "Line1": "370 Easy St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94482",
+     "Lat": "37.4031672",
+     "Long": "-122.0642815"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-04-03",
+    "TotalAmt": 226.75,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sporting_goods@intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "93",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:27:49-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:28:29-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1029",
+    "TxnDate": "2024-05-02",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "94",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Concrete for fountain installation",
+      "Amount": 75,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "3",
+        "name": "Concrete"
+       },
+       "UnitPrice": 15,
+       "Qty": 5,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Garden Rocks",
+      "Amount": 72,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "13",
+        "name": "Rocks"
+       },
+       "UnitPrice": 12,
+       "Qty": 6,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 422,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "3"
+     },
+     "TotalTax": 38.4,
+     "TaxLine": [
+      {
+       "Amount": 29.96,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "1"
+        },
+        "PercentBased": true,
+        "TaxPercent": 7.1,
+        "NetAmountTaxable": 422
+       }
+      },
+      {
+       "Amount": 8.44,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "2"
+        },
+        "PercentBased": true,
+        "TaxPercent": 2,
+        "NetAmountTaxable": 422
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "5",
+     "name": "Dukes Basketball Camp"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "82",
+     "Line1": "Peter Dukes",
+     "Line2": "Dukes Basketball Camp",
+     "Line3": "25 Court St.",
+     "Line4": "Tucson, AZ  85719",
+     "Lat": "32.2546522",
+     "Long": "-110.9447027"
+    },
+    "ShipAddr": {
+     "Id": "6",
+     "Line1": "25 Court St.",
+     "City": "Tucson",
+     "CountrySubDivisionCode": "AZ",
+     "PostalCode": "85719",
+     "Lat": "32.2841116",
+     "Long": "-110.9744298"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-01",
+    "TotalAmt": 460.4,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Dukes_bball@intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "68",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-18T12:41:24-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:25:43-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1022",
+    "TxnDate": "2024-05-28",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 75,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 3,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 75,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 6,
+     "TaxLine": [
+      {
+       "Amount": 6,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 75
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "12",
+     "name": "Jeff's Jalopies"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "75",
+     "Line1": "Jeff Chin",
+     "Line2": "Jeff's Jalopies",
+     "Line3": "12 Willow Rd.",
+     "Line4": "Menlo Park, CA  94305",
+     "Lat": "37.4135757",
+     "Long": "-122.1689284"
+    },
+    "ShipAddr": {
+     "Id": "12",
+     "Line1": "12 Willow Rd.",
+     "City": "Menlo Park",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94305",
+     "Lat": "37.4495308",
+     "Long": "-122.1726923"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-27",
+    "TotalAmt": 81,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Jalopies@intuit.com"
+    },
+    "Balance": 81
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "9",
+    "SyncToken": "3",
+    "MetaData": {
+     "CreateTime": "2024-06-16T14:49:30-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:25:20-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1001",
+    "TxnDate": "2024-06-16",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "PrivateNote": "Front yard, hedges, and sidewalks",
+    "LinkedTxn": [
+     {
+      "TxnId": "31",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 100,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 100,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 8,
+     "TaxLine": [
+      {
+       "Amount": 8,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 100
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "1",
+     "name": "Amy's Bird Sanctuary"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "47",
+     "Line1": "Amy Lauterbach",
+     "Line2": "Amy's Bird Sanctuary",
+     "Line3": "4581 Finch St.",
+     "Line4": "Bayshore, CA  94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "2",
+     "Line1": "4581 Finch St.",
+     "City": "Bayshore",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-16",
+    "TotalAmt": 108,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Birds@Intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13",
+    "SyncToken": "2",
+    "MetaData": {
+     "CreateTime": "2024-06-16T15:05:48-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:23:52-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1005",
+    "TxnDate": "2024-06-10",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "33",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 50,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 2,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 50,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 4,
+     "TaxLine": [
+      {
+       "Amount": 4,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 50
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "9",
+     "name": "55 Twin Lane"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "51",
+     "Line1": "Amelia",
+     "Line2": "Freeman Sporting Goods",
+     "Line3": "370 Easy St.",
+     "Line4": "Middlefield, CA  94482",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "9",
+     "Line1": "370 Easy St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94482",
+     "Lat": "37.4031672",
+     "Long": "-122.0642815"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-10",
+    "TotalAmt": 54,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sporting_goods@intuit.com"
+    },
+    "Balance": 4
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "14",
+    "SyncToken": "3",
+    "MetaData": {
+     "CreateTime": "2024-06-16T15:06:59-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:23:11-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1006",
+    "TxnDate": "2024-05-11",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "15",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 80,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 20,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 80,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 6.4,
+     "TaxLine": [
+      {
+       "Amount": 6.4,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 80
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "9",
+     "name": "55 Twin Lane"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "52",
+     "Line1": "Amelia",
+     "Line2": "Freeman Sporting Goods",
+     "Line3": "370 Easy St.",
+     "Line4": "Middlefield, CA  94482",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "9",
+     "Line1": "370 Easy St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94482",
+     "Lat": "37.4031672",
+     "Long": "-122.0642815"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-10",
+    "TotalAmt": 86.4,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sporting_goods@intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "92",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-18T13:22:13-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T13:22:27-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1028",
+    "TxnDate": "2024-05-02",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 75,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 3,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 75,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TxnTaxCodeRef": {
+      "value": "2"
+     },
+     "TotalTax": 6,
+     "TaxLine": [
+      {
+       "Amount": 6,
+       "DetailType": "TaxLineDetail",
+       "TaxLineDetail": {
+        "TaxRateRef": {
+         "value": "3"
+        },
+        "PercentBased": true,
+        "TaxPercent": 8,
+        "NetAmountTaxable": 75
+       }
+      }
+     ]
+    },
+    "CustomerRef": {
+     "value": "9",
+     "name": "55 Twin Lane"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "81",
+     "Line1": "Amelia",
+     "Line2": "Freeman Sporting Goods",
+     "Line3": "370 Easy St.",
+     "Line4": "Middlefield, CA  94482",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "9",
+     "Line1": "370 Easy St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94482",
+     "Lat": "37.4031672",
+     "Long": "-122.0642815"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-01",
+    "TotalAmt": 81,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sporting_goods@intuit.com"
+    },
+    "Balance": 81
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "10",
+    "SyncToken": "2",
+    "MetaData": {
+     "CreateTime": "2024-06-16T14:57:16-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T12:56:01-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1002",
+    "TxnDate": "2024-03-04",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "76",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 140,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 35,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Pest Control Services",
+      "Amount": 35,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "10",
+        "name": "Pest Control"
+       },
+       "UnitPrice": 35,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "54",
+        "name": "Pest Control Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 175,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "2",
+     "name": "Bill's Windsurf Shop"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "48",
+     "Line1": "Bill Lucchini",
+     "Line2": "Bill's Windsurf Shop",
+     "Line3": "12 Ocean Dr.",
+     "Line4": "Half Moon Bay, CA  94213",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-04-03",
+    "TotalAmt": 175,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Surf@Intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "75",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-18T12:54:08-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T12:54:08-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1027",
+    "TxnDate": "2024-05-02",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 50,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 2,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Pest Control Services",
+      "Amount": 35,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "10",
+        "name": "Pest Control"
+       },
+       "UnitPrice": 35,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "54",
+        "name": "Pest Control Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 85,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "2",
+     "name": "Bill's Windsurf Shop"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "80",
+     "Line1": "Bill Lucchini",
+     "Line2": "Bill's Windsurf Shop",
+     "Line3": "12 Ocean Dr.",
+     "Line4": "Half Moon Bay, CA  94213",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-01",
+    "TotalAmt": 85,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Surf@Intuit.com"
+    },
+    "Balance": 85
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "71",
+    "SyncToken": "2",
+    "MetaData": {
+     "CreateTime": "2024-06-18T12:49:30-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T12:51:28-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1025",
+    "TxnDate": "2024-05-02",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "74",
+      "TxnType": "Payment"
+     },
+     {
+      "TxnId": "72",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 120,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 30,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Pest Control Services",
+      "Amount": 35,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "10",
+        "name": "Pest Control"
+       },
+       "UnitPrice": 35,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "54",
+        "name": "Pest Control Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Maintenance & Repair",
+      "Amount": 50,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "9",
+        "name": "Maintenance & Repair"
+       },
+       "UnitPrice": 50,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "53",
+        "name": "Landscaping Services:Labor:Maintenance and Repair"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 205,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "1",
+     "name": "Amy's Bird Sanctuary"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "78",
+     "Line1": "Amy Lauterbach",
+     "Line2": "Amy's Bird Sanctuary",
+     "Line3": "4581 Finch St.",
+     "Line4": "Bayshore, CA  94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "2",
+     "Line1": "4581 Finch St.",
+     "City": "Bayshore",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-01",
+    "TotalAmt": 205,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Birds@Intuit.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "70",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-18T12:44:45-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T12:44:45-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1024",
+    "TxnDate": "2024-04-11",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Sprinkler Pipes",
+      "Amount": 48,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "17",
+        "name": "Sprinkler Pipes"
+       },
+       "UnitPrice": 4,
+       "Qty": 12,
+       "ItemAccountRef": {
+        "value": "50",
+        "name": "Landscaping Services:Job Materials:Sprinklers and Drip Systems"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Sprinkler Pipes",
+      "Amount": 60,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "17",
+        "name": "Sprinkler Pipes"
+       },
+       "UnitPrice": 4,
+       "Qty": 15,
+       "ItemAccountRef": {
+        "value": "50",
+        "name": "Landscaping Services:Job Materials:Sprinklers and Drip Systems"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Garden Rocks",
+      "Amount": 48,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "13",
+        "name": "Rocks"
+       },
+       "UnitPrice": 12,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 156,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "20",
+     "name": "Red Rock Diner"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "77",
+     "Line1": "Stephanie Martini",
+     "Line2": "Red Rock Diner",
+     "Line3": "500 Red Rock Rd.",
+     "Line4": "Bayshore, CA  94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "21",
+     "Line1": "500 Red Rock Rd.",
+     "City": "Bayshore",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-05-11",
+    "TotalAmt": 156,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NeedToSend",
+    "BillEmail": {
+     "Address": "qbwebsamplecompany@yahoo.com"
+    },
+    "Balance": 156,
+    "DeliveryInfo": {
+     "DeliveryType": "Email"
+    }
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "69",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-18T12:42:59-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T12:42:59-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1023",
+    "TxnDate": "2024-06-17",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "46",
+      "TxnType": "Estimate"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Pest Control Services",
+      "Amount": 70,
+      "LinkedTxn": [
+       {
+        "TxnId": "46",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "10",
+        "name": "Pest Control"
+       },
+       "UnitPrice": 35,
+       "Qty": 2,
+       "ItemAccountRef": {
+        "value": "54",
+        "name": "Pest Control Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 70,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "20",
+     "name": "Red Rock Diner"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "76",
+     "Line1": "Stephanie Martini",
+     "Line2": "Red Rock Diner",
+     "Line3": "500 Red Rock Rd.",
+     "Line4": "Bayshore, CA  94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "21",
+     "Line1": "500 Red Rock Rd.",
+     "City": "Bayshore",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-17",
+    "TotalAmt": 70,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "qbwebsamplecompany@yahoo.com"
+    },
+    "Balance": 70
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "65",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-17T15:29:27-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-18T12:18:01-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1019",
+    "TxnDate": "2024-06-17",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 80,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 20,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "TAX"
+       }
+      }
+     },
+     {
+      "Amount": 80,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "25",
+     "name": "Sushi by Katsuyuki"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "72",
+     "Line1": "Katsuyuki Yanagawa",
+     "Line2": "Sushi by Katsuyuki",
+     "Line3": "898 Elm St.",
+     "Line4": "Maplewood, NJ  07040",
+     "Lat": "40.7312956",
+     "Long": "-74.2707509"
+    },
+    "ShipAddr": {
+     "Id": "26",
+     "Line1": "898 Elm St.",
+     "City": "Maplewood",
+     "CountrySubDivisionCode": "NJ",
+     "PostalCode": "07040",
+     "Lat": "40.7312816",
+     "Long": "-74.2652908"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-17",
+    "TotalAmt": 80,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sushi@intuit.com"
+    },
+    "Balance": 80
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "64",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-17T15:29:00-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T15:29:00-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1018",
+    "TxnDate": "2024-06-10",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 80,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 20,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 80,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "25",
+     "name": "Sushi by Katsuyuki"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "71",
+     "Line1": "Katsuyuki Yanagawa",
+     "Line2": "Sushi by Katsuyuki",
+     "Line3": "898 Elm St.",
+     "Line4": "Maplewood, NJ  07040",
+     "Lat": "40.7312956",
+     "Long": "-74.2707509"
+    },
+    "ShipAddr": {
+     "Id": "26",
+     "Line1": "898 Elm St.",
+     "City": "Maplewood",
+     "CountrySubDivisionCode": "NJ",
+     "PostalCode": "07040",
+     "Lat": "40.7312816",
+     "Long": "-74.2652908"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-10",
+    "TotalAmt": 80,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Sushi@intuit.com"
+    },
+    "Balance": 80
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "60",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-17T15:18:18-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T15:18:18-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1016",
+    "TxnDate": "2024-05-01",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Weekly Gardening Service",
+      "Amount": 75,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "6",
+        "name": "Gardening"
+       },
+       "UnitPrice": 25,
+       "Qty": 3,
+       "ItemAccountRef": {
+        "value": "45",
+        "name": "Landscaping Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 75,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "16",
+     "name": "Kookies by Kathy"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "69",
+     "Line1": "Kathy Kuplis",
+     "Line2": "Kookies by Kathy",
+     "Line3": "789 Sugar Lane",
+     "Line4": "Middlefield, CA  94303",
+     "Lat": "37.4530553",
+     "Long": "-122.1178261"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-05-31",
+    "TotalAmt": 75,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NeedToSend",
+    "BillEmail": {
+     "Address": "qbwebsamplecompany@yahoo.com"
+    },
+    "Balance": 75,
+    "DeliveryInfo": {
+     "DeliveryType": "Email"
+    }
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-17T11:43:20-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T11:43:20-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1015",
+    "TxnDate": "2024-06-17",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "48",
+      "TxnType": "Estimate"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Custom Design",
+      "Amount": 300,
+      "LinkedTxn": [
+       {
+        "TxnId": "48",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "4",
+        "name": "Design"
+       },
+       "UnitPrice": 75,
+       "Qty": 4,
+       "ItemAccountRef": {
+        "value": "82",
+        "name": "Design income"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Installation of landscape design",
+      "Amount": 250,
+      "LinkedTxn": [
+       {
+        "TxnId": "48",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "7",
+        "name": "Installation"
+       },
+       "UnitPrice": 50,
+       "Qty": 5,
+       "ItemAccountRef": {
+        "value": "52",
+        "name": "Landscaping Services:Labor:Installation"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "3",
+      "LineNum": 3,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "LinkedTxn": [
+       {
+        "TxnId": "48",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "4",
+      "LineNum": 4,
+      "Description": "Garden Rocks",
+      "Amount": 180,
+      "LinkedTxn": [
+       {
+        "TxnId": "48",
+        "TxnType": "Estimate"
+       }
+      ],
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "13",
+        "name": "Rocks"
+       },
+       "UnitPrice": 22.5,
+       "Qty": 8,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 1005,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     },
+     {
+      "Amount": 50.25,
+      "DetailType": "DiscountLineDetail",
+      "DiscountLineDetail": {
+       "PercentBased": true,
+       "DiscountPercent": 5,
+       "DiscountAccountRef": {
+        "value": "86",
+        "name": "Discounts given"
+       }
+      }
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "18",
+     "name": "Paulsen Medical Supplies"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "68",
+     "Line1": "Kathy Paulsen",
+     "Line2": "Paulsen Medical Supplies",
+     "Line3": "900 Main St.",
+     "Line4": "Middlefield, CA  94303",
+     "Lat": "37.4530553",
+     "Long": "-122.1178261"
+    },
+    "ShipAddr": {
+     "Id": "19",
+     "Line1": "38921 S. Boise Ave",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94304",
+     "Lat": "37.3989376",
+     "Long": "-122.1443935"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-17",
+    "TotalAmt": 954.75,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Medical@intuit.com"
+    },
+    "Balance": 954.75
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "27",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-16T15:38:07-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T11:17:33-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1009",
+    "TxnDate": "2024-06-16",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "26",
+      "TxnType": "ReimburseCharge"
+     },
+     {
+      "TxnId": "40",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Lumber",
+      "Amount": 103.55,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ServiceDate": "2024-06-16",
+       "ItemRef": {
+        "value": "1",
+        "name": "Services"
+       },
+       "MarkupInfo": {
+        "PercentBased": false,
+        "Value": 103.55,
+        "MarkUpIncomeAccountRef": {
+         "value": "1",
+         "name": "Services"
+        }
+       },
+       "ItemAccountRef": {
+        "value": "1",
+        "name": "Services"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 103.55,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "26",
+     "name": "Travis Waldron"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "55",
+     "Line1": "Travis Waldron",
+     "Line2": "78 First St.",
+     "Line3": "Monlo Park, CA  94304",
+     "Lat": "37.3813444",
+     "Long": "-122.1802812"
+    },
+    "ShipAddr": {
+     "Id": "27",
+     "Line1": "78 First St.",
+     "City": "Monlo Park",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94304",
+     "Lat": "37.4585825",
+     "Long": "-122.1352789"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-16",
+    "TotalAmt": 103.55,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "Travis@Waldron.com"
+    },
+    "Balance": 0
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "39",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-17T11:16:52-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T11:16:52-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1012",
+    "TxnDate": "2024-06-05",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Sprinkler Heads",
+      "Amount": 30,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "16",
+        "name": "Sprinkler Heads"
+       },
+       "UnitPrice": 2,
+       "Qty": 15,
+       "ItemAccountRef": {
+        "value": "50",
+        "name": "Landscaping Services:Job Materials:Sprinklers and Drip Systems"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Id": "2",
+      "LineNum": 2,
+      "Description": "Rock Fountain",
+      "Amount": 275,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "5",
+        "name": "Rock Fountain"
+       },
+       "UnitPrice": 275,
+       "Qty": 1,
+       "ItemAccountRef": {
+        "value": "48",
+        "name": "Landscaping Services:Job Materials:Fountains and Garden Lighting"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 305,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     },
+     {
+      "Amount": 30.5,
+      "DetailType": "DiscountLineDetail",
+      "DiscountLineDetail": {
+       "PercentBased": true,
+       "DiscountPercent": 10,
+       "DiscountAccountRef": {
+        "value": "86",
+        "name": "Discounts given"
+       }
+      }
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "23",
+     "name": "Barnett Design"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "58",
+     "Line1": "Shara Barnett",
+     "Line2": "Barnett Design",
+     "Line3": "19 Main St.",
+     "Line4": "Middlefield, CA  94303",
+     "Lat": "37.4530553",
+     "Long": "-122.1178261"
+    },
+    "ShipAddr": {
+     "Id": "24",
+     "Line1": "19 Main St.",
+     "City": "Middlefield",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94303",
+     "Lat": "37.445013",
+     "Long": "-122.1391443"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-05",
+    "TotalAmt": 274.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NeedToSend",
+    "BillEmail": {
+     "Address": "Design@intuit.com"
+    },
+    "Balance": 274.5,
+    "DeliveryInfo": {
+     "DeliveryType": "Email"
+    }
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "34",
+    "SyncToken": "0",
+    "MetaData": {
+     "CreateTime": "2024-06-17T11:09:08-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T11:09:08-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1010",
+    "TxnDate": "2024-06-17",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Custom Design",
+      "Amount": 375,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "4",
+        "name": "Design"
+       },
+       "UnitPrice": 75,
+       "Qty": 5,
+       "ItemAccountRef": {
+        "value": "82",
+        "name": "Design income"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 375,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "29",
+     "name": "Weiskopf Consulting"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "56",
+     "Line1": "Nicola Weiskopf",
+     "Line2": "Weiskopf Consulting",
+     "Line3": "45612 Main St.",
+     "Line4": "Bayshore, CA  94326",
+     "Lat": "INVALID",
+     "Long": "INVALID"
+    },
+    "ShipAddr": {
+     "Id": "30",
+     "Line1": "45612 Main St.",
+     "City": "Bayshore",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94326",
+     "Lat": "45.256574",
+     "Long": "-66.0943698"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-07-17",
+    "TotalAmt": 375,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NeedToSend",
+    "BillEmail": {
+     "Address": "Consulting@intuit.com"
+    },
+    "Balance": 375,
+    "DeliveryInfo": {
+     "DeliveryType": "Email"
+    }
+   },
+   {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16",
+    "SyncToken": "1",
+    "MetaData": {
+     "CreateTime": "2024-06-16T15:10:40-07:00",
+     "LastModifiedByRef": {
+      "value": "9341452725837119"
+     },
+     "LastUpdatedTime": "2024-06-17T11:06:49-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1007",
+    "TxnDate": "2024-05-25",
+    "CurrencyRef": {
+     "value": "USD",
+     "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+     {
+      "TxnId": "32",
+      "TxnType": "Payment"
+     }
+    ],
+    "Line": [
+     {
+      "Id": "1",
+      "LineNum": 1,
+      "Description": "Custom Design",
+      "Amount": 750,
+      "DetailType": "SalesItemLineDetail",
+      "SalesItemLineDetail": {
+       "ItemRef": {
+        "value": "4",
+        "name": "Design"
+       },
+       "UnitPrice": 75,
+       "Qty": 10,
+       "ItemAccountRef": {
+        "value": "82",
+        "name": "Design income"
+       },
+       "TaxCodeRef": {
+        "value": "NON"
+       }
+      }
+     },
+     {
+      "Amount": 750,
+      "DetailType": "SubTotalLineDetail",
+      "SubTotalLineDetail": {}
+     }
+    ],
+    "TxnTaxDetail": {
+     "TotalTax": 0
+    },
+    "CustomerRef": {
+     "value": "13",
+     "name": "John Melton"
+    },
+    "CustomerMemo": {
+     "value": "Thank you for your business and have a great day!"
+    },
+    "BillAddr": {
+     "Id": "53",
+     "Line1": "John Melton",
+     "Line2": "85 Pine St.",
+     "Line3": "Menlo Park, CA  94304",
+     "Lat": "37.3813444",
+     "Long": "-122.1802812"
+    },
+    "ShipAddr": {
+     "Id": "13",
+     "Line1": "85 Pine St.",
+     "City": "Menlo Park",
+     "CountrySubDivisionCode": "CA",
+     "PostalCode": "94304",
+     "Lat": "37.4451342",
+     "Long": "-122.1409626"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+     "value": "3",
+     "name": "Net 30"
+    },
+    "DueDate": "2024-06-24",
+    "TotalAmt": 750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+     "Address": "John@Melton.com"
+    },
+    "Balance": 450
+   }
+  ],
+  "startPosition": 1,
+  "maxResults": 31,
+  "totalCount": 31
+ }

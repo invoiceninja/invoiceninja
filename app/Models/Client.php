@@ -50,7 +50,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $last_login
  * @property int|null $industry_id
  * @property int|null $size_id
- * @property object|null $e_invoice
+ * @property object|array|null $e_invoice
  * @property string|null $address1
  * @property string|null $address2
  * @property string|null $city
@@ -123,7 +123,7 @@ class Client extends BaseModel implements HasLocalePreference
     use AppSetup;
     use ClientGroupSettingsSaver;
     use Excludable;
-    
+
     protected $presenter = ClientPresenter::class;
 
     protected $hidden = [

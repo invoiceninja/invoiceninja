@@ -17,7 +17,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class GenericReportRequest extends Request
 {
-
     /**
      * Determine if the user is authorized to make this request.
      *

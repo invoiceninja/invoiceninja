@@ -49,7 +49,14 @@ class RecurringInvoiceFilters extends QueryFilters
                         ->orWhere('last_name', 'like', '%'.$filter.'%')
                         ->orWhere('email', 'like', '%'.$filter.'%');
                   })
-                  ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
+                    ->orWhereRaw("
+                            JSON_UNQUOTE(JSON_EXTRACT(
+                                JSON_ARRAY(
+                                    JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
+                                    JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
+                                ), '$[*]')
+                            ) LIKE ?", ['%'.$filter.'%']);
+            //->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
 
@@ -134,7 +141,7 @@ class RecurringInvoiceFilters extends QueryFilters
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
         }
 
-        if($sort_col[0] == 'status_id'){
+        if($sort_col[0] == 'status_id') {
             return $this->builder->orderBy('status_id', $dir)->orderBy('last_sent_date', $dir);
         }
 

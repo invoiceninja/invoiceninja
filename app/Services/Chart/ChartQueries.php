@@ -240,7 +240,7 @@ trait ChartQueries
 
     public function getAggregateOutstandingQuery($start_date, $end_date)
     {
-        
+
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
         return DB::select("

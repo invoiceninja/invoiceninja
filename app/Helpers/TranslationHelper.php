@@ -22,5 +22,5 @@
  */
 function ctrans(string $string, $replace = [], $locale = null): string
 {
-    return trans($string, $replace, $locale);
+    return html_entity_decode(trans($string, $replace, $locale));
 }

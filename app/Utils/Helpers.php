@@ -97,15 +97,15 @@ class Helpers
         switch ($custom_field) {
             case 'date':
                 return is_null($entity) ? $value : $this->translateDate($value, $entity->date_format(), $entity->locale());
-                
+
 
             case 'switch':
                 return trim($value ?? '') == 'yes' ? ctrans('texts.yes') : ctrans('texts.no');
-                
+
 
             default:
                 return is_null($value) ? '' : $this->processReservedKeywords($value, $entity);
-                
+
         }
     }
 
@@ -253,43 +253,43 @@ class Helpers
             }
 
             // if (Str::contains($match, '|')) {
-                $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
+            $parts = explode('|', $match); // [ '[MONTH', 'MONTH+2]' ]
 
-                $left = substr($parts[0], 1); // 'MONTH'
-                $right = substr($parts[1], 0, -1); // MONTH+2
+            $left = substr($parts[0], 1); // 'MONTH'
+            $right = substr($parts[1], 0, -1); // MONTH+2
 
-                // If left side is not part of replacements, skip.
-                if (! array_key_exists($left, $replacements['ranges'])) {
-                    continue;
-                }
+            // If left side is not part of replacements, skip.
+            if (! array_key_exists($left, $replacements['ranges'])) {
+                continue;
+            }
 
-                $_left = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
-                $_right = '';
+            $_left = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
+            $_right = '';
 
-                // If right side doesn't have any calculations, replace with raw ranges keyword.
-                if (! Str::contains(str_replace("</", "", $right), ['-', '+', '/', '*'])) {
-                    $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
-                }
+            // If right side doesn't have any calculations, replace with raw ranges keyword.
+            if (! Str::contains(str_replace("</", "", $right), ['-', '+', '/', '*'])) {
+                $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->translatedFormat('F Y');
+            }
 
-                // If right side contains one of math operations, calculate.
-                if (Str::contains(str_replace("</", "", $right), ['+'])) {
-                    $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
+            // If right side contains one of math operations, calculate.
+            if (Str::contains(str_replace("</", "", $right), ['+'])) {
+                $operation = preg_match_all('/(?!^-)[+*\/-](\s?-)?/', $right, $_matches);
 
-                    $_operation = array_shift($_matches)[0]; // + -
+                $_operation = array_shift($_matches)[0]; // + -
 
-                    $_value = explode($_operation, $right); // [MONTHYEAR, 4]
+                $_value = explode($_operation, $right); // [MONTHYEAR, 4]
 
-                    $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->addMonths($_value[1])->translatedFormat('F Y'); //@phpstan-ignore-line
-                }
+                $_right = Carbon::createFromDate($currentDateTime->year, $currentDateTime->month)->addMonths($_value[1])->translatedFormat('F Y'); //@phpstan-ignore-line
+            }
 
-                $replacement = sprintf('%s to %s', $_left, $_right);
+            $replacement = sprintf('%s to %s', $_left, $_right);
 
-                $value = preg_replace(
-                    sprintf('/%s/', preg_quote($match)),
-                    $replacement,
-                    $value,
-                    1
-                );
+            $value = preg_replace(
+                sprintf('/%s/', preg_quote($match)),
+                $replacement,
+                $value,
+                1
+            );
             // }
         }
 

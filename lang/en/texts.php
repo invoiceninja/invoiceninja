@@ -5309,7 +5309,25 @@ $lang = array(
     'account_holder_information' => 'Account Holder Information',
     'enter_information_for_the_account_holder' => 'Enter Information for the Account Holder',
     'customer_type' => 'Customer Type',
-    'process_date' => 'Process Date'
+    'process_date' => 'Process Date',
+    'forever_free' => 'Forever Free',
+    'comments_only' => 'Comments Only',
+    'payment_balance_on_file' => 'Payment Balance On File',
+    'ubl_email_attachment_help' => 'For more e-invoice settings please navigate :here',
+    'stop_task_to_add_task_entry' => 'You need to stop the task before adding a new item.',
+    'xml_file' => 'XML File',
+    'one_page_checkout' => 'One-Page Checkout',
+    'one_page_checkout_help' => 'Enable the new single page payment flow',
+    'applies_to' => 'Applies To',
+    'accept_purchase_order' => 'Accept Purchase Order',
+    'round_to_seconds' => 'Round To Seconds',
+    'activity_142' => 'Quote :number reminder 1 sent',
+    'activity_143' => 'Auto Bill succeeded for invoice :invoice',
+    'activity_144' => 'Auto Bill failed for invoice :invoice. :notes',
+    'activity_145' => 'EInvoice :invoice for :client was e-delivered. :notes',
+    'payment_failed' => 'Payment Failed',
+    'ssl_host_override' => 'SSL Host Override',
+    'upload_logo_short' => 'Upload Logo',
 );
 
 return $lang;

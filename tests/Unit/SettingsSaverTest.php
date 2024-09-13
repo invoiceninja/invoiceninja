@@ -21,7 +21,7 @@ class SettingsSaverTest extends TestCase
 {
     use SettingsSaver;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

@@ -155,6 +155,8 @@ use App\Listeners\Activity\TaskUpdatedActivity;
 use App\Listeners\Invoice\InvoiceEmailActivity;
 use App\Listeners\SendVerificationNotification;
 use App\Events\Credit\CreditWasEmailedAndFailed;
+use App\Events\Invoice\InvoiceAutoBillFailed;
+use App\Events\Invoice\InvoiceAutoBillSuccess;
 use App\Listeners\Activity\CreatedQuoteActivity;
 use App\Listeners\Activity\DeleteClientActivity;
 use App\Listeners\Activity\DeleteCreditActivity;
@@ -250,6 +252,8 @@ use App\Events\RecurringExpense\RecurringExpenseWasArchived;
 use App\Events\RecurringExpense\RecurringExpenseWasRestored;
 use App\Events\RecurringInvoice\RecurringInvoiceWasArchived;
 use App\Events\RecurringInvoice\RecurringInvoiceWasRestored;
+use App\Listeners\Invoice\InvoiceAutoBillFailedActivity;
+use App\Listeners\Invoice\InvoiceAutoBillSuccessActivity;
 use App\Listeners\PurchaseOrder\CreatePurchaseOrderActivity;
 use App\Listeners\PurchaseOrder\PurchaseOrderViewedActivity;
 use App\Listeners\PurchaseOrder\UpdatePurchaseOrderActivity;
@@ -426,6 +430,12 @@ class EventServiceProvider extends ServiceProvider
             ExpenseRestoredActivity::class,
         ],
         //Invoices
+        InvoiceAutoBillSuccess::class => [
+            InvoiceAutoBillSuccessActivity::class,
+        ],
+        InvoiceAutoBillFailed::class => [
+            InvoiceAutoBillFailedActivity::class,
+        ],
         InvoiceWasMarkedSent::class => [
         ],
         InvoiceWasUpdated::class => [
@@ -536,7 +546,7 @@ class EventServiceProvider extends ServiceProvider
         QuoteWasRestored::class => [
             QuoteRestoredActivity::class,
         ],
-        QuoteReminderWasEmailed::class =>[
+        QuoteReminderWasEmailed::class => [
             QuoteReminderEmailActivity::class,
             // QuoteEmailedNotification::class,
         ],

@@ -53,7 +53,7 @@ class AccountEmailQuotaTest extends TestCase
         ]);
 
         $hash = \Illuminate\Support\Str::random(32);
-        
+
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => $hash,

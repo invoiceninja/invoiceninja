@@ -28,7 +28,7 @@ class UpdateCompanyUserTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -102,7 +102,7 @@ class UpdateCompanyUserTest extends TestCase
     {
         // User::unguard();
 
-        $settings = new \stdClass;
+        $settings = new \stdClass();
         $settings->invoice = 'ninja';
 
         $company_user = CompanyUser::whereUserId($this->user->id)->whereCompanyId($this->company->id)->first();

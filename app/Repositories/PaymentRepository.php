@@ -154,7 +154,6 @@ class PaymentRepository extends BaseRepository
                 if ($invoice) {
 
                     //25-06-2023
-
                     $paymentable = new Paymentable();
                     $paymentable->payment_id = $payment->id;
                     $paymentable->paymentable_id = $invoice->id;

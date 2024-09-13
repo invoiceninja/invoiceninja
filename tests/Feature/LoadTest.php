@@ -46,7 +46,7 @@ class LoadTest extends TestCase
 
     public int $count = 1;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -74,7 +74,7 @@ class LoadTest extends TestCase
             ]);
         }
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
