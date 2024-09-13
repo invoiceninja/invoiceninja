@@ -2,13 +2,7 @@
 
 @section('gateway_content')
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
-
     <div class="blockonomics-payment-wrapper">
-        <!-- <div class="progress-message">
-            Your payment txid has been recieved.
-            <br/><br/>
-            The <a id="link" href="{{ $invoice_redirect_url }}" target="_blank">invoice</a> will be marked as paid automatically once the payment is confirmed.
-        </div> -->
         <div class="initial-state">
         <div class="invoice-info-wrapper">
             <div class="invoice-number">Invoice #{{$invoice_number}}</div>
@@ -60,51 +54,44 @@
     </form>
 
     <script>
-    // Define the startTimer function
-    function startTimer(seconds) {
-        const countDownDate = new Date().getTime() + seconds * 1000;
-        document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
+        const = startTimer(seconds) => {
+            const countDownDate = new Date().getTime() + seconds * 1000;
+            document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
 
-        function updateCountdown() {
-            const now = new Date().getTime();
-            const distance = countDownDate - now;
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
 
-            const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
-            if (isRefreshing) {
-                return;
+                const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
+                if (isRefreshing) {
+                    return;
+                }
+
+                if (distance < 0) {
+                    refreshBTCPrice();
+                    return;
+                }
+
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                const formattedMinutes = String(minutes).padStart(2, '0');
+                const formattedSeconds = String(seconds).padStart(2, '0');
+                document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
             }
 
-            if (distance < 0) {
-                refreshBTCPrice();
-                return;
-            }
-
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            const formattedMinutes = String(minutes).padStart(2, '0');
-            const formattedSeconds = String(seconds).padStart(2, '0');
-
-            document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
+            clearInterval(window.countdownInterval);
+            window.countdownInterval = setInterval(updateCountdown, 1000);
         }
 
-        // Clear any existing intervals to avoid multiple intervals running simultaneously
-        clearInterval(window.countdownInterval);
-        window.countdownInterval = setInterval(updateCountdown, 1000);
-    }
-    // Call startTimer initially with the desired countdown time
-    startTimer(600); // Start the timer for 10 minutes (600 seconds)
-    </script>
-    <script>
-        function copyToClipboard(elementId, passedElement, shouldGrabNextElementSibling) {
+        const copyToClipboard = (elementId, passedElement, shouldGrabNextElementSibling) => {
             const element = shouldGrabNextElementSibling ? passedElement.nextElementSibling : passedElement;
             const originalIcon = element.src;  // Store the original icon
+
             const tempInput = document.createElement("input");
-            console.log(elementId);
             const elementWithId = document.getElementById(elementId);
             const { value, innerText } = elementWithId || {};
-            console.log(value, innerText);
-            // Get the text from the element by ID
             const text = value || innerText;
+            
             tempInput.value = text;
             document.body.appendChild(tempInput);
             tempInput.select();
@@ -122,14 +109,9 @@
             setTimeout(() => {
                 element.src = originalIcon;
             }, 5000);
-
-            // Optionally, you can show a message to the user
-            console.log(`Copied the text: ${text}`);
         }
-    </script>
 
-    <script>
-        async function getBTCPrice() {
+        const getBTCPrice = async () => {
             try {
                 const response = await fetch(`/api/v1/get-btc-price?currency={{$currency}}`); // New endpoint to call server-side function
                 if (!response.ok) {
@@ -143,11 +125,7 @@
             }
         }
 
-        function wait(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-        async function refreshBTCPrice() {
+        const refreshBTCPrice = async () => {
             const refreshIcon = document.querySelector('.icon-refresh');
             refreshIcon.classList.add('rotating');
             document.getElementsByClassName("btc-value")[0].innerHTML = "Refreshing...";
@@ -177,40 +155,26 @@
                 refreshIcon.classList.remove('rotating');
             }
         }
-    </script>
 
-    <script>
-        var webSocketUrl = "{{ $websocket_url }}";
-        const ws = new WebSocket(webSocketUrl);
+        const connectToWebsocket = () => {
+            const webSocketUrl = "{{ $websocket_url }}";
+            const ws = new WebSocket(webSocketUrl);
 
-        ws.onopen = function() {
-            console.log('WebSocket connection established');
-        };
-
-        ws.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            console.log('Payment status:', data.status);
-            const isPaymentUnconfirmed = data.status === 0;
-            const isPaymentPartiallyConfirmed = data.status === 1;
-            // TODO: Do we need to handle Payment confirmed status?
-            // This usually takes too long to happen, so we can just wait for the unconfirmed status?
-            if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed) {
-                document.querySelector('input[name="txid"]').value = data.txid || '';
-                document.getElementById('server-response').submit();
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                console.log('Payment status:', data.status);
+                const isPaymentUnconfirmed = data.status === 0;
+                const isPaymentPartiallyConfirmed = data.status === 1;
+                // TODO: Do we need to handle Payment confirmed status?
+                // This usually takes too long to happen, so we can just wait for the unconfirmed status?
+                if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed) {
+                    document.querySelector('input[name="txid"]').value = data.txid || '';
+                    document.getElementById('server-response').submit();
+                }
             }
         };
 
-        ws.onerror = function(error) {
-            console.error('WebSocket error:', error);
-        };
-
-        ws.onclose = function() {
-            console.log('WebSocket connection closed');
-        };
-    </script>
-
-    <script>
-        async function fetchAndDisplayQRCode(newBtcAmount = null) {
+        const fetchAndDisplayQRCode = async (newBtcAmount = null) => {
             try {
                 const btcAmount = newBtcAmount || '{{$btc_amount}}';
                 const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=bitcoin:${btcAmount}?amount={{$btc_amount}}`);
@@ -223,8 +187,12 @@
                 console.error('Error fetching QR code:', error);
                 document.getElementById('qrcode-container').textContent = 'Error loading QR code';
             }
-        }
+        };
+
+        startTimer(600); // Start timer for 10 minutes (600 seconds)
+        connectToWebsocket();
         fetchAndDisplayQRCode();
+
     </script>
 
 
@@ -346,26 +314,6 @@
         .rotating {
             animation: rotating 2s linear infinite;
         }
-        /* .progress-message {
-            display: none;
-            margin: 90px 0;
-            max-width: 400px;
-            font-size: 16px;
-            text-align: center;
-        }
-        #link {
-            color: #007bff;
-            text-decoration: underline;
-        } */
     </style>
-
-    <!-- @include('portal.ninja2020.gateways.includes.pay_now') -->
 @endsection
 
-<!-- @push('footer')
-    <script>
-        document.getElementById('pay-now').addEventListener('click', function() {
-            document.getElementById('server-response').submit();
-        });
-    </script>
-@endpush -->
