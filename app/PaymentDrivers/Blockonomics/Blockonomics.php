@@ -114,7 +114,6 @@ class Blockonomics implements MethodInterface
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        echo "Payment response received";
         $request->validate([
             'payment_hash' => ['required'],
             'amount' => ['required'],
