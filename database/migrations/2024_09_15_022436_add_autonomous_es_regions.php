@@ -26,6 +26,7 @@ return new class extends Migration
     
         Schema::table('countries', function (Blueprint $table) {
             $table->string('iso_3166_2',5)->change();
+            $table->string('country_code', 4)->change();
         });
 
         $regions = [
@@ -33,8 +34,8 @@ return new class extends Migration
                 'id' => 1000,  // INE code for Canary Islands
                 'capital' => 'Las Palmas de Gran Canaria / Santa Cruz de Tenerife',
                 'citizenship' => 'Spanish',
-                'country_code' => 'ES',
-                'currency' => 'Euro',
+                'country_code' => '1000',
+                'currency' => 'euro',
                 'currency_code' => 'EUR',
                 'currency_sub_unit' => 'cent',
                 'full_name' => 'Canary Islands',
@@ -46,15 +47,15 @@ return new class extends Migration
                 'eea' => true,
                 'swap_postal_code' => false,
                 'swap_currency_symbol' => false,
-                'thousand_separator' => '.',
-                'decimal_separator' => ',',
+                'thousand_separator' => '',
+                'decimal_separator' => '',
             ],
             [
                 'id' => 1001,  // INE code for Ceuta
                 'capital' => 'Ceuta',
                 'citizenship' => 'Spanish',
-                'country_code' => 'ES',
-                'currency' => 'Euro',
+                'country_code' => '1001',
+                'currency' => 'euro',
                 'currency_code' => 'EUR',
                 'currency_sub_unit' => 'cent',
                 'full_name' => 'Ceuta',
@@ -66,15 +67,15 @@ return new class extends Migration
                 'eea' => true,
                 'swap_postal_code' => false,
                 'swap_currency_symbol' => false,
-                'thousand_separator' => '.',
-                'decimal_separator' => ',',
+                'thousand_separator' => '',
+                'decimal_separator' => '',
             ],
             [
                 'id' => 1002,  // INE code for Melilla
                 'capital' => 'Melilla',
                 'citizenship' => 'Spanish',
-                'country_code' => 'ES',
-                'currency' => 'Euro',
+                'country_code' => '1002',
+                'currency' => 'euro',
                 'currency_code' => 'EUR',
                 'currency_sub_unit' => 'cent',
                 'full_name' => 'Melilla',
@@ -86,8 +87,8 @@ return new class extends Migration
                 'eea' => true,
                 'swap_postal_code' => false,
                 'swap_currency_symbol' => false,
-                'thousand_separator' => '.',
-                'decimal_separator' => ',',
+                'thousand_separator' => '',
+                'decimal_separator' => '',
             ],
         ];
 
