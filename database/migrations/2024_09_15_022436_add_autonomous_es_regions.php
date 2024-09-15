@@ -9,6 +9,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+use App\Models\Company;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,7 +23,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-               
+    
+        Schema::table('countries', function (Blueprint $table) {
+            $table->string('iso_3166_2',5)->change();
+        });
+
         $regions = [
             [
                 'id' => 1000,  // INE code for Canary Islands
@@ -95,6 +100,10 @@ return new class extends Migration
         Model::reguard();
 
 
+        Company::query()->cursor()->each(function ($company) {
+            $company->tax_data = new \App\DataMapper\Tax\TaxModel($company->tax_data);
+            $company->save();
+        });
 
     }
 

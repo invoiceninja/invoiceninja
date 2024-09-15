@@ -42,6 +42,9 @@ class InvoiceItemSum
         'DK', // Denmark
         'EE', // Estonia
         'ES', // Spain
+        'ES-CE',
+        'ES-CN',
+        'ES-ML',
         'FI', // Finland
         'FR', // France
         'GR', // Greece
@@ -72,6 +75,9 @@ class InvoiceItemSum
         'DK', // Denmark
         'EE', // Estonia
         'ES', // Spain
+        'ES-CE',
+        'ES-CN',
+        'ES-ML',
         'FI', // Finland
         'FR', // France
         'GR', // Greece
@@ -182,7 +188,7 @@ class InvoiceItemSum
 
 
             /** @var \App\DataMapper\Tax\BaseRule $class */
-            $class = "App\DataMapper\Tax\\".$this->client->company->country()->iso_3166_2."\\Rule";
+            $class = "App\DataMapper\Tax\\".str_replace("-","_",$this->client->company->country()->iso_3166_2)."\\Rule";
 
             $this->rule = new $class();
 
