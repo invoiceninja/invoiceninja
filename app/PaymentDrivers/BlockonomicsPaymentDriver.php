@@ -100,11 +100,16 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processPaymentView(array $data)
     {
+        $this->init();
+
         return $this->payment_method->paymentView($data);  //this is your custom implementation from here
     }
 
     public function processPaymentResponse($request)
     {
+        
+        $this->init();
+
         return $this->payment_method->paymentResponse($request);
     }
 

@@ -29,13 +29,8 @@ class Blockonomics implements MethodInterface
 {
     use MakesHash;
 
-    public $driver_class;
-    public $blockonomics;
-
-    public function __construct(BlockonomicsPaymentDriver $driver_class)
+    public function __construct(public BlockonomicsPaymentDriver $blockonomics)
     {
-        $this->blockonomics = $driver_class;
-        $this->blockonomics->init();
     }
 
     public function authorizeView($data)
@@ -45,12 +40,13 @@ class Blockonomics implements MethodInterface
     public function authorizeRequest($request)
     {
     }
+
     public function authorizeResponse($request)
     {
     }
 
 
-    public function getBTCAddress()
+    public function getBTCAddress(): string
     {
         $api_key = $this->blockonomics->api_key;
         // TODO: remove ?reset=1 before marking PR as ready
@@ -125,7 +121,8 @@ class Blockonomics implements MethodInterface
                 $this->blockonomics->client,
                 $this->blockonomics->client->company,
             );
-            return redirect()->route('client.payments.show', ['payment' => $this->encodePrimaryKey($payment->id)]);
+            
+            return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
 
         } catch (\Throwable $e) {
             $blockonomics = $this->blockonomics;
