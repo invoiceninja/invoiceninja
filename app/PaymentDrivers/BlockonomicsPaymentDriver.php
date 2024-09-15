@@ -111,37 +111,46 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public function processWebhookRequest()
     {
 
-        // TODO: Include logic to create new payment with pending status in case user sends payment to the address after navigating away from the payment page
+        $url_callback_secret = $_GET['secret'];
+        $db_callback_secret = $this->getCallbackSecret();
+
+        if ($url_callback_secret != $db_callback_secret) {
+            throw new PaymentFailed('Secret does not match');
+            return;
+        }
+
         $txid = $_GET['txid'];
         $value = $_GET['value'];
         $status = $_GET['status'];
         $addr = $_GET['addr'];
                 
         $payment = $this->getPaymentByTxid($txid);
-        $callbackSecret = $this->getCallbackSecret();
-
-        //Match secret for security
-        if ($_GET['secret'] != $callbackSecret) {
-            throw new PaymentFailed('Secret does not match');
-            return;
+        
+        if (!$payment) {
+            // TODO: Implement logic to create new payment in case user sends payment to the address after closing the payment page
         }
 
-        // Only accept confirmed transactions
-        if ($status != 2) {
-            throw new PaymentFailed('Transaction not confirmed');
+        switch ($status) {
+            case 0:
+                $statusId = Payment::STATUS_PENDING;
+                break;
+            case 1:
+                $statusId = Payment::STATUS_PENDING;
+                break;
+            case 2:
+                $statusId = Payment::STATUS_COMPLETED;
+                break;
         }
 
-        $statusId = Payment::STATUS_COMPLETED;
-
-        // Save the updated payment status
-        if ($payment->status_id != $statusId) {
+        if($payment->status_id == $statusId) {
+            header('HTTP/1.1 200 OK');
+            echo "No change in payment status";
+        } else {
             $payment->status_id = $statusId;
             $payment->save();
+            header('HTTP/1.1 200 OK');
+            echo "Payment status updated successfully";
         }
-
-        header('HTTP/1.1 200 OK');
-        echo "Success";
-        return;
     }
 
 
