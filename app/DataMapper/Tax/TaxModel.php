@@ -78,7 +78,7 @@ class TaxModel
             $this->regions->EU->subregions->{'ES-CN'} = new \stdClass();
             $this->regions->EU->subregions->{'ES-CN'}->tax_rate = 7;
             $this->regions->EU->subregions->{'ES-CN'}->tax_name = 'IGIC';
-            $this->regions->EU->subregions->{'ES-CN'}->reduced_tax_rate = 3;
+            $this->regions->EU->subregions->{'ES-CN'}->reduced_tax_rate = 4;
             $this->regions->EU->subregions->{'ES-CN'}->apply_tax = false;
 
             $this->version = 'gamma';
