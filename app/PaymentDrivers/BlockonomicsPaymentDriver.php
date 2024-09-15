@@ -65,7 +65,9 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function getPaymentByTxid($txid)
     {
-        return Payment::whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid . "%"])->firstOrFail();
+        return Payment::where('client_id', $this->client->id)
+                        ->whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid . "%"])
+                        ->firstOrFail();
     }
 
     public function getCallbackSecret()
