@@ -302,7 +302,7 @@ class PostMarkController extends BaseController
             $inboundMail = new InboundMail();
 
             $inboundMail->from = $input["From"] ?? '';
-            $inboundMail->to = $input["To"] ; // usage of data-input, because we need a single email here
+            $inboundMail->to = $input["To"]; // usage of data-input, because we need a single email here
             $inboundMail->subject = $input["Subject"] ?? '';
             $inboundMail->body = $input["HtmlBody"] ?? '';
             $inboundMail->text_body = $input["TextBody"] ?? '';
