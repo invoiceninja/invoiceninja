@@ -286,7 +286,8 @@ class MolliePaymentDriver extends BaseDriver
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
         // Allow app to catch up with webhook request.
-        sleep(4);
+        // sleep(4);
+        usleep(rand(2800000, 4000000));
 
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'starts_with:tr'],

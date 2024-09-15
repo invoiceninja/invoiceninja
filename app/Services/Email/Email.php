@@ -646,7 +646,7 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && (stripos($this->email_object->settings->custom_sending_email, "@")) !== false) ? $this->email_object->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable

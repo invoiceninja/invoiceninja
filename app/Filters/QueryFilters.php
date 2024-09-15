@@ -331,4 +331,61 @@ abstract class QueryFilters
             ->orderByRaw("{$this->with_property} = ? DESC", [$value])
             ->company();
     }
+
+
+    /**
+     * Filter by date range
+     *
+     * @param string $date_range
+     * @return Builder
+     */
+    public function date_range(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        if (count($parts) != 2 || !in_array('date', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        try {
+
+            $start_date = Carbon::parse($parts[0]);
+            $end_date = Carbon::parse($parts[1]);
+
+            return $this->builder->whereBetween('date', [$start_date, $end_date]);
+        } catch(\Exception $e) {
+            return $this->builder;
+        }
+
+    }
+
+    /**
+     * Filter by due date range
+     *
+     * @param string $date_range
+     * @return Builder
+     */
+    public function due_date_range(string $date_range = ''): Builder
+    {
+
+        $parts = explode(",", $date_range);
+
+        if (count($parts) != 2 || !in_array('due_date', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        try {
+
+            $start_date = Carbon::parse($parts[0]);
+            $end_date = Carbon::parse($parts[1]);
+
+            return $this->builder->whereBetween('due_date', [$start_date, $end_date]);
+        } catch(\Exception $e) {
+            return $this->builder;
+        }
+
+    }
+
+
+
 }

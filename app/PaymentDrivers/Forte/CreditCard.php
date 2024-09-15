@@ -109,8 +109,8 @@ class CreditCard
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_FAILURE,
             SystemLog::TYPE_FORTE,
-            $this->client,
-            $this->client->company,
+            $this->forte->client,
+            $this->forte->client->company,
         );
 
         throw new \App\Exceptions\PaymentFailed("Unable to store payment method: {$error->response->response_desc}", 400);

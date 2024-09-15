@@ -129,6 +129,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $smtp_local_domain
  * @property \App\DataMapper\QuickbooksSettings|null $quickbooks
  * @property boolean $smtp_verify_peer
+ * @property int|null $legal_entity_id
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
@@ -382,7 +383,7 @@ class Company extends BaseModel
         'smtp_encryption',
         'smtp_local_domain',
         'smtp_verify_peer',
-        'e_invoice',
+        // 'e_invoice',
     ];
 
     protected $hidden = [

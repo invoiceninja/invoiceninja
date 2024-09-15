@@ -121,12 +121,13 @@ class ZugferdEDokument extends AbstractService
         if (isset($client->shipping_address1) && $client->shipping_country) {
             $this->xdocument->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
-
+        $custom_value1=$company->settings->custom_value1;
+        //BR-DE-23 - If „Payment means type code“ (BT-81) contains a code for credit transfer (30, 58), „CREDIT TRANSFER“ (BG-17) shall be provided.
         //Payment Means - Switcher
-        if($company->settings->custom_value1 == '42') {
-            $this->xdocument->addDocumentPaymentMean(typecode: 42, payeeIban: $company->settings->custom_value2, payeeAccountName: $company->settings->custom_value4, payeeBic: $company->settings->custom_value3);
+        if(isset($custom_value1) && !empty($custom_value1) && ($custom_value1 == '30'|| $custom_value1=='58')) {
+            $this->xdocument->addDocumentPaymentMean(typecode: $company->settings->custom_value1, payeeIban: $company->settings->custom_value2, payeeAccountName: $company->settings->custom_value4, payeeBic: $company->settings->custom_value3);
         } else {
-            $this->xdocument->addDocumentPaymentMean(68, ctrans("texts.xinvoice_online_payment"));
+            $this->xdocument->addDocumentPaymentMean('68', ctrans("texts.xinvoice_online_payment"));
         }
 
         if (str_contains($company->getSetting('vat_number'), "/")) {

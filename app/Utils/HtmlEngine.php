@@ -399,11 +399,19 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
+
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
+
+        $data['$user.signature'] = ['value' => $this->entity->user->signature ?? '', 'label' => ctrans('texts.signature')];
         $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
         $data['$user.last_name'] = ['value' => $this->entity->user->last_name, 'label' => ctrans('texts.last_name')];
         $data['$created_by_user'] = &$data['$user.name'];
+
         $data['$assigned_to_user'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->present()->name() : '', 'label' => ctrans('texts.name')];
+        $data['$assigned_user.signature'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->signature : '', 'label' => ctrans('texts.signature')];
+
+        $data['$assigned_user.first_name'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->first_name : '', 'label' => ctrans('texts.first_name')];
+        $data['$assigned_user.last_name'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->last_name : '', 'label' => ctrans('texts.last_name')];
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
@@ -664,7 +672,7 @@ class HtmlEngine
         }
 
         $data['$contact.signature_raw'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
-        $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date ?? '1970-01-01', $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+        $data['$contact.signature_date'] = ['value' => $this->invitation->signature_date ? $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()) : ' ', 'label' => ctrans('texts.date')];
         $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
@@ -731,6 +739,7 @@ class HtmlEngine
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
         $data['$payment.refunded'] = ['value' => '', 'label' => ctrans('texts.refund')];
+        $data['$payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
@@ -1163,7 +1172,7 @@ class HtmlEngine
         }
 
         return '
-<div>
+<div class=\"center\">
 <!--[if (gte mso 9)|(IE)]>
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>

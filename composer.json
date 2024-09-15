@@ -83,7 +83,7 @@
         "nelexa/zip": "^4.0",
         "nordigen/nordigen-php": "^1.1",
         "nwidart/laravel-modules": "^11.0",
-        "phpoffice/phpspreadsheet": "^1.29",
+        "phpoffice/phpspreadsheet": "^2.2",
         "pragmarx/google2fa": "^8.0",
         "predis/predis": "^2",
         "psr/http-message": "^1.0",
@@ -203,8 +203,8 @@
             "url": "https://github.com/turbo124/snappdf"
         },
         {
-            "type":"vcs",
-            "url":"https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git"
+            "type": "vcs",
+            "url": "https://github.com/karneaud/QuickBooks-V3-PHP-SDK.git"
         }
     ],
     "minimum-stability": "dev",

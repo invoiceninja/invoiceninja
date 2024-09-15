@@ -37,6 +37,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read Project|null $project
  * @property-read int|null $tasks_count
  * @property-read \App\Models\User $user
+ * @property-read \App\Models\User $assigned_user
  * @property-read \App\Models\Vendor|null $vendor
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
@@ -115,6 +116,11 @@ class Project extends BaseModel
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function assigned_user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
     public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany

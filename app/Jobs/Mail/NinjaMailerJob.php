@@ -48,6 +48,7 @@ class NinjaMailerJob implements ShouldQueue
     use MakesHash;
 
     public $tries = 4; //number of retries
+    
     public $deleteWhenMissingModels = true;
 
     /** @var null|\App\Models\Company $company  **/

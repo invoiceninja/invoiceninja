@@ -7,6 +7,7 @@ use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
+use App\Http\Controllers\EInvoice\SelfhostController;
 use App\Http\Controllers\Gateways\Checkout3dsController;
 use App\Http\Controllers\Gateways\GoCardlessController;
 use App\Http\Controllers\Gateways\Mollie3dsController;
@@ -50,5 +51,6 @@ Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Mol
 Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', [GoCardlessController::class, 'ibpRedirect'])->middleware('domain_db')->name('gocardless.ibp_redirect');
 Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePayDomainController::class, 'showAppleMerchantId']);
 
+Route::get('einvoice/beta', [SelfhostController::class, 'index'])->name('einvoice.beta');
 
 \Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['token_auth']]);

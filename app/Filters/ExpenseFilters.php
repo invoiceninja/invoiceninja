@@ -99,6 +99,12 @@ class ExpenseFilters extends QueryFilters
                 });
             }
 
+            if (in_array('uninvoiced', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->whereNull('invoice_id');
+                });
+            }
+
             if (in_array('paid', $status_parameters)) {
                 $query->orWhere(function ($query) {
                     $query->whereNotNull('payment_date');

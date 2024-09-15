@@ -66,7 +66,7 @@ class QuickbooksSync implements ShouldQueue
     {
         MultiDB::setDb($this->db);
      
-        $this->company = Company::find($this->company_id);
+        $this->company = Company::query()->find($this->company_id);
         $this->qbs = new QuickbooksService($this->company);
         $this->settings =  $this->company->quickbooks->settings;
    
@@ -102,9 +102,9 @@ class QuickbooksSync implements ShouldQueue
     private function processEntitySync(string $entity, $records)
     {
         match($entity){
-            // 'client' => $this->syncQbToNinjaClients($records),
+            'client' => $this->syncQbToNinjaClients($records),
             'product' => $this->syncQbToNinjaProducts($records),
-            // 'invoice' => $this->syncQbToNinjaInvoices($records),
+            'invoice' => $this->syncQbToNinjaInvoices($records),
             // 'vendor' => $this->syncQbToNinjaClients($records),
             // 'quote' => $this->syncInvoices($records),
             // 'purchase_order' => $this->syncInvoices($records),

@@ -76,6 +76,13 @@ class ClientRepository extends BaseRepository
             $client->country_id = $company->settings->country_id;
         }
 
+        if(isset($data['e_invoice']) && is_array($data['e_invoice'])) {
+            //ensure it is normalized first!
+            $data['e_invoice'] = $client->arrayFilterRecursive($data['e_invoice']);
+
+            $client->e_invoice = $data['e_invoice'];
+        }
+
         $client->save();
 
         if (! isset($client->number) || empty($client->number) || strlen($client->number) == 0) {
@@ -106,6 +113,7 @@ class ClientRepository extends BaseRepository
         if (array_key_exists('contacts', $contact_data) || $client->contacts()->count() == 0) {
             $this->contact_repo->save($contact_data, $client);
         }
+        
 
         return $client;
     }

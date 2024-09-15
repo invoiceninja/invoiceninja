@@ -17,8 +17,8 @@ return [
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
     'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
-    'app_version' => env('APP_VERSION', '5.10.26'),
-    'app_tag' => env('APP_TAG', '5.10.26'),
+    'app_version' => env('APP_VERSION', '5.10.27'),
+    'app_tag' => env('APP_TAG', '5.10.27'),
     'minimum_client_version' => '5.0.16',
     'terms_version' => '1.0.1',
     'api_secret' => env('API_SECRET', false),
@@ -46,6 +46,7 @@ return [
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
     'license_key' => env('LICENSE_KEY', false),
+    'hosted_ninja_url' => env('HOSTED_NINJA_URL', 'https://invoicing.co'),
     // Settings used by invoiceninja.com
     'disks' => [
         'backup' => env('BACKUP_DISK', 's3'),
