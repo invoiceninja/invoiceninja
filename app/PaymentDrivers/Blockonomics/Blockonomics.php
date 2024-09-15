@@ -23,6 +23,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Exceptions\PaymentFailed;
 use App\Jobs\Util\SystemLogger;
 use App\Jobs\Mail\PaymentFailureMailer;
+use Illuminate\Support\Facades\Http;
 
 class Blockonomics implements MethodInterface
 {
@@ -55,32 +56,14 @@ class Blockonomics implements MethodInterface
         // TODO: remove ?reset=1 before marking PR as ready
         $url = 'https://www.blockonomics.co/api/new_address?reset=1';
 
-        $ch = curl_init();
+        $r = Http::withToken($api_key)
+                    ->post($url, []);
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        if($r->successful())
+            return $r->object()->address ?? 'Something went wrong';
 
-        $header = "Authorization: Bearer " . $api_key;
-        $headers = array();
-        $headers[] = $header;
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        return $r->object()->message ?? 'Something went wrong';
 
-        $contents = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo "Error:" . curl_error($ch);
-        }
-
-        $responseObj = json_decode($contents);
-        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close ($ch);
-
-        if ($status == 200) {
-            return $responseObj->address;
-        } else {
-            echo "ERROR: " . $status . ' ' . $responseObj->message;
-        }
-        return "Something went wrong";
     }
 
     public function getBTCPrice()
