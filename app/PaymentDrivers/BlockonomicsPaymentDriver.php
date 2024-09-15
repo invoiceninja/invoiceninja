@@ -111,6 +111,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public function processWebhookRequest()
     {
 
+        // TODO: Include logic to create new payment with pending status in case user sends payment to the address after navigating away from the payment page
         $txid = $_GET['txid'];
         $value = $_GET['value'];
         $status = $_GET['status'];
