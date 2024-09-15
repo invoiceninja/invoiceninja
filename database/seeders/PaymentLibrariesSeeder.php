@@ -25,7 +25,7 @@ class PaymentLibrariesSeeder extends Seeder
         Model::unguard();
 
         $callbackSecret = md5(uniqid(rand(), true));
-        $callbackUrl = config('ninja.app_url') . '/api/v1/blockonomics/callback/?secret=' . $callbackSecret;
+        $callbackUrl = config('ninja.app_url') . '/payment_webhook/?secret=' . $callbackSecret;
         $blockonomics_fields = "{
             \"apiKey\": \"\",
             \"callbackUrl\": \"$callbackUrl\",

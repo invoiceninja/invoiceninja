@@ -5623,15 +5623,6 @@
       "HEAD"
     ]
   },
-  "generated::aB3xYz9KlmN7Pq8R": {
-    "name": "generated::aB3xYz9KlmN7Pq8R",
-    "domain": null,
-    "action": "App\\Http\\Controllers\\BlockonomicsPaymentDriver@processWebhookRequest",
-    "uri": "api/v1/blockonomics/callback",
-    "method": [
-      "GET"
-    ]
-  },
   "generated::Xy7ZkLm8NpQ4Rt5V": {
     "name": "generated::Xy7ZkLm8NpQ4Rt5V",
     "domain": null,
