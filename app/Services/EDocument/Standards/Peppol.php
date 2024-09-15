@@ -11,15 +11,16 @@
 
 namespace App\Services\EDocument\Standards;
 
-use App\Exceptions\PeppolValidationException;
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Models\Product;
 use App\Helpers\Invoice\Taxer;
 use App\Services\AbstractService;
 use App\Helpers\Invoice\InvoiceSum;
 use InvoiceNinja\EInvoice\EInvoice;
 use App\Utils\Traits\NumberFormatter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Exceptions\PeppolValidationException;
 use App\Services\EDocument\Standards\Peppol\RO;
 use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
@@ -503,7 +504,8 @@ class Peppol extends AbstractService
     private function getTaxType($item): string
     {
         $tax_type = null;
-        switch ($name) {
+        
+        switch ($item->tax_id) {
             case Product::PRODUCT_TYPE_SERVICE:
             case Product::PRODUCT_TYPE_DIGITAL:
             case Product::PRODUCT_TYPE_PHYSICAL:
@@ -523,13 +525,13 @@ class Peppol extends AbstractService
         }
         $eu_states = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "EL", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "IS", "LI", "NO", "CH"];
         if (empty($tax_type)) {
-            if ((in_array($this->document->company->country()->iso_3166_2, $eu_states) && in_array($this->document->client->country->iso_3166_2, $eu_states)) && $this->document->company->country()->iso_3166_2 != $this->document->client->country->iso_3166_2) {
+            if ((in_array($this->company->country()->iso_3166_2, $eu_states) && in_array($this->invoice->client->country->iso_3166_2, $eu_states)) && $this->document->company->country()->iso_3166_2 != $this->document->client->country->iso_3166_2) {
                 $tax_type = 'K';
-            } elseif (!in_array($this->document->client->country->iso_3166_2, $eu_states)) {
+            } elseif (!in_array($this->invoice->client->country->iso_3166_2, $eu_states)) {
                 $tax_type = 'O';
-            } elseif ($this->document->client->country->iso_3166_2 == "ES-CN") {
+            } elseif ($this->invoice->client->country->iso_3166_2 == "ES-CN") {
                 $tax_type = 'L';
-            } elseif (in_array($this->document->client->country->iso_3166_2, ["ES-CE", "ES-ML"])) {
+            } elseif (in_array($this->invoice->client->country->iso_3166_2, ["ES-CE", "ES-ML"])) {
                 $tax_type = 'M';
             } else {
                 $tax_type = 'S';
