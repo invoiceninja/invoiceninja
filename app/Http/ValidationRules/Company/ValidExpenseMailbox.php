@@ -32,30 +32,21 @@ class ValidExpenseMailbox implements Rule
 
     public function passes($attribute, $value)
     {
-        if (empty($value)) {
+        if (empty($value) || !config('ninja.inbound_mailbox.expense_mailbox_endings')) {
             return true;
         }
 
-        // early return, if we dont have any additional validation
-        if (!config('ninja.inbound_mailbox.expense_mailbox_endings')) {
-            $this->validated_schema = true;
-            return MultiDB::checkExpenseMailboxAvailable($value);
-        }
 
         // Validate Schema
         $validated = false;
         foreach ($this->endings as $ending) {
             if (str_ends_with($value, $ending)) {
-                $validated = true;
-                break;
+                return true;
             }
         }
 
-        if (!$validated)
-            return false;
+        return false;
 
-        $this->validated_schema = true;
-        return MultiDB::checkExpenseMailboxAvailable($value);
     }
 
     /**

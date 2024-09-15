@@ -273,7 +273,9 @@ class PostMarkController extends BaseController
 
         $input = $request->all();
 
-        if (!($request->has('token') && $request->get('token') == config('ninja.inbound_mailbox.inbound_webhook_token')))
+        nlog($input);
+
+        if (!$request->has('token') || $request->token != config('ninja.inbound_mailbox.inbound_webhook_token'))
             return response()->json(['message' => 'Unauthorized'], 403);
 
         if (!(array_key_exists("MessageStream", $input) && $input["MessageStream"] == "inbound") || !array_key_exists("To", $input) || !array_key_exists("From", $input) || !array_key_exists("MessageID", $input)) {
@@ -281,17 +283,16 @@ class PostMarkController extends BaseController
             return response()->json(['message' => 'Failed. Missing/Invalid Parameters.'], 400);
         }
         
-        $company = MultiDB::findAndSetDbByExpenseMailbox($input["To"]);
+        $company = MultiDB::findAndSetDbByExpenseMailbox($input["ToFull"][0]["Email"]);
 
         if (!$company) {
             nlog('[PostmarkInboundWebhook] unknown Expense Mailbox occured while handling an inbound email from postmark: ' . $input["To"]);
-            // $inboundEngine->saveMeta($input["From"], $input["To"], true); // important to save this, to protect from spam
             return response()->json(['message' => 'Ok'], 200);
         }
 
         $inboundEngine = new InboundMailEngine($company);
 
-        if ($inboundEngine->isInvalidOrBlocked($input["From"], $input["To"])) {
+        if ($inboundEngine->isInvalidOrBlocked($input["From"], $input["ToFull"][0]["Email"])) {
             return response()->json(['message' => 'Blocked.'], 403);
         }
 

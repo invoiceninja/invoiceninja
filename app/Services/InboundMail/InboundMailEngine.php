@@ -265,14 +265,14 @@ class InboundMailEngine
 
         // whitelists
         $whitelist = explode(",", $this->company->inbound_mailbox_whitelist);
-        if (in_array($email->from, $whitelist))
+        if (is_array($whitelist) && in_array($email->from, $whitelist))
             return true;
-        if (in_array($domain, $whitelist))
+        if (is_array($whitelist) && in_array($domain, $whitelist))
             return true;
         $blacklist = explode(",", $this->company->inbound_mailbox_blacklist);
-        if (in_array($email->from, $blacklist))
+        if (is_array($blacklist) && in_array($email->from, $blacklist))
             return false;
-        if (in_array($domain, $blacklist))
+        if (is_array($blacklist) && in_array($domain, $blacklist))
             return false;
 
         // allow unknown

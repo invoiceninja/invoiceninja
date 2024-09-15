@@ -11,14 +11,15 @@
 
 namespace App\Http\Requests\Company;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\Company\ValidExpenseMailbox;
-use App\Http\ValidationRules\ValidSettingsRule;
-use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
-use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Utils\Ninja;
+use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
+use App\DataMapper\CompanySettings;
+use App\Http\ValidationRules\ValidSettingsRule;
+use App\Http\ValidationRules\Company\ValidSubdomain;
+use App\Http\ValidationRules\Company\ValidExpenseMailbox;
+use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
 
 class UpdateCompanyRequest extends Request
 {
@@ -76,7 +77,7 @@ class UpdateCompanyRequest extends Request
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
-        $rules['expense_mailbox'] = ['email', 'nullable', new ValidExpenseMailbox()];
+        $rules['expense_mailbox'] = ['sometimes','email', 'nullable', new ValidExpenseMailbox(), Rule::unique('companies')->ignore($this->company->id)];
 
         return $rules;
     }

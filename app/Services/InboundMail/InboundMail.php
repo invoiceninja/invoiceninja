@@ -30,7 +30,7 @@ class InboundMail
 
     public string $text_body;
 
-    /** @var array[\Illuminate\Http\UploadedFile] $documents */
+    /** @var array[?\Illuminate\Http\UploadedFile] $documents */
     public array $documents = [];
 
     public ?Carbon $date = null;

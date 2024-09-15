@@ -64,6 +64,8 @@ class MailgunController extends BaseController
     {
 
         $input = $request->all();
+        
+        nlog($input);
 
         if (\abs(\time() - $request['signature']['timestamp']) > 15) {
             return response()->json(['message' => 'Success'], 200);
@@ -117,6 +119,8 @@ class MailgunController extends BaseController
     public function inboundWebhook(Request $request)
     {
         $input = $request->all();
+
+        nlog($input);
 
         if (!array_key_exists('sender', $input) || !array_key_exists('recipient', $input) || !array_key_exists('message-url', $input)) {
             nlog('Failed: Message could not be parsed, because required parameters are missing. Please ensure contacting this api-endpoint with a store & notify operation instead of a forward operation!');
