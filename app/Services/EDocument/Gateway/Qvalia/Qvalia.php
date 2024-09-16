@@ -49,7 +49,9 @@ class Qvalia
 
     private ?int $legal_entity_id;
 
-    public Partner $parter;
+    public Partner $partner;
+
+    public Invoice $invoice;
 
     //integrationid - returned in headers
 
@@ -57,6 +59,7 @@ class Qvalia
     {
         $this->init();
         $this->partner = new Partner($this);
+        $this->invoice = new Invoice($this);
     }
 
     private function init(): self
