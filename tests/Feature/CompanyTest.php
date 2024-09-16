@@ -41,11 +41,7 @@ class CompanyTest extends TestCase
     {
         parent::setUp();
 
-        Session::start();
-
         $this->faker = \Faker\Factory::create();
-
-        Model::reguard();
 
         $this->makeTestData();
     }
