@@ -63,5 +63,12 @@
         document.getElementById('pay-now').addEventListener('click', function() {
             document.getElementById('server-response').submit();
         });
+
+        const first = document.querySelector('input[name="payment-type"]');
+
+        if (first) {
+            first.click();
+        }
+
     </script>
 @endpush

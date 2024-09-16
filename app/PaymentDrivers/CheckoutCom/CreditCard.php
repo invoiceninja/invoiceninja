@@ -19,6 +19,7 @@ use App\Models\ClientGatewayToken;
 use App\Models\GatewayType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\CheckoutComPaymentDriver;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Utils\Traits\MakesHash;
 use Checkout\CheckoutApiException;
@@ -32,7 +33,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class CreditCard implements MethodInterface
+class CreditCard implements MethodInterface, LivewireMethodInterface
 {
     use Utilities;
     use MakesHash;
@@ -140,7 +141,7 @@ class CreditCard implements MethodInterface
         }
     }
 
-    public function paymentView($data)
+    public function paymentData(array $data): array
     {
         $data['gateway'] = $this->checkout;
         $data['company_gateway'] = $this->checkout->company_gateway;
@@ -150,7 +151,23 @@ class CreditCard implements MethodInterface
         $data['raw_value'] = $data['total']['amount_with_fee'];
         $data['customer_email'] = $this->checkout->client->present()->email();
 
+        return $data;
+    }
+    
+    public function paymentView($data, $livewire = false)
+    {
+        $data = $this->paymentData($data);
+
+        if ($livewire) {
+            return render('gateways.checkout.credit_card.pay_livewire', $data);
+        }
+
         return render('gateways.checkout.credit_card.pay', $data);
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.checkout.credit_card.pay_livewire'; 
     }
 
     public function paymentResponse(PaymentResponseRequest $request)

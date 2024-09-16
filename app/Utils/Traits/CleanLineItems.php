@@ -34,6 +34,20 @@ trait CleanLineItems
         return $cleaned_items;
     }
 
+    public function cleanFeeItems($items): array
+    {
+
+        //ensure we never allow gateway fees to be cloned across to new entities
+        foreach ($items as $key => $value) {
+            if (in_array($value['type_id'], ['3','4'])) {
+                unset($items[$key]);
+            }
+        }
+
+        return $items;
+
+    }
+
     /**
      * Sets default values for the line_items.
      * @param $item

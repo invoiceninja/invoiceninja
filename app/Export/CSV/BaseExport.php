@@ -845,7 +845,7 @@ class BaseExport
     /**
      * Apply Product Filters
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      *
      * @return Builder
      */
@@ -870,7 +870,7 @@ class BaseExport
     /**
      * Add Client Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  mixed $clients
      *
      * @return Builder
@@ -893,7 +893,7 @@ class BaseExport
     /**
      * Add Vendor Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $vendors
      *
      * @return Builder
@@ -917,7 +917,7 @@ class BaseExport
     /**
      * AddProjectFilter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $projects
      *
      * @return Builder
@@ -941,7 +941,7 @@ class BaseExport
     /**
      * Add Category Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $expense_categories
      *
      * @return Builder
@@ -966,7 +966,7 @@ class BaseExport
     /**
      * Add Payment Status Filters
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $status
      *
      * @return Builder
@@ -1024,10 +1024,10 @@ class BaseExport
     /**
      * Add RecurringInvoice Status Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $status
      *
-     * @return Builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function addRecurringInvoiceStatusFilter(Builder $query, string $status): Builder
     {
@@ -1067,7 +1067,7 @@ class BaseExport
     /**
      * Add QuoteStatus Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $status
      *
      * @return Builder
@@ -1133,7 +1133,7 @@ class BaseExport
     /**
      * Add PurchaseOrder Status Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $status
      *
      * @return Builder
@@ -1183,7 +1183,7 @@ class BaseExport
     /**
      * Add Invoice Status Filter
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param  string $status
      * @return Builder
      */
@@ -1249,7 +1249,7 @@ class BaseExport
     /**
      * Add Date Range
      *
-     * @param  Builder $query
+     * @param  \Illuminate\Database\Eloquent\Builder $query
      * @param ?string $table_name
      * @return Builder
      */

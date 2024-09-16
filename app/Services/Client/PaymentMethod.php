@@ -70,7 +70,7 @@ class PaymentMethod
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
             //gateways disabled
-            if($company_gateways == '0') {
+            if ($company_gateways == '0') {
                 $transformed_ids = [];
             }
 
@@ -105,7 +105,7 @@ class PaymentMethod
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
-            if($company_gateways == '0') {
+            if ($company_gateways == '0') {
                 $transformed_ids = [];
             }
 
@@ -158,7 +158,7 @@ class PaymentMethod
         $this->payment_methods = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
 
         //@15-06-2024
-        foreach($this->payment_methods as $key => $type) {
+        foreach ($this->payment_methods as $key => $type) {
             foreach ($type as $gateway_id => $gateway_type_id) {
                 $gate = $this->gateways->where('id', $gateway_id)->first();
                 $this->buildUrl($gate, $gateway_type_id);

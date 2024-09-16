@@ -57,7 +57,44 @@
           type: boolean
           example: true
         custom_fields:
-          description: "A mapping of custom fields for various objects within the company"
+          description: |
+            A mapping of custom fields for various objects within the company
+            
+            **note** 
+            The custom fields object is formatted as follows
+
+              key : value
+              entity(integer) : label|type
+
+              for example:
+              "company1": "Number|single_line_text",
+
+              This defines the first company custom field, with label Number which has a custom field type of a single text line
+
+              Supported entity types
+
+              invoice
+              product
+              client
+              contact
+              task
+              user
+              project
+              vendor 
+              expense
+              payment     
+      
+              Supported input types values
+
+              single_line_text
+              date
+              switch
+
+              For text areas, you only need to supply the label ie "TextArea", the | and type values are not required.
+              For the dropdown the data format is as follows:
+
+              label|your,drop,down,values,in,comma,separated,format
+
           type: object
         enable_product_cost:
           description: "A flag determining whether to show or hide the product cost field in the user interface"

@@ -17,7 +17,7 @@
             @foreach($methods as $index => $method)
                 <button wire:loading.remove
                     class="flex px-4 py-3 border rounded-lg lg:-mb-1 hover:shadow-sm transition duration-300"
-                    wire:click="handleSelect('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}', '{{ $amount }}')"
+                    wire:click="handleSelect('{{ $method['company_gateway_id'] }}', '{{ $method['gateway_type_id'] }}', '{{ $amount }}')">
                     <span>{{ $method['label'] }}</span>
                 </button>
             @endforeach

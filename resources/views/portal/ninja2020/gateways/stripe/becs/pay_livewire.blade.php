@@ -30,7 +30,8 @@
     @include('portal.ninja2020.gateways.includes.pay_now')
 </div>
 
+
 @assets
-<script src="https://js.stripe.com/v3/"></script>
-<script src="{{ asset('js/clients/payments/stripe-becs.js') }}"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    @vite('resources/js/clients/payments/stripe-becs.js')
 @endassets

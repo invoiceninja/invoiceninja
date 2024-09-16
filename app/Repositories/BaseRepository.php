@@ -326,7 +326,7 @@ class BaseRepository
                 try{
                     $model->service()->getEInvoice();
                 }
-                catch(\Exception $e){
+                catch(\Throwable $e){
                     nlog("EXCEPTION:: BASEREPOSITORY:: Error generating e_invoice for model {$model->id}");
                     nlog($e->getMessage());
                 }

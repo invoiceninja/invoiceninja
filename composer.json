@@ -104,7 +104,7 @@
         "symfony/postmark-mailer": "^6.1",
         "turbo124/beacon": "^2",
         "twig/intl-extra": "^3.7",
-        "twig/twig": "^3",
+        "twig/twig": "^3.14",
         "twilio/sdk": "^6.40",
         "wildbit/postmark-php": "^4.0"
     },

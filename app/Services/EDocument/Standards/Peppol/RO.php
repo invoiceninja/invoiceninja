@@ -14,7 +14,7 @@ namespace App\Services\EDocument\Standards\Peppol;
 use App\Models\Invoice;
 use App\Services\EDocument\Standards\Peppol;
 
-class RO
+class RO extends BaseCountry
 {
     public array $countrySubEntity = [
         'RO-AB' => 'Alba',

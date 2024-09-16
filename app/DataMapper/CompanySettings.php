@@ -522,8 +522,6 @@ class CompanySettings extends BaseSettings
     public string $email_template_payment_failed = '';
 
     public static $casts = [
-        'email_template_payment_failed'      => 'string',
-        'email_subject_payment_failed'       => 'string',
         'payment_flow'                       => 'string',
         'enable_quote_reminder1'             => 'bool',
         'quote_num_days_reminder1'           => 'int',
@@ -774,6 +772,8 @@ class CompanySettings extends BaseSettings
         'portal_custom_js' => 'string',
         'client_portal_enable_uploads' => 'bool',
         'purchase_order_number_counter' => 'integer',
+        'email_template_payment_failed'      => 'string',
+        'email_subject_payment_failed'       => 'string',
     ];
 
     public static $free_plan_casts = [

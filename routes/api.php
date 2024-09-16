@@ -93,6 +93,7 @@ use App\Http\Controllers\BankTransactionRuleController;
 use App\Http\Controllers\InAppPurchase\AppleController;
 use App\Http\Controllers\Reports\QuoteReportController;
 use App\Http\Controllers\Auth\PasswordTimeoutController;
+use App\Http\Controllers\EInvoiceController;
 use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
@@ -224,6 +225,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::post('documents/bulk', [DocumentController::class, 'bulk'])->name('documents.bulk');
 
+    Route::post('einvoice/validateEntity', [EInvoiceController::class, 'validateEntity'])->name('einvoice.validateEntity');
     Route::post('emails', [EmailController::class, 'send'])->name('email.send')->middleware('user_verified');
     Route::post('emails/clientHistory/{client}', [EmailHistoryController::class, 'clientHistory'])->name('email.clientHistory');
     Route::post('emails/entityHistory', [EmailHistoryController::class, 'entityHistory'])->name('email.entityHistory');

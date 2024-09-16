@@ -29,7 +29,7 @@ class ProcessPayment extends Component
     private array $payment_data_payload = [];
 
     public $isLoading = true;
-
+    
     public function mount()
     {
 
@@ -64,7 +64,7 @@ class ProcessPayment extends Component
             ->setPaymentHash($responder_data['payload']['ph']);
 
         $this->payment_data_payload = $driver->processPaymentViewData($responder_data['payload']);
-
+        
         $this->payment_view = $driver->livewirePaymentView(
             $this->payment_data_payload,
         );
@@ -83,4 +83,21 @@ class ProcessPayment extends Component
 
         return render($this->payment_view, $this->payment_data_payload);
     }
+
+    public function exception($e, $stopPropagation) 
+    {
+      
+        $errors = session()->get('errors', new \Illuminate\Support\ViewErrorBag());
+
+        $bag = new \Illuminate\Support\MessageBag();
+        $bag->add('gateway_error', $e->getMessage());
+
+        session()->put('errors', $errors->put('default', $bag));
+
+        $invoice_id = $this->getContext()['payable_invoices'][0]['invoice_id'];
+        $this->redirectRoute('client.invoice.show', ['invoice' => $invoice_id]);
+        $stopPropagation();
+
+    }
+ 
 }

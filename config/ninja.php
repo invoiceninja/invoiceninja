@@ -252,5 +252,7 @@ return [
         'private_key' => env('NINJA_PRIVATE_KEY', false),
     ],
     'upload_extensions' => env('ADDITIONAL_UPLOAD_EXTENSIONS', ''),
-    'storecove_api_key' => env('STORECOVE_API_KEY', false),
+    'storecove_api_key' => env('STORECOVE_API_KEY', false), 
+    'qvalia_api_key' => env('QVALIA_API_KEY', false),   
+    'qvalia_partner_number' => env('QVALIA_PARTNER_NUMBER', false), 
 ];

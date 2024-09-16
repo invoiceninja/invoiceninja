@@ -619,4 +619,9 @@ class CheckoutComPaymentDriver extends BaseDriver
 
              });
     }
+    
+    public function livewirePaymentView(array $data): string
+    {
+        return $this->payment_method->livewirePaymentView($data);
+    }
 }

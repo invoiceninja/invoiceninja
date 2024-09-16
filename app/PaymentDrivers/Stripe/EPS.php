@@ -18,9 +18,10 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 
-class EPS
+class EPS implements LivewireMethodInterface
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
@@ -37,31 +38,7 @@ class EPS
 
     public function paymentView(array $data)
     {
-        $this->stripe->init();
-
-        $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $data['client'] = $this->stripe->client;
-        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
-        $data['country'] = $this->stripe->client->country->iso_3166_2;
-
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => $data['stripe_amount'],
-            'currency' => 'eur',
-            'payment_method_types' => ['eps'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->getDescription(false),
-            'metadata' => [
-                'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::EPS,
-            ],
-        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
-
-        $data['pi_client_secret'] = $intent->client_secret;
-
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
-        $this->stripe->payment_hash->save();
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.eps.pay', $data);
     }
@@ -94,8 +71,9 @@ class EPS
         $this->stripe->init();
 
         //catch duplicate submissions.
-        if (Payment::where('transaction_reference', $payment_intent)->exists()) {
-            return redirect()->route('client.payments.index');
+        if ($payment = Payment::query()->where('transaction_reference', $payment_intent)->first()) {
+
+            return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
         }
 
         $data = [
@@ -106,7 +84,7 @@ class EPS
             'gateway_type_id' => GatewayType::EPS,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -117,7 +95,8 @@ class EPS
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+
+return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     public function processUnsuccessfulPayment()
@@ -141,5 +120,41 @@ class EPS
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+
+    public function paymentData(array $data): array
+    {
+        $this->stripe->init();
+
+        $data['gateway'] = $this->stripe;
+        $data['return_url'] = $this->buildReturnUrl();
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+        $data['client'] = $this->stripe->client;
+        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
+
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $data['stripe_amount'],
+            'currency' => 'eur',
+            'payment_method_types' => ['eps'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->getDescription(false),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::EPS,
+            ],
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
+
+        $data['pi_client_secret'] = $intent->client_secret;
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
+        $this->stripe->payment_hash->save();
+
+        return $data;
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.stripe.eps.pay_livewire';
     }
 }

@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessBANCONTACTPay {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -17,13 +19,13 @@ class ProcessBANCONTACTPay {
 
     setupStripe = () => {
 
-        if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+            // this.stripe.stripeAccount = this.stripeConnect;
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
@@ -40,7 +42,7 @@ class ProcessBANCONTACTPay {
                 errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
                 errors.hidden = false;
                 console.log("name");
-                return ;
+                return;
             }
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
@@ -63,11 +65,15 @@ class ProcessBANCONTACTPay {
     };
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessBANCONTACTPay(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
-new ProcessBANCONTACTPay(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-bancontact-payment').then(() => boot());

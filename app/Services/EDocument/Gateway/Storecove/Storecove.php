@@ -51,11 +51,16 @@ class Storecove
         "identifier" => "1200109963131"
     ];
 
+    private ?int $legal_entity_id;
+
     public StorecoveRouter $router;
+
+    public Mutator $mutator;
 
     public function __construct()
     {
         $this->router = new StorecoveRouter();
+        $this->mutator = new Mutator($this);
     }
     
     /**
@@ -129,6 +134,7 @@ class Storecove
      */
     public function sendDocument(string $document, int $routing_id, array $override_payload = [])
     {
+        $this->legal_entity_id = $routing_id;
 
         $payload = [
             "legalEntityId" => $routing_id,
@@ -348,21 +354,32 @@ class Storecove
     private function httpClient(string $uri, string $verb, array $data, ?array $headers = [])
     {
 
-        try {
+        try {            
             $r = Http::withToken(config('ninja.storecove_api_key'))
-                    ->withHeaders($this->getHeaders($headers))
-                    ->{$verb}("{$this->base_url}{$uri}", $data)->throw();
+                ->withHeaders($this->getHeaders($headers))
+            ->{$verb}("{$this->base_url}{$uri}", $data)->throw();
         }
         catch (ClientException $e) {
             // 4xx errors
+            
+            nlog("LEI:: {$this->legal_entity_id}");
             nlog("Client error: " . $e->getMessage());
             nlog("Response body: " . $e->getResponse()->getBody()->getContents());
         } catch (ServerException $e) {
             // 5xx errors
+            
+            nlog("LEI:: {$this->legal_entity_id}");
             nlog("Server error: " . $e->getMessage());
             nlog("Response body: " . $e->getResponse()->getBody()->getContents());
-        } catch (RequestException $e) {
+        } catch (\Illuminate\Http\Client\RequestException $e) {
+
+            nlog("LEI:: {$this->legal_entity_id}");
             nlog("Request error: {$e->getCode()}: " . $e->getMessage());       
+            $responseBody = $e->response->body();
+            nlog("Response body: " . $responseBody);
+
+            return $e->response;
+
         }
 
         return $r; // @phpstan-ignore-line

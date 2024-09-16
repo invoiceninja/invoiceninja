@@ -7,6 +7,8 @@
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
     @endif
+
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

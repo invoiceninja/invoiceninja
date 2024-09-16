@@ -73,6 +73,10 @@ class OneTimeTokenController extends BaseController
             'is_react' => $request->hasHeader('X-REACT') ? true : false,
         ];
 
+        if($request->institution_id) {
+            $data['institution_id'] = $request->institution_id;
+        }
+
         Cache::put($hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);

@@ -48,6 +48,8 @@ trait SavesDocuments
                 $is_public
             ))->handle();
         }
+
+        $entity->touch();
     }
 
     public function saveDocument($document, $entity, $is_public = true)
@@ -75,5 +77,8 @@ trait SavesDocuments
             null,
             $is_public
         ))->handle();
+
+        $entity->touch();
+
     }
 }

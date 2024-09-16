@@ -126,8 +126,8 @@ class StripePaymentDriver extends BaseDriver
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            Stripe::setApiVersion('2022-11-15');
-            // Stripe::setAPiVersion('2023-08-16');
+            // Stripe::setApiVersion('2022-11-15');
+            Stripe::setAPiVersion('2023-08-16');
         }
 
         return $this;
@@ -417,6 +417,33 @@ class StripePaymentDriver extends BaseDriver
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);
+    }
+
+    public function processPaymentViewData(array $data): array
+    {
+        $data = $this->payment_method->paymentData($data); 
+
+        $data['stripe_account_id'] = $this->company_gateway->getConfigField('account_id');
+
+        if (array_key_exists('intent', $data)) {
+            $data['client_secret'] = $data['intent']->client_secret;
+        }
+
+        unset($data['intent']);
+
+        $token_billing_string = 'true';
+
+        if($this->company_gateway->token_billing == 'off' || $this->company_gateway->token_billing == 'optin') {
+            $token_billing_string = 'false';
+        }
+
+        if (isset($data['pre_payment']) && $data['pre_payment'] == '1' && isset($data['is_recurring']) && $data['is_recurring'] == '1') {
+            $token_billing_string = 'true';
+        }
+
+        $data['token_billing_string'] = $token_billing_string;
+
+        return $data;
     }
 
     public function processPaymentResponse($request)
@@ -1021,4 +1048,6 @@ class StripePaymentDriver extends BaseDriver
         return false;
 
     }
+
 }
+

@@ -98,7 +98,9 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
         }
 
-        info("Auto Bill - balance remains to be paid!! - {$amount}");
+        nlog("Auto Bill - balance remains to be paid!! - {$amount}");
+        nlog($this->invoice->amount);
+        nlog($this->invoice->balance);
 
         /* Retrieve the Client Gateway Token */
         /** @var \App\Models\ClientGatewayToken $gateway_token */
@@ -112,10 +114,14 @@ class AutoBillInvoice extends AbstractService
             // return $this->invoice;
         }
 
-        nlog('Gateway present - adding gateway fee');
+        nlog("Gateway present - adding gateway fee on {$amount}");
 
         /* $gateway fee */
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
+
+
+        nlog($this->invoice->amount);
+        nlog($this->invoice->balance);
 
         //change from $this->invoice->amount to $this->invoice->balance
         if ($is_partial) {
@@ -123,6 +129,8 @@ class AutoBillInvoice extends AbstractService
         } else {
             $fee = $this->invoice->balance - $amount;
         }
+
+        nlog("fee is {$fee}");
 
         if ($fee > $amount) {
             $fee = 0;
@@ -148,8 +156,7 @@ class AutoBillInvoice extends AbstractService
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
-        $this->invoice->saveQuietly();
-
+       
         $payment = false;
         try {
             $payment = $gateway_token->gateway
@@ -170,8 +177,6 @@ class AutoBillInvoice extends AbstractService
             $this->invoice->auto_bill_enabled = false;
             $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
         }
-
-        $this->invoice->save();
 
         if ($payment) {
             info('Auto Bill payment captured for '.$this->invoice->number);

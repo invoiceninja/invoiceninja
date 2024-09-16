@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessSOFORT {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -18,13 +20,13 @@ class ProcessSOFORT {
     setupStripe = () => {
 
 
-        if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+            // this.stripe.stripeAccount = this.stripeConnect;
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
@@ -58,11 +60,17 @@ class ProcessSOFORT {
     };
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect = 
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? ''; 
+    
+    new ProcessSOFORT(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-const stripeConnect = 
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? ''; 
+instant() ? boot() : wait('#stripe-sofort-payment').then(() => boot());
 
-new ProcessSOFORT(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-sofort-payment').then(() => boot());

@@ -8,8 +8,10 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { instant, wait } from '../wait';
+
 class ProcessBACS {
-    constructor(key, stripeConnect) {
+    constructor(key, stripeConnect, onlyAuthorization) {
         this.key = key;
         this.errors = document.getElementById('errors');
         this.stripeConnect = stripeConnect;
@@ -18,7 +20,7 @@ class ProcessBACS {
 
     setupStripe = () => {
 
-        if (this.stripeConnect){
+        if (this.stripeConnect) {
             // this.stripe.stripeAccount = this.stripeConnect;
 
             this.stripe = Stripe(this.key, {
@@ -42,9 +44,10 @@ class ProcessBACS {
                 document.getElementById('authorize-bacs').disabled = true;
                 document.querySelector('#authorize-bacs > svg').classList.remove('hidden');
                 document.querySelector('#authorize-bacs > span').classList.add('hidden');
-                location.href=document.querySelector('meta[name=stripe-redirect-url]').content;
-            });}
-        else{
+                location.href = document.querySelector('meta[name=stripe-redirect-url]').content;
+            });
+        }
+        else {
             this.payNowButton = document.getElementById('pay-now');
             document.getElementById('pay-now').addEventListener('click', (e) => {
                 this.payNowButton.disabled = true;
@@ -54,14 +57,15 @@ class ProcessBACS {
             });
 
             this.payment_data = Array.from(document.getElementsByClassName('toggle-payment-with-token'));
-            if (this.payment_data.length > 0){
+            if (this.payment_data.length > 0) {
                 this.payment_data.forEach((element) =>
                     element.addEventListener('click', (element) => {
                         document.querySelector('input[name=token]').value =
                             element.target.dataset.token;
                     })
-                );}
-            else{
+                );
+            }
+            else {
                 this.errors.textContent = document.querySelector(
                     'meta[name=translation-payment-method-required]'
                 ).content;
@@ -69,19 +73,33 @@ class ProcessBACS {
                 this.payNowButton.disabled = true;
                 this.payNowButton.querySelector('span').classList.remove('hidden');
                 this.payNowButton.querySelector('svg').classList.add('hidden');
-            }}
+            }
+        }
 
 
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    const onlyAuthorization =
+        document.querySelector('meta[name="only-authorization"]')?.content ?? '';
+    
+    new ProcessBACS(publishableKey, stripeConnect, onlyAuthorization).setupStripe().handle();
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-const onlyAuthorization =
-    document.querySelector('meta[name="only-authorization"]')?.content ?? '';
+    /**
+    * @type {HTMLInputElement|null}
+    */
+    const first = document.querySelector('input[name="payment-type"]');
 
-new ProcessBACS(publishableKey, stripeConnect).setupStripe().handle();
+    if (first) {
+        first.click();
+    }
+}
+
+instant() ? boot() : wait('#stripe-bacs-payment').then(() => boot());

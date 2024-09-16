@@ -41,7 +41,7 @@ class InvoicePay extends Component
         'client_postal_code' => 'postal_code',
         'client_country_id' => 'country_id',
 
-        'client_shipping_address_line_1' => 'shipping_address1',
+        'client_shipping_address_line_1' => 'shipping_address1',  
         'client_shipping_address_line_2' => 'shipping_address2',
         'client_shipping_city' => 'shipping_city',
         'client_shipping_state' => 'shipping_state',
@@ -128,6 +128,8 @@ class InvoicePay extends Component
     public function payableAmount($payable_amount)
     {
         // $this->setContext('payable_invoices.0.amount', Number::parseFloat($payable_amount)); // $this->context['payable_invoices'][0]['amount'] = Number::parseFloat($payable_amount); //TODO DB: check parseFloat()
+        
+        $this->setContext('amount', $payable_amount);
         $this->under_over_payment = false;
     }
 
@@ -188,7 +190,7 @@ class InvoicePay extends Component
                 }
             }
         }
-
+        
         return $this->required_fields = false;
 
     }
@@ -196,6 +198,7 @@ class InvoicePay extends Component
     #[Computed()]
     public function component(): string
     {
+
         if (!$this->terms_accepted) {
             return Terms::class;
         }
@@ -217,6 +220,7 @@ class InvoicePay extends Component
         }
 
         return ProcessPayment::class;
+        
     }
 
     #[Computed()]
@@ -239,12 +243,9 @@ class InvoicePay extends Component
         $this->setContext('settings', $settings); // $this->context['settings'] = $settings;
         $this->setContext('db', $this->db); // $this->context['db'] = $this->db;
 
-        nlog($this->invoices);
-
-        if(is_array($this->invoices)) {
+        if(is_array($this->invoices))
             $this->invoices = Invoice::find($this->transformKeys($this->invoices));
-        }
-
+        
         $invoices = $this->invoices->filter(function ($i) {
             $i = $i->service()
                 ->markSent()
@@ -273,16 +274,28 @@ class InvoicePay extends Component
                 'invoice_id' => $i->hashed_id,
                 'amount' => $i->partial > 0 ? $i->partial : $i->balance,
                 'formatted_amount' => Number::formatValue($i->partial > 0 ? $i->partial : $i->balance, $i->client->currency()),
+                'formatted_currency' => Number::formatMoney($i->partial > 0 ? $i->partial : $i->balance, $i->client),
                 'number' => $i->number,
-                'date' => $i->translateDate($i->date, $i->client->date_format(), $i->client->locale())
+                'date' => $i->translateDate($i->date, $i->client->date_format(), $i->client->locale()),
+                'due_date' => $i->translateDate($i->due_date, $i->client->date_format(), $i->client->locale())
             ];
         })->toArray();
 
+        $this->setContext('amount', array_sum(array_column($payable_invoices, 'amount')));
         $this->setContext('payable_invoices', $payable_invoices);
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         return render('flow2.invoice-pay');
+    }
+
+    public function exception($e, $stopPropagation) 
+    {
+       
+        nlog($e->getMessage());
+
+        $stopPropagation();
+
     }
 }

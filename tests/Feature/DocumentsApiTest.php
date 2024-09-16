@@ -181,6 +181,8 @@ class DocumentsApiTest extends TestCase
             'user_id' => $this->user->id,
         ]);
 
+        $this->invoice->documents()->save($d);
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

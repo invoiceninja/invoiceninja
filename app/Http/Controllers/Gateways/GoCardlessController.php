@@ -20,6 +20,7 @@ class GoCardlessController extends Controller
 {
     public function ibpRedirect(IbpRequest $request)
     {
+
         return $request
             ->getCompanyGateway()
             ->driver($request->getClient())
