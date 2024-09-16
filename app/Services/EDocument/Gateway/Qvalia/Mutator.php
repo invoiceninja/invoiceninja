@@ -11,6 +11,7 @@
 
 namespace App\Services\EDocument\Gateway\Qvalia;
 
+use App\Services\EDocument\Gateway\MutatorUtil;
 use App\Services\EDocument\Gateway\MutatorInterface;
 
 class Mutator implements MutatorInterface
@@ -24,8 +25,11 @@ class Mutator implements MutatorInterface
 
     private $invoice;
 
+    private MutatorUtil $mutator_util;
+    
     public function __construct(public Qvalia $qvalia)
     {
+        $this->mutator_util = new MutatorUtil($this);
     }
 
     public function setInvoice($invoice): self
@@ -45,6 +49,16 @@ class Mutator implements MutatorInterface
         return $this->p_invoice;
     }
 
+    public function getClientSettings(): mixed
+    {
+        return $this->_client_settings;
+    }
+
+    public function getCompanySettings(): mixed
+    {
+        return $this->_company_settings;
+    }
+
     public function setClientSettings($client_settings): self
     {
         $this->_client_settings = $client_settings;
@@ -55,6 +69,11 @@ class Mutator implements MutatorInterface
     {
         $this->_company_settings = $company_settings;
         return $this;
+    }
+
+    public function getInvoice(): mixed
+    {
+        return $this->invoice;
     }
 
     /**

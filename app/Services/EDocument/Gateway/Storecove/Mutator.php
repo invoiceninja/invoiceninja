@@ -19,13 +19,13 @@ use App\Services\EDocument\Gateway\Storecove\StorecoveRouter;
 class Mutator implements MutatorInterface
 {
 
-    public \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
+    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
 
-    public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
+    private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
 
-    public ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
+    private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_company_settings;
 
-    public $invoice;
+    private $invoice;
     
     private array $storecove_meta = [];
 
@@ -92,6 +92,21 @@ class Mutator implements MutatorInterface
     {
         $this->_company_settings = $company_settings;
         return $this;
+    }
+
+    public function getClientSettings(): mixed
+    {
+        return $this->_client_settings;
+    }
+
+    public function getCompanySettings(): mixed
+    {
+        return $this->_company_settings;
+    }
+
+    public function getInvoice(): mixed
+    {
+        return $this->invoice;
     }
 
     /**

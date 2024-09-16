@@ -28,6 +28,12 @@ interface MutatorInterface
 
     public function setCompanySettings($company_settings): self;
 
+    public function getClientSettings(): mixed;
+
+    public function getCompanySettings(): mixed;
+
+    public function getInvoice(): mixed;
+
     // Country-specific methods
     public function DE(): self;
 

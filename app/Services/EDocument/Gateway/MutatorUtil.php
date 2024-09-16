@@ -12,11 +12,20 @@
 namespace App\Services\EDocument\Gateway;
 
 use App\Exceptions\PeppolValidationException;
+use App\Services\EDocument\Gateway\MutatorInterface;
 use App\Services\EDocument\Standards\Settings\PropertyResolver;
+use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CustomerAssignedAccountID;
 
+/**
+ * Class MutatorUtil
+ *
+ * Utility class for e-document mutations.
+ */
 class MutatorUtil
 {
-    
+    /**
+     * MutatorUtil constructor.
+     */
     public function __construct(public MutatorInterface $mutator)
     {
     }
@@ -30,11 +39,13 @@ class MutatorUtil
      */
     public function setPaymentMeans(bool $required = false): self
     {
+        $peppol = $this->mutator->getPeppol();
 
-        if(isset($this->mutator->p_invoice->PaymentMeans)) {
+        if(isset($peppol->PaymentMeans)) {
             return $this;
         } elseif($paymentMeans = $this->getSetting('Invoice.PaymentMeans')) {
-            $this->mutator->p_invoice->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
+            $peppol->PaymentMeans = is_array($paymentMeans) ? $paymentMeans : [$paymentMeans];
+            $this->mutator->setPeppol($peppol);
             return $this;
         }
 
@@ -51,7 +62,7 @@ class MutatorUtil
      */
     public function getClientSetting(string $property_path): mixed
     {
-        return PropertyResolver::resolve($this->mutator->_client_settings, $property_path);
+        return PropertyResolver::resolve($this->mutator->getClientSettings(), $property_path);
     }
     
     /**
@@ -62,7 +73,7 @@ class MutatorUtil
      */
     public function getCompanySetting(string $property_path): mixed
     {
-        return PropertyResolver::resolve($this->mutator->_company_settings, $property_path);
+        return PropertyResolver::resolve($this->mutator->getCompanySettings(), $property_path);
     }
 
     /**
@@ -76,11 +87,11 @@ class MutatorUtil
     public function getSetting(string $property_path): mixed
     {
 
-        if($prop_value = PropertyResolver::resolve($this->mutator->p_invoice, $property_path)) {
+        if($prop_value = PropertyResolver::resolve($this->mutator->getPeppol(), $property_path)) {
             return $prop_value;
-        } elseif($prop_value = PropertyResolver::resolve($this->mutator->_client_settings, $property_path)) {
+        } elseif($prop_value = PropertyResolver::resolve($this->mutator->getClientSettings(), $property_path)) {
             return $prop_value;
-        } elseif($prop_value = PropertyResolver::resolve($this->mutator->_company_settings, $property_path)) {
+        } elseif($prop_value = PropertyResolver::resolve($this->mutator->getCompanySettings(), $property_path)) {
             return $prop_value;
         }
         return null;
@@ -111,19 +122,23 @@ class MutatorUtil
      */
     public function setCustomerAssignedAccountId(bool $required = false): self
     {
+        $peppol = $this->mutator->getPeppol();
+        $invoice = $this->mutator->getInvoice();
+
         //@phpstan-ignore-next-line
-        if(isset($this->mutator->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID)) {
+        if(isset($peppol->AccountingCustomerParty->CustomerAssignedAccountID)) {
             return $this;
         } elseif($customer_assigned_account_id = $this->getSetting('Invoice.AccountingCustomerParty.CustomerAssignedAccountID')) {
 
-            $this->mutator->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
+            $peppol->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
+            $this->mutator->setPeppol($peppol);
             return $this;
-        } elseif(strlen($this->mutator->invoice->client->id_number ?? '') > 1) {
+        } elseif(strlen($invoice->client->id_number ?? '') > 1) {
 
             $customer_assigned_account_id = new CustomerAssignedAccountID();
-            $customer_assigned_account_id->value = $this->mutator->invoice->client->id_number;
+            $customer_assigned_account_id->value = $invoice->client->id_number;
 
-            $this->mutator->p_invoice->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
+            $peppol->AccountingCustomerParty->CustomerAssignedAccountID = $customer_assigned_account_id;
             return $this;
         }
 
