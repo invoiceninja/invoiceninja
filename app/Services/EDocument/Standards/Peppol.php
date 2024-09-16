@@ -21,12 +21,12 @@ use InvoiceNinja\EInvoice\EInvoice;
 use App\Utils\Traits\NumberFormatter;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Exceptions\PeppolValidationException;
+use App\Services\EDocument\Standards\Peppol\RO;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Services\EDocument\Gateway\Qvalia\Qvalia;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
-use App\Services\EDocument\Standards\Peppol\RO;
 use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use InvoiceNinja\EInvoice\Models\Peppol\ItemType\Item;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
 use InvoiceNinja\EInvoice\Models\Peppol\PartyType\Party;
 use InvoiceNinja\EInvoice\Models\Peppol\PriceType\Price;
 use InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID;
@@ -44,6 +44,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\PartyNameType\PartyName;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxSchemeType\TaxScheme;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\PayableAmount;
 use InvoiceNinja\EInvoice\Models\Peppol\AmountType\TaxableAmount;
+use InvoiceNinja\EInvoice\Models\Peppol\PeriodType\InvoicePeriod;
 use InvoiceNinja\EInvoice\Models\Peppol\TaxTotal as PeppolTaxTotal;
 use InvoiceNinja\EInvoice\Models\Peppol\CodeType\IdentificationCode;
 use InvoiceNinja\EInvoice\Models\Peppol\InvoiceLineType\InvoiceLine;
@@ -327,9 +328,30 @@ class Peppol extends AbstractService
         $this->p_invoice->ID = $this->invoice->number;
         $this->p_invoice->IssueDate = new \DateTime($this->invoice->date);
 
-        if($this->invoice->due_date) {
+        if($this->invoice->due_date) 
             $this->p_invoice->DueDate = new \DateTime($this->invoice->due_date);
+
+        if(strlen($this->invoice->public_notes ?? '') > 0)
+            $this->p_invoice->Note = $this->invoice->public_notes;
+
+        $this->p_invoice->DocumentCurrencyCode = $this->invoice->client->currency()->code;
+
+
+        if ($this->invoice->date && $this->invoice->due_date) {
+            $ip = new InvoicePeriod();
+            $ip->StartDate = new \DateTime($this->invoice->date);
+            $ip->EndDate = new \DateTime($this->invoice->due_date);
+            $this->p_invoice->InvoicePeriod[] = $ip;
         }
+        
+        if ($this->invoice->project_id) {
+            $pr = new \InvoiceNinja\EInvoice\Models\Peppol\ProjectReferenceType\ProjectReference();
+            $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
+            $id->value = $this->invoice->project->number;
+            $pr->ID = $id;
+            $this->p_invoice->ProjectReference[] = $pr;
+        }
+
 
         $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381; //
         $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
