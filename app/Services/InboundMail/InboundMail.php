@@ -26,17 +26,17 @@ class InboundMail
     public ?string $subject = null;
 
     public ?string $body = null;
+    
     public ?UploadedFile $body_document = null;
 
     public string $text_body;
 
-    /** @var array[?\Illuminate\Http\UploadedFile] $documents */
+    /** @var array $documents */
     public array $documents = [];
 
     public ?Carbon $date = null;
 
-    function __constructor()
+    public function __construct()
     {
-
     }
 }

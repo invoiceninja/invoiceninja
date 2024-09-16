@@ -34,14 +34,15 @@ class InboundMailEngine
     use GeneratesCounter, SavesDocuments;
 
     private array $globalBlacklist;
-    private array $globalWhitelist; // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
+
+    private array $globalWhitelist; 
+
     public function __construct(private Company $company)
     {
-
-        // only for global validation, not for allowing to send something into the company, should be used to disabled blocking for mass-senders
         $this->globalBlacklist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_blocklist')) : [];
         $this->globalWhitelist = Ninja::isSelfHost() ? explode(",", config('ninja.inbound_mailbox.global_inbound_whitelist')) : [];
     }
+
     /**
      * if there is not a company with an matching mailbox, we only do monitoring
      * reuse this method to add more mail-parsing behaviors
@@ -51,20 +52,14 @@ class InboundMailEngine
         if ($this->isInvalidOrBlocked($email->from, $email->to))
             return;
 
-        // Expense Mailbox => will create an expense
-        // $company = MultiDB::findAndSetDbByExpenseMailbox($email->to);
-        // if (!$company) {
-        //     $this->saveMeta($email->from, $email->to, true);
-        //     return;
-        // }
 
         // check if company plan matches requirements
         if (Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
-            $this->saveMeta($email->from, $email->to);
             return;
         }
 
         $this->createExpenses($email);
+
         $this->saveMeta($email->from, $email->to);
     }
 
@@ -149,7 +144,9 @@ class InboundMailEngine
     //@todo - refactor
     public function saveMeta(string $from, string $to, bool $isUnknownRecipent = false)
     {
-        // save cache
+        if(Ninja::isHosted())
+            return;
+
         Cache::add('inboundMailCountSender:' . $from, 0, now()->addHours(12));
         Cache::increment('inboundMailCountSender:' . $from);
 
@@ -167,20 +164,21 @@ class InboundMailEngine
     {
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
         if (!$this->company->expense_mailbox_active) {
-            $this->logBlocked($this->company, 'mailbox not active for this company. from: ' . $email->from);
+            $this->logBlocked('mailbox not active for this company. from: ' . $email->from);
             return;
         }
         if (!$this->validateExpenseSender($email)) {
-            $this->logBlocked($this->company, 'invalid sender of an ingest email for this company. from: ' . $email->from);
+            $this->logBlocked('invalid sender of an ingest email for this company. from: ' . $email->from);
             return;
         }
-        if (sizeOf($email->documents) == 0) {
-            $this->logBlocked($this->company, 'email does not contain any attachments and is likly not an expense. from: ' . $email->from);
+        if (count($email->documents) == 0) {
+            $this->logBlocked('email does not contain any attachments and is likly not an expense. from: ' . $email->from);
             return;
         }
 
         // prepare data
         $expense_vendor = $this->getVendor($email);
+
         $this->processHtmlBodyToDocument($email);
 
         $parsed_expense_ids = []; // used to check if an expense was already matched within this job
@@ -254,7 +252,7 @@ class InboundMailEngine
     private function processHtmlBodyToDocument(InboundMail $email)
     {
 
-        if ($email->body !== null)
+        if (!is_null($email->body))
             $email->body_document = TempFile::UploadedFileFromRaw($email->body, "E-Mail.html", "text/html");
 
     }
@@ -295,14 +293,6 @@ class InboundMailEngine
         return false;
     }
 
-    // private function getClient(InboundMail $email)
-    // {
-    //     $clientContact = ClientContact::where("company_id", $this->company->id)->where("email", $email->from)->first();
-    //     if (!$clientContact)
-    //         return null;
-
-    //     return $clientContact->client();
-    // }
     private function getVendor(InboundMail $email)
     {
         $vendorContact = VendorContact::with('vendor')->where("company_id", $this->company->id)->where("email", $email->from)->first();
@@ -310,7 +300,7 @@ class InboundMailEngine
         return $vendorContact ? $vendorContact->vendor : null;
     }
 
-    private function logBlocked(Company $company, string $data)
+    private function logBlocked(string $data)
     {
         nlog("[InboundMailEngine][company:" . $this->company->company_key . "] " . $data);
 
@@ -321,7 +311,7 @@ class InboundMailEngine
                 SystemLog::EVENT_INBOUND_MAIL_BLOCKED,
                 SystemLog::TYPE_CUSTOM,
                 null,
-                $company
+                $this->company
             )
         )->handle();
     }
