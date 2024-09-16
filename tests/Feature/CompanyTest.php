@@ -63,11 +63,11 @@ class CompanyTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $company_update);
 
         $response->assertStatus(200);
-
-        $this->assertEquals($safeEmail, $response->json('data.expense_mailbox'));
+        $arr = $response->json();
+        $this->assertEquals($safeEmail, $arr['data']['expense_mailbox']);
 
         // Test invalid email address
         $company_update = [
