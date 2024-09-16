@@ -262,7 +262,7 @@ class CompanyTest extends TestCase
 
     public function tearDown(): void
     {
-        Account::query()->where('id', $this->company->account->id)->delete();
+        Account::query()->where('id', $this->company->account_id)->delete();
 
         parent::tearDown();
     }
