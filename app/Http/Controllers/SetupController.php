@@ -70,7 +70,7 @@ class SetupController extends Controller
             return response('Oops, something went wrong. Check your logs.'); /* We should never reach this block, but just in case. */
         }
 
-        $mail_driver = $request->input('mail_driver');
+        $mail_driver = $request->input('mail_driver', 'smtp');
 
         $url = $request->input('url');
         $db_host = $request->input('db_host');
