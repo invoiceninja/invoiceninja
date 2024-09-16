@@ -53,9 +53,11 @@ class CompanyTest extends TestCase
 
     public function testCompanyExpenseMailbox()
     {
+        $safeEmail = $this->faker->safeEmail();
+
         // Test valid email address
         $company_update = [
-            'expense_mailbox' => 'valid@example.com',
+            'expense_mailbox' => $safeEmail,
         ];
 
         $response = $this->withHeaders([
@@ -64,7 +66,8 @@ class CompanyTest extends TestCase
         ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
 
         $response->assertStatus(200);
-        $this->assertEquals('valid@example.com', $response->json('data.expense_mailbox'));
+
+        $this->assertEquals($safeEmail, $response->json('data.expense_mailbox'));
 
         // Test invalid email address
         $company_update = [
