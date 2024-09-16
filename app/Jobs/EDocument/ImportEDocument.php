@@ -11,9 +11,11 @@
 
 namespace App\Jobs\EDocument;
 
+use App\Models\Expense;
+use App\Services\EDocument\Imports\ParseEDocument;
+use App\Utils\TempFile;
 use Exception;
 use App\Models\Company;
-use App\Models\Expense;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -31,8 +33,9 @@ class ImportEDocument implements ShouldQueue
 
     public $tries = 1;
 
-    public function __construct(private readonly string $file_content, private string $file_name, private Company $company)
+    public function __construct(private readonly string $file_content, private string $file_name, private string $file_mime_type, private Company $company)
     {
+
     }
 
     /**
@@ -44,15 +47,9 @@ class ImportEDocument implements ShouldQueue
     public function handle(): Expense
     {
 
-        switch (true) {
-            case stristr($this->file_content, "urn:cen.eu:en16931:2017"):
-            case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
-            case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
-            case stristr($this->file_content, "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
-                return (new ZugferdEDocument($this->file_content, $this->file_name, $this->company))->run();
-            default:
-                throw new Exception("E-Invoice standard not supported");
-        }
+        $file = TempFile::UploadedFileFromRaw($this->file_content, $this->file_name, $this->file_mime_type);
+
+        return (new ParseEDocument($file, $this->company))->run();
 
     }
 
@@ -64,7 +61,7 @@ class ImportEDocument implements ShouldQueue
     public function failed($exception = null)
     {
         if ($exception) {
-            nlog("EXCEPTION:: ImportEDocument:: ".$exception->getMessage());
+            nlog("EXCEPTION:: ImportEDocument:: " . $exception->getMessage());
         }
 
         config(['queue.failed.driver' => null]);

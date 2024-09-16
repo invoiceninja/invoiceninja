@@ -14,10 +14,12 @@ namespace App\Http\Requests\Company;
 use App\Utils\Ninja;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Validation\Rule;
 use App\DataMapper\CompanySettings;
 use App\Http\ValidationRules\ValidSettingsRule;
-use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
 use App\Http\ValidationRules\Company\ValidSubdomain;
+use App\Http\ValidationRules\Company\ValidExpenseMailbox;
+use App\Http\ValidationRules\EInvoice\ValidCompanyScheme;
 
 class UpdateCompanyRequest extends Request
 {
@@ -75,6 +77,15 @@ class UpdateCompanyRequest extends Request
             $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
+        $rules['expense_mailbox'] = ['sometimes','email', 'nullable', new ValidExpenseMailbox(), Rule::unique('companies')->ignore($this->company->id)];
+        $rules['expense_mailbox_active'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_company_users'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_vendors'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_clients'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_unknown'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_whitelist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
+        $rules['inbound_mailbox_blacklist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
+
         return $rules;
     }
 
@@ -87,31 +98,35 @@ class UpdateCompanyRequest extends Request
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        if (isset($input['settings'])) {
-            $input['settings'] = (array)$this->filterSaveableSettings($input['settings']);
+        if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
+            unset($input['expense_mailbox']);
         }
 
-        if(isset($input['subdomain']) && $this->company->subdomain == $input['subdomain']) {
+        if (isset($input['settings'])) {
+            $input['settings'] = (array) $this->filterSaveableSettings($input['settings']);
+        }
+
+        if (isset($input['subdomain']) && $this->company->subdomain == $input['subdomain']) {
             unset($input['subdomain']);
         }
 
-        if(isset($input['e_invoice_certificate_passphrase']) && empty($input['e_invoice_certificate_passphrase'])) {
+        if (isset($input['e_invoice_certificate_passphrase']) && empty($input['e_invoice_certificate_passphrase'])) {
             unset($input['e_invoice_certificate_passphrase']);
         }
 
-        if(isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
+        if (isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
             unset($input['smtp_username']);
         }
 
-        if(isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
+        if (isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
             unset($input['smtp_password']);
         }
 
-        if(isset($input['smtp_port'])) {
-            $input['smtp_port'] = (int)$input['smtp_port'];
+        if (isset($input['smtp_port'])) {
+            $input['smtp_port'] = (int) $input['smtp_port'];
         }
 
-        if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
+        if (isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 
@@ -144,21 +159,21 @@ class UpdateCompanyRequest extends Request
         }
 
         if (isset($settings['email_style_custom'])) {
-            $settings['email_style_custom'] = str_replace(['{!!','!!}','{{','}}','@checked','@dd', '@dump', '@if', '@if(','@endif','@isset','@unless','@auth','@empty','@guest','@env','@section','@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for','@class','</sc','<sc','html;base64', '@elseif', '@else', '@endunless', '@endisset', '@endempty', '@endauth', '@endguest', '@endproduction', '@endenv', '@hasSection', '@endhasSection', '@sectionMissing', '@endsectionMissing', '@endfor', '@endforeach', '@empty', '@endforelse', '@endwhile', '@continue', '@break', '@includeIf', '@includeWhen', '@includeUnless', '@includeFirst', '@component', '@endcomponent', '@endsection', '@yield', '@show', '@append', '@overwrite', '@stop', '@extends', '@endpush', '@stack', '@prepend', '@endprepend', '@slot', '@endslot', '@endphp', '@method', '@csrf', '@error', '@enderror', '@json', '@endverbatim', '@inject'], '', $settings['email_style_custom']);
+            $settings['email_style_custom'] = str_replace(['{!!', '!!}', '{{', '}}', '@checked', '@dd', '@dump', '@if', '@if(', '@endif', '@isset', '@unless', '@auth', '@empty', '@guest', '@env', '@section', '@switch', '@foreach', '@while', '@include', '@each', '@once', '@push', '@use', '@forelse', '@verbatim', '<?php', '@php', '@for', '@class', '</sc', '<sc', 'html;base64', '@elseif', '@else', '@endunless', '@endisset', '@endempty', '@endauth', '@endguest', '@endproduction', '@endenv', '@hasSection', '@endhasSection', '@sectionMissing', '@endsectionMissing', '@endfor', '@endforeach', '@empty', '@endforelse', '@endwhile', '@continue', '@break', '@includeIf', '@includeWhen', '@includeUnless', '@includeFirst', '@component', '@endcomponent', '@endsection', '@yield', '@show', '@append', '@overwrite', '@stop', '@extends', '@endpush', '@stack', '@prepend', '@endprepend', '@slot', '@endslot', '@endphp', '@method', '@csrf', '@error', '@enderror', '@json', '@endverbatim', '@inject'], '', $settings['email_style_custom']);
         }
 
-        if(isset($settings['company_logo']) && strlen($settings['company_logo']) > 2) {
+        if (isset($settings['company_logo']) && strlen($settings['company_logo']) > 2) {
             $settings['company_logo'] = $this->forceScheme($settings['company_logo']);
         }
 
-        if (! $account->isFreeHostedClient()) {
+        if (!$account->isFreeHostedClient()) {
             return $settings;
         }
 
         $saveable_casts = CompanySettings::$free_plan_casts;
 
         foreach ($settings as $key => $value) {
-            if (! array_key_exists($key, $saveable_casts)) {
+            if (!array_key_exists($key, $saveable_casts)) {
                 unset($settings->{$key});
             }
         }
@@ -170,7 +185,7 @@ class UpdateCompanyRequest extends Request
     {
         if (Ninja::isHosted()) {
             $url = str_replace('http://', '', $url);
-            $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme.$url : $url;
+            $url = parse_url($url, PHP_URL_SCHEME) === null ? $scheme . $url : $url;
         }
 
         return rtrim($url, '/');

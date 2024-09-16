@@ -126,18 +126,18 @@ class AppServiceProvider extends ServiceProvider
                 new Dsn(
                     'brevo+api',
                     'default',
-                    config('services.brevo.key')
+                    config('services.brevo.secret')
                 )
             );
         });
-        Mailer::macro('brevo_config', function (string $brevo_key) {
+        Mailer::macro('brevo_config', function (string $brevo_secret) {
             // @phpstan-ignore /** @phpstan-ignore-next-line **/
             Mailer::setSymfonyTransport(
                 (new BrevoTransportFactory())->create(
                     new Dsn(
                         'brevo+api',
                         'default',
-                        $brevo_key
+                        $brevo_secret
                     )
                 )
             );

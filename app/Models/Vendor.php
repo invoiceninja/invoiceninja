@@ -181,7 +181,7 @@ class Vendor extends BaseModel
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
-        if (! $this->currency_id) {
+        if (!$this->currency_id) {
             return $this->company->currency();
         }
 
@@ -217,14 +217,14 @@ class Vendor extends BaseModel
     {
         $defaults = [];
 
-        if (! (array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
-            $defaults['terms'] = $this->getSetting($entity_name.'_terms');
+        if (!(array_key_exists('terms', $data) && strlen($data['terms']) > 1)) {
+            $defaults['terms'] = $this->getSetting($entity_name . '_terms');
         } elseif (array_key_exists('terms', $data)) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if (! (array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
-            $defaults['footer'] = $this->getSetting($entity_name.'_footer');
+        if (!(array_key_exists('footer', $data) && strlen($data['footer']) > 1)) {
+            $defaults['footer'] = $this->getSetting($entity_name . '_footer');
         } elseif (array_key_exists('footer', $data)) {
             $defaults['footer'] = $data['footer'];
         }
@@ -262,7 +262,7 @@ class Vendor extends BaseModel
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->vendor_hash.'/'.$contact_key.'/purchase_orders/';
+        return $this->company->company_key . '/' . $this->vendor_hash . '/' . $contact_key . '/purchase_orders/';
     }
 
     public function locale(): string
@@ -287,7 +287,7 @@ class Vendor extends BaseModel
 
     public function backup_path(): string
     {
-        return $this->company->company_key.'/'.$this->vendor_hash.'/backups';
+        return $this->company->company_key . '/' . $this->vendor_hash . '/backups';
     }
 
     public function service()
