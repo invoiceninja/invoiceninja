@@ -273,8 +273,6 @@ class PostMarkController extends BaseController
 
         $input = $request->all();
 
-        nlog($input);
-
         if (!$request->has('token') || $request->token != config('ninja.inbound_mailbox.inbound_webhook_token'))
             return response()->json(['message' => 'Unauthorized'], 403);
 
@@ -282,7 +280,7 @@ class PostMarkController extends BaseController
             nlog('Failed: Message could not be parsed, because required parameters are missing.');
             return response()->json(['message' => 'Failed. Missing/Invalid Parameters.'], 400);
         }
-        
+
         $company = MultiDB::findAndSetDbByExpenseMailbox($input["ToFull"][0]["Email"]);
 
         if (!$company) {

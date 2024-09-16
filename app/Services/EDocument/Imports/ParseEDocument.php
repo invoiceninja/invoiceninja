@@ -57,7 +57,6 @@ class ParseEDocument extends AbstractService
                 try {
                     return (new ZugferdEDocument($this->file, $this->company))->run();
                 } catch (Exception $e) {
-                    nlog($this->file->get());
                     nlog("Zugferd Exception: " . $e->getMessage());
                 }
         }

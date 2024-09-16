@@ -47,7 +47,7 @@ class MindeeEDocument extends AbstractService
     public function run(): Expense
     {
         $api_key = config('services.mindee.api_key');
-        
+
         if (!$api_key)
             throw new Exception('Mindee API key not configured');
 
@@ -72,22 +72,22 @@ class MindeeEDocument extends AbstractService
         $country = $prediction->locale->country;
 
         $expense = Expense::query()
-                            ->where('company_id', $this->company->id)
-                            ->where('amount', $grandTotalAmount)
-                            ->where("transaction_reference", $documentno)
-                            ->whereDate("date", $documentdate)
-                            ->first();
+            ->where('company_id', $this->company->id)
+            ->where('amount', $grandTotalAmount)
+            ->where("transaction_reference", $documentno)
+            ->whereDate("date", $documentdate)
+            ->first();
 
         if (!$expense) {
             // The document does not exist as an expense
             // Handle accordingly
 
             /** @var \App\Models\Currency $currency */
-            $currency = app('currencies')->first(function ($c) use ($invoiceCurrency){
-                 /** @var \App\Models\Currency $c */
+            $currency = app('currencies')->first(function ($c) use ($invoiceCurrency) {
+                /** @var \App\Models\Currency $c */
                 return $c->code == $invoiceCurrency;
             });
-    
+
             $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
             $expense->date = $documentdate;
             $expense->public_notes = $documentno;
@@ -105,14 +105,14 @@ class MindeeEDocument extends AbstractService
             $counter = 1;
 
             foreach ($prediction->taxes as $taxesElem) {
-                $expense->{"tax_amount{$counter}"} = $taxesElem->amount;
+                $expense->{"tax_amount{$counter}"} = $taxesElem->value;
                 $expense->{"tax_rate{$counter}"} = $taxesElem->rate;
                 $counter++;
             }
-        
+
             /** @var \App\Models\VendorContact $vendor_contact */
             $vendor_contact = VendorContact::query()->where("company_id", $this->company->id)->where("email", $prediction->supplierEmail)->first();
-            
+
             /** @var \App\Models\Vendor|null $vendor */
             $vendor = $vendor_contact ? $vendor_contact->vendor : Vendor::query()->where("company_id", $this->company->id)->where("name", $prediction->supplierName)->first();
 
