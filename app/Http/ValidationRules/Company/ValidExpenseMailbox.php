@@ -22,8 +22,7 @@ use Symfony\Component\Validator\Constraints\EmailValidator;
 class ValidExpenseMailbox implements Rule
 {
 
-    private $validated_schema = false;
-    private array $endings;
+    private array $endings = [];
 
     public function __construct()
     {
@@ -35,10 +34,7 @@ class ValidExpenseMailbox implements Rule
         if (empty($value) || !config('ninja.inbound_mailbox.expense_mailbox_endings')) {
             return true;
         }
-
-
-        // Validate Schema
-        $validated = false;
+        
         foreach ($this->endings as $ending) {
             if (str_ends_with($value, $ending)) {
                 return true;
@@ -54,9 +50,6 @@ class ValidExpenseMailbox implements Rule
      */
     public function message()
     {
-        if (!$this->validated_schema)
-            return ctrans('texts.expense_mailbox_invalid');
-
-        return ctrans('texts.expense_mailbox_taken');
+        return ctrans('texts.expense_mailbox_invalid');
     }
 }

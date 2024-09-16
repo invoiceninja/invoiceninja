@@ -232,7 +232,8 @@ return [
         'webhook_id' => env('PAYPAL_WEBHOOK_ID', null),
     ],
     'inbound_mailbox' => [
-        'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
+        'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', false),
+        // 'expense_mailbox_endings' => env('EXPENSE_MAILBOX_ENDINGS', '@expense.invoicing.co'),
         'inbound_webhook_token' => env('INBOUND_WEBHOOK_TOKEN', null),
         'global_inbound_blacklist' => env('GLOBAL_INBOUND_BLACKLIST', ''),
         'global_inbound_whitelist' => env('GLOBAL_INBOUND_WHITELIST', ''),

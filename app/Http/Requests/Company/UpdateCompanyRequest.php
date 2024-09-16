@@ -78,6 +78,13 @@ class UpdateCompanyRequest extends Request
         }
 
         $rules['expense_mailbox'] = ['sometimes','email', 'nullable', new ValidExpenseMailbox(), Rule::unique('companies')->ignore($this->company->id)];
+        $rules['expense_mailbox_active'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_company_users'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_vendors'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_clients'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_allow_unknown'] = ['sometimes','boolean'];
+        $rules['inbound_mailbox_whitelist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
+        $rules['inbound_mailbox_blacklist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
 
         return $rules;
     }

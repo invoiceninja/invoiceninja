@@ -50,6 +50,49 @@ class CompanyTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testCompanyExpenseMailbox()
+    {
+        // Test valid email address
+        $company_update = [
+            'expense_mailbox' => 'valid@example.com',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+
+        $response->assertStatus(200);
+        $this->assertEquals('valid@example.com', $response->json('data.expense_mailbox'));
+
+        // Test invalid email address
+        $company_update = [
+            'expense_mailbox' => 'invalid-email',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['expense_mailbox']);
+
+        // Test empty email address
+        $company_update = [
+            'expense_mailbox' => '',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+
+        $response->assertStatus(200);
+        $this->assertEmpty($response->json('data.expense_mailbox'));
+    }
+
     public function testEnsureStrReplace()
     {
         $x = '**********';
@@ -216,4 +259,6 @@ class CompanyTest extends TestCase
         ])->delete('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200);
     }
+
+
 }
