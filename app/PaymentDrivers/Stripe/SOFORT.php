@@ -18,9 +18,10 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 
-class SOFORT
+class SOFORT implements LivewireMethodInterface
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
@@ -37,31 +38,8 @@ class SOFORT
 
     public function paymentView(array $data)
     {
-        $this->stripe->init();
-
-        $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $data['client'] = $this->stripe->client;
-        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
-        $data['country'] = $this->stripe->client->country->iso_3166_2;
-
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => $data['stripe_amount'],
-            'currency' => 'eur',
-            'payment_method_types' => ['sofort'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->getDescription(false),
-            'metadata' => [
-                'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::SOFORT,
-            ],
-        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
-
-        $data['pi_client_secret'] = $intent->client_secret;
-
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
-        $this->stripe->payment_hash->save();
+        $data = $this->paymentData($data);
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.sofort.pay', $data);
     }
@@ -101,7 +79,7 @@ class SOFORT
             'gateway_type_id' => GatewayType::SOFORT,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -112,7 +90,7 @@ class SOFORT
             $this->stripe->client->company,
         );
 
-        return redirect()->route('client.payments.index');
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
     }
 
     public function processUnsuccessfulPayment()
@@ -136,5 +114,41 @@ class SOFORT
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+
+    public function paymentData(array $data): array
+    {
+        $this->stripe->init();
+
+        $data['gateway'] = $this->stripe;
+        $data['return_url'] = $this->buildReturnUrl();
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+        $data['client'] = $this->stripe->client;
+        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
+
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $data['stripe_amount'],
+            'currency' => 'eur',
+            'payment_method_types' => ['sofort'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->getDescription(false),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::SOFORT,
+            ],
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
+
+        $data['pi_client_secret'] = $intent->client_secret;
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
+        $this->stripe->payment_hash->save();
+
+        return $data;
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.stripe.sofort.pay_livewire';
     }
 }

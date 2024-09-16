@@ -20,7 +20,7 @@
             <p>{{ $additional_info }}</p>
         @endisset
 
-        @isset($url)
+        @if($url)
 
         <div>
         <!--[if (gte mso 9)|(IE)]>
@@ -45,7 +45,7 @@
         <![endif]-->
         </div>
 
-        @endisset
+        @endif
 
         @isset($signature)
             <p>{!! nl2br($signature) !!}</p>

@@ -19,6 +19,7 @@
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
         <input type="hidden" name="post_auth_response" value="{{ $post_auth_response }}">
+        <input type="hidden" name="one_page_checkout" value="1" />
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>

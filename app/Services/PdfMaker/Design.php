@@ -561,7 +561,41 @@ class Design extends BaseDesign
                 $tbody[] = $element;
 
                 $this->payment_amount_total += $payment->pivot->amount;
-            }
+            
+                if ($payment->pivot->refunded > 0) {
+
+                    $refund_date = $payment->date;
+
+                    if($payment->refund_meta && is_array($payment->refund_meta)){
+
+                        $refund_array = collect($payment->refund_meta)->first(function ($meta) use($invoice){
+                            foreach($meta['invoices'] as $refunded_invoice){
+                                
+                                if ($refunded_invoice['invoice_id'] == $invoice->id) {
+                                    return true;
+                                }
+
+                            }
+                        });
+                        
+                        $refund_date = $refund_array['date'];
+                    }
+
+                    $element = ['element' => 'tr', 'elements' => []];
+                    $element['elements'][] = ['element' => 'td', 'content' => $invoice->number];
+                    $element['elements'][] = ['element' => 'td', 'content' => $this->translateDate($refund_date, $this->client->date_format(), $this->client->locale()) ?: '&nbsp;'];
+                    $element['elements'][] = ['element' => 'td', 'content' => ctrans('texts.refund')];
+                    $element['elements'][] = ['element' => 'td', 'content' => Number::formatMoney($payment->pivot->refunded, $this->client) ?: '&nbsp;'];
+
+                    $tbody[] = $element;
+
+                    $this->payment_amount_total -= $payment->pivot->refunded;
+
+                }
+            
+        }
+
+
         }
 
         return [

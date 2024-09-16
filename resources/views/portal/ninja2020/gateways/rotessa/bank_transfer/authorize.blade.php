@@ -15,6 +15,14 @@
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
 
+        @isset($payment_hash)
+            <input type="hidden" name="payment_hash" value="{{ $payment_hash }}" />
+        @endif
+
+        @isset($authorize_then_redirect)
+            <input type="hidden" name="authorize_then_redirect" value="true" />
+        @endisset
+
         <x-rotessa::contact-component :contact="$contact"></x-rotessa::contact-component>
 
         <x-rotessa::address-component :address="$address"></x-rotessa::address-component>

@@ -48,6 +48,9 @@ class BaseRule implements RuleInterface
             'DK', // Denmark
             'EE', // Estonia
             'ES', // Spain
+            'ES-CN', // Canary Islands
+            'ES-CE', // Ceuta
+            'ES-ML', // Melilla
             'FI', // Finland
             'FR', // France
             'GR', // Greece
@@ -78,6 +81,9 @@ class BaseRule implements RuleInterface
             'DK' => 'EU', // Denmark
             'EE' => 'EU', // Estonia
             'ES' => 'EU', // Spain
+            'ES-CN' => 'EU', // Canary Islands
+            'ES-CE' => 'EU', // Ceuta
+            'ES-ML' => 'EU', // Melilla
             'FI' => 'EU', // Finland
             'FR' => 'EU', // France
             'GR' => 'EU', // Greece

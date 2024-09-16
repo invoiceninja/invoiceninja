@@ -8,6 +8,8 @@
  * @license https://opensource.org/licenses/AAL
  */
 
+import { wait, instant } from '../wait'; 
+
 class ForteAuthorizeACH {
     constructor(apiLoginId) {
         this.apiLoginId = apiLoginId;
@@ -73,9 +75,13 @@ class ForteAuthorizeACH {
     };
 }
 
-const apiLoginId = document.querySelector(
-    'meta[name="forte-api-login-id"]'
-).content;
+function boot() {
+    const apiLoginId = document.querySelector(
+        'meta[name="forte-api-login-id"]'
+    ).content;
+    
+    /** @handle */
+    new ForteAuthorizeACH(apiLoginId).handle();
+}
 
-/** @handle */
-new ForteAuthorizeACH(apiLoginId).handle();
+instant() ? boot() : wait('#force-ach-payment').then(() => boot());

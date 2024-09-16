@@ -121,6 +121,11 @@ class UpdateInvoiceRequest extends Request
             $client = \App\Models\Client::withTrashed()->find($input['client_id']);
             $input['due_date'] = \Illuminate\Support\Carbon::parse($input['date'])->addDays((int)$client->getSetting('payment_terms'))->format('Y-m-d');
         }
+        
+        if (isset($input['e_invoice']) && is_array($input['e_invoice'])) {
+            //ensure it is normalized first!
+            $input['e_invoice'] = $this->invoice->filterNullsRecursive($input['e_invoice']);
+        }
 
         $this->replace($input);
     }

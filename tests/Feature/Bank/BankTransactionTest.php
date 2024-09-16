@@ -42,7 +42,11 @@ class BankTransactionTest extends TestCase
 
     public function testBankIntegrationFilters()
     {
-
+        BankTransaction::where('company_id', $this->company->id)
+        ->cursor()->each(function($bt){
+            $bt->forceDelete();
+        });
+        
         $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
         $bi->bank_account_name = "Bank1";
         $bi->save();
@@ -102,7 +106,6 @@ class BankTransactionTest extends TestCase
 
         $this->assertCount(1, $arr['data']);
 
-
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -129,6 +132,18 @@ class BankTransactionTest extends TestCase
 
         $this->assertCount(2, $arr['data']);
 
+        $bi2->delete();
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/bank_transactions?active_banks=true');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
 
     }
 

@@ -28,6 +28,8 @@ $tests = \Illuminate\Support\Str::of($process->getOutput())
     ))
     ->filter(fn (string $test) => !empty($test)) // Make sure there are no empty lines
     ->unique() // We only need unique classes
+    // ->split(10)
+    // ->get(1);
     ->split((int) getenv('CI_NODE_TOTAL')) // Split it into equally sized chunks
     ->get((int) getenv('CI_NODE_INDEX')); // Get the index we need for this instance
 
@@ -35,7 +37,7 @@ $tests = \Illuminate\Support\Str::of($process->getOutput())
  * Run phpunit with a filter:
  * phpunit --filter 'TestClass|AnotherTestClass|...'
  */
-$process = new \Symfony\Component\Process\Process(['./vendor/bin/phpunit', '--testdox', '--filter', $tests->join('|')], timeout: null);
+$process = new \Symfony\Component\Process\Process(['php', 'artisan', 'test', '--testdox', '--filter', $tests->join('|')], timeout: null);
 $process->start();
 
 // Make sure we have live data output

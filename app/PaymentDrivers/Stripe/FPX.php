@@ -19,9 +19,10 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\StripePaymentDriver;
 
-class FPX
+class FPX implements LivewireMethodInterface
 {
     /** @var StripePaymentDriver */
     public StripePaymentDriver $stripe;
@@ -38,31 +39,7 @@ class FPX
 
     public function paymentView(array $data)
     {
-        $this->stripe->init();
-
-        $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl();
-        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
-        $data['client'] = $this->stripe->client;
-        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
-        $data['country'] = $this->stripe->client->country->iso_3166_2;
-
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => $data['stripe_amount'],
-            'currency' => $this->stripe->client->getCurrencyCode(),
-            'payment_method_types' => ['fpx'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->getDescription(false),
-            'metadata' => [
-                'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::FPX,
-            ],
-        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
-
-        $data['pi_client_secret'] = $intent->client_secret;
-
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
-        $this->stripe->payment_hash->save();
+        $data = $this->paymentData($data);
 
         return render('gateways.stripe.fpx.pay', $data);
     }
@@ -102,7 +79,7 @@ class FPX
             'gateway_type_id' => GatewayType::FPX,
         ];
 
-        $this->stripe->createPayment($data, Payment::STATUS_PENDING);
+        $payment = $this->stripe->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $this->stripe->payment_hash->data, 'data' => $data],
@@ -112,8 +89,9 @@ class FPX
             $this->stripe->client,
             $this->stripe->client->company,
         );
+        
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
 
-        return redirect()->route('client.payments.index');
     }
 
     public function processUnsuccessfulPayment()
@@ -142,5 +120,41 @@ class FPX
         );
 
         throw new PaymentFailed('Failed to process the payment.', 400);
+    }
+
+    public function paymentData(array $data): array
+    {
+        $this->stripe->init();
+
+        $data['gateway'] = $this->stripe;
+        $data['return_url'] = $this->buildReturnUrl();
+        $data['stripe_amount'] = $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency());
+        $data['client'] = $this->stripe->client;
+        $data['customer'] = $this->stripe->findOrCreateCustomer()->id;
+        $data['country'] = $this->stripe->client->country->iso_3166_2;
+
+        $intent = \Stripe\PaymentIntent::create([
+            'amount' => $data['stripe_amount'],
+            'currency' => $this->stripe->client->getCurrencyCode(),
+            'payment_method_types' => ['fpx'],
+            'customer' => $this->stripe->findOrCreateCustomer(),
+            'description' => $this->stripe->getDescription(false),
+            'metadata' => [
+                'payment_hash' => $this->stripe->payment_hash->hash,
+                'gateway_type_id' => GatewayType::FPX,
+            ],
+        ], array_merge($this->stripe->stripe_connect_auth, ['idempotency_key' => uniqid("st", true)]));
+
+        $data['pi_client_secret'] = $intent->client_secret;
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $data['stripe_amount']]);
+        $this->stripe->payment_hash->save();
+
+        return $data;
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.stripe.fpx.pay_livewire';
     }
 }

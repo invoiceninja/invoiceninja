@@ -44,6 +44,8 @@ class RequiredFields extends Component
     public ?string $client_custom_value3;
     public ?string $client_custom_value4;
 
+    public $contact;
+    
     /** @var array<int, string> */
     public array $fields = [];
 
@@ -63,7 +65,7 @@ class RequiredFields extends Component
             ->with('company')
             ->find($this->getContext()['company_gateway_id']);
 
-        $contact = auth()->user();
+        $contact = auth()->guard('contact')->user();
 
         $this->client_name = $contact->client->name;
         $this->contact_first_name = $contact->first_name;
@@ -111,10 +113,10 @@ class RequiredFields extends Component
         $rff = new RFFService(
             fields: $this->fields,
             database: $this->getContext()['db'],
-            company_gateway_id: (string) $this->company_gateway->id,
+            company_gateway_id: (string)$this->company_gateway->id,
         );
 
-        $contact = auth()->user();
+        $contact = auth()->guard('contact')->user();
 
         /** @var \App\Models\ClientContact $contact */
         $errors = $rff->handleSubmit($data, $contact, return_errors: true, callback: function () {
@@ -133,4 +135,5 @@ class RequiredFields extends Component
             'contact' => $this->getContext()['contact'],
         ]);
     }
+    
 }

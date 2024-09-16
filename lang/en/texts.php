@@ -5328,6 +5328,9 @@ $lang = array(
     'payment_failed' => 'Payment Failed',
     'ssl_host_override' => 'SSL Host Override',
     'upload_logo_short' => 'Upload Logo',
+    'country_Melilla' => 'Melilla',
+    'country_Ceuta' => 'Ceuta',
+    'country_Canary Islands' => 'Canary Islands',
 );
 
 return $lang;

@@ -103,6 +103,7 @@ class RefundPayment
                     //block prevents the edge case where a partial refund was attempted.
                     $this->refund_data['invoices'] = $this->payment->invoices->map(function ($invoice) {
                         return [
+                            'date' => now()->addSeconds($invoice->client->timezone_offset())->format('Y-m-d'),
                             'invoice_id' => $invoice->id,
                             'amount' => $invoice->pivot->amount,
                         ];

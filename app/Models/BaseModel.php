@@ -306,19 +306,19 @@ class BaseModel extends Model
 
     
     /**
-     * arrayFilterRecursive
+     * arrayFilterRecursive nee filterNullsRecursive
      *
      * Removes null properties from an array
      * 
      * @param  array $array
      * @return array
      */
-    public function arrayFilterRecursive(array $array): array
+    public function filterNullsRecursive(array $array): array
     {
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 // Recursively filter the nested array
-                $array[$key] = $this->arrayFilterRecursive($value);
+                $array[$key] = $this->filterNullsRecursive($value);
             }
             // Remove null values
             if (is_null($array[$key])) {
