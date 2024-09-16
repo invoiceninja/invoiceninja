@@ -23,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CompanyGatewayResolutionTest extends TestCase
 {
@@ -105,7 +105,7 @@ class CompanyGatewayResolutionTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\CompanyGateway::calcGatewayFee()
+     *  \App\Models\CompanyGateway::calcGatewayFee()
      */
     public function testGatewayResolution()
     {
@@ -114,7 +114,7 @@ class CompanyGatewayResolutionTest extends TestCase
     }
 
     /**
-     * @covers \App|Models\Client::validGatewayForAmount()
+     *  \App|Models\Client::validGatewayForAmount()
      */
     public function testValidationForGatewayAmount()
     {

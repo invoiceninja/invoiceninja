@@ -33,8 +33,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\RecurringInvoiceController
+ * 
+ *  App\Http\Controllers\RecurringInvoiceController
  */
 class RecurringInvoiceTest extends TestCase
 {

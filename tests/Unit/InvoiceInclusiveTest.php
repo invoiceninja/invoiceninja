@@ -18,8 +18,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Helpers\Invoice\InvoiceSumInclusive
+ * 
+ *   App\Helpers\Invoice\InvoiceSumInclusive
  */
 class InvoiceInclusiveTest extends TestCase
 {

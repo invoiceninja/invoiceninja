@@ -31,8 +31,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Utils\Traits\Payment\Refundable
+ * 
+ *  App\Utils\Traits\Payment\Refundable
  */
 class RefundTest extends TestCase
 {

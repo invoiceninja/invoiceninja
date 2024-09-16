@@ -21,7 +21,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class StorePaymentValidationTest extends TestCase
 {

@@ -17,8 +17,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\PreviewController
+ * 
+ *  App\Http\Controllers\PreviewController
  */
 class PreviewTest extends TestCase
 {

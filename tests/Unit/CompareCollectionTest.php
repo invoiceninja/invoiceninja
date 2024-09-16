@@ -15,8 +15,8 @@ use App\Utils\Traits\MakesHash;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\Number
+ * 
+ *   App\Utils\Number
  */
 class CompareCollectionTest extends TestCase
 {

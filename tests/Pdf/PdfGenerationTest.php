@@ -16,8 +16,8 @@ use Beganovich\Snappdf\Snappdf;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\DataMapper\BaseSettings
+ * 
+ *   App\DataMapper\BaseSettings
  */
 class PdfGenerationTest extends TestCase
 {

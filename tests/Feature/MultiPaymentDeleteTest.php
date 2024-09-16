@@ -27,7 +27,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class MultiPaymentDeleteTest extends TestCase
 {

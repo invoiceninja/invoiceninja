@@ -25,7 +25,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test App\Services\Tax\Providers\EuTax
+ *  App\Services\Tax\Providers\EuTax
  */
 class EuTaxTest extends TestCase
 {

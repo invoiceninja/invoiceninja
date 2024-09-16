@@ -21,8 +21,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Models\CompanyGateway
+ * 
+ *   App\Models\CompanyGateway
  */
 class CompanyGatewayTest extends TestCase
 {

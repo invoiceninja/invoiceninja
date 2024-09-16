@@ -16,7 +16,7 @@ use App\Factory\InvoiceItemFactory;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CollectionMergingTest extends TestCase
 {

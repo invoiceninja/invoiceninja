@@ -17,8 +17,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\ValidationRules\Invoice\LockedInvoiceRule
+ * 
+ *  App\Http\ValidationRules\Invoice\LockedInvoiceRule
  */
 class CheckLockedInvoiceValidationTest extends TestCase
 {

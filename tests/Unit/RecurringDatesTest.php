@@ -27,8 +27,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers \App\Models\RecurringInvoice
+ * 
+ *  \App\Models\RecurringInvoice
  */
 class RecurringDatesTest extends TestCase
 {

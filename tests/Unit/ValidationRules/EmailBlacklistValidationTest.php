@@ -15,8 +15,8 @@ use App\Http\ValidationRules\Account\EmailBlackListRule;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\ValidationRules\Account\EmailBlackListRule
+ * 
+ *  App\Http\ValidationRules\Account\EmailBlackListRule
  */
 class EmailBlacklistValidationTest extends TestCase
 {

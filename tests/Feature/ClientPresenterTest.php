@@ -16,8 +16,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Models\Presenters\ClientPresenter
+ * 
+ *   App\Models\Presenters\ClientPresenter
  */
 class ClientPresenterTest extends TestCase
 {

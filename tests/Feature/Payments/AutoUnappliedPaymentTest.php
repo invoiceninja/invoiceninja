@@ -28,7 +28,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class AutoUnappliedPaymentTest extends TestCase
 {

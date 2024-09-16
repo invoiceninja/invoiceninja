@@ -17,8 +17,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\ActivityController
+ * 
+ *  App\Http\Controllers\ActivityController
  */
 class SearchApiTest extends TestCase
 {

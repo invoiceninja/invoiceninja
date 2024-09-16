@@ -15,7 +15,7 @@ use App\Utils\Traits\SettingsSaver;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class SettingsSaverTest extends TestCase
 {

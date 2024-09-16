@@ -15,8 +15,8 @@ use App\Utils\Traits\MakesHash;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\Traits\MakesHash
+ * 
+ *   App\Utils\Traits\MakesHash
  */
 class PrimaryKeyTransformationTest extends TestCase
 {

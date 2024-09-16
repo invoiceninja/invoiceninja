@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class RedisVsDatabaseTest extends TestCase
 {

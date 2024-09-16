@@ -23,8 +23,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\RecurringExpenseController
+ * 
+ *  App\Http\Controllers\RecurringExpenseController
  */
 class RecurringExpenseApiTest extends TestCase
 {

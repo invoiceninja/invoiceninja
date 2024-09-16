@@ -26,8 +26,8 @@ use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\Traits\GeneratesConvertedQuoteCounter
+ * 
+ *   App\Utils\Traits\GeneratesConvertedQuoteCounter
  */
 class GeneratesConvertedQuoteCounterTest extends TestCase
 {

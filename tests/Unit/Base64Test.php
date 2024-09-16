@@ -15,7 +15,7 @@ use App\Utils\Ninja;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class Base64Test extends TestCase
 {

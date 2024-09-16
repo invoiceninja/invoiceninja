@@ -19,8 +19,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\WebhookController
+ * 
+ *  App\Http\Controllers\WebhookController
  */
 class WebhookAPITest extends TestCase
 {

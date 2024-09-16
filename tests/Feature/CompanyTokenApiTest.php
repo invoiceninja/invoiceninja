@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\TokenController
+ * 
+ *  App\Http\Controllers\TokenController
  */
 class CompanyTokenApiTest extends TestCase
 {

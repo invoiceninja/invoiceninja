@@ -17,7 +17,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ClassificationTest extends TestCase
 {

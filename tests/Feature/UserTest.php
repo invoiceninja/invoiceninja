@@ -28,8 +28,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\UserController
+ * 
+ *  App\Http\Controllers\UserController
  */
 class UserTest extends TestCase
 {

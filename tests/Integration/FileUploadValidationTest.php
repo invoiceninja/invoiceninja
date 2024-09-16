@@ -19,7 +19,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class FileUploadValidationTest extends TestCase
 {

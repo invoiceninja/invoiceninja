@@ -17,8 +17,8 @@ use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Libraries\Currency\Conversion\CurrencyApi
+ * 
+ *   App\Libraries\Currency\Conversion\CurrencyApi
  */
 class CurrencyApiTest extends TestCase
 {

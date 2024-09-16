@@ -17,8 +17,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Listeners\Payment\PaymentNotification
+ * 
+ *  App\Listeners\Payment\PaymentNotification
  */
 class GoogleAnalyticsTest extends TestCase
 {

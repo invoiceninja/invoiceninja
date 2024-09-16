@@ -14,8 +14,8 @@ namespace Tests\Unit;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\Number
+ * 
+ *   App\Utils\Number
  */
 class NestedCollectionTest extends TestCase
 {

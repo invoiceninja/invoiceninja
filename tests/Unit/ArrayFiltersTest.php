@@ -17,7 +17,7 @@ use App\Models\User;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ArrayFiltersTest extends TestCase
 {

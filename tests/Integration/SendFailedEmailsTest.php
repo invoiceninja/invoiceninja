@@ -18,8 +18,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Jobs\Util\SendFailedEmails
+ * 
+ *  App\Jobs\Util\SendFailedEmails
  */
 class SendFailedEmailsTest extends TestCase
 {

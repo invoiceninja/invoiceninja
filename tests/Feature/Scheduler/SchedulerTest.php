@@ -29,8 +29,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Services\Scheduler\SchedulerService
+ * 
+ *   App\Services\Scheduler\SchedulerService
  */
 class SchedulerTest extends TestCase
 {

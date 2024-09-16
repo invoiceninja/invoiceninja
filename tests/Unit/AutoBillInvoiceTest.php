@@ -16,8 +16,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Services\Invoice\AutoBillInvoice
+ * 
+ *  App\Services\Invoice\AutoBillInvoice
  */
 class AutoBillInvoiceTest extends TestCase
 {

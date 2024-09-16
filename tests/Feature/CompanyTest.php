@@ -26,8 +26,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\CompanyController
+ * 
+ *  App\Http\Controllers\CompanyController
  */
 class CompanyTest extends TestCase
 {

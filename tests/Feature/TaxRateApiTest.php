@@ -21,8 +21,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\TaxRateController
+ * 
+ *  App\Http\Controllers\TaxRateController
  */
 class TaxRateApiTest extends TestCase
 {

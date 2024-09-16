@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Utils\Traits\CompanySettingsSaver
+ * 
+ *  App\Utils\Traits\CompanySettingsSaver
  */
 class CompanySettingsTest extends TestCase
 {

@@ -15,8 +15,8 @@ use App\DataMapper\ClientSettings;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\DataMapper\BaseSettings
+ * 
+ *   App\DataMapper\BaseSettings
  */
 class BaseSettingsTest extends TestCase
 {

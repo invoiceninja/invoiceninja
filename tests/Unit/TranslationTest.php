@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class TranslationTest extends TestCase
 {

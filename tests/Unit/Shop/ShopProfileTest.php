@@ -16,8 +16,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers \App\Http\Controllers\Shop\ProfileController
+ * 
+ *  \App\Http\Controllers\Shop\ProfileController
  */
 class ShopProfileTest extends TestCase
 {

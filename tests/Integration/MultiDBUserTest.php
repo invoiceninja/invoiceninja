@@ -24,8 +24,8 @@ use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Libraries\MultiDB
+ * 
+ *   App\Libraries\MultiDB
  *
  * Proves that we can reliably switch database connections at runtime
  */

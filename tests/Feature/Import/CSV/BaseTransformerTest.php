@@ -24,8 +24,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Import\Transformer\BaseTransformer
+ * 
+ *  App\Import\Transformer\BaseTransformer
  */
 class BaseTransformerTest extends TestCase
 {

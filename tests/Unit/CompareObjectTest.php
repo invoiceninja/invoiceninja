@@ -16,8 +16,8 @@ use App\DataMapper\CompanySettings;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\DataMapper\ClientSettings
+ * 
+ *   App\DataMapper\ClientSettings
  */
 class CompareObjectTest extends TestCase
 {

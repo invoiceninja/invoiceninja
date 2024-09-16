@@ -17,8 +17,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\PingController
+ * 
+ *  App\Http\Controllers\PingController
  */
 class PingTest extends TestCase
 {

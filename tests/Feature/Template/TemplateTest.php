@@ -33,8 +33,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers
+ * 
+ * 
  */
 class TemplateTest extends TestCase
 {

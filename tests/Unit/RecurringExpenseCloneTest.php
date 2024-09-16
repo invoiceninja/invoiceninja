@@ -21,7 +21,7 @@ use App\Utils\Traits\AppSetup;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class RecurringExpenseCloneTest extends TestCase
 {

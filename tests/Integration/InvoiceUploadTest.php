@@ -16,8 +16,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Services\Invoice\GetInvoicePdf
+ * 
+ *  App\Services\Invoice\GetInvoicePdf
  */
 class InvoiceUploadTest extends TestCase
 {

@@ -19,8 +19,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\ExpenseCategoryController
+ * 
+ *  App\Http\Controllers\ExpenseCategoryController
  */
 class ExpenseCategoryApiTest extends TestCase
 {

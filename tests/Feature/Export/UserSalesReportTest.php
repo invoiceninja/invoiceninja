@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class UserSalesReportTest extends TestCase
 {

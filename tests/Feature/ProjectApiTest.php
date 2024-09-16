@@ -23,8 +23,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ProjectController
+ * 
+ *  App\Http\Controllers\ProjectController
  */
 class ProjectApiTest extends TestCase
 {

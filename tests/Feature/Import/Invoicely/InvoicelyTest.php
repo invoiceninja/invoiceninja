@@ -24,8 +24,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Import\Providers\Invoicely
+ * 
+ *  App\Import\Providers\Invoicely
  */
 class InvoicelyTest extends TestCase
 {
