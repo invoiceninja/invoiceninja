@@ -1155,10 +1155,10 @@ class StorecoveTest extends TestCase
         $xml  = $p->toXml();
         nlog($xml);
 
-        $identifiers = $p->getStorecoveMeta();
+        // $identifiers = $p->getStorecoveMeta();
 
-        $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
-        $sc->sendDocument($xml, $this->routing_id, $identifiers);
+        // $sc = new \App\Services\EDocument\Gateway\Storecove\Storecove();
+        // $sc->sendDocument($xml, $this->routing_id, $identifiers);
 
     }
 

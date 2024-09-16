@@ -390,6 +390,14 @@ class Peppol extends AbstractService
 
             $this->p_invoice = $this->e->decode('Peppol', json_encode($this->invoice->e_invoice->Invoice), 'json');
 
+
+        $this->gateway
+            ->mutator
+            ->setInvoice($this->invoice)
+            ->setPeppol($this->p_invoice)
+            ->setClientSettings($this->_client_settings)
+            ->setCompanySettings($this->_company_settings);
+
             return $this;
 
         }
