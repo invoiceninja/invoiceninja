@@ -53,6 +53,7 @@ class Qvalia
 
     public Invoice $invoice;
 
+    public Mutator $mutator;
     //integrationid - returned in headers
 
     public function __construct()
@@ -60,6 +61,7 @@ class Qvalia
         $this->init();
         $this->partner = new Partner($this);
         $this->invoice = new Invoice($this);
+        $this->mutator = new Mutator($this);
     }
 
     private function init(): self

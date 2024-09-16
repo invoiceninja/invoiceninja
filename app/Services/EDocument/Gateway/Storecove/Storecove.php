@@ -55,9 +55,12 @@ class Storecove
 
     public StorecoveRouter $router;
 
+    public Mutator $mutator;
+
     public function __construct()
     {
         $this->router = new StorecoveRouter();
+        $this->mutator = new Mutator($this);
     }
     
     /**
