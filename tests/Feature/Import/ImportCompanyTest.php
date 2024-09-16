@@ -1151,6 +1151,8 @@ class ImportCompanyTest extends TestCase
 
     protected function tearDown(): void
     {
+        parent::tearDown();
+
         $backup_json_file = sys_get_temp_dir().'/backup/backup.json';
 
         //   unlink($backup_json_file);
