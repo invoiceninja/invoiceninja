@@ -51,11 +51,6 @@ class SendEDocument implements ShouldQueue
 
         $model = $this->entity::find($this->id);
 
-        // $e_invoice_standard = $model->client ? $model->client->getSetting('e_invoice_type') : $model->company->getSetting('e_invoice_type');
-
-        // if($e_invoice_standard != 'PEPPOL')
-        //     return;
-
         if(Ninja::isSelfHost() && ($model instanceof Invoice) && $model->company->legal_entity_id)
         {
         

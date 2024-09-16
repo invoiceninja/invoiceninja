@@ -109,6 +109,10 @@ class Mutator implements MutatorInterface
         return $this->invoice;
     }
 
+    public function getSetting(string $property_path): mixed
+    {
+        return $this->mutator_util->getSetting($property_path);
+    }
     /**
      * senderSpecificLevelMutators
      *

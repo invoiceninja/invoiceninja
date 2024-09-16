@@ -313,8 +313,8 @@ class Peppol extends AbstractService
         $this->company = $invoice->company;
         $this->calc = $this->invoice->calc();
         $this->e = new EInvoice();
-        $this->setSettings()->setInvoice();
         $this->gateway = new $this->api_network;
+        $this->setSettings()->setInvoice();
     }
     
     /**
@@ -337,16 +337,11 @@ class Peppol extends AbstractService
         $this->p_invoice->InvoiceLine = $this->getInvoiceLines();
 
         $this->p_invoice->LegalMonetaryTotal = $this->getLegalMonetaryTotal();
-        
 
         $this->setOrderReference();
 
         $this->p_invoice = $this->gateway
                                 ->mutator
-                                ->setInvoice($this->invoice)
-                                ->setPeppol($this->p_invoice)
-                                ->setClientSettings($this->_client_settings)
-                                ->setCompanySettings($this->_company_settings)
                                 ->senderSpecificLevelMutators()
                                 ->receiverSpecificLevelMutators()
                                 ->getPeppol();
@@ -378,6 +373,13 @@ class Peppol extends AbstractService
         }
 
         $this->p_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+        $this->gateway
+            ->mutator
+            ->setInvoice($this->invoice)
+            ->setPeppol($this->p_invoice)
+            ->setClientSettings($this->_client_settings)
+            ->setCompanySettings($this->_company_settings);
 
         $this->setInvoiceDefaults();
 
@@ -528,22 +530,11 @@ class Peppol extends AbstractService
     }
     
     /**
-     * getTotalTaxAmount
+     * getTaxType
      *
-     * @return float
+     * @param  string $tax_id
+     * @return string
      */
-    // private function getTotalTaxAmount(): float
-    // {
-    //     if(!$this->invoice->total_taxes) {
-    //         return 0;
-    //     } elseif($this->invoice->uses_inclusive_taxes) {
-    //         return $this->invoice->total_taxes;
-    //     }
-
-    //     return $this->calcAmountLineTax($this->invoice->tax_rate1, $this->invoice->amount) ?? 0;
-    // }
-    
-
     private function getTaxType(string $tax_id = ''): string
     {
         $tax_type = null;
@@ -895,9 +886,9 @@ class Peppol extends AbstractService
         $party->PhysicalLocation = $address;
 
         $contact = new Contact();
-        $contact->ElectronicMail = $this->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $this->invoice->company->owner()->present()->email();
-        $contact->Telephone = $this->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $this->invoice->company->getSetting('phone');
-        $contact->Name = $this->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $this->invoice->company->owner()->present()->name();
+        $contact->ElectronicMail = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Contact') ?? $this->invoice->company->owner()->present()->email();
+        $contact->Telephone = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Telephone') ?? $this->invoice->company->getSetting('phone');
+        $contact->Name = $this->gateway->mutator->getSetting('Invoice.AccountingSupplierParty.Party.Name') ?? $this->invoice->company->owner()->present()->name();
 
         $party->Contact = $contact;
 
@@ -1082,7 +1073,7 @@ class Peppol extends AbstractService
             //only scans for top level props
             foreach($settings as $prop => $visibility) {
 
-                if($prop_value = $this->getSetting($prop)) {
+                if($prop_value = $this->gateway->mutator->getSetting($prop)) {
                     $this->p_invoice->{$prop} = $prop_value;
                 }
 

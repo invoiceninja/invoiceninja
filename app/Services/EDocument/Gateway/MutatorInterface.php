@@ -34,6 +34,8 @@ interface MutatorInterface
 
     public function getInvoice(): mixed;
 
+    public function getSetting(string $property_path): mixed;
+
     // Country-specific methods
     public function DE(): self;
 
