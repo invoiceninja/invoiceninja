@@ -11,19 +11,20 @@
 
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Middleware\PasswordProtection;
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\TaxRate;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\TaxRate;
+use Tests\MockAccountData;
+use App\Models\CompanyToken;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\UploadedFile;
+use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use App\Http\Middleware\PasswordProtection;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * 
@@ -33,7 +34,7 @@ class CompanyTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
 
     public $faker;
 
@@ -259,5 +260,11 @@ class CompanyTest extends TestCase
         ->assertStatus(200);
     }
 
+    public function tearDown(): void
+    {
+        Account::query()->where('id', $this->company->account->id)->delete();
+
+        parent::tearDown();
+    }
 
 }
