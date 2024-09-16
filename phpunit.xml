@@ -3,6 +3,7 @@
   backupGlobals="false"
   bootstrap="vendor/autoload.php" 
   colors="true" 
+  processIsolation="true" 
   stopOnError="true" 
   stopOnFailure="true" 
   xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
