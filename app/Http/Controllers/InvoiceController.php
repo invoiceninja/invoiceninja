@@ -475,7 +475,10 @@ class InvoiceController extends BaseController
      */
     public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
-        $this->invoice_repo->delete($invoice);
+
+        if (!$invoice->is_deleted) {
+            $this->invoice_repo->delete($invoice);
+        }
 
         return $this->itemResponse($invoice->fresh());
     }
