@@ -93,7 +93,7 @@ inset: 6px;
             document.getElementById("gateway_response").value =JSON.stringify( data );
             
             formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
-
+ 
             fetch('{{ route('client.payments.response') }}', {
                 method: 'POST',
                 headers: {
