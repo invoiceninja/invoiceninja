@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -14,12 +15,14 @@ namespace App\Events\Invoice;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Class InvoiceWasPaid.
  */
-class InvoiceWasPaid
+class InvoiceWasPaid implements ShouldBroadcast
 {
     use SerializesModels;
 
@@ -47,5 +50,21 @@ class InvoiceWasPaid
         $this->payment = $payment;
         $this->company = $company;
         $this->event_vars = $event_vars;
+    }
+
+    public function broadcastOn(): array
+    {
+        return [
+            // @todo: make sure this is PrivateChannel once we have auth configured.
+
+            new Channel(
+                name: $this->company->company_key . '_invoices',
+              ),
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'invoice.paid';
     }
 }
