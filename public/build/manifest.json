@@ -48,6 +48,14 @@
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/authorize-checkout-card.js"
   },
+  "resources/js/clients/payment_methods/authorize-powerboard-card.js": {
+    "file": "assets/authorize-powerboard-card-9db77713.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/clients/payment_methods/authorize-powerboard-card.js"
+  },
   "resources/js/clients/payment_methods/authorize-stripe-acss.js": {
     "file": "assets/authorize-stripe-acss-f6bd46c1.js",
     "imports": [
@@ -137,6 +145,14 @@
     ],
     "isEntry": true,
     "src": "resources/js/clients/payments/paytrace-credit-card.js"
+  },
+  "resources/js/clients/payments/powerboard-credit-card.js": {
+    "file": "assets/powerboard-credit-card-127361fb.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/clients/payments/powerboard-credit-card.js"
   },
   "resources/js/clients/payments/razorpay-aio.js": {
     "file": "assets/razorpay-aio-f8e8c7f0.js",
@@ -345,7 +361,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-fee1da41.css",
+    "file": "assets/app-106dcc58.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
