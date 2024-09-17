@@ -10,6 +10,8 @@
 
 import { instant, wait } from '../wait';
 
+let focusCreditCard = false;
+
 function setup() {
     const publicKey = document.querySelector('meta[name=public_key]');
     const gatewayId = document.querySelector('meta[name=gateway_id]');
@@ -136,13 +138,24 @@ function pay() {
     if (first) {
         first.click();
     }
+
+    console.log({ focusCreditCard })
+
+    if (focusCreditCard) {
+        document.getElementById('toggle-payment-with-credit-card')?.click();
+    }
 }
 
 async function process3ds() {
     try {
         const resource = await get3dsToken();
 
-        if (resource.status === 'not_authenticated' || resource === 'not_authenticated') {
+        if (
+            resource.status === 'not_authenticated' ||
+            resource === 'not_authenticated'
+        ) {
+            focusCreditCard = true;
+
             pay();
 
             throw new Error(
@@ -201,6 +214,8 @@ async function process3ds() {
             ).textContent = `Sorry, your transaction could not be processed...`;
             document.getElementById('errors').hidden = false;
 
+            focusCreditCard = true;
+
             pay();
         });
 
@@ -210,6 +225,9 @@ async function process3ds() {
             'errors'
         ).textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
         document.getElementById('errors').hidden = false;
+        
+        focusCreditCard = true;
+
         pay();
     }
 }
@@ -268,8 +286,10 @@ async function get3dsToken() {
         document.getElementById('errors').hidden = false;
 
         console.error('Fetch error:', error); // Log error for debugging
-        pay();
 
+        focusCreditCard = true;
+
+        pay();
     }
 }
 
