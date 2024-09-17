@@ -22,7 +22,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Helpers\Subscription\SubscriptionCalculator;
 
 /**
- * @test
+ * 
  */
 class PaymentLinkTest extends TestCase
 {

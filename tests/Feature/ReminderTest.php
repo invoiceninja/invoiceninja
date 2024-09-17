@@ -31,8 +31,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Jobs\Util\ReminderJob
+ * 
+ *  App\Jobs\Util\ReminderJob
  */
 class ReminderTest extends TestCase
 {

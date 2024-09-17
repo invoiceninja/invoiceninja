@@ -23,8 +23,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Jobs\Invoice\EmailInvoice
+ * 
+ *  App\Jobs\Invoice\EmailInvoice
  */
 class InvoiceEmailTest extends TestCase
 {

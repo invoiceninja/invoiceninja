@@ -19,8 +19,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\CompanyUserController
+ * 
+ *  App\Http\Controllers\CompanyUserController
  */
 class UpdateCompanyUserTest extends TestCase
 {

@@ -371,7 +371,7 @@ class Company extends BaseModel
         'tax_data',
         'e_invoice_certificate_passphrase',
         'expense_mailbox_active',
-        'expense_mailbox', // TODO: @turbo124 custom validation: self-hosted => free change, hosted => not changeable, only changeable with env-mask
+        'expense_mailbox',
         'inbound_mailbox_allow_company_users',
         'inbound_mailbox_allow_vendors',
         'inbound_mailbox_allow_clients',

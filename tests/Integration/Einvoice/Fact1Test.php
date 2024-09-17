@@ -65,7 +65,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentificationType\PartyIdentificat
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 
 /**
- * @test
+ * 
  */
 class Fact1Test extends TestCase
 {

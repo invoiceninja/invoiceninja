@@ -27,7 +27,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class SumTaxTest extends TestCase
 {

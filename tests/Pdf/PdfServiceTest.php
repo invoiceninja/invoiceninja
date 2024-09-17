@@ -18,8 +18,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Services\Pdf\PdfService
+ * 
+ *   App\Services\Pdf\PdfService
  */
 class PdfServiceTest extends TestCase
 {

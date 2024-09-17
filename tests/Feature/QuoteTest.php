@@ -26,8 +26,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\QuoteController
+ * 
+ *  App\Http\Controllers\QuoteController
  */
 class QuoteTest extends TestCase
 {

@@ -98,9 +98,10 @@ class UpdateCompanyRequest extends Request
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
-            unset($input['expense_mailbox']);
-        }
+        // /** Disabled on the hosted platform */
+        // if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
+        //     unset($input['expense_mailbox']);
+        // }
 
         if (isset($input['settings'])) {
             $input['settings'] = (array) $this->filterSaveableSettings($input['settings']);

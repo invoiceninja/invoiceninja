@@ -410,6 +410,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         if($invoice && $fee_count == 0){
 
+            
             nlog("apparently no fee, so injecting here!");
 
             if(!$invoice->uses_inclusive_taxes){ //must account for taxes! ? line item taxes also
@@ -765,6 +766,18 @@ class BaseDriver extends AbstractPaymentDriver
             $response,
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
+            $gateway_const,
+            $this->client,
+            $this->client->company,
+        );
+    }
+
+    public function logUnsuccessfulGatewayResponse($response, $gateway_const)
+    {
+        SystemLogger::dispatch(
+            $response,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
             $gateway_const,
             $this->client,
             $this->client->company,

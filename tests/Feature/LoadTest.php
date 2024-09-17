@@ -37,7 +37,7 @@ use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class LoadTest extends TestCase
 {

@@ -24,8 +24,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Import\Providers\Invoice2Go
+ * 
+ *  App\Import\Providers\Invoice2Go
  */
 class Invoice2GoTest extends TestCase
 {

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 
 /**
- * @test
+ * 
  */
 class ValidCompanyQuantityTest extends TestCase
 {
@@ -32,7 +32,7 @@ class ValidCompanyQuantityTest extends TestCase
 
     }
 
-    /** @test */
+    /**  */
     public function testCompanyQuantityValidation()
     {
         auth()->login($this->user, true);
@@ -46,7 +46,7 @@ class ValidCompanyQuantityTest extends TestCase
     }
 
 
-    /** @test */
+    /**  */
     public function testCompanyQuantityValidationFails()
     {
         

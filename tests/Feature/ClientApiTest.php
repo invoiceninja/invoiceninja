@@ -33,10 +33,6 @@ use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers App\Http\Controllers\ClientController
- */
 class ClientApiTest extends TestCase
 {
     use MakesHash;

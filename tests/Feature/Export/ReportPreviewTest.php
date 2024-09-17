@@ -33,7 +33,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ReportPreviewTest extends TestCase
 {

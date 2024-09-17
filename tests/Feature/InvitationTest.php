@@ -26,8 +26,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Models\InvoiceInvitation
+ * 
+ *  App\Models\InvoiceInvitation
  */
 class InvitationTest extends TestCase
 {

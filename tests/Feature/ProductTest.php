@@ -23,8 +23,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ProductController
+ * 
+ *  App\Http\Controllers\ProductController
  */
 class ProductTest extends TestCase
 {

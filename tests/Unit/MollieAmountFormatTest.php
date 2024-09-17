@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 class MollieAmountFormatTest extends TestCase
 {
     /**
-     * @covers \App\PaymentDrivers\MolliePaymentDriver::convertToMollieAmount()
+     *  \App\PaymentDrivers\MolliePaymentDriver::convertToMollieAmount()
      */
     public function testFormatterIsWorkingCorrectly()
     {

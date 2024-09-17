@@ -24,8 +24,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ActivityController
+ * 
+ *  App\Http\Controllers\ActivityController
  */
 class MaxAmountTest extends TestCase
 {

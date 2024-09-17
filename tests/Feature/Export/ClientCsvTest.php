@@ -17,7 +17,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ClientCsvTest extends TestCase
 {

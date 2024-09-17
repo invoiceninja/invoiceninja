@@ -37,8 +37,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ClientController
+ * 
+ *  App\Http\Controllers\ClientController
  */
 class ClientTest extends TestCase
 {
@@ -405,7 +405,7 @@ class ClientTest extends TestCase
     }
 
     /*
-     * @covers ClientController
+     *  ClientController
      */
     public function testClientRestEndPoints()
     {

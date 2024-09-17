@@ -23,7 +23,7 @@ use App\Models\User;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class PermissionsTest extends TestCase
 {

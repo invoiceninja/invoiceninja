@@ -17,8 +17,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\FilterController
+ * 
+ *  App\Http\Controllers\FilterController
  */
 class FilterApiTest extends TestCase
 {

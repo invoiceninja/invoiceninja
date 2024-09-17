@@ -34,7 +34,7 @@ use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaEle
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
 
 /**
- * @test
+ * 
  */
 class PeppolTest extends TestCase
 {

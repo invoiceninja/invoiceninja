@@ -17,7 +17,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CreditBalanceTest extends TestCase
 {

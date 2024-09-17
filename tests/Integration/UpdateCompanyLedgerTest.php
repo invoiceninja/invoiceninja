@@ -16,7 +16,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/** @test*/
+/** */
 class UpdateCompanyLedgerTest extends TestCase
 {
     use MockAccountData;
@@ -30,7 +30,7 @@ class UpdateCompanyLedgerTest extends TestCase
     }
 
     /**
-     * @test
+     * 
      */
     public function testPaymentIsPresentInLedger()
     {
@@ -46,7 +46,7 @@ class UpdateCompanyLedgerTest extends TestCase
     }
 
     /**
-     * @test
+     * 
      */
     public function testInvoiceIsPresentInLedger()
     {

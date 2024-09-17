@@ -25,8 +25,8 @@ use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
- * @test
- * @covers App\Utils\Traits\Notifications\UserNotifies
+ * 
+ *  App\Utils\Traits\Notifications\UserNotifies
  */
 class NotificationTest extends TestCase
 {

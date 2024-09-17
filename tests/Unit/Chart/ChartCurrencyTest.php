@@ -24,8 +24,8 @@ use App\Services\Chart\ChartService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers  App\Services\Chart\ChartService
+ * 
+ *   App\Services\Chart\ChartService
  */
 class ChartCurrencyTest extends TestCase
 {

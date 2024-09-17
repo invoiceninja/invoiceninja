@@ -23,8 +23,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\ExpenseController
+ * 
+ *  App\Http\Controllers\ExpenseController
  */
 class ExpenseApiTest extends TestCase
 {

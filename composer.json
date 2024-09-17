@@ -119,7 +119,7 @@
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "phpstan/phpstan": "^1.9",
-        "phpunit/phpunit": "^10",
+        "phpunit/phpunit": "^11",
         "spatie/laravel-ignition": "^2.0",
         "spaze/phpstan-stripe": "^3.0"
     },

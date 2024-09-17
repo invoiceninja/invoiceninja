@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\PaymentTermController
+ * 
+ *  App\Http\Controllers\PaymentTermController
  */
 class PaymentTermsApiTest extends TestCase
 {

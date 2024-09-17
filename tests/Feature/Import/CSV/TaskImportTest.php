@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Import\Providers\Csv
+ * 
+ *  App\Import\Providers\Csv
  */
 class TaskImportTest extends TestCase
 {

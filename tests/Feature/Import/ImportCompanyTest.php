@@ -53,7 +53,7 @@ use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ImportCompanyTest extends TestCase
 {

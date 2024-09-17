@@ -31,8 +31,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers  App\Utils\Traits\GeneratesCounter
+ * 
+ *   App\Utils\Traits\GeneratesCounter
  */
 class GeneratesCounterTest extends TestCase
 {

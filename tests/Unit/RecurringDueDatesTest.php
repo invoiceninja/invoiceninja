@@ -16,8 +16,8 @@ use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Utils\Traits\Recurring\HasRecurrence
+ * 
+ *  App\Utils\Traits\Recurring\HasRecurrence
  */
 class RecurringDueDatesTest extends TestCase
 {

@@ -54,10 +54,6 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers App\Http\Controllers\BaseController
- */
 class BaseApiTest extends TestCase
 {
     use MockAccountData;

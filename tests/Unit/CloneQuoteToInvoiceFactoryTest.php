@@ -19,7 +19,7 @@ use App\Factory\CloneQuoteToInvoiceFactory;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
+ * 
  */
 class CloneQuoteToInvoiceFactoryTest extends TestCase
 {

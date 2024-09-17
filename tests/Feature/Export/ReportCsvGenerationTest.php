@@ -34,7 +34,7 @@ use League\Csv\Reader;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ReportCsvGenerationTest extends TestCase
 {

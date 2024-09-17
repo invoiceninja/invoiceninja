@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
+ * 
  */
 class TaskRoundingTest extends TestCase
 {

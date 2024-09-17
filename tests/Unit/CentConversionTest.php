@@ -14,7 +14,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CentConversionTest extends TestCase
 {

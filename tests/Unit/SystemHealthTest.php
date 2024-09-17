@@ -15,8 +15,8 @@ use App\Utils\SystemHealth;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\SystemHealth
+ * 
+ *   App\Utils\SystemHealth
  */
 class SystemHealthTest extends TestCase
 {

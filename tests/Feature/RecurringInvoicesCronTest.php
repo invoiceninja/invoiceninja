@@ -18,8 +18,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Jobs\Cron\RecurringInvoicesCron
+ * 
+ *  App\Jobs\Cron\RecurringInvoicesCron
  */
 class RecurringInvoicesCronTest extends TestCase
 {

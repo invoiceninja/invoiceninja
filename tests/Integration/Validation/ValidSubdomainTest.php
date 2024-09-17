@@ -19,7 +19,7 @@ use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 use App\Http\ValidationRules\Company\ValidSubdomain;
 
 /**
- * @test
+ * 
  */
 class ValidSubdomainTest extends TestCase
 {
@@ -30,7 +30,7 @@ class ValidSubdomainTest extends TestCase
         parent::setUp();
     }
 
-    /** @test */
+    /**  */
     public function testCheckValidSubdomainName()
     {
         
@@ -67,7 +67,7 @@ class ValidSubdomainTest extends TestCase
 
     }
 
-    /** @test */
+    /**  */
     public function testCheckInValidSubdomainName()
     {
 

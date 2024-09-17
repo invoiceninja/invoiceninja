@@ -23,8 +23,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\VendorController
+ * 
+ *  App\Http\Controllers\VendorController
  */
 class VendorApiTest extends TestCase
 {

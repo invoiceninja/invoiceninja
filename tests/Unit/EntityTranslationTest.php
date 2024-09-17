@@ -31,7 +31,7 @@ use App\Models\Vendor;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class EntityTranslationTest extends TestCase
 {

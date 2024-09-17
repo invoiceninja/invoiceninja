@@ -23,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class EntityPaidToDateTest extends TestCase
 {

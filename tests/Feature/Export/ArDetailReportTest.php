@@ -25,7 +25,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ArDetailReportTest extends TestCase
 {

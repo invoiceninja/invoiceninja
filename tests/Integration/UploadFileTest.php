@@ -19,8 +19,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Jobs\Util\UploadFile
+ * 
+ *   App\Jobs\Util\UploadFile
  */
 class UploadFileTest extends TestCase
 {

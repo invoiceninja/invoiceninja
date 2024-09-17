@@ -24,8 +24,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Models\CompanyGateway
+ * 
+ *  App\Models\CompanyGateway
  */
 class CompanyGatewayApiTest extends TestCase
 {

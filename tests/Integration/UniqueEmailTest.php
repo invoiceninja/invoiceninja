@@ -21,8 +21,8 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Http\ValidationRules\NewUniqueUserRule
+ * 
+ *   App\Http\ValidationRules\NewUniqueUserRule
  */
 class UniqueEmailTest extends TestCase
 {

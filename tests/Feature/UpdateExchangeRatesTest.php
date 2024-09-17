@@ -20,8 +20,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Jobs\Util\UpdateExchangeRates
+ * 
+ *  App\Jobs\Util\UpdateExchangeRates
  */
 class UpdateExchangeRatesTest extends TestCase
 {

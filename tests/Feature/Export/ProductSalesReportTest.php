@@ -26,8 +26,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Services\Report\ProductSalesExport
+ * 
+ *  App\Services\Report\ProductSalesExport
  */
 class ProductSalesReportTest extends TestCase
 {

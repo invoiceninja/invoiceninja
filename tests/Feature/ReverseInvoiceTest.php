@@ -27,8 +27,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Services\Invoice\HandleReversal
+ * 
+ *  App\Services\Invoice\HandleReversal
  */
 class ReverseInvoiceTest extends TestCase
 {

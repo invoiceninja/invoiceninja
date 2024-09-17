@@ -18,10 +18,6 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers  App\Models\Client
- */
 class ClientModelTest extends TestCase
 {
     use MockAccountData;

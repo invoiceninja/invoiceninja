@@ -28,8 +28,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\InvoiceController
+ * 
+ *  App\Http\Controllers\InvoiceController
  */
 class InvoiceTest extends TestCase
 {

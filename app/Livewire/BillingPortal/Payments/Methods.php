@@ -17,7 +17,7 @@ use App\Models\Subscription;
 use Illuminate\Support\Facades\Cache;
 
 class Methods extends Component
-{
+{//@todo this breaks down when the cart is in front of the login - we have no context on the user - nor their country/currency
     public Subscription $subscription;
 
     public array $context;
@@ -28,10 +28,7 @@ class Methods extends Component
     {
         $total = collect($this->context['products'])->sum('total_raw');
 
-        $methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods(
-            $total,
-        );
-
+        $methods = auth()->guard('contact')->user()->client->service()->getPaymentMethods($total); //@todo this breaks down when the cart is in front of the login - we have no context on the user - nor their country/currency()
         $this->methods = $methods;
     }
 

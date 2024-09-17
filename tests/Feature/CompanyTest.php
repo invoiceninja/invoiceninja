@@ -11,29 +11,30 @@
 
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Middleware\PasswordProtection;
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\TaxRate;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\TaxRate;
+use Tests\MockAccountData;
+use App\Models\CompanyToken;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\UploadedFile;
+use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use App\Http\Middleware\PasswordProtection;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\CompanyController
+ * 
+ *  App\Http\Controllers\CompanyController
  */
 class CompanyTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
 
     public $faker;
 
@@ -41,11 +42,7 @@ class CompanyTest extends TestCase
     {
         parent::setUp();
 
-        Session::start();
-
         $this->faker = \Faker\Factory::create();
-
-        Model::reguard();
 
         $this->makeTestData();
     }
@@ -53,18 +50,21 @@ class CompanyTest extends TestCase
 
     public function testCompanyExpenseMailbox()
     {
+        $safeEmail = $this->faker->safeEmail();
+
         // Test valid email address
         $company_update = [
-            'expense_mailbox' => 'valid@example.com',
+            'expense_mailbox' => $safeEmail,
         ];
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $company_update);
 
         $response->assertStatus(200);
-        $this->assertEquals('valid@example.com', $response->json('data.expense_mailbox'));
+        $arr = $response->json();
+        $this->assertEquals($safeEmail, $arr['data']['expense_mailbox']);
 
         // Test invalid email address
         $company_update = [
@@ -260,5 +260,11 @@ class CompanyTest extends TestCase
         ->assertStatus(200);
     }
 
+    public function tearDown(): void
+    {
+        Account::query()->where('id', $this->company->account_id)->delete();
+
+        parent::tearDown();
+    }
 
 }

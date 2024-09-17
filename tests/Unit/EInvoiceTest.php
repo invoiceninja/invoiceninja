@@ -20,8 +20,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Jobs\Invoice\CreateXInvoice
+ * 
+ *   App\Jobs\Invoice\CreateXInvoice
  */
 class EInvoiceTest extends TestCase
 {

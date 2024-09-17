@@ -29,7 +29,7 @@ use App\Models\Vendor;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
+ * 
  */
 class EntityTest extends TestCase
 {

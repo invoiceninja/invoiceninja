@@ -50,7 +50,7 @@ class InvoiceSummary extends Component
 
     public function downloadDocument($invoice_hashed_id)
     {
-        nlog("here");
+
         $contact = $this->getContext()['contact'];
         $_invoices = $this->getContext()['invoices'];
         $i = $_invoices->first(function ($i) use($invoice_hashed_id){
@@ -60,11 +60,6 @@ class InvoiceSummary extends Component
         $file_name = $i->numberFormatter().'.pdf';
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($i->invitations()->where('client_contact_id', $contact->id)->first()))->handle();
-
-        
-        nlog("here");
-
-        nlog($file);
 
         $headers = ['Content-Type' => 'application/pdf'];
 

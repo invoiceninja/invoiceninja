@@ -22,8 +22,8 @@ use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\Auth\LoginController
+ * 
+ *  App\Http\Controllers\Auth\LoginController
  */
 class LoginTest extends TestCase
 {

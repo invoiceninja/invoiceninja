@@ -24,7 +24,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class PlanTest extends TestCase
 {

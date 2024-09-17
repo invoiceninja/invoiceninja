@@ -21,8 +21,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\MigrationController
+ * 
+ *  App\Http\Controllers\MigrationController
  */
 class MigrationTest extends TestCase
 {

@@ -31,8 +31,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\SubscriptionController
+ * 
+ *  App\Http\Controllers\SubscriptionController
  */
 class SubscriptionApiTest extends TestCase
 {

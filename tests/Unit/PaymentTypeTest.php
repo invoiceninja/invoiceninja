@@ -16,8 +16,8 @@ use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Models\PaymentType
+ * 
+ *  App\Models\PaymentType
  */
 class PaymentTypeTest extends TestCase
 {

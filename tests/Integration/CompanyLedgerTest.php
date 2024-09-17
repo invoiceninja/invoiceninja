@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-/** @test*/
+/** */
 class CompanyLedgerTest extends TestCase
 {
     use DatabaseTransactions;

@@ -21,8 +21,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\DesignController
+ * 
+ *  App\Http\Controllers\DesignController
  */
 class DesignApiTest extends TestCase
 {

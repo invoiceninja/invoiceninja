@@ -18,10 +18,7 @@ use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers App\Http\Controllers\BankTransactionRuleController
- */
+
 class BankTransactionRuleApiTest extends TestCase
 {
     use MakesHash;

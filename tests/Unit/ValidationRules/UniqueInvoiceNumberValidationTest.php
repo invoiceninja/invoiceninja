@@ -20,7 +20,7 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
- * @test
+ * 
  */
 class UniqueInvoiceNumberValidationTest extends TestCase
 {

@@ -14,7 +14,7 @@ namespace Tests\Integration\DTO;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class AccountSummaryTest extends TestCase
 {

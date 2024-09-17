@@ -17,10 +17,7 @@ use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers App\Http\Controllers\ActivityController
- */
+
 class ActivityApiTest extends TestCase
 {
     use DatabaseTransactions;
