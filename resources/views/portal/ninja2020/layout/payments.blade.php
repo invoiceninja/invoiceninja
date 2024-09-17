@@ -52,8 +52,8 @@
             Livewire.on('passed-required-fields-check', () => {
 
                 document.querySelector('div[data-ref="required-fields-container"]').classList.toggle('h-0');
-                // document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
-                // document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
+                document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
+                document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
 
                 document.querySelector('div[data-ref="gateway-container"]').classList.remove('opacity-25');
                 document.querySelector('div[data-ref="gateway-container"]').classList.remove('pointer-events-none');

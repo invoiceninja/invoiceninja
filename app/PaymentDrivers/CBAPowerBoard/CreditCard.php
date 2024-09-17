@@ -76,7 +76,11 @@ class CreditCard implements LivewireMethodInterface
             $r = $this->powerboard->gatewayRequest('/v1/charges/3ds', (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
             if ($r->failed()) {
-                return $this->processUnsuccessfulPayment($r);
+                
+                $error_payload = $this->getErrorFromResponse($r);
+                return response()->json(['message' =>  $error_payload[0]], 400);
+
+                // return $this->processUnsuccessfulPayment($r);
             }
 
             $charge = $r->json();
@@ -262,11 +266,8 @@ class CreditCard implements LivewireMethodInterface
         nlog($r->body());
 
         if($r->failed()){
-
             $error_payload = $this->getErrorFromResponse($r);
-            
             throw new PaymentFailed($error_payload[0], $error_payload[1]);
-
         }
 
         $charge = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Charge::class, $r->object()->resource->data) ?? $r->throw();
@@ -305,7 +306,8 @@ class CreditCard implements LivewireMethodInterface
         $r = $this->powerboard->gatewayRequest('/v1/charges/3ds', (\App\Enum\HttpVerb::POST)->value, $payload, []);
 
         if ($r->failed()) {
-            return $this->processUnsuccessfulPayment($r);
+            $error_payload = $this->getErrorFromResponse($r);
+            return response()->json(['message' =>  $error_payload[0]], 400);
         }
 
         $charge = $r->json();
@@ -447,6 +449,7 @@ class CreditCard implements LivewireMethodInterface
             $error_message = "Unknown error";
 
             match($error_object->error->code) {
+                "UnfulfilledCondition" => $error_message = $error_object->error->details->messages[0] ?? $error_object->error->message ?? "Unknown error",
                 "GatewayError" => $error_message = $error_object->error->message,
                 "UnfulfilledCondition" => $error_message = $error_object->error->message,
                 "transaction_declined" => $error_message = $error_object->error->details[0]->status_code_description,

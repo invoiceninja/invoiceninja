@@ -210,6 +210,7 @@ async function process3ds() {
             'errors'
         ).textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
         document.getElementById('errors').hidden = false;
+        pay();
     }
 }
 
@@ -267,7 +268,8 @@ async function get3dsToken() {
         document.getElementById('errors').hidden = false;
 
         console.error('Fetch error:', error); // Log error for debugging
-        throw error; //
+        pay();
+
     }
 }
 

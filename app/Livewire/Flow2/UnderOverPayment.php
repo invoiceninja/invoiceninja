@@ -52,11 +52,11 @@ class UnderOverPayment extends Component
 
         $input_amount = collect($payableInvoices)->sum('amount');
 
-        if($settings->client_portal_allow_under_payment && $settings->client_portal_under_payment_minimum != 0)
+        if($settings->client_portal_allow_under_payment)
         {
-            if($input_amount <= $settings->client_portal_under_payment_minimum){
+            if($input_amount <= $settings->client_portal_under_payment_minimum || $input_amount <= 0){
                 // return error message under payment too low.
-                $this->errors = ctrans('texts.minimum_required_payment', ['amount' => $settings->client_portal_under_payment_minimum]);
+                $this->errors = ctrans('texts.minimum_required_payment', ['amount' => max($settings->client_portal_under_payment_minimum, 1)]);
                 $this->dispatch('errorMessageUpdate', errors: $this->errors);
             }
         }

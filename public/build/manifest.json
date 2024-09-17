@@ -146,7 +146,7 @@
     "isEntry": true,
     "src": "resources/js/clients/payments/paytrace-credit-card.js"
   },
-  "resources/js/clients/payments/powerboard-credit-card.js": {
+  "resources/js/clients/payments/powerboard-credit-card.
     "file": "assets/powerboard-credit-card-127361fb.js",
     "imports": [
       "_wait-8f4ae121.js"
