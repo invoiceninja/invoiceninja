@@ -199,7 +199,8 @@ class BillingPortalPurchasev2 extends Component
         $this->data = [];
 
         $this->price = $this->subscription->price; // ?
-
+        $this->float_amount_total = $this->price;
+        
         $this->recurring_products = $this->subscription->service()->recurring_products();
         $this->products = $this->subscription->service()->products();
         $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
@@ -244,7 +245,8 @@ class BillingPortalPurchasev2 extends Component
             Auth::guard('contact')->loginUsingId($contact->id, true);
             $this->contact = $contact;
         } else {
-            $this->createClientContact();
+            // $this->createClientContact();
+            $this->createBlankClient();
         }
 
         $this->getPaymentMethods();
@@ -767,6 +769,8 @@ class BillingPortalPurchasev2 extends Component
             if ($currency) {
                 $data['settings']->currency_id = $currency->id;
             }
+        }else {
+            $data['settings']->currency_id = $this->subscription->company->getSetting('currency_id');
         }
 
         if (array_key_exists('locale', $this->request_data)) {
@@ -785,8 +789,12 @@ class BillingPortalPurchasev2 extends Component
         }
 
         $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+        $contact = $client->fresh()->contacts->first();
+        $this->contact = $contact;
 
-        return $client->fresh()->contacts->first();
+        Auth::guard('contact')->loginUsingId($contact->id, true);
+        
+        return $contact;
     }
 
 

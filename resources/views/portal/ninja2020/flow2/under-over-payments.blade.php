@@ -22,7 +22,7 @@
             <div x-text="errors" class="alert alert-failure mb-4"></div>
         </template>
 
-        @if($settings->client_portal_allow_under_payment)
+        @if($settings->client_portal_allow_under_payment && $settings->client_portal_under_payment_minimum != 0)
             <span class="mt-1 text-sm text-gray-800">{{ ctrans('texts.minimum_payment') }}:
                 {{ $settings->client_portal_under_payment_minimum }}</span>
         @endif

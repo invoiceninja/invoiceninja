@@ -161,7 +161,16 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
 
     public function getClientRequiredFields(): array
     {
-        return [];
+        $fields = [];
+
+        if ($this->company_gateway->require_client_name) {
+            $fields[] = ['name' => 'client_name', 'label' => ctrans('texts.client_name'), 'type' => 'text', 'validation' => 'required'];
+        }
+
+        $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+
+        return $fields;
     }
 
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)

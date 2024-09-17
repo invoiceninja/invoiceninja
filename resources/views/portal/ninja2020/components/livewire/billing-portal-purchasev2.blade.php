@@ -304,6 +304,14 @@
                         <span>{{ $total }}</span>
                     </div>
 
+                    @if(isset($tax))
+                    <div class="flex font-semibold justify-between py-1 text-sm uppercase border-t-2">
+                        <span>{{ ctrans('texts.tax') }}</span>
+                        <span>{{ $tax }}</span>
+                    </div>
+
+                    @endif
+
                     <div class="mx-auto text-center mt-20 content-center" x-data="{open: @entangle('payment_started').live, toggle: @entangle('payment_confirmed').live, buttonDisabled: false}" x-show.important="open" x-transition>
                     <h2 class="text-2xl font-bold tracking-wide border-b-2 pb-4">{{ $heading_text ?? ctrans('texts.checkout') }}</h2>
                         @if (session()->has('message'))
