@@ -64,13 +64,11 @@ class Blockonomics implements MethodInterface
 
     public function getBTCPrice()
     {
-        $currency_code = $this->blockonomics->client->getCurrencyCode();
-        $BLOCKONOMICS_BASE_URL = 'https://www.blockonomics.co';
-        $BLOCKONOMICS_PRICE_URL = $BLOCKONOMICS_BASE_URL . '/api/price?currency=';
-        $response = file_get_contents($BLOCKONOMICS_PRICE_URL . $currency_code);
-        $data = json_decode($response, true);
-        // TODO: handle error
-        return $data['price'];
+
+        $r = Http::get('https://www.blockonomics.co/api/price', ['currency' => $this->blockonomics->client->getCurrencyCode()]);
+
+        return $r->successful() ? $r->object()->price : 'Something went wrong';
+        
     }
 
     public function paymentView($data)
@@ -103,7 +101,7 @@ class Blockonomics implements MethodInterface
 
         try {
             $data = [];
-            $fiat_amount = $request->btc_price * $request->btc_amount;
+            $fiat_amount = round(($request->btc_price * $request->btc_amount), 2);
             $data['amount'] = $fiat_amount;
             $data['currency'] = $request->currency;
             $data['payment_method_id'] = $request->payment_method_id;

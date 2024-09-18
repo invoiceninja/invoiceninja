@@ -65,23 +65,9 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function getPaymentByTxid($txid)
     {
-        return Payment::where('client_id', $this->client->id)
-                        ->whereRaw('BINARY `transaction_reference` LIKE ?', ["%txid: " . $txid . "%"])
+        return Payment::where('transaction_reference', $txid)
                         ->firstOrFail();
     }
-
-    public function getCallbackSecret()
-    {
-        $blockonomicsGatewayData = Gateway::find(64);
-        $intialData = json_decode($blockonomicsGatewayData, true);
-        $jsonString = $intialData['fields'];
-        $blockonomicsFields = json_decode($jsonString, true);
-
-        // Access the value of callbackSecret
-        $callbackSecret = $blockonomicsFields['callbackSecret'];
-        return $callbackSecret;
-    }
-
 
     /* Returns an array of gateway types for the payment gateway */
     public function gatewayTypes(): array
@@ -120,17 +106,17 @@ class BlockonomicsPaymentDriver extends BaseDriver
         nlog($request->all());
         
         $url_callback_secret = $request->secret;
-        $db_callback_secret = $this->getCallbackSecret();
+        $db_callback_secret = $this->company_gateway->getConfigField('callbackSecret');
 
         if ($url_callback_secret != $db_callback_secret) {
             throw new PaymentFailed('Secret does not match');
             return;
         }
 
-        $txid = $_GET['txid'];
-        $value = $_GET['value'];
-        $status = $_GET['status'];
-        $addr = $_GET['addr'];
+        $txid = $request->txid;
+        $value = $request->value;
+        $status = $request->status;
+        $addr = $request->addr;
                 
         $payment = $this->getPaymentByTxid($txid);
         
