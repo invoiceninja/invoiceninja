@@ -43,19 +43,14 @@ class BlockonomicsPaymentDriver extends BaseDriver
         GatewayType::CRYPTO => Blockonomics::class, //maps GatewayType => Implementation class
     ];
 
-    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
+    public const SYSTEM_LOG_TYPE = SystemLog::TYPE_BLOCKONOMICS; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
     public $BASE_URL = 'https://www.blockonomics.co';
     public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     public $PRICE_URL = 'https://www.blockonomics.co/api/price';
 
-    public $api_key; 
-    public $callback_secret; 
-
     public function init()
     {
-        $this->api_key = $this->company_gateway->getConfigField('apiKey');
-        $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
         return $this; /* This is where you boot the gateway with your auth credentials*/
     }
 

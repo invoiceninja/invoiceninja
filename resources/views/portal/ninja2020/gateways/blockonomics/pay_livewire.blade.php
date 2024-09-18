@@ -1,14 +1,10 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.payment_type_Crypto'), 'card_title' => ctrans('texts.payment_type_Crypto')])
+<div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4" id="blockonomics-payment">
+   
+<meta name="amount" content="{{ $amount }}" />
+<meta name="btc_amount" content="{{ $btc_amount }}" />
+<meta name="btc_address" content="{{ $btc_address }}" />
+<meta name="currency" content="{{ $currency }}" />
 
-@section('gateway_head')
-    <meta name="instant-payment" content="yes" />
-    <meta name="amount" content="{{ $amount }}" />
-    <meta name="btc_amount" content="{{ $btc_amount }}" />
-    <meta name="btc_address" content="{{ $btc_address }}" />
-    <meta name="currency" content="{{ $currency }}" />
-@endsection
-
-@section('gateway_content')
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
     <div class="blockonomics-payment-wrapper">
         <div class="initial-state">
@@ -62,7 +58,7 @@
         <input type="hidden" name="txid" value="">
     </form>
 
-
+    
     <style type="text/css">
         .sections-wrapper {
             display: flex;
@@ -182,8 +178,9 @@
             animation: rotating 2s linear infinite;
         }
     </style>
-@endsection
 
-@section('gateway_footer')
+</div>
+
+@assets
     @vite('resources/js/clients/payments/blockonomics.js')
-@endsection
+@endassets

@@ -13,19 +13,20 @@
 namespace App\PaymentDrivers\Blockonomics;
 
 use App\Models\Payment;
-use App\Models\PaymentType;
-use App\Models\GatewayType;
 use App\Models\SystemLog;
-use App\PaymentDrivers\BlockonomicsPaymentDriver;
-use App\Utils\Traits\MakesHash;
-use App\PaymentDrivers\Common\MethodInterface;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Exceptions\PaymentFailed;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
 use App\Jobs\Util\SystemLogger;
-use App\Jobs\Mail\PaymentFailureMailer;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
 use Illuminate\Support\Facades\Http;
+use App\Jobs\Mail\PaymentFailureMailer;
+use App\PaymentDrivers\Common\MethodInterface;
+use App\PaymentDrivers\BlockonomicsPaymentDriver;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
-class Blockonomics implements MethodInterface
+class Blockonomics implements LivewireMethodInterface
 {
     use MakesHash;
 
@@ -48,12 +49,15 @@ class Blockonomics implements MethodInterface
 
     public function getBTCAddress(): string
     {
-        $api_key = $this->blockonomics->api_key;
+        $api_key = $this->blockonomics->company_gateway->getConfigField('apiKey');
+
         // $params = config('ninja.environment') == 'development' ? '?reset=1' : ''; 
         $url = 'https://www.blockonomics.co/api/new_address';
 
         $r = Http::withToken($api_key)
                     ->post($url, []);
+
+        nlog($r->body());
 
         if($r->successful())
             return $r->object()->address ?? 'Something went wrong';
@@ -71,8 +75,9 @@ class Blockonomics implements MethodInterface
         
     }
 
-    public function paymentView($data)
+    public function paymentData(array $data): array
     {
+    
         $btc_price = $this->getBTCPrice();
         $btc_address = $this->getBTCAddress();
         $fiat_amount = $data['total']['amount_with_fee'];
@@ -86,6 +91,19 @@ class Blockonomics implements MethodInterface
         $data['btc_address'] = $btc_address;
         $data['btc_price'] = $btc_price;
         $data['invoice_number'] = $_invoice->invoice_number;
+
+        return $data;
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.blockonomics.pay_livewire';
+    }
+
+    public function paymentView($data)
+    {
+        $data = $this->paymentData($data);
+
         return render('gateways.blockonomics.pay', $data);
     }
 
