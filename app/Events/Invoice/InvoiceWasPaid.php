@@ -15,8 +15,7 @@ namespace App\Events\Invoice;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
-use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\PrivateChannel;
+use App\Utils\Traits\Invoice\Broadcasting\DefaultInvoiceBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
@@ -25,7 +24,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class InvoiceWasPaid implements ShouldBroadcast
 {
-    use SerializesModels;
+    use SerializesModels, DefaultInvoiceBroadcast;
 
     /**
      * @var Invoice
@@ -51,17 +50,5 @@ class InvoiceWasPaid implements ShouldBroadcast
         $this->payment = $payment;
         $this->company = $company;
         $this->event_vars = $event_vars;
-    }
-
-    public function broadcastOn(): array
-    {
-        return [
-            new PrivateChannel("{$this->company->company_key}.invoices"),
-        ];
-    }
-
-    public function broadcastAs(): string
-    {
-        return 'invoice.paid';
     }
 }
