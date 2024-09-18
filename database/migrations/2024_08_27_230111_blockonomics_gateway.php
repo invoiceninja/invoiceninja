@@ -28,7 +28,7 @@ return new class extends Migration
             $gateway->fields = \json_encode($fields);
 
 
-            $gateway->visible = 1;
+            $gateway->visible = true;
             $gateway->site_url = 'https://blockonomics.co';
             $gateway->default_gateway_type_id = GatewayType::CRYPTO;
             $gateway->save();

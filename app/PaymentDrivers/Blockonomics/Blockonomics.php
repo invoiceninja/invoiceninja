@@ -49,8 +49,8 @@ class Blockonomics implements MethodInterface
     public function getBTCAddress(): string
     {
         $api_key = $this->blockonomics->api_key;
-        $params = config('ninja.environment') == 'development' ? '?reset=1' : ''; 
-        $url = 'https://www.blockonomics.co/api/new_address' . $params;
+        // $params = config('ninja.environment') == 'development' ? '?reset=1' : ''; 
+        $url = 'https://www.blockonomics.co/api/new_address';
 
         $r = Http::withToken($api_key)
                     ->post($url, []);
