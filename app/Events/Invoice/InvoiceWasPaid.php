@@ -16,6 +16,7 @@ use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
@@ -55,11 +56,7 @@ class InvoiceWasPaid implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            // @todo: make sure this is PrivateChannel once we have auth configured.
-
-            new Channel(
-                name: $this->company->company_key . '_invoices',
-              ),
+            new PrivateChannel("{$this->company->company_key}.invoices"),
         ];
     }
 
