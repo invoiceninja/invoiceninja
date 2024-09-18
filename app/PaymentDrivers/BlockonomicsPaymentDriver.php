@@ -115,10 +115,11 @@ class BlockonomicsPaymentDriver extends BaseDriver
         return $this->payment_method->paymentResponse($request);
     }
 
-    public function processWebhookRequest()
+    public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-
-        $url_callback_secret = $_GET['secret'];
+        nlog($request->all());
+        
+        $url_callback_secret = $request->secret;
         $db_callback_secret = $this->getCallbackSecret();
 
         if ($url_callback_secret != $db_callback_secret) {
@@ -150,13 +151,16 @@ class BlockonomicsPaymentDriver extends BaseDriver
         }
 
         if($payment->status_id == $statusId) {
-            header('HTTP/1.1 200 OK');
-            echo "No change in payment status";
+            return response()->json([], 200);
+            // header('HTTP/1.1 200 OK');
+            // echo "No change in payment status";
         } else {
             $payment->status_id = $statusId;
             $payment->save();
-            header('HTTP/1.1 200 OK');
-            echo "Payment status updated successfully";
+
+            return response()->json([], 200);
+            // header('HTTP/1.1 200 OK');
+            // echo "Payment status updated successfully";
         }
     }
 
