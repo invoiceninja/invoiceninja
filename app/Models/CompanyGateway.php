@@ -156,9 +156,10 @@ class CompanyGateway extends BaseModel
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321, //GoCardless
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
-        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTPay
+        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTCPay
         '91be24c7b792230bced33e930ac61676' => 325,
-        'b67581d804dbad1743b61c57285142ad' => 326, //Powerboard
+        'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
+        'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
     ];
 
     protected $touches = [];

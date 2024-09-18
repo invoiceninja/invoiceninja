@@ -364,7 +364,11 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
+<<<<<<< HEAD
     "file": "assets/app-22043157.css",
+=======
+    "file": "assets/app-61bfe239.css",
+>>>>>>> blockonomics-driver
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
