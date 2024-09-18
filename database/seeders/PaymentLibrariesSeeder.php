@@ -24,15 +24,6 @@ class PaymentLibrariesSeeder extends Seeder
     {
         Model::unguard();
 
-        $callbackSecret = md5(uniqid(rand(), true));
-        $callbackUrl = config('ninja.app_url') . '/payment_webhook/?secret=' . $callbackSecret;
-        $blockonomics_fields = "{
-            \"apiKey\": \"\",
-            \"callbackUrl\": \"$callbackUrl\",
-            \"callbackSecret\": \"$callbackSecret\"
-        }";
-
-
         $gateways = [
             ['id' => 1, 'name' => 'Authorize.Net', 'provider' => 'Authorize', 'sort_order' => 5, 'key' => '3b6621f970ab18887c4f6dca78d3f8bb', 'fields' => '{"apiLoginId":"","transactionKey":"","testMode":false,"developerMode":false,"liveEndpoint":"https:\/\/api2.authorize.net\/xml\/v1\/request.api","developerEndpoint":"https:\/\/apitest.authorize.net\/xml\/v1\/request.api"}
 '],
@@ -98,7 +89,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 61, 'name' => 'PayPal Platform', 'provider' => 'PayPal_PPCP', 'key' => '80af24a6a691230bbec33e930ab40666', 'fields' => '{"testMode":false}'],
             ['id' => 62, 'name' => 'BTCPay', 'provider' => 'BTCPay', 'key' => 'vpyfbmdrkqcicpkjqdusgjfluebftuva', 'fields' => '{"btcpayUrl":"", "apiKey":"", "storeId":"", "webhookSecret":""}'],
             ['id' => 63, 'name' => 'Rotessa', 'is_offsite' => false, 'sort_order' => 22, 'provider' => 'Rotessa', 'key' => '91be24c7b792230bced33e930ac61676', 'fields' => '{"apiKey":"", "testMode":""}'],
-            ['id' => 65, 'name' => 'Blockonomics', 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => "$blockonomics_fields"],
+            ['id' => 65, 'name' => 'Blockonomics', 'provider' => 'Blockonomics', 'key' => 'wbhf02us6owgo7p4nfjd0ymssdshks4d', 'fields' => '{"apiKey":"", "callbackSecret":""}'],
         ];
 
         foreach ($gateways as $gateway) {
@@ -115,7 +106,7 @@ class PaymentLibrariesSeeder extends Seeder
 
         Gateway::query()->update(['visible' => 0]);
 
-        Gateway::whereIn('id', [1, 3, 7, 11, 15, 20, 39, 46, 55, 50, 57, 52, 58, 59, 60, 62, 63, 64,65])->update(['visible' => 1]);
+        Gateway::whereIn('id', [1, 3, 7, 11, 15, 20, 39, 46, 55, 50, 57, 52, 58, 59, 60, 62, 63, 64, 65])->update(['visible' => 1]);
 
         if (Ninja::isHosted()) {
             Gateway::whereIn('id', [20, 49])->update(['visible' => 0]);
