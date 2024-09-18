@@ -153,7 +153,9 @@ class SystemLog extends Model
     public const TYPE_BTC_PAY = 324;
 
     public const TYPE_ROTESSA = 325;
-
+    
+    public const TYPE_BLOCKONOMICS = 326;
+    
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;
