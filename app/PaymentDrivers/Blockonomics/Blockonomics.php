@@ -133,6 +133,6 @@ class Blockonomics implements MethodInterface
     // Not supported yet
     public function refund(Payment $payment, $amount)
     {
-
+        return;
     }
 }

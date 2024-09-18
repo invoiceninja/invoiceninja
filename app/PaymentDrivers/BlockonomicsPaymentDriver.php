@@ -45,28 +45,18 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_CHECKOUT; //define a constant for your gateway ie TYPE_YOUR_CUSTOM_GATEWAY - set the const in the SystemLog model
 
-    public $blockonomics;
     public $BASE_URL = 'https://www.blockonomics.co';
     public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     public $PRICE_URL = 'https://www.blockonomics.co/api/price';
 
     public $api_key; 
-    public $callback_url; 
     public $callback_secret; 
 
     public function init()
     {
         $this->api_key = $this->company_gateway->getConfigField('apiKey');
-        $this->callback_url = $this->company_gateway->getConfigField('callbackUrl');
         $this->callback_secret = $this->company_gateway->getConfigField('callbackSecret');
         return $this; /* This is where you boot the gateway with your auth credentials*/
-    }
-
-
-    public function getPaymentByTxid($txid)
-    {
-        return Payment::where('transaction_reference', $txid)
-                        ->firstOrFail();
     }
 
     /* Returns an array of gateway types for the payment gateway */
@@ -103,14 +93,14 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        nlog($request->all());
         
+        $company = $request->getCompany();
+
         $url_callback_secret = $request->secret;
         $db_callback_secret = $this->company_gateway->getConfigField('callbackSecret');
 
         if ($url_callback_secret != $db_callback_secret) {
             throw new PaymentFailed('Secret does not match');
-            return;
         }
 
         $txid = $request->txid;
@@ -118,11 +108,17 @@ class BlockonomicsPaymentDriver extends BaseDriver
         $status = $request->status;
         $addr = $request->addr;
                 
-        $payment = $this->getPaymentByTxid($txid);
+        $payment = Payment::query()
+                            ->where('company_id', $company->id)
+                            ->where('transaction_reference', $txid)
+                            ->firstOrFail();
         
         if (!$payment) {
+            return response()->json([], 200);
             // TODO: Implement logic to create new payment in case user sends payment to the address after closing the payment page
         }
+
+        $statusId = Payment::STATUS_PENDING;
 
         switch ($status) {
             case 0:
@@ -138,15 +134,11 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
         if($payment->status_id == $statusId) {
             return response()->json([], 200);
-            // header('HTTP/1.1 200 OK');
-            // echo "No change in payment status";
         } else {
             $payment->status_id = $statusId;
             $payment->save();
 
             return response()->json([], 200);
-            // header('HTTP/1.1 200 OK');
-            // echo "Payment status updated successfully";
         }
     }
 
