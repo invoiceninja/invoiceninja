@@ -507,11 +507,17 @@ class CompanyGatewayApiTest extends TestCase
         ];
 
         /* POST */
-        $response = $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/company_gateways', $data);
-
+        try {
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->post('/api/v1/company_gateways/bulk', $data);
+        } catch (CustomApiException $e) {
+            $this->assertEquals($e->getStatusCode(), 400);
+            $this->assertEquals($e->getErrorCode(), 'BULK_ACTION_ERROR');
+            $this->assertEquals($e->getMessage(), 'Error processing bulk action');
+        }
+        
         $response->assertStatus(200);
 
         $arr = $response->json();

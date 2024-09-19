@@ -275,4 +275,28 @@ class Handler extends ExceptionHandler
 
         return redirect()->guest(route($login));
     }
+
+    protected function invalidJson($request, ValidationException $exception)
+    {
+        return response()->json([
+            'message' => 'The given data was invalid.',
+            'errors' => $this->transformErrors($exception),
+            'status' => 422,
+            'error_code' => 'VALIDATION_ERROR'
+        ], 422);
+    }
+
+    private function transformErrors(ValidationException $exception)
+    {
+        $errors = [];
+
+        foreach ($exception->errors() as $field => $message) {
+            $errors[] = [
+                'field' => $field,
+                'message' => $message[0]
+            ];
+        }
+
+        return $errors;
+    }
 }
