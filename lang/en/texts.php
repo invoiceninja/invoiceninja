@@ -5333,6 +5333,7 @@ $lang = array(
     'country_Melilla' => 'Melilla',
     'country_Ceuta' => 'Ceuta',
     'country_Canary Islands' => 'Canary Islands',
+    'invoice_status_changed' => 'Please note that the status of your invoice has been updated. We recommend refreshing the page to view the most current version.',
 );
 
 return $lang;
