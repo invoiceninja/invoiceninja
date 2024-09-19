@@ -62,8 +62,6 @@ class InvoiceTransformer extends BaseTransformer
 
         $qb_payments = data_get($qb_data, 'LinkedTxn', false);
 
-        nlog($qb_payments);
-
         if(!$qb_payments) {
             return [];
         }
@@ -82,6 +80,8 @@ class InvoiceTransformer extends BaseTransformer
             }
         }
 
+        nlog($payments);
+
         return $payments;
 
     }
@@ -99,9 +99,11 @@ class InvoiceTransformer extends BaseTransformer
             $item->cost = data_get($qb_item, 'SalesItemLineDetail.UnitPrice', 0);
             $item->discount = data_get($item,'DiscountRate', data_get($qb_item,'DiscountAmount', 0));
             $item->is_amount_discount = data_get($qb_item,'DiscountAmount', 0) > 0 ? true : false;
-            $item->type_id = stripos(data_get($qb_item, 'ItemAccountRef.name'), 'Service') !== false ? '2' : '1';
+            $item->type_id = stripos(data_get($qb_item, 'ItemAccountRef.name') ?? '', 'Service') !== false ? '2' : '1';
             $item->tax_id = data_get($qb_item, 'TaxCodeRef.value', '') == 'NON' ? Product::PRODUCT_TYPE_EXEMPT : $item->type_id;
-            $item->tax_rate1 = data_get($qb_item,'TaxLineDetail.TaxRateRef.TaxPercent', 0);
+            $item->tax_rate1 = data_get($qb_item, 'TxnTaxDetail.TaxLine.TaxLineDetail.TaxPercent', 0);
+
+// $item->tax_rate1 = data_get($qb_item, 'TaxLineDetail.TaxRateRef.TaxPercent', 0);
             $item->tax_name1 = $item->tax_rate1 > 0 ? "Sales Tax" : "";
             $items[] = (object)$item;
         }

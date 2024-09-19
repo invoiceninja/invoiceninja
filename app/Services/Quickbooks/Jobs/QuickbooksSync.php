@@ -119,7 +119,11 @@ class QuickbooksSync implements ShouldQueue
         
         foreach($records as $record)
         {
+            nlog($record);
+
             $ninja_invoice_data = $invoice_transformer->qbToNinja($record);
+
+            nlog($ninja_invoice_data);
 
             $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
             $client_id = $ninja_invoice_data['client_id'] ?? null;
@@ -140,6 +144,7 @@ class QuickbooksSync implements ShouldQueue
                 {
 
                     $payment = $this->qbs->sdk->FindById('Payment', $payment_id);
+
                     $payment_transformer = new PaymentTransformer($this->company);
 
                     $transformed = $payment_transformer->qbToNinja($payment);
@@ -151,7 +156,8 @@ class QuickbooksSync implements ShouldQueue
                     $paymentable->payment_id = $ninja_payment->id;
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
-                    $paymentable->amount = $transformed['applied'];
+                    $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
+                    $paymentable->created_at = $ninja_payment->date;
                     $paymentable->save();
 
                     $invoice->service()->applyPayment($ninja_payment, $transformed['applied']);
