@@ -218,7 +218,7 @@ class TemplateService
         $tm = new TemplateMock($this->company);
         $tm->setSettings($this->getSettings())->init();
 
-        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first();
+        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first() ?? (new \App\Services\Pdf\PdfMock(['entity_type' => 'invoice'], $this->company))->initEntity();
 
         $this->data = $tm->engines;
 
@@ -343,6 +343,13 @@ class TemplateService
 
     }
 
+    public function setEntity($entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
+    }
+
     /**
      * Parses all variables in the document
      *
@@ -361,6 +368,7 @@ class TemplateService
         }
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        
         $this->save();
 
         return $this;

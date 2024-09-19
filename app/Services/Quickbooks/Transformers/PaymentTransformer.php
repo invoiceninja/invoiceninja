@@ -14,6 +14,7 @@ namespace App\Services\Quickbooks\Transformers;
 use App\Models\Company;
 use App\Models\Payment;
 use App\Factory\PaymentFactory;
+use App\Models\Credit;
 
 /**
  *
@@ -56,13 +57,66 @@ class PaymentTransformer extends BaseTransformer
             $payment->applied = $ninja_payment_data['applied'];
             $payment->status_id = 4;
             $payment->fill($ninja_payment_data);
-            
+            $payment->save();
+
             $payment->client->service()->updatePaidToDate($payment->amount);
 
-            return $payment;
-        }
+            if($payment->amount == 0) {
+                //this is a credit memo, create a stub credit for this.
+                $payment = $this->createCredit($payment, $qb_data);
+                $payment->type_id = \App\Models\PaymentType::CREDIT;
+                $payment->save();
+            }
 
+            
+            return $payment;
+
+        }
         return null;
+    }
+
+    private function createCredit($payment, $qb_data)
+    {
+        $credit_line = null;
+
+        foreach($qb_data->Line as $item) {
+        
+            if(data_get($item, 'LinkedTxn.TxnType', null) == 'CreditMemo') {
+                $credit_line = $item;
+                break;
+            }
+        
+        }
+         
+        if(!$credit_line) 
+            return $payment;
+
+        $credit = \App\Factory\CreditFactory::create($this->company->id, $this->company->owner()->id, $payment->client_id);
+        $credit->client_id = $payment->client_id;
+
+        $line = new \App\DataMapper\InvoiceItem();
+        $line->quantity = 1;
+        $line->cost = $credit_line->Amount;
+        $line->product_key = 'CREDITMEMO';
+        $line->notes = $payment->private_notes;
+
+        $credit->date = $qb_data->TxnDate;
+        $credit->status_id = 4;
+        $credit->amount = $credit_line->Amount;
+        $credit->paid_to_date = $credit_line->Amount;
+        $credit->balance = 0;
+        $credit->line_items = [$line];
+        $credit->save();
+
+        $paymentable = new \App\Models\Paymentable();
+        $paymentable->payment_id = $payment->id;
+        $paymentable->paymentable_id = $credit->id;
+        $paymentable->paymentable_type = \App\Models\Credit::class;
+        $paymentable->amount = $credit->amount;
+        $paymentable->created_at = $payment->date;
+        $paymentable->save();
+
+        return $payment;
     }
 
     public function getLine($data, $field = null)

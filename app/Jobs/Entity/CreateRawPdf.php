@@ -102,7 +102,6 @@ class CreateRawPdf
      */
     public function handle()
     {
-        /** Testing this override to improve PDF generation performance */
         $ps = new PdfService($this->invitation, $this->resolveType(), [
             'client' => $this->entity->client ?? false,
             'vendor' => $this->entity->vendor ?? false,

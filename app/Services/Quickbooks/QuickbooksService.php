@@ -27,9 +27,6 @@ use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 use App\Services\Quickbooks\Transformers\ProductTransformer;
 
-// quickbooks_realm_id
-// quickbooks_refresh_token
-// quickbooks_refresh_expires
 class QuickbooksService
 {
     public DataService $sdk;
@@ -50,7 +47,7 @@ class QuickbooksService
             'auth_mode' => 'oauth2',
             'scope' => "com.intuit.quickbooks.accounting",
             // 'RedirectURI' => 'https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
-            'RedirectURI' => $this->testMode ? 'https://above-distinctly-teal.ngrok-free.app/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
+            'RedirectURI' => $this->testMode ? 'https://grok.romulus.com.au/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
             'baseUrl' => $this->testMode ?  CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
         ];
 
@@ -67,7 +64,7 @@ class QuickbooksService
         return $this;
     }
 
-    private function ninjaAccessToken()
+    private function ninjaAccessToken(): array
     {
         return isset($this->company->quickbooks->accessTokenKey) ? [
             'accessTokenKey' => $this->company->quickbooks->accessTokenKey,
@@ -82,11 +79,11 @@ class QuickbooksService
     }
         
     /**
-     * //@todo - refactor to a job
+     * 
      *
      * @return void
      */
-    public function syncFromQb()
+    public function syncFromQb(): void
     {
         QuickbooksSync::dispatch($this->company->id, $this->company->db);
     }

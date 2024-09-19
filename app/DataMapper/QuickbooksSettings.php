@@ -40,6 +40,7 @@ class QuickbooksSettings implements Castable
         'client' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
         'vendor' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
         'invoice' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
+        'sales' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
         'quote' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
         'purchase_order' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
         'product' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
