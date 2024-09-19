@@ -160,7 +160,7 @@ class QuickbooksSync implements ShouldQueue
                     $paymentable->created_at = $ninja_payment->date;
                     $paymentable->save();
 
-                    $invoice->service()->applyPayment($ninja_payment, $transformed['applied']);
+                    $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
 
                 }
 
