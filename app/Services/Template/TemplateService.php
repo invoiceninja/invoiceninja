@@ -343,6 +343,13 @@ class TemplateService
 
     }
 
+    public function setEntity($entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
+    }
+
     /**
      * Parses all variables in the document
      *
