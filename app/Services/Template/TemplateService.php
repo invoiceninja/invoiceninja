@@ -368,6 +368,7 @@ class TemplateService
         }
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        
         $this->save();
 
         return $this;
