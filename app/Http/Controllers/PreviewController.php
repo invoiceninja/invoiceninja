@@ -148,6 +148,9 @@ class PreviewController extends BaseController
             ! empty(request()->input('entity')) &&
             ! empty(request()->input('entity_id'))) {
 
+            if($request->input('entity') == 'purchase_order')
+                return $preview = app(\App\Http\Controllers\PreviewPurchaseOrderController::class)->show($request);
+
             $design_object = json_decode(json_encode(request()->input('design')));
 
             if (! is_object($design_object)) {
