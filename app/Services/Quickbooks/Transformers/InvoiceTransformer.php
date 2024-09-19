@@ -58,8 +58,6 @@ class InvoiceTransformer extends BaseTransformer
     {
         $payments = [];
 
-        nlog("get payments");
-
         $qb_payments = data_get($qb_data, 'LinkedTxn', false);
 
         if(!$qb_payments) {
@@ -67,7 +65,6 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         if(!is_array($qb_payments) && data_get($qb_payments, 'TxnType', false) == 'Payment'){
-            nlog([data_get($qb_payments, 'TxnId.value', false)]);
             return [data_get($qb_payments, 'TxnId.value', false)];
         }
 
@@ -79,8 +76,6 @@ class InvoiceTransformer extends BaseTransformer
                 $payments[] = data_get($payment, 'TxnId.value', false);
             }
         }
-
-        nlog($payments);
 
         return $payments;
 
@@ -102,8 +97,6 @@ class InvoiceTransformer extends BaseTransformer
             $item->type_id = stripos(data_get($qb_item, 'ItemAccountRef.name') ?? '', 'Service') !== false ? '2' : '1';
             $item->tax_id = data_get($qb_item, 'TaxCodeRef.value', '') == 'NON' ? Product::PRODUCT_TYPE_EXEMPT : $item->type_id;
             $item->tax_rate1 = data_get($qb_item, 'TxnTaxDetail.TaxLine.TaxLineDetail.TaxPercent', 0);
-
-// $item->tax_rate1 = data_get($qb_item, 'TaxLineDetail.TaxRateRef.TaxPercent', 0);
             $item->tax_name1 = $item->tax_rate1 > 0 ? "Sales Tax" : "";
             $items[] = (object)$item;
         }

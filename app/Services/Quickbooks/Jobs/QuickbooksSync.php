@@ -32,6 +32,7 @@ use App\Services\Quickbooks\Transformers\ClientTransformer;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 use App\Services\Quickbooks\Transformers\ProductTransformer;
+use QuickBooksOnline\API\Data\IPPSalesReceipt;
 
 class QuickbooksSync implements ShouldQueue
 {
@@ -47,6 +48,7 @@ class QuickbooksSync implements ShouldQueue
         'quote' => 'Estimate',
         'purchase_order' => 'PurchaseOrder',
         'payment' => 'Payment',
+        'sales' => 'SalesReceipt',
     ];
 
     private QuickbooksService $qbs;
@@ -105,6 +107,7 @@ class QuickbooksSync implements ShouldQueue
             'client' => $this->syncQbToNinjaClients($records),
             'product' => $this->syncQbToNinjaProducts($records),
             'invoice' => $this->syncQbToNinjaInvoices($records),
+            'sales' => $this->syncQbToNinjaInvoices($records),
             // 'vendor' => $this->syncQbToNinjaClients($records),
             // 'quote' => $this->syncInvoices($records),
             // 'purchase_order' => $this->syncInvoices($records),
@@ -115,6 +118,7 @@ class QuickbooksSync implements ShouldQueue
 
     private function syncQbToNinjaInvoices($records): void
     {
+        nlog("invoice sync ". count($records));
         $invoice_transformer = new InvoiceTransformer($this->company);
         
         foreach($records as $record)
@@ -162,6 +166,11 @@ class QuickbooksSync implements ShouldQueue
 
                     $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
 
+                }
+
+                if($record instanceof IPPSalesReceipt)
+                {
+                    $invoice->service()->markPaid()->save();
                 }
 
             }
