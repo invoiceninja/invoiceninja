@@ -293,9 +293,11 @@ class PreviewController extends BaseController
         $ts = (new TemplateService());
 
         try {
+            
             $ts->setCompany($company)
                 ->setTemplate($design_object)
                 ->mock();
+
         } catch(SyntaxError $e) {
         } catch(\Exception $e) {
             return response()->json(['message' => 'invalid data access', 'errors' => ['design.design.body' => $e->getMessage()]], 422);
