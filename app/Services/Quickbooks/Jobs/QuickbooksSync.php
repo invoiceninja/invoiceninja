@@ -49,6 +49,7 @@ class QuickbooksSync implements ShouldQueue
         'purchase_order' => 'PurchaseOrder',
         'payment' => 'Payment',
         'sales' => 'SalesReceipt',
+        'vendor' => 'Vendor',
     ];
 
     private QuickbooksService $qbs;
