@@ -12,27 +12,34 @@
 namespace App\Services\Quickbooks\Jobs;
 
 use App\Models\Client;
+use App\Models\Vendor;
 use App\Models\Company;
+use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Product;
 use App\Libraries\MultiDB;
 use Illuminate\Bus\Queueable;
 use App\Factory\ClientFactory;
+use App\Factory\VendorFactory;
+use App\Factory\ExpenseFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
 use App\Factory\ClientContactFactory;
+use App\Factory\VendorContactFactory;
 use App\DataMapper\QuickbooksSettings;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\Quickbooks\QuickbooksService;
+use QuickBooksOnline\API\Data\IPPSalesReceipt;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
+use App\Services\Quickbooks\Transformers\VendorTransformer;
+use App\Services\Quickbooks\Transformers\ExpenseTransformer;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 use App\Services\Quickbooks\Transformers\ProductTransformer;
-use QuickBooksOnline\API\Data\IPPSalesReceipt;
 
 class QuickbooksSync implements ShouldQueue
 {
@@ -50,6 +57,7 @@ class QuickbooksSync implements ShouldQueue
         'payment' => 'Payment',
         'sales' => 'SalesReceipt',
         'vendor' => 'Vendor',
+        'expense' => 'Purchase',
     ];
 
     private QuickbooksService $qbs;
@@ -109,8 +117,9 @@ class QuickbooksSync implements ShouldQueue
             'product' => $this->syncQbToNinjaProducts($records),
             'invoice' => $this->syncQbToNinjaInvoices($records),
             'sales' => $this->syncQbToNinjaInvoices($records),
-            // 'vendor' => $this->syncQbToNinjaClients($records),
+            'vendor' => $this->syncQbToNinjaVendors($records),
             // 'quote' => $this->syncInvoices($records),
+            'expense' => $this->syncQbToNinjaExpenses($records),
             // 'purchase_order' => $this->syncInvoices($records),
             // 'payment' => $this->syncPayment($records), 
             default => false,
@@ -162,7 +171,7 @@ class QuickbooksSync implements ShouldQueue
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
                     $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                    $paymentable->created_at = $ninja_payment->date;
+                    $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
                     $paymentable->save();
 
                     $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
@@ -238,6 +247,60 @@ class QuickbooksSync implements ShouldQueue
         }
     }
 
+    private function syncQbToNinjaVendors(array $records): void
+    {
+
+        $transformer = new VendorTransformer($this->company);
+
+        foreach($records as $record)
+        {
+            $ninja_data = $transformer->qbToNinja($record);
+
+            if($vendor = $this->findVendor($ninja_data))
+            {
+                $vendor->fill($ninja_data[0]);
+                $vendor->saveQuietly();
+
+                $contact = $vendor->contacts()->where('email', $ninja_data[1]['email'])->first();
+
+                if(!$contact)
+                {
+                    $contact = VendorContactFactory::create($this->company->id, $this->company->owner()->id);
+                    $contact->vendor_id = $vendor->id;
+                    $contact->send_email = true;
+                    $contact->is_primary = true;
+                    $contact->fill($ninja_data[1]);
+                    $contact->saveQuietly(); 
+                }
+                elseif($this->updateGate('vendor')){
+                    $contact->fill($ninja_data[1]);
+                    $contact->saveQuietly();
+                }
+
+            }
+
+        }
+    }
+
+    private function syncQbToNinjaExpenses(array $records): void
+    {
+
+        $transformer = new ExpenseTransformer($this->company);
+
+        foreach($records as $record)
+        {
+            $ninja_data = $transformer->qbToNinja($record);
+
+            if($expense = $this->findExpense($ninja_data))
+            {
+                $expense->fill($ninja_data);
+                $expense->saveQuietly();
+            }
+
+        }
+    }
+
+
     private function syncQbToNinjaProducts($records): void
     {
         $product_transformer = new ProductTransformer($this->company);
@@ -254,6 +317,55 @@ class QuickbooksSync implements ShouldQueue
         }
     }
 
+    private function findExpense(array $qb_data): ?Expense
+    {
+        $expense = $qb_data;
+
+        $search = Expense::query()
+                        ->withTrashed()
+                        ->where('company_id', $this->company->id)
+                        ->where('number', $expense['number']);
+                        
+        if($search->count() == 0) {
+            return ExpenseFactory::create($this->company->id, $this->company->owner()->id);
+        }
+        elseif($search->count() == 1) {
+            return $this->settings['expense']['update_record'] ? $search->first() : null;
+        }
+        
+        return null;
+    }
+
+    private function findVendor(array $qb_data) :?Vendor
+    {
+        $vendor = $qb_data[0];
+        $contact = $qb_data[1];
+        $vendor_meta = $qb_data[2];
+
+        $search = Vendor::query()
+                        ->withTrashed()
+                        ->where('company_id', $this->company->id)
+                        ->where(function ($q) use ($vendor, $vendor_meta, $contact){
+
+                            $q->where('vendor_hash', $vendor_meta['vendor_hash'])
+                            ->orWhere('number', $vendor['number'])
+                            ->orWhereHas('contacts', function ($q) use ($contact){
+                                $q->where('email', $contact['email']);
+                            });
+
+                        });
+                        
+        if($search->count() == 0) {
+            //new client
+            return VendorFactory::create($this->company->id, $this->company->owner()->id);
+        }
+        elseif($search->count() == 1) {
+            return $this->settings['vendor']['update_record'] ? $search->first() : null;
+        }
+        
+        return null;
+    }
+
     private function findClient(array $qb_data) :?Client
     {
         $client = $qb_data[0];
@@ -266,7 +378,7 @@ class QuickbooksSync implements ShouldQueue
                         ->where(function ($q) use ($client, $client_meta, $contact){
 
                             $q->where('client_hash', $client_meta['client_hash'])
-                            ->orWhere('id_number', $client['id_number'])
+                            ->orWhere('number', $client['number'])
                             ->orWhereHas('contacts', function ($q) use ($contact){
                                 $q->where('email', $contact['email']);
                             });

@@ -21,7 +21,7 @@ class SdkWrapper
 {
     public const MAXRESULTS = 10000;
 
-    private $entities = ['Customer','Invoice','Item','SalesReceipt','Vendor'];
+    private $entities = ['Customer','Invoice','Item','SalesReceipt', 'Vendor', 'Purchase'];
 
     private OAuth2AccessToken $token;
 
@@ -180,13 +180,9 @@ class SdkWrapper
             $total = $this->totalRecords($entity);
             $total = min($max, $total);
 
-            nlog("total = {$total}");
-
             // Step 3 & 4: Get chunks of records until the total required records are retrieved
             do {
                 $limit = min(self::MAXRESULTS, $total - $start);
-
-                nlog("limit = {$limit}");
 
                 $recordsChunk = $this->queryData("select * from $entity", $start, $limit);
                 if(empty($recordsChunk)) {
@@ -195,7 +191,6 @@ class SdkWrapper
 
                 $records = array_merge($records, $recordsChunk);
                 $start += $limit;
-                nlog("start = {$start}");
 
             } while ($start < $total);
             if(empty($records)) {
@@ -205,8 +200,6 @@ class SdkWrapper
         } catch (\Throwable $th) {
             nlog("Fetch Quickbooks API Error: {$th->getMessage()}");
         }
-
-        // nlog($records);
 
         return $records;
     }

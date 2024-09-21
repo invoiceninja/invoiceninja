@@ -13,6 +13,7 @@
 namespace App\Services\Quickbooks\Transformers;
 
 use App\Models\Client;
+use App\Models\Vendor;
 use App\Models\Company;
 
 /**
@@ -31,10 +32,10 @@ class BaseTransformer
         $country = app('countries')->first(function ($c) use ($iso_3_code){
             
             /** @var \App\Models\Country $c */
-            return $c->iso_3166_3 == $iso_3_code;
+            return $c->iso_3166_3 == $iso_3_code || $c->name == $iso_3_code;
         });
         
-        return $country ? (string) $country->id : '840';
+        return $country ? (string) $country->id : $this->company->settings->country_id;
     }
 
     public function resolveCurrency(string $currency_code): string
@@ -47,7 +48,7 @@ class BaseTransformer
             return $c->code == $currency_code;
         });
         
-        return $currency ? (string) $currency->id : '1';
+        return $currency ? (string) $currency->id : $this->company->settings->currency_id;
     }
 
     public function getShipAddrCountry($data, $field)
@@ -65,10 +66,20 @@ class BaseTransformer
         $client = Client::query()
                     ->withTrashed()
                     ->where('company_id', $this->company->id)
-                    ->where('id_number', $customer_reference_id)
+                    ->where('number', $customer_reference_id)
                     ->first();
 
         return $client ? $client->id : null;
     }
 
+    public function getVendorId($customer_reference_id): ?int
+    {
+        $vendor = Vendor::query()
+                    ->withTrashed()
+                    ->where('company_id', $this->company->id)
+                    ->where('number', $customer_reference_id)
+                    ->first();
+        
+        return $vendor ? $vendor->id : null;
+    }
 }

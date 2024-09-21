@@ -2489,6 +2489,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'local_storage_required' => 'Erreur: le stockage local n\'est pas accessible.',
     'your_password_reset_link' => 'Réinitialiser votre mot de passe',
     'subdomain_taken' => 'Ce sous-domaine est déjà utilisé',
+    'expense_mailbox_taken' => 'La boîte de réception entrante est déjà utilisée',
+    'expense_mailbox_invalid' => 'La boîte de réception entrante ne correspond pas au schéma requis',
     'client_login' => 'Connexion client',
     'converted_amount' => 'Montant converti',
     'default' => 'Par défaut',
@@ -3886,7 +3888,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_method_saving_failed' => 'Ce mode de paiement ne peut pas être enregistré pour usage ultérieur.',
     'pay_with' => 'Payer avec',
     'n/a' => 'N/D',
-    'by_clicking_next_you_accept_terms' => 'En cliquant sur "Prochaine étape", vous acceptez les conditions.',
+    'by_clicking_next_you_accept_terms' => 'En cliquant sur "Suivant", vous acceptez les conditions.',
     'not_specified' => 'Non spécifié',
     'before_proceeding_with_payment_warning' => 'Avant de procéder au paiement, vous devez remplir les champs suivants',
     'after_completing_go_back_to_previous_page' => 'Retournez à la page précédente après avoir complété',
@@ -5326,6 +5328,11 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'payment_failed' => 'Le paiement a échoué',
     'ssl_host_override' => 'Substitution d\'hôte SSL',
     'upload_logo_short' => 'Téléverser un logo',
+    'country_Melilla' => 'Melilla',
+    'country_Ceuta' => 'Ceuta',
+    'country_Canary Islands' => 'Îles Canaries',
+    'invoice_status_changed' => 'Veuillez noter que l\'état de votre facture a été mis à jour. Nous vous recommandons de rafraîchir la page pour afficher la version la plus récente.',
+    'no_unread_notifications' => 'Vous êtes à jour! Aucune nouvelle notification.',
 );
 
 return $lang;
