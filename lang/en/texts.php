@@ -1705,6 +1705,7 @@ $lang = array(
     'lang_Serbian' => 'Serbian',
     'lang_Bulgarian' => 'Bulgarian',
     'lang_Russian (Russia)' => 'Russian (Russia)',
+    'lang_Vietnamse' => 'Tiếng Việt',
 
 
     // Industries
