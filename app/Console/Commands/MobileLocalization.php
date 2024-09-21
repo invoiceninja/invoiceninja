@@ -75,7 +75,7 @@ class MobileLocalization extends Command
 
     private function flutterResources()
     {
-        $languages = cache('languages');
+        $languages = app('languages');
         $resources = $this->getResources();
 
         foreach ($languages as $language) {
