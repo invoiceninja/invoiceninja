@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -14,14 +15,16 @@ namespace App\Events\Invoice;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Utils\Traits\Invoice\Broadcasting\DefaultInvoiceBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
 
 /**
  * Class InvoiceWasPaid.
  */
-class InvoiceWasPaid
+class InvoiceWasPaid implements ShouldBroadcast
 {
-    use SerializesModels;
+    use SerializesModels, DefaultInvoiceBroadcast;
 
     /**
      * @var Invoice
