@@ -5333,6 +5333,7 @@ $lang = array(
     'country_Melilla' => 'Melilla',
     'country_Ceuta' => 'Ceuta',
     'country_Canary Islands' => 'Canary Islands',
+    'lang_Vietnamese' => 'Vietnamese',
 );
 
 return $lang;

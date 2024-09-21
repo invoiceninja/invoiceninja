@@ -44,7 +44,7 @@ class ClientTransformer extends BaseTransformer
             'address1' => data_get($data, 'BillAddr.Line1', ''),
             'address2' => data_get($data, 'BillAddr.Line2', ''),
             'city' => data_get($data, 'BillAddr.City', ''),
-            'country_id' => $this->resolveCountry(data_get($data, 'BillAddr.Country', '')),
+            'country_id' => $this->resolveCountry(data_get($data, 'BillAddr.CountryCode', '')),
             'state' => data_get($data, 'BillAddr.CountrySubDivisionCode', ''),
             'postal_code' =>  data_get($data, 'BillAddr.PostalCode', ''),
             'shipping_address1' => data_get($data, 'ShipAddr.Line1', ''),
@@ -53,7 +53,7 @@ class ClientTransformer extends BaseTransformer
             'shipping_country_id' => $this->resolveCountry(data_get($data, 'ShipAddr.Country', '')),
             'shipping_state' => data_get($data, 'ShipAddr.CountrySubDivisionCode', ''),
             'shipping_postal_code' =>  data_get($data, 'BillAddr.PostalCode', ''),
-            'id_number' => data_get($data, 'Id.value', ''),
+            'number' => data_get($data, 'Id.value', ''),
         ];
         
             $settings = ClientSettings::defaults();
