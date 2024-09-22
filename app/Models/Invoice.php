@@ -765,7 +765,7 @@ class Invoice extends BaseModel
         $send_email_enabled =  ctrans('texts.send_email') . " " .ctrans('texts.enabled');
         $send_email_disabled =  ctrans('texts.send_email') . " " .ctrans('texts.disabled');
 
-        $sends_email_1 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $sends_email_1 = $settings->enable_reminder1 ? $send_email_enabled : $send_email_disabled;
         $days_1 = $settings->num_days_reminder1 . " " . ctrans('texts.days');
         $schedule_1 = ctrans("texts.{$settings->schedule_reminder1}"); //after due date etc or disabled
         $label_1 = ctrans('texts.reminder1');
@@ -775,7 +775,7 @@ class Invoice extends BaseModel
         $schedule_2 = ctrans("texts.{$settings->schedule_reminder2}"); //after due date etc or disabled
         $label_2 = ctrans('texts.reminder2');
 
-        $sends_email_3 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $sends_email_3 = $settings->enable_reminder3 ? $send_email_enabled : $send_email_disabled;
         $days_3 = $settings->num_days_reminder3 . " " . ctrans('texts.days');
         $schedule_3 = ctrans("texts.{$settings->schedule_reminder3}"); //after due date etc or disabled
         $label_3 = ctrans('texts.reminder3');
