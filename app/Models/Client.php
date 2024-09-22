@@ -11,23 +11,24 @@
 
 namespace App\Models;
 
+use Laravel\Scout\Searchable;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\DataMapper\FeesAndLimits;
+use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\Presenters\ClientPresenter;
-use App\Models\Traits\Excludable;
 use App\Services\Client\ClientService;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\ClientPresenter;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
 /**
  * App\Models\Client
@@ -123,6 +124,9 @@ class Client extends BaseModel implements HasLocalePreference
     use AppSetup;
     use ClientGroupSettingsSaver;
     use Excludable;
+
+    
+    use Searchable;
 
     protected $presenter = ClientPresenter::class;
 
@@ -232,6 +236,38 @@ class Client extends BaseModel implements HasLocalePreference
         'custom_value4',
     ];
 
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->present()->name(),
+            'is_deleted' => $this->is_deleted,
+            'hashed_id' => $this->hashed_id,
+            'number' => $this->number,
+            'id_number' => $this->id_number,
+            'vat_number' => $this->vat_number,
+            'balance' => $this->balance,
+            'paid_to_date' => $this->paid_to_date,
+            'phone' => $this->phone,
+            'address1' => $this->address1,
+            'address2' => $this->address2,
+            'city' => $this->city,
+            'state' => $this->state,
+            'postal_code' => $this->postal_code,
+            'website' => $this->website,
+            'private_notes' => $this->private_notes,
+            'public_notes' => $this->public_notes,
+            'shipping_address1' => $this->shipping_address1,
+            'shipping_address2' => $this->shipping_address2,
+            'shipping_city' => $this->shipping_city,
+            'shipping_state' => $this->shipping_state,
+            'shipping_postal_code' => $this->shipping_postal_code,
+            'custom_value1' => $this->custom_value1,
+            'custom_value2' => $this->custom_value2,
+            'custom_value3' => $this->custom_value3,
+            'custom_value4' => $this->custom_value4,
+            'company_key' => $this->company->company_key,
+        ];
+    }
 
     public function getEntityType()
     {

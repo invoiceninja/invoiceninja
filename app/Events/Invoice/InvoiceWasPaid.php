@@ -27,28 +27,14 @@ class InvoiceWasPaid implements ShouldBroadcast
     use SerializesModels, DefaultInvoiceBroadcast;
 
     /**
-     * @var Invoice
-     */
-    public $invoice;
-
-    public $payment;
-
-    public $company;
-
-    public $event_vars;
-
-    /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      * @param Company $company
+     * @param Payment $payment
      * @param array $event_vars
      */
-    public function __construct(Invoice $invoice, Payment $payment, Company $company, array $event_vars)
+    public function __construct(public Invoice $invoice, public Payment $payment, public Company $company, public array $event_vars)
     {
-        $this->invoice = $invoice;
-        $this->payment = $payment;
-        $this->company = $company;
-        $this->event_vars = $event_vars;
     }
 }

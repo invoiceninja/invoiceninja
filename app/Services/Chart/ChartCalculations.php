@@ -141,8 +141,8 @@ trait ChartCalculations
         }
 
         match ($data['calculation']) {
-            'sum' => $result = $q->sum('refunded'),
-            'avg' => $result = $q->avg('refunded'),
+            'sum' => $result = $q->sum('amount'),
+            'avg' => $result = $q->avg('amount'),
             'count' => $result = $q->count(),
             default => $result = 0,
         };
@@ -287,14 +287,14 @@ trait ChartCalculations
 
         return $query->get()
                     ->when($data['currency_id'] == '999', function ($collection) {
-                        $collection->map(function ($e) {
+                        return $collection->map(function ($e) {
                             /** @var \App\Models\Expense $e */
                             return $e->amount * $e->exchange_rate;
                         });
                     })
                     ->when($data['currency_id'] != '999', function ($collection) {
 
-                        $collection->map(function ($e) {
+                        return $collection->map(function ($e) {
 
                             /** @var \App\Models\Expense $e */
                             return $e->amount;

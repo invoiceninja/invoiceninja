@@ -11,22 +11,23 @@
 
 namespace App\Models;
 
-use App\Events\Invoice\InvoiceReminderWasEmailed;
-use App\Events\Invoice\InvoiceWasEmailed;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Models\Presenters\EntityPresenter;
-use App\Services\Invoice\InvoiceService;
-use App\Services\Ledger\LedgerService;
 use App\Utils\Ninja;
-use App\Utils\Traits\Invoice\ActionsInvoice;
+use Laravel\Scout\Searchable;
+use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesInvoiceValues;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
+use App\Services\Ledger\LedgerService;
+use App\Services\Invoice\InvoiceService;
+use App\Utils\Traits\MakesInvoiceValues;
+use App\Events\Invoice\InvoiceWasEmailed;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\EntityPresenter;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Utils\Traits\Invoice\ActionsInvoice;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\Invoice\InvoiceReminderWasEmailed;
 
 /**
  * App\Models\Invoice
@@ -144,6 +145,8 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
+    use Searchable;
+
     protected $presenter = EntityPresenter::class;
 
     protected $touches = [];
@@ -234,6 +237,25 @@ class Invoice extends BaseModel
     public const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
 
     public const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
+
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->client->present()->name() . ' - ' . $this->number,
+            'hashed_id' => $this->hashed_id,
+            'number' => $this->number,
+            'is_deleted' => $this->is_deleted,
+            'amount' => (float) $this->amount,
+            'balance' => (float) $this->balance,
+            'due_date' => $this->due_date,
+            'date' => $this->date,
+            'custom_value1' => $this->custom_value1,
+            'custom_value2' => $this->custom_value2,
+            'custom_value3' => $this->custom_value3,
+            'custom_value4' => $this->custom_value4,
+            'company_key' => $this->company->company_key,
+        ];
+    }
 
     public function getEntityType()
     {
