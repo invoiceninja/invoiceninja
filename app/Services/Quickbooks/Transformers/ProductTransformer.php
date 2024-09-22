@@ -30,8 +30,7 @@ class ProductTransformer extends BaseTransformer
 
     public function transform(mixed $data): array
     {
-        nlog(data_get($data, 'Id', null));
-
+        
         return [
             'id' => data_get($data, 'Id.value', null),
             'product_key' => data_get($data, 'Name', data_get($data, 'FullyQualifiedName','')),

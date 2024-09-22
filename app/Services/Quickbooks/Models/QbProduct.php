@@ -13,25 +13,24 @@ namespace App\Services\Quickbooks\Models;
 
 use App\DataMapper\ProductSync;
 use App\Services\Quickbooks\QuickbooksService;
-
 use App\Models\Product;
 use App\Factory\ProductFactory;
 use App\Services\Quickbooks\Transformers\ProductTransformer;
+use App\Interfaces\SyncInterface;
 
 
-class QbProduct
+class QbProduct implements SyncInterface
 {
     public function __construct(public QuickbooksService $service)
     {
     }
 
-    public function find(int $id)
+    public function find(string $id): mixed
     {
         return $this->service->sdk->FindById('Item', $id);
     }
 
-
-    public function syncToNinja(array $records)
+    public function syncToNinja(array $records): void
     {
         
         $product_transformer = new ProductTransformer($this->service->company);
@@ -46,6 +45,10 @@ class QbProduct
             }
         }
 
+    }
+
+    public function syncToForeign(array $records): void
+    {
     }
 
     private function findProduct(string $key): ?Product

@@ -40,6 +40,7 @@ class ClientTransformer extends BaseTransformer
         ];
 
         $client = [
+            'id' => data_get($data, 'Id.value', null),
             'name' => data_get($data,'CompanyName', ''),
             'address1' => data_get($data, 'BillAddr.Line1', ''),
             'address2' => data_get($data, 'BillAddr.Line2', ''),
