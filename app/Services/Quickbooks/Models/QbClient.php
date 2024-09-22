@@ -40,7 +40,7 @@ class QbClient implements SyncInterface
 
             if ($client = $this->findClient($ninja_data['id'])) {
                 $client->fill($ninja_data);
-                $client->save();
+                $client->service()->applyNumber()->save();
             }
         }
 

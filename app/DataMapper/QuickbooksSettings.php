@@ -41,7 +41,7 @@ class QuickbooksSettings implements Castable
         $this->accessTokenExpiresAt = $attributes['accessTokenExpiresAt'] ?? 0;
         $this->refreshTokenExpiresAt = $attributes['refreshTokenExpiresAt'] ?? 0;
         $this->baseURL = $attributes['baseURL'] ?? '';
-        $this->settings = new QuickbooksSync($attributes['settings']);
+        $this->settings = new QuickbooksSync($attributes['settings'] ?? []);
     }
 
     public static function castUsing(array $arguments): string

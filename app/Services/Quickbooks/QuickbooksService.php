@@ -18,13 +18,13 @@ use App\Models\Product;
 use App\Factory\ClientFactory;
 use App\Factory\InvoiceFactory;
 use App\Factory\ProductFactory;
+use App\DataMapper\QuickbooksSync;
 use App\Factory\ClientContactFactory;
-use App\DataMapper\QuickbooksSettings;
 use QuickBooksOnline\API\Core\CoreConstants;
 use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\Models\QbProduct;
-use App\Services\Quickbooks\Jobs\QuickbooksSync;
 use QuickBooksOnline\API\DataService\DataService;
+use App\Services\Quickbooks\Jobs\QuickbooksImport;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
@@ -38,7 +38,7 @@ class QuickbooksService
 
     public QbProduct $product;
 
-    public array $settings;
+    public QuickbooksSync $settings;
 
     private bool $testMode = true;
 
@@ -100,7 +100,7 @@ class QuickbooksService
      */
     public function syncFromQb(): void
     {
-        QuickbooksSync::dispatch($this->company->id, $this->company->db);
+        QuickbooksImport::dispatch($this->company->id, $this->company->db);
     }
 
 }
