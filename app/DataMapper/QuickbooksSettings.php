@@ -30,34 +30,28 @@ class QuickbooksSettings implements Castable
     public int $refreshTokenExpiresAt;
     
     public string $baseURL;
-    /** 
-     * entity client,invoice,quote,purchase_order,vendor,payment
-     * sync true/false
-     * update_record true/false
-     * direction push/pull/birectional
-     * */
-    public array $settings = [
-        'client' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'vendor' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'invoice' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'sales' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'quote' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'purchase_order' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'product' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'payment' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'vendor' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-        'expense' => ['sync' => true, 'update_record' => true, 'direction' => 'bidirectional'],
-    ];
+    
+    public QuickbooksSync $settings;
 
+    public function __construct(array $attributes = [])
+    {
+        $this->accessTokenKey = $attributes['accessTokenKey'] ?? '';
+        $this->refresh_token = $attributes['refresh_token'] ?? '';
+        $this->realmID = $attributes['realmID'] ?? '';
+        $this->accessTokenExpiresAt = $attributes['accessTokenExpiresAt'] ?? 0;
+        $this->refreshTokenExpiresAt = $attributes['refreshTokenExpiresAt'] ?? 0;
+        $this->baseURL = $attributes['baseURL'] ?? '';
+        $this->settings = new QuickbooksSync($attributes['settings']);
+    }
 
-    /**
-     * Get the name of the caster class to use when casting from / to this cast target.
-     *
-     * @param  array<string, mixed>  $arguments
-     */
     public static function castUsing(array $arguments): string
     {
         return QuickbooksSettingsCast::class;
+    }
+
+    public static function fromArray(array $data): self
+    {
+        return new self($data);
     }
 
 }

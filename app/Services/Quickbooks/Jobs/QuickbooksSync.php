@@ -104,7 +104,7 @@ class QuickbooksSync implements ShouldQueue
      */
     private function syncGate(string $entity, string $direction): bool
     {
-        return (bool) $this->settings[$entity]['sync'] && in_array($this->settings[$entity]['direction'], [$direction,'bidirectional']);
+        return (bool) $this->settings->{$entity}->sync && in_array($this->settings->{$entity}->direction, [$direction,'bidirectional']);
     }
     
     /**
@@ -115,7 +115,7 @@ class QuickbooksSync implements ShouldQueue
      */
     private function updateGate(string $entity): bool
     {
-        return (bool) $this->settings[$entity]['sync'] && $this->settings[$entity]['update_record'];
+        return (bool) $this->settings->{$entity}->sync && $this->settings->{$entity}->update_record;
     }
 
     /**
@@ -222,7 +222,7 @@ class QuickbooksSync implements ShouldQueue
 
             return $invoice;
         } elseif($search->count() == 1) {
-            return $this->settings['invoice']['update_record'] ? $search->first() : null;
+            return $this->settings->invoice->update_record ? $search->first() : null;
         }
 
         return null;
@@ -347,7 +347,7 @@ class QuickbooksSync implements ShouldQueue
             return ExpenseFactory::create($this->company->id, $this->company->owner()->id);
         }
         elseif($search->count() == 1) {
-            return $this->settings['expense']['update_record'] ? $search->first() : null;
+            return $this->settings->expense->update_record ? $search->first() : null;
         }
         
         return null;
@@ -377,7 +377,7 @@ class QuickbooksSync implements ShouldQueue
             return VendorFactory::create($this->company->id, $this->company->owner()->id);
         }
         elseif($search->count() == 1) {
-            return $this->settings['vendor']['update_record'] ? $search->first() : null;
+            return $this->settings->vendor->update_record ? $search->first() : null;
         }
         
         return null;
@@ -411,7 +411,7 @@ class QuickbooksSync implements ShouldQueue
             return $client;
         }
         elseif($search->count() == 1) {
-            return $this->settings['client']['update_record'] ? $search->first() : null;
+            return $this->settings->client->update_record ? $search->first() : null;
         }
         
         return null;

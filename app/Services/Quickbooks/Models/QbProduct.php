@@ -66,7 +66,7 @@ class QbProduct
             return $product;
 
         } elseif($search->count() == 1) {
-            return $this->service->settings['product']['update_record'] ? $search->first() : null;
+            return $this->service->settings->product->update_record ? $search->first() : null;
         }
 
         return null;
