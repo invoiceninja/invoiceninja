@@ -128,7 +128,7 @@ class SearchController extends Controller
                 case 'client_contacts':
 
                     if($result['_source']['__soft_deleted']) // do not return deleted contacts
-                        continue;
+                        break;
 
                     $this->client_contacts[] = [
                         'name' => $result['_source']['name'],
