@@ -11,16 +11,19 @@
 
 namespace App\Services\Quickbooks;
 
-use App\Factory\ClientContactFactory;
-use App\Factory\ClientFactory;
-use App\Factory\InvoiceFactory;
-use App\Factory\ProductFactory;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Product;
-use App\Services\Quickbooks\Jobs\QuickbooksSync;
+use App\Factory\ClientFactory;
+use App\Factory\InvoiceFactory;
+use App\Factory\ProductFactory;
+use App\Factory\ClientContactFactory;
+use App\DataMapper\QuickbooksSettings;
 use QuickBooksOnline\API\Core\CoreConstants;
+use App\Services\Quickbooks\Models\QbInvoice;
+use App\Services\Quickbooks\Models\QbProduct;
+use App\Services\Quickbooks\Jobs\QuickbooksSync;
 use QuickBooksOnline\API\DataService\DataService;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
@@ -31,9 +34,15 @@ class QuickbooksService
 {
     public DataService $sdk;
 
+    public QbInvoice $invoice;
+
+    public QbProduct $product;
+
+    public array $settings;
+
     private bool $testMode = true;
 
-    public function __construct(private Company $company)
+    public function __construct(public Company $company)
     {
         $this->init();
     }
@@ -61,6 +70,12 @@ class QuickbooksService
         $this->sdk->setMinorVersion("73");
         $this->sdk->throwExceptionOnError(true);
 
+        $this->invoice = new QbInvoice($this);
+        
+        $this->product = new QbProduct($this);
+
+        $this->settings = $this->company->quickbooks->settings;
+        
         return $this;
     }
 

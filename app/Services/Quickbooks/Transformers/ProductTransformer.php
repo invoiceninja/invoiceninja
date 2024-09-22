@@ -33,7 +33,7 @@ class ProductTransformer extends BaseTransformer
         nlog(data_get($data, 'Id', null));
 
         return [
-            'hash' => data_get($data, 'Id.value', null),
+            'id' => data_get($data, 'Id.value', null),
             'product_key' => data_get($data, 'Name', data_get($data, 'FullyQualifiedName','')),
             'notes' => data_get($data, 'Description', ''),
             'cost' => data_get($data, 'PurchaseCost', 0),

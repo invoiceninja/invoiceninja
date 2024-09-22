@@ -38,6 +38,7 @@ class InvoiceTransformer extends BaseTransformer
         $client_id = $this->getClientId(data_get($qb_data, 'CustomerRef.value', null));
 
         return $client_id ? [
+            'id' => data_get($qb_data, 'Id.value', false),
             'client_id' => $client_id,
             'number' => data_get($qb_data, 'DocNumber', false),
             'date' => data_get($qb_data, 'TxnDate', now()->format('Y-m-d')),

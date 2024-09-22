@@ -18,6 +18,7 @@ use App\Utils\Traits\MakesDates;
 use App\DataMapper\FeesAndLimits;
 use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
+use App\DataMapper\ClientSync;
 use App\DataMapper\CompanySettings;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\GeneratesCounter;
@@ -70,6 +71,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $shipping_country_id
  * @property object|null $settings
  * @property object|null $group_settings
+ * @property object|null $sync
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number
@@ -190,6 +192,7 @@ class Client extends BaseModel implements HasLocalePreference
         'last_login' => 'timestamp',
         'tax_data' => 'object',
         'e_invoice' => 'object',
+        'sync' => ClientSync::class,
     ];
 
     protected $touches = [];

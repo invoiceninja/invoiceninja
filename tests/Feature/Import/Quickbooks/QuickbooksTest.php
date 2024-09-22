@@ -12,11 +12,14 @@ use Tests\MockAccountData;
 use Illuminate\Support\Facades\Cache;
 use Mockery;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Product;
 use App\Models\Invoice;
+use App\Services\Quickbooks\QuickbooksService;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Illuminate\Support\Facades\Auth;
+use QuickBooksOnline\API\Facades\Invoice as QbInvoice;
 
 class QuickbooksTest extends TestCase
 {
@@ -29,13 +32,25 @@ class QuickbooksTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-        $this->markTestSkipped('no bueno');
+        parent::setUp();      
         
+        if(config('ninja.is_travis'))
+        {
+            $this->markTestSkipped('No need to run this test on Travis');
+        }
+        elseif(Company::whereNotNull('quickbooks')->count() == 0){
+            $this->markTestSkipped('No need to run this test on Travis');
+        }
     }
 
-    public function testCustomerSync()
+    public function testCreateInvoiceInQb()
     {
-        $data = (json_decode(file_get_contents(base_path('tests/Feature/Import/Quickbooks/customers.json')), false));
+
+        $c = Company::whereNotNull('quickbooks')->first();
+
+        $qb = new QuickbooksService($c);
+
+        
+
     }
 }

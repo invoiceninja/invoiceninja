@@ -52,12 +52,12 @@ class QuickbooksSync implements ShouldQueue
         'product' => 'Item',
         'client' => 'Customer',
         'invoice' => 'Invoice',
-        'quote' => 'Estimate',
-        'purchase_order' => 'PurchaseOrder',
-        'payment' => 'Payment',
+        // 'quote' => 'Estimate',
+        // 'purchase_order' => 'PurchaseOrder',
+        // 'payment' => 'Payment',
         'sales' => 'SalesReceipt',
-        'vendor' => 'Vendor',
-        'expense' => 'Purchase',
+        // 'vendor' => 'Vendor',
+        // 'expense' => 'Purchase',
     ];
 
     private QuickbooksService $qbs;
@@ -81,8 +81,8 @@ class QuickbooksSync implements ShouldQueue
         $this->qbs = new QuickbooksService($this->company);
         $this->settings =  $this->company->quickbooks->settings;
    
-        nlog("here we go!");
         foreach($this->entities as $key => $entity) {
+   
             if(!$this->syncGate($key, 'pull')) {
                 continue;
             }
@@ -94,34 +94,49 @@ class QuickbooksSync implements ShouldQueue
         }
 
     }
-
+    
+    /**
+     * Determines whether a sync is allowed based on the settings
+     *
+     * @param  string $entity
+     * @param  string $direction
+     * @return bool
+     */
     private function syncGate(string $entity, string $direction): bool
     {
         return (bool) $this->settings[$entity]['sync'] && in_array($this->settings[$entity]['direction'], [$direction,'bidirectional']);
     }
-
+    
+    /**
+     * Updates the gate for a given entity
+     *
+     * @param  string $entity
+     * @return bool
+     */
     private function updateGate(string $entity): bool
     {
         return (bool) $this->settings[$entity]['sync'] && $this->settings[$entity]['update_record'];
     }
 
-    // private function harvestQbEntityName(string $entity): string
-    // {
-    //     return $this->entities[$entity];
-    // }
-
-    private function processEntitySync(string $entity, $records)
+    /**
+     * Processes the sync for a given entity
+     *
+     * @param  string $entity
+     * @param  mixed $records
+     * @return void
+     */
+    private function processEntitySync(string $entity, $records): void 
     {
         match($entity){
-            'client' => $this->syncQbToNinjaClients($records),
-            'product' => $this->syncQbToNinjaProducts($records),
-            'invoice' => $this->syncQbToNinjaInvoices($records),
-            'sales' => $this->syncQbToNinjaInvoices($records),
-            'vendor' => $this->syncQbToNinjaVendors($records),
-            // 'quote' => $this->syncInvoices($records),
-            'expense' => $this->syncQbToNinjaExpenses($records),
-            // 'purchase_order' => $this->syncInvoices($records),
-            // 'payment' => $this->syncPayment($records), 
+                // 'client' => $this->syncQbToNinjaClients($records),
+            'product' => $this->qbs->product->syncToNinja($records),
+                // 'invoice' => $this->syncQbToNinjaInvoices($records),
+                // 'sales' => $this->syncQbToNinjaInvoices($records),
+                // 'vendor' => $this->syncQbToNinjaVendors($records),
+                // 'quote' => $this->syncInvoices($records),
+                // 'expense' => $this->syncQbToNinjaExpenses($records),
+                // 'purchase_order' => $this->syncInvoices($records),
+                // 'payment' => $this->syncPayment($records), 
             default => false,
         };
     }
@@ -140,6 +155,7 @@ class QuickbooksSync implements ShouldQueue
             nlog($ninja_invoice_data);
 
             $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
+
             $client_id = $ninja_invoice_data['client_id'] ?? null;
 
             if(is_null($client_id))
@@ -152,7 +168,7 @@ class QuickbooksSync implements ShouldQueue
                 $invoice->fill($ninja_invoice_data);
                 $invoice->saveQuietly();
 
-                $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
+                $invoice = $invoice->calc()->getInvoice()->service()->markSent()->createInvitations()->save();
             
                 foreach($payment_ids as $payment_id)
                 {
@@ -196,7 +212,8 @@ class QuickbooksSync implements ShouldQueue
         $search = Invoice::query()
                             ->withTrashed()
                             ->where('company_id', $this->company->id)
-                            ->where('number', $ninja_invoice_data['number']);
+                            // ->where('number', $ninja_invoice_data['number']);
+                            ->where('sync->qb_id', $ninja_invoice_data['id']);
 
         if($search->count() == 0) {
             //new invoice
@@ -400,27 +417,7 @@ class QuickbooksSync implements ShouldQueue
         return null;
     }
 
-    private function findProduct(string $key): ?Product
-    {
-        $search = Product::query()
-                         ->withTrashed()
-                         ->where('company_id', $this->company->id)
-                         ->where('hash', $key);
-             
-        if($search->count() == 0) {
-            //new product
-            $product = ProductFactory::create($this->company->id, $this->company->owner()->id);
-            $product->hash = $key;
-            
-            return $product;
-        } elseif($search->count() == 1) {
-            return $this->settings['product']['update_record'] ? $search->first() : null;
-        }
-
-        return null;
-
-
-    }
+    
 
     public function middleware()
     {

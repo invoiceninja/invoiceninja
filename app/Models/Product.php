@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\ProductSync;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use League\CommonMark\CommonMarkConverter;
@@ -43,6 +44,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property int|null $deleted_at
  * @property int|null $created_at
  * @property int|null $updated_at
+ * @property object|null $sync
  * @property bool $is_deleted
  * @property float $in_stock_quantity
  * @property bool $stock_notification
@@ -98,6 +100,13 @@ class Product extends BaseModel
         'max_quantity',
         'product_image',
         'tax_id',
+    ];
+
+    protected $casts = [
+        'updated_at' => 'timestamp',
+        'created_at' => 'timestamp',
+        'deleted_at' => 'timestamp',
+        'sync' => ProductSync::class,
     ];
 
     public array $ubl_tax_map = [

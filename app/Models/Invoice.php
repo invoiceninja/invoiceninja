@@ -11,6 +11,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\InvoiceSync;
 use App\Utils\Ninja;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Carbon;
@@ -53,6 +54,7 @@ use App\Events\Invoice\InvoiceReminderWasEmailed;
  * @property bool $is_deleted
  * @property object|array|string $line_items
  * @property object|null $backup
+ * @property object|null $sync
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
@@ -213,6 +215,8 @@ class Invoice extends BaseModel
         'custom_surcharge_tax3' => 'bool',
         'custom_surcharge_tax4' => 'bool',
         'e_invoice' => 'object',
+        'sync' => InvoiceSync::class,
+
     ];
 
     protected $with = [];
