@@ -100,8 +100,9 @@ class SearchController extends Controller
             switch($result['_index']) {
                 case 'clients':
 
-                    if($result['_source']['is_deleted'])
-                        continue;
+                    if($result['_source']['is_deleted']) //do not return deleted results
+                        break;
+                    
 
                     $this->clients[] = [
                         'name' => $result['_source']['name'],
@@ -113,9 +114,9 @@ class SearchController extends Controller
                     break;
                 case 'invoices':
 
-                    if ($result['_source']['is_deleted']) {
-                        continue;
-                    }
+                    if ($result['_source']['is_deleted'])  //do not return deleted invoices
+                        break;
+                    
 
                     $this->invoices[] = [
                         'name' => $result['_source']['name'],
@@ -126,7 +127,7 @@ class SearchController extends Controller
                     break;
                 case 'client_contacts':
 
-                    if($result['_source']['__soft_deleted'])
+                    if($result['_source']['__soft_deleted']) // do not return deleted contacts
                         continue;
 
                     $this->client_contacts[] = [
