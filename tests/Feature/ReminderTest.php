@@ -508,7 +508,7 @@ class ReminderTest extends TestCase
         $fee = collect($this->invoice->line_items)->where('cost', 102)->first();
 
         $this->assertEquals(102, $fee->cost);
-        $this->assertEquals('Late fee added on '.now()->format('d/M/Y'), $fee->notes);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
 
         $this->travelTo(now()->addDay()->startOfDay()->addHour());
 
@@ -520,7 +520,7 @@ class ReminderTest extends TestCase
         $fee = collect($this->invoice->line_items)->where('cost', 103)->first();
 
         $this->assertEquals(103, $fee->cost);
-        $this->assertEquals('Late fee added on '.now()->format('d/M/Y'), $fee->notes);
+        $this->assertEquals('Fee added '.now()->format('d/M/Y'), $fee->notes);
 
         $this->travelBack();
 
