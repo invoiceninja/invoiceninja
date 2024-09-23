@@ -80,16 +80,16 @@ class QbProduct implements SyncInterface
 
     }
 
-    public function sync(string $id): void
+    public function sync(string $id, string $last_updated): void
     {
         $qb_record = $this->find($id);
 
         if($ninja_record = $this->findProduct($id))
         {
 
-            if(Carbon::parse($qb_record->lastUpdated) > Carbon::parse($ninja_record->updated_at))
+            if(Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at))
             {
-                $transformed_qb_product = $this->product_transformer($qb_record);
+                $ninja_data = $this->product_transformer->qbToNinja($qb_record);
                 
                 $ninja_record->fill($ninja_data);
                 $ninja_record->save();
