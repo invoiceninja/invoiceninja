@@ -59,6 +59,8 @@ class PdfSlot extends Component
 
     public $html_entity_option = true;
 
+    public ?string $with_close_button = null;
+
     public function mount()
     {
         MultiDB::setDb($this->db);
