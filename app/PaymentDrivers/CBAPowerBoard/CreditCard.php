@@ -39,7 +39,6 @@ class CreditCard implements LivewireMethodInterface
     public function authorizeView(array $data)
     {
         $data['payment_method_id'] = GatewayType::CREDIT_CARD;
-        $data['threeds'] = $this->powerboard->company_gateway->getConfigField('threeds');
 
         return render('gateways.powerboard.credit_card.authorize', $this->paymentData($data));
     }

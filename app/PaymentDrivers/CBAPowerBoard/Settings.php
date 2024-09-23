@@ -35,8 +35,6 @@ class Settings
 
         if($r->failed())
             $r->throw();
-
-        nlog($r->object());
         
         return (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class."[]", $r->object()->resource->data);
 
@@ -68,7 +66,11 @@ class Settings
             default => $type = self::GATEWAY_CBA,
         };
 
+        if($type == self::GATEWAY_CBA)
+            return $this->powerboard->company_gateway->getConfigField('gatewayId') ?? $this->getGatewayByType($type);
+
         return $this->getGatewayByType($type);
+
     }
 
     private function getGatewayByType(string $gateway_type_const): mixed

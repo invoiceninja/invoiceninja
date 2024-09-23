@@ -96,13 +96,13 @@ class SearchController extends Controller
 
     private function mapResults(array $results)
     {
+
         foreach($results as $result) {
             switch($result['_index']) {
                 case 'clients':
 
                     if($result['_source']['is_deleted']) //do not return deleted results
                         break;
-                    
 
                     $this->clients[] = [
                         'name' => $result['_source']['name'],
