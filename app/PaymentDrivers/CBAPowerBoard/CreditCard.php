@@ -451,7 +451,6 @@ class CreditCard implements LivewireMethodInterface
             match($error_object->error->code) {
                 "UnfulfilledCondition" => $error_message = $error_object->error->details->messages[0] ?? $error_object->error->message ?? "Unknown error",
                 "GatewayError" => $error_message = $error_object->error->message,
-                "UnfulfilledCondition" => $error_message = $error_object->error->message,
                 "transaction_declined" => $error_message = $error_object->error->details[0]->status_code_description,
                 default => $error_message = $error_object->error->message ?? "Unknown error",
             };
