@@ -1705,7 +1705,7 @@ $lang = array(
     'lang_Serbian' => 'Serbian',
     'lang_Bulgarian' => 'Bulgarian',
     'lang_Russian (Russia)' => 'Russian (Russia)',
-
+    'lang_Vietnamese' => 'Tiếng Việt',
 
     // Industries
     'industry_Accounting & Legal' => 'Kế toán &amp; Pháp lý',
