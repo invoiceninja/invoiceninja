@@ -66,9 +66,10 @@ class Settings
             default => $type = self::GATEWAY_CBA,
         };
 
-        if($type == self::GATEWAY_CBA)
-            return $this->powerboard->company_gateway->getConfigField('gatewayId') ?? $this->getGatewayByType($type);
-
+        if($type == self::GATEWAY_CBA && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1){
+            return $this->powerboard->company_gateway->getConfigField('gatewayId');
+        }
+            
         return $this->getGatewayByType($type);
 
     }
