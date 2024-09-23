@@ -138,7 +138,7 @@ class QuickbooksService
     }
     
     /**
-     * Tests whether to update a record based on the sync settings.
+     * Updates the gate for a given entity
      *
      * @param  string $entity
      * @return bool

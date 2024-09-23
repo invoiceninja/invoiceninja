@@ -131,6 +131,7 @@ class ZugferdEDocument extends AbstractService
                 $vendor->postal_code = $postcode;
 
                 $country = app('countries')->first(function ($c) use ($country) {
+                    /** @var \App\Models\Country $c */
                     return $c->iso_3166_2 == $country || $c->iso_3166_3 == $country;
                 });
                 if ($country)

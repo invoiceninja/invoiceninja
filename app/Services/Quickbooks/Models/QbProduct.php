@@ -84,7 +84,7 @@ class QbProduct implements SyncInterface
     {
         $qb_record = $this->find($id);
 
-        if($ninja_record = $this->findProduct($id))
+        if($this->service->updateGate('product') && $ninja_record = $this->findProduct($id))
         {
 
             if(Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at))
