@@ -35,6 +35,10 @@ class TaxModel
             $this->regions = $this->init();
         } else {
 
+            if(!$model->seller_subregion) {
+                $this->seller_subregion = '';
+            }
+
             //@phpstan-ignore-next-line
             foreach($model as $key => $value) {
                 $this->{$key} = $value;
