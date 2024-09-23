@@ -33,7 +33,10 @@ class QuickbooksSyncMap
     {
         $this->sync = $attributes['sync'] ?? true;
         $this->update_record = $attributes['update_record'] ?? true;
-        $this->direction = $attributes['direction'] ?? SyncDirection::BIDIRECTIONAL;
+        $this->direction = isset($attributes['direction'])
+           ? SyncDirection::from($attributes['direction'])
+           : SyncDirection::BIDIRECTIONAL;
+
     }
 }
 

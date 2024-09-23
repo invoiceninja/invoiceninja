@@ -585,7 +585,7 @@ class Invoice extends BaseModel
      * Filtering logic to determine
      * whether an invoice is locked
      * based on the current status of the invoice.
-     * @return bool [description]
+     * @return bool
      */
     public function isLocked(): bool
     {
@@ -595,7 +595,7 @@ class Invoice extends BaseModel
             case 'off':
                 return false;
             case 'when_sent':
-                return $this->status_id == self::STATUS_SENT;
+                return $this->status_id >= self::STATUS_SENT;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
             case 'end_of_month':
