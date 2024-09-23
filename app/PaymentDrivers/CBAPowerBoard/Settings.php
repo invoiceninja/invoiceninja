@@ -66,12 +66,7 @@ class Settings
             default => $type = self::GATEWAY_CBA,
         };
 
-        if($type == self::GATEWAY_CBA && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1){
-            return $this->powerboard->company_gateway->getConfigField('gatewayId');
-        }
-            
         return $this->getGatewayByType($type);
-
     }
 
     private function getGatewayByType(string $gateway_type_const): mixed
@@ -92,6 +87,11 @@ class Settings
 
     public function getGatewayId(int $gateway_type_id): string
     {
+
+        if ($gateway_type_id == GatewayType::CREDIT_CARD && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1) {
+            return $this->powerboard->company_gateway->getConfigField('gatewayId');
+        }
+
         $gateway = $this->getPaymentGatewayConfiguration($gateway_type_id);
 
         return $gateway->_id;
