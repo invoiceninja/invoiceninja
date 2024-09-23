@@ -25,6 +25,7 @@ use App\Services\Quickbooks\Models\QbInvoice;
 use App\Services\Quickbooks\Models\QbProduct;
 use QuickBooksOnline\API\DataService\DataService;
 use App\Services\Quickbooks\Jobs\QuickbooksImport;
+use App\Services\Quickbooks\Models\QbClient;
 use App\Services\Quickbooks\Transformers\ClientTransformer;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
@@ -38,9 +39,13 @@ class QuickbooksService
 
     public QbProduct $product;
 
+    public QbClient $client;
+
     public QuickbooksSync $settings;
 
     private bool $testMode = true;
+
+    private bool $try_refresh = true;
 
     public function __construct(public Company $company)
     {
@@ -70,13 +75,37 @@ class QuickbooksService
         $this->sdk->setMinorVersion("73");
         $this->sdk->throwExceptionOnError(true);
 
+        $this->checkToken();
+
         $this->invoice = new QbInvoice($this);
         
         $this->product = new QbProduct($this);
 
+        $this->client = new QbClient($this);
+
         $this->settings = $this->company->quickbooks->settings;
         
         return $this;
+    }
+
+    private function checkToken(): self
+    {
+        
+        if($this->company->quickbooks->accessTokenKey > time())
+            return $this;
+
+        if($this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh){
+            $this->sdk()->refreshToken($this->company->quickbooks->refresh_token);
+            $this->company = $this->company->fresh();
+            $this->try_refresh = false;
+            $this->init();
+
+            return $this;
+        }
+
+        nlog('Quickbooks token expired and could not be refreshed => ' .$this->company->company_key);
+        throw new \Exception('Quickbooks token expired and could not be refreshed');
+
     }
 
     private function ninjaAccessToken(): array
@@ -103,4 +132,8 @@ class QuickbooksService
         QuickbooksImport::dispatch($this->company->id, $this->company->db);
     }
 
+    public function findEntityById(string $entity, string $id): mixed
+    {
+        return $this->sdk->FindById($entity, $id);
+    }
 }

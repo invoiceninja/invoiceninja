@@ -11,18 +11,24 @@
 
 namespace App\Services\Quickbooks\Models;
 
-use App\DataMapper\ProductSync;
-use App\Services\Quickbooks\QuickbooksService;
+use Carbon\Carbon;
 use App\Models\Product;
+use App\DataMapper\ProductSync;
 use App\Factory\ProductFactory;
-use App\Services\Quickbooks\Transformers\ProductTransformer;
 use App\Interfaces\SyncInterface;
+use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\Transformers\ProductTransformer;
 
 
 class QbProduct implements SyncInterface
 {
+    protected ProductTransformer $product_transformer;
+
     public function __construct(public QuickbooksService $service)
     {
+        
+        $this->product_transformer = new ProductTransformer($service->company);
+
     }
 
     public function find(string $id): mixed
@@ -33,11 +39,9 @@ class QbProduct implements SyncInterface
     public function syncToNinja(array $records): void
     {
         
-        $product_transformer = new ProductTransformer($this->service->company);
-
         foreach ($records as $record) {
 
-            $ninja_data = $product_transformer->qbToNinja($record);
+            $ninja_data = $this->product_transformer->qbToNinja($record);
 
             if ($product = $this->findProduct($ninja_data['id'])) {
                 $product->fill($ninja_data);
@@ -74,6 +78,25 @@ class QbProduct implements SyncInterface
 
         return null;
 
+    }
+
+    public function sync(string $id): void
+    {
+        $qb_record = $this->find($id);
+
+        if($ninja_record = $this->findProduct($id))
+        {
+
+            if(Carbon::parse($qb_record->lastUpdated) > Carbon::parse($ninja_record->updated_at))
+            {
+                $transformed_qb_product = $this->product_transformer($qb_record);
+                
+                $ninja_record->fill($ninja_data);
+                $ninja_record->save();
+
+            }
+
+        }
 
     }
 }

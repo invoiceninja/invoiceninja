@@ -11,12 +11,13 @@
 
 namespace App\Services\Quickbooks\Models;
 
-use App\DataMapper\ClientSync;
-use App\Services\Quickbooks\QuickbooksService;
 use App\Models\Client;
+use App\DataMapper\ClientSync;
 use App\Factory\ClientFactory;
-use App\Services\Quickbooks\Transformers\ClientTransformer;
 use App\Interfaces\SyncInterface;
+use App\Factory\ClientContactFactory;
+use App\Services\Quickbooks\QuickbooksService;
+use App\Services\Quickbooks\Transformers\ClientTransformer;
 
 class QbClient implements SyncInterface
 {
@@ -38,9 +39,41 @@ class QbClient implements SyncInterface
 
             $ninja_data = $transformer->qbToNinja($record);
 
-            if ($client = $this->findClient($ninja_data['id'])) {
-                $client->fill($ninja_data);
+            if($ninja_data[0]['terms']){
+
+                $days =  $this->service->findEntityById('Term', $ninja_data[0]['terms']);
+
+                nlog($days);
+
+                if($days){
+                    $ninja_data[0]['settings']->payment_terms = (string)$days->DueDays;
+                }
+
+            }
+
+            if ($client = $this->findClient($ninja_data[0]['id'])) {
+
+                $qbc = $this->find($ninja_data[0]['id']);
+
+                $client->fill($ninja_data[0]);
                 $client->service()->applyNumber()->save();
+
+                $contact = $client->contacts()->where('email', $ninja_data[1]['email'])->first();
+
+                if(!$contact)
+                {
+                    $contact = ClientContactFactory::create($this->service->company->id, $this->service->company->owner()->id);
+                    $contact->client_id = $client->id;
+                    $contact->send_email = true;
+                    $contact->is_primary = true;
+                    $contact->fill($ninja_data[1]);
+                    $contact->saveQuietly();
+                }
+                elseif($this->updateGate('client')){
+                    $contact->fill($ninja_data[1]);
+                    $contact->saveQuietly();
+                }
+
             }
         }
 
@@ -48,6 +81,11 @@ class QbClient implements SyncInterface
 
     public function syncToForeign(array $records): void
     {
+    }
+
+    private function updateGate(string $entity): bool
+    {
+        return (bool) $this->service->settings->{$entity}->sync && $this->service->settings->{$entity}->update_record;
     }
 
     private function findClient(string $key): ?Client

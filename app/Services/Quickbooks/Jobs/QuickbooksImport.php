@@ -84,8 +84,6 @@ class QuickbooksImport implements ShouldQueue
    
         foreach($this->entities as $key => $entity) {
    
-            nlog($key);
-
             if(!$this->syncGate($key, 'pull')) {
                 nlog('skipping ' . $key);
                 continue;
@@ -132,7 +130,7 @@ class QuickbooksImport implements ShouldQueue
     private function processEntitySync(string $entity, $records): void 
     {
         match($entity){
-            'client' => $this->syncQbToNinjaClients($records),
+            'client' => $this->qbs->client->syncToNinja($records),
             'product' => $this->qbs->product->syncToNinja($records),
                 // 'invoice' => $this->syncQbToNinjaInvoices($records),
                 // 'sales' => $this->syncQbToNinjaInvoices($records),
@@ -233,40 +231,40 @@ class QuickbooksImport implements ShouldQueue
 
     }
 
-    private function syncQbToNinjaClients(array $records): void
-    {
+    // private function syncQbToNinjaClients(array $records): void
+    // {
 
-        $client_transformer = new ClientTransformer($this->company);
+    //     $client_transformer = new ClientTransformer($this->company);
 
-        foreach($records as $record)
-        {
-            $ninja_client_data = $client_transformer->qbToNinja($record);
+    //     foreach($records as $record)
+    //     {
+    //         $ninja_client_data = $client_transformer->qbToNinja($record);
 
-            if($client = $this->findClient($ninja_client_data))
-            {
-                $client->fill($ninja_client_data[0]);
-                $client->saveQuietly();
+    //         if($client = $this->findClient($ninja_client_data))
+    //         {
+    //             $client->fill($ninja_client_data[0]);
+    //             $client->saveQuietly();
 
-                $contact = $client->contacts()->where('email', $ninja_client_data[1]['email'])->first();
+    //             $contact = $client->contacts()->where('email', $ninja_client_data[1]['email'])->first();
 
-                if(!$contact)
-                {
-                    $contact = ClientContactFactory::create($this->company->id, $this->company->owner()->id);
-                    $contact->client_id = $client->id;
-                    $contact->send_email = true;
-                    $contact->is_primary = true;
-                    $contact->fill($ninja_client_data[1]);
-                    $contact->saveQuietly(); 
-                }
-                elseif($this->updateGate('client')){
-                    $contact->fill($ninja_client_data[1]);
-                    $contact->saveQuietly();
-                }
+    //             if(!$contact)
+    //             {
+    //                 $contact = ClientContactFactory::create($this->company->id, $this->company->owner()->id);
+    //                 $contact->client_id = $client->id;
+    //                 $contact->send_email = true;
+    //                 $contact->is_primary = true;
+    //                 $contact->fill($ninja_client_data[1]);
+    //                 $contact->saveQuietly(); 
+    //             }
+    //             elseif($this->updateGate('client')){
+    //                 $contact->fill($ninja_client_data[1]);
+    //                 $contact->saveQuietly();
+    //             }
 
-            }
+    //         }
 
-        }
-    }
+    //     }
+    // }
 
     private function syncQbToNinjaVendors(array $records): void
     {
@@ -318,23 +316,6 @@ class QuickbooksImport implements ShouldQueue
                 $expense->saveQuietly();
             }
 
-        }
-    }
-
-
-    private function syncQbToNinjaProducts($records): void
-    {
-        $product_transformer = new ProductTransformer($this->company);
-
-        foreach($records as $record)
-        {
-            $ninja_data = $product_transformer->qbToNinja($record);
-
-            if($product = $this->findProduct($ninja_data['hash']))
-            {
-                $product->fill($ninja_data);
-                $product->save();
-            }
         }
     }
 
