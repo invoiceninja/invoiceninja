@@ -11,16 +11,17 @@
 
 namespace App\Jobs\Cron;
 
-use App\Events\Expense\ExpenseWasCreated;
-use App\Factory\RecurringExpenseToExpenseFactory;
+use App\Utils\Ninja;
 use App\Libraries\MultiDB;
+use Illuminate\Support\Carbon;
 use App\Models\RecurringExpense;
 use App\Models\RecurringInvoice;
-use App\Utils\Ninja;
-use App\Utils\Traits\GeneratesCounter;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Utils\Traits\GeneratesCounter;
+use App\Events\Expense\ExpenseWasCreated;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Factory\RecurringExpenseToExpenseFactory;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class RecurringExpensesCron
 {
@@ -107,6 +108,14 @@ class RecurringExpensesCron
 
         if($expense->company->mark_expenses_paid) {
             $expense->payment_date = now()->format('Y-m-d');
+        }
+
+        if ((int)$expense->company->settings->currency_id != $expense->currency_id) {
+            $exchange_rate = new CurrencyApi();
+
+            $expense->exchange_rate = $exchange_rate->exchangeRate($expense->currency_id, (int)$expense->company->settings->currency_id, Carbon::parse($expense->date));
+        } else {
+            $expense->exchange_rate = 1;
         }
 
         $expense->number = $this->getNextExpenseNumber($expense);

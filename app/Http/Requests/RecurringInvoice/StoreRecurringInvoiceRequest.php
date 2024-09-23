@@ -49,7 +49,7 @@ class StoreRecurringInvoiceRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -61,7 +61,8 @@ class StoreRecurringInvoiceRequest extends Request
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
-        $rules['invitations.*.client_contact_id'] = 'distinct';
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
 
@@ -147,6 +148,8 @@ class StoreRecurringInvoiceRequest extends Request
         }
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        $input['line_items'] = $this->cleanFeeItems($input['line_items']);
+
         $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         if (isset($input['auto_bill'])) {

@@ -11,7 +11,6 @@
 
 namespace App\Http\Controllers\Bank;
 
-use App\Helpers\Bank\Yodlee\DTO\AccountSummary;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\Yodlee\YodleeAdminRequest;
@@ -98,7 +97,7 @@ class YodleeController extends BaseController
         }
 
         $company->account->bank_integrations->where("integration_type", BankIntegration::INTEGRATION_TYPE_YODLEE)->where('auto_sync', true)->each(function ($bank_integration) use ($company) { // TODO: filter to yodlee only
-            ProcessBankTransactionsYodlee::dispatch($company->account->id, $bank_integration);
+            ProcessBankTransactionsYodlee::dispatch($company->account->bank_integration_account_id, $bank_integration);
         });
     }
 
@@ -301,8 +300,6 @@ class YodleeController extends BaseController
 
         $summary = $yodlee->getAccountSummary($account_number);
 
-        //@todo remove laravel-data
-        // $transformed_summary = AccountSummary::from($summary[0]);
         $transformed_summary = $this->transformSummary($summary[0]);
 
         return response()->json($transformed_summary, 200);
@@ -310,7 +307,7 @@ class YodleeController extends BaseController
 
     private function transformSummary($summary): array
     {
-        $dto = new \stdClass;
+        $dto = new \stdClass();
         $dto->id = $summary['id'] ?? 0;
         $dto->account_type = $summary['CONTAINER'] ?? '';
 

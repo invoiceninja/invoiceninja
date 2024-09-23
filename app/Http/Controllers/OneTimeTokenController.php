@@ -22,9 +22,6 @@ use Illuminate\Support\Str;
 
 class OneTimeTokenController extends BaseController
 {
-    private $contexts = [
-    ];
-
     public function __construct()
     {
         parent::__construct();
@@ -34,7 +31,7 @@ class OneTimeTokenController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param OneTimeTokenRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      * @OA\Post(
      *      path="/api/v1/one_time_token",
@@ -75,6 +72,10 @@ class OneTimeTokenController extends BaseController
             'context' => $request->input('context'),
             'is_react' => $request->hasHeader('X-REACT') ? true : false,
         ];
+
+        if($request->institution_id) {
+            $data['institution_id'] = $request->institution_id;
+        }
 
         Cache::put($hash, $data, 3600);
 

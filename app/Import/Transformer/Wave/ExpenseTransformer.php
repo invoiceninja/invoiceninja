@@ -36,18 +36,27 @@ class ExpenseTransformer extends BaseTransformer
             $total_tax += floatval($record['Sales Tax Amount']);
         }
 
-        $tax_rate = round(($total_tax / $amount) * 100, 3);
+        $tax_rate = $total_tax > 0 ? round(($total_tax / $amount) * 100, 3) : 0;
+
+        if(isset($data['Notes / Memo']) && strlen($data['Notes / Memo']) > 1) {
+            $public_notes = $data['Notes / Memo'];
+        } elseif (isset($data['Transaction Description']) && strlen($data['Transaction Description']) > 1) {
+            $public_notes = $data['Transaction Description'];
+        } else {
+            $public_notes = '';
+        }
+
 
         $transformed = [
             'company_id'  => $this->company->id,
             'vendor_id'   => $this->getVendorIdOrCreate($this->getString($data, 'Vendor')),
             'number' 	  => $this->getString($data, 'Bill Number'),
-            'public_notes' => $this->getString($data, 'Notes / Memo'),
+            'public_notes' => $public_notes,
             'date'        => $this->parseDate($data['Transaction Date Added']) ?: now()->format('Y-m-d'), //27-01-2022
             'currency_id' => $this->company->settings->currency_id,
             'category_id' => $this->getOrCreateExpenseCategry($data['Account Name']),
             'amount'	  => $amount,
-            'tax_name1'   => $data['Sales Tax Name'],
+            'tax_name1'   => isset($data['Sales Tax Name']) ? $data['Sales Tax Name'] : '',
             'tax_rate1'	  => $tax_rate,
         ];
 

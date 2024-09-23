@@ -4,7 +4,6 @@
 @push('head')
     <meta name="show-invoice-terms" content="{{ $settings->show_accept_invoice_terms ? true : false }}">
     <meta name="require-invoice-signature" content="{{ $client->user->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && $settings->require_invoice_signature }}">
-    <meta name="show-required-fields-form" content="{{ auth()->guard('contact')->user()->showRff() }}" />
     @include('portal.ninja2020.components.no-cache')
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
 
@@ -47,6 +46,8 @@
             <input type="hidden" name="contact_first_name" value="{{ auth()->guard('contact')->user()->first_name }}">
             <input type="hidden" name="contact_last_name" value="{{ auth()->guard('contact')->user()->last_name }}">
             <input type="hidden" name="contact_email" value="{{ auth()->guard('contact')->user()->email }}">
+            <input type="hidden" name="client_city" value="{{ auth()->guard('contact')->user()->client->city }}">
+            <input type="hidden" name="client_postal_code" value="{{ auth()->guard('contact')->user()->client->postal_code }}">
 
             <div class="bg-white shadow sm:rounded-lg mb-4" translate>
                 <div class="px-4 py-5 sm:p-6">
@@ -56,17 +57,6 @@
                                 {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
                                 - {{ ctrans('texts.unpaid') }}
                             </h3>
-
-                            @if($key)
-                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
-                                <div class="flex text-sm leading-6 font-medium text-gray-500">
-                                    <p class="mr-2">{{url("client/invoice/{$key}")}}</p>
-                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
-                                </div>
-                            </div>
-                            @endif
-
-
                         </div>
                         <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
                             <div class="inline-flex rounded-md shadow-sm">
@@ -93,15 +83,6 @@
                             {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
                             - {{ \App\Models\Invoice::stringStatus($invoice->status_id) }}
                         </h3>
-
-                            @if($key)
-                            <div class="btn hidden md:block" data-clipboard-text="{{url("client/invoice/{$key}")}}" aria-label="Copied!">
-                                <div class="flex text-sm leading-6 font-medium text-gray-500">
-                                    <p class="pr-10">{{url("client/invoice/{$key}")}}</p>
-                                    <p><img class="h-5 w-5" src="{{ asset('assets/clippy.svg') }}" alt="Copy to clipboard"></p>
-                                </div>
-                            </div>
-                            @endif
                     </div>
                 </div>
             </div>
@@ -121,15 +102,16 @@
 
 @push('head')
     @vite('resources/js/clients/invoices/payment.js')
-    <script src="{{ asset('vendor/clipboard.min.js') }}" defer></script>
 
     <script type="text/javascript">
 
-    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
 
-        var clipboard = new ClipboardJS('.btn');
+            @if($key)
+                window.history.pushState({}, "", "{{ url("client/invoice/{$key}") }}");
+            @endif
 
-    });
+        });
 
     </script>
 @endpush

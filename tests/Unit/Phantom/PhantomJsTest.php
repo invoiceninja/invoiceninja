@@ -14,12 +14,12 @@ namespace Tests\Unit\Phantom;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\PhantomJS\Phantom
+ * 
+ *   App\Utils\PhantomJS\Phantom
  */
 class PhantomJsTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

@@ -47,7 +47,7 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
      */
     public function handle(): void
     {
-       
+
         MultiDB::setDb($this->company->db);
 
         CompanyLedger::query()
@@ -75,6 +75,6 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->client->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->client->client_hash))->dontRelease()];
     }
 }

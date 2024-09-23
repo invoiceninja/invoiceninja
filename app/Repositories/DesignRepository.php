@@ -11,6 +11,7 @@
 
 namespace App\Repositories;
 
+use App\Utils\Ninja;
 use App\Models\Design;
 use Illuminate\Support\Str;
 
@@ -54,4 +55,20 @@ class DesignRepository extends BaseRepository
 
         return $design;
     }
+
+    /**
+     * @param $entity
+     */
+    public function restore($design)
+    {
+
+        $design->name = str_ireplace("_deleted_", "_restored_", $design->name);
+
+        parent::restore($design);
+
+        return $design;
+
+    }
+
+
 }

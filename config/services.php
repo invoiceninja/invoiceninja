@@ -31,7 +31,7 @@ return [
     ],
 
     'brevo' => [
-        'key' => env('BREVO_SECRET', ''),
+        'secret' => env('BREVO_SECRET', ''),
     ],
 
     'postmark' => [
@@ -39,7 +39,7 @@ return [
     ],
 
     'postmark-outlook' => [
-        'token' => env('POSTMARK_OUTLOOK_SECRET',''),
+        'token' => env('POSTMARK_OUTLOOK_SECRET', ''),
         'from' => [
             'address' => env('POSTMARK_OUTLOOK_FROM_ADDRESS', '')
         ],
@@ -49,6 +49,14 @@ return [
         'client_id' => env('MICROSOFT_CLIENT_ID'),
         'client_secret' => env('MICROSOFT_CLIENT_SECRET'),
         'redirect' => env('MICROSOFT_REDIRECT_URI'),
+    ],
+
+    'mindee' => [
+        'api_key' => env('MINDEE_API_KEY'),
+        'daily_limit' => env('MINDEE_DAILY_LIMIT', 100),
+        'monthly_limit' => env('MINDEE_MONTHLY_LIMIT', 250),
+        'account_daily_limit' => env('MINDEE_ACCOUNT_DAILY_LIMIT', 0),
+        'account_monthly_limit' => env('MINDEE_ACCOUNT_MONTHLY_LIMIT', 0),
     ],
 
     'apple' => [
@@ -62,6 +70,7 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('SES_REGION', 'us-east-1'),
     ],
+
     'sparkpost' => [
         'secret' => env('SPARKPOST_SECRET'),
     ],
@@ -117,6 +126,7 @@ return [
             'key' => env('ZIP_TAX_KEY', false),
         ],
     ],
+
     'chorus' => [
         'client_id' => env('CHORUS_CLIENT_ID', false),
         'secret' => env('CHORUS_SECRET', false),
@@ -126,5 +136,13 @@ return [
         'client_secret' => env('GOCARDLESS_CLIENT_SECRET', null),
         'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
         'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', 'https://invoicing.co/gocardless/oauth/connect/confirm'),
-    ]
+    ],
+    'quickbooks' => [
+        'client_id' => env('QUICKBOOKS_CLIENT_ID', false),
+        'client_secret' => env('QUICKBOOKS_CLIENT_SECRET', false),
+        'debug' => env('APP_DEBUG',false)
+    ],
+    'quickbooks_webhook' => [
+        'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),
+    ],
 ];

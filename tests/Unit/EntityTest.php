@@ -29,7 +29,7 @@ use App\Models\Vendor;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
+ * 
  */
 class EntityTest extends TestCase
 {
@@ -42,7 +42,7 @@ class EntityTest extends TestCase
 
     public $settings;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

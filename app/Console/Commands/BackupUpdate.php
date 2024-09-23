@@ -176,7 +176,7 @@ class BackupUpdate extends Command
                     try {
                         $doc_bin = $document->getFile();
                     } catch(\Exception $e) {
-                        nlog($e->getMessage());
+                        nlog("Exception:: BackupUpdate::" . $e->getMessage());
                     }
 
                     if ($doc_bin) {
@@ -184,8 +184,6 @@ class BackupUpdate extends Command
 
                         $document->disk = $this->option('disk');
                         $document->saveQuietly();
-
-                        nlog("Documents - Moving {$document->url} to {$this->option('disk')}");
                     }
                 });
 
@@ -199,8 +197,6 @@ class BackupUpdate extends Command
 
                     if ($backup_bin) {
                         Storage::disk($this->option('disk'))->put($backup->filename, $backup_bin);
-
-                        nlog("Backups - Moving {$backup->filename} to {$this->option('disk')}");
                     }
                 });
     }

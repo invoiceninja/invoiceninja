@@ -52,7 +52,7 @@ class UpdateCreditRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -65,6 +65,9 @@ class UpdateCreditRequest extends Request
         $rules['number'] = ['bail', 'sometimes', 'nullable', Rule::unique('credits')->where('company_id', $user->company()->id)->ignore($this->credit->id)];
 
         $rules['client_id'] = ['bail', 'sometimes',Rule::in([$this->credit->client_id])];
+
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
         $rules['line_items'] = 'array';
 

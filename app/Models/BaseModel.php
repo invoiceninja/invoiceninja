@@ -11,16 +11,18 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
-use App\Utils\Traits\MakesHash;
+use App\Services\EDocument\Jobes\SendEDocument;
+use App\Services\PdfMaker\PdfMerge;
+use Illuminate\Database\Eloquent\Model;
 use App\Utils\Traits\UserSessionAttributes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Str;
 
 /**
  * Class BaseModel
@@ -30,6 +32,7 @@ use Illuminate\Support\Str;
  * @package App\Models
  * @property-read mixed $hashed_id
  * @property string $number
+ * @property object|array|null $e_invoice
  * @property int $company_id
  * @property int $id
  * @property int $user_id
@@ -77,6 +80,8 @@ class BaseModel extends Model
     use UserSessionAttributes;
     use HasFactory;
     use Excludable;
+
+    public int $max_attachment_size = 3000000;
 
     protected $appends = [
         'hashed_id',
@@ -126,7 +131,7 @@ class BaseModel extends Model
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $query->where('company_id', $user->companyId());
+        $query->where("{$query->getQuery()->from}.company_id", $user->companyId());
 
         return $query;
     }
@@ -291,6 +296,37 @@ class BaseModel extends Model
         if ($subscriptions) {
             WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
+
+        // special catch here for einvoicing eventing
+        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && is_null($this->backup) && $this->client->getSetting('e_invoice_type') == 'PEPPOL'){
+            \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
+        }
+
+    }
+
+    
+    /**
+     * arrayFilterRecursive nee filterNullsRecursive
+     *
+     * Removes null properties from an array
+     * 
+     * @param  array $array
+     * @return array
+     */
+    public function filterNullsRecursive(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                // Recursively filter the nested array
+                $array[$key] = $this->filterNullsRecursive($value);
+            }
+            // Remove null values
+            if (is_null($array[$key])) {
+                unset($array[$key]);
+            }
+        }
+
+        return $array;
     }
 
     /**
@@ -336,5 +372,47 @@ class BaseModel extends Model
 
         return strtr($section, $variables['values']);
 
+    }
+
+    /**
+     * Merged PDFs associated with the entity / company
+     * into a single document
+     *
+     * @param  string $pdf
+     * @return mixed
+     */
+    public function documentMerge(string $pdf): mixed
+    {
+        $files = collect([$pdf]);
+
+        $entity_docs = $this->documents()
+        ->where('is_public', true)
+        ->get()
+        ->filter(function ($document) {
+            return $document->size < $this->max_attachment_size && stripos($document->name, ".pdf") !== false;
+        })->map(function ($d) {
+            return $d->getFile();
+        });
+
+        $files->push($entity_docs);
+
+        $company_docs = $this->company->documents()
+        ->where('is_public', true)
+        ->get()
+        ->filter(function ($document) {
+            return $document->size < $this->max_attachment_size && stripos($document->name, ".pdf") !== false;
+        })->map(function ($d) {
+            return $d->getFile();
+        });
+
+        $files->push($company_docs);
+
+        try {
+            $pdf = (new PdfMerge($files->flatten()->toArray()))->run();
+        } catch(\Exception $e) {
+            nlog("Exception:: BaseModel:: PdfMerge::" . $e->getMessage());
+        }
+
+        return $pdf;
     }
 }

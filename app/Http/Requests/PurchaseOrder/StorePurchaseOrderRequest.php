@@ -50,7 +50,11 @@ class StorePurchaseOrderRequest extends Request
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
 
-$rules['discount'] = 'sometimes|numeric|max:99999999999999';
+
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.vendor_contact_id'] = 'bail|required|distinct';
+
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
         $rules['line_items'] = 'array';
 
@@ -91,6 +95,7 @@ $rules['discount'] = 'sometimes|numeric|max:99999999999999';
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+            $input['line_items'] = $this->cleanFeeItems($input['line_items']);
             $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         }

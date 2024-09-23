@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $transaction_reference
  * @property int|null $product_id
  * @property int|null $recurring_invoice_id
+ * @property int|null $e_invoice_quota
  * @property-read \App\Models\RecurringInvoice $recurring_invoice
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)

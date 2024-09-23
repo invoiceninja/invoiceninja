@@ -57,17 +57,17 @@ class InvoiceExport extends BaseExport
         $query = Invoice::query()
                         ->withTrashed()
                         ->with('client')
-                        ->whereHas('client', function ($q){
+                        ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id);
-        
 
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {// @phpstan-ignore-line
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         $clients = &$this->input['client_id'];
 
@@ -99,6 +99,8 @@ class InvoiceExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+
+                    /** @var \App\Models\Invoice $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();
@@ -119,6 +121,8 @@ class InvoiceExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
+
+                /** @var \App\Models\Invoice $invoice */
                 $this->csv->insertOne($this->buildRow($invoice));
             });
 
@@ -149,9 +153,9 @@ class InvoiceExport extends BaseExport
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
 
-        // if (in_array('invoice.status', $this->input['report_keys'])) {
-        //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        // }
+        if (in_array('invoice.project', $this->input['report_keys'])) {
+            $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';
+        }
 
         if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
             $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';
@@ -166,7 +170,8 @@ class InvoiceExport extends BaseExport
         }
 
         if (in_array('invoice.user_id', $this->input['report_keys'])) {
-            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
+            $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : ''; // @phpstan-ignore-line
+
         }
 
         return $entity;

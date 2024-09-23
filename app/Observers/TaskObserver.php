@@ -54,7 +54,6 @@ class TaskObserver
             $event = Webhook::EVENT_DELETE_TASK;
         }
 
-
         $subscriptions = Webhook::where('company_id', $task->company_id)
                                     ->where('event_id', $event)
                                     ->exists();
@@ -83,6 +82,7 @@ class TaskObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_TASK, $task, $task->company)->delay(0);
         }
+
     }
 
     /**

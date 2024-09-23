@@ -59,19 +59,19 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $trial_duration
  * @property int $is_onboarding
  * @property object|null $onboarding
- * @property int $is_migrated
+ * @property bool $is_migrated
  * @property string|null $platform
  * @property int|null $hosted_client_count
  * @property int|null $hosted_company_count
  * @property string|null $inapp_transaction_id
  * @property bool $set_react_as_default_ap
  * @property bool $is_flagged
- * @property int $is_verified_account
+ * @property bool $is_verified_account
  * @property string|null $account_sms_verification_code
  * @property string|null $account_sms_verification_number
  * @property bool $account_sms_verified
  * @property string|null $bank_integration_account_id
- * @property int $is_trial
+ * @property bool $is_trial
  * @property-read int|null $bank_integrations_count
  * @property-read int|null $companies_count
  * @property-read int|null $company_users_count
@@ -364,16 +364,19 @@ class Account extends BaseModel
         return $this->isProClient() && $this->isPaid();
     }
 
+    public function isNewHostedAccount()
+    {
+        return Ninja::isHosted() && Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 2;
+    }
+
     public function isTrial(): bool
     {
         if (!Ninja::isNinja()) {
             return false;
         }
 
-        //@27-01-2024 - updates for logic around trials
         return !$this->plan_paid && $this->trial_started && Carbon::parse($this->trial_started)->addDays(14)->gte(now()->subHours(12));
-        // $plan_details = $this->getPlanDetails();
-        // return $plan_details && $plan_details['trial'];
+
     }
 
     public function startTrial($plan): void
@@ -493,6 +496,10 @@ class Account extends BaseModel
     {
         if ($this->is_flagged) {
             return 0;
+        }
+
+        if($this->email_quota) {
+            return (int)$this->email_quota;
         }
 
         if (Carbon::createFromTimestamp($this->created_at)->diffInWeeks() <= 1) {
@@ -619,7 +626,7 @@ class Account extends BaseModel
         $plan_expires = Carbon::parse($this->plan_expires);
 
         if ($plan_expires->gt(now())) {
-            $diff = $plan_expires->diffInDays();
+            $diff = intval(abs($plan_expires->diffInDays()));
 
             if ($diff > 14) {
                 return 0;

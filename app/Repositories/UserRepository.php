@@ -207,7 +207,7 @@ class UserRepository extends BaseRepository
 
         $cu->restore();
         $cu->tokens()->restore();
-        
+
         event(new UserWasRestored($user, auth()->user(), auth()->user()->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
     }
 

@@ -1,4 +1,4 @@
-<div wire:ignore.self class="@unless($form_only) container mx-auto grid grid-cols-12 @endunless mb-4" data-ref="required-fields-container">
+<div wire:ignore.self class="@unless($form_only) container mx-auto grid grid-cols-12 @endunless mb-4 transition ease-out duration-1000  h-500" data-ref="required-fields-container">
     <div class="col-span-12 lg:col-span-6 lg:col-start-4 overflow-hidden @unless($form_only) bg-white shadow rounded-lg @endunless">
         @unless($form_only)
             <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
@@ -22,7 +22,7 @@
 
                                 @foreach($countries as $country)
                                     <option value="{{ $country->id }}">
-                                        {{ $country->iso_3166_2 }} ({{ $country->name }})
+                                        {{ $country->iso_3166_2 }} ({{ $country->getName() }})
                                     </option>
                                 @endforeach
                             </select>

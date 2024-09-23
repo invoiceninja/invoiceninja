@@ -34,6 +34,20 @@ trait CleanLineItems
         return $cleaned_items;
     }
 
+    public function cleanFeeItems($items): array
+    {
+
+        //ensure we never allow gateway fees to be cloned across to new entities
+        foreach ($items as $key => $value) {
+            if (in_array($value['type_id'], ['3','4'])) {
+                unset($items[$key]);
+            }
+        }
+
+        return $items;
+
+    }
+
     /**
      * Sets default values for the line_items.
      * @param $item
@@ -80,9 +94,9 @@ trait CleanLineItems
             if(isset($item['product_key'])) {
                 $item['product_key'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['product_key']);
             }
-            if(isset($item['custom_value1'])){
+            if(isset($item['custom_value1'])) {
                 $item['custom_value1'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value1']);
-            }            
+            }
             if(isset($item['custom_value2'])) {
                 $item['custom_value2'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value2']);
             }
@@ -106,12 +120,9 @@ trait CleanLineItems
     {
         $total = 0;
 
-        foreach($items as $item)
-        {
+        foreach($items as $item) {
             $total += ($item['cost'] * $item['quantity']);
         }
-
-        nlog($total);
 
         return $total;
     }

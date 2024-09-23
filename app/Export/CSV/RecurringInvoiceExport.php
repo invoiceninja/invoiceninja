@@ -56,16 +56,16 @@ class RecurringInvoiceExport extends BaseExport
         $query = RecurringInvoice::query()
                         ->withTrashed()
                         ->with('client')
-                        ->whereHas('client', function ($q){
+                        ->whereHas('client', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->where('company_id', $this->company->id);
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'recurring_invoices');
 
         $clients = &$this->input['client_id'];
 
@@ -93,6 +93,8 @@ class RecurringInvoiceExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
+
+                /** @var \App\Models\RecurringInvoice $invoice */
                 $this->csv->insertOne($this->buildRow($invoice));
             });
 
@@ -112,6 +114,8 @@ class RecurringInvoiceExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
+
+                    /** @var \App\Models\RecurringInvoice $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
                 })->toArray();

@@ -53,11 +53,7 @@ class VendorRepository extends BaseRepository
 
         $vendor->saveQuietly();
 
-        if ($vendor->number == '' || ! $vendor->number) {
-            $vendor->number = $this->getNextVendorNumber($vendor);
-        }
-
-        $vendor->saveQuietly();
+        $vendor->service()->applyNumber();
 
         if (isset($data['contacts']) || $vendor->contacts()->count() == 0) {
             $this->contact_repo->save($data, $vendor);

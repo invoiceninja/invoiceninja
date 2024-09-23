@@ -63,10 +63,10 @@ class Statement
 
         $variables = [];
         $variables = $html->generateLabelsAndValues();
-        
+
         $option_template = &$this->options['template'];
 
-        $custom_statement_template = \App\Models\Design::where('id', $this->decodePrimaryKey($this->client->getSetting('statement_design_id')))->where('is_template',true)->first();
+        $custom_statement_template = \App\Models\Design::where('id', $this->decodePrimaryKey($this->client->getSetting('statement_design_id')))->where('is_template', true)->first();
 
         if($custom_statement_template || $option_template && $option_template != '') {
 
@@ -187,7 +187,7 @@ class Statement
                 $pdf = $this->makePdf(null, null, $html);
             }
         } catch (\Exception $e) {
-            nlog(print_r($e->getMessage(), 1));
+            nlog(print_r($e->getMessage(), true));
         }
 
 
@@ -385,7 +385,6 @@ class Statement
     /**
      * Get correct invitation ID.
      *
-     * @return int|bool
      */
     protected function getInvitation()
     {

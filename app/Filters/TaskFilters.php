@@ -26,7 +26,6 @@ class TaskFilters extends QueryFilters
      *
      * @param string $filter
      * @return Builder
-     * @deprecated
      */
     public function filter(string $filter = ''): Builder
     {
@@ -86,10 +85,14 @@ class TaskFilters extends QueryFilters
             $this->builder->whereNull('invoice_id');
         }
 
+        if (in_array('is_running', $status_parameters)) {
+            $this->builder->where('is_running', true);
+        }
+
         return $this->builder;
     }
 
-    public function project_tasks($project): Builder
+    public function project_tasks(string $project = ''): Builder
     {
         if (strlen($project) == 0) {
             return $this->builder;
@@ -176,6 +179,7 @@ class TaskFilters extends QueryFilters
             return $this->builder;
         }
 
+        /** @var array $status_parameters */
         $status_parameters = explode(',', $value);
 
         if(count($status_parameters) >= 1) {

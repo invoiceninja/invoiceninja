@@ -12,6 +12,7 @@
 namespace App\Http\Requests\Invoice;
 
 use App\Http\Requests\Request;
+use App\Exceptions\DuplicatePaymentException;
 
 class BulkInvoiceRequest extends Request
 {
@@ -29,7 +30,22 @@ class BulkInvoiceRequest extends Request
             'template' => 'sometimes|string',
             'template_id' => 'sometimes|string',
             'send_email' => 'sometimes|bool',
-            'subscriptin_id' => 'sometimes|string',
+            'subscription_id' => 'sometimes|string',
         ];
     }
+
+    public function prepareForValidation()
+    {
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('action', 0)."|".$user->company()->company_key)) {
+            throw new DuplicatePaymentException('Duplicate request.', 429);
+        }
+
+        \Illuminate\Support\Facades\Cache::put(($this->ip()."|".$this->input('action', 0)."|".$user->company()->company_key), true, 1);
+
+    }
+
 }

@@ -35,6 +35,7 @@ class SelfUpdateController extends BaseController
         'bootstrap/cache/services.php',
         'bootstrap/cache/routes-v7.php',
         'bootstrap/cache/livewire-components.php',
+        'public/index.html',
     ];
 
     public function __construct()
@@ -62,8 +63,9 @@ class SelfUpdateController extends BaseController
 
         $file_headers = @get_headers($this->getDownloadUrl());
 
-        if(!is_array($file_headers))
+        if(!is_array($file_headers)) {
             return response()->json(['message' => 'There was a problem reaching the update server, please try again in a little while.'], 410);
+        }
 
         if (stripos($file_headers[0], "404 Not Found") > 0  || (stripos($file_headers[0], "302 Found") > 0 && stripos($file_headers[7], "404 Not Found") > 0)) {
             return response()->json(['message' => 'Download not yet available. Please try again shortly.'], 410);
@@ -100,8 +102,9 @@ class SelfUpdateController extends BaseController
             }
         }
 
-        if(Storage::disk('base')->directoryExists('resources/lang'))
+        if(Storage::disk('base')->directoryExists('resources/lang')) {
             Storage::disk('base')->deleteDirectory('resources/lang');
+        }
 
         nlog('Removing cache files');
 
@@ -110,36 +113,35 @@ class SelfUpdateController extends BaseController
         Artisan::call('view:clear');
         Artisan::call('migrate', ['--force' => true]);
         Artisan::call('config:clear');
+        Artisan::call('cache:clear');
 
-        $this->buildCache(true);
-
-        $this->runModelChecks();
+        // $this->runModelChecks();
 
         nlog('Called Artisan commands');
 
         return response()->json(['message' => 'Update completed'], 200);
     }
 
-    private function runModelChecks()
-    {
-        Company::query()
-               ->cursor()
-               ->each(function ($company) {
+    // private function runModelChecks()
+    // {
+    //     Company::query()
+    //            ->cursor()
+    //            ->each(function ($company) {
 
-                   $settings = $company->settings;
+    //                $settings = $company->settings;
 
-                   if(property_exists($settings->pdf_variables, 'purchase_order_details')) {
-                       return;
-                   }
+    //                if(property_exists($settings->pdf_variables, 'purchase_order_details')) {
+    //                    return;
+    //                }
 
-                   $pdf_variables = $settings->pdf_variables;
-                   $pdf_variables->purchase_order_details = [];
-                   $settings->pdf_variables = $pdf_variables;
-                   $company->settings = $settings;
-                   $company->save();
+    //                $pdf_variables = $settings->pdf_variables;
+    //                $pdf_variables->purchase_order_details = [];
+    //                $settings->pdf_variables = $pdf_variables;
+    //                $company->settings = $settings;
+    //                $company->save();
 
-               });
-    }
+    //            });
+    // }
 
     private function clearCacheDir()
     {
@@ -158,7 +160,7 @@ class SelfUpdateController extends BaseController
         $directoryIterator = new \RecursiveDirectoryIterator(base_path(), \RecursiveDirectoryIterator::SKIP_DOTS);
 
         foreach (new \RecursiveIteratorIterator($directoryIterator) as $file) {
-            if (strpos($file->getPathname(), '.git') !== false) {
+            if (strpos($file->getPathname(), '.git') !== false || strpos($file->getPathname(), 'vendor/') !== false) {
                 continue;
             }
 
@@ -179,6 +181,10 @@ class SelfUpdateController extends BaseController
 
     public function checkVersion()
     {
+        if(Ninja::isHosted()) {
+            return '5.10.SaaS';
+        }
+
         return trim(file_get_contents(config('ninja.version_url')));
     }
 

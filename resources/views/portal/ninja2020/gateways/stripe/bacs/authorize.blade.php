@@ -10,7 +10,7 @@
     @endif
     <meta name="stripe-redirect-url" content="{{ $session->url }}">
     <meta name="only-authorization" content="true">
-
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

@@ -17,16 +17,12 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers App\Http\Controllers\ApplePayDomainController
- */
 class ApplePayDomainMerchantUrlTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -43,12 +39,12 @@ class ApplePayDomainMerchantUrlTest extends TestCase
         $this->markTestSkipped('Skip test no company gateways installed');
         // }
 
-        $config = new \stdClass;
+        $config = new \stdClass();
         $config->publishableKey = 'pk_test';
         $config->apiKey = 'sk_test';
         $config->appleDomainVerification = 'merchant_id';
 
-        $cg = new CompanyGateway;
+        $cg = new CompanyGateway();
         $cg->company_id = $this->company->id;
         $cg->user_id = $this->user->id;
         $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';

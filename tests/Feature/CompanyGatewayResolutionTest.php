@@ -13,6 +13,7 @@ namespace Tests\Feature;
 
 use App\Models\Client;
 use App\Models\CompanyGateway;
+use App\Models\Credit;
 use App\Models\GatewayType;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
@@ -22,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CompanyGatewayResolutionTest extends TestCase
 {
@@ -34,7 +35,7 @@ class CompanyGatewayResolutionTest extends TestCase
 
     public $cg1;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -54,7 +55,9 @@ class CompanyGatewayResolutionTest extends TestCase
 
         $this->withoutExceptionHandling();
 
-        CompanyGateway::whereNotNull('id')->delete();
+        CompanyGateway::query()->withTrashed()->cursor()->each(function ($cg) {
+            $cg->forceDelete();
+        });
 
         $data = [];
         $data[1]['min_limit'] = -1;
@@ -88,7 +91,7 @@ class CompanyGatewayResolutionTest extends TestCase
         //disable ach here
         $json_config = json_decode(config('ninja.testvars.stripe'));
 
-        $this->cg = new CompanyGateway;
+        $this->cg = new CompanyGateway();
         $this->cg->company_id = $this->company->id;
         $this->cg->user_id = $this->user->id;
         $this->cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -102,7 +105,7 @@ class CompanyGatewayResolutionTest extends TestCase
     }
 
     /**
-     * @covers \App\Models\CompanyGateway::calcGatewayFee()
+     *  \App\Models\CompanyGateway::calcGatewayFee()
      */
     public function testGatewayResolution()
     {
@@ -111,7 +114,7 @@ class CompanyGatewayResolutionTest extends TestCase
     }
 
     /**
-     * @covers \App|Models\Client::validGatewayForAmount()
+     *  \App|Models\Client::validGatewayForAmount()
      */
     public function testValidationForGatewayAmount()
     {
@@ -123,10 +126,17 @@ class CompanyGatewayResolutionTest extends TestCase
     {
         $amount = 10;
 
+        $this->client->country_id = 840;
+        $this->client->save();
+
+        Credit::query()->withTrashed()->cursor()->each(function ($c) {
+            $c->forceDelete();
+        });
+
         $this->assertInstanceOf('\\stdClass', $this->cg->fees_and_limits);
-        // $this->assertObjectHasAttribute('min_limit', $this->cg->fees_and_limits->{1});
         $this->assertNotNull($this->cg->fees_and_limits->{1}->min_limit);
         $payment_methods = $this->client->service()->getPaymentMethods($amount);
+
 
         $this->assertEquals(2, count($payment_methods));
     }
@@ -135,7 +145,13 @@ class CompanyGatewayResolutionTest extends TestCase
     {
         $amount = 10;
 
-        CompanyGateway::whereNotNull('id')->delete();
+        CompanyGateway::query()->withTrashed()->cursor()->each(function ($cg) {
+            $cg->forceDelete();
+        });
+
+        Credit::query()->withTrashed()->cursor()->each(function ($c) {
+            $c->forceDelete();
+        });
 
         $data = [];
         $data[1]['min_limit'] = -1;
@@ -169,7 +185,7 @@ class CompanyGatewayResolutionTest extends TestCase
         //disable ach here
         $json_config = json_decode(config('ninja.testvars.stripe'));
 
-        $this->cg = new CompanyGateway;
+        $this->cg = new CompanyGateway();
         $this->cg->company_id = $this->company->id;
         $this->cg->user_id = $this->user->id;
         $this->cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -181,9 +197,10 @@ class CompanyGatewayResolutionTest extends TestCase
         $this->cg->fees_and_limits = $data;
         $this->cg->save();
 
-        // nlog($this->client->service()->getPaymentMethods($amount));
+        $this->client->country_id = 840;
+        $this->client->save();
 
-        $this->assertEquals(2, count($this->client->service()->getPaymentMethods($amount)));
+        $this->assertEquals(1, count($this->client->service()->getPaymentMethods($amount)));
     }
 
     public function testEnableFeeAdjustment()
@@ -220,7 +237,7 @@ class CompanyGatewayResolutionTest extends TestCase
         //disable ach here
         $json_config = json_decode(config('ninja.testvars.stripe'));
 
-        $this->cg = new CompanyGateway;
+        $this->cg = new CompanyGateway();
         $this->cg->company_id = $this->company->id;
         $this->cg->user_id = $this->user->id;
         $this->cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';

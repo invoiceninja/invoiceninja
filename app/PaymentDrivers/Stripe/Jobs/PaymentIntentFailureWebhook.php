@@ -66,12 +66,14 @@ class PaymentIntentFailureWebhook implements ShouldQueue
             $payment = Payment::query()
                 ->where('company_id', $company->id)
                 ->where(function ($query) use ($transaction) {
-                    
-                    if(isset($transaction['payment_intent']))
+
+                    if(isset($transaction['payment_intent'])) {
                         $query->where('transaction_reference', $transaction['payment_intent']);
-                    
-                    if(isset($transaction['payment_intent']) && isset($transaction['id']))
+                    }
+
+                    if(isset($transaction['payment_intent']) && isset($transaction['id'])) {
                         $query->orWhere('transaction_reference', $transaction['id']);
+                    }
 
                     if(!isset($transaction['payment_intent']) && isset($transaction['id'])) {
                         $query->where('transaction_reference', $transaction['id']);

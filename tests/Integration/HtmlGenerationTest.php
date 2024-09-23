@@ -26,14 +26,14 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class HtmlGenerationTest extends TestCase
 {
     use MockAccountData;
     use MakesHash;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

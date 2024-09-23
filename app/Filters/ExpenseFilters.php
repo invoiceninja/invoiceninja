@@ -44,6 +44,9 @@ class ExpenseFilters extends QueryFilters
                 })
                 ->orWhereHas('vendor', function ($q) use ($filter) {
                     $q->where('name', 'like', '%'.$filter.'%');
+                })
+                ->orWhereHas('client', function ($q) use ($filter) {
+                    $q->where('name', 'like', '%'.$filter.'%');
                 });
         });
     }
@@ -76,7 +79,7 @@ class ExpenseFilters extends QueryFilters
         $this->builder->where(function ($query) use ($status_parameters) {
             if (in_array('logged', $status_parameters)) {
                 $query->orWhere(function ($query) {
-                    $query->where('amount', '>', 0)
+                    $query->where('amount', '>=', 0)
                           ->whereNull('invoice_id')
                           ->whereNull('payment_date')
                           ->where('should_be_invoiced', false);
@@ -96,6 +99,12 @@ class ExpenseFilters extends QueryFilters
                 });
             }
 
+            if (in_array('uninvoiced', $status_parameters)) {
+                $query->orWhere(function ($query) {
+                    $query->whereNull('invoice_id');
+                });
+            }
+
             if (in_array('paid', $status_parameters)) {
                 $query->orWhere(function ($query) {
                     $query->whereNotNull('payment_date');
@@ -108,8 +117,8 @@ class ExpenseFilters extends QueryFilters
                 });
             }
 
-            if(in_array('uncategorized', $status_parameters)){
-                $query->orWhere(function ($query){
+            if(in_array('uncategorized', $status_parameters)) {
+                $query->orWhere(function ($query) {
                     $query->whereNull('category_id');
                 });
             }
@@ -153,6 +162,19 @@ class ExpenseFilters extends QueryFilters
         }
 
         return $this->builder;
+    }
+
+    public function categories(string $categories = ''): Builder
+    {
+        $categories_exploded = explode(",", $categories);
+
+        if(empty($categories) || count(array_filter($categories_exploded)) == 0) {
+            return $this->builder;
+        }
+
+        $categories_keys = $this->transformKeys($categories_exploded);
+
+        return $this->builder->whereIn('category_id', $categories_keys);
     }
 
     public function number(string $number = ''): Builder
@@ -200,6 +222,11 @@ class ExpenseFilters extends QueryFilters
                     ->orderByRaw('ISNULL(category_id), category_id '. $sort_col[1])
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
                     ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
+        }
+
+        if ($sort_col[0] == 'payment_date' && in_array($sort_col[1], ['asc', 'desc'])) {
+            return $this->builder
+                    ->orderByRaw('ISNULL(payment_date), payment_date '. $sort_col[1]);
         }
 
         if($sort_col[0] == 'number') {

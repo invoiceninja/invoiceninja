@@ -169,9 +169,10 @@ class AuthorizePaymentMethod
             $billto->setCity(substr($this->authorize->client->city, 0, 40));
             $billto->setState(substr($this->authorize->client->state, 0, 40));
             $billto->setZip(substr($this->authorize->client->postal_code, 0, 20));
-            
-            if(isset($contact->email) && str_contains($contact->email, '@'))
+
+            if(isset($contact->email) && str_contains($contact->email, '@')) {
                 $billto->setEmail($contact->email);
+            }
 
             if ($this->authorize->client->country_id) {
                 $billto->setCountry($this->authorize->client->country->name);
@@ -183,7 +184,7 @@ class AuthorizePaymentMethod
         // Create a new Customer Payment Profile object
         $paymentprofile = new CustomerPaymentProfileType();
         $paymentprofile->setCustomerType('individual');
-        
+
         if ($billto) {
             $paymentprofile->setBillTo($billto);
         }

@@ -117,7 +117,7 @@ class PaymentLinkService
 
             /* 06-04-2022 */
             /* We may not be in a state where the user is present */
-            if (auth()->guard('contact')) {
+            if (auth()->guard('contact')->user()) {
                 return $this->handleRedirect('/client/invoices/' . $this->encodePrimaryKey($payment_hash->fee_invoice_id));
             }
         }
@@ -171,7 +171,7 @@ class PaymentLinkService
         }
 
         if (!$this->subscription->trial_enabled) {
-            return new \Exception("Trials are disabled for this product");
+            throw new \Exception("Trials are disabled for this product");
         }
 
         //create recurring invoice with start date = trial_duration + 1 day

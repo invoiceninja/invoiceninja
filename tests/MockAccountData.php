@@ -166,7 +166,7 @@ trait MockAccountData
      * @var
      */
     public $bank_transaction;
-    
+
     /**
      * @var
      */
@@ -194,7 +194,7 @@ trait MockAccountData
     public $purchase_order;
 
     public $contact;
-    
+
     public $product;
 
     public $recurring_invoice;
@@ -202,33 +202,6 @@ trait MockAccountData
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
-
-        /* Warm up the cache !*/
-        $cached_tables = config('ninja.cached_tables');
-
-        Artisan::call('db:seed', [
-        '--force' => true
-        ]);
-
-        foreach ($cached_tables as $name => $class) {
-            // check that the table exists in case the migration is pending
-            if (! Schema::hasTable((new $class())->getTable())) {
-                continue;
-            }
-            if ($name == 'payment_terms') {
-                $orderBy = 'num_days';
-            } elseif ($name == 'fonts') {
-                $orderBy = 'sort_order';
-            } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                $orderBy = 'name';
-            } else {
-                $orderBy = 'id';
-            }
-            $tableData = $class::orderBy($orderBy)->get();
-            if ($tableData->count()) {
-                Cache::forever($name, $tableData);
-            }
-        }
 
         $this->faker = \Faker\Factory::create();
         $fake_email = $this->faker->email();
@@ -307,7 +280,7 @@ trait MockAccountData
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
@@ -321,7 +294,7 @@ trait MockAccountData
         $truth->setCompanyUser($company_token->first());
         $truth->setUser($this->user);
         $truth->setCompany($this->company);
-        
+
         //todo create one token with token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
@@ -441,7 +414,7 @@ trait MockAccountData
             'company_id' => $this->company->id,
         ]);
 
-        $gs = new GroupSetting;
+        $gs = new GroupSetting();
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;
         $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
@@ -600,14 +573,9 @@ trait MockAccountData
             'purchase_order_id' => $this->purchase_order->id,
         ]);
 
-        $purchase_order_invitations = PurchaseOrderInvitation::whereCompanyId($this->purchase_order->company_id)
-            ->wherePurchaseOrderId($this->purchase_order->id);
-
-        $this->purchase_order->setRelation('invitations', $purchase_order_invitations);
-
         $this->purchase_order->service()->markSent();
 
-        $this->purchase_order->setRelation('client', $this->client);
+        $this->purchase_order->setRelation('vendor', $this->vendor);
         $this->purchase_order->setRelation('company', $this->company);
 
         $this->purchase_order->save();
@@ -804,7 +772,7 @@ trait MockAccountData
         $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
-        $gs = new GroupSetting;
+        $gs = new GroupSetting();
         $gs->company_id = $this->company->id;
         $gs->user_id = $user_id;
         $gs->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
@@ -813,7 +781,7 @@ trait MockAccountData
 
         if (config('ninja.testvars.stripe')) {
             $data = [];
-            $data[1]['min_limit'] = 234;
+            $data[1]['min_limit'] = 22;
             $data[1]['max_limit'] = 65317;
             $data[1]['fee_amount'] = 0.00;
             $data[1]['fee_percent'] = 0.000;
@@ -826,7 +794,7 @@ trait MockAccountData
             $data[1]['fee_cap'] = '';
             $data[1]['is_enabled'] = true;
 
-            $cg = new CompanyGateway;
+            $cg = new CompanyGateway();
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;
             $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -838,8 +806,8 @@ trait MockAccountData
             $cg->fees_and_limits = $data;
             $cg->save();
 
-            
-            $cg = new CompanyGateway;
+
+            $cg = new CompanyGateway();
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;
             $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -880,4 +848,5 @@ trait MockAccountData
 
         return $line_items;
     }
+
 }

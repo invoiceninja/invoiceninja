@@ -139,19 +139,19 @@ class EmailController extends BaseController
         return $this->itemResponse($entity_obj->fresh());
     }
 
-    private function sendPurchaseOrder($entity_obj, $data, $template)
-    {
-        $this->entity_type = PurchaseOrder::class;
+    // private function sendPurchaseOrder($entity_obj, $data, $template)
+    // {
+    //     $this->entity_type = PurchaseOrder::class;
 
-        $this->entity_transformer = PurchaseOrderTransformer::class;
+    //     $this->entity_transformer = PurchaseOrderTransformer::class;
 
-        $data['template'] = $template;
+    //     $data['template'] = $template;
 
-        PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
-        $entity_obj->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
+    //     PurchaseOrderEmail::dispatch($entity_obj, $entity_obj->company, $data);
+    //     $entity_obj->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "vendor");
 
-        return $this->itemResponse($entity_obj);
-    }
+    //     return $this->itemResponse($entity_obj);
+    // }
 
     private function resolveClass(string $entity): string
     {

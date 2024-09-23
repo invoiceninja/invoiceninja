@@ -27,7 +27,7 @@ class ImportController extends Controller
      *
      * @param PreImportRequest $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
      *
      * @OA\Post(
      *      path="/api/v1/preimport",
@@ -85,7 +85,7 @@ class ImportController extends Controller
             $contents = $this->convertEncoding($contents);
 
             // Store the csv in cache with an expiry of 10 minutes
-            Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
+            Cache::put($hash.'-'.$entityType, base64_encode($contents), 1200);
 
             // Parse CSV
             $csv_array = $this->getCsvData($contents);
@@ -118,8 +118,35 @@ class ImportController extends Controller
 
         })->toArray();
 
-
+        //Exact string match
         foreach($headers as $key => $value) {
+
+            foreach($translated_keys as $tkey => $tvalue) {
+
+                $concat_needle = str_ireplace(" ", "", $tvalue['index'].$tvalue['label']);
+                $concat_value = str_ireplace(" ", "", $value);
+
+                if($this->testMatch($concat_value, $concat_needle)) {
+
+                $hit = $tvalue['key'];
+                $hints[$key] = $hit;
+                unset($translated_keys[$tkey]);
+                break;
+
+                } else {
+                    $hints[$key] = null;
+                }
+
+            }
+
+        }
+
+        //Label Match
+        foreach($headers as $key => $value) {
+
+            if(isset($hints[$key])) {
+                continue;
+            }
 
             foreach($translated_keys as $tkey => $tvalue) {
 
@@ -134,10 +161,9 @@ class ImportController extends Controller
 
             }
 
-
         }
 
-        //second pass using the index of the translation here
+        //Index matching pass using the index of the translation here
         foreach($headers as $key => $value) {
             if(isset($hints[$key])) {
                 continue;
@@ -192,6 +218,7 @@ class ImportController extends Controller
                 $contents = file_get_contents($file->getPathname());
                 // Store the csv in cache with an expiry of 10 minutes
                 Cache::put($hash.'-'.$entityType, base64_encode($contents), 600);
+                nlog($hash.'-'.$entityType);
             }
         }
 
@@ -276,7 +303,7 @@ class ImportController extends Controller
 
         return $data;
     }
-    
+
 
     /**
      * Returns the best delimiter
@@ -302,7 +329,7 @@ class ImportController extends Controller
             }
 
         }
-        
+
         /** @phpstan-ignore-next-line **/
         return $bestDelimiter ?? ',';
 

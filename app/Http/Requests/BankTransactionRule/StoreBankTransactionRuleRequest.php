@@ -48,12 +48,13 @@ class StoreBankTransactionRuleRequest extends Request
             'rules.*.value' => 'bail|required|nullable',
             'auto_convert' => 'bail|sometimes|bool',
             'matches_on_all' => 'bail|sometimes|bool',
-            'applies_to' => 'bail|sometimes|string',
+            'applies_to' => 'bail|sometimes|string|in:CREDIT,DEBIT',
+            'on_credit_match' => 'bail|sometimes|in:create_payment,link_payment'
         ];
 
-        $rules['category_id'] = 'bail|sometimes|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
-        $rules['vendor_id'] = 'bail|sometimes|exists:vendors,id,company_id,'.$user->company()->id.',is_deleted,0';
-        $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['vendor_id'] = 'bail|sometimes|nullable|exists:vendors,id,company_id,'.$user->company()->id.',is_deleted,0';
+        $rules['client_id'] = 'bail|sometimes|nullable|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
 
         return $rules;
     }

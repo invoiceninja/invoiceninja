@@ -212,7 +212,7 @@ class Import implements ShouldQueue
 
         $user->setCompany($this->company);
 
-        $array = json_decode(file_get_contents($this->file_path), 1);
+        $array = json_decode(file_get_contents($this->file_path), true);
         $data = $array['data'];
 
         foreach ($this->available_imports as $import) {
@@ -253,7 +253,7 @@ class Import implements ShouldQueue
         $this->setInitialCompanyLedgerBalances();
 
         // $this->fixClientBalances();
-        $check_data = (new CheckCompanyData($this->company, md5(time())))->handle();
+        $check_data = (new CheckCompanyData($this->company, md5(time())))->handle(); //@phpstan-ignore-line
 
         // if(Ninja::isHosted() && array_key_exists('ninja_tokens', $data))
         $this->processNinjaTokens($data['ninja_tokens']);
@@ -1455,30 +1455,23 @@ class Import implements ShouldQueue
         switch ($status_id) {
             case 1:
                 return $payment;
-                break;
             case 2:
                 return $payment->service()->deletePayment();
-                break;
             case 3:
                 return $payment->service()->deletePayment();
-                break;
             case 4:
                 return $payment;
-                break;
             case 5:
                 $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;
             case 6:
                 $payment->status_id = Payment::STATUS_REFUNDED;
                 $payment->save();
                 return $payment;
-                break;
 
             default:
                 return $payment;
-                break;
         }
     }
 
@@ -1529,7 +1522,7 @@ class Import implements ShouldQueue
             }
 
             $entity = false;
-            
+
             if (array_key_exists('expense_id', $resource) && $resource['expense_id'] && array_key_exists('expenses', $this->ids)) {
                 $expense_id = $this->transformId('expenses', $resource['expense_id']);
                 $entity = Expense::query()->where('id', $expense_id)->withTrashed()->first();
@@ -1552,7 +1545,6 @@ class Import implements ShouldQueue
                     $file_path,
                     $file_name,
                     $file_info,
-                    filesize($file_path),
                     0,
                     false
                 );
@@ -1740,7 +1732,7 @@ class Import implements ShouldQueue
             $modified['company_id'] = $this->company->id;
             $modified['user_id'] = $this->processUserId($resource);
             $modified['is_deleted'] = isset($modified['is_deleted']) ? (bool)$modified['is_deleted'] : false;
-             
+
             /** @var \App\Models\ExpenseCategory $expense_category **/
             $expense_category = ExpenseCategory::create($modified);
 
@@ -2017,7 +2009,7 @@ class Import implements ShouldQueue
     public function transformId($resource, string $old): int
     {
         if (! array_key_exists($resource, $this->ids)) {
-            info(print_r($resource, 1));
+            nlog($resource);
             throw new Exception("Resource {$resource} not available.");
         }
 
@@ -2074,11 +2066,10 @@ class Import implements ShouldQueue
         LightLogs::create($job_failure)
                  ->queue();
 
-        nlog(print_r($exception->getMessage(), 1));
+        nlog($exception->getMessage());
 
-        // if (Ninja::isHosted()) {
         app('sentry')->captureException($exception);
-        // }
+
     }
 
 

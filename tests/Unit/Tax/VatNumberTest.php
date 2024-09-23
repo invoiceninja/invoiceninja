@@ -15,11 +15,11 @@ use App\Services\Tax\VatNumberCheck;
 use Tests\TestCase;
 
 /**
- * @test App\Services\Tax\VatNumberCheck
+ *  App\Services\Tax\VatNumberCheck
  */
 class VatNumberTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

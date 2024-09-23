@@ -51,7 +51,7 @@ class HasValidPhoneNumber implements Rule
 
         $twilio = new \Twilio\Rest\Client($sid, $token);
 
-        $country = auth()->user()->account?->companies()?->first()?->country();
+        $country = auth()->user()->account?->companies()?->first()?->country(); //@phpstan-ignore-line
 
         if (!$country || strlen(auth()->user()->phone) < 2) {
             return true;

@@ -62,7 +62,7 @@ class TruthSource
     {
         return $this->premium_hosted;
     }
-    
+
     public function getCompany()
     {
         return $this->company;

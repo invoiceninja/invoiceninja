@@ -35,7 +35,7 @@ use App\Models\Product;
 
 /**
  * Requirements:
- *  FACT1: 
+ *  FACT1:
  *  Bank ID =>   company->settings->custom_value1
  *  Bank Name => company->settings->custom_value2
  *  Sector Code => company->settings->state
@@ -44,7 +44,6 @@ use App\Models\Product;
  */
 class RoEInvoice extends AbstractService
 {
-
     private array $countrySubEntity = [
         'RO-AB' => 'Alba',
         'RO-AG' => 'Argeș',
@@ -149,14 +148,14 @@ class RoEInvoice extends AbstractService
     {
     }
 
-    private function resolveSubEntityCode(string $city) 
+    private function resolveSubEntityCode(string $city)
     {
         $city_references = &$this->countrySubEntity[$city];
 
         return $city_references ?? 'RO-B';
     }
 
-    private function resolveSectorCode(string $state) 
+    private function resolveSectorCode(string $state)
     {
         return in_array($state, $this->sectorList) ? $state : 'SECTOR1';
     }
@@ -189,12 +188,14 @@ class RoEInvoice extends AbstractService
 
         $ubl_invoice->setCustomizationID("urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1");
         // invoice
-        $ubl_invoice->setId($invoice->number);
+        $ubl_invoice->setId($invoice->number); //@phpstan-ignore-line
         $ubl_invoice->setIssueDate(date_create($invoice->date));
         $ubl_invoice->setDueDate(date_create($invoice->due_date));
         $ubl_invoice->setInvoiceTypeCode("380");
         $ubl_invoice->setDocumentCurrencyCode($invoice->client->getCurrencyCode());
         $ubl_invoice->setTaxCurrencyCode($invoice->client->getCurrencyCode());
+
+        $taxName = '';
 
         foreach ($invoice->line_items as $index => $item) {
 
@@ -205,9 +206,7 @@ class RoEInvoice extends AbstractService
             } elseif (!empty($item->tax_name3)) {
                 $taxName = $item->tax_name3;
             }
-            else {
-                $taxName = '';
-            }
+
         }
 
         $supplier_party = $this->createParty($company, $companyVatNr, $coEmail, $coPhone, $companyIdn, $coFullName, 'company', $taxName);
@@ -219,11 +218,11 @@ class RoEInvoice extends AbstractService
         $payeeFinancialAccount = (new PayeeFinancialAccount())
             ->setBankId($company->settings->custom_value1)
             ->setBankName($company->settings->custom_value2);
-        
-            $paymentMeans = (new PaymentMeans())
-            ->setPaymentMeansCode($invoice->custom_value1)
-            ->setPayeeFinancialAccount($payeeFinancialAccount);
-            $ubl_invoice->setPaymentMeans($paymentMeans);
+
+        $paymentMeans = (new PaymentMeans())
+        ->setPaymentMeansCode($invoice->custom_value1)
+        ->setPayeeFinancialAccount($payeeFinancialAccount);
+        $ubl_invoice->setPaymentMeans($paymentMeans);
 
         // line items
         $invoice_lines = [];
@@ -241,7 +240,7 @@ class RoEInvoice extends AbstractService
             $taxRatePercent = $item->tax_rate2;
         } elseif (!empty($item->tax_rate3)) {
             $taxRatePercent = $item->tax_rate3;
-        }else {
+        } else {
             $taxRatePercent = 0;
         }
 
@@ -336,7 +335,7 @@ class RoEInvoice extends AbstractService
             ->setName($fullName)
             ->setElectronicMail($eMail)
             ->setTelephone($phone);
-        
+
         $party->setContact($contact);
 
         return $party;
@@ -359,13 +358,13 @@ class RoEInvoice extends AbstractService
             ->setId($this->resolveTaxCode($item->tax_id ?? 1))
             ->setPercent($item->tax_rate3)
             ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3)));
-        }else {
-        
+        } else {
+
             $classifiedTaxCategory = (new ClassifiedTaxCategory())
             ->setId($this->resolveTaxCode($item->tax_id ?? 8))
             ->setPercent(0)
             ->setTaxScheme(((new TaxScheme())->setId(($item->tax_name3 === 'TVA') ? 'VAT' : $item->tax_name3)));
-    
+
         }
 
         $invoiceLine = (new InvoiceLine())
@@ -406,7 +405,7 @@ class RoEInvoice extends AbstractService
     /**
      * @param $item
      * @param $invoice_total
-     * @return float|int
+     * @return float
      */
     private function getItemTaxable($item, $invoice_total)
     {
@@ -511,7 +510,7 @@ class RoEInvoice extends AbstractService
     {
         $code = $tax_id;
 
-        match($tax_id){
+        match($tax_id) {
             Product::PRODUCT_TYPE_REVERSE_TAX => $code = 'AE', // VAT_REVERSE_CHARGE =
             Product::PRODUCT_TYPE_EXEMPT => $code = 'E', // EXEMPT_FROM_TAX =
             Product::PRODUCT_TYPE_PHYSICAL => $code = 'S', // STANDARD_RATE =
@@ -523,7 +522,7 @@ class RoEInvoice extends AbstractService
             Product::PRODUCT_TYPE_OVERRIDE_TAX => $code = 'S', // STANDARD_RATE =
             default => $code = 'S',
         };
-        
+
         return $code;
     }
 

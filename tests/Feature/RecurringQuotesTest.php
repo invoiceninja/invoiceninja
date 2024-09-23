@@ -25,8 +25,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\RecurringQuoteController
+ * 
+ *  App\Http\Controllers\RecurringQuoteController
  */
 class RecurringQuotesTest extends TestCase
 {
@@ -34,7 +34,7 @@ class RecurringQuotesTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

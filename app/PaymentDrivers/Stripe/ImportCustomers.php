@@ -125,6 +125,13 @@ class ImportCustomers
                 $settings->currency_id = (string) $currency->id;
                 $client->settings = $settings;
             }
+
+        }else {
+
+            $settings = $client->settings;
+            $settings->currency_id = (string) $this->stripe->company_gateway->company->settings->currency_id;
+            $client->settings = $settings;
+            
         }
 
         $client->name = $customer->name ? $customer->name : $customer->email;
@@ -208,7 +215,7 @@ class ImportCustomers
                 if (! $cgt) {
                     nlog('customer '.$searchResults->data[0]->id.' does not exist.');
 
-                    $this->update_payment_methods->updateMethods($searchResults->data[0], $client);
+                    $this->update_payment_methods->updateMethods($searchResults->data[0], $client); //@phpstan-ignore-line
                 }
             }
         }

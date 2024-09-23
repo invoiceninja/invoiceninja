@@ -12,13 +12,15 @@
 
 namespace Tests\Feature\Account;
 
-use App\DataMapper\ClientRegistrationFields;
-use App\DataMapper\CompanySettings;
+use Tests\TestCase;
+use App\Models\User;
+use App\Utils\Ninja;
 use App\Models\Account;
 use App\Models\Company;
-use App\Utils\Ninja;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use Illuminate\Support\Facades\Cache;
-use Tests\TestCase;
+use App\DataMapper\ClientRegistrationFields;
 
 class AccountEmailQuotaTest extends TestCase
 {
@@ -49,6 +51,20 @@ class AccountEmailQuotaTest extends TestCase
         $company = Company::factory()->create([
             'account_id' => $account->id,
         ]);
+
+        $hash = \Illuminate\Support\Str::random(32);
+
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'confirmation_code' => $hash,
+            'email' =>  "{$hash}@example.com",
+        ]);
+
+        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
 
         $company->client_registration_fields = ClientRegistrationFields::generate();
 

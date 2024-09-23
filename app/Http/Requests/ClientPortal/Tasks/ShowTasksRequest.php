@@ -23,6 +23,11 @@ class ShowTasksRequest extends FormRequest
      */
     public function authorize()
     {
+
+        auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }]);
+
         return (bool) auth()->guard('contact')->user()->client->getSetting('enable_client_portal_tasks');
     }
 

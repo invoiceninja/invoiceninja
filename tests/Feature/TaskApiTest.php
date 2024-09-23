@@ -24,8 +24,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\TaskController
+ * 
+ *  App\Http\Controllers\TaskController
  */
 class TaskApiTest extends TestCase
 {
@@ -35,7 +35,7 @@ class TaskApiTest extends TestCase
 
     private $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -72,7 +72,7 @@ class TaskApiTest extends TestCase
             /*Flag which helps us know if there is a NEXT timelog*/
             $next = false;
             /* If there are more than 1 time log in the array, ensure the last timestamp is not zero*/
-            if (count($new_array) >1 && $array[1] == 0) {
+            if (count($new_array) > 1 && $array[1] == 0) {
                 return false;
             }
 
@@ -81,10 +81,10 @@ class TaskApiTest extends TestCase
             if ($array[0] > $array[1] && $array[1] != 0) {
                 return false;
             }
-            
+
             /* Find the next time log value - if it exists */
-            if (array_key_exists($key+1, $new_array)) {
-                $next = $new_array[$key+1];
+            if (array_key_exists($key + 1, $new_array)) {
+                $next = $new_array[$key + 1];
             }
 
             /* check the next time log and ensure the start time is GREATER than the end time of the previous record */
@@ -94,7 +94,7 @@ class TaskApiTest extends TestCase
 
             /* Get the last row of the timelog*/
             $last_row = end($new_array);
-            
+
             /*If the last value is NOT zero, ensure start time is not GREATER than the endtime */
             if ($last_row[1] != 0 && $last_row[0] > $last_row[1]) {
                 return false;
@@ -128,12 +128,12 @@ class TaskApiTest extends TestCase
 
         $response->assertStatus(200);
         $arr = $response->json();
-    
+
     }
 
     public function testRoundingViaApi()
     {
-                
+
         $data = [
             'client_id' => $this->client->hashed_id,
             'description' => 'Test Task',
@@ -179,7 +179,7 @@ class TaskApiTest extends TestCase
         [1680715620,1680722820,"",true],
         [1,1680737460,"",true]
         ];
-        
+
         $key_values = array_column($logs, 0);
         array_multisort($key_values, SORT_ASC, $logs);
 
@@ -189,9 +189,25 @@ class TaskApiTest extends TestCase
 
     }
 
+    public function testTaskDivisionByZero()
+    {
+        $data = [
+        "rate" => 0,
+        "time_log" => '[[1719350900,1719352700,"",true]]',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+    }
+
     public function testRequestRuleParsing()
     {
-                
+
         $data = [
             'client_id' => $this->client->hashed_id,
             'description' => 'Test Task',
@@ -208,11 +224,30 @@ class TaskApiTest extends TestCase
         ])->postJson("/api/v1/tasks", $data);
 
         $response->assertStatus(200);
+        $arr =  $response->json();
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'description' => 'Test Task',
+            'time_log' => '[""]',
+            'assigned_user' => [],
+            'project' => [],
+            'user' => [],
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/".$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
 
     }
     public function testUserFilters()
     {
-        
+
         $response = $this->withHeaders([
                     'X-API-SECRET' => config('ninja.api_secret'),
                     'X-API-TOKEN' => $this->token,
@@ -256,7 +291,7 @@ class TaskApiTest extends TestCase
 
     public function testEmptyTimeLogArray()
     {
-        
+
         $data = [
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -320,7 +355,7 @@ class TaskApiTest extends TestCase
 
     public function testFaultyTimeLogArray()
     {
-        
+
         $data = [
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -335,7 +370,7 @@ class TaskApiTest extends TestCase
         ])->postJson("/api/v1/tasks", $data);
 
         $response->assertStatus(422);
-    
+
     }
 
     public function testTaskClientRateSet()
@@ -388,7 +423,7 @@ class TaskApiTest extends TestCase
 
     public function testTaskProjectRateSet()
     {
-        
+
         $p = Project::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -419,7 +454,7 @@ class TaskApiTest extends TestCase
 
     public function testStatusSet()
     {
-        
+
         $data = [
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -455,7 +490,7 @@ class TaskApiTest extends TestCase
 
     public function testMultiSortArray()
     {
-        
+
         $logs = [
             [1680035007,1680036807,"",true],
         ];
@@ -480,7 +515,7 @@ class TaskApiTest extends TestCase
     }
     public function testStartStopSanity()
     {
-        
+
         $task = Task::factory()->create([
             'client_id' => $this->client->id,
             'user_id' => $this->user->id,
@@ -779,7 +814,7 @@ class TaskApiTest extends TestCase
 
         $arr = $response->json();
         $response->assertStatus(200);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -831,7 +866,7 @@ class TaskApiTest extends TestCase
 
     //     $arr = $response->json();
     //     $response->assertStatus(200);
-        
+
 
     //     $response = $this->withHeaders([
     //         'X-API-SECRET' => config('ninja.api_secret'),

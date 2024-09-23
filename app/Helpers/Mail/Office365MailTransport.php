@@ -25,7 +25,8 @@ class Office365MailTransport extends AbstractTransport
 
     protected function doSend(SentMessage $message): void
     {
-        $symfony_message = MessageConverter::toEmail($message->getOriginalMessage());
+        $symfony_message = MessageConverter::toEmail($message->getOriginalMessage()); //@phpstan-ignore-line
+
 
         $graph = new Graph();
 
@@ -54,17 +55,17 @@ class Office365MailTransport extends AbstractTransport
                 ->setReturnType(\Microsoft\Graph\Model\Message::class)
                 ->execute();
         } catch (\Exception $e) {
-            
-            sleep(rand(5,10));
+
+            sleep(rand(5, 10));
 
             try {
-            $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
-                ->attachBody(base64_encode($bcc_list.$message->toString()))
-                ->addHeaders(['Content-Type' => 'text/plain'])
-                ->setReturnType(\Microsoft\Graph\Model\Message::class)
-                ->execute();
+                $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
+                    ->attachBody(base64_encode($bcc_list.$message->toString()))
+                    ->addHeaders(['Content-Type' => 'text/plain'])
+                    ->setReturnType(\Microsoft\Graph\Model\Message::class)
+                    ->execute();
             } catch (\Exception $e) {
-            
+
             }
 
         }

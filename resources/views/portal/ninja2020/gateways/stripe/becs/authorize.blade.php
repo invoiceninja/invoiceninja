@@ -7,6 +7,8 @@
     @else
     <meta name="stripe-publishable-key" content="{{ $gateway->company_gateway->getPublishableKey() }}">
     @endif
+
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')
@@ -47,7 +49,7 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.country')])
         <select name="countries" id="country" class="form-select input w-full bg-white" required>
             @foreach($countries as $country)
-                <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->name }})</option>
+                <option value="{{ $country->iso_3166_2 }}">{{ $country->iso_3166_2 }} ({{ $country->getName() }})</option>
             @endforeach
         </select>
     @endcomponent
@@ -55,7 +57,7 @@
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.currency')])
         <select name="currencies" id="currency" class="form-select input w-full">
             @foreach($currencies as $currency)
-                <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->name }})</option>
+                <option value="{{ $currency->code }}">{{ $currency->code }} ({{ $currency->getName() }})</option>
             @endforeach
         </select>
     @endcomponent

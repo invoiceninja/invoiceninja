@@ -11,34 +11,42 @@
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasPaid;
-use App\Events\Payment\PaymentWasCreated;
-use App\Factory\PaymentFactory;
-use App\Libraries\MultiDB;
+use Carbon\Carbon;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Models\Client;
-use App\Models\ClientGatewayToken;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Libraries\MultiDB;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
+use Illuminate\Support\Str;
+use App\DataMapper\InvoiceItem;
+use App\Events\Invoice\InvoiceAutoBillFailed;
+use App\Events\Invoice\InvoiceAutoBillSuccess;
+use App\Factory\PaymentFactory;
+use App\Services\AbstractService;
+use App\Models\ClientGatewayToken;
+use App\Events\Invoice\InvoiceWasPaid;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
-use App\Services\AbstractService;
-use App\Utils\Ninja;
-use Illuminate\Support\Str;
+use App\Events\Payment\PaymentWasCreated;
 
 class AutoBillInvoice extends AbstractService
 {
     private Client $client;
 
     private array $used_credit = [];
-    
+
     /*Specific variable for partial payments */
     private bool $is_partial_amount = false;
 
     public function __construct(private Invoice $invoice, protected string $db)
     {
+
+        $this->client = $this->invoice->client;
+
     }
 
     public function run()
@@ -46,7 +54,6 @@ class AutoBillInvoice extends AbstractService
         MultiDB::setDb($this->db);
 
         /* @var \App\Modesl\Client $client */
-        $this->client = $this->invoice->client;
 
         $is_partial = false;
 
@@ -59,7 +66,7 @@ class AutoBillInvoice extends AbstractService
         $this->invoice = $this->invoice->service()->markSent()->save();
 
         /* Mark the invoice as paid if there is no balance */
-        if ((int) $this->invoice->balance == 0) {
+        if (floatval($this->invoice->balance) == 0) {
             return $this->invoice->service()->markPaid()->save();
         }
 
@@ -91,7 +98,9 @@ class AutoBillInvoice extends AbstractService
             return $this->invoice;
         }
 
-        info("Auto Bill - balance remains to be paid!! - {$amount}");
+        nlog("Auto Bill - balance remains to be paid!! - {$amount}");
+        nlog($this->invoice->amount);
+        nlog($this->invoice->balance);
 
         /* Retrieve the Client Gateway Token */
         /** @var \App\Models\ClientGatewayToken $gateway_token */
@@ -105,10 +114,14 @@ class AutoBillInvoice extends AbstractService
             // return $this->invoice;
         }
 
-        nlog('Gateway present - adding gateway fee');
+        nlog("Gateway present - adding gateway fee on {$amount}");
 
         /* $gateway fee */
         $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
+
+
+        nlog($this->invoice->amount);
+        nlog($this->invoice->balance);
 
         //change from $this->invoice->amount to $this->invoice->balance
         if ($is_partial) {
@@ -116,6 +129,8 @@ class AutoBillInvoice extends AbstractService
         } else {
             $fee = $this->invoice->balance - $amount;
         }
+
+        nlog("fee is {$fee}");
 
         if ($fee > $amount) {
             $fee = 0;
@@ -141,9 +156,8 @@ class AutoBillInvoice extends AbstractService
         ]);
 
         nlog("Payment hash created => {$payment_hash->id}");
-
+       
         $payment = false;
-
         try {
             $payment = $gateway_token->gateway
                 ->driver($this->client)
@@ -152,8 +166,11 @@ class AutoBillInvoice extends AbstractService
         } catch (\Exception $e) {
 
             nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
+            event(new InvoiceAutoBillFailed($this->invoice, $this->invoice->company, Ninja::eventVars(), $e->getMessage()));
+
         }
 
+        $this->invoice = $this->invoice->fresh();
         $this->invoice->auto_bill_tries += 1;
 
         if ($this->invoice->auto_bill_tries == 3) {
@@ -161,10 +178,9 @@ class AutoBillInvoice extends AbstractService
             $this->invoice->auto_bill_tries = 0; //reset the counter here in case auto billing is turned on again in the future.
         }
 
-        $this->invoice->save();
-
         if ($payment) {
             info('Auto Bill payment captured for '.$this->invoice->number);
+            event(new InvoiceAutoBillSuccess($this->invoice, $this->invoice->company, Ninja::eventVars()));
         }
     }
 
@@ -205,11 +221,27 @@ class AutoBillInvoice extends AbstractService
 
             info("adjusting credit balance {$current_credit->balance} by this amount ".$credit['amount']);
 
+
+            $item_date = Carbon::parse($payment->date)->format($payment->client->date_format());
+            $invoice_numbers = $this->invoice->number;
+
+            $item = new InvoiceItem();
+            $item->quantity = 0;
+            $item->cost = $credit['amount'] * -1;
+            $item->notes = "{$item_date} - " . ctrans('texts.credit_payment', ['invoice_number' => $invoice_numbers]) . " ". Number::formatMoney($credit['amount'], $payment->client);
+            $item->type_id = "1";
+
+            $line_items = $current_credit->line_items;
+            $line_items[] = $item;
+            $current_credit->line_items = $line_items;
+
+
             $current_credit->service()
                            ->adjustBalance($credit['amount'] * -1)
                            ->updatePaidToDate($credit['amount'])
                            ->setCalculatedStatus()
                            ->save();
+
         }
 
         $payment->ledger()
@@ -240,19 +272,20 @@ class AutoBillInvoice extends AbstractService
         return $this->invoice
                     ->service()
                     ->setCalculatedStatus()
+                    ->workFlow() //07-06-2024 - run the workflow if paid!
                     ->save();
     }
-    
+
     /**
      * If the client has unapplied payments on file
-     * we will use these prior to charging a 
+     * we will use these prior to charging a
      * payment method on file.
      *
      * This needs to be wrapped in a transaction.
      *
      * @return self
      */
-    private function applyUnappliedPayment(): self
+    public function applyUnappliedPayment(): self
     {
         $unapplied_payments = Payment::query()
                                   ->where('client_id', $this->client->id)
@@ -262,11 +295,16 @@ class AutoBillInvoice extends AbstractService
                                   ->where('amount', '>', 0)
                                   ->orderBy('created_at')
                                   ->get();
-        
+
         $available_unapplied_balance = $unapplied_payments->sum('amount') - $unapplied_payments->sum('applied');
-        
+
+        nlog($this->client->id);
+        nlog($this->invoice->id);
+        nlog($unapplied_payments->sum('amount'));
+        nlog($unapplied_payments->sum('applied'));
+
         nlog("available unapplied balance = {$available_unapplied_balance}");
-        
+
         if ((int) $available_unapplied_balance == 0) {
             return $this;
         }
@@ -276,7 +314,7 @@ class AutoBillInvoice extends AbstractService
         }
 
         $payment_repo = new PaymentRepository(new CreditRepository());
-        
+
         foreach ($unapplied_payments as $key => $payment) {
             $payment_balance = $payment->amount - $payment->applied;
 
@@ -285,7 +323,7 @@ class AutoBillInvoice extends AbstractService
                 if ($payment_balance > $this->invoice->partial) {
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->partial]]];
                     $payment_repo->save($payload, $payment);
-                
+
                     $this->invoice = $this->invoice->fresh();
 
                     return $this;
@@ -296,16 +334,16 @@ class AutoBillInvoice extends AbstractService
             } else {
                 //more than needed
                 if ($payment_balance > $this->invoice->balance) {
-                    
+
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $this->invoice->balance]]];
                     $payment_repo->save($payload, $payment);
 
                     $this->invoice = $this->invoice->fresh();
 
                     return $this;
-                    
+
                 } else {
-                    
+
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
 
@@ -327,7 +365,7 @@ class AutoBillInvoice extends AbstractService
      *
      * @return $this
      */
-    private function applyCreditPayment(): self
+    public function applyCreditPayment(): self
     {
         $available_credits = Credit::query()->where('client_id', $this->client->id)
                                   ->where('is_deleted', false)
@@ -413,7 +451,7 @@ class AutoBillInvoice extends AbstractService
             $company_gateway = $gateway_token->gateway;
 
             //check if fees and limits are set
-            if (isset($company_gateway->fees_and_limits) && ! is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) {
+            if (isset($company_gateway->fees_and_limits) && ! is_array($company_gateway->fees_and_limits) && property_exists($company_gateway->fees_and_limits, $gateway_token->gateway_type_id)) { //@phpstan-ignore-line
                 //if valid we keep this gateway_token
                 if ($this->invoice->client->validGatewayForAmount($company_gateway->fees_and_limits->{$gateway_token->gateway_type_id}, $amount)) {
                     return true;

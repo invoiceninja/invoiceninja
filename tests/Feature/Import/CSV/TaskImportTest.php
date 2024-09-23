@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Import\Providers\Csv
+ * 
+ *  App\Import\Providers\Csv
  */
 class TaskImportTest extends TestCase
 {
@@ -92,7 +92,7 @@ class TaskImportTest extends TestCase
         $task = Task::where('company_id', $this->company->id)->where('number', 'x1234')->first();
         $this->assertNotNull($task);
         $this->assertEquals(1998, $task->calcDuration());
-        
+
         $time_log = json_decode($task->time_log);
 
         foreach($time_log as $log) {
@@ -109,7 +109,7 @@ class TaskImportTest extends TestCase
             $this->assertTrue($log[3]);
         }
 
-    
+
     }
 
 
@@ -119,7 +119,7 @@ class TaskImportTest extends TestCase
         Task::query()
             ->where('company_id', $this->company->id)
             ->forceDelete();
-            
+
         $this->assertEquals(0, Task::withTrashed()->where('company_id', $this->company->id)->count());
 
         /*Need to import clients first*/

@@ -70,7 +70,7 @@ class DocumentController extends BaseController
      *       ),
      *     )
      * @param DocumentFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(DocumentFilters $filters)
     {
@@ -105,7 +105,7 @@ class DocumentController extends BaseController
      *
      * @param ShowDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function show(ShowDocumentRequest $request, Document $document)
     {
@@ -131,7 +131,7 @@ class DocumentController extends BaseController
      *
      * @param EditDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function edit(EditDocumentRequest $request, Document $document)
     {
@@ -143,12 +143,16 @@ class DocumentController extends BaseController
      *
      * @param UpdateDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function update(UpdateDocumentRequest $request, Document $document)
     {
         $document->fill($request->all());
         $document->save();
+
+        if($document->documentable) { //@phpstan-ignore-line
+            $document->documentable->touch();
+        }
 
         return $this->itemResponse($document->fresh());
     }
@@ -158,7 +162,7 @@ class DocumentController extends BaseController
      *
      * @param DestroyDocumentRequest $request
      * @param Document $document
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      */
     public function destroy(DestroyDocumentRequest $request, Document $document)
     {
@@ -183,7 +187,7 @@ class DocumentController extends BaseController
         }
 
         if ($action == 'download') {
-            ZipDocuments::dispatch($documents->pluck('id'), $user->company(), auth()->user());
+            ZipDocuments::dispatch($documents->pluck('id'), $user->company(), auth()->user()); //@phpstan-ignore-line
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }

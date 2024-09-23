@@ -19,15 +19,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Jobs\Util\UploadFile
+ * 
+ *   App\Jobs\Util\UploadFile
  */
 class UploadFileTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

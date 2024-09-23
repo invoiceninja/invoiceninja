@@ -19,10 +19,12 @@ use App\Http\Requests\Expense\BulkExpenseRequest;
 use App\Http\Requests\Expense\CreateExpenseRequest;
 use App\Http\Requests\Expense\DestroyExpenseRequest;
 use App\Http\Requests\Expense\EditExpenseRequest;
+use App\Http\Requests\Expense\EDocumentRequest;
 use App\Http\Requests\Expense\ShowExpenseRequest;
 use App\Http\Requests\Expense\StoreExpenseRequest;
 use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Http\Requests\Expense\UploadExpenseRequest;
+use App\Jobs\EDocument\ImportEDocument;
 use App\Models\Account;
 use App\Models\Expense;
 use App\Repositories\ExpenseRepository;
@@ -98,7 +100,7 @@ class ExpenseController extends BaseController
      *       ),
      *     )
      * @param ExpenseFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(ExpenseFilters $filters)
     {
@@ -112,7 +114,7 @@ class ExpenseController extends BaseController
      *
      * @param ShowExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -166,7 +168,7 @@ class ExpenseController extends BaseController
      *
      * @param EditExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -220,7 +222,7 @@ class ExpenseController extends BaseController
      *
      * @param UpdateExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -286,7 +288,7 @@ class ExpenseController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -334,7 +336,7 @@ class ExpenseController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -387,7 +389,7 @@ class ExpenseController extends BaseController
      *
      * @param DestroyExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -441,7 +443,7 @@ class ExpenseController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -495,7 +497,7 @@ class ExpenseController extends BaseController
 
         $expenses = Expense::withTrashed()->find($request->ids);
 
-        if($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
+        if ($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
             $this->expense_repo->categorize($expenses, $request->category_id);
             $expenses = collect([]);
         }
@@ -524,7 +526,7 @@ class ExpenseController extends BaseController
      *
      * @param UploadExpenseRequest $request
      * @param Expense $expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -571,7 +573,7 @@ class ExpenseController extends BaseController
      */
     public function upload(UploadExpenseRequest $request, Expense $expense)
     {
-        if (! $this->checkFeature(Account::FEATURE_DOCUMENTS)) {
+        if (!$this->checkFeature(Account::FEATURE_DOCUMENTS)) {
             return $this->featureFailure();
         }
 
@@ -580,5 +582,62 @@ class ExpenseController extends BaseController
         }
 
         return $this->itemResponse($expense->fresh());
+    }
+
+    /**
+     * @OA\Post(
+     *      path="/api/v1/expenses/edocument",
+     *      operationId="edocumentExpense",
+     *      tags={"expenses"},
+     *      summary="Uploads an electronic document to a expense",
+     *      description="Handles the uploading of an electronic document to a expense",
+     *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
+     *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),
+     *      @OA\Parameter(ref="#/components/parameters/include"),
+     *      @OA\RequestBody(
+     *         description="User credentials",
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="string",
+     *                     format="binary",
+     *                     description="The files to be uploaded",
+     *                 ),
+     *             )
+     *         )
+     *     ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Returns a HTTP status",
+     *          @OA\Header(header="X-MINIMUM-CLIENT-VERSION", ref="#/components/headers/X-MINIMUM-CLIENT-VERSION"),
+     *          @OA\Header(header="X-RateLimit-Remaining", ref="#/components/headers/X-RateLimit-Remaining"),
+     *          @OA\Header(header="X-RateLimit-Limit", ref="#/components/headers/X-RateLimit-Limit"),
+     *       ),
+     *       @OA\Response(
+     *          response=422,
+     *          description="Validation error",
+     *          @OA\JsonContent(ref="#/components/schemas/ValidationError"),
+     *
+     *       ),
+     *       @OA\Response(
+     *           response="default",
+     *           response="default",
+     *           description="Unexpected Error",
+     *           @OA\JsonContent(ref="#/components/schemas/Error"),
+     *       ),
+     *     )
+     */
+    public function edocument(EDocumentRequest $request)
+    {
+        $user = auth()->user();
+
+        foreach ($request->file("documents") as $file) {
+            ImportEDocument::dispatch($file->get(), $file->getClientOriginalName(), $request->file("documents")->getMimeType(), $user->company());
+        }
+
+        return response()->json(['message' => 'Processing....'], 200);
     }
 }

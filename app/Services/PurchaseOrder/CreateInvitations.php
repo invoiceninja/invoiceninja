@@ -41,7 +41,12 @@ class CreateInvitations extends AbstractService
 
     public function run()
     {
-        $contacts = $this->purchase_order?->vendor?->contacts()->get();
+
+        if(!$this->purchase_order->vendor) {
+            return $this->purchase_order;
+        }
+
+        $contacts = $this->purchase_order->vendor->contacts()->get();
 
         if ($contacts->count() == 0) {
             $this->createBlankContact();

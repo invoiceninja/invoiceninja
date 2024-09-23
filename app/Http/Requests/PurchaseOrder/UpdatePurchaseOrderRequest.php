@@ -53,14 +53,17 @@ class UpdatePurchaseOrderRequest extends Request
 
         $rules['line_items'] = 'array';
 
-$rules['discount'] = 'sometimes|numeric|max:99999999999999';
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.vendor_contact_id'] = 'bail|required|distinct';
+
+        $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
 
         if ($this->file('documents') && is_array($this->file('documents'))) {
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 

@@ -15,11 +15,11 @@ use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class TranslationTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

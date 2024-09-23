@@ -16,11 +16,11 @@ use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class RedisVsDatabaseTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -29,15 +29,17 @@ class RedisVsDatabaseTest extends TestCase
 
     public function testRedisSpeed()
     {
+        app('currencies');
+
         $start = microtime(true);
 
         $currencies = Cache::get('currencies');
 
-        $currencies->filter(function ($item) {
+        $currencies->first(function ($item) {
             return $item->id == 17;
-        })->first();
+        });
 
-        nlog(microtime(true) - $start);
+        // nlog(microtime(true) - $start);
 
         $this->assertTrue(true);
         // nlog($total_time);
@@ -50,7 +52,7 @@ class RedisVsDatabaseTest extends TestCase
 
         $currency = Currency::find(17);
 
-        nlog(microtime(true) - $start);
+        // nlog(microtime(true) - $start);
 
         $this->assertTrue(true);
         // nlog($total_time);

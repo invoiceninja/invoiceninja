@@ -164,6 +164,13 @@ class BillingPortalPurchasev2 extends Component
     public $payment_confirmed = false;
     public $is_eligible = true;
     public $not_eligible_message = '';
+    public $check_rff = false;
+
+    public ?string $contact_first_name;
+    public ?string $contact_last_name;
+    public ?string $contact_email;
+    public ?string $client_city;
+    public ?string $client_postal_code;
 
     public function mount()
     {
@@ -192,7 +199,8 @@ class BillingPortalPurchasev2 extends Component
         $this->data = [];
 
         $this->price = $this->subscription->price; // ?
-
+        $this->float_amount_total = $this->price;
+        
         $this->recurring_products = $this->subscription->service()->recurring_products();
         $this->products = $this->subscription->service()->products();
         $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
@@ -237,7 +245,8 @@ class BillingPortalPurchasev2 extends Component
             Auth::guard('contact')->loginUsingId($contact->id, true);
             $this->contact = $contact;
         } else {
-            $this->createClientContact();
+            // $this->createClientContact();
+            $this->createBlankClient();
         }
 
         $this->getPaymentMethods();
@@ -472,17 +481,78 @@ class BillingPortalPurchasev2 extends Component
      */
     protected function getPaymentMethods(): self
     {
-        nlog("total amount = {$this->float_amount_total}");
 
         if ($this->float_amount_total == 0) {
             $this->methods = [];
         }
 
-        if ($this->contact && $this->float_amount_total >= 1) {
+        if ($this->contact && $this->float_amount_total >= 0) {
             $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
         }
 
+        foreach($this->methods as $method) {
+
+            if($method['is_paypal'] == '1' && !$this->check_rff) {
+                $this->rff();
+                break;
+            }
+
+        }
+
         return $this;
+    }
+
+    protected function rff()
+    {
+
+        $this->contact_first_name = $this->contact->first_name;
+        $this->contact_last_name = $this->contact->last_name;
+        $this->contact_email = $this->contact->email;
+        $this->client_city = $this->contact->client->city;
+        $this->client_postal_code = $this->contact->client->postal_code;
+
+        if(
+            strlen($this->contact_first_name ?? '') == 0 ||
+            strlen($this->contact_last_name ?? '') == 0 ||
+            strlen($this->contact_email ?? '') == 0 ||
+            strlen($this->client_city ?? '') == 0 ||
+            strlen($this->client_postal_code ?? '') == 0
+        ) {
+            $this->check_rff = true;
+        }
+
+        return $this;
+    }
+
+    public function handleRff()
+    {
+
+        $validated = $this->validate([
+            'contact_first_name' => ['required'],
+            'contact_last_name' => ['required'],
+            'client_city' => ['required'],
+            'client_postal_code' => ['required'],
+            'contact_email' => ['required', 'email'],
+        ]);
+
+        $this->check_rff = false;
+
+        $this->contact->first_name = $validated['contact_first_name'];
+        $this->contact->last_name = $validated['contact_last_name'];
+        $this->contact->email = $validated['contact_email'];
+        $this->contact->client->postal_code = $validated['client_postal_code'];
+        $this->contact->client->city = $validated['client_city'];
+
+        $this->contact->pushQuietly();
+
+        $this->refreshComponent();
+
+        return $this;
+    }
+
+    protected function refreshComponent()
+    {
+        $this->dispatch('$refresh');
     }
 
     /**
@@ -676,29 +746,42 @@ class BillingPortalPurchasev2 extends Component
         }
 
         if (array_key_exists('currency_id', $this->request_data)) {
-            $currency = Cache::get('currencies')->filter(function ($item) {
+
+            /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+            $currencies = app('currencies');
+
+            $currency = $currencies->first(function ($item) {
                 return $item->id == $this->request_data['currency_id'];
-            })->first();
+            });
 
             if ($currency) {
                 $data['settings']->currency_id = $currency->id;
             }
         } elseif ($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
-            $currency = Cache::get('currencies')->filter(function ($item) {
+
+            /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+            $currencies = app('currencies');
+
+            $currency = $currencies->first(function ($item) {
                 return $item->id == $this->subscription->group_settings->settings->currency_id;
-            })->first();
+            });
 
             if ($currency) {
                 $data['settings']->currency_id = $currency->id;
             }
+        }else {
+            $data['settings']->currency_id = $this->subscription->company->getSetting('currency_id');
         }
 
         if (array_key_exists('locale', $this->request_data)) {
             $request = $this->request_data;
 
-            $record = Cache::get('languages')->filter(function ($item) use ($request) {
+            /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+            $languages = app('languages');
+
+            $record = $languages->first(function ($item) use ($request) {
                 return $item->locale == $request['locale'];
-            })->first();
+            });
 
             if ($record) {
                 $data['settings']['language_id'] = (string)$record->id;
@@ -706,8 +789,12 @@ class BillingPortalPurchasev2 extends Component
         }
 
         $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+        $contact = $client->fresh()->contacts->first();
+        $this->contact = $contact;
 
-        return $client->fresh()->contacts->first();
+        Auth::guard('contact')->loginUsingId($contact->id, true);
+        
+        return $contact;
     }
 
 

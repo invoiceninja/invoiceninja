@@ -39,6 +39,7 @@ class ClientBalanceReport extends BaseExport
         'invoices',
         'invoice_balance',
         'credit_balance',
+        'payment_balance',
     ];
 
     /**
@@ -110,7 +111,7 @@ class ClientBalanceReport extends BaseExport
         $query = Invoice::query()->where('client_id', $client->id)
                                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]);
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'invoices');
 
         return [
             $client->present()->name(),
@@ -119,6 +120,7 @@ class ClientBalanceReport extends BaseExport
             $query->count(),
             $query->sum('balance'),
             $client->credit_balance,
+            $client->payment_balance,
         ];
     }
 }

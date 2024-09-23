@@ -31,13 +31,12 @@ class InvoicesTest extends TestCase
     use AppSetup;
 
     public $faker;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->faker = Factory::create();
-        $this->buildCache(true);
     }
 
     public function testInvoiceTableFilters()

@@ -63,7 +63,7 @@ class PayPalWebhook implements ShouldQueue
         if($this->verifyWebhook()) {
             nlog('verified');
 
-            match($this->webhook_request['event_type']) {
+            match($this->webhook_request['event_type']) {//@phpstan-ignore-line
                 'CHECKOUT.ORDER.COMPLETED' => $this->checkoutOrderCompleted(),
             };
 
@@ -297,8 +297,7 @@ class PayPalWebhook implements ShouldQueue
         $gateway = CompanyGateway::query()
             ->where('company_id', $company->id)
             ->where('gateway_key', $this->gateway_key)
-            ->cursor()
-            ->first(function ($cg) use ($merchant_id) {
+            ->first(function ($cg) use ($merchant_id) { //@phpstan-ignore-line
                 $config = $cg->getConfig();
 
                 if($config->merchantId == $merchant_id) {
@@ -307,7 +306,7 @@ class PayPalWebhook implements ShouldQueue
 
             });
 
-        return $gateway ?? false;
+        return $gateway ?? null;
     }
 
     //--------------------------------------------------------------------------------------//

@@ -45,6 +45,7 @@ class RFF extends Component
 
         $contact = auth()->guard('contact');
 
+        /** @var \App\Models\ClientContact $contact */
         $contact->user()->update([
             'first_name' => $data['contact_first_name'],
             'last_name' => $data['contact_last_name'],
@@ -65,6 +66,7 @@ class RFF extends Component
 
     public function render()
     {
+        /** @var \App\Models\CompanyGateway $gateway */
         $gateway = CompanyGateway::find($this->context['form']['company_gateway_id']);
         $countries = Cache::get('countries');
 

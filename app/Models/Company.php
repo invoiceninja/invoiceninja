@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Casts\EncryptedCast;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\QuickbooksSettings;
 use App\Models\Presenters\CompanyPresenter;
 use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
@@ -59,7 +60,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $portal_domain
  * @property int $enable_modules
  * @property object $custom_fields
- * @property \App\DataMapper\CompanySettings $settings
+ * @property \App\DataMapper\CompanySettings|\stdClass $settings
  * @property string $slack_webhook_url
  * @property string $google_analytics_key
  * @property int|null $created_at
@@ -111,14 +112,24 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $convert_expense_currency
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
+ * @property string|null $expense_mailbox
+ * @property boolean $expense_mailbox_active
+ * @property bool $inbound_mailbox_allow_company_users
+ * @property bool $inbound_mailbox_allow_vendors
+ * @property bool $inbound_mailbox_allow_clients
+ * @property bool $inbound_mailbox_allow_unknown
+ * @property string|null $inbound_mailbox_whitelist
+ * @property string|null $inbound_mailbox_blacklist
  * @property int $deleted_at
- * @property string $smtp_username
- * @property string $smtp_password
- * @property string $smtp_host
- * @property string $smtp_port
- * @property string $smtp_encryption
- * @property string $smtp_local_domain
+ * @property string|null $smtp_username
+ * @property string|null $smtp_password
+ * @property string|null $smtp_host
+ * @property string|null $smtp_port
+ * @property string|null $smtp_encryption
+ * @property string|null $smtp_local_domain
+ * @property \App\DataMapper\QuickbooksSettings|null $quickbooks
  * @property boolean $smtp_verify_peer
+ * @property int|null $legal_entity_id
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
@@ -359,12 +370,20 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
+        'expense_mailbox_active',
+        'expense_mailbox',
+        'inbound_mailbox_allow_company_users',
+        'inbound_mailbox_allow_vendors',
+        'inbound_mailbox_allow_clients',
+        'inbound_mailbox_allow_unknown',
+        'inbound_mailbox_whitelist',
+        'inbound_mailbox_blacklist',
         'smtp_host',
         'smtp_port',
         'smtp_encryption',
         'smtp_local_domain',
         'smtp_verify_peer',
-        'e_invoice',
+        // 'e_invoice',
     ];
 
     protected $hidden = [
@@ -373,6 +392,7 @@ class Company extends BaseModel
         'ip',
         'smtp_username',
         'smtp_password',
+        'quickbooks',
     ];
 
     protected $casts = [
@@ -390,6 +410,7 @@ class Company extends BaseModel
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
+        'quickbooks' => QuickbooksSettings::class,
     ];
 
     protected $with = [];
@@ -454,7 +475,7 @@ class Company extends BaseModel
 
     public function bank_transactions(): HasMany
     {
-        return $this->hasMany(BankTransaction::class);
+        return $this->hasMany(BankTransaction::class)->withTrashed();
     }
 
     public function bank_transaction_rules(): HasMany
@@ -636,20 +657,13 @@ class Company extends BaseModel
 
     public function country()
     {
-        $companies = Cache::get('countries');
 
-        if (! $companies) {
-            $this->buildCache(true);
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        $countries = app('countries');
 
-            $companies = Cache::get('countries');
-        }
-
-        return $companies->filter(function ($item) {
+        return $countries->first(function ($item) {
             return $item->id == $this->getSetting('country_id');
-        })->first();
-
-        //        return $this->belongsTo(Country::class);
-        // return Country::find($this->settings->country_id);
+        });
     }
 
     public function group_settings()
@@ -659,17 +673,14 @@ class Company extends BaseModel
 
     public function timezone()
     {
-        $timezones = Cache::get('timezones');
 
-        if (! $timezones) {
-            $this->buildCache(true);
-        }
+        /** @var \Illuminate\Support\Collection<\App\Models\TimeZone> */
+        $timezones = app('timezones');
 
-        return $timezones->filter(function ($item) {
+        return $timezones->first(function ($item) {
             return $item->id == $this->settings->timezone_id;
-        })->first();
+        });
 
-        // return Timezone::find($this->settings->timezone_id);
     }
 
     public function designs()
@@ -694,22 +705,15 @@ class Company extends BaseModel
 
     public function language()
     {
-        $languages = Cache::get('languages');
 
-        //build cache and reinit
-        if (! $languages) {
-            $this->buildCache(true);
-            $languages = Cache::get('languages');
-        }
+        /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+        $languages = app('languages');
 
-        //if the cache is still dead, get from DB
-        if (!$languages && property_exists($this->settings, 'language_id')) {
-            return Language::find($this->settings->language_id);
-        }
-
-        return $languages->filter(function ($item) {
+        $language = $languages->first(function ($item) {
             return $item->id == $this->settings->language_id;
-        })->first();
+        });
+
+        return $language ?? $languages->first();
     }
 
     public function getLocale()
@@ -750,11 +754,13 @@ class Company extends BaseModel
 
     public function currency()
     {
-        $currencies = Cache::get('currencies');
 
-        return $currencies->filter(function ($item) {
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        $currencies = app('currencies');
+
+        return $currencies->first(function ($item) {
             return $item->id == $this->settings->currency_id;
-        })->first();
+        });
     }
 
     /**
@@ -844,25 +850,24 @@ class Company extends BaseModel
     public function credit_rules()
     {
         return BankTransactionRule::query()
-                                  ->where('company_id', $this->id)
-                                  ->where('applies_to', 'CREDIT')
-                                  ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'CREDIT')
+            ->get();
     }
 
     public function debit_rules()
     {
         return BankTransactionRule::query()
-                          ->where('company_id', $this->id)
-                          ->where('applies_to', 'DEBIT')
-                          ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'DEBIT')
+            ->get();
     }
-
 
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $this->decodePrimaryKey($value))
-                    ->where('account_id', auth()->user()->account_id)
-                    ->firstOrFail();
+            ->where('account_id', auth()->user()->account_id)
+            ->firstOrFail();
     }
 
     public function domain(): string
@@ -872,7 +877,7 @@ class Company extends BaseModel
                 return $this->portal_domain;
             }
 
-            return "https://{$this->subdomain}.".config('ninja.app_domain');
+            return "https://{$this->subdomain}." . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
@@ -890,7 +895,7 @@ class Company extends BaseModel
 
     public function file_path(): string
     {
-        return $this->company_key.'/';
+        return $this->company_key . '/';
     }
 
     public function rBits()
@@ -967,20 +972,18 @@ class Company extends BaseModel
 
     public function date_format()
     {
-        $date_formats = Cache::get('date_formats');
 
-        if (! $date_formats) {
-            $this->buildCache(true);
-        }
+        /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
+        $date_formats = app('date_formats');
 
-        return $date_formats->filter(function ($item) {
+        return $date_formats->first(function ($item) {
             return $item->id == $this->getSetting('date_format_id');
-        })->first()->format;
+        })->format;
     }
 
     public function getInvoiceCert()
     {
-        if($this->e_invoice_certificate) {
+        if ($this->e_invoice_certificate) {
             return base64_decode($this->e_invoice_certificate);
         }
 

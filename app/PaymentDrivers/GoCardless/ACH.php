@@ -20,6 +20,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\GoCardlessPaymentDriver;
 use App\Utils\Traits\MakesHash;
@@ -31,7 +32,7 @@ use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
 //@deprecated
-class ACH implements MethodInterface
+class ACH implements MethodInterface, LivewireMethodInterface
 {
     use MakesHash;
 
@@ -48,7 +49,7 @@ class ACH implements MethodInterface
      * Authorization page for ACH.
      *
      * @param array $data
-     * @return Redirector|RedirectResponse
+     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
      */
     public function authorizeView(array $data)
     {
@@ -107,7 +108,7 @@ class ACH implements MethodInterface
      * Handle ACH post-redirect authorization.
      *
      * @param Request $request
-     * @return RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function authorizeResponse(Request $request)
     {
@@ -146,9 +147,7 @@ class ACH implements MethodInterface
      */
     public function paymentView(array $data): View
     {
-        $data['gateway'] = $this->go_cardless;
-        $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
-        $data['currency'] = $this->go_cardless->client->getCurrencyCode();
+        $data = $this->paymentData($data);
 
         return render('gateways.gocardless.ach.pay', $data);
     }
@@ -157,7 +156,7 @@ class ACH implements MethodInterface
      * Process payments for ACH.
      *
      * @param PaymentResponseRequest $request
-     * @return RedirectResponse|void
+     * @return \Illuminate\Http\RedirectResponse|void
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
@@ -173,7 +172,7 @@ class ACH implements MethodInterface
             $description = "Amount {$request->amount} from client {$this->go_cardless->client->present()->name()}";
         }
 
-        $amount = $this->go_cardless->convertToGoCardlessAmount($this->go_cardless->payment_hash?->amount_with_fee(), $this->go_cardless->client->currency()->precision);
+        $amount = $this->go_cardless->convertToGoCardlessAmount($this->go_cardless->payment_hash?->amount_with_fee(), $this->go_cardless->client->currency()->precision); //@phpstan-ignore-line
 
         try {
             $payment = $this->go_cardless->gateway->payments()->create([
@@ -206,7 +205,7 @@ class ACH implements MethodInterface
      *
      * @param ResourcesPayment $payment
      * @param array $data
-     * @return RedirectResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function processPendingPayment(ResourcesPayment $payment, array $data = [])
     {
@@ -256,5 +255,24 @@ class ACH implements MethodInterface
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.gocardless.ach.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $data['gateway'] = $this->go_cardless;
+        $data['amount'] = $this->go_cardless->convertToGoCardlessAmount($data['total']['amount_with_fee'], $this->go_cardless->client->currency()->precision);
+        $data['currency'] = $this->go_cardless->client->getCurrencyCode();
+
+        return $data;
     }
 }

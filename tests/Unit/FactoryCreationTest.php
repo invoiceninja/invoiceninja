@@ -25,7 +25,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class FactoryCreationTest extends TestCase
 {
@@ -33,7 +33,7 @@ class FactoryCreationTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,8 +47,8 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * @test
-     * @covers      App\Factory\ProductFactory
+     * 
+     *       App\Factory\ProductFactory
      */
     public function testProductionCreation()
     {
@@ -61,8 +61,8 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * @test
-     * @covers      App\Factory\InvoiceFactory
+     * 
+     *       App\Factory\InvoiceFactory
      */
     public function testInvoiceCreation()
     {
@@ -80,8 +80,8 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * @test
-     * @covers App\Factory\CloneInvoiceFactory
+     * 
+     *  App\Factory\CloneInvoiceFactory
      */
     public function testCloneInvoiceCreation()
     {
@@ -106,8 +106,8 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * @test
-     * @covers App\Factory\ClientFactory
+     * 
+     *  App\Factory\ClientFactory
      */
     public function testClientCreate()
     {
@@ -121,8 +121,8 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * @test
-     * @covers App\Factory\ClientContactFactory
+     * 
+     *  App\Factory\ClientContactFactory
      */
     public function testClientContactCreate()
     {
@@ -136,8 +136,8 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * @test
-     * @covers App\Factory\UserFactory
+     * 
+     *  App\Factory\UserFactory
      */
     public function testUserCreate()
     {

@@ -69,7 +69,7 @@ class StoreTaskRequest extends Request
 
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
-                    return $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
+                    return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. Unix timestamps only.');
                 }
             }
 
@@ -82,7 +82,7 @@ class StoreTaskRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 

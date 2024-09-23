@@ -1451,16 +1451,31 @@ Ensure the default browser behavior of the `hidden` attribute.
                 @csrf
                     <input type="hidden" name="gateway_response"/>
                     <div class="alert alert-failure mb-4" hidden="" id="errors"></div>
-                    <div class="form-group mb-[10px]">
+                    <div class="form-group mb-[10px] flex">
+
+                      <div class="w-1/2">
                         <input
                                 type="text"
                                 class="form-control block w-full px-3 py-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:primary-blue focus:outline-none"
-                                id="name"
-                                placeholder="{{ ctrans('texts.name') }}"
-                                name="name"
-                                value="{{$client->name}}"
+                                id="first_name"
+                                placeholder="{{ ctrans('texts.first_name') }}"
+                                name="first_name"
+                                value="{{ auth()->guard('contact')->user()->first_name}}"
                                 required
                         />
+                      </div>
+                      <div class="w-1/2">
+                        <input
+                                type="text"
+                                class="form-control block w-full px-3 py-2 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-light-grey rounded transition ease-in-out m-0 focus:primary-blue focus:outline-none"
+                                id="lastt_name"
+                                placeholder="{{ ctrans('texts.last_name') }}"
+                                name="last_name" 
+                                value="{{ auth()->guard('contact')->user()->last_name}}"
+                                required
+                        />
+                      </div>
+                      
                     </div>
                     <div class="form-group mb-[10px]">
                         <input
@@ -1526,7 +1541,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                 <select name="country" id="country" class="form-select w-full py-[9.5px] px-[12px] border border-light-grey rounded transition ease-in-out m-0 focus:border-primary-blue focus:outline-none bg-white">
                     <option value="{{ $client->country->id}}" selected>{{ $client->country->iso_3166_2 }} ({{ $client->country->name }})</option>
                     @foreach($countries as $country)
-                        <option value="{{ $country->id }}">{{ $country->iso_3166_2 }} ({{ $country->name }})></option>
+                        <option value="{{ $country->id }}">{{ $country->iso_3166_2 }} ({{ $country->getName() }})></option>
                     @endforeach
                 </select>
               </div>
@@ -1810,7 +1825,7 @@ var elements = stripe.elements({
 var cardElement = elements.create('card', {
     value: {
         postalCode: document.querySelector('input[name=postal_code]').content,
-        name: document.querySelector('input[name=name]').content,
+        name: document.querySelector('input[name=first_name]').content + ' ' + document.querySelector('input[name=last_name]').content,
     }
 });
 
@@ -1827,12 +1842,12 @@ var country_value = e.options[e.selectedIndex].value;
 
         //make sure the user has entered their name
 
-        if (document.querySelector('input[name=name]').value == '') {
+        if (document.querySelector('input[name=first_name]').value == '') {
           let errors = document.getElementById('errors');
           let payNowButton = document.getElementById('pay-now');
 
           errors.textContent = '';
-          errors.textContent = "{{ ctrans('texts.please_enter_a_name') }}";
+          errors.textContent = "{{ ctrans('texts.please_enter_a_first_name') }}";
           errors.hidden = false;
 
           payNowButton.disabled = false;
@@ -1841,6 +1856,19 @@ var country_value = e.options[e.selectedIndex].value;
           return;
         }
 
+        if (document.querySelector('input[name=last_name]').value == '') {
+          let errors = document.getElementById('errors');
+          let payNowButton = document.getElementById('pay-now');
+
+          errors.textContent = '';
+          errors.textContent = "{{ ctrans('texts.please_enter_a_last_name') }}";
+          errors.hidden = false;
+
+          payNowButton.disabled = false;
+          payNowButton.querySelector('svg').classList.add('hidden');
+          payNowButton.querySelector('span').classList.remove('hidden');
+          return;
+        }
 
         let payNowButton = document.getElementById('pay-now');
         payNowButton = payNowButton;
@@ -1851,7 +1879,7 @@ var country_value = e.options[e.selectedIndex].value;
         stripe.handleCardSetup(this.client_secret, cardElement, {
                 payment_method_data: {
                       billing_details: {
-                        name: document.querySelector('input[name=name]').content,
+                        name: document.querySelector('input[name=first_name]').content + ' ' + document.querySelector('input[name=first_name]').content,
                         email: '{{ $client->present()->email() }}',
                         address: {
                           line1: document.querySelector('input[name=address1]').content,

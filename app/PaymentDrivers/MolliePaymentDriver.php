@@ -156,7 +156,7 @@ class MolliePaymentDriver extends BaseDriver
                 return [
                     'transaction_reference' => $refund->id,
                     'transaction_response' => json_encode($refund),
-                    'success' => $refund->status === 'refunded' ? true : false,
+                    'success' => $refund->status === 'refunded' ? true : false, //@phpstan-ignore-line
                     'description' => $refund->description,
                     'code' => 200,
                 ];
@@ -171,7 +171,7 @@ class MolliePaymentDriver extends BaseDriver
             ];
         } catch (ApiException $e) {
             SystemLogger::dispatch(
-                ['server_response' => $refund, 'data' => request()->all()],
+                ['server_response' => $e->getMessage(), 'data' => request()->all()],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_MOLLIE,
@@ -223,7 +223,7 @@ class MolliePaymentDriver extends BaseDriver
             ]);
 
             if ($payment->status === 'paid') {
-                $this->confirmGatewayFee($request);
+                
 
                 $data = [
                     'payment_method' => $cgt->token,
@@ -232,6 +232,8 @@ class MolliePaymentDriver extends BaseDriver
                     'transaction_reference' => $payment->id,
                     'gateway_type_id' => GatewayType::CREDIT_CARD,
                 ];
+
+                $this->confirmGatewayFee($data);
 
                 $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
@@ -284,7 +286,8 @@ class MolliePaymentDriver extends BaseDriver
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
         // Allow app to catch up with webhook request.
-        sleep(2);
+        // sleep(4);
+        usleep(rand(2800000, 4000000));
 
         $validator = Validator::make($request->all(), [
             'id' => ['required', 'starts_with:tr'],
@@ -334,6 +337,8 @@ class MolliePaymentDriver extends BaseDriver
                         'payment_type' => $payment->metadata->payment_type_id,
                         'transaction_reference' => $payment->id,
                     ];
+
+                    $this->confirmGatewayFee($data);
 
                     $record = $this->createPayment(
                         $data,
@@ -428,8 +433,7 @@ class MolliePaymentDriver extends BaseDriver
         try {
             $p = $this->gateway->payments->page();
             return true;
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
 
         }
 

@@ -26,7 +26,7 @@
             <p>{{ $additional_info }}</p>
         @endisset
 
-        @isset($url)
+        @if($url)
 
         <!--[if (gte mso 9)|(IE)]>
         <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
@@ -50,7 +50,7 @@
         <![endif]-->
 
 
-        @endisset
+        @endif
 
         @isset($signature)
             <p>{!! nl2br($signature) !!}</p>

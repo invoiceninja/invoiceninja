@@ -77,6 +77,9 @@ class UpdateUserRequest extends Request
             unset($input['oauth_user_token']);
         }
 
+        if(isset($input['password']) && is_string($input['password'])) {
+            $input['password'] = trim($input['password']);
+        }
 
         $this->replace($input);
     }

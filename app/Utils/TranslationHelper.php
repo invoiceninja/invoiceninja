@@ -17,57 +17,67 @@ use Illuminate\Support\Str;
 
 class TranslationHelper
 {
-    public static function getIndustries()
-    {
-        return Cache::get('industries')->each(function ($industry) {
-            $industry->name = ctrans('texts.industry_'.$industry->name);
-        })->sortBy(function ($industry) {
-            return $industry->name;
-        });
-    }
+    // public static function getIndustries()
+    // {
+
+    //     /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+    //     $industries = app('industries');
+
+    //     return $industries->each(function ($industry) {
+    //         $industry->name = ctrans('texts.industry_'.$industry->name);
+    //     })->sortBy(function ($industry) {
+    //         return $industry->name;
+    //     });
+    // }
 
     public static function getCountries()
     {
-        return Cache::get('countries')->each(function ($country) {
-            $country->name = ctrans('texts.country_'.$country->name);
-        })->sortBy(function ($country) {
-            return $country->iso_3166_2;
-        });
+
+        /** @var \Illuminate\Support\Collection<\App\Models\Country> */
+        return app('countries');
+
     }
 
-    public static function getPaymentTypes()
-    {
-        return Cache::get('payment_types')->each(function ($pType) {
-            $pType->name = ctrans('texts.payment_type_'.$pType->name);
-        })->sortBy(function ($pType) {
-            return $pType->name;
-        });
-    }
+    // public static function getPaymentTypes()
+    // {
 
-    public static function getLanguages()
-    {
-        return Cache::get('languages')->each(function ($lang) {
-            $lang->name = ctrans('texts.lang_'.$lang->name);
-        })->sortBy(function ($lang) {
-            return $lang->name;
-        });
-    }
+    //     /** @var \Illuminate\Support\Collection<\App\Models\PaymentType> */
+    //     // $payment_types = app('payment_types');
+
+    //     return \App\Models\PaymentType::all()->each(function ($pType) {
+    //         $pType->name = ctrans('texts.payment_type_'.$pType->name);
+    //     })->sortBy(function ($pType) {
+    //         return $pType->name;
+    //     });
+    // }
+
+    // public static function getLanguages()
+    // {
+
+    //     /** @var \Illuminate\Support\Collection<\App\Models\Language> */
+    //     // $languages = app('languages');
+
+    //     return \App\Models\Language::all()->each(function ($lang) {
+    //         $lang->name = ctrans('texts.lang_'.$lang->name);
+    //     })->sortBy(function ($lang) {
+    //         return $lang->name;
+    //     });
+    // }
 
     public static function getCurrencies()
     {
-        return Cache::get('currencies')->each(function ($currency) {
-            $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
-        })->sortBy(function ($currency) {
-            return $currency->name;
-        });
+
+        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+        return app('currencies');
+
     }
 
-    public static function getPaymentTerms()
-    {
-        return PaymentTerm::getCompanyTerms()->map(function ($term) {
-            $term['name'] = ctrans('texts.payment_terms_net').' '.$term['num_days'];
+    // public static function getPaymentTerms()
+    // {
+    //     return PaymentTerm::getCompanyTerms()->map(function ($term) {
+    //         $term['name'] = ctrans('texts.payment_terms_net').' '.$term['num_days'];
 
-            return $term;
-        });
-    }
+    //         return $term;
+    //     });
+    // }
 }

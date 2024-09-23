@@ -30,6 +30,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property string|null $custom_value4
  * @property string|null $product_key
  * @property string|null $notes
+ * @property string|null $hash
  * @property float $cost
  * @property float $price
  * @property float $quantity
@@ -208,7 +209,7 @@ class Product extends BaseModel
 
     public static function markdownHelp(string $notes = '')
     {
-                
+
         $converter = new CommonMarkConverter([
             'allow_unsafe_links' => false,
             'renderer' => [

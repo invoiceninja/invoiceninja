@@ -25,7 +25,6 @@ class ProtectedDownloadController extends BaseController
 
         if (!$hashed_path) {
             throw new SystemError('File no longer available', 404);
-            abort(404, 'File no longer available');
         }
 
         return response()->streamDownload(function () use ($hashed_path) {

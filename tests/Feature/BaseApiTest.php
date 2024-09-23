@@ -54,10 +54,6 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/**
- * @test
- * @covers App\Http\Controllers\BaseController
- */
 class BaseApiTest extends TestCase
 {
     use MockAccountData;
@@ -104,7 +100,7 @@ class BaseApiTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -161,7 +157,7 @@ class BaseApiTest extends TestCase
 
         $user_id = $owner_user->id;
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $owner_user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $this->account->id;
@@ -186,7 +182,7 @@ class BaseApiTest extends TestCase
 
         $this->low_token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $lower_permission_user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
@@ -326,7 +322,7 @@ class BaseApiTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $gs = new GroupSetting;
+        $gs = new GroupSetting();
         $gs->name = 'Test';
         $gs->company_id = $client->company_id;
         $gs->settings = ClientSettings::buildClientSettings($company->settings, $client->settings);
@@ -372,7 +368,7 @@ class BaseApiTest extends TestCase
             'company_id' => $company->id,
         ]);
 
-        $cg = new CompanyGateway;
+        $cg = new CompanyGateway();
         $cg->company_id = $company->id;
         $cg->user_id = $user_id;
         $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -397,7 +393,7 @@ class BaseApiTest extends TestCase
 
 
     // }
-    
+
     /**
      * Tests admin/owner facing routes respond with the correct status and/or data set
      */
@@ -415,7 +411,7 @@ class BaseApiTest extends TestCase
         collect($this->list_routes)->filter(function ($route) {
             return !in_array($route, ['users','designs','payment_terms']);
         })->each(function ($route) {
-            // nlog($route);
+
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->owner_token,

@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessKlarna {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -17,7 +19,7 @@ class ProcessKlarna {
 
     setupStripe = () => {
 
-        if (this.stripeConnect){
+        if (this.stripeConnect) {
             // this.stripe.stripeAccount = this.stripeConnect;
 
             this.stripe = Stripe(this.key, {
@@ -47,7 +49,7 @@ class ProcessKlarna {
         document.getElementById('pay-now').addEventListener('click', (e) => {
             let errors = document.getElementById('errors');
             let name = document.getElementById("klarna-name").value;
-            if (! /^[A-Za-z\s]*$/.test(name)){
+            if (! /^[A-Za-z\s]*$/.test(name)) {
                 document.getElementById('klarna-name-correction').hidden = false;
                 document.getElementById('klarna-name').textContent = name.replace(/^[A-Za-z\s]*$/, "")
                 document.getElementById('klarna-name').focus();
@@ -81,21 +83,28 @@ class ProcessKlarna {
                             'meta[name="return-url"]'
                         ).content,
                     }
-                    ).then((result) => {
+                ).then((result) => {
                     if (result.hasOwnProperty('error')) {
                         return this.handleError(result.error.message);
                     }
 
-                });}
+                });
+            }
         });
     };
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessKlarna(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+instant() ? boot() : wait('#stripe-klarna-payment').then(() => boot());
 
-new ProcessKlarna(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-klarna-payment').then(() => boot());

@@ -21,10 +21,6 @@ class PaymentMethod
 {
     use MakesHash;
 
-    private $client;
-
-    private $amount;
-
     /** @var \Illuminate\Support\Collection<CompanyGateway> $gateways **/
     private $gateways;
 
@@ -32,24 +28,32 @@ class PaymentMethod
 
     private $payment_urls = [];
 
-    public function __construct(Client $client, float $amount)
+    public function __construct(private Client $client, private float $amount)
     {
-        $this->client = $client;
-        $this->amount = $amount;
     }
 
     public function run()
     {
         $this->getGateways()
-             ->getMethods()
-             ->buildUrls();
+             ->getMethods();
 
         return $this->getPaymentUrls();
     }
 
     public function getPaymentUrls()
     {
+        $pu = collect($this->payment_urls);
+        $keys = $pu->pluck('gateway_type_id');
+        $contains_both = $keys->contains('1') && $keys->contains('29'); //handle the case where PayPal Advanced cards + regular CC is present
+
+        $this->payment_urls = $pu->when($contains_both, function ($methods) {
+            return $methods->reject(function ($item) {
+                return $item['gateway_type_id'] == '29';
+            });
+        })->toArray();
+
         return $this->payment_urls;
+
     }
 
     public function getPaymentMethods()
@@ -61,11 +65,12 @@ class PaymentMethod
     {
         $company_gateways = $this->client->getSetting('company_gateway_ids');
 
-        //we need to check for "0" here as we disable a payment gateway for a client with the number "0"
+        // We need to check for "0" here as we disable a payment gateway for a client with the number "0"
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
-            if($company_gateways == '0') {
+            //gateways disabled
+            if ($company_gateways == '0') {
                 $transformed_ids = [];
             }
 
@@ -79,26 +84,6 @@ class PaymentMethod
                              ->sortby(function ($model) use ($transformed_ids) { //company gateways are sorted in order of priority
                                  return array_search($model->id, $transformed_ids); // this closure sorts for us
                              });
-
-            //2023-10-11 - Roll back, do not show any gateways, if they have been archived upstream.
-            //removing this logic now to prevent any
-            // if($this->gateways->count() == 0 && count($transformed_ids) >=1) {
-
-            //     /**
-            //      * This is a fallback in case a user archives some gateways that have been ordered preferentially.
-            //      *
-            //      * If the user archives a parent gateway upstream, it may leave a client setting in a state where no payment gateways are available.
-            //      *
-            //      * In this case we fall back to all gateways.
-            //      */
-            //     $this->gateways = CompanyGateway::query()
-            //                  ->with('gateway')
-            //                  ->where('company_id', $this->client->company_id)
-            //                  ->where('gateway_key', '!=', '54faab2ab6e3223dbe848b1686490baa')
-            //                  ->whereNull('deleted_at')
-            //                  ->where('is_deleted', false)->get();
-
-            // }
 
         } else {
             $this->gateways = CompanyGateway::query()
@@ -120,10 +105,9 @@ class PaymentMethod
         if ($company_gateways || $company_gateways == '0') {
             $transformed_ids = $this->transformKeys(explode(',', $company_gateways));
 
-            if($company_gateways == '0') {
+            if ($company_gateways == '0') {
                 $transformed_ids = [];
             }
-
 
             $this->gateways = $this->client
                              ->company
@@ -159,7 +143,7 @@ class PaymentMethod
 
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
                 if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, $type)) {
-                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}, $this->amount) && $gateway->fees_and_limits->{$type}->is_enabled) {
+                    if ($this->validGatewayForAmount($gateway->fees_and_limits->{$type}) && $gateway->fees_and_limits->{$type}->is_enabled) {
                         $this->payment_methods[] = [$gateway->id => $type];
                     }
                 } else {
@@ -173,45 +157,29 @@ class PaymentMethod
         //** Plucks the remaining keys into its own collection
         $this->payment_methods = $payment_methods_collections->intersectByKeys($payment_methods_collections->flatten(1)->unique());
 
+        //@15-06-2024
+        foreach ($this->payment_methods as $key => $type) {
+            foreach ($type as $gateway_id => $gateway_type_id) {
+                $gate = $this->gateways->where('id', $gateway_id)->first();
+                $this->buildUrl($gate, $gateway_type_id);
+            }
+        }
+
+        //@15-06-2024
+        $this->payment_methods = [];
+
         /* Loop through custom gateways if any exist and append them to the methods collection*/
         $this->getCustomGateways();
 
         //note we have to use GatewayType::CREDIT_CARD as alias for CUSTOM
         foreach ($this->gateways as $gateway) {
             foreach ($gateway->driver($this->client)->gatewayTypes() as $type) {
-                if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) {
+                if (isset($gateway->fees_and_limits) && is_object($gateway->fees_and_limits) && property_exists($gateway->fees_and_limits, GatewayType::CREDIT_CARD)) { //@phpstan-ignore-line
                     if ($this->validGatewayForAmount($gateway->fees_and_limits->{GatewayType::CREDIT_CARD}, $this->amount)) {
-                        $this->payment_methods[] = [$gateway->id => $type];
+                        $this->buildUrl($gateway, $type);
                     }
                 } else {
-                    $this->payment_methods[] = [$gateway->id => null];
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    private function buildUrls()
-    {
-        foreach ($this->payment_methods as $key => $child_array) {
-            foreach ($child_array as $gateway_id => $gateway_type_id) {
-                $gateway = CompanyGateway::query()->find($gateway_id);
-
-                $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client, $gateway_type_id);
-
-                if (! $gateway_type_id || (GatewayType::CUSTOM == $gateway_type_id)) {
-                    $this->payment_urls[] = [
-                        'label' => $gateway->getConfigField('name').$fee_label,
-                        'company_gateway_id'  => $gateway_id,
-                        'gateway_type_id' => GatewayType::CREDIT_CARD,
-                    ];
-                } else {
-                    $this->payment_urls[] = [
-                        'label' => $gateway->getTypeAlias($gateway_type_id).$fee_label,
-                        'company_gateway_id'  => $gateway_id,
-                        'gateway_type_id' => $gateway_type_id,
-                    ];
+                    $this->buildUrl($gateway, null);
                 }
             }
         }
@@ -228,13 +196,40 @@ class PaymentMethod
                 'label' => ctrans('texts.apply_credit'),
                 'company_gateway_id'  => CompanyGateway::GATEWAY_CREDIT,
                 'gateway_type_id' => GatewayType::CREDIT,
+                'is_paypal' => false,
             ];
         }
 
         return $this;
     }
 
-    private function validGatewayForAmount($fees_and_limits_for_payment_type, $amount): bool
+
+    //@15-06-2024
+    private function buildUrl(CompanyGateway $gateway, ?int $type = null)
+    {
+
+        $fee_label = $gateway->calcGatewayFeeLabel($this->amount, $this->client, $type);
+
+        if (! $type || (GatewayType::CUSTOM == $type)) {
+            $this->payment_urls[] = [
+                'label' => $gateway->getConfigField('name').$fee_label,
+                'company_gateway_id'  => $gateway->id,
+                'gateway_type_id' => GatewayType::CREDIT_CARD,
+                'is_paypal' => $gateway->isPayPal(),
+            ];
+        } else {
+            $this->payment_urls[] = [
+                'label' => $gateway->getTypeAlias($type).$fee_label,
+                'company_gateway_id'  => $gateway->id,
+                'gateway_type_id' => $type,
+                'is_paypal' => $gateway->isPayPal(),
+            ];
+        }
+
+        return $this;
+    }
+
+    private function validGatewayForAmount($fees_and_limits_for_payment_type): bool
     {
         if (isset($fees_and_limits_for_payment_type)) {
             $fees_and_limits = $fees_and_limits_for_payment_type;

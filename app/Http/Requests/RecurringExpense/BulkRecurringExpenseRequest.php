@@ -34,7 +34,10 @@ class BulkRecurringExpenseRequest extends Request
             return false;
         }
 
-        return auth()->user()->can(auth()->user()->isAdmin(), RecurringExpense::class);
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $user->can('edit', RecurringExpense::class);
     }
 
     /**

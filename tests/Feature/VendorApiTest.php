@@ -23,8 +23,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\VendorController
+ * 
+ *  App\Http\Controllers\VendorController
  */
 class VendorApiTest extends TestCase
 {
@@ -34,19 +34,15 @@ class VendorApiTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->makeTestData();
 
-        Session::start();
-
         $this->faker = \Faker\Factory::create();
 
-        Model::reguard();
     }
-
 
     public function testVendorContactCreation()
     {
@@ -80,13 +76,12 @@ class VendorApiTest extends TestCase
 
         $this->assertNull($v->last_login);
         $this->assertNull($vc->last_login);
-        
+
         Event::fake();
         event(new VendorContactLoggedIn($vc, $this->company, Ninja::eventVars()));
 
-
         Event::assertDispatched(VendorContactLoggedIn::class);
-        
+
     }
 
     public function testVendorLocale()
@@ -164,12 +159,12 @@ class VendorApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson("/api/v1/vendors/{$id}", $data);
-        
+
         $response->assertStatus(200);
 
         $arr = $response->json();
         $this->assertEquals('3', $arr['data']['language_id']);
-        
+
     }
 
     public function testAddVendorLanguage422()
@@ -183,7 +178,7 @@ class VendorApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/vendors', $data)->assertStatus(422);
-        
+
     }
 
 
@@ -201,7 +196,7 @@ class VendorApiTest extends TestCase
 
         $response->assertStatus(200);
         $arr = $response->json();
-        
+
         $this->assertEquals('1', $arr['data']['language_id']);
     }
 
@@ -216,7 +211,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors', $data);
+        ])->postJson('/api/v1/vendors', $data);
 
         $response->assertStatus(200);
 
@@ -249,7 +244,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors', $data);
+        ])->postJson('/api/v1/vendors', $data);
 
         $response->assertStatus(200);
 
@@ -265,7 +260,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/recurring_invoices', $data);
+        ])->postJson('/api/v1/recurring_invoices', $data);
 
         $response->assertStatus(200);
 
@@ -283,7 +278,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors', $data);
+        ])->postJson('/api/v1/vendors', $data);
 
         $response->assertStatus(200);
 
@@ -298,7 +293,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/quotes', $data);
+        ])->postJson('/api/v1/quotes', $data);
 
         $response->assertStatus(200);
 
@@ -316,7 +311,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors', $data);
+        ])->postJson('/api/v1/vendors', $data);
 
         $response->assertStatus(200);
 
@@ -331,7 +326,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/credits', $data);
+        ])->postJson('/api/v1/credits', $data);
 
         $response->assertStatus(200);
 
@@ -349,7 +344,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors', $data);
+        ])->postJson('/api/v1/vendors', $data);
 
         $response->assertStatus(200);
     }
@@ -365,7 +360,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/vendors/'.$this->encodePrimaryKey($this->vendor->id), $data);
+        ])->putJson('/api/v1/vendors/'.$this->encodePrimaryKey($this->vendor->id), $data);
 
         $response->assertStatus(200);
 
@@ -377,18 +372,16 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/vendors/'.$this->encodePrimaryKey($this->vendor->id), $data);
+        ])->putJson('/api/v1/vendors/'.$this->encodePrimaryKey($this->vendor->id), $data);
 
         $response->assertStatus(200);
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/vendors/', $data);
-        } catch (ValidationException $e) {
-            $response->assertStatus(302);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/vendors/', $data)
+        ->assertStatus(422);
+
     }
 
     public function testVendorGet()
@@ -422,7 +415,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/bulk?action=archive', $data);
+        ])->postJson('/api/v1/vendors/bulk?action=archive', $data);
 
         $arr = $response->json();
 
@@ -438,7 +431,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/bulk?action=restore', $data);
+        ])->postJson('/api/v1/vendors/bulk?action=restore', $data);
 
         $arr = $response->json();
 
@@ -454,7 +447,7 @@ class VendorApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/vendors/bulk?action=delete', $data);
+        ])->postJson('/api/v1/vendors/bulk?action=delete', $data);
 
         $arr = $response->json();
 

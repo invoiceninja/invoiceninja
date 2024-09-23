@@ -48,7 +48,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function includeActivities(Client $client)
     {
@@ -67,7 +67,7 @@ class ClientTransformer extends EntityTransformer
     /**
      * @param Client $client
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function includeContacts(Client $client)
     {

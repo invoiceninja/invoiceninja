@@ -178,7 +178,7 @@ class QuoteController extends Controller
             ->where('client_id', auth()->guard('contact')->user()->client->id)
             ->where('company_id', auth()->guard('contact')->user()->client->company_id)
             ->whereIn('status_id', [Quote::STATUS_DRAFT, Quote::STATUS_SENT])
-            ->where(function ($q){
+            ->where(function ($q) {
                 $q->whereNull('due_date')->orWhere('due_date', '>=', now());
             })
             ->withTrashed()

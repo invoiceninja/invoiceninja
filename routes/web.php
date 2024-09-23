@@ -7,6 +7,7 @@ use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\ClientPortal\ApplePayDomainController;
+use App\Http\Controllers\EInvoice\SelfhostController;
 use App\Http\Controllers\Gateways\Checkout3dsController;
 use App\Http\Controllers\Gateways\GoCardlessController;
 use App\Http\Controllers\Gateways\GoCardlessOAuthController;
@@ -55,3 +56,7 @@ Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePa
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
 Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');
 Route::get('gocardless/oauth/connect/{token}', [GoCardlessOAuthController::class, 'connect']);
+
+Route::get('einvoice/beta', [SelfhostController::class, 'index'])->name('einvoice.beta');
+
+\Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['token_auth']]);

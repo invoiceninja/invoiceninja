@@ -17,10 +17,11 @@ use App\Jobs\Util\SystemLogger;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\EwayPaymentDriver;
 use App\Utils\Traits\MakesHash;
 
-class CreditCard
+class CreditCard implements LivewireMethodInterface
 {
     use MakesHash;
 
@@ -78,7 +79,7 @@ class CreditCard
 
             $this->logResponse($response);
 
-            throw new PaymentFailed($response_status['message'] ?? 'Unknown response from gateway, please contact you merchant.', 400);
+            throw new PaymentFailed($response_status['message'] ?? 'Unknown response from gateway, please contact you merchant.', 400); //@phpstan-ignore-line
         }
 
         //success
@@ -102,10 +103,17 @@ class CreditCard
         return $token;
     }
 
-    public function paymentView($data)
+    public function paymentData(array $data): array
     {
         $data['gateway'] = $this->eway_driver;
         $data['public_api_key'] = $this->eway_driver->company_gateway->getConfigField('publicApiKey');
+
+        return $data;
+    }
+
+    public function paymentView($data)
+    {
+        $data = $this->paymentData($data);
 
         return render('gateways.eway.pay', $data);
     }
@@ -135,7 +143,7 @@ class CreditCard
         $invoice_numbers = '';
 
         if ($this->eway_driver->payment_hash->data) {
-            $invoice_numbers = collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(',');
+            $invoice_numbers = collect($this->eway_driver->payment_hash->data->invoices)->pluck('invoice_number')->implode(','); //@phpstan-ignore-line
         }
 
         $amount = array_sum(array_column($this->eway_driver->payment_hash->invoices(), 'amount')) + $this->eway_driver->payment_hash->fee_total;
@@ -275,5 +283,9 @@ class CreditCard
         }
 
         return $payment;
+    }
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.eway.pay_livewire';
     }
 }

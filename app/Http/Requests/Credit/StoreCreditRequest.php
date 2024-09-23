@@ -50,7 +50,7 @@ class StoreCreditRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -65,6 +65,9 @@ class StoreCreditRequest extends Request
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
+        $rules['invitations'] = 'sometimes|bail|array';
+        $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
+
         // $rules['number'] = new UniqueCreditNumberRule($this->all());
         $rules['number'] = ['nullable', Rule::unique('credits')->where('company_id', $user->company()->id)];
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
@@ -78,7 +81,7 @@ class StoreCreditRequest extends Request
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
 
-$rules['date'] = 'bail|sometimes|date:Y-m-d';
+        $rules['date'] = 'bail|sometimes|date:Y-m-d';
 
         if ($this->invoice_id) {
             $rules['invoice_id'] = new ValidInvoiceCreditRule();
@@ -104,6 +107,7 @@ $rules['date'] = 'bail|sometimes|date:Y-m-d';
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        $input['line_items'] = $this->cleanFeeItems($input['line_items']);
         $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {

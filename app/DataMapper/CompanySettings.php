@@ -29,7 +29,7 @@ class CompanySettings extends BaseSettings
 
     public $besr_id = ''; //@implemented
 
-    public $lock_invoices = 'off'; //off,when_sent,when_paid //@implemented
+    public $lock_invoices = 'off'; //off,when_sent,when_paid,end_of_month //@implemented
 
     public $enable_client_portal_tasks = false; //@ben to implement
 
@@ -507,7 +507,29 @@ class CompanySettings extends BaseSettings
 
     public int $task_round_to_nearest = 1;
 
+    /** quote reminders */
+    public $email_quote_template_reminder1 = '';
+    public $email_quote_subject_reminder1 = '';
+    public $enable_quote_reminder1 = false;
+    public $quote_num_days_reminder1 = 0;
+    public $quote_schedule_reminder1 = ''; //before_valid_until_date,after_valid_until_date,after_quote_date
+    public $quote_late_fee_amount1 = 0;
+    public $quote_late_fee_percent1 = 0;
+
+    public string $payment_flow = 'default'; //smooth
+
+    public string $email_subject_payment_failed = '';
+    public string $email_template_payment_failed = '';
+
     public static $casts = [
+        'payment_flow'                       => 'string',
+        'enable_quote_reminder1'             => 'bool',
+        'quote_num_days_reminder1'           => 'int',
+        'quote_schedule_reminder1'           => 'string',
+        'quote_late_fee_amount1'             => 'float',
+        'quote_late_fee_percent1'            => 'float',
+        'email_quote_template_reminder1'     => 'string',
+        'email_quote_subject_reminder1'      => 'string',
         'task_round_up'                      => 'bool',
         'task_round_to_nearest'              => 'int',
         'e_quote_type'                       => 'string',
@@ -750,6 +772,8 @@ class CompanySettings extends BaseSettings
         'portal_custom_js' => 'string',
         'client_portal_enable_uploads' => 'bool',
         'purchase_order_number_counter' => 'integer',
+        'email_template_payment_failed'      => 'string',
+        'email_subject_payment_failed'       => 'string',
     ];
 
     public static $free_plan_casts = [
@@ -962,6 +986,7 @@ class CompanySettings extends BaseSettings
                 '$invoice.due_date',
                 '$invoice.total',
                 '$invoice.balance_due',
+                '$invoice.project',
             ],
             'quote_details' => [
                 '$quote.number',
@@ -969,6 +994,7 @@ class CompanySettings extends BaseSettings
                 '$quote.date',
                 '$quote.valid_until',
                 '$quote.total',
+                '$quote.project',
             ],
             'credit_details' => [
                 '$credit.number',

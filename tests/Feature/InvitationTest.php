@@ -26,8 +26,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Models\InvoiceInvitation
+ * 
+ *  App\Models\InvoiceInvitation
  */
 class InvitationTest extends TestCase
 {
@@ -35,7 +35,7 @@ class InvitationTest extends TestCase
     use DatabaseTransactions;
     // use RefreshDatabase;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

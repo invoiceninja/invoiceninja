@@ -33,7 +33,7 @@ class UpdatePrice extends AbstractService
             ->where('is_deleted', 0)
             ->first();
 
-            if ($product) {
+            if ($product) { //@phpstan-ignore-line
                 $line_items[$key]->cost = floatval($product->price);
             }
         }

@@ -26,7 +26,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CheckDataTest extends TestCase
 {
@@ -43,10 +43,10 @@ class CheckDataTest extends TestCase
      *
      * No method can guarantee against false positives.
      */
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->faker = \Faker\Factory::create();
 
         $this->withoutMiddleware(
@@ -91,7 +91,7 @@ class CheckDataTest extends TestCase
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
@@ -143,7 +143,7 @@ class CheckDataTest extends TestCase
             $this->assertNotNull($payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()
             ->sum(\DB::raw('amount')->getValue(\DB::connection()->getQueryGrammar())));
         });
-     
+
         Payment::with('paymentables')->cursor()->each(function ($payment) {
             $this->assertNotNull($payment->paymentables()->where('paymentable_type', \App\Models\Credit::class)->get()
             ->sum('amount'));
@@ -184,7 +184,7 @@ class CheckDataTest extends TestCase
             'account_id' => $this->account->id,
             'email' => $this->faker->unique()->safeEmail(),
         ]);
-        
+
         User::factory()->create([
             'account_id' => $this->account->id,
             'email' => $this->faker->unique()->safeEmail(),
@@ -215,7 +215,7 @@ class CheckDataTest extends TestCase
             SELECT count(clients.id) as count
             FROM clients
         ")->getValue(\DB::connection()->getQueryGrammar()));
-    
+
 
         $refactored = \DB::select("
             SELECT count(clients.id) as count
@@ -261,7 +261,7 @@ class CheckDataTest extends TestCase
                 AND payments.is_deleted = 0
                 AND payments.client_id = ?;
                 ")->getValue(\DB::connection()->getQueryGrammar()), ['invoices', $this->client->id]);
-            
+
         $refactored = \DB::select("
                 SELECT 
                 SUM(payments.amount) as amount

@@ -81,14 +81,20 @@ class SearchController extends Controller
         $invoices = Invoice::query()
                      ->company()
                      ->with('client')
-                     ->where('is_deleted', 0)
-                     ->whereHas('client', function ($q) {
-                         $q->where('is_deleted', 0);
-                     })
+                     ->where('invoices.is_deleted', 0)
+                    //  ->whereHas('client', function ($q) {
+                    //      $q->where('is_deleted', 0);
+                    //  })
+
+                    ->leftJoin('clients', function ($join) {
+                        $join->on('invoices.client_id', '=', 'clients.id')
+                            ->where('clients.is_deleted', 0);
+                    })
+
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_invoice'), function ($query) use ($user) {
-                         $query->where('user_id', $user->id);
+                         $query->where('invoices.user_id', $user->id);
                      })
-                     ->orderBy('id', 'desc')
+                     ->orderBy('invoices.id', 'desc')
                     ->take(3000)
                     ->get();
 

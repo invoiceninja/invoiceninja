@@ -97,7 +97,7 @@ class RecurringExpenseController extends BaseController
      *       ),
      *     )
      * @param RecurringExpenseFilters $filters
-     * @return Response|mixed
+     * @return Response| \Illuminate\Http\JsonResponse|mixed
      */
     public function index(RecurringExpenseFilters $filters)
     {
@@ -111,7 +111,7 @@ class RecurringExpenseController extends BaseController
      *
      * @param ShowRecurringExpenseRequest $request
      * @param RecurringExpense $recurring_expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -165,7 +165,7 @@ class RecurringExpenseController extends BaseController
      *
      * @param EditRecurringExpenseRequest $request
      * @param RecurringExpense $recurring_expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Get(
@@ -219,7 +219,7 @@ class RecurringExpenseController extends BaseController
      *
      * @param UpdateRecurringExpenseRequest $request
      * @param RecurringExpense $recurring_expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -284,7 +284,7 @@ class RecurringExpenseController extends BaseController
      * Show the form for creating a new resource.
      *
      * @param CreateRecurringExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -332,7 +332,7 @@ class RecurringExpenseController extends BaseController
      * Store a newly created resource in storage.
      *
      * @param StoreRecurringExpenseRequest $request
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *
@@ -384,7 +384,7 @@ class RecurringExpenseController extends BaseController
      *
      * @param DestroyRecurringExpenseRequest $request
      * @param RecurringExpense $recurring_expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @throws \Exception
@@ -438,7 +438,7 @@ class RecurringExpenseController extends BaseController
     /**
      * Perform bulk actions on the list view.
      *
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      * @OA\Post(
@@ -557,7 +557,7 @@ class RecurringExpenseController extends BaseController
      *
      * @param UploadRecurringExpenseRequest $request
      * @param RecurringExpense $recurring_expense
-     * @return Response
+     * @return Response| \Illuminate\Http\JsonResponse
      *
      *
      *

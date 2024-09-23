@@ -139,7 +139,7 @@ class Summary extends Component
         }
 
         $products = [];
-        
+
         foreach ($this->context['bundle']['recurring_products'] as $key => $item) {
             $products[] = [
                 'product_key' => $item['product']['product_key'],

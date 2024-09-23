@@ -11,33 +11,35 @@
 
 namespace App\Http\Controllers;
 
+use App\Utils\Ninja;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Utils\HtmlEngine;
+use Illuminate\Support\Str;
+use Twig\Error\SyntaxError;
+use App\Jobs\Util\PreviewPdf;
+use App\Models\ClientContact;
+use App\Services\Pdf\PdfMock;
+use App\Utils\Traits\MakesHash;
+use App\Services\Pdf\PdfService;
+use App\Utils\PhantomJS\Phantom;
+use App\Models\InvoiceInvitation;
+use App\Services\PdfMaker\Design;
+use App\Utils\HostedPDF\NinjaPdf;
+use Illuminate\Support\Facades\DB;
+use App\Services\PdfMaker\PdfMaker;
+use Illuminate\Support\Facades\App;
+use App\Utils\Traits\GeneratesCounter;
+use App\Utils\Traits\MakesInvoiceHtml;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Utils\Traits\Pdf\PageNumbering;
+use Illuminate\Support\Facades\Response;
 use App\DataMapper\Analytics\LivePreview;
+use App\Services\Template\TemplateService;
+use App\Http\Requests\Preview\ShowPreviewRequest;
 use App\Http\Requests\Preview\DesignPreviewRequest;
 use App\Http\Requests\Preview\PreviewInvoiceRequest;
-use App\Http\Requests\Preview\ShowPreviewRequest;
-use App\Jobs\Util\PreviewPdf;
-use App\Models\Client;
-use App\Models\ClientContact;
-use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
-use App\Services\Pdf\PdfMock;
-use App\Services\Pdf\PdfService;
-use App\Services\PdfMaker\Design;
-use App\Services\PdfMaker\PdfMaker;
-use App\Services\Template\TemplateService;
-use App\Utils\HostedPDF\NinjaPdf;
-use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
-use App\Utils\PhantomJS\Phantom;
-use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
-use App\Utils\Traits\Pdf\PageNumbering;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Turbo124\Beacon\Facades\LightLogs;
-use Twig\Error\SyntaxError;
+use App\Utils\VendorHtmlEngine;
 
 class PreviewController extends BaseController
 {
@@ -123,7 +125,7 @@ class PreviewController extends BaseController
 
         $response = Response::make($pdf, 200);
         $response->header('Content-Type', 'application/pdf');
-        $response->header('Server-Timing', microtime(true) - $start);
+        $response->header('Server-Timing', (string) (microtime(true) - $start));
 
         return $response;
     }
@@ -136,6 +138,7 @@ class PreviewController extends BaseController
      */
     public function show(ShowPreviewRequest $request)
     {
+
         if($request->input('design.is_template')) {
             return $this->template();
         }
@@ -143,8 +146,10 @@ class PreviewController extends BaseController
         if (request()->has('entity') &&
             request()->has('entity_id') &&
             ! empty(request()->input('entity')) &&
-            ! empty(request()->input('entity_id')) &&
-            request()->has('body')) {
+            ! empty(request()->input('entity_id'))) {
+
+            if($request->input('entity') == 'purchase_order')
+                return $preview = app(\App\Http\Controllers\PreviewPurchaseOrderController::class)->show($request);
 
             $design_object = json_decode(json_encode(request()->input('design')));
 
@@ -152,7 +157,7 @@ class PreviewController extends BaseController
                 return response()->json(['message' => ctrans('texts.invalid_design_object')], 400);
             }
 
-            $entity = ucfirst(request()->input('entity'));
+            $entity = Str::camel(request()->input('entity'));
 
             $class = "App\Models\\$entity";
 
@@ -166,17 +171,19 @@ class PreviewController extends BaseController
 
             App::forgetInstance('translator');
             $t = app('translator');
-            App::setLocale($entity_obj->client->primary_contact()->preferredLocale());
+            App::setLocale($entity_obj->client->preferredLocale());
             $t->replace(Ninja::transformTranslations($entity_obj->client->getMergedSettings()));
 
-            $html = new HtmlEngine($entity_obj->invitations()->first());
+            if($entity_obj->client) {
+                $html = new HtmlEngine($entity_obj->invitations()->first());
+            } else {
+                $html = new VendorHtmlEngine($entity_obj->invitations()->first());
+            }
 
-            $design_namespace = 'App\Services\PdfMaker\Designs\\'.request()->design['name'];
-
-            $design_class = new $design_namespace();
+            $design = new Design(Design::CUSTOM, ['custom_partials' => request()->design['design']]);
 
             $state = [
-                'template' => $design_class->elements([
+                'template' => $design->elements([
                     'client' => $entity_obj->client,
                     'entity' => $entity_obj,
                     'pdf_variables' => (array) $entity_obj->company->settings->pdf_variables,
@@ -191,7 +198,6 @@ class PreviewController extends BaseController
                 ]
             ];
 
-            $design = new Design(request()->design['name']);
             $maker = new PdfMaker($state);
 
             $maker
@@ -285,15 +291,19 @@ class PreviewController extends BaseController
         /** @var \App\Models\Company $company */
         $company = $user->company();
 
-        $design_object = json_decode(json_encode(request()->input('design')), 1);
+        $design_object = json_decode(json_encode(request()->input('design')), true);
 
         $ts = (new TemplateService());
 
         try {
+            
             $ts->setCompany($company)
                 ->setTemplate($design_object)
                 ->mock();
+
         } catch(SyntaxError $e) {
+        } catch(\Exception $e) {
+            return response()->json(['message' => 'invalid data access', 'errors' => ['design.design.body' => $e->getMessage()]], 422);
         }
 
         if (request()->query('html') == 'true') {

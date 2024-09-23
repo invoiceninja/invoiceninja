@@ -76,6 +76,7 @@ class TranslationsExport extends Command
         'sv',
         'th',
         'tr_TR',
+        'vi',
         'zh_TW',
     ];
 

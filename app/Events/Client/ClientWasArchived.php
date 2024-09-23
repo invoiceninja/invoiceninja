@@ -13,15 +13,21 @@ namespace App\Events\Client;
 
 use App\Models\Client;
 use App\Models\Company;
+use League\Fractal\Manager;
+use League\Fractal\Resource\Item;
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Foundation\Events\Dispatchable;
+use App\Transformers\ArraySerializer;
 use Illuminate\Queue\SerializesModels;
+use App\Transformers\ClientTransformer;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 /**
  * Class ClientWasArchived.
  */
-class ClientWasArchived
+class ClientWasArchived implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -50,13 +56,34 @@ class ClientWasArchived
         $this->event_vars = $event_vars;
     }
 
-    // /**
-    //  * Get the channels the event should broadcast on.
-    //  *
-    //  * @return Channel|array
-    //  */
+    public function broadcastWith()
+    {
+
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $class = sprintf('App\\Transformers\\%sTransformer', class_basename($this->client));
+
+        $transformer = new $class();
+
+        $resource = new Item($this->client, $transformer, $this->client->getEntityType());
+        $data = $manager->createData($resource)->toArray();
+
+        return $data;
+
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return Channel|array
+     */
     public function broadcastOn()
     {
-        return [];
+
+        return [
+            new PrivateChannel("company-{$this->company->company_key}"),
+        ];
+
     }
+
 }

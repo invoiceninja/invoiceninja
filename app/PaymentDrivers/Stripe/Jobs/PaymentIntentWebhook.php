@@ -63,7 +63,7 @@ class PaymentIntentWebhook implements ShouldQueue
         $company = Company::query()->where('company_key', $this->company_key)->first();
 
         foreach ($this->stripe_request as $transaction) {
-            
+
             $payment = Payment::query()
                 ->where('company_id', $company->id)
                 ->where(function ($query) use ($transaction) {
@@ -100,8 +100,9 @@ class PaymentIntentWebhook implements ShouldQueue
 
         $company_gateway = CompanyGateway::query()->find($this->company_gateway_id);
 
-        if(!$company_gateway)
+        if(!$company_gateway) {
             return;
+        }
 
         $stripe_driver = $company_gateway->driver()->init();
 
@@ -311,5 +312,14 @@ class PaymentIntentWebhook implements ShouldQueue
             $client,
             $client->company,
         );
+    }
+
+    public function failed($exception = null)
+    {
+        if ($exception) {
+            nlog($exception->getMessage());
+        }
+
+        config(['queue.failed.driver' => null]);
     }
 }

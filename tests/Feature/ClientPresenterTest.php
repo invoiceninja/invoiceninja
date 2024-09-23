@@ -16,15 +16,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Models\Presenters\ClientPresenter
+ * 
+ *   App\Models\Presenters\ClientPresenter
  */
 class ClientPresenterTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

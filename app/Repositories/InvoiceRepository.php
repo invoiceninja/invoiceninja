@@ -64,6 +64,8 @@ class InvoiceRepository extends BaseRepository
      */
     public function delete($invoice): Invoice
     {
+        $invoice = $invoice->fresh();
+
         if ($invoice->is_deleted) {
             return $invoice;
         }

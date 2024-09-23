@@ -27,7 +27,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class RelationExistsTest extends TestCase
 {
@@ -48,7 +48,7 @@ class RelationExistsTest extends TestCase
         Vendor::class,
     ];
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -58,7 +58,7 @@ class RelationExistsTest extends TestCase
     public function testAssignedUserRelationExists()
     {
         foreach ($this->models as $model) {
-            $class = new $model;
+            $class = new $model();
 
             $this->assertTrue(method_exists($class, 'assigned_user'));
         }

@@ -29,7 +29,7 @@
                 <div class="grid grid-cols-12 gap-4 mt-10">
                     @if($register_company->client_registration_fields)
                     @foreach($register_company->client_registration_fields as $field)
-                        @if($field['visible'])
+                        @if(isset($field['visible']) && $field['visible'])
                             <div class="col-span-12 md:col-span-6">
                                 <section class="flex items-center">
                                     <label
@@ -70,7 +70,7 @@
                                         @foreach(App\Utils\TranslationHelper::getCurrencies() as $currency)
                                             <option
                                                 {{ $currency->id == $register_company->settings->currency_id ? 'selected' : null }} value="{{ $currency->id }}">
-                                                {{ $currency->name }}
+                                                {{ $currency->getName() }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -81,9 +81,9 @@
                                         name="country_id">
                                             <option value="none"></option>
                                         @foreach(App\Utils\TranslationHelper::getCountries() as $country)
-                                            <option
+                                            <option value="{{ $country->id }}">
                                                 {{ $country->iso_3166_2 }}
-                                                ({{ $country->name }})
+                                                ({{ $country->getName() }})
                                             </option>
                                         @endforeach
                                     </select>

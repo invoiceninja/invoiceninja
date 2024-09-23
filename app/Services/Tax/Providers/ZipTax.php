@@ -57,9 +57,8 @@ class ZipTax implements TaxProviderInterface
      * callApi
      *
      * @param  array $parameters
-     * @return Response
      */
-    private function callApi(array $parameters): Response
+    private function callApi(array $parameters)
     {
 
         return Http::retry(3, 1000)->withHeaders([])->get($this->endpoint, $parameters);

@@ -53,7 +53,7 @@ use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ImportCompanyTest extends TestCase
 {
@@ -68,12 +68,12 @@ class ImportCompanyTest extends TestCase
 
     public $ids;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
         Artisan::call('db:seed');
-    
+
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -93,7 +93,7 @@ class ImportCompanyTest extends TestCase
 
         $backup_json_file_zip = base_path().'/tests/Feature/Import/backup.zip';
 
-        $zip = new \ZipArchive;
+        $zip = new \ZipArchive();
         $res = $zip->open($backup_json_file_zip);
         if ($res === true) {
             $zip->extractTo(sys_get_temp_dir());
@@ -117,7 +117,7 @@ class ImportCompanyTest extends TestCase
     {
         $backup_json_file_zip = base_path().'/tests/Feature/Import/backup.zip';
 
-        $zip = new \ZipArchive;
+        $zip = new \ZipArchive();
         $res = $zip->open($backup_json_file_zip);
 
         if ($res === true) {
@@ -423,7 +423,7 @@ class ImportCompanyTest extends TestCase
         $this->genericImport(
             Vendor::class,
             ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id'],
-            [['users' => 'user_id'], ['users' =>'assigned_user_id']],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id']],
             'vendors',
             'number'
         );
@@ -437,7 +437,7 @@ class ImportCompanyTest extends TestCase
         $this->genericImport(
             Project::class,
             ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'client_id'],
-            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['clients' => 'client_id']],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id'], ['clients' => 'client_id']],
             'projects',
             'number'
         );
@@ -453,7 +453,7 @@ class ImportCompanyTest extends TestCase
         $this->genericNewClassImport(
             Product::class,
             ['user_id', 'company_id', 'hashed_id', 'id'],
-            [['users' => 'user_id'], ['users' =>'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
+            [['users' => 'user_id'], ['users' => 'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
             'products'
         );
         $this->assertEquals(1, Product::count());
@@ -1149,8 +1149,10 @@ class ImportCompanyTest extends TestCase
         return $this->ids[$resource]["{$old}"];
     }
 
-    protected function tearDown() :void
+    protected function tearDown(): void
     {
+        parent::tearDown();
+
         $backup_json_file = sys_get_temp_dir().'/backup/backup.json';
 
         //   unlink($backup_json_file);

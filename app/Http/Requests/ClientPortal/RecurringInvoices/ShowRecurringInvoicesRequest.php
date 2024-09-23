@@ -19,7 +19,9 @@ class ShowRecurringInvoicesRequest extends FormRequest
 {
     public function authorize()
     {
-        return auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES;
+        auth()->guard('contact')->user()->loadMissing(['company']);
+
+        return (bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES);
     }
 
     public function rules()

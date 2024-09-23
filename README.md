@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
+<a href ="https://www.youtube.com/watch?v=CxGxXiotv0I" target="_blank" title="Invoice Ninja Overview Video"><img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/></a>
 </p>
 
 ![v5-develop phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-develop)
@@ -8,25 +8,30 @@
 
 # Invoice Ninja 5
 
-## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org)
+Invoice Ninja Version 5 is here! We've taken the best parts of version 4 and added the most requested features to create an invoicing application like no other. Check the [Invoice Ninja YouTube Channel](https://www.youtube.com/@appinvoiceninja) to get up to speed, or try the [Demo](https://react.invoicing.co/demo) now.
 
-Join us on [Slack](http://slack.invoiceninja.com), [Discord](https://discord.gg/ZwEdtfCwXA), [Support Forum](https://forum.invoiceninja.com)
+**Choose your setup**
 
-## Introduction
+- [Hosted](https://www.invoiceninja.com): Our hosted version is a Software as a Service (SaaS) solution. You're up and running in under 5 minutes, with no need to worry about hosting or server infrastructure.
+- [Self-Hosted](https://www.invoiceninja.org): For those who prefer to manage their own hosting and server infrastructure. This version gives you full control and flexibility.
 
-Version 5 of Invoice Ninja is here!
-We took the best parts of version 4 and add the most requested features 
-to produce a invoicing application like no other. 
+All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client-facing parts of the app.  
 
-All Pro and Enterprise features from the hosted app are included in the open code.
-We offer a $30 per year white-label license to remove the Invoice Ninja branding from client facing parts of the app.
+#### Get social with us
 
-* [Videos](https://www.youtube.com/@appinvoiceninja)
-* [API Documentation](https://api-docs.invoicing.co/)
-* [APP Documentation](https://invoiceninja.github.io/)
 * [Support Forum](https://forum.invoiceninja.com)
+* [Slack](http://slack.invoiceninja.com)
+* [Discord](https://discord.gg/ZwEdtfCwXA)
+* [Instagram](https://www.instagram.com/appinvoiceninja)
 
-## Setup
+#### Documentation
+
+* [Invoice Ninja - API](https://api-docs.invoicing.co/)
+* [Invoice Ninja - Developer Guide](https://invoiceninja.github.io/en/developer-guide/)
+* [Invoice Ninja - User Guide](https://invoiceninja.github.io/en/user-guide/)
+* [Invoice Ninja - Self-Hosted Installation Guide](https://invoiceninja.github.io/en/self-host-installation/)
+
+## Installation Options and Clients
 
 ### Mobile Apps
 * [iPhone](https://apps.apple.com/app/id1503970375?platform=iphone)
@@ -39,22 +44,28 @@ We offer a $30 per year white-label license to remove the Invoice Ninja branding
 * [Linux - Snap](https://snapcraft.io/invoiceninja)
 * [Linux - Flatpak](https://flathub.org/apps/com.invoiceninja.InvoiceNinja)
 
-### Installation Options
+### Self-Hosted Server Installation 
+**Note:** The self-hosted options do support the desktop and mobile apps.
+
+* [Server or VM](https://invoiceninja.github.io/en/self-host-installation/)
 * [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
-* [Cloudron](https://cloudron.io/store/com.invoiceninja.cloudronapp.html)
+* [Cloudron](https://www.cloudron.io/store/com.invoiceninja.cloudronapp2.html)
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
- 
+* [Elestio](https://elest.io/open-source/invoiceninja)
+* [YunoHost](https://apps.yunohost.org/app/invoiceninja5)
+
 ### Recommended Providers
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
-## Quick Hosting Setup
+## [Advanced] Quick Hosting Setup
+
+In addition to the official [Invoice Ninja - Self-Hosted Installation Guide](https://invoiceninja.github.io/en/self-host-installation/) we have a few commands for you.
 
 ```sh
 git clone --single-branch --branch v5-stable https://github.com/invoiceninja/invoiceninja.git
 cp .env.example .env
 composer i -o --no-dev
-php artisan key:generate
 ```
 
 Please Note: 
@@ -85,6 +96,7 @@ pass: password
 ```
 ## Developers Guide
 
+In addition to the official [Invoice Ninja - Developer Guide](https://invoiceninja.github.io/en/developer-guide/) we've got your back with some insights.
 
 ### App Design
 

@@ -59,7 +59,7 @@ class PaymentRepository extends BaseRepository
      * @param  Payment $payment The $payment entity
      * @return Payment          The updated/created payment object
      */
-    private function applyPayment(array $data, Payment $payment): ?Payment
+    private function applyPayment(array $data, Payment $payment): Payment
     {
         $is_existing_payment = true;
         $client = false;
@@ -154,7 +154,6 @@ class PaymentRepository extends BaseRepository
                 if ($invoice) {
 
                     //25-06-2023
-
                     $paymentable = new Paymentable();
                     $paymentable->payment_id = $payment->id;
                     $paymentable->paymentable_id = $invoice->id;

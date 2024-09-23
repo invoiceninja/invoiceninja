@@ -65,16 +65,16 @@ class QuoteItemExport extends BaseExport
 
         $query = Quote::query()
                             ->withTrashed()
-                            ->whereHas('client', function ($q){
+                            ->whereHas('client', function ($q) {
                                 $q->where('is_deleted', false);
                             })
                             ->with('client')->where('company_id', $this->company->id);
-                            
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'quotes');
 
         $clients = &$this->input['client_id'];
 
@@ -104,6 +104,8 @@ class QuoteItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($resource) {
+
+                /** @var \App\Models\Quote $resource */
                 $this->iterateItems($resource);
 
                 foreach($this->storage_array as $row) {
@@ -134,6 +136,8 @@ class QuoteItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($quote) {
+
+                /** @var \App\Models\Quote $quote */
                 $this->iterateItems($quote);
             });
 

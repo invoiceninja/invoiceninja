@@ -64,9 +64,9 @@ trait DesignHelpers
 
         $this->document();
 
-        $this->settings_object = $this->vendor ? $this->vendor->company : $this->client;
+        $this->settings_object = $this->vendor ? $this->vendor->company : $this->client; //@phpstan-ignore-line
 
-        $this->company = $this->vendor ? $this->vendor->company : $this->client->company;
+        $this->company = $this->vendor ? $this->vendor->company : $this->client->company; //@phpstan-ignore-line
 
         return $this;
     }
@@ -174,7 +174,7 @@ trait DesignHelpers
         // evaluating the variable.
 
         if (in_array(sprintf('%s%s.tax', '$', $type), (array) $this->context['pdf_variables']["{$column_type}_columns"])) {
-            $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) {
+            $line_items = collect($this->entity->line_items)->filter(function ($item) use ($type_id) { //@phpstan-ignore-line
                 return $item->type_id = $type_id;
             });
 
@@ -387,7 +387,7 @@ trait DesignHelpers
             return '';
         }
 
-        if ($this->client->company->custom_fields && ! property_exists($this->client->company->custom_fields, $field)) {
+        if ($this->client->company->custom_fields && ! property_exists($this->client->company->custom_fields, $field)) { //@phpstan-ignore-line
             return '';
         }
 

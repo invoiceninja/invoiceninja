@@ -106,6 +106,7 @@ class ClientRepository extends BaseRepository
         if (array_key_exists('contacts', $contact_data) || $client->contacts()->count() == 0) {
             $this->contact_repo->save($contact_data, $client);
         }
+        
 
         return $client;
     }
@@ -126,7 +127,7 @@ class ClientRepository extends BaseRepository
             ClientFactory::create($user->company()->id, $user->id)
         );
     }
-    
+
     /**
      * Bulk assign clients to a group.
      *
@@ -144,7 +145,7 @@ class ClientRepository extends BaseRepository
 
     public function purge($client)
     {
-        
+
         nlog("Purging client id => {$client->id}");
 
         $client->contacts()->forceDelete();

@@ -62,16 +62,16 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query = PurchaseOrder::query()
                         ->withTrashed()
-                        ->whereHas('vendor', function ($q){
+                        ->whereHas('vendor', function ($q) {
                             $q->where('is_deleted', false);
                         })
                         ->with('vendor')->where('company_id', $this->company->id);
-                        
-        if(!$this->input['include_deleted'] ?? false){
+
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
         }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, 'purchase_orders');
 
         $clients = &$this->input['client_id'];
 
@@ -101,6 +101,8 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query->cursor()
               ->each(function ($resource) {
+
+                  /** @var \App\Models\PurchaseOrder $resource */
                   $this->iterateItems($resource);
 
                   foreach($this->storage_array as $row) {
@@ -127,6 +129,8 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($purchase_order) {
+
+                /** @var \App\Models\PurchaseOrder $purchase_order */
                 $this->iterateItems($purchase_order);
             });
 
@@ -207,10 +211,6 @@ class PurchaseOrderItemExport extends BaseExport
     {
         // if (in_array('currency_id', $this->input['report_keys'])) {
         //     $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
-        // }
-
-        // if(array_key_exists('type', $entity)) {
-        //     $entity['type'] = $purchase_order->typeIdString($entity['type']);
         // }
 
         // if(array_key_exists('tax_category', $entity)) {

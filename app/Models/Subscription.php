@@ -25,12 +25,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $user_id
  * @property int|null $assigned_user_id
  * @property int $company_id
+ * @property int $remaining_cycles
  * @property string|null $product_ids
  * @property int|null $frequency_id
  * @property string|null $auto_bill
  * @property string|null $promo_code
  * @property float $promo_discount
- * @property int $is_amount_discount
+ * @property bool $is_amount_discount
  * @property int $allow_cancellation
  * @property int $per_seat_enabled
  * @property int $min_seats_limit
@@ -117,6 +118,7 @@ class Subscription extends BaseModel
         'optional_recurring_product_ids',
         'use_inventory_management',
         'steps',
+        'remaining_cycles',
     ];
 
     protected $casts = [

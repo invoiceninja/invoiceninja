@@ -37,7 +37,7 @@ use App\PaymentDrivers\Braintree\CreditCard;
 class BraintreePaymentDriver extends BaseDriver
 {
     use GeneratesCounter;
-    
+
     public $refundable = true;
 
     public $token_billing = true;
@@ -241,7 +241,6 @@ class BraintreePaymentDriver extends BaseDriver
         ]);
 
         if ($result->success) {
-            $this->confirmGatewayFee();
 
             $data = [
                 'payment_type' => PaymentType::parseCardType(strtolower($result->transaction->creditCard['cardType'])),
@@ -249,6 +248,8 @@ class BraintreePaymentDriver extends BaseDriver
                 'transaction_reference' => $result->transaction->id,
                 'gateway_type_id' => GatewayType::CREDIT_CARD,
             ];
+            
+            $this->confirmGatewayFee($data);
 
             $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
@@ -296,14 +297,14 @@ class BraintreePaymentDriver extends BaseDriver
     public function getClientRequiredFields(): array
     {
         $fields = [];
-    
-            $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
-            $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
-            $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
+
+        $fields[] = ['name' => 'contact_first_name', 'label' => ctrans('texts.first_name'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'contact_last_name', 'label' => ctrans('texts.last_name'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'contact_email', 'label' => ctrans('texts.email'), 'type' => 'text', 'validation' => 'required,email:rfc'];
+        $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
 
         return $fields;
     }
@@ -333,29 +334,27 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function auth(): bool
     {
-        
+
         try {
-            $ct =$this->init()->gateway->clientToken()->generate();
-            
+            $ct = $this->init()->gateway->clientToken()->generate();
+
             return true;
-        }
-        catch(\Exception $e) {
+        } catch(\Exception $e) {
 
         }
-        
+
         return false;
     }
 
-    private function find(string $customer_id = '') {
-        
+    private function find(string $customer_id = '')
+    {
+
         try {
             return $this->init()->gateway->customer()->find($customer_id);
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             return false;
         }
 
-        return false;
     }
 
     private function findTokens(string $gateway_customer_reference)
@@ -375,7 +374,8 @@ class BraintreePaymentDriver extends BaseDriver
 
     }
 
-    private function findClient(string $email) {
+    private function findClient(string $email)
+    {
         return ClientContact::where('company_id', $this->company_gateway->company_id)
                             ->where('email', $email)
                             ->first()->client ?? false;
@@ -383,13 +383,14 @@ class BraintreePaymentDriver extends BaseDriver
 
     private function addClientCards(Client $client, array $cards)
     {
-        
+
         $this->client = $client;
 
         foreach($cards as $card) {
 
-            if($this->getToken($card->token, $card->customerId) || Carbon::createFromDate($card->expirationYear, $card->expirationMonth, '1')->lt(now()))
+            if($this->getToken($card->token, $card->customerId) || Carbon::createFromDate($card->expirationYear, $card->expirationMonth, '1')->lt(now())) { //@phpstan-ignore-line
                 continue;
+            }
 
             $payment_meta = new \stdClass();
             $payment_meta->exp_month = (string) $card->expirationMonth;
@@ -405,7 +406,7 @@ class BraintreePaymentDriver extends BaseDriver
             ];
 
             $this->storeGatewayToken($data, ['gateway_customer_reference' => $card->customerId]);
-            
+
             nlog("adding card to customer payment profile");
 
         }
@@ -423,7 +424,7 @@ class BraintreePaymentDriver extends BaseDriver
 
         if($b_business_address) {
 
-            $braintree_address = 
+            $braintree_address =
             [
             'address1' => $b_business_address->extendedAddress ?? '',
             'address2' => $b_business_address->streetAddress ?? '',
@@ -438,7 +439,7 @@ class BraintreePaymentDriver extends BaseDriver
 
         if($b_shipping_address) {
 
-            $braintree_shipping_address = 
+            $braintree_shipping_address =
             [
             'shipping_address1' => $b_shipping_address->extendedAddress ?? '',
             'shipping_address2' => $b_shipping_address->streetAddress ?? '',
@@ -498,15 +499,16 @@ class BraintreePaymentDriver extends BaseDriver
     public function importCustomers()
     {
         $customers = $this->init()->gateway->customer()->all();
-        
-        foreach($customers as $c){
+
+        foreach($customers as $c) {
 
             $customer = $this->find($c->id);
 
             // nlog(count($customer->creditCards). " Exists for {$c->id}");
 
-            if(!$customer)
+            if(!$customer) {
                 continue;
+            }
 
             $client = $this->findClient($customer->email);
 
@@ -515,7 +517,7 @@ class BraintreePaymentDriver extends BaseDriver
                 $client = $this->createNinjaClient($customer);
                 // nlog("Creating new Client");
             }
-            
+
             $this->addClientCards($client, $customer->creditCards);
 
             // nlog("Adding Braintree Client: {$c->id} => {$client->id}");

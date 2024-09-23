@@ -55,7 +55,7 @@ class StoreBankTransactionRequest extends Request
             $input['bank_integration_id'] = $this->decodePrimaryKey($input['bank_integration_id']);
         }
 
-        
+
         $this->replace($input);
     }
 }

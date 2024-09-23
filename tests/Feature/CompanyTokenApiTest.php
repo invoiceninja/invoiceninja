@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\TokenController
+ * 
+ *  App\Http\Controllers\TokenController
  */
 class CompanyTokenApiTest extends TestCase
 {
@@ -31,7 +31,7 @@ class CompanyTokenApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

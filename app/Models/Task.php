@@ -11,10 +11,12 @@
 
 namespace App\Models;
 
-use App\Utils\Traits\MakesHash;
 use Carbon\CarbonInterval;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 /**
  * App\Models\Task
@@ -43,8 +45,8 @@ use Illuminate\Support\Carbon;
  * @property bool $is_running
  * @property string|null $time_log
  * @property string|null $number
- * @property string $rate
- * @property int $invoice_documents
+ * @property float $rate
+ * @property bool $invoice_documents
  * @property int $is_date_based
  * @property int|null $status_order
  * @property-read \App\Models\User|null $assigned_user
@@ -136,7 +138,7 @@ class Task extends BaseModel
         // 'project',
     ];
 
-    protected $touches = [];
+    protected $touches = ['project'];
 
     public function getEntityType()
     {
@@ -158,48 +160,66 @@ class Task extends BaseModel
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function user()
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function client()
     {
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function status()
     {
         return $this->belongsTo(TaskStatus::class)->withTrashed();
     }
 
-    public function stringStatus()
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function invoice()
+    {
+        return $this->belongsTo(Invoice::class)->withTrashed();
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function project()
+    {
+        return $this->belongsTo(Project::class)->withTrashed();
+    }
+
+    public function stringStatus(): string
     {
         if($this->invoice_id) {
             return '<h5><span class="badge badge-success">'.ctrans('texts.invoiced').'</span></h5>';
         }
 
         if($this->status) {
-            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? '';
+            return '<h5><span class="badge badge-primary">' . $this->status?->name ?? ''; //@phpstan-ignore-line
         }
 
         return '';
 
-    }
-
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class)->withTrashed();
-    }
-
-    public function project()
-    {
-        return $this->belongsTo(Project::class)->withTrashed();
     }
 
     public function calcStartTime()
@@ -207,7 +227,7 @@ class Task extends BaseModel
         $parts = json_decode($this->time_log) ?: [];
 
         if (count($parts)) {
-            return Carbon::createFromTimeStamp($parts[0][0])->timestamp;
+            return Carbon::createFromTimeStamp((int)$parts[0][0])->timestamp;
         } else {
             return null;
         }
@@ -229,7 +249,7 @@ class Task extends BaseModel
     public function calcDuration($start_time_cutoff = 0, $end_time_cutoff = 0)
     {
         $duration = 0;
-        $parts = json_decode($this->time_log) ?: [];
+        $parts = json_decode($this->time_log ?? '{}') ?: [];
 
         foreach ($parts as $part) {
             $start_time = $part[0];
@@ -271,6 +291,25 @@ class Task extends BaseModel
         return $this->company->settings->default_task_rate ?? 0;
     }
 
+    public function taskCompanyValue(): float
+    {
+        $client_currency = $this->client->getSetting('currency_id');
+        $company_currency = $this->company->getSetting('currency_id');
+
+        if($client_currency != $company_currency) {
+            $converter = new CurrencyApi();
+            return $converter->convert($this->taskValue(), $client_currency, $company_currency);
+        }
+
+        return $this->taskValue();
+
+    }
+
+    public function taskValue(): float
+    {
+        return round(($this->calcDuration() / 3600) * $this->getRate(), 2);
+    }
+
     public function processLogs()
     {
 
@@ -280,11 +319,11 @@ class Task extends BaseModel
             $parent_entity = $this->client ?? $this->company;
 
             if($log[0]) {
-                $log[0] = Carbon::createFromTimestamp($log[0])->format($parent_entity->date_format().' H:i:s');
+                $log[0] = Carbon::createFromTimestamp((int)$log[0])->format($parent_entity->date_format().' H:i:s');
             }
 
             if($log[1] && $log[1] != 0) {
-                $log[1] = Carbon::createFromTimestamp($log[1])->format($parent_entity->date_format().' H:i:s');
+                $log[1] = Carbon::createFromTimestamp((int)$log[1])->format($parent_entity->date_format().' H:i:s');
             } else {
                 $log[1] = ctrans('texts.running');
             }
@@ -312,11 +351,11 @@ class Task extends BaseModel
             if($log[0]) {
                 $logged['start_date_raw'] = $log[0];
             }
-            $logged['start_date'] = Carbon::createFromTimestamp($log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+            $logged['start_date'] = Carbon::createFromTimestamp((int)$log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
 
             if($log[1] && $log[1] != 0) {
                 $logged['end_date_raw'] = $log[1];
-                $logged['end_date'] = Carbon::createFromTimestamp($log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+                $logged['end_date'] = Carbon::createFromTimestamp((int)$log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
             } else {
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
@@ -332,4 +371,12 @@ class Task extends BaseModel
         })->toArray();
     }
 
+    public function assignedCompanyUser()
+    {
+        if(!$this->assigned_user_id) {
+            return false;
+        }
+
+        return CompanyUser::where('company_id', $this->company_id)->where('user_id', $this->assigned_user_id)->first();
+    }
 }

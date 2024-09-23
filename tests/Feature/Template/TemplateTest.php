@@ -33,8 +33,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers
+ * 
+ * 
  */
 class TemplateTest extends TestCase
 {
@@ -167,9 +167,46 @@ class TemplateTest extends TestCase
             </ninja>
         ';
 
+    private string $broken_twig_template = '
+    <tbody>
+                    {% for invoice in invoices %}
+                        <tr class="border-b dark:border-neutral-500">
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.number }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.date }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.due_date }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.amount }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                            <td class="whitespace-nowrap px-6 py-4 font-medium">{{ invoice.balance }}</td>
+                        </tr>
+
+                        {% for payment in invoice.payments|filter(payment => payment.is_deleted == false) %}
+                        
+                            {% for pivot in payment.paymentables %}
+
+                            <tr class="border-b dark:border-neutral-500">
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.number }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">{{ payment.date }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium">
+                                {% if pivot.amount_raw >
+                                    {{ pivot.amount }} - {{ payment.type.name }}
+                                {% else %}
+                                    ({{ pivot.refunded }})
+                                {% endif
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"></td>
+                            </tr>
+
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor%}
+                    </tbody>
+    ';
+
     private string $stack = '<html><div id="company-details" labels="true"></div></html>';
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -178,14 +215,45 @@ class TemplateTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-        
+
     }
 
+    public function testLintingSuccess()
+    {
+
+        $ts = new TemplateService();
+        $twig = $ts->twig;
+
+        try {
+            $twig->parse($twig->tokenize(new \Twig\Source($this->payments_body, '')));
+            $this->assertTrue(true);
+            echo json_encode(['status' => 'ok']);
+        } catch (\Twig\Error\SyntaxError $e) {
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+
+    }
+
+    public function testLintingFailure()
+    {
+
+        $ts = new TemplateService();
+        $twig = $ts->twig;
+
+        try {
+            $twig->parse($twig->tokenize(new \Twig\Source($this->broken_twig_template, '')));
+            echo json_encode(['status' => 'ok']);
+        } catch (\Twig\Error\SyntaxError $e) {
+            $this->assertTrue(true);
+            echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+
+    }
 
     public function testPurchaseOrderDataParse()
     {
         $data = [];
-        
+
         $p = \App\Models\PurchaseOrder::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -204,7 +272,7 @@ class TemplateTest extends TestCase
     public function testTaskDataParse()
     {
         $data = [];
-        
+
         $p = \App\Models\Task::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -223,7 +291,7 @@ class TemplateTest extends TestCase
     public function testQuoteDataParse()
     {
         $data = [];
-        
+
         $p = \App\Models\Quote::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -243,7 +311,7 @@ class TemplateTest extends TestCase
     public function testProjectDataParse()
     {
         $data = [];
-        
+
         $p = Project::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -298,7 +366,7 @@ class TemplateTest extends TestCase
         $tm->init();
 
         $variables = $tm->variables[0];
-        
+
         $ts = new TemplateService();
         $x = $ts->setTemplate($partials)
             ->setCompany($this->company)
@@ -380,7 +448,7 @@ class TemplateTest extends TestCase
         $this->assertIsArray($data);
 
         $start = microtime(true);
-        
+
         \DB::enableQueryLog();
 
         $invoices = Invoice::with('client', 'payments.client', 'payments.paymentables', 'payments.credits', 'credits.client')
@@ -461,7 +529,7 @@ class TemplateTest extends TestCase
     {
 
         $data = [];
-                        
+
         $credits = $payment->credits->map(function ($credit) use ($payment) {
             return [
                 'credit' => $credit->number,
@@ -524,7 +592,7 @@ class TemplateTest extends TestCase
             ],
             'paymentables' => $pivot,
         ];
-                    
+
         return $data;
 
 
@@ -569,7 +637,7 @@ class TemplateTest extends TestCase
                 shuffle($rand);
                 $p->type_id = $rand[0];
                 $p->save();
-                    
+
             });
         });
 
@@ -582,13 +650,13 @@ class TemplateTest extends TestCase
         $design->body .= $this->payments_body;
         $replicated_design->design = $design;
         $replicated_design->is_custom = true;
-        $replicated_design->is_template =true;
+        $replicated_design->is_template = true;
         $replicated_design->entities = 'client';
         $replicated_design->save();
 
         $data['invoices'] = $invoices;
         $ts = $replicated_design->service()->build($data);
-        
+
         $this->assertNotNull($ts->getHtml());
 
     }
@@ -620,7 +688,7 @@ class TemplateTest extends TestCase
         $data['invoices'] = collect([$this->invoice, $i2]);
 
         $ts = $replicated_design->service()->build($data);
-        
+
         // nlog("results = ");
         // nlog($ts->getHtml());
         $this->assertNotNull($ts->getHtml());
@@ -653,7 +721,7 @@ class TemplateTest extends TestCase
         $data['invoices'] = collect([$this->invoice, $i2]);
 
         $ts = $replicated_design->service()->build($data);
-        
+
         // nlog("results = ");
         // nlog($ts->getHtml());
         $this->assertNotNull($ts->getHtml());
@@ -675,7 +743,7 @@ class TemplateTest extends TestCase
         $data['invoices'] = collect([$this->invoice]);
 
         $ts = $replicated_design->service()->build($data);
-        
+
         // nlog("results = ");
         // nlog($ts->getHtml());
         $this->assertNotNull($ts->getHtml());
@@ -734,7 +802,7 @@ class TemplateTest extends TestCase
 
         $this->assertNotNull($pdf);
 
-        nlog("Twig + PDF Gen Time: " . $end-$start);
+        // nlog("Twig + PDF Gen Time: " . $end-$start);
 
     }
 
@@ -748,13 +816,13 @@ class TemplateTest extends TestCase
 
         $this->assertNotNull($pdf);
 
-        nlog("Plain PDF Gen Time: " . $end-$start);
+        // nlog("Plain PDF Gen Time: " . $end-$start);
     }
 
     public function testTemplateGeneration()
     {
         $entity_obj = $this->invoice;
-        
+
         $design = new Design();
         $design->design = json_decode(json_encode($this->invoice->company->settings->pdf_variables), true);
         $design->name = 'test';
@@ -764,7 +832,7 @@ class TemplateTest extends TestCase
         $design->user_id = $this->invoice->user_id;
         $design->company_id = $this->invoice->company_id;
 
-        $design_object = new \stdClass;
+        $design_object = new \stdClass();
         $design_object->includes = '';
         $design_object->header = '';
         $design_object->body = $this->body;
@@ -789,7 +857,7 @@ class TemplateTest extends TestCase
             'custom_partials' => json_decode(json_encode($design->design), true),
         ];
         $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
-    
+
         $variables = $html->generateLabelsAndValues();
 
         $state = [
@@ -823,8 +891,8 @@ class TemplateTest extends TestCase
 
         $this->assertNotNull($html);
         $this->assertStringContainsStringIgnoringCase($this->company->settings->name, $html);
- 
-        nlog("Twig Solo Gen Time: ". $end - $start);
+
+        // nlog("Twig Solo Gen Time: ". $end - $start);
     }
 
 }

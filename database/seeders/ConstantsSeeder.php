@@ -38,29 +38,29 @@ class ConstantsSeeder extends Seeder
         */
 
         $timezones[] = ['name'=>'Pacific/Midway', 'location', 'location' => '(GMT-11:00) Midway Island', 'utc_offset' => -39600];
-        $timezones[] = ['name'=>'US/Samoa', 'location'  => '(GMT-11:00) Samoa', 'utc_offset' => -39600];
-        $timezones[] = ['name'=>'US/Hawaii', 'location'  => '(GMT-10:00) Hawaii', 'utc_offset' => -36000];
-        $timezones[] = ['name'=>'US/Alaska', 'location'  => '(GMT-09:00) Alaska', 'utc_offset' => -32400];
-        $timezones[] = ['name'=>'US/Pacific', 'location'  => '(GMT-08:00) Pacific Time (US & Canada)', 'utc_offset' => -28800];
+        $timezones[] = ['name'=>'Pacific/Pago_Pago', 'location'  => '(GMT-11:00) Samoa', 'utc_offset' => -39600];
+        $timezones[] = ['name'=>'Pacific/Honolulu', 'location'  => '(GMT-10:00) Hawaii', 'utc_offset' => -36000];
+        $timezones[] = ['name'=>'America/Anchorage', 'location'  => '(GMT-09:00) Alaska', 'utc_offset' => -32400];
+        $timezones[] = ['name'=>'America/Los_Angeles', 'location'  => '(GMT-08:00) Pacific Time (US & Canada)', 'utc_offset' => -28800];
         $timezones[] = ['name'=>'America/Tijuana', 'location'  => '(GMT-08:00) Tijuana', 'utc_offset' => -28800];
-        $timezones[] = ['name'=>'US/Arizona', 'location'  => '(GMT-07:00) Arizona', 'utc_offset' => -25200];
-        $timezones[] = ['name'=>'US/Mountain', 'location'  => '(GMT-07:00) Mountain Time (US & Canada)', 'utc_offset' => -25200];
+        $timezones[] = ['name'=>'America/Phoenix', 'location'  => '(GMT-07:00) Arizona', 'utc_offset' => -25200];
+        $timezones[] = ['name'=>'America/Denver', 'location'  => '(GMT-07:00) Mountain Time (US & Canada)', 'utc_offset' => -25200];
         $timezones[] = ['name'=>'America/Chihuahua', 'location' => '(GMT-07:00) Chihuahua', 'utc_offset' => -25200];
         $timezones[] = ['name'=>'America/Mazatlan', 'location' => '(GMT-07:00) Mazatlan', 'utc_offset' => -25200];
         $timezones[] = ['name'=>'America/Mexico_City', 'location' => '(GMT-06:00) Mexico City', 'utc_offset' => -21600];
         $timezones[] = ['name'=>'America/Monterrey', 'location' => '(GMT-06:00) Monterrey', 'utc_offset' => -21600];
-        $timezones[] = ['name'=>'Canada/Saskatchewan', 'location' => '(GMT-06:00) Saskatchewan', 'utc_offset' => -21600];
-        $timezones[] = ['name'=>'US/Central', 'location' => '(GMT-06:00) Central Time (US & Canada)', 'utc_offset' => -21600];
-        $timezones[] = ['name'=>'US/Eastern', 'location' => '(GMT-05:00) Eastern Time (US & Canada)', 'utc_offset' => -18000];
-        $timezones[] = ['name'=>'US/East-Indiana', 'location' => '(GMT-05:00) Indiana (East)', 'utc_offset' => -18000];
+        $timezones[] = ['name'=>'America/Regina', 'location' => '(GMT-06:00) Saskatchewan', 'utc_offset' => -21600];
+        $timezones[] = ['name'=>'America/Chicago', 'location' => '(GMT-06:00) Central Time (US & Canada)', 'utc_offset' => -21600];
+        $timezones[] = ['name'=>'America/New_York', 'location' => '(GMT-05:00) Eastern Time (US & Canada)', 'utc_offset' => -18000];
+        $timezones[] = ['name'=>'America/Indiana/Indianapolis', 'location' => '(GMT-05:00) Indiana (East)', 'utc_offset' => -18000];
         $timezones[] = ['name'=>'America/Bogota', 'location' => '(GMT-05:00) Bogota', 'utc_offset' => -18000];
         $timezones[] = ['name'=>'America/Lima', 'location' => '(GMT-05:00) Lima', 'utc_offset' => -18000];
         $timezones[] = ['name'=>'America/Caracas', 'location' => '(GMT-04:00) Caracas', 'utc_offset' => -14400];
-        $timezones[] = ['name'=>'Canada/Atlantic', 'location' => '(GMT-04:00) Atlantic Time (Canada)', 'utc_offset' => -14400];
+        $timezones[] = ['name'=>'America/Halifax', 'location' => '(GMT-04:00) Atlantic Time (Canada)', 'utc_offset' => -14400];
         $timezones[] = ['name'=>'America/La_Paz', 'location' => '(GMT-04:00) La Paz', 'utc_offset' => -14400];
         $timezones[] = ['name'=>'America/Santiago', 'location' => '(GMT-04:00) Santiago', 'utc_offset' => -14400];
-        $timezones[] = ['name'=>'Canada/Newfoundland', 'location' => '(GMT-03:30) Newfoundland', 'utc_offset' => -12600];
-        $timezones[] = ['name'=>'America/Buenos_Aires', 'location' => '(GMT-03:00) Buenos Aires', 'utc_offset' => -10800];
+        $timezones[] = ['name'=>'America/St_Johns', 'location' => '(GMT-03:30) Newfoundland', 'utc_offset' => -12600];
+        $timezones[] = ['name'=>'America/Argentina/Buenos_Aires', 'location' => '(GMT-03:00) Buenos Aires', 'utc_offset' => -10800];
         $timezones[] = ['name'=>'America/Godthab', 'location' => '(GMT-03:00) Greenland', 'utc_offset' => -10800];
         $timezones[] = ['name'=>'America/Sao_Paulo', 'location' => '(GMT-03:00) Sao Paulo', 'utc_offset' => -10800];
         $timezones[] = ['name'=>'Atlantic/Stanley', 'location' => '(GMT-02:00) Stanley', 'utc_offset' => -7200];
@@ -141,7 +141,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Australia/Darwin', 'location' => '(GMT+09:30) Darwin', 'utc_offset' => 34200];
         $timezones[] = ['name'=>'Asia/Yakutsk', 'location' => '(GMT+10:00) Yakutsk', 'utc_offset' => 36000];
         $timezones[] = ['name'=>'Australia/Brisbane', 'location' => '(GMT+10:00) Brisbane', 'utc_offset' => 36000];
-        $timezones[] = ['name'=>'Australia/Canberra', 'location' => '(GMT+10:00) Canberra', 'utc_offset' => 36000];
+        $timezones[] = ['name'=>'Australia/Sydney', 'location' => '(GMT+10:00) Canberra', 'utc_offset' => 36000];
         $timezones[] = ['name'=>'Pacific/Guam', 'location' => '(GMT+10:00) Guam', 'utc_offset' => 36000];
         $timezones[] = ['name'=>'Australia/Hobart', 'location' => '(GMT+10:00) Hobart', 'utc_offset' => 36000];
         $timezones[] = ['name'=>'Australia/Melbourne', 'location' => '(GMT+10:00) Melbourne', 'utc_offset' => 36000];
@@ -151,6 +151,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Asia/Magadan', 'location' => '(GMT+12:00) Magadan', 'utc_offset' => 43200];
         $timezones[] = ['name'=>'Pacific/Auckland', 'location' => '(GMT+12:00) Auckland', 'utc_offset' => 43200];
         $timezones[] = ['name'=>'Pacific/Fiji', 'location' => '(GMT+12:00) Fiji', 'utc_offset' => 43200];
+        $timezones[] = ['name' => 'Asia/Dubai', 'location' => '(GMT+04:00) Dubai', 'utc_offset' => 14400];
 
         $x = 1;
         foreach ($timezones as $timezone) {

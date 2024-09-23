@@ -75,7 +75,7 @@ class UpdateTaskRequest extends Request
 
             foreach ($values as $k) {
                 if (!is_int($k[0]) || !is_int($k[1])) {
-                    return $fail('The '.$attribute.' - '.print_r($k, 1).' is invalid. Unix timestamps only.');
+                    return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. Unix timestamps only.');
                 }
             }
 
@@ -88,7 +88,7 @@ class UpdateTaskRequest extends Request
             $rules['documents.*'] = $this->fileValidation();
         } elseif ($this->file('documents')) {
             $rules['documents'] = $this->fileValidation();
-        }else {
+        } else {
             $rules['documents'] = 'bail|sometimes|array';
         }
 
@@ -133,7 +133,7 @@ class UpdateTaskRequest extends Request
 
         }
 
-        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}') {
+        if(!isset($input['time_log']) || empty($input['time_log']) || $input['time_log'] == '{}' || $input['time_log'] == '[""]') {
             $input['time_log'] = json_encode([]);
         }
 

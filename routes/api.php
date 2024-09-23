@@ -39,6 +39,9 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LicenseController;
+use App\Http\Controllers\MailgunController;
+use App\Http\Controllers\MigrationController;
+use App\Http\Controllers\OneTimeTokenController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\ProductController;
@@ -50,29 +53,28 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\PostMarkController;
 use App\Http\Controllers\TemplateController;
-use App\Http\Controllers\MigrationController;
 use App\Http\Controllers\SchedulerController;
 use App\Http\Controllers\SubdomainController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ImportJsonController;
+use App\Http\Controllers\ImportQuickbooksController;
 use App\Http\Controllers\SelfUpdateController;
 use App\Http\Controllers\TaskStatusController;
 use App\Http\Controllers\Bank\YodleeController;
 use App\Http\Controllers\CompanyUserController;
 use App\Http\Controllers\PaymentTermController;
 use App\PaymentDrivers\PayPalPPCPPaymentDriver;
+use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\Http\Controllers\EmailHistoryController;
 use App\Http\Controllers\GroupSettingController;
-use App\Http\Controllers\OneTimeTokenController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\Bank\NordigenController;
 use App\Http\Controllers\CompanyLedgerController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\TaskSchedulerController;
 use App\Http\Controllers\CompanyGatewayController;
-use App\Http\Controllers\MailgunWebhookController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\RecurringQuoteController;
 use App\Http\Controllers\BankIntegrationController;
@@ -92,11 +94,13 @@ use App\Http\Controllers\BankTransactionRuleController;
 use App\Http\Controllers\InAppPurchase\AppleController;
 use App\Http\Controllers\Reports\QuoteReportController;
 use App\Http\Controllers\Auth\PasswordTimeoutController;
+use App\Http\Controllers\EInvoiceController;
 use App\Http\Controllers\PreviewPurchaseOrderController;
 use App\Http\Controllers\Reports\ClientReportController;
 use App\Http\Controllers\Reports\CreditReportController;
 use App\Http\Controllers\Reports\ReportExportController;
 use App\Http\Controllers\Reports\VendorReportController;
+use App\Http\Controllers\Gateways\BlockonomicsController;
 use App\Http\Controllers\Reports\ExpenseReportController;
 use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
@@ -152,9 +156,11 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('check_subdomain', [SubdomainController::class, 'index'])->name('check_subdomain');
     Route::get('ping', [PingController::class, 'index'])->name('ping');
     Route::get('health_check', [PingController::class, 'health'])->name('health_check');
+    Route::get('last_error', [PingController::class, 'lastError'])->name('last_error');
 
     Route::get('activities', [ActivityController::class, 'index']);
     Route::post('activities/entity', [ActivityController::class, 'entityActivity']);
+    Route::post('activities/notes', [ActivityController::class, 'note']);
     Route::get('activities/download_entity/{activity}', [ActivityController::class, 'downloadHistoricalEntity']);
 
     Route::post('charts/totals', [ChartController::class, 'totals'])->name('chart.totals');
@@ -162,6 +168,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('charts/totals_v2', [ChartController::class, 'totalsV2'])->name('chart.totals_v2');
     Route::post('charts/chart_summary_v2', [ChartController::class, 'chart_summaryV2'])->name('chart.chart_summary_v2');
+    Route::post('charts/calculated_fields', [ChartController::class, 'calculatedFields'])->name('chart.calculated_fields');
 
     Route::post('claim_license', [LicenseController::class, 'index'])->name('license.index');
 
@@ -184,6 +191,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('client_statement', [ClientStatementController::class, 'statement'])->name('client.statement');
 
+    Route::post('companies/current', [CompanyController::class, 'current'])->name('companies.current');
     Route::post('companies/purge/{company}', [MigrationController::class, 'purgeCompany'])->middleware('password_protected');
     Route::post('companies/purge_save_settings/{company}', [MigrationController::class, 'purgeCompanySaveSettings'])->middleware('password_protected');
     Route::resource('companies', CompanyController::class); // name = (companies. index / create / show / update / destroy / edit
@@ -211,7 +219,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('credit/{invitation_key}/download', [CreditController::class, 'downloadPdf'])->name('credits.downloadPdf');
     Route::get('credit/{invitation_key}/download_e_credit', [CreditController::class, 'downloadECredit'])->name('credits.downloadECredit');
 
-
     Route::resource('designs', DesignController::class); // name = (payments. index / create / show / update / destroy / edit
     Route::post('designs/bulk', [DesignController::class, 'bulk'])->name('designs.bulk');
     Route::post('designs/set/default', [DesignController::class, 'default'])->name('designs.default');
@@ -220,6 +227,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::get('documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::post('documents/bulk', [DocumentController::class, 'bulk'])->name('documents.bulk');
 
+    Route::post('einvoice/validateEntity', [EInvoiceController::class, 'validateEntity'])->name('einvoice.validateEntity');
     Route::post('emails', [EmailController::class, 'send'])->name('email.send')->middleware('user_verified');
     Route::post('emails/clientHistory/{client}', [EmailHistoryController::class, 'clientHistory'])->name('email.clientHistory');
     Route::post('emails/entityHistory', [EmailHistoryController::class, 'entityHistory'])->name('email.entityHistory');
@@ -227,8 +235,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::resource('expenses', ExpenseController::class); // name = (expenses. index / create / show / update / destroy / edit
     Route::put('expenses/{expense}/upload', [ExpenseController::class, 'upload']);
     Route::post('expenses/bulk', [ExpenseController::class, 'bulk'])->name('expenses.bulk');
-
     Route::post('export', [ExportController::class, 'index'])->name('export.index');
+    Route::put('edocument/upload', [ExpenseController::class, "edocument"])->name("expenses.edocument");
 
     Route::resource('expense_categories', ExpenseCategoryController::class); // name = (expense_categories. index / create / show / update / destroy / edit
     Route::post('expense_categories/bulk', [ExpenseCategoryController::class, 'bulk'])->name('expense_categories.bulk');
@@ -240,7 +248,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('import', [ImportController::class, 'import'])->name('import.import');
     Route::post('import_json', [ImportJsonController::class, 'import'])->name('import.import_json');
     Route::post('preimport', [ImportController::class, 'preimport'])->name('import.preimport');
-
+    ;
     Route::resource('invoices', InvoiceController::class); // name = (invoices. index / create / show / update / destroy / edit
     Route::get('invoices/{invoice}/delivery_note', [InvoiceController::class, 'deliveryNote'])->name('invoices.delivery_note');
     Route::get('invoices/{invoice}/{action}', [InvoiceController::class, 'action'])->name('invoices.action');
@@ -412,7 +420,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::get('subscriptions/steps', [SubscriptionStepsController::class, 'index']);
     Route::post('subscriptions/steps/check', [SubscriptionStepsController::class, 'check']);
-    
+
     Route::resource('subscriptions', SubscriptionController::class);
 
     Route::post('subscriptions/bulk', [SubscriptionController::class, 'bulk'])->name('subscriptions.bulk');
@@ -422,6 +430,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('yodlee/status/{account_number}', [YodleeController::class, 'accountStatus']); // @todo @turbo124 check route-path?!
 
     Route::get('nordigen/institutions', [NordigenController::class, 'institutions'])->name('nordigen.institutions');
+
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:3,1');
@@ -437,8 +446,11 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
 
 
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/postmark_inbound_webhook', [PostMarkController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/mailgun_webhook', [MailgunController::class, 'webhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/mailgun_inbound_webhook', [MailgunController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/brevo_webhook', [BrevoController::class, 'webhook'])->middleware('throttle:1000,1');
-Route::post('api/v1/mailgun_webhook', [MailgunWebhookController::class, 'webhook'])->middleware('throttle:1000,1');
+Route::post('api/v1/brevo_inbound_webhook', [BrevoController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::get('token_hash_router', [OneTimeTokenController::class, 'router'])->middleware('throttle:500,1');
 Route::get('webcron', [WebCronController::class, 'index'])->middleware('throttle:100,1');
 Route::post('api/v1/get_migration_account', [HostedMigrationController::class, 'getAccount'])->middleware('guest')->middleware('throttle:100,1');
@@ -454,5 +466,10 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
+Route::get('api/v1/get-btc-price', [BlockonomicsController::class, 'getBTCPrice'])->middleware('throttle:1000,1');
+Route::get('api/v1/get-blockonomics-qr-code', [BlockonomicsController::class, 'getQRCode'])->middleware('throttle:1000,1');
+
+Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
+Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');

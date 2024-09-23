@@ -18,15 +18,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Jobs\Util\SendFailedEmails
+ * 
+ *  App\Jobs\Util\SendFailedEmails
  */
 class SendFailedEmailsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -46,7 +46,7 @@ class SendFailedEmailsTest extends TestCase
             'body' => '',
         ];
 
-        $system_log = new SystemLog;
+        $system_log = new SystemLog();
         $system_log->company_id = $this->invoice->company_id;
         $system_log->client_id = $this->invoice->client_id;
         $system_log->category_id = SystemLog::CATEGORY_MAIL;

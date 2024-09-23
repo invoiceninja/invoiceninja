@@ -100,6 +100,7 @@ class TaxProvider
             }
 
         } catch(\Exception $e) {
+            nlog("Exception:: TaxProvider::" . $e->getMessage());
             nlog("Could not updated company tax data: " . $e->getMessage());
         }
 
@@ -225,9 +226,9 @@ class TaxProvider
     {
         throw new \Exception("No tax region defined for this country");
 
-        $this->provider = EuTax::class;
+        // $this->provider = EuTax::class;
 
-        return $this;
+        // return $this;
     }
 
     /**

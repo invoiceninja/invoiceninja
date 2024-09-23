@@ -59,7 +59,6 @@ class Register extends Component
 
     public function register(array $data)
     {
-
         $service = new ClientRegisterService(
             company: $this->subscription->company,
             additional: $this->additional_fields,
@@ -81,7 +80,7 @@ class Register extends Component
     public function registerForm()
     {
         $count = collect($this->subscription->company->client_registration_fields ?? [])
-            ->filter(fn($field) => $field['required'] === true || $field['visible'] === true)
+            ->filter(fn ($field) => $field['required'] === true || $field['visible'] === true)
             ->count();
 
         if ($count === 0) {

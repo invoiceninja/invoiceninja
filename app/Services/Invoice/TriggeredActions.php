@@ -36,7 +36,7 @@ class TriggeredActions extends AbstractService
             try {
                 $this->invoice->service()->autoBill();
             } catch(\Exception $e) {
-
+                nlog("Exception:: TriggeredActions::" . $e->getMessage());
             } //update notification sends automatically for this.
         }
 

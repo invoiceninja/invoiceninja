@@ -23,8 +23,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ProductController
+ * 
+ *  App\Http\Controllers\ProductController
  */
 class ProductTest extends TestCase
 {
@@ -33,8 +33,8 @@ class ProductTest extends TestCase
     use MockAccountData;
 
     protected $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -147,7 +147,7 @@ class ProductTest extends TestCase
             ])->post('/api/v1/products/bulk', $update)
             ->assertStatus(200);
         } catch(\Exception $e) {
-            
+
         }
 
         $p = $p->fresh();

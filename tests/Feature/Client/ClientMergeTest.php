@@ -38,13 +38,12 @@ class ClientMergeTest extends TestCase
     private $primary_contact;
 
     public $faker;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->faker = Factory::create();
-        $this->buildCache(true);
     }
 
     public function testSearchingForContacts()

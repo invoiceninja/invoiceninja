@@ -45,7 +45,15 @@ class QuoteFilters extends QueryFilters
                       $q->where('first_name', 'like', '%'.$filter.'%')
                         ->orWhere('last_name', 'like', '%'.$filter.'%')
                         ->orWhere('email', 'like', '%'.$filter.'%');
-                  });
+                  })
+                                            ->orWhereRaw("
+                            JSON_UNQUOTE(JSON_EXTRACT(
+                                JSON_ARRAY(
+                                    JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
+                                    JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
+                                ), '$[*]')
+                            ) LIKE ?", ['%'.$filter.'%']);
+            //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
 

@@ -71,7 +71,7 @@ class TransactionTransformer implements BankRevenueInterface
 
     private Company $company;
 
-    function __construct(Company $company)
+    public function __construct(Company $company)
     {
         $this->company = $company;
     }
@@ -99,11 +99,12 @@ class TransactionTransformer implements BankRevenueInterface
         } elseif (array_key_exists('internalTransactionId', $transaction)) {
             $transactionId = $transaction["internalTransactionId"];
         } else {
-            nlog(`Invalid Input for nordigen transaction transformer: ` . $transaction);
+            nlog('Invalid Input for nordigen transaction transformer: ' . $transaction);
             throw new \Exception('invalid dataset: missing transactionId - Please report this error to the developer');
         }
 
         $amount = (float) $transaction["transactionAmount"]["amount"];
+        $base_type = $amount < 0 ? 'DEBIT' : 'CREDIT';
 
         // description could be in varios places
         $description = '';
@@ -140,7 +141,7 @@ class TransactionTransformer implements BankRevenueInterface
         return [
             'transaction_id' => 0,
             'nordigen_transaction_id' => $transactionId,
-            'amount' => $amount,
+            'amount' => abs($amount),
             'currency_id' => $this->convertCurrency($transaction["transactionAmount"]["currency"]),
             'category_id' => null,
             'category_type' => array_key_exists('additionalInformation', $transaction) ? $transaction["additionalInformation"] : '',
@@ -148,7 +149,7 @@ class TransactionTransformer implements BankRevenueInterface
             'description' => $description,
             'participant' => $participant,
             'participant_name' => $participant_name,
-            'base_type' => $amount < 0 ? 'DEBIT' : 'CREDIT',
+            'base_type' => $base_type,
         ];
 
     }
@@ -156,28 +157,22 @@ class TransactionTransformer implements BankRevenueInterface
     private function convertCurrency(string $code)
     {
 
-        $currencies = Cache::get('currencies');
+        $currencies = app('currencies');
 
-        if (!$currencies) {
-            $this->buildCache(true);
-        }
-
-        $currency = $currencies->filter(function ($item) use ($code) {
+        $currency = $currencies->first(function ($item) use ($code) {
+            /** @var \App\Models\Currency $item */
             return $item->code == $code;
-        })->first();
+        });
 
-        if ($currency) {
-            return $currency->id;
-        }
-
-        return 1;
+        /** @var \App\Models\Currency $currency */
+        return $currency ? $currency->id : 1; //@phpstan-ignore-line
 
     }
 
     private function formatDate(string $input)
     {
         $timezone = Timezone::find($this->company->settings->timezone_id);
-        $timezone_name = 'US/Eastern';
+        $timezone_name = 'America/New_York';
 
         if ($timezone) {
             $timezone_name = $timezone->name;
@@ -192,7 +187,7 @@ class TransactionTransformer implements BankRevenueInterface
         }
 
         try {
-           return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default) ?? $input;
+            return Carbon::createFromFormat("d-m-Y", $input)->setTimezone($timezone_name)->format($date_format_default);
         } catch (\Exception $e) {
             return $input;
         }

@@ -96,7 +96,14 @@ class PurchaseOrderFilters extends QueryFilters
                 ->orWhere('custom_value4', 'like', '%'.$filter.'%')
                 ->orWhereHas('vendor', function ($q) use ($filter) {
                     $q->where('name', 'like', '%'.$filter.'%');
-                });
+                })
+                ->orWhereRaw("
+                JSON_UNQUOTE(JSON_EXTRACT(
+                    JSON_ARRAY(
+                        JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
+                        JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
+                    ), '$[*]')
+                ) LIKE ?", ['%'.$filter.'%']);
         });
     }
 

@@ -50,6 +50,8 @@
         document.addEventListener('livewire:init', () => {
 
             Livewire.on('passed-required-fields-check', () => {
+
+                document.querySelector('div[data-ref="required-fields-container"]').classList.toggle('h-0');
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('opacity-25');
                 document.querySelector('div[data-ref="required-fields-container"]').classList.add('pointer-events-none');
 

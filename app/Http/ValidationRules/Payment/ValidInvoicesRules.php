@@ -85,11 +85,12 @@ class ValidInvoicesRules implements Rule
                 //catch here nothing to do - we need this to prevent the last elseif triggering
             } elseif ($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)) {
                 $this->error_msg = 'Amount cannot be greater than invoice balance';
-
                 return false;
             } elseif (floatval($invoice['amount']) > floatval($inv->balance)) {
                 $this->error_msg = ctrans('texts.amount_greater_than_balance_v5');
-
+                return false;
+            } elseif($inv->is_deleted) {
+                $this->error_msg = 'One or more invoices in this request have since been deleted';
                 return false;
             }
         }

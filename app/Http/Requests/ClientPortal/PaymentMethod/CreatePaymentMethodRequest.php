@@ -18,13 +18,18 @@ class CreatePaymentMethodRequest extends FormRequest
      */
     public function authorize(): bool
     {
+
+        auth()->guard('contact')->user()->loadMissing(['client' => function ($query) {
+            $query->without('gateway_tokens', 'documents', 'contacts.company', 'contacts'); // Exclude 'grandchildren' relation of 'client'
+        }]);
+
         /** @var Client $client */
         $client = auth()->guard('contact')->user()->client;
 
         $available_methods = [];
 
         collect($client->service()->getPaymentMethods(-1))
-            ->filter(function ($method) use (&$available_methods) {
+            ->filter(function ($method) use (&$available_methods) { //@phpstan-ignore-line
                 $available_methods[] = $method['gateway_type_id'];
             });
 

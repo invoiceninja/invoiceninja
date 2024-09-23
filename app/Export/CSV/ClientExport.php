@@ -102,6 +102,8 @@ class ClientExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($client) {
+
+                    /** @var \App\Models\Client $client */
                     $row = $this->buildRow($client);
                     return $this->processMetaData($row, $client);
                 })->toArray();
@@ -127,10 +129,11 @@ class ClientExport extends BaseExport
                                 ->withTrashed()
                                 ->where('company_id', $this->company->id);
 
-        if(!$this->input['include_deleted'] ?? false)
+        if(!$this->input['include_deleted'] ?? false) {
             $query->where('is_deleted', 0);
+        }
 
-        $query = $this->addDateRange($query);
+        $query = $this->addDateRange($query, ' clients');
 
         if($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -153,6 +156,8 @@ class ClientExport extends BaseExport
 
         $query->cursor()
               ->each(function ($client) {
+
+                  /** @var \App\Models\Client $client */
                   $this->csv->insertOne($this->buildRow($client));
               });
 
@@ -242,16 +247,16 @@ class ClientExport extends BaseExport
         return $entity;
     }
 
-    private function calculateStatus($client)
-    {
-        if ($client->is_deleted) {
-            return ctrans('texts.deleted');
-        }
+    // private function calculateStatus($client)
+    // {
+    //     if ($client->is_deleted) {
+    //         return ctrans('texts.deleted');
+    //     }
 
-        if ($client->deleted_at) {
-            return ctrans('texts.archived');
-        }
+    //     if ($client->deleted_at) {
+    //         return ctrans('texts.archived');
+    //     }
 
-        return ctrans('texts.active');
-    }
+    //     return ctrans('texts.active');
+    // }
 }

@@ -36,7 +36,10 @@ use Turbo124\Beacon\Facades\LightLogs;
 
 class ProcessBrevoWebhook implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public $tries = 1;
 
@@ -52,6 +55,8 @@ class ProcessBrevoWebhook implements ShouldQueue
         'events' => [],
     ];
 
+
+    /** @var ?\App\Models\Company $company*/
     private ?Company $company = null;
 
     /**
@@ -83,12 +88,12 @@ class ProcessBrevoWebhook implements ShouldQueue
      * Execute the job.
      *
      *
-     * @return void
      */
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->request['tags'][0]);
-        $this->company = Company::where('company_key', $this->request['tags'][0])->first();
+
+        $this->company = Company::query()->where('company_key', $this->request['tags'][0])->first();
 
         $this->invitation = $this->discoverInvitation($this->request['message-id']);
 
@@ -421,7 +426,7 @@ class ProcessBrevoWebhook implements ShouldQueue
     public function getRawMessage(string $message_id)
     {
 
-        $brevo_secret = !empty($this->company->settings->brevo_secret) ? $this->company->settings->brevo_secret : config('services.brevo.key');
+        $brevo_secret = !empty ($this->company->settings->brevo_secret) ? $this->company->settings->brevo_secret : config('services.brevo.secret');
 
         $brevo = new TransactionalEmailsApi(null, Configuration::getDefaultConfiguration()->setApiKey('api-key', $brevo_secret));
         $messageDetail = $brevo->getTransacEmailContent($message_id);

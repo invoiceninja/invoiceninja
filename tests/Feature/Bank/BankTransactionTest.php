@@ -29,7 +29,7 @@ class BankTransactionTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -38,6 +38,113 @@ class BankTransactionTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
+    }
+
+    public function testBankIntegrationFilters()
+    {
+        BankTransaction::where('company_id', $this->company->id)
+        ->cursor()->each(function($bt){
+            $bt->forceDelete();
+        });
+        
+        $bi = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi->bank_account_name = "Bank1";
+        $bi->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi->id;
+        $bt->status_id = BankTransaction::STATUS_UNMATCHED;
+        $bt->description = 'Fuel';
+        $bt->amount = 10;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->base_type = 'DEBIT';
+        $bt->save();
+
+
+        $bi2 = BankIntegrationFactory::create($this->company->id, $this->user->id, $this->account->id);
+        $bi2->bank_account_name = "Bank2";
+        $bi2->save();
+
+        $bt = BankTransactionFactory::create($this->company->id, $this->user->id);
+        $bt->bank_integration_id = $bi2->id;
+        $bt->status_id = BankTransaction::STATUS_UNMATCHED;
+        $bt->description = 'Fuel';
+        $bt->amount = 20;
+        $bt->currency_code = $this->client->currency()->code;
+        $bt->date = now()->format('Y-m-d');
+        $bt->transaction_id = 1234567890;
+        $bt->category_id = 10000003;
+        $bt->base_type = 'DEBIT';
+        $bt->save();
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/bank_transactions');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $transaction_count = count($arr['data']);
+
+        $this->assertGreaterThan(1, $transaction_count);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/bank_transactions?bank_integration_ids='.$bi->hashed_id);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $transaction_count = count($arr['data']);
+
+        $this->assertCount(1, $arr['data']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/bank_transactions?bank_integration_ids='.$bi2->hashed_id);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $transaction_count = count($arr['data']);
+
+        $this->assertCount(1, $arr['data']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/bank_transactions?bank_integration_ids='.$bi2->hashed_id.",".$bi->hashed_id);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $transaction_count = count($arr['data']);
+
+        $this->assertCount(2, $arr['data']);
+
+        $bi2->delete();
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->getJson('/api/v1/bank_transactions?active_banks=true');
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
+
     }
 
     public function testLinkMultipleExpensesWithDeleteToTransaction()
@@ -124,7 +231,7 @@ class BankTransactionTest extends TestCase
         $response->assertStatus(200);
 
         $this->assertNotNull($e2->refresh()->transaction_id);
-        
+
         $this->assertEquals("{$this->expense->hashed_id},{$e->hashed_id},{$e2->hashed_id}", $bt->fresh()->expense_id);
 
         $expense_repo = app('App\Repositories\ExpenseRepository');
@@ -383,7 +490,7 @@ class BankTransactionTest extends TestCase
     public function testMatchBankTransactionsValidationShouldFail()
     {
         $data = [];
-        
+
         $data['transactions'][] = [
             'bad_key' => 10,
         ];

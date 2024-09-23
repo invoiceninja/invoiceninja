@@ -15,12 +15,12 @@ use App\DataMapper\CompanySettings;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Http\Requests\Company\UpdateCompanyRequest
+ * 
+ *   App\Http\Requests\Company\UpdateCompanyRequest
  */
 class CompanySettingsSaveableTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

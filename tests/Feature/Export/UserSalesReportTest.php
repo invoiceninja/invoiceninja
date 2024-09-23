@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class UserSalesReportTest extends TestCase
 {
@@ -34,7 +34,7 @@ class UserSalesReportTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -45,31 +45,6 @@ class UserSalesReportTest extends TestCase
         );
 
         $this->withoutExceptionHandling();
-
-        /* Warm up the cache !*/
-        $cached_tables = config('ninja.cached_tables');
-
-        $this->artisan('db:seed --force');
-
-        foreach ($cached_tables as $name => $class) {
-            // check that the table exists in case the migration is pending
-            if (! Schema::hasTable((new $class())->getTable())) {
-                continue;
-            }
-            if ($name == 'payment_terms') {
-                $orderBy = 'num_days';
-            } elseif ($name == 'fonts') {
-                $orderBy = 'sort_order';
-            } elseif (in_array($name, ['currencies', 'industries', 'languages', 'countries', 'banks'])) {
-                $orderBy = 'name';
-            } else {
-                $orderBy = 'id';
-            }
-            $tableData = $class::orderBy($orderBy)->get();
-            if ($tableData->count()) {
-                Cache::forever($name, $tableData);
-            }
-        }
 
     }
 
