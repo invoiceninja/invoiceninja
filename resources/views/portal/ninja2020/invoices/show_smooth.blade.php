@@ -8,7 +8,7 @@
         </dialog>
 
         <div class="px-2">
-            <div class="bg-white shadow sm:rounded-lg mb-4" translate>
+            <div class="bg-white shadow rounded-lg mb-4" translate>
                 <div class="px-4 py-5 sm:p-6">
                     <div class="sm:flex sm:items-start sm:justify-between">
                         <div>
