@@ -84,7 +84,7 @@ class QuickbooksImport implements ShouldQueue
    
         foreach($this->entities as $key => $entity) {
    
-            if(!$this->syncGate($key, 'pull')) {
+            if(!$this->qbs->syncGate($key, 'pull')) {
                 nlog('skipping ' . $key);
                 continue;
             }
@@ -97,29 +97,6 @@ class QuickbooksImport implements ShouldQueue
 
     }
     
-    /**
-     * Determines whether a sync is allowed based on the settings
-     *
-     * @param  string $entity
-     * @param  string $direction
-     * @return bool
-     */
-    private function syncGate(string $entity, string $direction): bool
-    {
-        return (bool) $this->settings->{$entity}->sync && in_array($this->settings->{$entity}->direction->value, [$direction, 'bidirectional']);
-    }
-    
-    /**
-     * Updates the gate for a given entity
-     *
-     * @param  string $entity
-     * @return bool
-     */
-    private function updateGate(string $entity): bool
-    {
-        return (bool) $this->settings->{$entity}->sync && $this->settings->{$entity}->update_record;
-    }
-
     /**
      * Processes the sync for a given entity
      *
@@ -231,41 +208,6 @@ class QuickbooksImport implements ShouldQueue
 
     }
 
-    // private function syncQbToNinjaClients(array $records): void
-    // {
-
-    //     $client_transformer = new ClientTransformer($this->company);
-
-    //     foreach($records as $record)
-    //     {
-    //         $ninja_client_data = $client_transformer->qbToNinja($record);
-
-    //         if($client = $this->findClient($ninja_client_data))
-    //         {
-    //             $client->fill($ninja_client_data[0]);
-    //             $client->saveQuietly();
-
-    //             $contact = $client->contacts()->where('email', $ninja_client_data[1]['email'])->first();
-
-    //             if(!$contact)
-    //             {
-    //                 $contact = ClientContactFactory::create($this->company->id, $this->company->owner()->id);
-    //                 $contact->client_id = $client->id;
-    //                 $contact->send_email = true;
-    //                 $contact->is_primary = true;
-    //                 $contact->fill($ninja_client_data[1]);
-    //                 $contact->saveQuietly(); 
-    //             }
-    //             elseif($this->updateGate('client')){
-    //                 $contact->fill($ninja_client_data[1]);
-    //                 $contact->saveQuietly();
-    //             }
-
-    //         }
-
-    //     }
-    // }
-
     private function syncQbToNinjaVendors(array $records): void
     {
 
@@ -291,7 +233,7 @@ class QuickbooksImport implements ShouldQueue
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly(); 
                 }
-                elseif($this->updateGate('vendor')){
+                elseif($this->qbs->updateGate('vendor')){
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }

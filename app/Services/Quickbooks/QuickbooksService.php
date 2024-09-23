@@ -136,4 +136,28 @@ class QuickbooksService
     {
         return $this->sdk->FindById($entity, $id);
     }
+    
+    /**
+     * Tests whether to update a record based on the sync settings.
+     *
+     * @param  string $entity
+     * @return bool
+     */
+    public function updateGate(string $entity): bool
+    {
+        return (bool) $this->service->settings->{$entity}->sync && $this->service->settings->{$entity}->update_record;
+    }
+
+    /**
+     * Determines whether a sync is allowed based on the settings
+     *
+     * @param  string $entity
+     * @param  string $direction
+     * @return bool
+     */
+    public function syncGate(string $entity, string $direction): bool
+    {
+        return (bool) $this->settings->{$entity}->sync && in_array($this->settings->{$entity}->direction->value, [$direction, 'bidirectional']);
+    }
+
 }

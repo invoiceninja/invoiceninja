@@ -69,7 +69,7 @@ class QbClient implements SyncInterface
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }
-                elseif($this->updateGate('client')){
+                elseif($this->service->updateGate('client')){
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }
@@ -81,11 +81,6 @@ class QbClient implements SyncInterface
 
     public function syncToForeign(array $records): void
     {
-    }
-
-    private function updateGate(string $entity): bool
-    {
-        return (bool) $this->service->settings->{$entity}->sync && $this->service->settings->{$entity}->update_record;
     }
 
     private function findClient(string $key): ?Client
