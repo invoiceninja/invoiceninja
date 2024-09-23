@@ -105,10 +105,7 @@ class SdkWrapper
         $this->setAccessToken($token);
 
         if($token_object->accessTokenExpiresAt < time()){
-            $new_token = $this->sdk->getOAuth2LoginHelper()->refreshAccessTokenWithRefreshToken($token_object->refresh_token);
-
-            $this->setAccessToken($new_token);
-            $this->saveOAuthToken($this->accessToken());
+            $this->refreshToken($token_object->refresh_token);
         }
         
         return $this;
@@ -119,7 +116,6 @@ class SdkWrapper
     {
         $new_token = $this->sdk->getOAuth2LoginHelper()->refreshAccessTokenWithRefreshToken($refresh_token);
 
-        nlog($new_token);
         $this->setAccessToken($new_token);
         $this->saveOAuthToken($this->accessToken());
 
