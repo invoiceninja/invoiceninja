@@ -150,7 +150,10 @@ async function process3ds() {
     try {
         const resource = await get3dsToken();
 
+        console.log(resource);
+
         if (
+            !resource.status ||
             resource.status === 'not_authenticated' ||
             resource === 'not_authenticated'
         ) {
