@@ -81,6 +81,14 @@ class Settings
         
         $gateways = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class."[]", $settings->gateways);
 
+        if ($gateway_type_id == GatewayType::CREDIT_CARD && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1) {
+                            
+                return collect($gateways)->first(function (Gateway $gateway) {
+                    return $gateway->_id == $this->powerboard->company_gateway->getConfigField('gatewayId');
+                });
+
+        }
+
         return collect($gateways)->first(function (Gateway $gateway) use ($gateway_type_const){
             return $gateway->type == $gateway_type_const;
         });
@@ -89,9 +97,6 @@ class Settings
     public function getGatewayId(int $gateway_type_id): string
     {
         //allows us to override the gateway id for credit card if configured.
-        if ($gateway_type_id == GatewayType::CREDIT_CARD && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1) {
-            return $this->powerboard->company_gateway->getConfigField('gatewayId');
-        }
 
         $gateway = $this->getPaymentGatewayConfiguration($gateway_type_id);
 
