@@ -81,7 +81,7 @@ class Settings
         
         $gateways = (new \App\PaymentDrivers\CBAPowerBoard\Models\Parse())->encode(Gateway::class."[]", $settings->gateways);
 
-        if ($gateway_type_id == GatewayType::CREDIT_CARD && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1) {
+        if ($gateway_type_const == self::GATEWAY_CBA && strlen($this->powerboard->company_gateway->getConfigField('gatewayId') ?? '') > 1) {
                             
                 return collect($gateways)->first(function (Gateway $gateway) {
                     return $gateway->_id == $this->powerboard->company_gateway->getConfigField('gatewayId');
