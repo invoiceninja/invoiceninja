@@ -153,6 +153,7 @@ async function process3ds() {
         console.log(resource);
 
         if (
+            !resource ||
             !resource.status ||
             resource.status === 'not_authenticated' ||
             resource === 'not_authenticated'
@@ -277,11 +278,13 @@ async function get3dsToken() {
 
         if (!response.ok) {
             return await response.json().then((errorData) => {
+                console.log(errorData);
+                console.log("throwing here");
                 throw new Error(errorData.message ?? 'Unknown error.');
             });
 
         }
-
+        console.log("instead i return the json response");
         return await response.json();
     } catch (error) {
 
