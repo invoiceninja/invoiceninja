@@ -131,6 +131,12 @@ return [
         'client_id' => env('CHORUS_CLIENT_ID', false),
         'secret' => env('CHORUS_SECRET', false),
     ],
+    'gocardless' => [
+        'client_id' => env('GOCARDLESS_CLIENT_ID', null),
+        'client_secret' => env('GOCARDLESS_CLIENT_SECRET', null),
+        'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
+        'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', 'https://invoicing.co/gocardless/oauth/connect/confirm'),
+    ],
     'quickbooks' => [
         'client_id' => env('QUICKBOOKS_CLIENT_ID', false),
         'client_secret' => env('QUICKBOOKS_CLIENT_SECRET', false),

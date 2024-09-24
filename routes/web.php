@@ -10,6 +10,8 @@ use App\Http\Controllers\ClientPortal\ApplePayDomainController;
 use App\Http\Controllers\EInvoice\SelfhostController;
 use App\Http\Controllers\Gateways\Checkout3dsController;
 use App\Http\Controllers\Gateways\GoCardlessController;
+use App\Http\Controllers\Gateways\GoCardlessOAuthController;
+use App\Http\Controllers\Gateways\GoCardlessOAuthWebhookController;
 use App\Http\Controllers\Gateways\Mollie3dsController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StripeConnectController;
@@ -50,6 +52,10 @@ Route::get('checkout/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [C
 Route::get('mollie/3ds_redirect/{company_key}/{company_gateway_id}/{hash}', [Mollie3dsController::class, 'index'])->middleware('domain_db')->name('mollie.3ds_redirect');
 Route::get('gocardless/ibp_redirect/{company_key}/{company_gateway_id}/{hash}', [GoCardlessController::class, 'ibpRedirect'])->middleware('domain_db')->name('gocardless.ibp_redirect');
 Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePayDomainController::class, 'showAppleMerchantId']);
+
+Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
+Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');
+Route::get('gocardless/oauth/connect/{token}', [GoCardlessOAuthController::class, 'connect']);
 
 Route::get('einvoice/beta', [SelfhostController::class, 'index'])->name('einvoice.beta');
 
