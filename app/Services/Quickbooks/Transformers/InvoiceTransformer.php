@@ -47,13 +47,62 @@ class InvoiceTransformer extends BaseTransformer
             'due_date' => data_get($qb_data, 'DueDate', null),
             'po_number' => data_get($qb_data, 'PONumber', ""),
             'partial' => data_get($qb_data, 'Deposit', 0),
-            'line_items' => $this->getLineItems(data_get($qb_data, 'Line', [])),
+            'line_items' => $this->getLineItems(data_get($qb_data, 'Line', []), data_get($qb_data, 'ApplyTaxAfterDiscount', 'true')),
             'payment_ids' => $this->getPayments($qb_data),
             'status_id' => Invoice::STATUS_SENT,
-            'tax_rate1' => $rate = data_get($qb_data,'TxnTaxDetail.TaxLine.TaxLineDetail.TaxPercent', 0),
+            'tax_rate1' => $rate = $this->calculateTotalTax($qb_data),
             'tax_name1' => $rate > 0 ? "Sales Tax" : "",
+            'custom_surcharge1' => $this->checkIfDiscountAfterTax($qb_data),
+
         ] : false;
     }
+
+    private function checkIfDiscountAfterTax($qb_data)
+    {
+
+        if($qb_data->ApplyTaxAfterDiscount == 'true'){
+            return 0;
+        }
+
+        foreach(data_get($qb_data, 'Line', []) as $line)
+        {
+            nlog("iterating");
+            if(data_get($line, 'DetailType.value') == 'DiscountLineDetail')
+            {
+                nlog("found discount");
+
+                if(!isset($this->company->custom_fields->surcharge1))
+                {
+                    $this->company->custom_fields->surcharge1 = ctrans('texts.discount');
+                    $this->company->save();
+                }
+
+                nlog(data_get($line, 'Amount', 0) * -1);
+                return data_get($line, 'Amount', 0) * -1;
+            }
+        }
+
+        return 0;
+    }
+
+    private function calculateTotalTax($qb_data)
+    {
+        $taxLines = data_get($qb_data, 'TxnTaxDetail.TaxLine', []);
+        
+        if (!is_array($taxLines)) {
+            $taxLines = [$taxLines];
+        }
+
+        $totalTaxRate = 0;
+
+        foreach ($taxLines as $taxLine) {
+            $taxRate = data_get($taxLine, 'TaxLineDetail.TaxPercent', 0);
+            $totalTaxRate += $taxRate;
+        }
+
+        return $totalTaxRate;
+    }
+
 
     private function getPayments(mixed $qb_data)
     {
@@ -82,7 +131,7 @@ class InvoiceTransformer extends BaseTransformer
 
     }
 
-    private function getLineItems(mixed $qb_items)
+    private function getLineItems(mixed $qb_items, string $include_discount = 'true')
     {
         $items = [];
 
@@ -105,7 +154,7 @@ class InvoiceTransformer extends BaseTransformer
                 $items[] = (object)$item;
             }
 
-            if(data_get($qb_item, 'DetailType.value') == 'DiscountLineDetail')
+            if(data_get($qb_item, 'DetailType.value') == 'DiscountLineDetail' && $include_discount == 'true')
             {
 
                 $item = new InvoiceItem();

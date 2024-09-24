@@ -90,14 +90,11 @@ class QuickbooksService
 
     private function checkToken(): self
     {
-        nlog($this->company->quickbooks->accessTokenExpiresAt);
-        nlog(time());
 
         if($this->company->quickbooks->accessTokenExpiresAt > time())
             return $this;
 
         if($this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh){
-            nlog('Refreshing token');
             $this->sdk()->refreshToken($this->company->quickbooks->refresh_token);
             $this->company = $this->company->fresh();
             $this->try_refresh = false;

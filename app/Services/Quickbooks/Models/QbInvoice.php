@@ -140,6 +140,8 @@ class QbInvoice implements SyncInterface
 
         $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record);
 
+        nlog($ninja_invoice_data);
+        
         $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
 
         $client_id = $ninja_invoice_data['client_id'] ?? null;
