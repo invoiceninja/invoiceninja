@@ -256,7 +256,7 @@ class CompanyGatewayController extends BaseController
             default:
                 # code...
                 break;
-        }
+        
         }
 
         return $this->itemResponse($company_gateway);
