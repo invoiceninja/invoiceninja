@@ -280,15 +280,14 @@ async function get3dsToken() {
                 throw new Error(errorData.message ?? 'Unknown error.');
             });
 
-            // const text = await response.text();
-            // throw new Error(`Network response was not ok: ${response.statusText}. Response text: ${text}`);
         }
 
         return await response.json();
     } catch (error) {
+
         document.getElementById(
             'errors'
-        ).textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
+        ).textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
         document.getElementById('errors').hidden = false;
 
         focusCreditCard = true;
