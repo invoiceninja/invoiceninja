@@ -139,8 +139,6 @@ function pay() {
         first.click();
     }
 
-    console.log({ focusCreditCard })
-
     if (focusCreditCard) {
         document.getElementById('toggle-payment-with-credit-card')?.click();
     }
@@ -149,8 +147,6 @@ function pay() {
 async function process3ds() {
     try {
         const resource = await get3dsToken();
-
-        console.log(resource);
 
         if (
             !resource ||
@@ -278,13 +274,11 @@ async function get3dsToken() {
 
         if (!response.ok) {
             return await response.json().then((errorData) => {
-                console.log(errorData);
-                console.log("throwing here");
                 throw new Error(errorData.message ?? 'Unknown error.');
             });
 
         }
-        console.log("instead i return the json response");
+
         return await response.json();
     } catch (error) {
 
