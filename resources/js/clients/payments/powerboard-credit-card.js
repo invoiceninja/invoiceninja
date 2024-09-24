@@ -285,10 +285,8 @@ async function get3dsToken() {
     } catch (error) {
         document.getElementById(
             'errors'
-        ).textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
+        ).textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
         document.getElementById('errors').hidden = false;
-
-        console.error('Fetch error:', error); // Log error for debugging
 
         focusCreditCard = true;
 
