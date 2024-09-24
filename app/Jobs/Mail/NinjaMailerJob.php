@@ -154,6 +154,20 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                 ->send();
 
+        } catch(\Symfony\Component\Mailer\Exception\TransportException $e){
+            nlog("Mailer failed with a Transport Exception {$e->getMessage()}");
+            
+            if(Ninja::isHosted() && $this->mailer == 'smtp'){
+                $settings = $this->nmo->settings;
+                $settings->email_sending_method = 'default';
+                $this->company->settings = $settings;
+                $this->company->save();
+            }
+
+            $this->fail();
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
