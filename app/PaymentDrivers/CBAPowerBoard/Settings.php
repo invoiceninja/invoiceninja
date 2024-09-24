@@ -74,7 +74,7 @@ class Settings
     {
         $settings = $this->getSettings();
 
-        if(!property_exists($settings,'gateways')){
+        if(!property_exists($settings, 'gateways')){
             $this->updateSettings();
             $settings = $this->getSettings();
         }
