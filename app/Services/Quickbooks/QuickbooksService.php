@@ -139,31 +139,17 @@ class QuickbooksService
     {
         return $this->sdk->FindById($entity, $id);
     }
-    
+        
     /**
-     * Updates the gate for a given entity
+     * Flag to determine if a sync is allowed in either direction
      *
      * @param  string $entity
+     * @param  mixed $direction
      * @return bool
      */
-    public function updateGate(string $entity): bool
+    public function syncable(string $entity, \App\Enum\SyncDirection $direction): bool
     {
-        nlog($this->settings->{$entity}->sync);
-        nlog($this->settings->{$entity}->update_record);
-
-        return $this->settings->{$entity}->sync && $this->settings->{$entity}->update_record;
-    }
-
-    /**
-     * Determines whether a sync is allowed based on the settings
-     *
-     * @param  string $entity
-     * @param  string $direction
-     * @return bool
-     */
-    public function syncGate(string $entity, string $direction): bool
-    {
-        return (bool) $this->settings->{$entity}->sync && in_array($this->settings->{$entity}->direction->value, [$direction, 'bidirectional']);
+        return $this->settings->{$entity}->direction === $direction || $this->settings->{$entity}->direction === \App\Enum\SyncDirection::BIDIRECTIONAL;
     }
 
 }

@@ -84,7 +84,7 @@ class QuickbooksImport implements ShouldQueue
    
         foreach($this->entities as $key => $entity) {
    
-            if(!$this->qbs->syncGate($key, 'pull')) {
+            if(!$this->qbs->syncable($key, \App\Enum\SyncDirection::PULL)) {
                 nlog('skipping ' . $key);
                 continue;
             }
@@ -153,7 +153,7 @@ class QuickbooksImport implements ShouldQueue
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly(); 
                 }
-                elseif($this->qbs->updateGate('vendor')){
+                elseif($this->qbs->syncable('vendor', (\App\Enum\SyncDirection::PULL)->value)){
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }
@@ -194,7 +194,7 @@ class QuickbooksImport implements ShouldQueue
             return ExpenseFactory::create($this->company->id, $this->company->owner()->id);
         }
         elseif($search->count() == 1) {
-            return $this->settings->expense->update_record ? $search->first() : null;
+            return $this->service->syncable('expense', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
         
         return null;
@@ -224,7 +224,8 @@ class QuickbooksImport implements ShouldQueue
             return VendorFactory::create($this->company->id, $this->company->owner()->id);
         }
         elseif($search->count() == 1) {
-            return $this->settings->vendor->update_record ? $search->first() : null;
+
+            return $this->service->syncable('vendor', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
         
         return null;
@@ -258,7 +259,8 @@ class QuickbooksImport implements ShouldQueue
             return $client;
         }
         elseif($search->count() == 1) {
-            return $this->settings->client->update_record ? $search->first() : null;
+
+return $this->service->syncable('client', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
         
         return null;

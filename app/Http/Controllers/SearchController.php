@@ -28,7 +28,7 @@ class SearchController extends Controller
 
     public function __invoke(GenericSearchRequest $request)
     {
-        if(Ninja::isHosted() && $request->has('search') && $request->input('search') !== '') {
+        if(config('scount.driver') == 'elastic' && $request->has('search') && $request->input('search') !== '') {
             try{
                 return $this->search($request->input('search', ''));
             } catch(\Exception $e) {

@@ -69,7 +69,7 @@ class QbClient implements SyncInterface
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }
-                elseif($this->service->updateGate('client')){
+                elseif($this->service->syncable('client', \App\Enum\SyncDirection::PULL)){
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }
@@ -101,7 +101,8 @@ class QbClient implements SyncInterface
             return $client;
 
         } elseif ($search->count() == 1) {
-            return $this->service->settings->client->update_record ? $search->first() : null;
+
+return $this->service->syncable('client', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
 
         return null;

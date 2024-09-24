@@ -11,32 +11,20 @@
 
 namespace App\DataMapper;
 
-enum SyncDirection: string
-{
-    case PUSH = 'push';
-    case PULL = 'pull';
-    case BIDIRECTIONAL = 'bidirectional';
-}
+use App\Enum\SyncDirection;
 
 /**
  * QuickbooksSyncMap.
  */
 class QuickbooksSyncMap
 {
-    public bool $sync = true;
-
-    public bool $update_record = true;
-
-    public SyncDirection $direction = SyncDirection::BIDIRECTIONAL; 
+    public SyncDirection $direction = SyncDirection::BIDIRECTIONAL;
 
     public function __construct(array $attributes = [])
     {
-        $this->sync = $attributes['sync'] ?? true;
-        $this->update_record = $attributes['update_record'] ?? true;
         $this->direction = isset($attributes['direction'])
            ? SyncDirection::from($attributes['direction'])
            : SyncDirection::BIDIRECTIONAL;
 
     }
 }
-

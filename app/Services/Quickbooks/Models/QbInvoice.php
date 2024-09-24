@@ -43,58 +43,7 @@ class QbInvoice implements SyncInterface
         
         foreach ($records as $record) {
 
-            $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record);
-
-            $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
-
-            $client_id = $ninja_invoice_data['client_id'] ?? null;
-
-            if (is_null($client_id)) {
-                continue;
-            }
-
-            unset($ninja_invoice_data['payment_ids']);
-
-            if ($invoice = $this->findInvoice($ninja_invoice_data['id'], $ninja_invoice_data['client_id'])) {
-
-                if($invoice->id)
-                    $this->processQbToNinjaInvoiceUpdate($ninja_invoice_data, $invoice);
-
-                $invoice->fill($ninja_invoice_data);
-                $invoice->saveQuietly();
-
-                $invoice = $invoice->calc()->getInvoice()->service()->markSent()->createInvitations()->save();
-
-                foreach ($payment_ids as $payment_id) {
-
-                    $payment = $this->service->sdk->FindById('Payment', $payment_id);
-
-                    $payment_transformer = new PaymentTransformer($this->service->company);
-
-                    $transformed = $payment_transformer->qbToNinja($payment);
-
-                    $ninja_payment = $payment_transformer->buildPayment($payment);
-                    $ninja_payment->service()->applyNumber()->save();
-
-                    $paymentable = new \App\Models\Paymentable();
-                    $paymentable->payment_id = $ninja_payment->id;
-                    $paymentable->paymentable_id = $invoice->id;
-                    $paymentable->paymentable_type = 'invoices';
-                    $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
-                    $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
-                    $paymentable->save();
-
-                    $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
-
-                }
-
-                if ($record instanceof IPPSalesReceipt) {
-                    $invoice->service()->markPaid()->save();
-                }
-
-            }
-
-            $ninja_invoice_data = false;
+            $this->syncNinjaInvoice($record); 
 
         }
 
@@ -105,7 +54,7 @@ class QbInvoice implements SyncInterface
 
     }
 
-    private function processQbToNinjaInvoiceUpdate(array $ninja_invoice_data, Invoice $invoice): void
+    private function qbInvoiceUpdate(array $ninja_invoice_data, Invoice $invoice): void
     {
         $current_ninja_invoice_balance = $invoice->balance;
         $qb_invoice_balance = $ninja_invoice_data['balance'];
@@ -130,7 +79,7 @@ class QbInvoice implements SyncInterface
                             ->where('company_id', $this->service->company->id)
                             ->where('sync->qb_id', $id);
 
-        if($search->count() == 0 && $client_id) {
+        if($search->count() == 0) {
             $invoice = InvoiceFactory::create($this->service->company->id, $this->service->company->owner()->id);
             $invoice->client_id = $client_id;
 
@@ -140,32 +89,125 @@ class QbInvoice implements SyncInterface
 
             return $invoice;
         } elseif($search->count() == 1) {
-            return $this->service->settings->invoice->update_record ? $search->first() : null;
+
+return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
 
         return null;
 
     }
 
-
-    public function sync(string $id, string $last_updated): void
+    public function sync($id, string $last_updated): void
     {
 
         $qb_record = $this->find($id);
 
-        if($this->service->updateGate('invoice') && $invoice = $this->findInvoice($id))
+        if($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL))
         {
 
-            //logic here to determine if we should update the record
-            if(Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)))
+            $invoice = $this->findInvoice($id);
+
+            if(data_get($qb_record, 'TxnStatus') === 'Voided')
+            {
+                $this->delete($id);
+                return;
+            }
+
+            if(!$invoice->id){
+                $this->syncNinjaInvoice($qb_record);
+            }
+            elseif(Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)))
             {
                 $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record);
                 $this->invoice_repository->save($ninja_invoice_data, $invoice);
 
             }
 
-        // }
         }
     }
     
+    /**
+     * syncNinjaInvoice
+     *
+     * @param  $record
+     * @return void
+     */
+    public function syncNinjaInvoice($record): void
+    {
+
+        $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record);
+
+        $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
+
+        $client_id = $ninja_invoice_data['client_id'] ?? null;
+
+        if (is_null($client_id)) {
+            return;
+        }
+
+        unset($ninja_invoice_data['payment_ids']);
+
+        if ($invoice = $this->findInvoice($ninja_invoice_data['id'], $ninja_invoice_data['client_id'])) {
+
+            if ($invoice->id) {
+                $this->qbInvoiceUpdate($ninja_invoice_data, $invoice);
+            }
+
+            //new invoice scaffold
+            $invoice->fill($ninja_invoice_data);
+            $invoice->saveQuietly();
+
+            $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
+
+            foreach ($payment_ids as $payment_id) {
+
+                $payment = $this->service->sdk->FindById('Payment', $payment_id);
+
+                $payment_transformer = new PaymentTransformer($this->service->company);
+
+                $transformed = $payment_transformer->qbToNinja($payment);
+
+                $ninja_payment = $payment_transformer->buildPayment($payment);
+                $ninja_payment->service()->applyNumber()->save();
+
+                $paymentable = new \App\Models\Paymentable();
+                $paymentable->payment_id = $ninja_payment->id;
+                $paymentable->paymentable_id = $invoice->id;
+                $paymentable->paymentable_type = 'invoices';
+                $paymentable->amount = $transformed['applied'] + $ninja_payment->credits->sum('amount');
+                $paymentable->created_at = $ninja_payment->date; //@phpstan-ignore-line
+                $paymentable->save();
+
+                $invoice->service()->applyPayment($ninja_payment, $paymentable->amount);
+
+            }
+
+            if ($record instanceof IPPSalesReceipt) {
+                $invoice->service()->markPaid()->save();
+            }
+
+        }
+
+        $ninja_invoice_data = false;
+
+
+    }
+
+    /**
+     * Deletes the invoice from Ninja and sets the sync to null
+     *
+     * @param string $id
+     * @return void
+     */
+    public function delete($id): void
+    {
+        $qb_record = $this->find($id);
+
+        if($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) && $invoice = $this->findInvoice($id))
+        {
+            $invoice->sync = null;
+            $invoice->saveQuietly();
+            $this->invoice_repository->delete($invoice);
+        }
+    }
 }

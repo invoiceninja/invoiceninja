@@ -73,7 +73,8 @@ class QbProduct implements SyncInterface
             return $product;
 
         } elseif($search->count() == 1) {
-            return $this->service->settings->product->update_record ? $search->first() : null;
+
+return $this->service->syncable('product', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
 
         return null;
@@ -84,7 +85,7 @@ class QbProduct implements SyncInterface
     {
         $qb_record = $this->find($id);
 
-        if($this->service->updateGate('product') && $ninja_record = $this->findProduct($id))
+        if($this->service->syncable('product', \App\Enum\SyncDirection::PULL) && $ninja_record = $this->findProduct($id))
         {
 
             if(Carbon::parse($last_updated) > Carbon::parse($ninja_record->updated_at))
