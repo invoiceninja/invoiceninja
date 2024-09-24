@@ -90,11 +90,14 @@ class QuickbooksService
 
     private function checkToken(): self
     {
-        
-        if($this->company->quickbooks->accessTokenKey > time())
+        nlog($this->company->quickbooks->accessTokenExpiresAt);
+        nlog(time());
+
+        if($this->company->quickbooks->accessTokenExpiresAt > time())
             return $this;
 
         if($this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh){
+            nlog('Refreshing token');
             $this->sdk()->refreshToken($this->company->quickbooks->refresh_token);
             $this->company = $this->company->fresh();
             $this->try_refresh = false;
@@ -145,7 +148,10 @@ class QuickbooksService
      */
     public function updateGate(string $entity): bool
     {
-        return (bool) $this->service->settings->{$entity}->sync && $this->service->settings->{$entity}->update_record;
+        nlog($this->settings->{$entity}->sync);
+        nlog($this->settings->{$entity}->update_record);
+
+        return $this->settings->{$entity}->sync && $this->settings->{$entity}->update_record;
     }
 
     /**

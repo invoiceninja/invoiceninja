@@ -11,33 +11,39 @@
 
 namespace App\Services\Quickbooks\Models;
 
+use Carbon\Carbon;
 use App\Models\Invoice;
+use App\DataMapper\InvoiceSync;
 use App\Factory\InvoiceFactory;
 use App\Interfaces\SyncInterface;
+use App\Repositories\InvoiceRepository;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\InvoiceTransformer;
 use App\Services\Quickbooks\Transformers\PaymentTransformer;
 
 class QbInvoice implements SyncInterface
 {
-    protected InvoiceTransformer $transformer;
+    protected InvoiceTransformer $invoice_transformer;
 
+    protected InvoiceRepository $invoice_repository;
+    
     public function __construct(public QuickbooksService $service)
     {
-        $this->transformer = new InvoiceTransformer($this->service->company);
+        $this->invoice_transformer = new InvoiceTransformer($this->service->company);
+        $this->invoice_repository = new InvoiceRepository();
     }
 
-    public function find(int $id): mixed
+    public function find(string $id): mixed
     {
         return $this->service->sdk->FindById('Invoice', $id);
     }
 
     public function syncToNinja(array $records): void
     {
-
+        
         foreach ($records as $record) {
 
-            $ninja_invoice_data = $this->transformer->qbToNinja($record);
+            $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record);
 
             $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
 
@@ -49,7 +55,11 @@ class QbInvoice implements SyncInterface
 
             unset($ninja_invoice_data['payment_ids']);
 
-            if ($invoice = $this->findInvoice($ninja_invoice_data)) {
+            if ($invoice = $this->findInvoice($ninja_invoice_data['id'], $ninja_invoice_data['client_id'])) {
+
+                if($invoice->id)
+                    $this->processQbToNinjaInvoiceUpdate($ninja_invoice_data, $invoice);
+
                 $invoice->fill($ninja_invoice_data);
                 $invoice->saveQuietly();
 
@@ -95,17 +105,38 @@ class QbInvoice implements SyncInterface
 
     }
 
+    private function processQbToNinjaInvoiceUpdate(array $ninja_invoice_data, Invoice $invoice): void
+    {
+        $current_ninja_invoice_balance = $invoice->balance;
+        $qb_invoice_balance = $ninja_invoice_data['balance'];
 
-    private function findInvoice(array $ninja_invoice_data): ?Invoice
+        if(floatval($current_ninja_invoice_balance) == floatval($qb_invoice_balance))
+        {
+            nlog('Invoice balance is the same, skipping update of line items');
+            unset($ninja_invoice_data['line_items']);
+            $invoice->fill($ninja_invoice_data);
+            $invoice->saveQuietly();
+        }
+        else{
+            nlog('Invoice balance is different, updating line items');
+            $this->invoice_repository->save($ninja_invoice_data, $invoice);
+        }
+    }
+
+    private function findInvoice(string $id, ?string $client_id = null): ?Invoice
     {
         $search = Invoice::query()
                             ->withTrashed()
                             ->where('company_id', $this->service->company->id)
-                            ->where('sync->qb_id', $ninja_invoice_data['id']);
+                            ->where('sync->qb_id', $id);
 
-        if($search->count() == 0) {
+        if($search->count() == 0 && $client_id) {
             $invoice = InvoiceFactory::create($this->service->company->id, $this->service->company->owner()->id);
-            $invoice->client_id = $ninja_invoice_data['client_id'];
+            $invoice->client_id = $client_id;
+
+            $sync = new InvoiceSync();
+            $sync->qb_id = $id;
+            $invoice->sync = $sync;
 
             return $invoice;
         } elseif($search->count() == 1) {
@@ -116,4 +147,25 @@ class QbInvoice implements SyncInterface
 
     }
 
+
+    public function sync(string $id, string $last_updated): void
+    {
+
+        $qb_record = $this->find($id);
+
+        if($this->service->updateGate('invoice') && $invoice = $this->findInvoice($id))
+        {
+
+            //logic here to determine if we should update the record
+            if(Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)))
+            {
+                $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record);
+                $this->invoice_repository->save($ninja_invoice_data, $invoice);
+
+            }
+
+        // }
+        }
+    }
+    
 }

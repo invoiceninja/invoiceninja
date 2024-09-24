@@ -53,10 +53,10 @@ class QuickbooksImport implements ShouldQueue
         'product' => 'Item',
         'client' => 'Customer',
         'invoice' => 'Invoice',
+        'sales' => 'SalesReceipt',
         // 'quote' => 'Estimate',
         // 'purchase_order' => 'PurchaseOrder',
         // 'payment' => 'Payment',
-        'sales' => 'SalesReceipt',
         // 'vendor' => 'Vendor',
         // 'expense' => 'Purchase',
     ];
