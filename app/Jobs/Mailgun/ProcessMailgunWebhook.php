@@ -89,7 +89,7 @@ class ProcessMailgunWebhook implements ShouldQueue
     {
         nlog($this->request);
 
-        if(!$this->request['event-data']['tags'][0]) {
+        if(!$this->request['event-data']['tags'][0] ?? false) { //@phpstan-ignore-line
             return;
         }
 
