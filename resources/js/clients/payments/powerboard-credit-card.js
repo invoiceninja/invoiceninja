@@ -221,9 +221,12 @@ async function process3ds() {
 
         canvas.load();
     } catch (error) {
+
+        const msg = error.message ?? 'Unknown error.';
+
         document.getElementById(
             'errors'
-        ).textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
+        ).textContent = `Sorry, your transaction could not be processed...\n\n${msg}`;
         document.getElementById('errors').hidden = false;
         
         focusCreditCard = true;

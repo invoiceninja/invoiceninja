@@ -29,8 +29,13 @@ class Settings
     public function __construct(public CBAPowerBoardPaymentDriver $powerboard)
     {
     }
-
-    public function getGateways()
+    
+    /**
+     * Returns the API response for the gateways
+     *
+     * @return mixed
+     */
+    public function getGateways(): mixed
     {
         $r = $this->powerboard->gatewayRequest('/v1/gateways', (\App\Enum\HttpVerb::GET)->value, [], []);
 
@@ -41,7 +46,12 @@ class Settings
 
     }
 
-    /** We will need to have a process that updates this at intervals */
+    /** We will need to have a process that updates this at intervals */    
+    /**
+     * updateSettings from the API
+     *
+     * @return self
+     */
     public function updateSettings():self
     {
         $gateways = $this->getGateways();
@@ -52,12 +62,23 @@ class Settings
 
         return $this;
     }
-
+    
+    /**
+     * getSettings
+     *
+     * @return mixed
+     */
     public function getSettings(): mixed
     {
         return $this->powerboard->company_gateway->getSettings();
     }
-
+    
+    /**
+     * Entry point for getting the payment gateway configuration
+     *
+     * @param  int $gateway_type_id
+     * @return mixed
+     */
     public function getPaymentGatewayConfiguration(int $gateway_type_id): mixed
     {
         $type = self::GATEWAY_CBA;
@@ -69,7 +90,13 @@ class Settings
 
         return $this->getGatewayByType($type);
     }
-
+    
+    /**
+     * Returns the CBA gateway object for a given gateway type
+     *
+     * @param  string $gateway_type_const
+     * @return mixed
+     */
     private function getGatewayByType(string $gateway_type_const): mixed
     {
         $settings = $this->getSettings();
@@ -93,10 +120,15 @@ class Settings
             return $gateway->type == $gateway_type_const;
         });
     }
-
+        
+    /**
+     * Returns the CBA gateway ID for a given gateway type
+     *
+     * @param  int $gateway_type_id
+     * @return string
+     */
     public function getGatewayId(int $gateway_type_id): string
     {
-        //allows us to override the gateway id for credit card if configured.
 
         $gateway = $this->getPaymentGatewayConfiguration($gateway_type_id);
 
