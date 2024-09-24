@@ -81,7 +81,7 @@ class QbInvoice implements SyncInterface
 
         if($search->count() == 0) {
             $invoice = InvoiceFactory::create($this->service->company->id, $this->service->company->owner()->id);
-            $invoice->client_id = $client_id;
+            $invoice->client_id = (int)$client_id;
 
             $sync = new InvoiceSync();
             $sync->qb_id = $id;
@@ -89,8 +89,7 @@ class QbInvoice implements SyncInterface
 
             return $invoice;
         } elseif($search->count() == 1) {
-
-return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
 
         return null;
@@ -101,6 +100,8 @@ return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $sea
     {
 
         $qb_record = $this->find($id);
+
+        nlog($qb_record);
 
         if($this->service->syncable('invoice', \App\Enum\SyncDirection::PULL))
         {
@@ -119,6 +120,8 @@ return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $sea
             elseif(Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)))
             {
                 $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record);
+                nlog($ninja_invoice_data);
+                
                 $this->invoice_repository->save($ninja_invoice_data, $invoice);
 
             }
@@ -182,7 +185,7 @@ return $this->service->syncable('invoice', \App\Enum\SyncDirection::PULL) ? $sea
 
             }
 
-            if ($record instanceof IPPSalesReceipt) {
+            if ($record instanceof \QuickBooksOnline\API\Data\IPPSalesReceipt) {
                 $invoice->service()->markPaid()->save();
             }
 

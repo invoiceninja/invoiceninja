@@ -144,7 +144,7 @@ class QuickbooksService
      * Flag to determine if a sync is allowed in either direction
      *
      * @param  string $entity
-     * @param  mixed $direction
+     * @param  \App\Enum\SyncDirection $direction
      * @return bool
      */
     public function syncable(string $entity, \App\Enum\SyncDirection $direction): bool

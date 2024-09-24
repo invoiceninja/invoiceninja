@@ -153,7 +153,7 @@ class QuickbooksImport implements ShouldQueue
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly(); 
                 }
-                elseif($this->qbs->syncable('vendor', (\App\Enum\SyncDirection::PULL)->value)){
+                elseif($this->qbs->syncable('vendor', \App\Enum\SyncDirection::PULL)){
                     $contact->fill($ninja_data[1]);
                     $contact->saveQuietly();
                 }
@@ -194,7 +194,7 @@ class QuickbooksImport implements ShouldQueue
             return ExpenseFactory::create($this->company->id, $this->company->owner()->id);
         }
         elseif($search->count() == 1) {
-            return $this->service->syncable('expense', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $this->qbs->syncable('expense', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
         
         return null;
@@ -225,48 +225,11 @@ class QuickbooksImport implements ShouldQueue
         }
         elseif($search->count() == 1) {
 
-            return $this->service->syncable('vendor', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $this->qbs->syncable('vendor', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
         
         return null;
     }
-
-    private function findClient(array $qb_data) :?Client
-    {
-        $client = $qb_data[0];
-        $contact = $qb_data[1];
-        $client_meta = $qb_data[2];
-
-        $search = Client::query()
-                        ->withTrashed()
-                        ->where('company_id', $this->company->id)
-                        ->where(function ($q) use ($client, $client_meta, $contact){
-
-                            $q->where('client_hash', $client_meta['client_hash'])
-                            ->orWhere('number', $client['number'])
-                            ->orWhereHas('contacts', function ($q) use ($contact){
-                                $q->where('email', $contact['email']);
-                            });
-
-                        });
-                        
-        if($search->count() == 0) {
-            //new client
-            $client = ClientFactory::create($this->company->id, $this->company->owner()->id);
-            $client->client_hash = $client_meta['client_hash'];
-            $client->settings = $client_meta['settings'];
-
-            return $client;
-        }
-        elseif($search->count() == 1) {
-
-return $this->service->syncable('client', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
-        }
-        
-        return null;
-    }
-
-    
 
     public function middleware()
     {

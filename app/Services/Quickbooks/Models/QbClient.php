@@ -101,8 +101,7 @@ class QbClient implements SyncInterface
             return $client;
 
         } elseif ($search->count() == 1) {
-
-return $this->service->syncable('client', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
+            return $this->service->syncable('client', \App\Enum\SyncDirection::PULL) ? $search->first() : null;
         }
 
         return null;

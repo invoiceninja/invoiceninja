@@ -13,10 +13,11 @@
 namespace App\PaymentDrivers\CBAPowerBoard;
 
 
-use App\PaymentDrivers\CBAPowerBoard\Models\Gateways;
+use App\Models\GatewayType;
 
-use App\PaymentDrivers\CBAPowerBoard\Models\Gateway;
 use App\PaymentDrivers\CBAPowerBoardPaymentDriver;
+use App\PaymentDrivers\CBAPowerBoard\Models\Gateway;
+use App\PaymentDrivers\CBAPowerBoard\Models\Gateways;
 
 class Settings
 {
