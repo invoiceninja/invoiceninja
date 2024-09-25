@@ -91,11 +91,11 @@ class ProcessPayment extends Component
 
         $bag = new \Illuminate\Support\MessageBag();
         $bag->add('gateway_error', $e->getMessage());
-
-        session()->put('errors', $errors->put('default', $bag));
-
-        $invoice_id = $this->getContext()['payable_invoices'][0]['invoice_id'];
-        $this->redirectRoute('client.invoice.show', ['invoice' => $invoice_id]);
+        session()->flash('errors', $errors->put('default', $bag));
+        
+        // $this->redirectRoute('client.invoices.index');
+        // $invoice_id = $this->getContext()['payable_invoices'][0]['invoice_id'];
+        // // $this->redirectRoute('client.invoice.show', ['invoice' => $invoice_id]);
         $stopPropagation();
 
     }

@@ -29,7 +29,7 @@ use App\PaymentDrivers\CBAPowerBoard\Models\Gateway;
 
 class CreditCard implements LivewireMethodInterface
 {
-    private Gateway $cba_gateway;
+    private ?Gateway $cba_gateway;
 
     public function __construct(public CBAPowerBoardPaymentDriver $powerboard)
     {
@@ -49,8 +49,6 @@ class CreditCard implements LivewireMethodInterface
         if($request->browser_details)
         {        
             $payment_source = $this->storePaymentSource($request);
-
-            nlog($payment_source);
 
             $browser_details = json_decode($request->browser_details, true);
 
@@ -220,15 +218,15 @@ class CreditCard implements LivewireMethodInterface
     {
         $this->powerboard->init();
 
-        if($this->cba_gateway->verification_status != "completed")
-            throw new PaymentFailed("This payment method is not configured as yet. Reference Powerboard portal for further information", 400);
+        // if(!isset($this->cba_gateway->verification_status) || $this->cba_gateway->verification_status != "completed")
+        //     throw new PaymentFailed("This payment method is not configured as yet. Reference Powerboard portal for further information", 400);
 
         $merge = [
             'public_key' => $this->powerboard->company_gateway->getConfigField('publicKey'),
             'widget_endpoint' => $this->powerboard->widget_endpoint,
             'gateway' => $this->powerboard,
             'environment' => $this->powerboard->environment,
-            'gateway_id' => $this->cba_gateway->_id,
+            'gateway_id' => $this->cba_gateway->_id ?? false,
         ];
 
         return array_merge($data, $merge);

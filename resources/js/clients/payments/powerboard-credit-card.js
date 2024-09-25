@@ -57,6 +57,21 @@ function reload() {
 function pay() {
     reload();
 
+    const gatewayId = document.querySelector('meta[name=gateway_id]')?.content;
+    
+    if(!gatewayId) {
+    
+        let payNow = document.getElementById('pay-now');
+        payNow.disabled = true;
+        payNow.querySelector('svg').classList.remove('hidden');
+        payNow.querySelector('span').classList.add('hidden');
+        document.getElementById(
+            'errors'
+        ).textContent = 'Gateway not found or verified';
+        document.getElementById('errors').hidden = false;
+        
+    }
+
     const widget = setup();
 
     widget.on('finish', () => {
