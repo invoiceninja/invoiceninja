@@ -12,6 +12,7 @@ use App\Models\Product;
 use Tests\MockAccountData;
 use Illuminate\Support\Str;
 use App\DataMapper\ClientSync;
+use App\DataMapper\InvoiceItem;
 use App\Utils\Traits\MakesHash;
 use App\Import\Providers\Quickbooks;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,6 @@ class QuickbooksTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use DatabaseTransactions;
 
     protected $quickbooks;
     protected $data;
@@ -90,7 +90,13 @@ class QuickbooksTest extends TestCase
         // Send the create request to QuickBooks
         $resultingCustomerObj = $this->qb->sdk->Add($customer);
 
-        return $resultingCustomerObj;
+        $sync = new ClientSync();
+        $sync->qb_id = data_get($resultingCustomerObj, 'Id.value');
+
+        $this->client->sync = $sync;
+        $this->client->save();
+
+        return [$resultingCustomerObj, $this->client->id];
 
     }
 
@@ -124,28 +130,77 @@ class QuickbooksTest extends TestCase
             $this->fail("The Customer could not be created: " . $error->getResponseBody());
         }
 
-        $qb_id = data_get($resultingCustomerObj, 'Id.value');
+        $qb_id = data_get($resultingCustomerObj[0], 'Id.value');
 
         $this->assertNotNull($qb_id);
 
-        $sync = new ClientSync();
-        $sync->qb_id = $qb_id;
-        $this->client->sync = $sync;
-        $this->client->save();
-
-        $c = $this->client->fresh();
-
+        $c = Client::find($resultingCustomerObj[1]);
+        
         $this->assertEquals($qb_id, $c->sync->qb_id);
 
     }
 
-    public function createQbInvoice($customer)
+    public function createQbInvoice($customer_payload)
     {
+        $customer = $customer_payload[0];
+        $client_id = $customer_payload[1];
+
+        nlog(data_get($customer, 'Id.value'));
+
+        $client = Client::find($client_id);
+
+        nlog($client);
         
+        $item_product = new InvoiceItem();
+        $item_product->product_key = $this->faker->word(); // Changed from randomWord() to word()
+        $item_product->notes = $this->faker->sentence();
+        $item_product->quantity = 1;
+        $item_product->cost = 10;
+        $item_product->line_total = 10;
+        $item_product->type_id = '1';
+
+        $item_service = new InvoiceItem();
+        $item_service->product_key = $this->faker->word(); // Changed from randomWord() to word()
+        $item_service->notes = $this->faker->sentence();
+        $item_service->quantity = 1;
+        $item_service->cost = 20;
+        $item_service->line_total = 20;
+        $item_service->type_id = '2';
+
+
+        $i = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $client->user_id,
+            'client_id' => $client->id,
+            'date' => '2024-09-01',
+            'due_date' => '2024-09-30',
+            'public_notes' => 'Test invoice',
+            'tax_name1' =>  '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
+            'tax_name3' => '',
+            'tax_rate3' => 0,
+            'amount' => 30,
+            'paid_to_date' => 0,
+            'is_amount_discount' => 0,
+            'discount' => 0,
+            'line_items' => [$item_product, $item_service],
+        ]);
+
+        $i->calc()->getInvoice()->service()->applyNumber()->markSent()->createInvitations()->save();
+
+        $this->assertEquals(2, $i->status_id);
+        $this->assertEquals(30, $i->amount);
+        $this->assertEquals(0, $i->paid_to_date);
+        $this->assertEquals(0, $i->is_amount_discount);
+        $this->assertEquals(0, $i->discount);
+        $this->assertEquals(30, $i->balance);
+
         $line_items = [];
         $line_num = 1;
 
-        foreach($this->invoice->line_items as $line_item)
+        foreach($i->line_items as $line_item)
         {
             
             $line_items[] = [
@@ -175,11 +230,12 @@ class QuickbooksTest extends TestCase
                 "value" => data_get($customer, 'Id.value')
             ],
             "BillEmail" => [
-                "Address" => $this->client->present()->email()
+                "Address" => $c->present()->email()
             ],
-            "DueDate" => $this->invoice->due_date,
-            "TotalAmt" => $this->invoice->amount,
-            "DocNumber" => $this->invoice->number,
+            "TxnDate" => $i->date,
+            "DueDate" => $i->due_date,
+            "TotalAmt" => $i->amount,
+            "DocNumber" => $i->number,
             // "Note" => $this->invoice->public_notes,
         ];
         
@@ -206,5 +262,20 @@ class QuickbooksTest extends TestCase
         return $typeMap[$line_item->type_id] ?? 'Service';
     }
 
+    protected function tearDown(): void
+    {
+
+        $this->company->clients()->forceDelete();
+        $this->company->products()->forceDelete();
+        $this->company->projects()->forceDelete();
+        $this->company->tasks()->forceDelete();
+        $this->company->vendors()->forceDelete();
+        $this->company->expenses()->forceDelete();
+        $this->company->purchase_orders()->forceDelete();
+        $this->company->bank_transaction_rules()->forceDelete();
+        $this->company->bank_transactions()->forceDelete();
+
+        parent::tearDown();
+    }
 
 }

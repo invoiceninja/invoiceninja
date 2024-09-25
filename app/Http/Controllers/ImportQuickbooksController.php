@@ -19,28 +19,6 @@ use App\Services\Quickbooks\QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
 {
-    // private array $import_entities = [
-    //     'client' => 'Customer',
-    //     'invoice' => 'Invoice',
-    //     'product' => 'Item',
-    //     'payment' => 'Payment'
-    // ];
-
-    public function onAuthorized(AuthorizedQuickbooksRequest $request)
-    {
-
-        MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
-        $company = $request->getCompany();
-        $qb = new QuickbooksService($company);
-
-        $realm = $request->query('realmId');
-        $access_token_object = $qb->sdk()->accessTokenFromCode($request->query('code'), $realm);
-        $qb->sdk()->saveOAuthToken($access_token_object);
-
-        return redirect(config('ninja.react_url'));
-
-    }
-
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -59,5 +37,22 @@ class ImportQuickbooksController extends BaseController
 
         return redirect()->to($authorizationUrl);
     }
+    
+    public function onAuthorized(AuthorizedQuickbooksRequest $request)
+    {
+
+        MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
+        $company = $request->getCompany();
+        $qb = new QuickbooksService($company);
+
+        $realm = $request->query('realmId');
+        $access_token_object = $qb->sdk()->accessTokenFromCode($request->query('code'), $realm);
+        $qb->sdk()->saveOAuthToken($access_token_object);
+
+        return redirect(config('ninja.react_url'));
+
+    }
+
+
 
 }

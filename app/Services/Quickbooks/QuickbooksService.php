@@ -60,7 +60,6 @@ class QuickbooksService
             'ClientSecret' => config('services.quickbooks.client_secret'),
             'auth_mode' => 'oauth2',
             'scope' => "com.intuit.quickbooks.accounting",
-            // 'RedirectURI' => 'https://developer.intuit.com/v2/OAuth2Playground/RedirectUrl',
             'RedirectURI' => $this->testMode ? 'https://grok.romulus.com.au/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
             'baseUrl' => $this->testMode ?  CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
         ];
@@ -69,7 +68,7 @@ class QuickbooksService
         
         $this->sdk = DataService::Configure($merged);
 
-        $this->sdk->setLogLocation(storage_path("logs/quickbooks.log"));
+        // $this->sdk->setLogLocation(storage_path("logs/quickbooks.log"));
         $this->sdk->enableLog();
 
         $this->sdk->setMinorVersion("73");
@@ -91,10 +90,10 @@ class QuickbooksService
     private function checkToken(): self
     {
 
-        if($this->company->quickbooks->accessTokenExpiresAt > time())
+        if($this->company->quickbooks->accessTokenExpiresAt == 0 || $this->company->quickbooks->accessTokenExpiresAt > time())
             return $this;
 
-        if($this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh){
+        if($this->company->quickbooks->accessTokenExpiresAt && $this->company->quickbooks->accessTokenExpiresAt < time() && $this->try_refresh){
             $this->sdk()->refreshToken($this->company->quickbooks->refresh_token);
             $this->company = $this->company->fresh();
             $this->try_refresh = false;
@@ -110,7 +109,7 @@ class QuickbooksService
 
     private function ninjaAccessToken(): array
     {
-        return isset($this->company->quickbooks->accessTokenKey) ? [
+        return $this->company->quickbooks->accessTokenExpiresAt > 0 ? [
             'accessTokenKey' => $this->company->quickbooks->accessTokenKey,
             'refreshTokenKey' => $this->company->quickbooks->refresh_token,
             'QBORealmID' => $this->company->quickbooks->realmID,

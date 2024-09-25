@@ -33,7 +33,7 @@ class SdkWrapper
     private function init(): self
     {
         
-        isset($this->company->quickbooks->accessTokenKey) ? $this->setNinjaAccessToken($this->company->quickbooks) : null;
+        $this->setNinjaAccessToken($this->company->quickbooks);
 
         return $this;
 
@@ -104,7 +104,7 @@ class SdkWrapper
 
         $this->setAccessToken($token);
 
-        if($token_object->accessTokenExpiresAt < time()){
+        if($token_object->accessTokenExpiresAt != 0 && $token_object->accessTokenExpiresAt < time()){
             $this->refreshToken($token_object->refresh_token);
         }
         
