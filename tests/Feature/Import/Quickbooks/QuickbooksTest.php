@@ -2,24 +2,25 @@
 
 namespace Tests\Feature\Import\Quickbooks;
 
-use Tests\TestCase;
-use App\Import\Providers\Quickbooks;
-use App\Import\Transformer\BaseTransformer;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Routing\Middleware\ThrottleRequests;
-use Tests\MockAccountData;
-use Illuminate\Support\Facades\Cache;
 use Mockery;
+use Tests\TestCase;
+use ReflectionClass;
 use App\Models\Client;
 use App\Models\Company;
-use App\Models\Product;
 use App\Models\Invoice;
-use App\Services\Quickbooks\QuickbooksService;
+use App\Models\Product;
+use Tests\MockAccountData;
 use Illuminate\Support\Str;
-use ReflectionClass;
+use App\DataMapper\ClientSync;
+use App\Utils\Traits\MakesHash;
+use App\Import\Providers\Quickbooks;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use App\Import\Transformer\BaseTransformer;
+use App\Services\Quickbooks\QuickbooksService;
+use Illuminate\Routing\Middleware\ThrottleRequests;
 use QuickBooksOnline\API\Facades\Invoice as QbInvoice;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class QuickbooksTest extends TestCase
 {
@@ -29,6 +30,7 @@ class QuickbooksTest extends TestCase
 
     protected $quickbooks;
     protected $data;
+    protected QuickbooksService $qb;
 
     protected function setUp(): void
     {
@@ -45,12 +47,9 @@ class QuickbooksTest extends TestCase
         $this->makeTestData();
     }
 
-    public function testCreateCustomerInQb()
+    public function createQbCustomer()
     {
-        $c = Company::whereNotNull('quickbooks')->first();
 
-        $qb = new QuickbooksService($c);
-    
         $customerData = [
             "DisplayName" => $this->client->present()->name(), // Required and must be unique
             "PrimaryEmailAddr" => [
@@ -85,79 +84,127 @@ class QuickbooksTest extends TestCase
             "WebAddr" => $this->client->website ?? '',
         ];
 
-        
+
         $customer = \QuickBooksOnline\API\Facades\Customer::create($customerData);
 
-        // $customer = $qb->sdk->createCustomer($customerData);
-
-        $this->assertNotNull($customer);
-    
-        nlog($customer);
-
-
         // Send the create request to QuickBooks
-        $resultingCustomerObj = $qb->sdk->Add($customer);
+        $resultingCustomerObj = $this->qb->sdk->Add($customer);
+
+        return $resultingCustomerObj;
+
+    }
+
+    public function testCreateInvoiceInQb()
+    {
+
+        $this->company  = Company::whereNotNull('quickbooks')->first();
+
+        $this->qb = new QuickbooksService($this->company);
+
+        $customer = $this->createQbCustomer();
+        
+        //create ninja invoice
+        $qb_invoice = $this->createQbInvoice($customer);
+
+        $this->assertNotNull($qb_invoice);
+
+        nlog($qb_invoice);
+    }
+
+    public function testCreateCustomerInQb()
+    {
+        $this->company = Company::whereNotNull('quickbooks')->first();
+        $this->qb = new QuickbooksService($this->company);
+    
+        $resultingCustomerObj = $this->createQbCustomer();
 
         // Check for errors
-        $error = $qb->sdk->getLastError();
+        $error = $this->qb->sdk->getLastError();
         if ($error) {
             $this->fail("The Customer could not be created: " . $error->getResponseBody());
         }
 
-        nlog($resultingCustomerObj);
+        $qb_id = data_get($resultingCustomerObj, 'Id.value');
+
+        $this->assertNotNull($qb_id);
+
+        $sync = new ClientSync();
+        $sync->qb_id = $qb_id;
+        $this->client->sync = $sync;
+        $this->client->save();
+
+        $c = $this->client->fresh();
+
+        $this->assertEquals($qb_id, $c->sync->qb_id);
 
     }
 
-
-    // public function testCreateInvoiceInQb()
-    // {
-
-    //     $c = Company::whereNotNull('quickbooks')->first();
-
-    //     $qb = new QuickbooksService($c);
-
-    //     //create QB customer
-
-        
-
-    //     //create ninja invoice
-
-    //     //create QB invoice
-
-    // }
-
-
-    public function stubData()
+    public function createQbInvoice($customer)
     {
         
-            // Inside the create method
-            $lineItems = [
-                [
-                    "Amount" => 100.00,
-                    "DetailType" => "SalesItemLineDetail",
-                    "SalesItemLineDetail" => [
-                        "ItemRef" => [
-                            "value" => "1", // Replace with actual Item ID from QuickBooks
-                            "name" => "Services"
-                        ]
-                    ]
-                ]
+        $line_items = [];
+        $line_num = 1;
+
+        foreach($this->invoice->line_items as $line_item)
+        {
+            
+            $line_items[] = [
+                'LineNum' => $line_num,  // Add the line number
+                'DetailType' => 'SalesItemLineDetail',
+                'SalesItemLineDetail' => [
+                    'ItemRef' => [
+                        'value' => $line_item->product_key,
+                    ],
+                    'Qty' => $line_item->quantity,
+                    'UnitPrice' => $line_item->cost,
+                ],
+                'Description' => $line_item->notes,
+                // 'Type' => $this->getQuickBooksItemType($line_item),
+                // 'PurchaseCost' => $line_item->product_cost,
+                // 'Taxable' => $line_item->isTaxable(),
+                'Amount' => $line_item->line_total,
             ];
 
-            $invoiceData = [
-                "Line" => $lineItems,
-                "CustomerRef" => [
-                    "value" => "1", // Replace with actual Customer ID from QuickBooks
-                ],
-                "BillEmail" => [
-                    "Address" => "customer@example.com"
-                ],
-                "DueDate" => "2023-12-31",
-                "TotalAmt" => 100.00,
-                "DocNumber" => "INV-001"
-            ];
+            $line_num++;
 
-            $invoice = QbInvoice::create($invoiceData);
+        }
+
+        $invoiceData = [
+            "Line" => $line_items,
+            "CustomerRef" => [
+                "value" => data_get($customer, 'Id.value')
+            ],
+            "BillEmail" => [
+                "Address" => $this->client->present()->email()
+            ],
+            "DueDate" => $this->invoice->due_date,
+            "TotalAmt" => $this->invoice->amount,
+            "DocNumber" => $this->invoice->number,
+            // "Note" => $this->invoice->public_notes,
+        ];
+        
+        $invoice = \QuickBooksOnline\API\Facades\Invoice::create($invoiceData);
+
+        nlog($invoice);
+        
+        return $this->qb->sdk->Add($invoice);
 
     }
+
+
+    private function getQuickBooksItemType($line_item): string
+    {
+        $typeMap = [
+            '1' => 'Inventory', // product
+            '2' => 'Service',   // service
+            '3' => 'NonInventory', // unpaid gateway fee
+            '4' => 'NonInventory', // paid gateway fee
+            '5' => 'Service',   // late fee
+            '6' => 'NonInventory', // expense
+        ];
+
+        return $typeMap[$line_item->type_id] ?? 'Service';
+    }
+
+
 }
