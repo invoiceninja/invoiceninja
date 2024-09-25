@@ -84,6 +84,43 @@ class QuickbooksService
 
         $this->settings = $this->company->quickbooks->settings;
         
+        $this->checkDefaultAccounts();
+
+        return $this;
+    }
+
+    private function checkDefaultAccounts(): self
+    {
+
+        $accountQuery = "SELECT * FROM Account WHERE AccountType IN ('Income', 'Cost of Goods Sold')";
+
+        if(strlen($this->settings->default_income_account) == 0 || strlen($this->settings->default_expense_account) == 0){
+
+            nlog("Checking default accounts for company {$this->company->company_key}");
+            $accounts = $this->sdk->Query($accountQuery);
+
+            nlog($accounts);
+
+            $find_income_account = true;
+            $find_expense_account = true;
+            
+            foreach ($accounts as $account) {
+                if ($account->AccountType->value == 'Income' && $find_income_account) {
+                    $this->settings->default_income_account = $account->Id->value;
+                    $find_income_account = false;
+                } elseif ($account->AccountType->value == 'Cost of Goods Sold' && $find_expense_account) {
+                    $this->settings->default_expense_account = $account->Id->value;
+                    $find_expense_account = false;
+                }
+            }
+
+            nlog($this->settings);
+
+            $this->company->quickbooks->settings = $this->settings;
+            $this->company->save();
+        }
+        
+
         return $this;
     }
 

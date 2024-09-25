@@ -11,12 +11,16 @@ use App\Models\Invoice;
 use App\Models\Product;
 use Tests\MockAccountData;
 use Illuminate\Support\Str;
+use App\Models\ClientContact;
 use App\DataMapper\ClientSync;
 use App\DataMapper\InvoiceItem;
+use App\DataMapper\InvoiceSync;
+use App\DataMapper\ProductSync;
 use App\Utils\Traits\MakesHash;
 use App\Import\Providers\Quickbooks;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use QuickBooksOnline\API\Facades\Item;
 use App\Import\Transformer\BaseTransformer;
 use App\Services\Quickbooks\QuickbooksService;
 use Illuminate\Routing\Middleware\ThrottleRequests;
@@ -31,6 +35,7 @@ class QuickbooksTest extends TestCase
     protected $quickbooks;
     protected $data;
     protected QuickbooksService $qb;
+    protected $faker;
 
     protected function setUp(): void
     {
@@ -44,44 +49,140 @@ class QuickbooksTest extends TestCase
             $this->markTestSkipped('No need to run this test on Travis');
         }
 
-        $this->makeTestData();
+        $this->faker = \Faker\Factory::create();
+    }
+
+    public function createQbProduct()
+    {
+        $service_product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->company->owner()->id,
+            'notes' => $this->faker->sentence(),
+            'product_key' => $this->faker->word(63),
+            'tax_id' => 2,
+        ]);
+
+
+        $non_inventory_product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->company->owner()->id,
+            'notes' => $this->faker->sentence(),
+            'product_key' => $this->faker->word(63),
+            'tax_id' => 1,
+        ]);
+
+
+        $qb_product = Item::create([
+            "Name" => $non_inventory_product->product_key,
+            "Description" => $non_inventory_product->notes,
+            "Active" => true,
+            "FullyQualifiedName" => $non_inventory_product->product_key,
+            "Taxable" => true,
+            "UnitPrice" => $non_inventory_product->price,
+            "Type" => "NonInventory",
+            "IncomeAccountRef" => [
+                "value" => $this->qb->settings->default_income_account, // Replace with your actual income account ID
+            ],
+            // "AssetAccountRef" => [
+            //     "value" => "81", // Replace with your actual asset account ID
+            //     "name" => "Inventory Asset"
+            // ],
+            // "InvStartDate" => date('Y-m-d'),
+            // "QtyOnHand" => 100,
+            "TrackQtyOnHand" => false,
+            // "ExpenseAccountRef" => [
+            //     "value" => "80", // Replace with your actual COGS account ID
+            //     "name" => "Cost of Goods Sold"
+            // ]
+        ]);
+
+
+        $qb_product = $this->qb->sdk->Add($qb_product);
+
+        $sync = new ProductSync();
+        $sync->qb_id = data_get($qb_product, 'Id.value');
+        $non_inventory_product->sync = $sync;
+        $non_inventory_product->save();
+
+        $qb_service = Item::create([
+            "Name" => $service_product->product_key,
+            "Description" => $service_product->notes,
+            "Active" => true,
+            "FullyQualifiedName" => $service_product->product_key,
+            "Taxable" => true,
+            "UnitPrice" => $service_product->price,
+            "Type" => "Service",
+            "IncomeAccountRef" => [
+                "value" => $this->qb->settings->default_income_account, // Replace with your actual income account ID
+            ],
+            "TrackQtyOnHand" => false,
+
+        ]);
+
+
+        $qb_service = $this->qb->sdk->Add($qb_service);
+
+        $sync = new ProductSync();
+        $sync->qb_id = data_get($qb_service, 'Id.value');
+        $service_product->sync = $sync;
+        $service_product->save();
+
+        return [$non_inventory_product, $service_product];
     }
 
     public function createQbCustomer()
     {
+        $client = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->company->owner()->id,
+            'address1' => $this->faker->address(),
+            'city' => $this->faker->city(),
+            'state' => $this->faker->state(),
+            'postal_code' => $this->faker->postcode(),
+            'country_id' => 840,
+            'shipping_country_id' => 840,
+        ]);
+
+        $contact = ClientContact::factory()->create([
+            'user_id' => $this->company->owner()->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+            'send_email' => true,
+        ]);
 
         $customerData = [
-            "DisplayName" => $this->client->present()->name(), // Required and must be unique
+            "DisplayName" => $client->present()->name(), // Required and must be unique
             "PrimaryEmailAddr" => [
-                "Address" => $this->client->present()->email(),
+                "Address" => $client->present()->email(),
             ],
             "PrimaryPhone" => [
-                "FreeFormNumber" => $this->client->present()->phone()
+                "FreeFormNumber" => $client->present()->phone()
             ],
-            "CompanyName" => $this->client->present()->name(),
+            "CompanyName" => $client->present()->name(),
             "BillAddr" => [
-                "Line1" => $this->client->address1 ?? '',
-                "City" => $this->client->city ?? '',
-                "CountrySubDivisionCode" => $this->client->state ?? '',
-                "PostalCode" => $this->client->postal_code ?? '',
-                "Country" => $this->client->country->iso_3166_3
+                "Line1" => $client->address1 ?? '',
+                "City" => $client->city ?? '',
+                "CountrySubDivisionCode" => $client->state ?? '',
+                "PostalCode" => $client->postal_code ?? '',
+                "Country" => $client->country->iso_3166_3
             ],
             "ShipAddr" => [
-                "Line1" => $this->client->shipping_address1 ?? '',
-                "City" => $this->client->shipping_city ?? '',
-                "CountrySubDivisionCode" => $this->client->shipping_state ?? '',
-                "PostalCode" => $this->client->shipping_postal_code ?? '',
-                "Country" => $this->client->shipping_country->iso_3166_3
+                "Line1" => $client->shipping_address1 ?? '',
+                "City" => $client->shipping_city ?? '',
+                "CountrySubDivisionCode" => $client->shipping_state ?? '',
+                "PostalCode" => $client->shipping_postal_code ?? '',
+                "Country" => $client->shipping_country->iso_3166_3
             ],
-            "GivenName" => $this->client->present()->first_name(),
-            "FamilyName" => $this->client->present()->last_name(),
-            "PrintOnCheckName" => $this->client->present()->primary_contact_name(),
-            "Notes" => $this->client->public_notes,
-            // "TaxIdentifier" => $this->client->vat_number ?? '', // Federal Employer Identification Number (EIN)
-            "BusinessNumber" => $this->client->id_number ?? '',
-            "Active" => $this->client->deleted_at ? false : true,
-            "V4IDPseudonym" => $this->client->client_hash,
-            "WebAddr" => $this->client->website ?? '',
+            "GivenName" => $client->present()->first_name(),
+            "FamilyName" => $client->present()->last_name(),
+            "PrintOnCheckName" => $client->present()->primary_contact_name(),
+            "Notes" => $client->public_notes,
+            // "TaxIdentifier" => $client->vat_number ?? '', // Federal Employer Identification Number (EIN)
+            "BusinessNumber" => $client->id_number ?? '',
+            "Active" => $client->deleted_at ? false : true,
+            "V4IDPseudonym" => $client->client_hash,
+            "WebAddr" => $client->website ?? '',
         ];
 
 
@@ -93,10 +194,10 @@ class QuickbooksTest extends TestCase
         $sync = new ClientSync();
         $sync->qb_id = data_get($resultingCustomerObj, 'Id.value');
 
-        $this->client->sync = $sync;
-        $this->client->save();
+        $client->sync = $sync;
+        $client->save();
 
-        return [$resultingCustomerObj, $this->client->id];
+        return [$resultingCustomerObj, $client->id];
 
     }
 
@@ -145,28 +246,31 @@ class QuickbooksTest extends TestCase
         $customer = $customer_payload[0];
         $client_id = $customer_payload[1];
 
+        $products = $this->createQbProduct();
+
+        $non_inventory_product = $products[0];
+        $service_product = $products[1];
+
+
         nlog(data_get($customer, 'Id.value'));
 
         $client = Client::find($client_id);
 
-        nlog($client);
-        
         $item_product = new InvoiceItem();
-        $item_product->product_key = $this->faker->word(); // Changed from randomWord() to word()
-        $item_product->notes = $this->faker->sentence();
+        $item_product->product_key = $non_inventory_product->product_key; // Changed from randomWord() to word()
+        $item_product->notes = $non_inventory_product->notes;
         $item_product->quantity = 1;
-        $item_product->cost = 10;
-        $item_product->line_total = 10;
+        $item_product->cost = $non_inventory_product->price;
+        $item_product->line_total = $non_inventory_product->price;
         $item_product->type_id = '1';
 
         $item_service = new InvoiceItem();
-        $item_service->product_key = $this->faker->word(); // Changed from randomWord() to word()
-        $item_service->notes = $this->faker->sentence();
+        $item_service->product_key = $service_product->product_key; // Changed from randomWord() to word()
+        $item_service->notes = $service_product->notes;
         $item_service->quantity = 1;
-        $item_service->cost = 20;
-        $item_service->line_total = 20;
+        $item_service->cost = $service_product->price;
+        $item_service->line_total = $service_product->price;
         $item_service->type_id = '2';
-
 
         $i = Invoice::factory()->create([
             'company_id' => $this->company->id,
@@ -186,37 +290,44 @@ class QuickbooksTest extends TestCase
             'is_amount_discount' => 0,
             'discount' => 0,
             'line_items' => [$item_product, $item_service],
+            'number' => null,
         ]);
 
         $i->calc()->getInvoice()->service()->applyNumber()->markSent()->createInvitations()->save();
 
         $this->assertEquals(2, $i->status_id);
-        $this->assertEquals(30, $i->amount);
+        // $this->assertEquals(30, $i->amount);
         $this->assertEquals(0, $i->paid_to_date);
         $this->assertEquals(0, $i->is_amount_discount);
         $this->assertEquals(0, $i->discount);
-        $this->assertEquals(30, $i->balance);
+        // $this->assertEquals(30, $i->balance);
 
         $line_items = [];
         $line_num = 1;
 
         foreach($i->line_items as $line_item)
         {
-            
+            $product = Product::where('company_id', $this->company->id)
+                                ->where('product_key', $line_item->product_key)
+                                ->first();
+
+            $this->assertNotNull($product);
+
             $line_items[] = [
                 'LineNum' => $line_num,  // Add the line number
                 'DetailType' => 'SalesItemLineDetail',
                 'SalesItemLineDetail' => [
                     'ItemRef' => [
-                        'value' => $line_item->product_key,
+                        'value' => $product->sync->qb_id, 
                     ],
                     'Qty' => $line_item->quantity,
                     'UnitPrice' => $line_item->cost,
+                    'TaxCodeRef' => [
+                        'value' => (in_array($product->tax_id, [5, 8])) ? 'NON' : 'TAX',
+                    ],
                 ],
                 'Description' => $line_item->notes,
-                // 'Type' => $this->getQuickBooksItemType($line_item),
-                // 'PurchaseCost' => $line_item->product_cost,
-                // 'Taxable' => $line_item->isTaxable(),
+                
                 'Amount' => $line_item->line_total,
             ];
 
@@ -230,28 +341,46 @@ class QuickbooksTest extends TestCase
                 "value" => data_get($customer, 'Id.value')
             ],
             "BillEmail" => [
-                "Address" => $c->present()->email()
+                "Address" => $client->present()->email()
             ],
             "TxnDate" => $i->date,
             "DueDate" => $i->due_date,
             "TotalAmt" => $i->amount,
             "DocNumber" => $i->number,
+            "ApplyTaxAfterDiscount" => false,
+            "GlobalTaxCalculation" => "TaxExcluded", // This tells QuickBooks to calculate taxes
+            "TxnTaxDetail" => [
+                "UseAutomatedSalesTax" => true,
+                // "TxnTaxCodeRef" => [
+                //     "value" => "TAX" // Use the appropriate tax code for your QuickBooks account
+                //     "DefaultTaxRateRef" => [
+                // ]
+            ]
             // "Note" => $this->invoice->public_notes,
         ];
         
-        $invoice = \QuickBooksOnline\API\Facades\Invoice::create($invoiceData);
+        nlog($invoiceData);
+
+        $invoice = \QuickBooksOnline\API\Facades\Invoice::create($invoiceData);        
+
 
         nlog($invoice);
         
-        return $this->qb->sdk->Add($invoice);
+        $qb_invoice =  $this->qb->sdk->Add($invoice);
 
+        $sync = new InvoiceSync();
+        $sync->qb_id = data_get($qb_invoice, 'Id.value');
+        $i->sync = $sync;
+        $i->save();
+
+        return $qb_invoice;
     }
 
 
     private function getQuickBooksItemType($line_item): string
     {
         $typeMap = [
-            '1' => 'Inventory', // product
+            '1' => 'NonInventory', // product
             '2' => 'Service',   // service
             '3' => 'NonInventory', // unpaid gateway fee
             '4' => 'NonInventory', // paid gateway fee
@@ -265,15 +394,15 @@ class QuickbooksTest extends TestCase
     protected function tearDown(): void
     {
 
-        $this->company->clients()->forceDelete();
-        $this->company->products()->forceDelete();
-        $this->company->projects()->forceDelete();
-        $this->company->tasks()->forceDelete();
-        $this->company->vendors()->forceDelete();
-        $this->company->expenses()->forceDelete();
-        $this->company->purchase_orders()->forceDelete();
-        $this->company->bank_transaction_rules()->forceDelete();
-        $this->company->bank_transactions()->forceDelete();
+        // $this->company->clients()->forceDelete();
+        // $this->company->products()->forceDelete();
+        // $this->company->projects()->forceDelete();
+        // $this->company->tasks()->forceDelete();
+        // $this->company->vendors()->forceDelete();
+        // $this->company->expenses()->forceDelete();
+        // $this->company->purchase_orders()->forceDelete();
+        // $this->company->bank_transaction_rules()->forceDelete();
+        // $this->company->bank_transactions()->forceDelete();
 
         parent::tearDown();
     }

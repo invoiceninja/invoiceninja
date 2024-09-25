@@ -108,6 +108,9 @@ class QbInvoice implements SyncInterface
 
             $invoice = $this->findInvoice($id);
 
+            nlog("Comparing QB last updated: " . $last_updated);
+            nlog("Comparing Ninja last updated: " . $invoice->updated_at);
+
             if(data_get($qb_record, 'TxnStatus') === 'Voided')
             {
                 $this->delete($id);
@@ -117,7 +120,7 @@ class QbInvoice implements SyncInterface
             if(!$invoice->id){
                 $this->syncNinjaInvoice($qb_record);
             }
-            elseif(Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)))
+            elseif(Carbon::parse($last_updated)->gt(Carbon::parse($invoice->updated_at)) || $qb_record->SyncToken == '0')
             {
                 $ninja_invoice_data = $this->invoice_transformer->qbToNinja($qb_record);
                 nlog($ninja_invoice_data);

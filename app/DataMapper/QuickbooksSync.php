@@ -34,6 +34,10 @@ class QuickbooksSync
     
     public QuickbooksSyncMap $expense;
 
+    public string $default_income_account = '';
+
+    public string $default_expense_account = '';
+
     public function __construct(array $attributes = [])
     {
         $this->client = new QuickbooksSyncMap($attributes['client'] ?? []);
@@ -45,5 +49,7 @@ class QuickbooksSync
         $this->product = new QuickbooksSyncMap($attributes['product'] ?? []);
         $this->payment = new QuickbooksSyncMap($attributes['payment'] ?? []);
         $this->expense = new QuickbooksSyncMap($attributes['expense'] ?? []);
+        $this->default_income_account = $attributes['default_income_account'] ?? '';
+        $this->default_expense_account = $attributes['default_expense_account'] ?? '';
     }
 }
