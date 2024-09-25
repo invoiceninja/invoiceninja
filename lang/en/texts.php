@@ -5337,6 +5337,7 @@ $lang = array(
     'invoice_status_changed' => 'Please note that the status of your invoice has been updated. We recommend refreshing the page to view the most current version.',
     'no_unread_notifications' => 'You’re all caught up! No new notifications.',
     'how_to_import_data' => 'How to import data',
+    'download_example_file' => 'Download example file',
 );
 
 return $lang;
