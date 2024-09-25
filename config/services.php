@@ -136,6 +136,7 @@ return [
         'client_secret' => env('GOCARDLESS_CLIENT_SECRET', null),
         'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
         'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', 'https://invoicing.co/gocardless/oauth/connect/confirm'),
+        'testing_company' => env('GOCARDLESS_TESTING_COMPANY', null),
     ],
     'quickbooks' => [
         'client_id' => env('QUICKBOOKS_CLIENT_ID', false),
