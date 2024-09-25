@@ -83,6 +83,11 @@ class QbClient implements SyncInterface
     {
     }
 
+    public function sync(string $id, string $last_updated): void
+    {
+
+    }
+
     private function findClient(string $key): ?Client
     {
         $search = Client::query()
