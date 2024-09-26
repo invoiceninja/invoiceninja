@@ -52,13 +52,15 @@ class QuickbooksTest extends TestCase
         $this->faker = \Faker\Factory::create();
     }
 
+
+
     public function createQbProduct()
     {
         $service_product = Product::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->company->owner()->id,
             'notes' => $this->faker->sentence(),
-            'product_key' => $this->faker->word(63),
+            'product_key' => \Illuminate\Support\Str::random(64),
             'tax_id' => 2,
         ]);
 
@@ -67,7 +69,7 @@ class QuickbooksTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->company->owner()->id,
             'notes' => $this->faker->sentence(),
-            'product_key' => $this->faker->word(63),
+            'product_key' => \Illuminate\Support\Str::random(64),
             'tax_id' => 1,
         ]);
 
@@ -347,14 +349,14 @@ class QuickbooksTest extends TestCase
             "DueDate" => $i->due_date,
             "TotalAmt" => $i->amount,
             "DocNumber" => $i->number,
-            "ApplyTaxAfterDiscount" => false,
+            // "ApplyTaxAfterDiscount" => false,
             "GlobalTaxCalculation" => "TaxExcluded", // This tells QuickBooks to calculate taxes
             "TxnTaxDetail" => [
                 "UseAutomatedSalesTax" => true,
-                // "TxnTaxCodeRef" => [
-                //     "value" => "TAX" // Use the appropriate tax code for your QuickBooks account
+                "TxnTaxCodeRef" => [
+                    "value" => "SALES_TAX_STUB" // Use the appropriate tax code for your QuickBooks account
                 //     "DefaultTaxRateRef" => [
-                // ]
+                ],
             ]
             // "Note" => $this->invoice->public_notes,
         ];

@@ -62,6 +62,38 @@ class PaymentTest extends TestCase
         );
     }
 
+    public function testNullPaymentAmounts()    
+    {
+
+        $data = [
+            'amount' => "null",
+            'client_id' => "null",
+            'invoices' => [
+                [
+                    'invoice_id' => $this->invoice->hashed_id,
+                    'amount' => "null",
+                ],
+            ],
+            'credits' => [
+                [
+                    'credit_id' => $this->invoice->hashed_id,
+                    'amount' => "null",
+                ],
+            ],
+            'date' => '2020/12/11',
+            'idempotency_key' => 'xx',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
+
+        $response->assertStatus(422);
+
+    }
+
+
     public function testIdempotencyTrigger()
     {
 
