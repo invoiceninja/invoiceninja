@@ -176,6 +176,19 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
      */
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, string $status = 'paid'): RedirectResponse
     {
+        $p = \App\Models\Payment::query()
+                    ->withTrashed()
+                    ->where('company_id', $this->mollie->client->company_id)
+                    ->where('transaction_reference', $payment->id)
+                    ->first();
+
+        if($p) {
+            $p->status_id = Payment::STATUS_COMPLETED;
+            $p->save();
+
+            return redirect()->route('client.payments.show', ['payment' => $p->hashed_id]);
+        }
+
         $data = [
             'gateway_type_id' => GatewayType::IDEAL,
             'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
