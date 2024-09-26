@@ -13,35 +13,17 @@ namespace App\PaymentDrivers\CBAPowerBoard\Models;
 
 class Gateway
 {
-    /** @var string */
-    public string $_id;
-    /** @var string */
-    public string $name;
-    /** @var string */
-    public string $type;
-    /** @var string */
-    public string $mode;
-    /** @var string */
-    public string $created_at;
-    /** @var string */
-    public string $updated_at;
-    /** @var bool */
-    public bool $archived;
-    /** @var bool */
-    public bool $default;
-    /** @var string */
-    public string $verification_status;
 
     public function __construct(
-        string $_id,
-        string $name,
-        string $type,
-        string $mode,
-        string $created_at,
-        string $updated_at,
-        bool $archived,
-        bool $default,
-        string $verification_status
+        public string $_id,
+        public string $name,
+        public string $type,
+        public string $mode,
+        public string $created_at,
+        public string $updated_at,
+        public bool $archived,
+        public bool $default,
+        public string $verification_status = ''
     ) {
         $this->_id = $_id;
         $this->name = $name;

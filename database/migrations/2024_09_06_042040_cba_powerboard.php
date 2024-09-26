@@ -21,8 +21,13 @@ return new class extends Migration
         $fields->publicKey = '';
         $fields->secretKey = '';
         $fields->testMode = false;
-        $fields->threeds = false;
+        $fields->gatewayId = '';
 
+        if($gateway = Gateway::find(64)){
+            $gateway->fields = json_encode($fields);
+            $gateway->save();
+        }else{
+            
         $powerboard = new Gateway();
         $powerboard->id = 64;
         $powerboard->name = 'CBA PowerBoard';
@@ -34,7 +39,8 @@ return new class extends Migration
         $powerboard->fields = json_encode($fields);
         $powerboard->save();
 
-
+        }
+        
         Schema::table("company_gateways", function (\Illuminate\Database\Schema\Blueprint $table){
             $table->text('settings')->nullable();
         });

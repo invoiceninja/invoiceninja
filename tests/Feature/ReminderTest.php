@@ -159,6 +159,80 @@ class ReminderTest extends TestCase
 
     }
 
+    public function testReminderScheduleNy()
+    {
+                
+        $settings = CompanySettings::defaults();
+        $settings->timezone_id = '15';
+        $settings->entity_send_time = 6;
+        $settings->payment_terms = '14';
+        $settings->send_reminders = true;
+        $settings->enable_reminder1 = true;
+        $settings->enable_reminder2 = false;
+        $settings->enable_reminder3 = false;
+        $settings->enable_reminder_endless = true;
+        $settings->schedule_reminder1 = 'after_invoice_date';
+        $settings->schedule_reminder2 = '';
+        $settings->schedule_reminder3 = '';
+        $settings->num_days_reminder1 = 1;
+        $settings->num_days_reminder2 = 0;
+        $settings->num_days_reminder3 = 0;
+        $settings->endless_reminder_frequency_id = '1';
+
+        $this->buildData($settings);
+
+        $this->travelTo(Carbon::parse('2024-09-20')->startOfDay()->addHours(1));
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'amount' => 10,
+            'balance' => 10,
+            'date' => '2024-09-19',
+            'number' => 'JJJ1-11-2024',
+            'due_date' => '2024-09-19',
+            'status_id' => 2,
+            'last_sent_date' => '19-09-2024',
+        ]);
+
+        $this->assertEquals(1, $invoice->company->settings->num_days_reminder1);
+
+        $invoice->service()->setReminder($settings)->save();
+
+        $this->assertEquals(10, $invoice->balance);
+        $this->assertEquals('2024-09-20', $invoice->next_send_date->format('Y-m-d'));
+
+        
+        $x = false;
+        do {
+
+            $this->travelTo(now()->addHour());
+            (new ReminderJob())->handle();
+            $invoice = $invoice->fresh();
+
+            $x = (bool)$invoice->reminder1_sent;
+        } while ($x === false);
+
+        $this->assertNotNull($invoice->reminder_last_sent);
+        $this->assertEquals(now()->addDays(1), $invoice->next_send_date);
+
+        $x = 0;
+        do {
+
+            $this->travelTo(now()->addHour());
+            (new ReminderJob())->handle();
+            $invoice = $invoice->fresh();
+
+            $x++;
+        } while ($x < 24);
+
+        $this->assertEquals(now()->addDays(1), $invoice->next_send_date);
+
+
+
+    }
+
     public function testDKRemindersNotSending()
     {
 

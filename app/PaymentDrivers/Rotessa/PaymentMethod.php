@@ -111,7 +111,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
 
             $message = json_decode($e->getMessage(), true);        
             
-            return redirect()->route('client.payment_methods.index')->withErrors(array_values($message['errors']));
+            return redirect()->route('client.payment_methods.index')->withErrors(array_values($message['errors'] ?? [$e->getMessage()]));
 
         }
 

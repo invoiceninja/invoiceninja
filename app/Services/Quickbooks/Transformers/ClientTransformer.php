@@ -31,6 +31,7 @@ class ClientTransformer extends BaseTransformer
 
     public function transform(mixed $data): array
     {
+        nlog($data);
 
         $contact = [
             'first_name' => data_get($data, 'GivenName'),
@@ -40,6 +41,7 @@ class ClientTransformer extends BaseTransformer
         ];
 
         $client = [
+            'id' => data_get($data, 'Id.value', null),
             'name' => data_get($data,'CompanyName', ''),
             'address1' => data_get($data, 'BillAddr.Line1', ''),
             'address2' => data_get($data, 'BillAddr.Line2', ''),
@@ -53,16 +55,20 @@ class ClientTransformer extends BaseTransformer
             'shipping_country_id' => $this->resolveCountry(data_get($data, 'ShipAddr.Country', '')),
             'shipping_state' => data_get($data, 'ShipAddr.CountrySubDivisionCode', ''),
             'shipping_postal_code' =>  data_get($data, 'BillAddr.PostalCode', ''),
-            'number' => data_get($data, 'Id.value', ''),
+            'client_hash' => data_get($data, 'V4IDPseudonym', \Illuminate\Support\Str::random(32)),
+            'vat_number' => data_get($data, 'PrimaryTaxIdentifier', ''),
+            'id_number' => data_get($data, 'BusinessNumber', ''),
+            'terms' => data_get($data, 'SalesTermRef.value', false),
+            'is_tax_exempt' => !data_get($data, 'Taxable', false),
+            'private_notes' => data_get($data, 'Notes', ''),
         ];
         
             $settings = ClientSettings::defaults();
             $settings->currency_id = (string) $this->resolveCurrency(data_get($data, 'CurrencyRef.value'));
 
-            $new_client_merge = [
-                'client_hash' => data_get($data, 'V4IDPseudonym', \Illuminate\Support\Str::random(32)),
-                'settings' => $settings,
-            ];
+            $client['settings'] = $settings;
+
+            $new_client_merge = [];
 
         return [$client, $contact, $new_client_merge];
     }

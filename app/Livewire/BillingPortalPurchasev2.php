@@ -431,31 +431,31 @@ class BillingPortalPurchasev2 extends Component
      * @throws PresenterException
      * @throws InvalidArgumentException
      */
-    private function createClientContact()
-    {
-        $company = $this->subscription->company;
-        $user = $this->subscription->user;
-        $user->setCompany($company);
+    // private function createClientContact()
+    // {
+    //     $company = $this->subscription->company;
+    //     $user = $this->subscription->user;
+    //     $user->setCompany($company);
 
-        $client_repo = new ClientRepository(new ClientContactRepository());
-        $data = [
-            'name' => '',
-            'group_settings_id' => $this->subscription->group_id,
-            'contacts' => [
-                ['email' => $this->email],
-            ],
-            'client_hash' => Str::random(40),
-            'settings' => ClientSettings::defaults(),
-        ];
+    //     $client_repo = new ClientRepository(new ClientContactRepository());
+    //     $data = [
+    //         'name' => '',
+    //         'group_settings_id' => $this->subscription->group_id,
+    //         'contacts' => [
+    //             ['email' => $this->email],
+    //         ],
+    //         'client_hash' => Str::random(40),
+    //         'settings' => ClientSettings::defaults(),
+    //     ];
 
-        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+    //     $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
 
-        $this->contact = $client->fresh()->contacts()->first();
+    //     $this->contact = $client->fresh()->contacts()->first();
 
-        Auth::guard('contact')->loginUsingId($this->contact->id, true);
+    //     Auth::guard('contact')->loginUsingId($this->contact->id, true);
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
 
     /**

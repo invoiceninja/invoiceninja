@@ -489,7 +489,6 @@ class CompanyGateway extends BaseModel
 
     public function getSettings()
     {
-        // return $this->settings;
         return $this->settings ?? new \stdClass;
     }
 

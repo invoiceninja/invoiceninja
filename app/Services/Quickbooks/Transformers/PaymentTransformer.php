@@ -91,7 +91,7 @@ class PaymentTransformer extends BaseTransformer
         if(!$credit_line) 
             return $payment;
 
-        $credit = \App\Factory\CreditFactory::create($this->company->id, $this->company->owner()->id, $payment->client_id);
+        $credit = \App\Factory\CreditFactory::create($this->company->id, $this->company->owner()->id);
         $credit->client_id = $payment->client_id;
 
         $line = new \App\DataMapper\InvoiceItem();

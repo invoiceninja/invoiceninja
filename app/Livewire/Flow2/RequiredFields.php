@@ -136,4 +136,12 @@ class RequiredFields extends Component
         ]);
     }
     
+    public function exception($e, $stopPropagation) 
+    {
+       
+        nlog($e->getMessage());
+
+        $stopPropagation();
+
+    }
 }

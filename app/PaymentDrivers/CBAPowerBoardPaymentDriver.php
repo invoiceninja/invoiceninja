@@ -185,16 +185,10 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     {
         $this->init();
 
-
+        $this->settings()->updateSettings();
+        
         return true;
-        // try {
-        //     $this->verifyConnect();
-        //     return true;
-        // } catch(\Exception $e) {
 
-        // }
-
-        // return false;
 
     }
 

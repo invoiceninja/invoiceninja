@@ -66,7 +66,8 @@ class BaseTransformer
         $client = Client::query()
                     ->withTrashed()
                     ->where('company_id', $this->company->id)
-                    ->where('number', $customer_reference_id)
+                    // ->where('number', $customer_reference_id)
+                    ->where('sync->qb_id', $customer_reference_id)
                     ->first();
 
         return $client ? $client->id : null;

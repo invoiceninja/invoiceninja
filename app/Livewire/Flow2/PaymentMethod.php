@@ -80,7 +80,6 @@ class PaymentMethod extends Component
     {
        
         nlog($e->getMessage());
-
         $stopPropagation();
 
     }

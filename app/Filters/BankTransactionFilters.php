@@ -68,7 +68,7 @@ class BankTransactionFilters extends QueryFilters
          */
     public function client_status(string $value = ''): Builder
     {
-        if (strlen($value ?? '') == 0) {
+        if (strlen($value) == 0) {
             return $this->builder;
         }
 

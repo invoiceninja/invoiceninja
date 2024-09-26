@@ -11,22 +11,24 @@
 
 namespace App\Models;
 
-use App\Events\Invoice\InvoiceReminderWasEmailed;
-use App\Events\Invoice\InvoiceWasEmailed;
-use App\Helpers\Invoice\InvoiceSum;
-use App\Helpers\Invoice\InvoiceSumInclusive;
-use App\Models\Presenters\EntityPresenter;
-use App\Services\Invoice\InvoiceService;
-use App\Services\Ledger\LedgerService;
+use App\DataMapper\InvoiceSync;
 use App\Utils\Ninja;
-use App\Utils\Traits\Invoice\ActionsInvoice;
+use Laravel\Scout\Searchable;
+use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesInvoiceValues;
+use App\Helpers\Invoice\InvoiceSum;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
+use App\Services\Ledger\LedgerService;
+use App\Services\Invoice\InvoiceService;
+use App\Utils\Traits\MakesInvoiceValues;
+use App\Events\Invoice\InvoiceWasEmailed;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\EntityPresenter;
+use App\Helpers\Invoice\InvoiceSumInclusive;
+use App\Utils\Traits\Invoice\ActionsInvoice;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Events\Invoice\InvoiceReminderWasEmailed;
 
 /**
  * App\Models\Invoice
@@ -52,6 +54,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_deleted
  * @property object|array|string $line_items
  * @property object|null $backup
+ * @property object|null $sync
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
@@ -144,6 +147,8 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
 
+    use Searchable;
+
     protected $presenter = EntityPresenter::class;
 
     protected $touches = [];
@@ -210,6 +215,8 @@ class Invoice extends BaseModel
         'custom_surcharge_tax3' => 'bool',
         'custom_surcharge_tax4' => 'bool',
         'e_invoice' => 'object',
+        'sync' => InvoiceSync::class,
+
     ];
 
     protected $with = [];
@@ -234,6 +241,25 @@ class Invoice extends BaseModel
     public const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
 
     public const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
+
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->client->present()->name() . ' - ' . $this->number,
+            'hashed_id' => $this->hashed_id,
+            'number' => $this->number,
+            'is_deleted' => $this->is_deleted,
+            'amount' => (float) $this->amount,
+            'balance' => (float) $this->balance,
+            'due_date' => $this->due_date,
+            'date' => $this->date,
+            'custom_value1' => $this->custom_value1,
+            'custom_value2' => $this->custom_value2,
+            'custom_value3' => $this->custom_value3,
+            'custom_value4' => $this->custom_value4,
+            'company_key' => $this->company->company_key,
+        ];
+    }
 
     public function getEntityType()
     {
@@ -559,7 +585,7 @@ class Invoice extends BaseModel
      * Filtering logic to determine
      * whether an invoice is locked
      * based on the current status of the invoice.
-     * @return bool [description]
+     * @return bool
      */
     public function isLocked(): bool
     {
@@ -569,7 +595,7 @@ class Invoice extends BaseModel
             case 'off':
                 return false;
             case 'when_sent':
-                return $this->status_id == self::STATUS_SENT;
+                return $this->status_id >= self::STATUS_SENT;
             case 'when_paid':
                 return $this->status_id == self::STATUS_PAID || $this->status_id == self::STATUS_PARTIAL;
             case 'end_of_month':
@@ -739,7 +765,7 @@ class Invoice extends BaseModel
         $send_email_enabled =  ctrans('texts.send_email') . " " .ctrans('texts.enabled');
         $send_email_disabled =  ctrans('texts.send_email') . " " .ctrans('texts.disabled');
 
-        $sends_email_1 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $sends_email_1 = $settings->enable_reminder1 ? $send_email_enabled : $send_email_disabled;
         $days_1 = $settings->num_days_reminder1 . " " . ctrans('texts.days');
         $schedule_1 = ctrans("texts.{$settings->schedule_reminder1}"); //after due date etc or disabled
         $label_1 = ctrans('texts.reminder1');
@@ -749,7 +775,7 @@ class Invoice extends BaseModel
         $schedule_2 = ctrans("texts.{$settings->schedule_reminder2}"); //after due date etc or disabled
         $label_2 = ctrans('texts.reminder2');
 
-        $sends_email_3 = $settings->enable_reminder2 ? $send_email_enabled : $send_email_disabled;
+        $sends_email_3 = $settings->enable_reminder3 ? $send_email_enabled : $send_email_disabled;
         $days_3 = $settings->num_days_reminder3 . " " . ctrans('texts.days');
         $schedule_3 = ctrans("texts.{$settings->schedule_reminder3}"); //after due date etc or disabled
         $label_3 = ctrans('texts.reminder3');

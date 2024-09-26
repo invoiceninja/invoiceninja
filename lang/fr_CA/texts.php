@@ -5331,6 +5331,7 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'country_Melilla' => 'Melilla',
     'country_Ceuta' => 'Ceuta',
     'country_Canary Islands' => 'Îles Canaries',
+    'lang_Vietnamese' => 'Vietnamien',
     'invoice_status_changed' => 'Veuillez noter que l\'état de votre facture a été mis à jour. Nous vous recommandons de rafraîchir la page pour afficher la version la plus récente.',
     'no_unread_notifications' => 'Vous êtes à jour! Aucune nouvelle notification.',
 );

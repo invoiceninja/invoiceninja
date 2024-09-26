@@ -107,7 +107,7 @@ class Partner
     {
         $uri = "/partner/{$this->partner_number}/account/{$accountRegNo}";
 
-        return $this->qvalia->httpClient($uri, (\App\Enum\HttpVerb::DELETE)->value)->object();
+        return $this->qvalia->httpClient($uri, (\App\Enum\HttpVerb::DELETE)->value, [])->object();
     }
 
     /**
@@ -138,7 +138,7 @@ class Partner
     {
         $uri = "/partner/{$this->partner_number}/account/{$accountRegNo}/peppol/{$peppolId}";
 
-        return $this->qvalia->httpClient($uri, (\App\Enum\HttpVerb::DELETE)->value)->object();
+        return $this->qvalia->httpClient($uri, (\App\Enum\HttpVerb::DELETE)->value, [])->object();
     }
 
 }

@@ -57,6 +57,21 @@ function reload() {
 function pay() {
     reload();
 
+    const gatewayId = document.querySelector('meta[name=gateway_id]')?.content;
+    
+    if(!gatewayId) {
+    
+        let payNow = document.getElementById('pay-now');
+        payNow.disabled = true;
+        payNow.querySelector('svg').classList.remove('hidden');
+        payNow.querySelector('span').classList.add('hidden');
+        document.getElementById(
+            'errors'
+        ).textContent = 'Gateway not found or verified';
+        document.getElementById('errors').hidden = false;
+        
+    }
+
     const widget = setup();
 
     widget.on('finish', () => {
@@ -139,8 +154,6 @@ function pay() {
         first.click();
     }
 
-    console.log({ focusCreditCard })
-
     if (focusCreditCard) {
         document.getElementById('toggle-payment-with-credit-card')?.click();
     }
@@ -151,6 +164,8 @@ async function process3ds() {
         const resource = await get3dsToken();
 
         if (
+            !resource ||
+            !resource.status ||
             resource.status === 'not_authenticated' ||
             resource === 'not_authenticated'
         ) {
@@ -221,9 +236,12 @@ async function process3ds() {
 
         canvas.load();
     } catch (error) {
+
+        const msg = error.message ?? 'Unknown error.';
+
         document.getElementById(
             'errors'
-        ).textContent = `Sorry, your transaction could not be processed...\n\n${error}`;
+        ).textContent = `Sorry, your transaction could not be processed...\n\n${msg}`;
         document.getElementById('errors').hidden = false;
         
         focusCreditCard = true;
@@ -274,18 +292,15 @@ async function get3dsToken() {
                 throw new Error(errorData.message ?? 'Unknown error.');
             });
 
-            // const text = await response.text();
-            // throw new Error(`Network response was not ok: ${response.statusText}. Response text: ${text}`);
         }
 
         return await response.json();
     } catch (error) {
+
         document.getElementById(
             'errors'
         ).textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
         document.getElementById('errors').hidden = false;
-
-        console.error('Fetch error:', error); // Log error for debugging
 
         focusCreditCard = true;
 
