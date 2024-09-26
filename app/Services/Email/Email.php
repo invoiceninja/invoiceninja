@@ -11,38 +11,39 @@
 
 namespace App\Services\Email;
 
-use App\DataMapper\Analytics\EmailFailure;
-use App\DataMapper\Analytics\EmailSuccess;
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
-use App\Libraries\MultiDB;
-use App\Mail\Engine\PaymentEmailEngine;
+use Log;
+use App\Models\User;
+use App\Utils\Ninja;
 use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
 use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
+use App\Libraries\MultiDB;
+use App\Models\ClientContact;
+use App\Models\VendorContact;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
+use App\Libraries\Google\Google;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
+use Postmark\Models\PostmarkException;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Mail\Engine\PaymentEmailEngine;
+use Illuminate\Queue\InteractsWithQueue;
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Bus\Queueable;
+use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Mail\Mailable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use Log;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
 
 class Email implements ShouldQueue
 {
@@ -375,16 +376,10 @@ class Email implements ShouldQueue
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if ($e instanceof ClientException) { //postmark specific failure
-                $response = $e->getResponse();
-                $message_body = json_decode($response->getBody()->getContents());
-
-                if ($message_body && property_exists($message_body, 'Message')) {
-                    $message = $message_body->Message;
-                }
+            if ($e instanceof PostmarkException) { //postmark specific failure
 
                 $this->fail();
-                $this->entityEmailFailed($message);
+                $this->entityEmailFailed($e->getMessage());
                 $this->cleanUpMailers();
 
                 return;
@@ -395,10 +390,8 @@ class Email implements ShouldQueue
                 /* If the is an entity attached to the message send a failure mailer */
                 $this->entityEmailFailed($message);
 
-                /* Don't send postmark failures to Sentry */
-                if (Ninja::isHosted() && (!$e instanceof ClientException)) {
-                    app('sentry')->captureException($e);
-                }
+                app('sentry')->captureException($e);
+
             }
 
             $this->tearDown();
@@ -985,7 +978,7 @@ class Email implements ShouldQueue
      * @param  string $message
      * @return void
      */
-    private function entityEmailFailed($message): void
+    private function entityEmailFailed(string $message = ''): void
     {
         $class = get_class($this->email_object->entity);
 
