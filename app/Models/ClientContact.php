@@ -297,7 +297,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
         return $languages->first(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
-        })->locale;
+        })->locale ?? 'en';
     }
 
     public function routeNotificationForMail($notification)
