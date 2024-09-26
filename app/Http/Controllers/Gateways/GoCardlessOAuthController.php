@@ -44,6 +44,9 @@ class GoCardlessOAuthController extends Controller
             ? 'https://connect.gocardless.com/oauth/authorize?%s'
             : 'https://connect-sandbox.gocardless.com/oauth/authorize?%s';
 
+        if (config('services.gocardless.testing_company') == $company->id) {
+            $url = 'https://connect-sandbox.gocardless.com/oauth/authorize?%s';
+        }
 
         return redirect()->to(
             sprintf($url, http_build_query($params))
@@ -55,12 +58,13 @@ class GoCardlessOAuthController extends Controller
         /** @var \App\Models\Company $company */
         $company = $request->getCompany();
 
-        // LBo0v_561xgFGnFUae6uEQEfrWoSEMnZ&state=5O2O85C8dPv1Gp1UPVq0xs4FVTZdq5dO
-        // https://invoicing.co/gocardless/oauth/connect/confirm?code=sH55_xb-2s1JtuEw-j7W0hT0Z1sFkM7l
-
         $url = config('services.gocardless.environment') === 'production'
             ? 'https://connect.gocardless.com/oauth/access_token'
             : 'https://connect-sandbox.gocardless.com/oauth/access_token';
+
+        if (config('services.gocardless.testing_company') == $company->id) {
+            $url = 'https://connect-sandbox.gocardless.com/oauth/access_token';
+        }
 
         $response = Http::post($url, [
             'client_id' => config('services.gocardless.client_id'),
