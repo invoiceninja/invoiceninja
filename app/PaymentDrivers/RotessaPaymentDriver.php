@@ -265,7 +265,7 @@ class RotessaPaymentDriver extends BaseDriver
 
     public function gatewayRequest($verb, $uri, $payload = [])
     {
-        $r = Http::withToken($this->company_gateway->getConfigField('apiKey'))
+        $r = Http::withHeaders(['Authorization' => 'Token token=' . $this->company_gateway->getConfigField('apiKey'))
                 ->{$verb}($this->getUrl().$uri, $payload);
 
         nlog($r->body());
