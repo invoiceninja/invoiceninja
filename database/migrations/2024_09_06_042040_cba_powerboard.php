@@ -22,6 +22,16 @@ return new class extends Migration
         $fields->secretKey = '';
         $fields->testMode = false;
         $fields->gatewayId = '';
+        $fields->amex = false;
+        $fields->ausbc = false;
+        $fields->discover = false;
+        $fields->japcb = false;
+        $fields->laser = false;
+        $fields->mastercard = true;
+        $fields->solo = false;
+        $fields->visa = true;
+        $fields->visa_white = false;
+
 
         if($gateway = Gateway::find(64)){
             $gateway->fields = json_encode($fields);

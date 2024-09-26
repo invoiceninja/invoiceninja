@@ -218,8 +218,27 @@ class CreditCard implements LivewireMethodInterface
     {
         $this->powerboard->init();
 
-        // if(!isset($this->cba_gateway->verification_status) || $this->cba_gateway->verification_status != "completed")
-        //     throw new PaymentFailed("This payment method is not configured as yet. Reference Powerboard portal for further information", 400);
+        $available_cards = [    
+            "amex",
+            "ausbc",
+            "discover",
+            "japcb",
+            "laser",
+            "mastercard",
+            "solo",
+            "visa",
+            "visa_white",
+        ];
+        
+        $supported_cards = $this->powerboard->company_gateway->getConfig();
+
+        $supported_cards_array = [];
+
+        foreach($available_cards as $card){
+            if($supported_cards->{$card}){
+                $supported_cards_array[] = $card;
+            }
+        }
 
         $merge = [
             'public_key' => $this->powerboard->company_gateway->getConfigField('publicKey'),
@@ -227,6 +246,7 @@ class CreditCard implements LivewireMethodInterface
             'gateway' => $this->powerboard,
             'environment' => $this->powerboard->environment,
             'gateway_id' => $this->cba_gateway->_id ?? false,
+            'supported_cards' => $supported_cards_array,
         ];
 
         return array_merge($data, $merge);
