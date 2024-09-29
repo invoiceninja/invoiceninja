@@ -398,11 +398,11 @@ class CompanyGateway extends BaseModel
         if ($fee > 0) {
             $fees_and_limits = $this->fees_and_limits->{$gateway_type_id};
 
-            if (strlen($fees_and_limits->fee_percent) >= 1) {
+            if (isset($fees_and_limits->fee_percent) && $fees_and_limits->fee_percent > 0) {
                 $label .= $fees_and_limits->fee_percent . '%';
             }
 
-            if (strlen($fees_and_limits->fee_amount) >= 1 && $fees_and_limits->fee_amount > 0) {
+            if (isset($fees_and_limits->fee_amount) && $fees_and_limits->fee_amount > 0) {
                 if (strlen($label) > 1) {
                     $label .= ' + ' . Number::formatMoney($fees_and_limits->fee_amount, $client);
                 } else {
