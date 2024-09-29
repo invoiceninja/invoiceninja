@@ -172,6 +172,11 @@ class QuickbooksService
     {
         return $this->sdk->FindById($entity, $id);
     }
+
+    public function query(string $query)
+    {
+        return $this->sdk->Query($query);
+    }
         
     /**
      * Flag to determine if a sync is allowed in either direction

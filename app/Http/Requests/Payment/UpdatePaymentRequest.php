@@ -100,7 +100,7 @@ class UpdatePaymentRequest extends Request
     public function messages()
     {
         return [
-            'distinct' => 'Attemping duplicate payment on the same invoice Invoice',
+            'distinct' => 'Attemping duplicate payment on the same Invoice',
         ];
     }
 }

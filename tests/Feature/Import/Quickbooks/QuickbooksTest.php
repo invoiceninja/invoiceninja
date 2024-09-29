@@ -137,11 +137,17 @@ class QuickbooksTest extends TestCase
         $client = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->company->owner()->id,
-            'address1' => $this->faker->address(),
-            'city' => $this->faker->city(),
-            'state' => $this->faker->state(),
-            'postal_code' => $this->faker->postcode(),
+            'address1' => "10369 Ashton Avenue",
+            'address2' => '',
+            'city' => "Beverley Hills",
+            'state' => "California",
+            'postal_code' => "90210",
             'country_id' => 840,
+            'shipping_address1' => "10369 Ashton Avenue",
+            'address2' => '',
+            'shipping_city' => "Beverley Hills",
+            'shipping_state' => "California",
+            'shipping_postal_code' => "90210",
             'shipping_country_id' => 840,
         ]);
 
@@ -215,9 +221,16 @@ class QuickbooksTest extends TestCase
         //create ninja invoice
         $qb_invoice = $this->createQbInvoice($customer);
 
-        $this->assertNotNull($qb_invoice);
 
-        nlog($qb_invoice);
+$this->assertNotNull($qb_invoice);
+
+// sleep(5);
+
+// $updatedInvoice = $this->qb->sdk->FindById('invoice', $qb_invoice->Id->value);
+
+
+
+        nlog($updatedInvoice);
     }
 
     public function testCreateCustomerInQb()
@@ -264,6 +277,8 @@ class QuickbooksTest extends TestCase
         $item_product->quantity = 1;
         $item_product->cost = $non_inventory_product->price;
         $item_product->line_total = $non_inventory_product->price;
+        $item_product->tax_name1 = 'CA Sales Tax';
+        $item_product->tax_rate1 = 8;
         $item_product->type_id = '1';
 
         $item_service = new InvoiceItem();
@@ -305,6 +320,12 @@ class QuickbooksTest extends TestCase
         // $this->assertEquals(30, $i->balance);
 
         $line_items = [];
+        
+        // $taxDetail = [
+        //     "TotalTax" => 0,
+        //     "TaxLine" => []
+        // ];
+
         $line_num = 1;
 
         foreach($i->line_items as $line_item)
@@ -329,9 +350,67 @@ class QuickbooksTest extends TestCase
                     ],
                 ],
                 'Description' => $line_item->notes,
-                
                 'Amount' => $line_item->line_total,
             ];
+
+            // if($line_item->tax_rate1 > 0)
+            // {
+            //     $tax_line_detail = [
+            //         "Amount" => $line_item->tax_amount,
+            //         "DetailType" => "TaxLineDetail",
+            //         "TaxLineDetail" => [
+            //             "TaxRateRef" => [
+            //                 "value" => $line_item->tax_rate1,
+            //                 "name" => $line_item->tax_name1,
+            //             ],
+            //             "PercentBased" => true,
+            //             "TaxPercent" => $line_item->tax_rate1,
+            //             "NetAmountTaxable" => $line_item->line_total,
+            //         ]
+            //     ];
+
+            //     $taxDetail['TaxLine'][] = $tax_line_detail;
+            //     $taxDetail['TotalTax'] += $line_item->tax_amount;
+            // }
+                        
+            // if ($line_item->tax_rate2 > 0) {
+            //     $tax_line_detail = [
+            //         "Amount" => $line_item->tax_amount,
+            //         "DetailType" => "TaxLineDetail",
+            //         "TaxLineDetail" => [
+            //             "TaxRateRef" => [
+            //                 "value" => $line_item->tax_rate2,
+            //                 "name" => $line_items->tax_name2,
+            //             ],
+            //             "PercentBased" => true,
+            //             "TaxPercent" => $line_item->tax_rate2,
+            //             "NetAmountTaxable" => $line_item->line_total,
+            //         ]
+            //     ];
+
+            //     $taxDetail['TaxLine'][] = $tax_line_detail;
+            //     $taxDetail['TotalTax'] += $line_item->tax_amount;
+            // }
+
+            // if ($line_item->tax_rate3 > 0) {
+            //     $tax_line_detail = [
+            //         "Amount" => $line_item->tax_amount,
+            //         "DetailType" => "TaxLineDetail",
+            //         "TaxLineDetail" => [
+            //             "TaxRateRef" => [
+            //                 "value" => $line_item->tax_name3
+            //             ],
+            //             "PercentBased" => true,
+            //             "TaxPercent" => $line_item->tax_rate3,
+            //             "NetAmountTaxable" => $line_item->line_total,
+            //         ]
+            //     ];
+
+            //     $taxDetail['TaxLine'][] = $tax_line_detail;
+            //     $taxDetail['TotalTax'] += $line_item->tax_amount;
+            // }
+
+
 
             $line_num++;
 
@@ -349,15 +428,19 @@ class QuickbooksTest extends TestCase
             "DueDate" => $i->due_date,
             "TotalAmt" => $i->amount,
             "DocNumber" => $i->number,
+            "ApplyTaxAfterDiscount" => true,
+            "PrintStatus" => "NeedToPrint",
+            "EmailStatus" => "NotSet",
+            "GlobalTaxCalculation" => "TaxExcluded",
             // "ApplyTaxAfterDiscount" => false,
-            "GlobalTaxCalculation" => "TaxExcluded", // This tells QuickBooks to calculate taxes
-            "TxnTaxDetail" => [
-                "UseAutomatedSalesTax" => true,
-                "TxnTaxCodeRef" => [
-                    "value" => "SALES_TAX_STUB" // Use the appropriate tax code for your QuickBooks account
+            // "TxnTaxDetail" => $taxDetail,
+            // "TxnTaxDetail" => [
+                // "UseAutomatedSalesTax" => true,
+                // "TxnTaxCodeRef" => [
+                    // "value" => "SALES_TAX_STUB" // Use the appropriate tax code for your QuickBooks account
                 //     "DefaultTaxRateRef" => [
-                ],
-            ]
+                // ],
+            // ]
             // "Note" => $this->invoice->public_notes,
         ];
         
