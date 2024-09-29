@@ -39,7 +39,7 @@ class GoCardlessOAuthWebhookController extends Controller
                     ->whereJsonContains('config->account_id', $e['links.organisation'])
                     ->firstOrFail();
 
-                $current = $company_gateway->getConfig('__current');
+                $current = $company_gateway->getConfigField('__current');
 
                 if ($current) {
                     $company_gateway->setConfig($current);

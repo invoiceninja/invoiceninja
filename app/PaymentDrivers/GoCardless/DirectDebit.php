@@ -96,7 +96,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
                             'session_token' => $session_token,
                             'billing_request' => $response->id,
                             'authorize_then_redirect' => true,
-                            'payment_hash' => $this->go_cardless->payment_hash?->hash,
+                            'payment_hash' => $this->go_cardless->payment_hash->hash,
                         ]),
                     "exit_uri" => $exit_uri,
                     "links" => [

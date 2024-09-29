@@ -444,14 +444,22 @@ class InvoiceService
             return $this;
         }
 
-        $pre_count = count($this->invoice->line_items);
+        $pre_count = count((array)$this->invoice->line_items);
 
-        $items = collect($this->invoice->line_items)
-                                     ->reject(function ($item) {
-                                         return $item->type_id == '3';
-                                     })->toArray();
+        // $items = collect((array)$this->invoice->line_items)
+        //                              ->reject(function ($item) {
+        //                                  return $item->type_id == '3';
+        //                              })->toArray();
 
-        $this->invoice->line_items = array_values($items);
+
+        $items = collect((array)$this->invoice->line_items)
+                    ->filter(function ($item) {
+                        return $item->type_id != '3';
+                        })->toArray();
+
+        $this->invoice->line_items = $items;
+
+        // $this->invoice->line_items = array_values($items);
 
         $this->invoice = $this->invoice->calc()->getInvoice();
 

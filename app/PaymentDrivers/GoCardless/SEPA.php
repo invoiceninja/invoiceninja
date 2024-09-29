@@ -65,7 +65,7 @@ class SEPA implements MethodInterface, LivewireMethodInterface
                         'method' => GatewayType::SEPA,
                         'session_token' => $session_token,
                         'authorize_then_redirect' => true,
-                        'payment_hash' => $this->go_cardless->payment_hash?->hash,
+                        'payment_hash' => $this->go_cardless->payment_hash->hash,
                     ]),
                     'prefilled_customer' => [
                         'given_name' => auth()->guard('contact')->user()->client->present()->first_name(),
