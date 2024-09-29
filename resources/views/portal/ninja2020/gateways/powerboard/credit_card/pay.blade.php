@@ -6,6 +6,7 @@
     <meta name="gateway_id" content="{{ $gateway_id }}" />
     <meta name="environment" content="{{ $environment }}">
     <meta name="payments_route" content="{{ route('client.payments.response') }}" />
+    <meta name="supported_cards" content="{{ json_encode($supported_cards) }}" />
 @endsection
 
 @section('gateway_content')

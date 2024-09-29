@@ -16,6 +16,7 @@ function setup() {
     const publicKey = document.querySelector('meta[name=public_key]');
     const gatewayId = document.querySelector('meta[name=gateway_id]');
     const env = document.querySelector('meta[name=environment]');
+    const supportedCards = document.querySelector('meta[name=supported_cards]');
 
     const widget = new cba.HtmlWidget(
         '#widget',
@@ -25,6 +26,15 @@ function setup() {
 
     widget.setEnv(env?.content);
     widget.useAutoResize();
+
+    if (supportedCards?.content) {
+        try {
+            const supportedCardsArray = JSON.parse(supportedCards.content);
+            widget.setSupportedCardIcons(supportedCardsArray, true);
+        } catch (error) {
+        }
+    }
+
     widget.interceptSubmitForm('#stepone');
     widget.onFinishInsert(
         '#server-response input[name="gateway_response"]',

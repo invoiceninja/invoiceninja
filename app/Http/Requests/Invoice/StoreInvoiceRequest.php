@@ -93,11 +93,13 @@ class StoreInvoiceRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|INVOICE|".$this->input('client_id', '')."|".$user->company()->company_key)) {
+        $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
+
+        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|INVOICE|".$client_id."|".$user->company()->company_key)) {
             usleep(200000);
         }
 
-        \Illuminate\Support\Facades\Cache::put($this->ip()."|INVOICE|".$this->input('client_id', '')."|".$user->company()->company_key,1);
+        \Illuminate\Support\Facades\Cache::put($this->ip()."|INVOICE|".$client_id."|".$user->company()->company_key,1);
 
         $input = $this->all();
 

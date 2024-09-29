@@ -57,13 +57,13 @@ class TaskScheduler implements ShouldQueue
                 ->cursor()
                 ->each(function ($scheduler) {
 
-                    nlog("Doing job {$scheduler->name}");
+                    nlog("Doing job ::{$scheduler->id}:: {$scheduler->name}");
 
                     try {
                         //@var \App\Models\Schedule $scheduler
                         $scheduler->service()->runTask();
                     } catch(\Exception $e) {
-                        nlog("Exception:: TaskScheduler:: Doing job {$scheduler->name}" . $e->getMessage());
+                        nlog("Exception:: TaskScheduler:: Doing job :: {$scheduler->id} :: {$scheduler->name}" . $e->getMessage());
                     }
 
                 });
@@ -83,13 +83,13 @@ class TaskScheduler implements ShouldQueue
                 ->cursor()
                 ->each(function ($scheduler) {
 
-                    nlog("Doing job {$scheduler->name}");
+                    nlog("Doing job ::{$scheduler->id}:: {$scheduler->name}");
 
                     try {
                         /** @var \App\Models\Scheduler $scheduler */
                         $scheduler->service()->runTask();
                     } catch(\Exception $e) {
-                        nlog("Exception:: TaskScheduler::" . $e->getMessage());
+                        nlog("Exception:: TaskScheduler:: #{$scheduler->id}::" . $e->getMessage());
                         nlog($e->getMessage());
                     }
 

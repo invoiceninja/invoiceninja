@@ -251,6 +251,12 @@ class CompanyGatewayController extends BaseController
                     $company_gateway->driver()->init()->settings()->updateSettings();
                 })->afterResponse();
 
+                $config = $company_gateway->getConfig();
+                $config->visa = true;
+                $config->mastercard = true;
+                $company_gateway->setConfig($config);
+                $company_gateway->save();
+
                 break;
 
             default:

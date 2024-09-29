@@ -255,7 +255,7 @@ abstract class QueryFilters
 
     public function client_id(string $client_id = ''): Builder
     {
-        if (strlen($client_id) == 0) {
+        if (strlen($client_id) == 0 || !in_array('vendor_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
             return $this->builder;
         }
 
@@ -264,7 +264,7 @@ abstract class QueryFilters
 
     public function vendor_id(string $vendor_id = ''): Builder
     {
-        if (strlen($vendor_id) == 0) {
+        if (strlen($vendor_id) == 0 || !in_array('vendor_id', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
             return $this->builder;
         }
 

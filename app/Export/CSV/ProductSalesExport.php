@@ -23,7 +23,7 @@ use League\Csv\Writer;
 
 class ProductSalesExport extends BaseExport
 {
-    public string $date_key = 'created_at';
+    public string $date_key = 'date';
 
     /** @var Collection<\App\Models\Product> $products*/
     protected Collection $products;
