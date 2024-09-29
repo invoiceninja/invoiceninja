@@ -5334,6 +5334,8 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'lang_Vietnamese' => 'Vietnamien',
     'invoice_status_changed' => 'Veuillez noter que l\'état de votre facture a été mis à jour. Nous vous recommandons de rafraîchir la page pour afficher la version la plus récente.',
     'no_unread_notifications' => 'Vous êtes à jour! Aucune nouvelle notification.',
+    'how_to_import_data' => 'Comment importer vos données',
+    'download_example_file' => 'Télécharger un fichier exemple',
 );
 
 return $lang;

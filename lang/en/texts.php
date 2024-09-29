@@ -5338,6 +5338,22 @@ $lang = array(
     'no_unread_notifications' => 'You’re all caught up! No new notifications.',
     'how_to_import_data' => 'How to import data',
     'download_example_file' => 'Download example file',
+    'expense_mailbox' => 'Inbound e-mail address',
+    'expense_mailbox_help' => 'The inbound email address which accepts expense documents. ie. expense@invoiceninja.com',
+    'expense_mailbox_active' => 'Expense Mailbox',
+    'expense_mailbox_active_help' => 'Enables processing of documents such as receipts for expense reporting',
+    'inbound_mailbox_allow_company_users' => 'Allow Company Senders',
+    'inbound_mailbox_allow_company_users_help' => 'Allows users within the company to send expense documents.',
+    'inbound_mailbox_allow_vendors' => 'Allow Vendor Senders',
+    'inbound_mailbox_allow_vendors_help' => 'Allows company vendors to send expense documents',
+    'inbound_mailbox_allow_clients' => 'Allow Client Senders',
+    'inbound_mailbox_allow_clients_help' => 'Allows clients to send expense documents',
+    'inbound_mailbox_whitelist' => 'Inbound sender allow list',
+    'inbound_mailbox_whitelist_help' => 'Comma separated list of emails that should be allowed to send emails for processing',
+    'inbound_mailbox_blacklist' => 'Inbound sender banned list',
+    'inbound_mailbox_blacklist_help' => 'Comma separate list of emails that are disallowed to send emails for processing',
+    'inbound_mailbox_allow_unknown' => 'Allow All Senders',
+    'inbound_mailbox_allow_unknown_help' => 'Allow anyone to send an expense email for processing',
 );
 
 return $lang;

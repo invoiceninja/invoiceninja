@@ -5336,6 +5336,8 @@ $lang = array(
     'lang_Vietnamese' => 'Tiếng Việt',
     'invoice_status_changed' => 'Xin lưu ý rằng trạng thái hóa đơn của bạn đã được cập nhật. Chúng tôi khuyên bạn nên làm mới trang để xem phiên bản mới nhất.',
     'no_unread_notifications' => 'Bạn đã cập nhật đầy đủ rồi! Không có thông báo mới nào.',
+    'how_to_import_data' => 'Làm thế nào đến nhập dữ liệu',
+    'download_example_file' => 'Tải xuống tệp ví dụ',
 );
 
 return $lang;

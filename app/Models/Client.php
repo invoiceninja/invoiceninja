@@ -336,7 +336,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
+        return $this->hasMany(Activity::class)->where('company_id', $this->company_id)->take(50)->orderBy('id', 'desc');
     }
 
     public function contacts(): HasMany

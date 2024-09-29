@@ -68,6 +68,7 @@ class ProcessMailgunWebhook implements ShouldQueue
         return SystemLog::query()
                 ->where('company_id', $this->invitation->company_id)
                 ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
+                ->where('category_id', SystemLog::CATEGORY_MAIL)
                 ->whereJsonContains('log', ['MessageID' => $this->message_id])
                 ->orderBy('id', 'desc')
                 ->first();

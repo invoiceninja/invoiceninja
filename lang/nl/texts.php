@@ -5333,8 +5333,11 @@ E-mail: :email<b><br><b>',
     'country_Melilla' => 'Melilla',
     'country_Ceuta' => 'Ceuta',
     'country_Canary Islands' => 'Canarische Eilanden',
-    'invoice_status_changed' => 'Please note that the status of your invoice has been updated. We recommend refreshing the page to view the most current version.',
-    'no_unread_notifications' => 'You’re all caught up! No new notifications.',
+    'lang_Vietnamese' => 'Vietnamees',
+    'invoice_status_changed' => 'De status van uw factuur is veranderd. We raden aan om deze pagina te verversen voor de meest recente versie.',
+    'no_unread_notifications' => 'U bent weer helemaal bij! Er zijn geen nieuwe notificaties.',
+    'how_to_import_data' => 'Hoe u gegevens kunt importeren',
+    'download_example_file' => 'Download voorbeeldbestand',
 );
 
 return $lang;

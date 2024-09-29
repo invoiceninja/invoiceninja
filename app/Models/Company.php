@@ -411,6 +411,7 @@ class Company extends BaseModel
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
         'quickbooks' => QuickbooksSettings::class,
+        'smtp_port' => 'int',
     ];
 
     protected $with = [];
