@@ -150,7 +150,7 @@ class LateFeeTest extends TestCase
 
         $ids = $invoices->pluck('id');
 
-        $invoices = $i->map(function ($invoice) {
+        $i->each(function ($invoice) {
 
             $line_items = $invoice->line_items;
 
@@ -172,7 +172,7 @@ class LateFeeTest extends TestCase
             $invoice->line_items = $line_items;
             $invoice->saveQuietly();
 
-            return $invoice;
+            // return $invoice;
         });
 
         $invoices = Invoice::whereIn('id', $ids)->cursor()->map(function ($invoice) {
