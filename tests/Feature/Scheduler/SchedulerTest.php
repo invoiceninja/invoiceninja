@@ -60,6 +60,33 @@ class SchedulerTest extends TestCase
     }
 
 
+    public function testReportValidationRulesForStartAndEndDate()
+    {
+        $data = [
+            'name' => 'A test product sales scheduler',
+            'frequency_id' => RecurringInvoice::FREQUENCY_MONTHLY,
+            'next_run' => now()->format('Y-m-d'),
+            'template' => 'email_statement',
+            'parameters' => [
+                'date_range' => 'custom',
+                'clients' => [],
+                'report_keys' => [],
+                'client_id' => $this->client->hashed_id,
+            ],
+
+        ];
+
+        $response = false;
+
+        $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson('/api/v1/task_schedulers', $data);
+
+        $response->assertStatus(422);
+
+    }
+
     public function testReportValidationRules()
     {
         $data = [
