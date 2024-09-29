@@ -68,6 +68,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
         return SystemLog::query()
             ->where('company_id', $this->invitation->company_id)
             ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
+            ->where('category_id', SystemLog::CATEGORY_MAIL)
+            // ->where('client_id', $this->invitation->contact->client_id)
             ->whereJsonContains('log', ['MessageID' => $message_id])
             ->orderBy('id', 'desc')
             ->first();
