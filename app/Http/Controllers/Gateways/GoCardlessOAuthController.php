@@ -77,6 +77,8 @@ class GoCardlessOAuthController extends Controller
         if ($response->failed()) {
             return view('auth.gocardless_connect.access_denied');
         }
+        
+        $response = $response->json();
 
         $company_gateway = CompanyGateway::query()
             ->where('gateway_key', 'b9886f9257f0c6ee7c302f1c74475f6c')
@@ -92,8 +94,6 @@ class GoCardlessOAuthController extends Controller
             $company_gateway->setConfig([]);
         }
 
-        $response = $response->json();
-
         $payload = [
             '__current' => $company_gateway->getConfig(),
             'account_id' => $response['organisation_id'],
@@ -104,6 +104,11 @@ class GoCardlessOAuthController extends Controller
             'testMode' => $company_gateway->getConfigField('testMode'),
             'oauth2' => true,
         ];
+
+        $settings = new \stdClass();
+        $settings->organisation_id = $response['organisation_id'];
+
+        $company_gateway->setSettings($settings);
 
         $company_gateway->setConfig($payload);
         $company_gateway->save();
