@@ -63,7 +63,7 @@ class AutoBillCron
 
             nlog($auto_bill_partial_invoices->count().' partial invoices to auto bill');
 
-            $auto_bill_partial_invoices->chunk(40, function ($invoices) {
+            $auto_bill_partial_invoices->chunk(400, function ($invoices) {
                 foreach ($invoices as $invoice) {
                     AutoBill::dispatch($invoice->id, null);
                 }
@@ -81,11 +81,14 @@ class AutoBillCron
                                         ->whereHas('company', function ($query) {
                                             $query->where('is_disabled', 0);
                                         })
+                                        ->whereHas('client', function ($query) {
+                                            $query->has('gateway_tokens', '>=', 1);
+                                        })
                                         ->orderBy('id', 'DESC');
 
             nlog($auto_bill_invoices->count().' full invoices to auto bill');
 
-            $auto_bill_invoices->chunk(40, function ($invoices) {
+            $auto_bill_invoices->chunk(400, function ($invoices) {
                 foreach ($invoices as $invoice) {
                     AutoBill::dispatch($invoice->id, null);
                 }
@@ -107,11 +110,14 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                 $query->where('is_disabled', 0);
                                             })
+                                            ->whereHas('client', function ($query) {
+                                                $query->has('gateway_tokens', '>=', 1);
+                                            })
                                             ->orderBy('id', 'DESC');
 
                 nlog($auto_bill_partial_invoices->count()." partial invoices to auto bill db = {$db}");
 
-                $auto_bill_partial_invoices->chunk(40, function ($invoices) use ($db) {
+                $auto_bill_partial_invoices->chunk(400, function ($invoices) use ($db) {
                     foreach ($invoices as $invoice) {
                         AutoBill::dispatch($invoice->id, $db);
                     }
@@ -129,11 +135,14 @@ class AutoBillCron
                                             ->whereHas('company', function ($query) {
                                                 $query->where('is_disabled', 0);
                                             })
+                                            ->whereHas('client', function ($query) {
+                                                $query->has('gateway_tokens', '>=', 1);
+                                            })
                                             ->orderBy('id', 'DESC');
 
                 nlog($auto_bill_invoices->count()." full invoices to auto bill db = {$db}");
 
-                $auto_bill_invoices->chunk(40, function ($invoices) use ($db) {
+                $auto_bill_invoices->chunk(400, function ($invoices) use ($db) {
                     foreach ($invoices as $invoice) {
                         AutoBill::dispatch($invoice->id, $db);
                     }
