@@ -165,7 +165,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processOpen()
     {
         $this->invitation->opened_date = now();
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
 
@@ -205,7 +205,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
 
@@ -257,7 +257,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processBounce()
     {
         $this->invitation->email_status = 'bounced';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $bounce = new EmailBounce(
             $this->request['Tag'],
@@ -308,7 +308,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processSpamComplaint()
     {
         $this->invitation->email_status = 'spam';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $spam = new EmailSpam(
             $this->request['Tag'],

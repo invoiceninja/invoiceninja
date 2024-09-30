@@ -179,7 +179,7 @@ class ProcessMailgunWebhook implements ShouldQueue
     private function processOpen()
     {
         $this->invitation->opened_date = now();
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
@@ -272,7 +272,7 @@ class ProcessMailgunWebhook implements ShouldQueue
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $sl = $this->getSystemLog($this->request['MessageID']);
 
@@ -359,7 +359,7 @@ class ProcessMailgunWebhook implements ShouldQueue
     private function processBounce()
     {
         $this->invitation->email_status = 'bounced';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $bounce = new EmailBounce(
             $this->request['event-data']['tags'][0],
@@ -433,7 +433,7 @@ class ProcessMailgunWebhook implements ShouldQueue
     private function processSpamComplaint()
     {
         $this->invitation->email_status = 'spam';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $spam = new EmailSpam(
             $this->request['event-data']['tags'][0],
