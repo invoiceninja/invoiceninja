@@ -162,6 +162,7 @@ class TemplateAction implements ShouldQueue
 
         $ts = $template_service
                     ->setCompany($this->company)
+                    ->setEntity($first_entity)
                     ->addGlobal(['currency_code' => $currency_code])
                     ->build($data);
 
