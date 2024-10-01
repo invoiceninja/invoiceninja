@@ -16,7 +16,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class UpdateContactLastLogin implements ShouldQueue
 {
-    public $delay = 8;
     /**
      * Create the event listener.
      *
@@ -37,8 +36,8 @@ class UpdateContactLastLogin implements ShouldQueue
         MultiDB::setDb($event->company->db);
 
         $client_contact = $event->client_contact;
-
         $client_contact->last_login = now();
         $client_contact->save();
+        
     }
 }

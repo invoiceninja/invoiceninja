@@ -89,12 +89,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception) {
-
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                DB::connection(config('database.default'))->rollBack();
-            }
-        }
+        } 
 
         return $this;
     }
@@ -115,13 +110,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception) {
-            nlog("DB ERROR " . $exception->getMessage());
-
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                DB::connection(config('database.default'))->rollBack();
-            }
-        }
+        } 
 
         return $this;
     }
@@ -141,13 +130,7 @@ class ClientService
                 DB::connection(config('database.default'))->rollBack();
             }
 
-        } catch(\Exception $exception) {
-            nlog("DB ERROR " . $exception->getMessage());
-
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                DB::connection(config('database.default'))->rollBack();
-            }
-        }
+        } 
 
         return $this;
     }
