@@ -285,7 +285,7 @@ class RefundPayment
                         ->save();
 
                 $invoice->ledger()
-                        ->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")
+                        ->updateInvoiceBalance(abs($refunded_invoice['amount']), "Refund of payment # {$this->payment->number}")
                         ->save();
 
                 if ($invoice->amount == $invoice->balance) {
