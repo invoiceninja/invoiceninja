@@ -42,7 +42,7 @@ class GoCardlessOAuthWebhookController extends Controller
                         /** @var \App\Models\CompanyGateway $company_gateway */
                         $cg = CompanyGateway::on($db)
                             ->where('settings->organisation_id', $e['links.organisation'])
-                            ->exists()
+                            ->first()
                     ) {
                         $company_gateway = $cg;
 
