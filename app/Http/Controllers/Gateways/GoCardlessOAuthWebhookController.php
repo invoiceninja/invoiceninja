@@ -14,6 +14,7 @@ namespace App\Http\Controllers\Gateways;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GoCardless\WebhookRequest;
+use App\Libraries\MultiDB;
 use App\Models\CompanyGateway;
 use App\Repositories\CompanyRepository;
 use Illuminate\Support\Arr;
@@ -33,13 +34,33 @@ class GoCardlessOAuthWebhookController extends Controller
             $e = Arr::dot($event);
 
             if ($event['action'] === 'disconnected') {
-
                 /** @var \App\Models\CompanyGateway $company_gateway */
-                $company_gateway = CompanyGateway::query()
-                    ->whereJsonContains('config->account_id', $e['links.organisation'])
-                    ->firstOrFail();
+                $company_gateway = null;
+
+                foreach (MultiDB::$dbs as $db) {
+                    if (
+                        /** @var \App\Models\CompanyGateway $company_gateway */
+                        $cg = CompanyGateway::on($db)
+                            ->where('settings->organisation_id', $e['links.organisation'])
+                            ->first()
+                    ) {
+                        $company_gateway = $cg;
+
+                        break;
+                    }
+                }
+
+                if ($company_gateway === null) {
+                    return abort(404);
+                }
 
                 $current = $company_gateway->getConfig('__current');
+
+                $settings = $company_gateway->settings;
+
+                $settings->organisation_id = null;
+
+                $company_gateway->setSettings($settings);
 
                 if ($current) {
                     $company_gateway->setConfig($current);
@@ -49,5 +70,7 @@ class GoCardlessOAuthWebhookController extends Controller
                 $this->company_repository->archive($company_gateway);
             }
         }
+
+        return response()->noContent();
     }
 }
