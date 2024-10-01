@@ -253,7 +253,7 @@ class ClientService
 
         $pdf = $statement->run();
 
-        if ($send_email) {
+        if ($send_email && $pdf) {
             // If selected, ignore clients that don't have any invoices to put on the statement.
             if (!empty($options['only_clients_with_invoices']) && $statement->getInvoices()->count() == 0) {
                 return false;
@@ -310,6 +310,8 @@ class ClientService
         }
 
         $invoice = $this->client->invoices()->whereHas('invitations')->first();
+
+        $invoice = \App\Models\Invoice::where('client_id', $this->client->id)->whereHas('invitations')->first();
 
         $email_object->attachments = [['file' => base64_encode($pdf), 'name' => ctrans('texts.statement') . ".pdf"]];
         $email_object->client_id = $this->client->id;

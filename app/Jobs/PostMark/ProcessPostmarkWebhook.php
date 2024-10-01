@@ -70,7 +70,8 @@ class ProcessPostmarkWebhook implements ShouldQueue
             ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
             ->where('category_id', SystemLog::CATEGORY_MAIL)
             // ->where('client_id', $this->invitation->contact->client_id)
-            ->whereJsonContains('log', ['MessageID' => $message_id])
+            // ->whereJsonContains('log', ['MessageID' => $message_id])
+            ->where('log->MessageID', $message_id)
             ->orderBy('id', 'desc')
             ->first();
 
@@ -444,4 +445,10 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         }
     }
+
+    public function middleware()
+    {
+        return [new \Illuminate\Queue\Middleware\WithoutOverlapping($this->request['Tag'])];
+    }
+
 }

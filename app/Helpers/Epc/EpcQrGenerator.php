@@ -93,15 +93,12 @@ class EpcQrGenerator
             isset($this->company?->custom_fields?->company1) ? $this->company->settings->custom_value1 : '', // IBAN
             $this->formatMoney($this->amount), // Amount with EUR prefix
             '', // Reference
-            substr($this->invoice->number, 0, 34) // Unstructured remittance information
+            substr(($this->invoice->number ?? ''), 0, 34) // Unstructured remittance information
         ];
 
         return implode("\n", $data);
 
     }
-
-
-    //            substr("{$this->invoice->number} {$this->invoice->client->number}", 0,139),
 
     private function validateFields()
     {
