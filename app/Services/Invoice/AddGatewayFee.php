@@ -51,7 +51,7 @@ class AddGatewayFee extends AbstractService
 
         $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
-        });
+        })->toArray();
 
         $this->invoice->line_items = $invoice_items;
 
@@ -92,8 +92,6 @@ class AddGatewayFee extends AbstractService
         /**Refresh Invoice values*/
         $this->invoice = $this->invoice->calc()->getInvoice();
 
-        nlog($this->invoice->line_items);
-        
         $new_balance = $this->invoice->balance;
 
         if (floatval($new_balance) - floatval($balance) != 0) {

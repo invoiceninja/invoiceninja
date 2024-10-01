@@ -215,6 +215,11 @@ class SystemLog extends Model
         return $query;
     }
 
+    public function company()
+    {
+        return $this->hasMany(\App\Models\Company::class);
+    }
+
     public function getCategoryName()
     {
         switch ($this->category_id) {

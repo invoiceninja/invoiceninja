@@ -411,6 +411,7 @@ class Company extends BaseModel
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
         'quickbooks' => QuickbooksSettings::class,
+        'smtp_port' => 'int',
     ];
 
     protected $with = [];
@@ -575,7 +576,7 @@ class Company extends BaseModel
 
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(Activity::class)->where('account_id', $this->account_id)->orderBy('id', 'DESC')->take(50);
     }
 
     /**

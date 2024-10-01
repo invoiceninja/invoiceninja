@@ -236,7 +236,7 @@ class Quote extends BaseModel
 
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(Activity::class)->where('company_id', $this->company_id)->where('client_id', $this->client_id)->orderBy('id', 'DESC')->take(50);
     }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo

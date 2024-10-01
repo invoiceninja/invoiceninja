@@ -294,8 +294,6 @@ class MatchBankTransactions implements ShouldQueue
         $this->attachable_invoices = [];
         $this->available_balance = $amount;
 
-        nlog($invoices->count());
-
         \DB::connection(config('database.default'))->transaction(function () use ($invoices) {
             $invoices->each(function ($invoice) {
                 $this->invoice = Invoice::withTrashed()->where('id', $invoice->id)->lockForUpdate()->first();
@@ -328,8 +326,6 @@ class MatchBankTransactions implements ShouldQueue
                 }
             });
         }, 2);
-
-        nlog("pre");
 
         // @phpstan-ignore-next-line
         if (!$this->invoice) {

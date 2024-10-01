@@ -71,12 +71,10 @@ class ReminderJob implements ShouldQueue
                  ->whereHas('company', function ($query) {
                      $query->where('is_disabled', 0);
                  })
-                 ->with('invitations')->chunk(800, function ($invoices) {
-                     foreach ($invoices as $invoice) {
-                         $this->sendReminderForInvoice($invoice);
-                     }
-
-                     sleep(1);
+                 ->with('invitations')
+                 ->cursor()
+                 ->each(function ($invoice) {
+                        $this->sendReminderForInvoice($invoice);
                  });
         } else {
             //multiDB environment, need to
@@ -99,14 +97,14 @@ class ReminderJob implements ShouldQueue
                      ->whereHas('company', function ($query) {
                          $query->where('is_disabled', 0);
                      })
-                     ->with('invitations')->chunk(800, function ($invoices) {
-
-                         foreach ($invoices as $invoice) {
-                             $this->sendReminderForInvoice($invoice);
-                         }
-
-                         sleep(1);
-                     });
+                    ->whereHas('company.account', function ($q){
+                        $q->whereNotNull('plan')->where('plan_expire', '>', now()->subDays(2));
+                    })
+                     ->with('invitations')
+                     ->cursor()
+                     ->each(function ($invoice) {
+                        $this->sendReminderForInvoice($invoice);
+                    });
             }
         }
     }

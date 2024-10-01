@@ -54,7 +54,7 @@ class GoCardlessOAuthWebhookController extends Controller
                     return abort(404);
                 }
 
-                $current = $company_gateway->getConfig('__current');
+                $current = $company_gateway->getConfigField('__current');
 
                 $settings = $company_gateway->settings;
 

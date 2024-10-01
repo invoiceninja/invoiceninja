@@ -398,11 +398,11 @@ class CompanyGateway extends BaseModel
         if ($fee > 0) {
             $fees_and_limits = $this->fees_and_limits->{$gateway_type_id};
 
-            if (strlen($fees_and_limits->fee_percent) >= 1) {
+            if (isset($fees_and_limits->fee_percent) && $fees_and_limits->fee_percent > 0) {
                 $label .= $fees_and_limits->fee_percent . '%';
             }
 
-            if (strlen($fees_and_limits->fee_amount) >= 1 && $fees_and_limits->fee_amount > 0) {
+            if (isset($fees_and_limits->fee_amount) && $fees_and_limits->fee_amount > 0) {
                 if (strlen($label) > 1) {
                     $label .= ' + ' . Number::formatMoney($fees_and_limits->fee_amount, $client);
                 } else {
@@ -424,7 +424,6 @@ class CompanyGateway extends BaseModel
         }
 
         $fee = 0;
-
 
         if ($fees_and_limits->adjust_fee_percent ?? false) {
             $adjusted_fee = 0;
@@ -452,11 +451,7 @@ class CompanyGateway extends BaseModel
                 } else {
                     $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
                 }
-                //elseif ($fees_and_limits->adjust_fee_percent) {
-                //   $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
-                //} else {
-
-                //}
+                
             }
         }
         /* Cap fee if we have to here. */
@@ -470,17 +465,14 @@ class CompanyGateway extends BaseModel
         if ($include_taxes) {
             if ($fees_and_limits->fee_tax_rate1) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100), 2);
-                // info("fee after adding fee tax 1 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate2) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100), 2);
-                // info("fee after adding fee tax 2 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate3) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100), 2);
-                // info("fee after adding fee tax 3 = {$fee}");
             }
         }
 

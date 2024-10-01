@@ -48,7 +48,7 @@ class PaymentMethod
 
         $this->payment_urls = $pu->when($contains_both, function ($methods) {
             return $methods->reject(function ($item) {
-                return $item['gateway_type_id'] == '29';
+                return $item['gateway_type_id'] == '29'; //PayPal advanced credit cards, needs to be excluded here
             });
         })->toArray();
 
