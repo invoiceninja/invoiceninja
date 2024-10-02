@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\Middleware;
 
@@ -14,7 +23,7 @@ class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\Throttle
      *
      * @var \Illuminate\Contracts\Redis\Factory
      */
-    protected $redis;
+    protected $redis; /** @phpstan-ignore-line */
 
     /**
      * The timestamp of the end of the current duration by key.
@@ -38,9 +47,12 @@ class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\Throttle
     /** @phpstan-ignore-next-line */
     public function __construct(RateLimiter $limiter, Redis $redis)
     {
-        parent::__construct($limiter);
+        
         /** @phpstan-ignore-next-line */
-        $this->redis = \Illuminate\Support\Facades\Redis::connection('sentinel-cache');
+        parent::__construct($limiter); /** @phpstan-ignore-line */
+        
+        /** @phpstan-ignore-next-line */
+        $this->redis = \Illuminate\Support\Facades\Redis::connection('sentinel-cache'); /** @phpstan-ignore-line */
     }
 
     /**
