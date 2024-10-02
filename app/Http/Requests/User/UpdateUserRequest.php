@@ -38,9 +38,7 @@ class UpdateUserRequest extends Request
             'password' => 'nullable|string|min:6',
         ];
 
-        if (isset($input['email'])) {
-            $rules['email'] = ['email', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
-        }
+        $rules['email'] = ['email', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
 
         if (Ninja::isHosted() && $this->phone_has_changed && $this->phone && isset($this->phone)) {
             $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];
@@ -53,9 +51,11 @@ class UpdateUserRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('email', $input)) {
+        if (isset($input['email']) && is_string($input['email']) && strlen($input['email']) > 2) {
             $input['email'] = trim($input['email']);
         }
+        elseif(isset($input['email']))
+            $input['email'] = false;
 
         if (array_key_exists('first_name', $input)) {
             $input['first_name'] = strip_tags($input['first_name']);
