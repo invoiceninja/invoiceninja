@@ -53,6 +53,27 @@ class ProductTest extends TestCase
 
     }
 
+    public function testRequiredFields()
+    {
+        
+        $product = [
+            'cost' => 10,
+            'vendor_id' => $this->vendor->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/products', $product)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $p = Product::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertNull($p->vendor_id);
+    }
+
     public function testProductCostMigration()
     {
         $items = [];

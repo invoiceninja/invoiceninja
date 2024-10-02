@@ -109,6 +109,74 @@ class UserTest extends TestCase
 
     }
 
+    public function testValidEmailUpdate()
+    {
+        
+        $company_token = $this->mockAccount();
+        $user = $company_token->user;
+        $user->load('company_user');
+
+        $data = $user->toArray();
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+    }
+
+
+    public function testNullEmail()
+    {
+        
+        $company_token = $this->mockAccount();
+        $user = $company_token->user;
+        $user->load('company_user');
+
+        $data = $user->toArray();
+        $data['email'] = '';
+        unset($data['password']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
+
+        $response->assertStatus(422);
+
+        $data = $user->toArray();
+        unset($data['password']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $data = $user->toArray();
+
+        $data['email'] = $this->faker->unique()->safeEmail();
+        unset($data['password']);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $company_token->token,
+            'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+        $this->assertEquals($arr['data']['email'], $data['email']);
+    }
+
+
     public function testUserLocale()
     {
         $this->user->language_id = "13";
