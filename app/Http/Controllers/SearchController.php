@@ -28,11 +28,11 @@ class SearchController extends Controller
 
     public function __invoke(GenericSearchRequest $request)
     {
-        if(config('scount.driver') == 'elastic' && $request->has('search') && $request->input('search') !== '') {
+        if(config('scout.driver') == 'elastic') {
             try{
-                return $this->search($request->input('search', ''));
+                return $this->search($request->input('search', '*'));
             } catch(\Exception $e) {
-               nlog("elk down?");
+               nlog("elk down?" . $e->getMessage());
             }
         }
         

@@ -72,6 +72,7 @@ class PayPal implements LivewireMethodInterface
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
+            'channel' => 'invoiceninja_BT',
             'options' => [
                 'submitForSettlement' => true,
                 'paypal' => [

@@ -211,11 +211,12 @@ class BaseTransformer
     public function getClient($client_name, $client_email)
     {
 
-        if (! empty($client_name)) {
+        if (strlen($client_name ?? '') >=1) {
             $client_id_search = Client::query()->where('company_id', $this->company->id)
                 ->where('is_deleted', false)
                 ->where('id_number', $client_name);
 
+                nlog("idnommer ".$client_id_search->count());
             if ($client_id_search->count() >= 1) {
                 return $client_id_search->first()->id;
             }
@@ -226,17 +227,22 @@ class BaseTransformer
                     strtolower(str_replace(' ', '', $client_name)),
                 ]);
 
+                
+            nlog("client_name_search ".$client_name_search->count());
+
             if ($client_name_search->count() >= 1) {
                 return $client_name_search->first()->id;
             }
         }
-        if (! empty($client_email)) {
+        if (strlen($client_email ?? '' ) >=1) {
             $contacts = ClientContact::query()->whereHas('client', function ($query) {
                 $query->where('is_deleted', false);
             })
             ->where('company_id', $this->company->id)
             ->where('email', $client_email);
 
+            nlog("contact count = " . $contacts->count());
+            
             if ($contacts->count() >= 1) {
                 return $contacts->first()->client_id;
             }

@@ -11,12 +11,13 @@
 
 namespace App\Models;
 
-use App\DataMapper\InvoiceSync;
 use App\Utils\Ninja;
 use Laravel\Scout\Searchable;
 use Illuminate\Support\Carbon;
+use App\DataMapper\InvoiceSync;
 use App\Utils\Traits\MakesDates;
 use App\Helpers\Invoice\InvoiceSum;
+use Illuminate\Support\Facades\App;
 use App\Utils\Traits\MakesReminders;
 use App\Utils\Traits\NumberFormatter;
 use App\Services\Ledger\LedgerService;
@@ -29,6 +30,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
+use App\Utils\Number;
 
 /**
  * App\Models\Invoice
@@ -146,7 +148,6 @@ class Invoice extends BaseModel
     use MakesInvoiceValues;
     use MakesReminders;
     use ActionsInvoice;
-
     use Searchable;
 
     protected $presenter = EntityPresenter::class;
@@ -244,8 +245,11 @@ class Invoice extends BaseModel
 
     public function toSearchableArray()
     {
+        $locale = $this->company->locale();
+        App::setLocale($locale);
+
         return [
-            'name' => $this->client->present()->name() . ' - ' . $this->number,
+            'name' => ctrans('texts.invoice') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
             'is_deleted' => $this->is_deleted,
@@ -253,13 +257,19 @@ class Invoice extends BaseModel
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,
             'date' => $this->date,
-            'custom_value1' => $this->custom_value1,
-            'custom_value2' => $this->custom_value2,
-            'custom_value3' => $this->custom_value3,
-            'custom_value4' => $this->custom_value4,
+            'custom_value1' => (string)$this->custom_value1,
+            'custom_value2' => (string)$this->custom_value2,
+            'custom_value3' => (string)$this->custom_value3,
+            'custom_value4' => (string)$this->custom_value4,
             'company_key' => $this->company->company_key,
+            'po_number' => (string)$this->po_number,
         ];
     }
+
+   public function getScoutKey()
+   {
+       return $this->hashed_id;
+   }
 
     public function getEntityType()
     {
