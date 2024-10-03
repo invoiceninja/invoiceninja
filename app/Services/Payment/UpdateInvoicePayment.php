@@ -97,6 +97,11 @@ class UpdateInvoicePayment
                         $p->pivot->forceDelete();
                     });
 
+                    
+                    $invoice
+                    ->ledger()
+                    ->updateInvoiceBalance($paid_amount*-1, "Prepayment Balance Adjustment");
+
                     $invoice->is_deleted = true;
                     $invoice->deleted_at = now();
                     $invoice->saveQuietly();
