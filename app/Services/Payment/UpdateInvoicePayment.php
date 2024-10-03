@@ -95,6 +95,9 @@ class UpdateInvoicePayment
                 if (property_exists($this->payment_hash->data, 'pre_payment') && $this->payment_hash->data->pre_payment == "1") {
                     $invoice->payments()->each(function ($p) {
                         $p->pivot->forceDelete();
+                        $p->invoices()->each(function ($i){
+                            $i->pivot->forceDelete();
+                        });
                     });
 
                     
