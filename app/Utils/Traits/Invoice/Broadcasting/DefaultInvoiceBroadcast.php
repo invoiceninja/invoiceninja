@@ -37,6 +37,6 @@ trait DefaultInvoiceBroadcast
         $resource = new Item($this->invoice, $transformer, $this->invoice->getEntityType());
         $data = $manager->createData($resource)->toArray();
 
-        return $data;
+        return [...$data, 'x-socket-id' => $this->socket];
     }
 }
