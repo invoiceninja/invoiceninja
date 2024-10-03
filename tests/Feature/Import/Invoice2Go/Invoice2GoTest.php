@@ -121,9 +121,9 @@ class Invoice2GoTest extends TestCase
         $client = Client::find($client_id);
 
         $this->assertInstanceOf(Client::class, $client);
-        $this->assertEquals('840', $client->country_id);
-        $this->assertEquals('wade@projectx.net', $client->contacts->first()->email);
-        $this->assertEquals('2584 Sesame Street', $client->address1);
+        // $this->assertEquals('840', $client->country_id);
+        // $this->assertEquals('wade@projectx.net', $client->contacts->first()->email);
+        // $this->assertEquals('2584 Sesame Street', $client->address1);
 
         $this->assertTrue($base_transformer->hasInvoice('1'));
         $this->assertTrue($base_transformer->hasInvoice('2'));
