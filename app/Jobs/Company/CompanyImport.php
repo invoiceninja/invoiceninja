@@ -734,7 +734,7 @@ class CompanyImport implements ShouldQueue
     {
         $this->genericImport(
             Client::class,
-            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents','country'],
+            ['user_id', 'assigned_user_id', 'company_id', 'id', 'hashed_id', 'gateway_tokens', 'contacts', 'documents', 'country', 'sync'],
             [['users' => 'user_id'], ['users' => 'assigned_user_id']],
             'clients',
             'number'
@@ -799,7 +799,7 @@ class CompanyImport implements ShouldQueue
     {
         $this->genericNewClassImport(
             Product::class,
-            ['user_id', 'company_id', 'hashed_id', 'id'],
+            ['user_id', 'company_id', 'hashed_id', 'id', 'sync'],
             [['users' => 'user_id'], ['users' => 'assigned_user_id'], ['vendors' => 'vendor_id'], ['projects' => 'project_id']],
             'products'
         );
@@ -899,7 +899,7 @@ class CompanyImport implements ShouldQueue
     {
         $this->genericImport(
             Invoice::class,
-            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status'],
+            ['user_id', 'client_id', 'company_id', 'id', 'hashed_id', 'recurring_id','status', 'sync'],
             [
                 ['users' => 'user_id'],
                 ['users' => 'assigned_user_id'],

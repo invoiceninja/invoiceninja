@@ -26,6 +26,8 @@ class SearchController extends Controller
 
     private array $invoices = [];
 
+    private array $quotes = [];
+    
     public function __invoke(GenericSearchRequest $request)
     {
         if(config('scout.driver') == 'elastic') {
@@ -136,6 +138,20 @@ class SearchController extends Controller
                         'id' => $result['_source']['hashed_id'],
                         'path' => "/clients/{$result['_source']['hashed_id']}"
                     ];
+                    break;
+                case 'quotes':
+
+                    if ($result['_source']['__soft_deleted']) { // do not return deleted contacts
+                        break;
+                    }
+
+                    $this->quotes[] = [
+                        'name' => $result['_source']['name'],
+                        'type' => '/quote',
+                        'id' => $result['_source']['hashed_id'],
+                        'path' => "/quotes/{$result['_source']['hashed_id']}"
+                    ];
+
                     break;
             }
         }
@@ -251,8 +267,6 @@ class SearchController extends Controller
             'custom_fields,vendors' => '/settings/custom_fields/vendors',
             'custom_fields,expenses' => '/settings/custom_fields/expenses',
             'custom_fields,users' => '/settings/custom_fields/users',
-            'custom_fields,quotes' => '/settings/custom_fields/quotes',
-            'custom_fields,credits' => '/settings/custom_fields/credits',
             'generated_numbers' => '/settings/generated_numbers',
             'client_portal' => '/settings/client_portal',
             'email_settings' => '/settings/email_settings',
@@ -274,7 +288,7 @@ class SearchController extends Controller
             'gateways' => '/settings/online_payments',
             'gateways,create' => '/settings/gateways/create',
             'bank_accounts,transaction_rules' => '/settings/bank_accounts/transaction_rules',
-            'bank_accounts,transaction_rules/create' => '/settings/bank_accounts/transaction_rules/create',
+            'bank_accounts,transaction_rules,create' => '/settings/bank_accounts/transaction_rules/create',
         ];
 
         $data = [];

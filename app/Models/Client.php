@@ -112,7 +112,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @method static \Illuminate\Database\Eloquent\Builder|Client select()
  * @property string $payment_balance
  * @property mixed $tax_data
- * @property int $is_tax_exempt
+ * @property bool $is_tax_exempt
  * @property bool $has_valid_vat_number
  * @mixin \Eloquent
  */

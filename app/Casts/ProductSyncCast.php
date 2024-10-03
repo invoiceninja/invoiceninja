@@ -18,6 +18,11 @@ class ProductSyncCast implements CastsAttributes
 {
     public function get($model, string $key, $value, array $attributes)
     {
+        
+        if (is_null($value)) {
+            return null; // Return null if the value is null
+        }
+
         $data = json_decode($value, true);
 
         if (!is_array($data)) {
