@@ -50,7 +50,7 @@ class GoCardlessOAuthWebhookController extends Controller
                     }
                 }
 
-                if ($company_gateway === null) {
+                if ($company_gateway === null) { //@phpstan-ignore-line
                     return abort(404);
                 }
 
