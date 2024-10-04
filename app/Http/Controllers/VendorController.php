@@ -11,27 +11,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\Vendor\VendorWasCreated;
-use App\Events\Vendor\VendorWasUpdated;
+use App\Utils\Ninja;
+use App\Models\Vendor;
+use App\Models\Account;
+use Illuminate\Http\Response;
 use App\Factory\VendorFactory;
 use App\Filters\VendorFilters;
-use App\Http\Requests\Vendor\CreateVendorRequest;
-use App\Http\Requests\Vendor\DestroyVendorRequest;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Uploadable;
+use App\Utils\Traits\BulkOptions;
+use App\Utils\Traits\SavesDocuments;
+use App\Repositories\VendorRepository;
+use App\Events\Vendor\VendorWasCreated;
+use App\Events\Vendor\VendorWasUpdated;
+use App\Transformers\VendorTransformer;
 use App\Http\Requests\Vendor\EditVendorRequest;
 use App\Http\Requests\Vendor\ShowVendorRequest;
+use App\Http\Requests\Vendor\PurgeVendorRequest;
 use App\Http\Requests\Vendor\StoreVendorRequest;
+use App\Http\Requests\Vendor\CreateVendorRequest;
 use App\Http\Requests\Vendor\UpdateVendorRequest;
 use App\Http\Requests\Vendor\UploadVendorRequest;
-use App\Models\Account;
-use App\Models\Vendor;
-use App\Repositories\VendorRepository;
-use App\Transformers\VendorTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\BulkOptions;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Http\Response;
+use App\Http\Requests\Vendor\DestroyVendorRequest;
 
 /**
  * Class VendorController.
@@ -583,5 +584,39 @@ class VendorController extends BaseController
         }
 
         return $this->itemResponse($vendor->fresh());
+    }
+
+
+     /**
+         * Update the specified resource in storage.
+         *
+         * @param PurgeVendorRequest $request
+         * @param Vendor $vendor
+         * @param string $mergeable_vendor
+         * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response
+         *
+         */
+
+    public function merge(PurgeVendorRequest $request, Vendor $vendor, string $mergeable_vendor)
+    {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        $m_vendor = Vendor::withTrashed()
+                            ->where('id', $this->decodePrimaryKey($mergeable_vendor))
+                            ->where('company_id', $user->company()->id)
+                            ->first();
+
+        if (!$m_vendor) {
+            return response()->json(['message' => "Vendor not found"], 400);
+        }
+
+        if($m_vendor->id == $vendor->id) {
+            return response()->json(['message' => "Attempting to merge the same vendor is not possible."], 400);
+        }
+
+        $merged_vendor = $vendor->service()->merge($m_vendor)->save();
+
+        return $this->itemResponse($merged_vendor);
     }
 }

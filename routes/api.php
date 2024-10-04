@@ -387,6 +387,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', [VendorController::class, 'bulk'])->name('vendors.bulk');
     Route::put('vendors/{vendor}/upload', [VendorController::class, 'upload']);
+    Route::post('vendors/{vendor}/{mergeable_vendor}/merge', [VendorController::class, 'merge'])->name('vendors.merge')->middleware('password_protected');
 
     Route::get('users', [UserController::class, 'index']);
     Route::get('users/create', [UserController::class, 'create'])->middleware('password_protected');
