@@ -1,3 +1,4 @@
+/*!999999\- enable the sandbox mode */ 
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -253,7 +254,7 @@ CREATE TABLE `bank_transactions` (
   `bank_account_id` bigint(20) unsigned NOT NULL,
   `description` text DEFAULT NULL,
   `invoice_ids` text NOT NULL DEFAULT '',
-  `expense_id` text DEFAULT '',
+  `expense_id` text NOT NULL DEFAULT '',
   `vendor_id` int(10) unsigned DEFAULT NULL,
   `status_id` int(10) unsigned NOT NULL DEFAULT 1,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
@@ -300,10 +301,10 @@ CREATE TABLE `client_contacts` (
   `first_name` varchar(191) DEFAULT NULL,
   `last_name` varchar(191) DEFAULT NULL,
   `phone` varchar(191) DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `email` varchar(100) DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `confirmation_code` varchar(191) DEFAULT NULL,
@@ -335,7 +336,7 @@ CREATE TABLE `client_contacts` (
   KEY `client_contacts_company_id_index` (`company_id`),
   KEY `client_contacts_client_id_index` (`client_id`),
   KEY `client_contacts_user_id_index` (`user_id`),
-  KEY `client_contacts_contact_key(20)_index` (`contact_key`(20)),
+  KEY `client_contact_key_idx` (`contact_key`(20)),
   KEY `client_contacts_email_index` (`email`),
   CONSTRAINT `client_contacts_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -410,9 +411,9 @@ CREATE TABLE `clients` (
   `client_hash` text DEFAULT NULL,
   `logo` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
-  `balance` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `paid_to_date` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `credit_balance` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `balance` decimal(20,6) NOT NULL,
+  `paid_to_date` decimal(20,6) NOT NULL,
+  `credit_balance` decimal(20,6) NOT NULL,
   `last_login` timestamp NULL DEFAULT NULL,
   `industry_id` int(10) unsigned DEFAULT NULL,
   `size_id` int(10) unsigned DEFAULT NULL,
@@ -422,10 +423,10 @@ CREATE TABLE `clients` (
   `state` varchar(191) DEFAULT NULL,
   `postal_code` varchar(191) DEFAULT NULL,
   `country_id` int(10) unsigned DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `shipping_address1` varchar(191) DEFAULT NULL,
   `shipping_address2` varchar(191) DEFAULT NULL,
   `shipping_city` varchar(191) DEFAULT NULL,
@@ -456,7 +457,7 @@ CREATE TABLE `clients` (
   KEY `clients_size_id_foreign` (`size_id`),
   KEY `clients_company_id_index` (`company_id`),
   KEY `clients_user_id_index` (`user_id`),
-  KEY `clients_client_hash(20)_index` (`client_hash`(20)),
+  KEY `client_hash_idx` (`client_hash`(20)),
   CONSTRAINT `clients_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `clients_industry_id_foreign` FOREIGN KEY (`industry_id`) REFERENCES `industries` (`id`),
   CONSTRAINT `clients_size_id_foreign` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`)
@@ -552,14 +553,6 @@ CREATE TABLE `companies` (
   `origin_tax_data` text DEFAULT NULL,
   `invoice_task_project_header` tinyint(1) NOT NULL DEFAULT 1,
   `invoice_task_item_description` tinyint(1) NOT NULL DEFAULT 1,
-  `smtp_host` varchar(191) DEFAULT NULL,
-  `smtp_port` int(10) unsigned DEFAULT NULL,
-  `smtp_encryption` varchar(191) DEFAULT NULL,
-  `smtp_username` text DEFAULT NULL,
-  `smtp_password` text DEFAULT NULL,
-  `smtp_local_domain` varchar(191) DEFAULT NULL,
-  `smtp_verify_peer` tinyint(1) NOT NULL DEFAULT 1,
-  `e_invoice` mediumtext DEFAULT NULL,
   `expense_mailbox_active` tinyint(1) NOT NULL DEFAULT 0,
   `expense_mailbox` varchar(191) DEFAULT NULL,
   `inbound_mailbox_allow_company_users` tinyint(1) NOT NULL DEFAULT 0,
@@ -568,6 +561,14 @@ CREATE TABLE `companies` (
   `inbound_mailbox_allow_unknown` tinyint(1) NOT NULL DEFAULT 0,
   `inbound_mailbox_whitelist` text DEFAULT NULL,
   `inbound_mailbox_blacklist` text DEFAULT NULL,
+  `smtp_host` varchar(191) DEFAULT NULL,
+  `smtp_port` int(10) unsigned DEFAULT NULL,
+  `smtp_encryption` varchar(191) DEFAULT NULL,
+  `smtp_username` text DEFAULT NULL,
+  `smtp_password` text DEFAULT NULL,
+  `smtp_local_domain` varchar(191) DEFAULT NULL,
+  `smtp_verify_peer` tinyint(1) NOT NULL DEFAULT 1,
+  `e_invoice` mediumtext DEFAULT NULL,
   `quickbooks` text DEFAULT NULL,
   `legal_entity_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -639,8 +640,8 @@ CREATE TABLE `company_ledgers` (
   `client_id` int(10) unsigned DEFAULT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
   `activity_id` int(10) unsigned DEFAULT NULL,
-  `adjustment` decimal(20,6) DEFAULT NULL,
-  `balance` decimal(20,6) DEFAULT NULL,
+  `adjustment` decimal(20,6) NOT NULL,
+  `balance` decimal(20,6) NOT NULL,
   `notes` text DEFAULT NULL,
   `hash` text DEFAULT NULL,
   `company_ledgerable_id` int(10) unsigned NOT NULL,
@@ -801,17 +802,17 @@ CREATE TABLE `credits` (
   `private_notes` text DEFAULT NULL,
   `terms` text DEFAULT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `total_taxes` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate3` decimal(20,6) NOT NULL,
+  `total_taxes` decimal(20,6) NOT NULL,
   `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT 0,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `next_send_date` datetime DEFAULT NULL,
   `custom_surcharge1` decimal(20,6) DEFAULT NULL,
   `custom_surcharge2` decimal(20,6) DEFAULT NULL,
@@ -821,10 +822,10 @@ CREATE TABLE `credits` (
   `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT 0,
   `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT 0,
   `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT 0,
-  `exchange_rate` decimal(20,6) NOT NULL DEFAULT 1.000000,
+  `exchange_rate` decimal(20,6) NOT NULL,
   `amount` decimal(20,6) NOT NULL,
   `balance` decimal(20,6) NOT NULL,
-  `partial` decimal(20,6) DEFAULT NULL,
+  `partial` decimal(20,6) NOT NULL,
   `partial_due_date` datetime DEFAULT NULL,
   `last_viewed` datetime DEFAULT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
@@ -930,10 +931,10 @@ CREATE TABLE `documents` (
   `width` int(10) unsigned DEFAULT NULL,
   `height` int(10) unsigned DEFAULT NULL,
   `is_default` tinyint(1) NOT NULL DEFAULT 0,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
   `documentable_id` int(10) unsigned NOT NULL,
   `documentable_type` varchar(191) NOT NULL,
@@ -989,13 +990,13 @@ CREATE TABLE `expenses` (
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `amount` decimal(20,6) NOT NULL,
   `foreign_amount` decimal(20,6) NOT NULL,
-  `exchange_rate` decimal(20,6) NOT NULL DEFAULT 1.000000,
+  `exchange_rate` decimal(20,6) NOT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate3` decimal(20,6) NOT NULL,
   `date` date DEFAULT NULL,
   `payment_date` date DEFAULT NULL,
   `private_notes` text DEFAULT NULL,
@@ -1004,10 +1005,10 @@ CREATE TABLE `expenses` (
   `should_be_invoiced` tinyint(1) NOT NULL DEFAULT 0,
   `invoice_documents` tinyint(1) NOT NULL DEFAULT 1,
   `transaction_id` bigint(20) unsigned DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `number` varchar(191) DEFAULT NULL,
   `project_id` int(10) unsigned DEFAULT NULL,
   `tax_amount1` decimal(20,6) NOT NULL DEFAULT 1.000000,
@@ -1064,7 +1065,7 @@ CREATE TABLE `gateways` (
   `site_url` varchar(200) DEFAULT NULL,
   `is_offsite` tinyint(1) NOT NULL DEFAULT 0,
   `is_secure` tinyint(1) NOT NULL DEFAULT 0,
-  `fields` longtext DEFAULT NULL,
+  `fields` longtext NOT NULL,
   `default_gateway_type_id` int(10) unsigned NOT NULL DEFAULT 1,
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
@@ -1166,17 +1167,17 @@ CREATE TABLE `invoices` (
   `private_notes` text DEFAULT NULL,
   `terms` text DEFAULT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `total_taxes` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate3` decimal(20,6) NOT NULL,
+  `total_taxes` decimal(20,6) NOT NULL,
   `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT 0,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `next_send_date` datetime DEFAULT NULL,
   `custom_surcharge1` decimal(20,6) DEFAULT NULL,
   `custom_surcharge2` decimal(20,6) DEFAULT NULL,
@@ -1186,10 +1187,10 @@ CREATE TABLE `invoices` (
   `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT 0,
   `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT 0,
   `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT 0,
-  `exchange_rate` decimal(20,6) NOT NULL DEFAULT 1.000000,
+  `exchange_rate` decimal(20,6) NOT NULL,
   `amount` decimal(20,6) NOT NULL,
   `balance` decimal(20,6) NOT NULL,
-  `partial` decimal(20,6) DEFAULT NULL,
+  `partial` decimal(20,6) NOT NULL,
   `partial_due_date` datetime DEFAULT NULL,
   `last_viewed` datetime DEFAULT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
@@ -1207,7 +1208,6 @@ CREATE TABLE `invoices` (
   `tax_data` mediumtext DEFAULT NULL,
   `e_invoice` mediumtext DEFAULT NULL,
   `sync` text DEFAULT NULL,
-  `gateway_fee` decimal(13,6) NOT NULL DEFAULT 0.000000,
   PRIMARY KEY (`id`),
   UNIQUE KEY `invoices_company_id_number_unique` (`company_id`,`number`),
   KEY `invoices_user_id_foreign` (`user_id`),
@@ -1386,9 +1386,9 @@ CREATE TABLE `payments` (
   `gateway_type_id` int(10) unsigned DEFAULT NULL,
   `type_id` int(10) unsigned DEFAULT NULL,
   `status_id` int(10) unsigned NOT NULL,
-  `amount` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `refunded` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `applied` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `amount` decimal(20,6) NOT NULL,
+  `refunded` decimal(20,6) NOT NULL,
+  `applied` decimal(20,6) NOT NULL,
   `date` date DEFAULT NULL,
   `transaction_reference` varchar(191) DEFAULT NULL,
   `payer_id` varchar(191) DEFAULT NULL,
@@ -1399,14 +1399,14 @@ CREATE TABLE `payments` (
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `is_manual` tinyint(1) NOT NULL DEFAULT 0,
-  `exchange_rate` decimal(20,6) NOT NULL DEFAULT 1.000000,
+  `exchange_rate` decimal(20,6) NOT NULL,
   `currency_id` int(10) unsigned NOT NULL,
   `exchange_currency_id` int(10) unsigned DEFAULT NULL,
   `meta` text DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `transaction_id` bigint(20) unsigned DEFAULT NULL,
   `idempotency_key` varchar(64) DEFAULT NULL,
   `refund_meta` text DEFAULT NULL,
@@ -1440,21 +1440,21 @@ CREATE TABLE `products` (
   `assigned_user_id` int(10) unsigned DEFAULT NULL,
   `project_id` int(10) unsigned DEFAULT NULL,
   `vendor_id` int(10) unsigned DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `product_key` varchar(191) DEFAULT NULL,
   `notes` text DEFAULT NULL,
-  `cost` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `price` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `quantity` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `cost` decimal(20,6) NOT NULL,
+  `price` decimal(20,6) NOT NULL,
+  `quantity` decimal(20,6) NOT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate3` decimal(20,6) NOT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
@@ -1487,14 +1487,14 @@ CREATE TABLE `projects` (
   `company_id` int(10) unsigned NOT NULL,
   `client_id` int(10) unsigned DEFAULT NULL,
   `name` varchar(191) NOT NULL,
-  `task_rate` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `task_rate` decimal(20,6) NOT NULL,
   `due_date` date DEFAULT NULL,
   `private_notes` text DEFAULT NULL,
   `budgeted_hours` decimal(20,6) NOT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -1696,17 +1696,17 @@ CREATE TABLE `quotes` (
   `private_notes` text DEFAULT NULL,
   `terms` text DEFAULT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `total_taxes` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate3` decimal(20,6) NOT NULL,
+  `total_taxes` decimal(20,6) NOT NULL,
   `uses_inclusive_taxes` tinyint(1) NOT NULL DEFAULT 0,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `custom_surcharge1` decimal(20,6) DEFAULT NULL,
   `custom_surcharge2` decimal(20,6) DEFAULT NULL,
   `custom_surcharge3` decimal(20,6) DEFAULT NULL,
@@ -1715,10 +1715,10 @@ CREATE TABLE `quotes` (
   `custom_surcharge_tax2` tinyint(1) NOT NULL DEFAULT 0,
   `custom_surcharge_tax3` tinyint(1) NOT NULL DEFAULT 0,
   `custom_surcharge_tax4` tinyint(1) NOT NULL DEFAULT 0,
-  `exchange_rate` decimal(20,6) NOT NULL DEFAULT 1.000000,
+  `exchange_rate` decimal(20,6) NOT NULL,
   `amount` decimal(20,6) NOT NULL,
   `balance` decimal(20,6) NOT NULL,
-  `partial` decimal(20,6) DEFAULT NULL,
+  `partial` decimal(20,6) NOT NULL,
   `partial_due_date` datetime DEFAULT NULL,
   `last_viewed` datetime DEFAULT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
@@ -1773,10 +1773,10 @@ CREATE TABLE `recurring_expenses` (
   `should_be_invoiced` tinyint(1) NOT NULL DEFAULT 0,
   `invoice_documents` tinyint(1) NOT NULL DEFAULT 0,
   `transaction_id` varchar(191) DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `category_id` int(10) unsigned DEFAULT NULL,
   `calculate_tax_by_amount` tinyint(1) NOT NULL DEFAULT 0,
   `tax_amount1` decimal(20,6) DEFAULT NULL,
@@ -1870,16 +1870,16 @@ CREATE TABLE `recurring_invoices` (
   `private_notes` text DEFAULT NULL,
   `terms` text DEFAULT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `total_taxes` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `tax_rate3` decimal(20,6) NOT NULL,
+  `total_taxes` decimal(20,6) NOT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `amount` decimal(20,6) NOT NULL,
   `balance` decimal(20,6) NOT NULL,
   `partial` decimal(16,4) DEFAULT NULL,
@@ -1969,7 +1969,7 @@ CREATE TABLE `recurring_quotes` (
   `project_id` int(10) unsigned DEFAULT NULL,
   `vendor_id` int(10) unsigned DEFAULT NULL,
   `status_id` int(10) unsigned NOT NULL,
-  `discount` double(8,2) NOT NULL DEFAULT 0.00,
+  `discount` double NOT NULL DEFAULT 0,
   `is_amount_discount` tinyint(1) NOT NULL DEFAULT 0,
   `number` varchar(191) DEFAULT NULL,
   `po_number` varchar(191) DEFAULT NULL,
@@ -1983,18 +1983,18 @@ CREATE TABLE `recurring_quotes` (
   `private_notes` text DEFAULT NULL,
   `terms` text DEFAULT NULL,
   `tax_name1` varchar(191) DEFAULT NULL,
-  `tax_rate1` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate1` decimal(20,6) NOT NULL,
   `tax_name2` varchar(191) DEFAULT NULL,
-  `tax_rate2` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate2` decimal(20,6) NOT NULL,
   `tax_name3` varchar(191) DEFAULT NULL,
-  `tax_rate3` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `total_taxes` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
-  `amount` decimal(20,6) NOT NULL DEFAULT 0.000000,
-  `balance` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `tax_rate3` decimal(20,6) NOT NULL,
+  `total_taxes` decimal(20,6) NOT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
+  `amount` decimal(20,6) NOT NULL,
+  `balance` decimal(20,6) NOT NULL,
   `last_viewed` datetime DEFAULT NULL,
   `frequency_id` int(10) unsigned NOT NULL,
   `last_sent_date` datetime DEFAULT NULL,
@@ -2074,9 +2074,9 @@ CREATE TABLE `subscriptions` (
   `company_id` int(10) unsigned NOT NULL,
   `product_ids` text DEFAULT NULL,
   `frequency_id` int(10) unsigned DEFAULT NULL,
-  `auto_bill` text DEFAULT '',
-  `promo_code` text DEFAULT '',
-  `promo_discount` double(8,2) NOT NULL DEFAULT 0.00,
+  `auto_bill` text DEFAULT NULL,
+  `promo_code` text DEFAULT NULL,
+  `promo_discount` double NOT NULL DEFAULT 0,
   `is_amount_discount` tinyint(1) NOT NULL DEFAULT 0,
   `allow_cancellation` tinyint(1) NOT NULL DEFAULT 1,
   `per_seat_enabled` tinyint(1) NOT NULL DEFAULT 0,
@@ -2171,17 +2171,17 @@ CREATE TABLE `tasks` (
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `duration` int(10) unsigned DEFAULT NULL,
   `description` text DEFAULT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   `is_running` tinyint(1) NOT NULL DEFAULT 0,
   `time_log` text DEFAULT NULL,
   `number` varchar(191) DEFAULT NULL,
-  `rate` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `rate` decimal(20,6) NOT NULL,
   `invoice_documents` tinyint(1) NOT NULL DEFAULT 0,
   `is_date_based` tinyint(1) NOT NULL DEFAULT 0,
   `status_order` int(11) DEFAULT NULL,
@@ -2213,7 +2213,7 @@ CREATE TABLE `tax_rates` (
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
   `name` varchar(100) NOT NULL,
-  `rate` decimal(20,6) NOT NULL DEFAULT 0.000000,
+  `rate` decimal(20,6) NOT NULL,
   `is_deleted` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `tax_rates_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -2288,7 +2288,7 @@ CREATE TABLE `users` (
   `oauth_user_id` varchar(100) DEFAULT NULL,
   `oauth_user_token` varchar(191) DEFAULT NULL,
   `oauth_provider_id` varchar(191) DEFAULT NULL,
-  `google_2fa_secret` text DEFAULT NULL,
+  `google_2fa_secret` text NOT NULL,
   `accepted_terms_version` varchar(191) DEFAULT NULL,
   `avatar` varchar(100) DEFAULT NULL,
   `avatar_width` int(10) unsigned DEFAULT NULL,
@@ -2299,14 +2299,14 @@ CREATE TABLE `users` (
   `signature` mediumtext DEFAULT NULL,
   `password` varchar(191) NOT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
-  `oauth_user_refresh_token` text DEFAULT NULL,
+  `oauth_user_refresh_token` text NOT NULL,
   `last_confirmed_email_address` varchar(191) DEFAULT NULL,
   `has_password` tinyint(1) NOT NULL DEFAULT 0,
   `oauth_user_token_expiry` datetime DEFAULT NULL,
@@ -2340,10 +2340,10 @@ CREATE TABLE `vendor_contacts` (
   `last_name` varchar(191) DEFAULT NULL,
   `email` varchar(191) DEFAULT NULL,
   `phone` varchar(191) DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `send_email` tinyint(1) NOT NULL DEFAULT 0,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `confirmation_code` varchar(191) DEFAULT NULL,
@@ -2369,7 +2369,7 @@ CREATE TABLE `vendor_contacts` (
   KEY `vendor_contacts_user_id_foreign` (`user_id`),
   KEY `vendor_contacts_vendor_id_index` (`vendor_id`),
   KEY `vendor_contacts_company_id_email_deleted_at_index` (`company_id`,`email`,`deleted_at`),
-  KEY `vendor_contacts_contact_key(20)_index` (`contact_key`(20)),
+  KEY `vendor_contact_key_idx` (`contact_key`(20)),
   KEY `vendor_contacts_email_index` (`email`),
   CONSTRAINT `vendor_contacts_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `vendor_contacts_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -2402,16 +2402,17 @@ CREATE TABLE `vendors` (
   `vat_number` varchar(191) DEFAULT NULL,
   `transaction_name` varchar(191) DEFAULT NULL,
   `number` varchar(191) DEFAULT NULL,
-  `custom_value1` text DEFAULT NULL,
-  `custom_value2` text DEFAULT NULL,
-  `custom_value3` text DEFAULT NULL,
-  `custom_value4` text DEFAULT NULL,
+  `custom_value1` text NOT NULL,
+  `custom_value2` text NOT NULL,
+  `custom_value3` text NOT NULL,
+  `custom_value4` text NOT NULL,
   `vendor_hash` text DEFAULT NULL,
   `public_notes` text DEFAULT NULL,
   `id_number` varchar(191) DEFAULT NULL,
   `language_id` int(10) unsigned DEFAULT NULL,
   `last_login` timestamp NULL DEFAULT NULL,
   `classification` varchar(191) DEFAULT NULL,
+  `is_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `vendors_company_id_number_unique` (`company_id`,`number`),
   KEY `vendors_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -2453,6 +2454,7 @@ CREATE TABLE `webhooks` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+/*!999999\- enable the sandbox mode */ 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (1,'2014_10_12_100000_create_password_resets_table',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (2,'2014_10_13_000000_create_users_table',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (3,'2019_11_10_115926_create_failed_jobs_table',1);
@@ -2633,80 +2635,80 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (177,'2022_11_30_06
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (178,'2022_12_07_024625_add_properties_to_companies_table',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (179,'2022_12_14_004639_vendor_currency_update',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (180,'2022_12_20_063038_set_proforma_invoice_type',1);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (181,'2023_01_12_125540_set_auto_bill_on_regular_invoice_setting',1);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (182,'2022_16_12_54687_add_stripe_bacs',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (183,'2023_01_27_023127_update_design_templates',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (184,'2023_02_02_062938_add_additional_required_fields_gateways',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (185,'2023_02_05_042351_add_foreign_key_for_vendors',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (186,'2023_02_07_114011_add_additional_product_fields',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (187,'2023_02_14_064135_create_react_settings_column_company_user_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (188,'2023_02_28_064453_update_designs',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (189,'2023_02_28_200056_add_visible_prop_to_companies_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (190,'2023_03_09_121033_add_payment_balance_to_clients_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (191,'2023_03_10_100629_add_currencies',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (192,'2023_03_13_156872_add_e_invoice_type_to_clients_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (193,'2023_03_17_012309_add_proforma_flag_for_recurring_invoices',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (194,'2023_03_21_053933_tax_calculations_for_invoices',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (195,'2023_03_24_054758_add_client_is_exempt_from_taxes',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (196,'2023_04_20_215159_drop_e_invoice_type_column',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (197,'2023_04_27_045639_add_kmher_language',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (198,'2023_05_03_023956_add_shopify_user_id',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (199,'2023_05_15_103212_e_invoice_ssl_storage',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (200,'2023_06_04_064713_project_and_task_columns_for_company_model',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (201,'2023_06_13_220252_add_hungarian_translations',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (202,'2023_06_20_123355_add_paypal_rest_payment_driver',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (203,'2023_07_06_063512_update_designs',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (204,'2023_07_08_000314_add_french_swiss_translations',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (205,'2023_07_12_074829_add_thai_baht_currency_symbol',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (206,'2023_07_18_214607_add_start_date_column_to_tasks',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (207,'2023_07_22_234329_change_currency_format_for_indonesian_rupiah',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (208,'2023_08_06_070205_create_view_dashboard_permission_migration',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (209,'2023_08_08_212710_add_signature_ip_address_to_purchase_order_invitations',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (210,'2023_08_09_224955_add_nicaragua_currency',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (211,'2023_09_11_003230_add_client_and_company_classifications',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (212,'2023_09_21_042010_add_template_flag_to_designs_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (213,'2023_10_01_102220_add_language_id_to_users_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (214,'2023_10_08_092508_add_refund_meta_and_category_to_payments_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (215,'2023_10_10_083024_add_ariary_currency',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (216,'2023_10_15_204204_add_paypal_ppcp',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (217,'2023_10_18_061415_add_user_notification_suppression',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (218,'2023_11_26_082959_add_bank_integration_id',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (219,'2023_11_27_095042_add_hash_and_meta_columns_to_tasks_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (220,'2023_11_30_042431_2023_11_30_add_payment_visibility',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (221,'2024_01_09_084515_product_cost_field_population',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (222,'2024_01_10_071427_normalize_product_cost_types',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (223,'2024_01_10_155555_add_bank_transaction_nordigen_field',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (224,'2024_01_12_073629_laos_currency_translation',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (225,'2024_01_29_080555_2024_01_29_update_timezones_naming',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (226,'2024_02_06_204031_correction_for_krw_currency',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (227,'2024_02_16_011055_smtp_configuration',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (228,'2024_02_28_180250_add_steps_to_subscriptions',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (229,'2024_03_07_195116_add_tax_data_to_quotes',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (230,'2024_03_14_201844_adjust_discount_column_max_resolution',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (231,'2024_03_24_200109_new_currencies_03_24',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (232,'2024_04_24_064301_optional_display_required_fields_payment_gateways',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (233,'2024_05_02_030103_2024_05_02_update_timezones',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (234,'2024_05_03_145535_btcpay_gateway',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (235,'2024_05_19_215103_2024_05_20_einvoice_columns',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (236,'2024_05_26_210407_2024_05_28_kwd_precision',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (237,'2024_06_02_083543_2024_06_01_add_einvoice_to_client_table',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (238,'2024_06_04_123926_2024_06_04_fixes_for_btc_migration',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (239,'2024_06_08_043343_2024_06_08__i_s_k_currency_precision',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (240,'2024_06_19_015127_2024_06_19_referral_meta_data',2);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (241,'2023_12_10_110951_inbound_mail_parsing',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (242,'2024_06_11_231143_add_rotessa_gateway',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (243,'2024_06_23_040253_2024-06-23_indexesforinvoiceid_payment_hashes',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (244,'2024_07_10_043241_2024_07_10_invoice_id_index_on_projects_table',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (245,'2024_07_16_231556_2024_07_17_add_dubai_timezone',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (246,'2024_07_29_235430_2024_30_07_tax_model_migration',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (247,'2024_08_02_144614_alter_companies_quickbooks',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (248,'2024_08_04_225558_tax_model_migration_v2',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (249,'2024_08_21_001832_add_einvoice_option_license',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (250,'2024_08_26_055523_add_qb_product_hash',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (251,'2024_08_27_230111_blockonomics_gateway',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (252,'2024_09_06_042040_cba_powerboard',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (253,'2024_09_15_022436_add_autonomous_es_regions',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (254,'2024_09_16_221343_add_remaining_cycles_to_subscriptions',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (255,'2024_09_21_062105_2024_09_21_add_vn_lang',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (256,'2024_09_22_084749_2024_09_23_add_sync_column_for_qb',3);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (257,'2024_09_29_221552_add_gateway_fee_column',4);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (181,'2022_16_12_54687_add_stripe_bacs',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (182,'2023_01_12_125540_set_auto_bill_on_regular_invoice_setting',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (183,'2023_01_27_023127_update_design_templates',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (184,'2023_02_02_062938_add_additional_required_fields_gateways',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (185,'2023_02_05_042351_add_foreign_key_for_vendors',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (186,'2023_02_07_114011_add_additional_product_fields',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (187,'2023_02_14_064135_create_react_settings_column_company_user_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (188,'2023_02_28_064453_update_designs',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (189,'2023_02_28_200056_add_visible_prop_to_companies_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (190,'2023_03_09_121033_add_payment_balance_to_clients_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (191,'2023_03_10_100629_add_currencies',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (192,'2023_03_13_156872_add_e_invoice_type_to_clients_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (193,'2023_03_17_012309_add_proforma_flag_for_recurring_invoices',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (194,'2023_03_21_053933_tax_calculations_for_invoices',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (195,'2023_03_24_054758_add_client_is_exempt_from_taxes',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (196,'2023_04_20_215159_drop_e_invoice_type_column',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (197,'2023_04_27_045639_add_kmher_language',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (198,'2023_05_03_023956_add_shopify_user_id',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (199,'2023_05_15_103212_e_invoice_ssl_storage',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (200,'2023_06_04_064713_project_and_task_columns_for_company_model',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (201,'2023_06_13_220252_add_hungarian_translations',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (202,'2023_06_20_123355_add_paypal_rest_payment_driver',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (203,'2023_07_06_063512_update_designs',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (204,'2023_07_08_000314_add_french_swiss_translations',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (205,'2023_07_12_074829_add_thai_baht_currency_symbol',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (206,'2023_07_18_214607_add_start_date_column_to_tasks',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (207,'2023_07_22_234329_change_currency_format_for_indonesian_rupiah',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (208,'2023_08_06_070205_create_view_dashboard_permission_migration',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (209,'2023_08_08_212710_add_signature_ip_address_to_purchase_order_invitations',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (210,'2023_08_09_224955_add_nicaragua_currency',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (211,'2023_09_11_003230_add_client_and_company_classifications',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (212,'2023_09_21_042010_add_template_flag_to_designs_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (213,'2023_10_01_102220_add_language_id_to_users_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (214,'2023_10_08_092508_add_refund_meta_and_category_to_payments_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (215,'2023_10_10_083024_add_ariary_currency',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (216,'2023_10_15_204204_add_paypal_ppcp',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (217,'2023_10_18_061415_add_user_notification_suppression',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (218,'2023_11_26_082959_add_bank_integration_id',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (219,'2023_11_27_095042_add_hash_and_meta_columns_to_tasks_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (220,'2023_11_30_042431_2023_11_30_add_payment_visibility',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (221,'2023_12_10_110951_inbound_mail_parsing',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (222,'2024_01_09_084515_product_cost_field_population',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (223,'2024_01_10_071427_normalize_product_cost_types',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (224,'2024_01_10_155555_add_bank_transaction_nordigen_field',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (225,'2024_01_12_073629_laos_currency_translation',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (226,'2024_01_29_080555_2024_01_29_update_timezones_naming',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (227,'2024_02_06_204031_correction_for_krw_currency',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (228,'2024_02_16_011055_smtp_configuration',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (229,'2024_02_28_180250_add_steps_to_subscriptions',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (230,'2024_03_07_195116_add_tax_data_to_quotes',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (231,'2024_03_14_201844_adjust_discount_column_max_resolution',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (232,'2024_03_24_200109_new_currencies_03_24',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (233,'2024_04_24_064301_optional_display_required_fields_payment_gateways',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (234,'2024_05_02_030103_2024_05_02_update_timezones',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (235,'2024_05_03_145535_btcpay_gateway',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (236,'2024_05_19_215103_2024_05_20_einvoice_columns',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (237,'2024_05_26_210407_2024_05_28_kwd_precision',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (238,'2024_06_02_083543_2024_06_01_add_einvoice_to_client_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (239,'2024_06_04_123926_2024_06_04_fixes_for_btc_migration',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (240,'2024_06_08_043343_2024_06_08__i_s_k_currency_precision',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (241,'2024_06_11_231143_add_rotessa_gateway',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (242,'2024_06_19_015127_2024_06_19_referral_meta_data',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (243,'2024_06_23_040253_2024-06-23_indexesforinvoiceid_payment_hashes',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (244,'2024_07_10_043241_2024_07_10_invoice_id_index_on_projects_table',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (245,'2024_07_16_231556_2024_07_17_add_dubai_timezone',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (246,'2024_07_29_235430_2024_30_07_tax_model_migration',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (247,'2024_08_02_144614_alter_companies_quickbooks',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (248,'2024_08_04_225558_tax_model_migration_v2',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (249,'2024_08_21_001832_add_einvoice_option_license',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (250,'2024_08_26_055523_add_qb_product_hash',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (251,'2024_08_27_230111_blockonomics_gateway',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (252,'2024_09_06_042040_cba_powerboard',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (253,'2024_09_15_022436_add_autonomous_es_regions',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (254,'2024_09_16_221343_add_remaining_cycles_to_subscriptions',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (255,'2024_09_21_062105_2024_09_21_add_vn_lang',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (256,'2024_09_22_084749_2024_09_23_add_sync_column_for_qb',1);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (257,'2024_10_03_235524_add_is_tax_exempt_vendors_table',1);
