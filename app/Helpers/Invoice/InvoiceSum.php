@@ -127,6 +127,18 @@ class InvoiceSum
 
     private function calculateInvoiceTaxes(): self
     {
+        if($this->client->is_tax_exempt) {
+            $this->invoice->tax_name1 = '';
+            $this->invoice->tax_name2 = '';
+            $this->invoice->tax_name3 = '';
+            $this->invoice->tax_rate1 = 0;
+            $this->invoice->tax_rate2 = 0;
+            $this->invoice->tax_rate3 = 0;
+            $this->total_taxes = 0;
+            $this->total_tax_map = [];
+            return $this;
+        }
+
         if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) >= 2) {
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
