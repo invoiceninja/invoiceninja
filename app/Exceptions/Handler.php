@@ -30,6 +30,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Encryption\MissingAppKeyException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Queue\MaxAttemptsExceededException;
+use Elastic\Transport\Exception\NoNodeAvailableException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Symfony\Component\Process\Exception\RuntimeException;
 use Illuminate\Database\Eloquent\RelationNotFoundException;
@@ -78,6 +79,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         NotFoundHttpException::class,
         RelationNotFoundException::class,
+        NoNodeAvailableException::class,
     ];
 
     /**
