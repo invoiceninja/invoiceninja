@@ -106,6 +106,7 @@ class VendorTransformer extends EntityTransformer
             'classification' => (string) $vendor->classification ?: '',
             'display_name' => (string) $vendor->present()->name(),
             'routing_id' => (string) $vendor->routing_id ?: '',
+            'is_tax_exempt' => (bool) $vendor->is_tax_exempt,
         ];
     }
 }

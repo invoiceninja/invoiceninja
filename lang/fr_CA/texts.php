@@ -5336,6 +5336,24 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'no_unread_notifications' => 'Vous êtes à jour! Aucune nouvelle notification.',
     'how_to_import_data' => 'Comment importer vos données',
     'download_example_file' => 'Télécharger un fichier exemple',
+    'expense_mailbox' => 'Adresse courriel entrante',
+    'expense_mailbox_help' => 'L\'adresse courriel entrante qui accepte les documents de dépenses, ex.  depense@invoiceninja.com.',
+    'expense_mailbox_active' => 'Boîte de réception de dépense',
+    'expense_mailbox_active_help' => 'Permet de traiter des documents tels que des reçus pour le rapport de dépenses.',
+    'inbound_mailbox_allow_company_users' => 'Permettre les envois de l\'entreprise',
+    'inbound_mailbox_allow_company_users_help' => 'Permet aux utilisateurs au sein de l\'entreprise d\'envoyer des documents de dépenses.',
+    'inbound_mailbox_allow_vendors' => 'Permettre les envois de fournisseurs',
+    'inbound_mailbox_allow_vendors_help' => 'Permet aux fournisseurs de l\'entreprise d\'envoyer des documents de dépenses.',
+    'inbound_mailbox_allow_clients' => 'Permettre les envois de clients',
+    'inbound_mailbox_allow_clients_help' => 'Permet aux clients d\'envoyer des documents de dépenses.',
+    'inbound_mailbox_whitelist' => 'Liste d\'expéditeurs entrants autorisés',
+    'inbound_mailbox_whitelist_help' => 'Liste d\'adresses courriel séparées par des virgules qui devraient être autorisées à envoyer des courriels pour traitement.',
+    'inbound_mailbox_blacklist' => 'Liste d\'expéditeurs entrants interdits',
+    'inbound_mailbox_blacklist_help' => 'Liste d\'adresses électroniques séparées par des virgules qui ne sont pas autorisées à envoyer des courriels pour traitement.',
+    'inbound_mailbox_allow_unknown' => 'Autoriser tous les envois',
+    'inbound_mailbox_allow_unknown_help' => 'Autoriser n\'importe qui à envoyer un courriel de dépenses pour traitement.',
+    'quick_actions' => 'Actions rapides',
+    'end_all_sessions_help' => 'Déconnecte tous les utilisateurs et oblige tous les utilisateurs actifs à se réauthentifier.'
 );
 
 return $lang;

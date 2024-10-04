@@ -115,6 +115,7 @@ class CreditCard implements LivewireMethodInterface
             'options' => [
                 'submitForSettlement' => true,
             ],
+            'channel' => 'invoiceninja_BT',
             'billing' => [
                 'streetAddress' => $this->braintree->client->address1 ?: '',
                 'extendedAddress' => $this->braintree->client->address2 ?: '',

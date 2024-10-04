@@ -202,6 +202,9 @@ class BaseRepository
 
         $model->saveQuietly();
 
+        if(method_exists($model, 'searchable'))
+            $model->searchable();
+        
         /* Model now persisted, now lets do some child tasks */
 
         if ($model instanceof Invoice) {

@@ -143,6 +143,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
         $result = $this->braintree->gateway->transaction()->sale([
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token->token,
+            'channel' => 'invoiceninja_BT',
             'options' => [
                 'submitForSettlement' => true,
             ],

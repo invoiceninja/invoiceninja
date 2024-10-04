@@ -64,37 +64,37 @@ class InvoiceTransformer extends BaseTransformer
 
         $client_id = null;
 
-        if($this->hasClient($this->getString($invoice_data, 'Name') || $this->getContact($this->getString($invoice_data, 'EmailRecipient')))) {
+        // if($this->hasClient($this->getString($invoice_data, 'Name') || $this->getContact($this->getString($invoice_data, 'EmailRecipient')))) {
 
-            $client_id = $this->getClient($this->getString($invoice_data, 'Name'), $this->getString($invoice_data, 'EmailRecipient'));
+        $client_id = $this->getClient($this->getString($invoice_data, 'Name'), $this->getString($invoice_data, 'EmailRecipient'));
 
-        }
+        // }
 
         if ($client_id) {
             $transformed['client_id'] = $client_id;
-        } else {
-            $settings = new \stdClass();
-            $settings->currency_id = $this->getCurrencyByCode($invoice_data, 'Currency');
+        } 
+        
+        $settings = new \stdClass();
+        $settings->currency_id = $this->getCurrencyByCode($invoice_data, 'Currency');
 
-            $transformed['client'] = [
-                'name'              => $this->getString($invoice_data, 'Name'),
-                'address1'          => $this->getString($invoice_data, 'DocumentRecipientAddress'),
-                'shipping_address1' => $this->getString($invoice_data, 'ShipAddress'),
-                'credit_balance'    => 0,
-                'settings'          => $settings,
-                'client_hash'       => Str::random(40),
-                'contacts'          => [
-                    [
-                        'email' => $this->getString($invoice_data, 'EmailRecipient'),
-                    ],
+        $transformed['client'] = [
+            'name'              => $this->getString($invoice_data, 'Name'),
+            'address1'          => $this->getString($invoice_data, 'DocumentRecipientAddress'),
+            'shipping_address1' => $this->getString($invoice_data, 'ShipAddress'),
+            'credit_balance'    => 0,
+            'settings'          => $settings,
+            'client_hash'       => Str::random(40),
+            'contacts'          => [
+                [
+                    'email' => $this->getString($invoice_data, 'EmailRecipient'),
                 ],
-            ];
+            ],
+        ];
 
-            $addresses = $this->harvestAddresses($invoice_data);
+        $addresses = $this->harvestAddresses($invoice_data);
 
-            $transformed['client'] = array_merge($transformed['client'], $addresses);
+        $transformed['client'] = array_merge($transformed['client'], $addresses);
 
-        }
         if (! empty($invoice_data['Date Paid'])) {
             $transformed['payments'] = [
                 [

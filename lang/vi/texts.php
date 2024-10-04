@@ -5338,6 +5338,24 @@ $lang = array(
     'no_unread_notifications' => 'Bạn đã cập nhật đầy đủ rồi! Không có thông báo mới nào.',
     'how_to_import_data' => 'Làm thế nào đến nhập dữ liệu',
     'download_example_file' => 'Tải xuống tệp ví dụ',
+    'expense_mailbox' => 'Địa chỉ email đến',
+    'expense_mailbox_help' => 'Địa chỉ email đến chấp nhận chứng từ Chi phí . Ví dụ. expense@invoiceninja.com',
+    'expense_mailbox_active' => 'Chi phí hộp thư',
+    'expense_mailbox_active_help' => 'Cho phép xử lý các chứng từ như biên lai để báo cáo Chi phí',
+    'inbound_mailbox_allow_company_users' => 'Cho phép người gửi công ty',
+    'inbound_mailbox_allow_company_users_help' => 'Cho phép người dùng trong công ty đến chứng từ Chi phí .',
+    'inbound_mailbox_allow_vendors' => 'Cho phép Người bán Người gửi',
+    'inbound_mailbox_allow_vendors_help' => 'Cho phép các nhà cung cấp của công ty đến chứng từ Chi phí',
+    'inbound_mailbox_allow_clients' => 'Cho phép Người gửi Khách hàng',
+    'inbound_mailbox_allow_clients_help' => 'Cho phép Khách hàng đến gửi tài liệu Chi phí',
+    'inbound_mailbox_whitelist' => 'Danh sách cho phép người gửi đến',
+    'inbound_mailbox_whitelist_help' => 'Danh sách các email được phân tách bằng dấu phẩy được phép đến email để xử lý',
+    'inbound_mailbox_blacklist' => 'Danh sách người gửi bị cấm',
+    'inbound_mailbox_blacklist_help' => 'Dấu phẩy phân tách danh sách các email không được phép đến email để xử lý',
+    'inbound_mailbox_allow_unknown' => 'Cho phép tất cả người gửi',
+    'inbound_mailbox_allow_unknown_help' => 'Cho phép bất cứ ai đến gửi email Chi phí để xử lý',
+    'quick_actions' => 'Hành động nhanh',
+    'end_all_sessions_help' => 'Đăng xuất tất cả người dùng và yêu cầu tất cả người dùng đang hoạt động đến xác thực lại.'
 );
 
 return $lang;

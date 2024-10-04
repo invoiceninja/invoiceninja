@@ -284,8 +284,21 @@ class BaseRule implements RuleInterface
 
     public function defaultForeign(): self
     {
+        if($this->invoice->client->is_tax_exempt){
+            
+            $this->tax_rate1 = 0;
+            $this->tax_name1 = '';
+            
+            $this->tax_rate2 = 0;
+            $this->tax_name2 = '';
 
-        if($this->client_region == 'US' && isset($this->tax_data?->taxSales)) {
+            $this->tax_rate3 = 0;
+            $this->tax_name3 = '';
+
+            return $this;
+
+        }
+        elseif($this->client_region == 'US' && isset($this->tax_data?->taxSales)) {
 
             $this->tax_rate1 = $this->tax_data->taxSales * 100;
             $this->tax_name1 = "{$this->tax_data->geoState} Sales Tax";
@@ -356,6 +369,16 @@ class BaseRule implements RuleInterface
 
     public function taxExempt($item): self
     {
+        
+        $this->tax_rate1 = 0;
+        $this->tax_name1 = '';
+
+        $this->tax_rate2 = 0;
+        $this->tax_name2 = '';
+
+        $this->tax_rate3 = 0;
+        $this->tax_name3 = '';
+
         return $this;
     }
 

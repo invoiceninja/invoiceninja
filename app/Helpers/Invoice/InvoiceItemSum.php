@@ -279,6 +279,15 @@ class InvoiceItemSum
             $this->calcTaxesAutomatically();
         }
 
+        if($this->client->is_tax_exempt){
+            $this->item->tax_rate1 = 0;
+            $this->item->tax_rate2 = 0;
+            $this->item->tax_rate3 = 0;
+            $this->item->tax_name1 = '';
+            $this->item->tax_name2 = '';
+            $this->item->tax_name3 = '';
+        }
+
         $item_tax = 0;
 
         $amount = $this->item->line_total - ($this->item->line_total * ($this->invoice->discount / 100));

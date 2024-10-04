@@ -12,14 +12,15 @@
 namespace App\Models;
 
 use Laravel\Scout\Searchable;
+use App\DataMapper\ClientSync;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
 use App\Utils\Traits\MakesDates;
 use App\DataMapper\FeesAndLimits;
 use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
-use App\DataMapper\ClientSync;
 use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\App;
 use App\Services\Client\ClientService;
 use App\Utils\Traits\GeneratesCounter;
 use Laracasts\Presenter\PresentableTrait;
@@ -111,7 +112,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @method static \Illuminate\Database\Eloquent\Builder|Client select()
  * @property string $payment_balance
  * @property mixed $tax_data
- * @property int $is_tax_exempt
+ * @property bool $is_tax_exempt
  * @property bool $has_valid_vat_number
  * @mixin \Eloquent
  */
@@ -126,8 +127,6 @@ class Client extends BaseModel implements HasLocalePreference
     use AppSetup;
     use ClientGroupSettingsSaver;
     use Excludable;
-
-    
     use Searchable;
 
     protected $presenter = ClientPresenter::class;
@@ -241,8 +240,17 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function toSearchableArray()
     {
+        
+        $locale = $this->locale();
+        App::setLocale($locale);
+
+        $name = ctrans('texts.client') . " | " . $this->present()->name();
+
+        if(strlen($this->vat_number ?? '') > 1)
+            $name .= " | ". $this->vat_number;
+        
         return [
-            'name' => $this->present()->name(),
+            'name' => $name,
             'is_deleted' => $this->is_deleted,
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -271,6 +279,11 @@ class Client extends BaseModel implements HasLocalePreference
             'company_key' => $this->company->company_key,
         ];
     }
+
+   public function getScoutKey()
+   {
+       return $this->hashed_id;
+   }
 
     public function getEntityType()
     {
