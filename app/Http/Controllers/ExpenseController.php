@@ -497,11 +497,6 @@ class ExpenseController extends BaseController
 
         $expenses = Expense::withTrashed()->find($request->ids);
 
-        if ($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
-            $this->expense_repo->categorize($expenses, $request->category_id);
-            $expenses = collect([]);
-        }
-
         if ($request->action == 'bulk_update' && $user->can('edit', $expenses->first())) {
 
             $expenses = Expense::withTrashed()
@@ -514,7 +509,10 @@ class ExpenseController extends BaseController
 
         }
 
-
+        if ($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
+            $this->expense_repo->categorize($expenses, $request->category_id);
+            $expenses = collect([]);
+        }
 
         $expenses->each(function ($expense) use ($request, $user) {
             if ($user->can('edit', $expense)) {

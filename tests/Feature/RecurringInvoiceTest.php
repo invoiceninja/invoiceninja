@@ -61,6 +61,142 @@ class RecurringInvoiceTest extends TestCase
         $this->makeTestData();
     }
 
+public function testBulkUpdatesTaxes()
+    {
+        RecurringInvoice::factory(5)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
+
+        $ri = RecurringInvoice::query()
+                            ->where('company_id', $this->company->id)
+                            ->where('client_id', $this->client->id)
+                            ->where('vendor_id', $this->vendor->id);
+
+        $this->assertCount(5, $ri->get());
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $ri->get()->pluck('hashed_id'),
+            'column' => 'tax_name1',
+            'new_value' => 'GST||10',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $response->assertStatus(200);
+
+
+        $ri->cursor()->each(function ($e){
+            $this->assertEquals('GST', $e->tax_name1);
+            $this->assertEquals(10, $e->tax_rate1);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $ri->get()->pluck('hashed_id'),
+            'column' => 'custom_value1',
+            'new_value' => 'CUSTOMCUSTOM123',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $ri->cursor()->each(function ($e) {
+            $this->assertEquals('CUSTOMCUSTOM123', $e->custom_value1);
+        });
+
+      
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $ri->get()->pluck('hashed_id'),
+            'column' => 'footer',
+            'new_value' => 'testfooter',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $ri->cursor()->each(function ($e) {
+            $this->assertEquals('testfooter', $e->footer);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $ri->get()->pluck('hashed_id'),
+            'column' => 'uses_inclusive_taxes',
+            'new_value' => true,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $ri->cursor()->each(function ($e) {
+            $this->assertTrue((bool)$e->uses_inclusive_taxes);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $ri->get()->pluck('hashed_id'),
+            'column' => 'private_notes',
+            'new_value' => 'TESTEST123',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $ri->cursor()->each(function ($e) {
+            $this->assertEquals('TESTEST123', $e->private_notes);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $ri->get()->pluck('hashed_id'),
+            'column' => 'public_notes',
+            'new_value' => 'TESTEST123',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/recurring_invoices/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $ri->cursor()->each(function ($e) {
+            $this->assertEquals('TESTEST123', $e->private_notes);
+        });
+
+
+
+    }
+
+
+
+
+
+
     public function testDateValidations()
     {
         $data = [
