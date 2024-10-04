@@ -5355,7 +5355,8 @@ $lang = array(
     'inbound_mailbox_allow_unknown' => 'Allow All Senders',
     'inbound_mailbox_allow_unknown_help' => 'Allow anyone to send an expense email for processing',
     'quick_actions' => 'Quick Actions',
-    'end_all_sessions_help' => 'Logs out all users and requires all active users to reauthenticate.'
+    'end_all_sessions_help' => 'Logs out all users and requires all active users to reauthenticate.',
+    'updated_records' => 'Updated Records',
 );
 
 return $lang;
