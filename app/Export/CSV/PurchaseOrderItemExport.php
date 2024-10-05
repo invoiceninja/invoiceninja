@@ -174,9 +174,10 @@ class PurchaseOrderItemExport extends BaseExport
             $transformed_items = array_merge($transformed_purchase_order, $item_array);
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
-
+ 
             $this->storage_array[] = $this->convertFloats($entity);
         }
+        
     }
 
     private function buildRow(PurchaseOrder $purchase_order): array
@@ -202,7 +203,7 @@ class PurchaseOrderItemExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($purchase_order, $entity);
-        // $entity = $this->convertFloats($entity);
+
         return $entity;
 
     }
@@ -229,8 +230,6 @@ class PurchaseOrderItemExport extends BaseExport
         if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {
             $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
         }
-
-
 
         return $entity;
     }
