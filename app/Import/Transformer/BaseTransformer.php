@@ -347,7 +347,7 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-        if (array_key_exists($field, $data)) {\
+        if (array_key_exists($field, $data)) {
             return $this->parseStringToFloat($data, $field);
             // return Number::parseFloat($data[$field]);
         }
