@@ -11,15 +11,16 @@
 
 namespace App\Services\Report;
 
-use App\Export\CSV\BaseExport;
-use App\Libraries\MultiDB;
+use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Models\Client;
+use League\Csv\Writer;
 use App\Models\Company;
 use App\Models\Invoice;
-use App\Utils\Ninja;
+use App\Libraries\MultiDB;
+use App\Export\CSV\BaseExport;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\App;
-use League\Csv\Writer;
 
 class ClientBalanceReport extends BaseExport
 {
@@ -119,8 +120,8 @@ class ClientBalanceReport extends BaseExport
             $client->id_number,
             $query->count(),
             $query->sum('balance'),
-            $client->credit_balance,
-            $client->payment_balance,
+            Number::formatMoney($client->credit_balance, $this->company),
+            Number::formatMoney($client->payment_balance, $this->company),
         ];
     }
 }

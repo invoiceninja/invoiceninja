@@ -2364,7 +2364,7 @@ $lang = array(
     'currency_gold_troy_ounce' => 'Gold Troy Ounce',
     'currency_nicaraguan_córdoba' => 'Nicaraguan Córdoba',
     'currency_malagasy_ariary' => 'Malagasy ariary',
-    "currency_tongan_paanga" => "Tongan Pa'anga",
+    "currency_tongan_pa_anga" => "Tongan Pa'anga",
 
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider :link we\'d greatly appreciate it!',
     'writing_a_review' => 'writing a review',
@@ -5355,7 +5355,8 @@ $lang = array(
     'inbound_mailbox_allow_unknown' => 'Allow All Senders',
     'inbound_mailbox_allow_unknown_help' => 'Allow anyone to send an expense email for processing',
     'quick_actions' => 'Quick Actions',
-    'end_all_sessions_help' => 'Logs out all users and requires all active users to reauthenticate.'
+    'end_all_sessions_help' => 'Logs out all users and requires all active users to reauthenticate.',
+    'updated_records' => 'Updated Records',
 );
 
 return $lang;

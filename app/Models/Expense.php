@@ -145,6 +145,23 @@ class Expense extends BaseModel
         'e_invoice' => 'object',
     ];
 
+    public static array $bulk_update_columns = [
+        'tax_rate1',
+        'tax_name1',
+        'tax_rate2',
+        'tax_name2',
+        'tax_rate3',
+        'tax_name3',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'should_be_invoiced',
+        'uses_inclusive_taxes',
+        'private_notes',
+        'public_notes',
+    ];
+
     protected $touches = [];
 
     public function getEntityType()

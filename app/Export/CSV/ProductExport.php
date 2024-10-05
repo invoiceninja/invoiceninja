@@ -125,27 +125,11 @@ class ProductExport extends BaseExport
             if (array_key_exists($key, $transformed_entity)) {
                 $entity[$keyval] = $transformed_entity[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $product);
-                // $entity[$key] = '';
-
             }
         }
 
-        return $entity;
-        // return $this->decorateAdvancedFields($product, $entity);
+        return $this->convertFloats($entity);
     }
 
-    // private function decorateAdvancedFields(Product $product, array $entity): array
-    // {
-    //     if (in_array('vendor_id', $this->input['report_keys'])) {
-    //         $entity['vendor'] = $product->vendor()->exists() ? $product->vendor->name : '';
-    //     }
-
-    //     // if (array_key_exists('project_id', $this->input['report_keys'])) {
-    //     //     $entity['project'] = $product->project()->exists() ? $product->project->name : '';
-    //     // }
-
-    //     return $entity;
-    // }
 }

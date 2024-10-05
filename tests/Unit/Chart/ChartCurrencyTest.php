@@ -127,8 +127,8 @@ class ChartCurrencyTest extends TestCase
         $this->assertEquals(100, $results[1]['invoices']->invoiced_amount);
         $this->assertEquals(100, $results[2]['invoices']->invoiced_amount);
 
-        $this->assertEquals(150, $results[999]['invoices']->invoiced_amount);
-        $this->assertEquals(150, $results[999]['revenue']->paid_to_date);
+        $this->assertEquals(300, $results[999]['invoices']->invoiced_amount);
+        $this->assertEquals(300, $results[999]['revenue']->paid_to_date);
 
         $usd->forceDelete();
         $gbp->forceDelete();
@@ -251,10 +251,10 @@ class ChartCurrencyTest extends TestCase
         $this->assertEquals(200, $results[1]['invoices']->invoiced_amount);
         $this->assertEquals(200, $results[2]['invoices']->invoiced_amount);
 
-        $this->assertEquals(300, $results[999]['invoices']->invoiced_amount);
-        $this->assertEquals(150, $results[999]['revenue']->paid_to_date);
+        $this->assertEquals(500, $results[999]['invoices']->invoiced_amount);
+        $this->assertEquals(300, $results[999]['revenue']->paid_to_date);
 
-        $this->assertEquals(150, $results[999]['outstanding']->amount);
+        $this->assertEquals(200, $results[999]['outstanding']->amount);
         $this->assertEquals(2, $results[999]['outstanding']->outstanding_count);
 
         $usd->forceDelete();

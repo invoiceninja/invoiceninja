@@ -497,6 +497,18 @@ class ExpenseController extends BaseController
 
         $expenses = Expense::withTrashed()->find($request->ids);
 
+        if ($request->action == 'bulk_update' && $user->can('edit', $expenses->first())) {
+
+            $expenses = Expense::withTrashed()
+                    ->company()
+                    ->whereIn('id', $request->ids);
+
+            $this->expense_repo->bulkUpdate($expenses, $request->column, $request->new_value);
+
+            return $this->listResponse(Expense::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
+        }
+
         if ($request->action == 'bulk_categorize' && $user->can('edit', $expenses->first())) {
             $this->expense_repo->categorize($expenses, $request->category_id);
             $expenses = collect([]);

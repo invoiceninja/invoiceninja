@@ -152,6 +152,7 @@ class QuoteItemExport extends BaseExport
         $transformed_quote = $this->buildRow($quote);
 
         $transformed_items = [];
+        $currency = $this->company->currency();
 
         foreach ($quote->line_items as $item) {
             $item_array = [];
@@ -180,7 +181,8 @@ class QuoteItemExport extends BaseExport
 
             $transformed_items = array_merge($transformed_quote, $item_array);
             $entity = $this->decorateAdvancedFields($quote, $transformed_items);
-            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
+            $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);            
+            $entity = $this->convertFloats($entity);
 
             $this->storage_array[] = $entity;
         }
@@ -205,28 +207,16 @@ class QuoteItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_quote)) {
                 $entity[$key] = $transformed_quote[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $quote);
-                // $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
             }
         }
 
-        // return $entity;
-        return $this->decorateAdvancedFields($quote, $entity);
+        $entity = $this->decorateAdvancedFields($quote, $entity);
+        return $entity;
+        
     }
     private function decorateAdvancedFields(Quote $quote, array $entity): array
     {
-        // if (in_array('currency_id', $this->input['report_keys'])) {
-        //     $entity['currency'] = $quote->client->currency() ? $quote->client->currency()->code : $quote->company->currency()->code;
-        // }
-
-        // if (in_array('client_id', $this->input['report_keys'])) {
-        //     $entity['client'] = $quote->client->present()->name();
-        // }
-
-        // if (in_array('status_id', $this->input['report_keys'])) {
-        //     $entity['status'] = $quote->stringStatus($quote->status_id);
-        // }
 
         if (in_array('quote.assigned_user_id', $this->input['report_keys'])) {
             $entity['quote.assigned_user_id'] = $quote->assigned_user ? $quote->assigned_user->present()->name() : '';

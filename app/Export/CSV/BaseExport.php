@@ -452,6 +452,8 @@ class BaseExport
         'billable' => 'task.billable',
         'item_notes' => 'task.item_notes',
         'time_log' => 'task.time_log',
+        'user' => 'task.user_id',
+        'assigned_user' => 'task.assigned_user_id',
     ];
 
     protected array $forced_client_fields = [
@@ -1350,7 +1352,7 @@ class BaseExport
      */
     public function mergeItemsKeys(string $entity_report_keys): array
     {
-        return array_merge($this->{$entity_report_keys}, $this->item_report_keys);
+        return array_merge(array_values($this->{$entity_report_keys}), array_values($this->item_report_keys));
     }
 
     public function buildHeader(): array
@@ -1629,5 +1631,19 @@ class BaseExport
     public function columnExists($table, $column): bool
     {
         return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
+    }
+
+    public function convertFloats(iterable $entity): iterable
+    {
+        $currency = $this->company->currency();
+        
+        foreach ($entity as $key => $value) {
+            if (is_float($value)) {
+                $entity[$key] = \App\Utils\Number::formatValue($value, $currency);
+            }
+        }
+
+        return $entity;
+
     }
 }

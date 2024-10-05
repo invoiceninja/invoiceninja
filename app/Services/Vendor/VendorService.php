@@ -51,6 +51,13 @@ class VendorService
         return $this;
     }
 
+    public function merge(Vendor $mergable_vendor)
+    {
+        $this->vendor = (new Merge($this->vendor, $mergable_vendor))->run();
+
+        return $this;
+    }
+
     /**
      * Saves the vendor instance
      *

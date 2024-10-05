@@ -147,7 +147,8 @@ class InvoiceExport extends BaseExport
 
         }
 
-        return $this->decorateAdvancedFields($invoice, $entity);
+        $entity = $this->decorateAdvancedFields($invoice, $entity);
+        return  $this->convertFloats($entity);
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array

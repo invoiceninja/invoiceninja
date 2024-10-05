@@ -162,7 +162,8 @@ class ExpenseExport extends BaseExport
 
         }
 
-        return $this->decorateAdvancedFields($expense, $entity);
+        $entity = $this->decorateAdvancedFields($expense, $entity);
+        return $this->convertFloats($entity);
     }
 
     protected function addExpenseStatusFilter($query, $status): Builder

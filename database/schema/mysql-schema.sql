@@ -2412,6 +2412,7 @@ CREATE TABLE `vendors` (
   `language_id` int(10) unsigned DEFAULT NULL,
   `last_login` timestamp NULL DEFAULT NULL,
   `classification` varchar(191) DEFAULT NULL,
+  `is_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `vendors_company_id_number_unique` (`company_id`,`number`),
   KEY `vendors_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -2710,3 +2711,4 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (254,'2024_09_16_22
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (255,'2024_09_21_062105_2024_09_21_add_vn_lang',3);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (256,'2024_09_22_084749_2024_09_23_add_sync_column_for_qb',3);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (257,'2024_09_29_221552_add_gateway_fee_column',4);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (258,'2024_10_03_235524_add_is_tax_exempt_vendors_table',5);

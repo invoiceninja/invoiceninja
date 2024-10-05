@@ -190,7 +190,8 @@ class ClientExport extends BaseExport
             }
         }
 
-        return $this->decorateAdvancedFields($client, $entity);
+        $entity = $this->decorateAdvancedFields($client, $entity);
+        return $this->convertFloats($entity);
     }
 
     public function processMetaData(array $row, $resource): array

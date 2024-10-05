@@ -348,10 +348,40 @@ class BaseTransformer
     public function getFloat($data, $field)
     {
         if (array_key_exists($field, $data)) {
-            return Number::parseFloat($data[$field]);
+            return $this->parseStringToFloat($data, $field);
+            // return Number::parseFloat($data[$field]);
         }
 
         return 0;
+
+    }
+
+    private function parseStringToFloat($data, $field): float
+    {
+
+
+            $currency = $this->company->currency();
+            $amount = $data[$field] ?? '';
+
+            // Remove any non-numeric characters except for the decimal and thousand separators
+            $amount = preg_replace('/[^\d' . preg_quote($currency->decimal_separator) . preg_quote($currency->thousand_separator) . '-]/', '', $amount);
+
+            // Handle negative numbers
+            $isNegative = strpos($amount, '-') !== false;
+            $amount = str_replace('-', '', $amount);
+
+            // Remove thousand separators
+            $amount = str_replace($currency->thousand_separator, '', $amount);
+
+            // Replace decimal separator with a period if it's not already
+            if ($currency->decimal_separator !== '.') {
+                $amount = str_replace($currency->decimal_separator, '.', $amount);
+            }
+
+            // Convert to float and apply negative sign if necessary
+            $result = (float) $amount;
+            return $isNegative ? -$result : $result;
+
 
     }
 

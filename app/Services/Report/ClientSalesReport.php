@@ -114,10 +114,10 @@ class ClientSalesReport extends BaseExport
             $client->number,
             $client->id_number,
             $query->count(),
-            Number::formatMoney($amount, $client),
-            Number::formatMoney($balance, $client),
-            Number::formatMoney($query->sum('total_taxes'), $client),
-            Number::formatMoney($amount - $balance, $client),
+            Number::formatMoney($amount, $this->company),
+            Number::formatMoney($balance, $this->company),
+            Number::formatMoney($query->sum('total_taxes'), $this->company),
+            Number::formatMoney($amount - $balance, $this->company),
 
         ];
     }
