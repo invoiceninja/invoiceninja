@@ -55,6 +55,7 @@ class Handler extends ExceptionHandler
         // ModelNotFoundException::class,
         NotFoundHttpException::class,
         RelationNotFoundException::class,
+        NoNodeAvailableException::class,
     ];
 
     protected $selfHostDontReport = [
@@ -79,7 +80,6 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         NotFoundHttpException::class,
         RelationNotFoundException::class,
-        NoNodeAvailableException::class,
     ];
 
     /**

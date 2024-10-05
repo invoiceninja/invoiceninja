@@ -210,7 +210,7 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
             $this->mollie->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $payment_record->hashed_id]);
     }
 
     /**

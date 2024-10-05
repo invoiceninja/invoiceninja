@@ -54,7 +54,6 @@ trait ChartQueries
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             {$user_filter}
-            GROUP BY expenses.company_id
         ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
@@ -70,7 +69,7 @@ trait ChartQueries
                     WHEN expenses.currency_id = :company_currency THEN amount
                     ELSE expenses.amount * expenses.exchange_rate
                 END
-            ) AS amount,
+            ) AS total,
             expenses.date
             FROM expenses
             WHERE (expenses.date BETWEEN :start_date AND :end_date)
@@ -143,12 +142,13 @@ trait ChartQueries
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
         return DB::select("
-            SELECT sum(payments.amount / payments.exchange_rate) as amount,
+            SELECT sum((payments.amount - payments.refunded) / payments.exchange_rate) as amount,
             IFNULL(payments.currency_id, :company_currency) as currency_id
             FROM payments
-            WHERE payments.is_deleted = 0
+            WHERE payments.company_id = :company_id
+            AND payments.is_deleted = 0
             {$user_filter}
-            AND payments.company_id = :company_id
+            AND payments.status_id IN (4,5,6)
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY currency_id
         ", [
@@ -166,9 +166,8 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum((payments.amount - payments.refunded) / payments.exchange_rate) as total,
-            payments.date,
-            IFNULL(payments.currency_id, :company_currency) AS currency_id
+            sum((payments.amount - payments.refunded) * payments.exchange_rate) as total,
+            payments.date
             FROM payments
             WHERE payments.company_id = :company_id
             AND payments.is_deleted = 0
@@ -177,7 +176,6 @@ trait ChartQueries
             AND (payments.date BETWEEN :start_date AND :end_date)
             GROUP BY payments.date
         ", [
-            'company_currency' => $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
@@ -245,9 +243,8 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum(invoices.balance / IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency2)) as amount,
-            COUNT(invoices.id) as outstanding_count, 
-            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
+            sum(invoices.balance / invoices.exchange_rate) as amount,
+            COUNT(invoices.id) as outstanding_count 
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
@@ -259,8 +256,6 @@ trait ChartQueries
             AND invoices.balance > 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
         ", [
-         'company_currency2' => $this->company->settings->currency_id,
-         'company_currency' => $this->company->settings->currency_id,
          'company_id' => $this->company->id,
          'start_date' => $start_date,
          'end_date' => $end_date]);
@@ -273,7 +268,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum((payments.amount - payments.refunded) / payments.exchange_rate) as paid_to_date
+            sum((payments.amount - payments.refunded) * payments.exchange_rate) as paid_to_date
             FROM payments
             JOIN clients
             ON payments.client_id=clients.id
@@ -316,11 +311,9 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum(invoices.amount / IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency2)) as invoiced_amount,
-            IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT( clients.settings, '$.currency_id' )) AS SIGNED), :company_currency) AS currency_id
+                SUM(invoices.amount / invoices.exchange_rate) as invoiced_amount
             FROM clients
-            JOIN invoices
-            on invoices.client_id = clients.id
+            JOIN invoices ON invoices.client_id = clients.id
             WHERE invoices.status_id IN (2,3,4)
             AND invoices.company_id = :company_id
             {$user_filter}
@@ -328,8 +321,12 @@ trait ChartQueries
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
             AND (invoices.date BETWEEN :start_date AND :end_date)
-            GROUP BY invoices.company_id
-        ", ['company_currency2' => $this->company->settings->currency_id, 'company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
+        ", [
+            'company_id' => $this->company->id,
+            'start_date' => $start_date,
+            'end_date' => $end_date
+        ]);
+
     }
 
 
@@ -361,7 +358,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum(invoices.balance / IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency)) as total,
+                SUM(invoices.balance / invoices.exchange_rate) as total,
             invoices.date
             FROM clients
             JOIN invoices
@@ -372,9 +369,7 @@ trait ChartQueries
             AND invoices.is_deleted = 0
             {$user_filter}
             AND (invoices.date BETWEEN :start_date AND :end_date)
-            GROUP BY invoices.company_id
         ", [
-            'company_currency' => (int) $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
@@ -417,7 +412,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum(invoices.amount / IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency)) as total,
+                SUM(invoices.amount / invoices.exchange_rate) as total,
             invoices.date
             FROM clients
             JOIN invoices
@@ -428,9 +423,7 @@ trait ChartQueries
             {$user_filter}
             AND invoices.status_id IN (2,3,4)
             AND (invoices.date BETWEEN :start_date AND :end_date)
-            GROUP BY invoices.company_id
         ", [
-            'company_currency' => (int) $this->company->settings->currency_id,
             'company_id' => $this->company->id,
             'start_date' => $start_date,
             'end_date' => $end_date,
