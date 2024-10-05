@@ -99,7 +99,7 @@ class InvoiceExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($resource) {
-                    
+
                     /** @var \App\Models\Invoice $resource */
                     $row = $this->buildRow($resource);
                     return $this->processMetaData($row, $resource);
@@ -121,7 +121,7 @@ class InvoiceExport extends BaseExport
 
         $query->cursor()
             ->each(function ($invoice) {
-                
+
                 /** @var \App\Models\Invoice $invoice */
                 $this->csv->insertOne($this->buildRow($invoice));
             });
@@ -147,7 +147,8 @@ class InvoiceExport extends BaseExport
 
         }
 
-        return $this->decorateAdvancedFields($invoice, $entity);
+        $entity = $this->decorateAdvancedFields($invoice, $entity);
+        return  $this->convertFloats($entity);
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array

@@ -113,6 +113,8 @@ class SystemLog extends Model
 
     public const EVENT_USER = 61;
 
+    public const EVENT_INBOUND_MAIL_BLOCKED = 62;
+
     /*Type IDs*/
     public const TYPE_PAYPAL = 300;
 
@@ -153,6 +155,10 @@ class SystemLog extends Model
     public const TYPE_BTC_PAY = 324;
 
     public const TYPE_ROTESSA = 325;
+    
+    public const TYPE_BLOCKONOMICS = 326;
+    
+    public const TYPE_POWERBOARD = 327;
 
     public const TYPE_QUOTA_EXCEEDED = 400;
 
@@ -207,6 +213,11 @@ class SystemLog extends Model
         $query->where('company_id', $user->companyId());
 
         return $query;
+    }
+
+    public function company()
+    {
+        return $this->hasMany(\App\Models\Company::class);
     }
 
     public function getCategoryName()

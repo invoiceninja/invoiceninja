@@ -17,11 +17,11 @@ use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class RefundUnitTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

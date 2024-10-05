@@ -64,7 +64,7 @@ class StoreCreditRequest extends Request
         $user = auth()->user();
 
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
-        
+
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.client_contact_id'] = 'bail|required|distinct';
 
@@ -107,6 +107,7 @@ class StoreCreditRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+        $input['line_items'] = $this->cleanFeeItems($input['line_items']);
         $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         if (array_key_exists('exchange_rate', $input) && is_null($input['exchange_rate'])) {

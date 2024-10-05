@@ -166,7 +166,7 @@ trait MockAccountData
      * @var
      */
     public $bank_transaction;
-    
+
     /**
      * @var
      */
@@ -194,7 +194,7 @@ trait MockAccountData
     public $purchase_order;
 
     public $contact;
-    
+
     public $product;
 
     public $recurring_invoice;
@@ -280,7 +280,7 @@ trait MockAccountData
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
@@ -294,7 +294,7 @@ trait MockAccountData
         $truth->setCompanyUser($company_token->first());
         $truth->setUser($this->user);
         $truth->setCompany($this->company);
-        
+
         //todo create one token with token name TOKEN - use firstOrCreate
 
         Product::factory()->create([
@@ -414,7 +414,7 @@ trait MockAccountData
             'company_id' => $this->company->id,
         ]);
 
-        $gs = new GroupSetting;
+        $gs = new GroupSetting();
         $gs->name = 'Test';
         $gs->company_id = $this->client->company_id;
         $gs->settings = ClientSettings::buildClientSettings($this->company->settings, $this->client->settings);
@@ -772,7 +772,7 @@ trait MockAccountData
         $recurring_invoice->number = $this->getNextRecurringInvoiceNumber($this->invoice->client, $this->invoice);
         $recurring_invoice->save();
 
-        $gs = new GroupSetting;
+        $gs = new GroupSetting();
         $gs->company_id = $this->company->id;
         $gs->user_id = $user_id;
         $gs->settings = ClientSettings::buildClientSettings(CompanySettings::defaults(), ClientSettings::defaults());
@@ -794,7 +794,7 @@ trait MockAccountData
             $data[1]['fee_cap'] = '';
             $data[1]['is_enabled'] = true;
 
-            $cg = new CompanyGateway;
+            $cg = new CompanyGateway();
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;
             $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -806,8 +806,8 @@ trait MockAccountData
             $cg->fees_and_limits = $data;
             $cg->save();
 
-            
-            $cg = new CompanyGateway;
+
+            $cg = new CompanyGateway();
             $cg->company_id = $this->company->id;
             $cg->user_id = $user_id;
             $cg->gateway_key = 'd14dd26a37cecc30fdd65700bfb55b23';
@@ -840,6 +840,7 @@ trait MockAccountData
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
+        $item->notes = $this->faker->sentence;
         $item->cost = 10;
         $item->task_id = $this->encodePrimaryKey($this->task->id);
         $item->expense_id = $this->encodePrimaryKey($this->expense->id);

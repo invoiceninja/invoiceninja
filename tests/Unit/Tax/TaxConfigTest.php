@@ -20,14 +20,14 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test App\Services\Tax\Providers\EuTax
+ *  App\Services\Tax\Providers\EuTax
  */
 class TaxConfigTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -70,7 +70,7 @@ class TaxConfigTest extends TestCase
         $this->bootApi($client);
 
         $this->tp->updateClientTaxData();
-        
+
     }
 
 }

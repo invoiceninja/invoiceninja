@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 <!-- Before posting please check our "Troubleshooting" category in the docs: 
-https://invoiceninja.github.io/docs/self-host-troubleshooting/ -->
+https://invoiceninja.github.io/en/self-host-troubleshooting/ -->
 
 ## Setup
 - Version: <!-- i.e. v4.5.25 / v5.0.30 -->

@@ -23,8 +23,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\ExpenseController
+ * 
+ *  App\Http\Controllers\ExpenseController
  */
 class ExpenseApiTest extends TestCase
 {
@@ -33,8 +33,8 @@ class ExpenseApiTest extends TestCase
     use MockAccountData;
 
     public $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,7 +47,173 @@ class ExpenseApiTest extends TestCase
         Model::reguard();
     }
 
+    public function testBulkUpdatesTaxes()
+    {
+        Expense::factory(5)->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'client_id' => $this->client->id,
+            'vendor_id' => $this->vendor->id,
+        ]);
 
+        $expenses = Expense::query()
+                            ->where('company_id', $this->company->id)
+                            ->where('client_id', $this->client->id)
+                            ->where('vendor_id', $this->vendor->id);
+
+        $this->assertCount(5, $expenses->get());
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'tax_name1',
+            'new_value' => 'GST||10',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+
+        $expenses->cursor()->each(function ($e){
+            $this->assertEquals('GST', $e->tax_name1);
+            $this->assertEquals(10, $e->tax_rate1);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'custom_value1',
+            'new_value' => 'CUSTOMCUSTOM123',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertEquals('CUSTOMCUSTOM123', $e->custom_value1);
+        });
+
+        $data = [
+                    'action' => 'bulk_update',
+                    'ids' => $expenses->get()->pluck('hashed_id'),
+                    'column' => 'should_be_invoiced',
+                    'new_value' => false,
+                ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertFalse((bool)$e->should_be_invoiced);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'should_be_invoiced',
+            'new_value' => true,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertTrue((bool)$e->should_be_invoiced);
+        });
+
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'should_be_invoiced',
+            'new_value' => false,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertFalse((bool)$e->should_be_invoiced);
+        });
+
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'uses_inclusive_taxes',
+            'new_value' => true,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertTrue((bool)$e->uses_inclusive_taxes);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'private_notes',
+            'new_value' => 'TESTEST123',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertEquals('TESTEST123', $e->private_notes);
+        });
+
+        $data = [
+            'action' => 'bulk_update',
+            'ids' => $expenses->get()->pluck('hashed_id'),
+            'column' => 'public_notes',
+            'new_value' => 'TESTEST123',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/expenses/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $expenses->cursor()->each(function ($e) {
+            $this->assertEquals('TESTEST123', $e->private_notes);
+        });
+
+
+
+    }
 
     public function testVendorPayment()
     {
@@ -78,7 +244,7 @@ class ExpenseApiTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/expenses/'.$arr['data']['id'], $data);
-        
+
         $arr = $response->json();
         $response->assertStatus(200);
 
@@ -89,8 +255,8 @@ class ExpenseApiTest extends TestCase
 
     public function testExpensePutWithVendorStatus()
     {
-    
-    
+
+
         $data =
         [
             'vendor_id' => $this->vendor->hashed_id,
@@ -105,7 +271,7 @@ class ExpenseApiTest extends TestCase
 
         $arr = $response->json();
         $response->assertStatus(200);
-    
+
 
         $this->assertEquals($this->vendor->hashed_id, $arr['data']['vendor_id']);
 
@@ -144,7 +310,7 @@ class ExpenseApiTest extends TestCase
             'user_id' => $this->user->id,
             'transaction_id' => $bt->id,
         ]);
-        
+
         $this->assertNotNull($e->transaction_id);
 
         $expense_repo = app('App\Repositories\ExpenseRepository');
@@ -314,20 +480,22 @@ class ExpenseApiTest extends TestCase
     public function testExpenseBulkCategorize()
     {
 
+        $eXX = Expense::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+        ]);
+
 
         $e = Expense::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
 
-
         $ec = ExpenseCategory::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'name' => 'Test Category',
         ]);
-
-        nlog("expense category id = {$ec->hashed_id}");
 
         $data = [
             'category_id' => $ec->hashed_id,
@@ -341,11 +509,32 @@ class ExpenseApiTest extends TestCase
         ])->post('/api/v1/expenses/bulk', $data);
 
         $arr = $response->json();
-        nlog($arr);
 
         $this->assertEquals($ec->hashed_id, $arr['data'][0]['category_id']);
-    }
 
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/expenses");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertGreaterThan(1, count($arr['data']));
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->get("/api/v1/expenses?categories={$ec->hashed_id}");
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertCount(1, $arr['data']);
+
+    }
 
     public function testAddingExpense()
     {

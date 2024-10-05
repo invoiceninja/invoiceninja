@@ -38,7 +38,7 @@ class BulkActionQuoteRequest extends Request
             'send_email' => 'sometimes|bool'
         ];
 
-        if (in_array($input['action'], ['convert,convert_to_invoice'])) {
+        if (in_array($input['action'], ['convert','convert_to_invoice'])) {
             $rules['action'] = [new ConvertableQuoteRule()];
         }
 

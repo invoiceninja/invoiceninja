@@ -31,30 +31,13 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
     public function processPaymentView($data)
     {
-
-        $this->init();
-
-        $data['gateway'] = $this;
-
-        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
-        $this->payment_hash->save();
-
-        $data['client_id'] = $this->company_gateway->getConfigField('clientId');
-        $data['token'] = $this->getClientToken();
-        $data['order_id'] = $this->createOrder($data);
-        $data['funding_source'] = $this->paypal_payment_method;
-        $data['gateway_type_id'] = $this->gateway_type_id;
-        $data['currency'] = $this->client->currency()->code;
-        $data['guid'] = $this->risk_guid;
-        $data['identifier'] = "s:INN_ACDC_CHCK";
-        $data['pp_client_reference'] = $this->getClientHash();
+        $data = $this->processPaymentViewData($data);
 
         if($this->gateway_type_id == 29) {
             return render('gateways.paypal.ppcp.card', $data);
         } else {
             return render('gateways.paypal.pay', $data);
         }
-
     }
 
     /**
@@ -70,8 +53,6 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         $request['gateway_response'] = str_replace("Error: ", "", $request['gateway_response']);
         $response = json_decode($request['gateway_response'], true);
-
-        nlog($response);
 
         if($request->has('token') && strlen($request->input('token')) > 2) {
             return $this->processTokenPayment($request, $response);
@@ -433,5 +414,37 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         SystemLogger::dispatch($response, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_PAYPAL, $this->client, $this->client->company);
 
+    }
+
+    public function processPaymentViewData(array $data): array
+    {
+        $this->init();
+
+        $data['gateway'] = $this;
+
+        $this->payment_hash->data = array_merge((array) $this->payment_hash->data, ['amount' => $data['total']['amount_with_fee']]);
+        $this->payment_hash->save();
+
+        $data['client_id'] = $this->company_gateway->getConfigField('clientId');
+        $data['token'] = $this->getClientToken();
+        $data['order_id'] = $this->createOrder($data);
+        $data['funding_source'] = $this->paypal_payment_method;
+        $data['gateway_type_id'] = $this->gateway_type_id;
+        $data['currency'] = $this->client->currency()->code;
+        $data['guid'] = $this->risk_guid;
+        $data['identifier'] = "s:INN_ACDC_CHCK";
+        $data['pp_client_reference'] = $this->getClientHash();
+        $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
+        
+        return $data;
+    }
+
+    public function livewirePaymentView(array $data): string 
+    {
+        if ($this->gateway_type_id == 29) {
+            return 'gateways.paypal.ppcp.card_livewire';
+        }
+
+        return 'gateways.paypal.pay_livewire';
     }
 }

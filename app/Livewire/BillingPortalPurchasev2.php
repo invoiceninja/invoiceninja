@@ -199,7 +199,8 @@ class BillingPortalPurchasev2 extends Component
         $this->data = [];
 
         $this->price = $this->subscription->price; // ?
-
+        $this->float_amount_total = $this->price;
+        
         $this->recurring_products = $this->subscription->service()->recurring_products();
         $this->products = $this->subscription->service()->products();
         $this->optional_recurring_products = $this->subscription->service()->optional_recurring_products();
@@ -244,7 +245,8 @@ class BillingPortalPurchasev2 extends Component
             Auth::guard('contact')->loginUsingId($contact->id, true);
             $this->contact = $contact;
         } else {
-            $this->createClientContact();
+            // $this->createClientContact();
+            $this->createBlankClient();
         }
 
         $this->getPaymentMethods();
@@ -429,31 +431,31 @@ class BillingPortalPurchasev2 extends Component
      * @throws PresenterException
      * @throws InvalidArgumentException
      */
-    private function createClientContact()
-    {
-        $company = $this->subscription->company;
-        $user = $this->subscription->user;
-        $user->setCompany($company);
+    // private function createClientContact()
+    // {
+    //     $company = $this->subscription->company;
+    //     $user = $this->subscription->user;
+    //     $user->setCompany($company);
 
-        $client_repo = new ClientRepository(new ClientContactRepository());
-        $data = [
-            'name' => '',
-            'group_settings_id' => $this->subscription->group_id,
-            'contacts' => [
-                ['email' => $this->email],
-            ],
-            'client_hash' => Str::random(40),
-            'settings' => ClientSettings::defaults(),
-        ];
+    //     $client_repo = new ClientRepository(new ClientContactRepository());
+    //     $data = [
+    //         'name' => '',
+    //         'group_settings_id' => $this->subscription->group_id,
+    //         'contacts' => [
+    //             ['email' => $this->email],
+    //         ],
+    //         'client_hash' => Str::random(40),
+    //         'settings' => ClientSettings::defaults(),
+    //     ];
 
-        $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+    //     $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
 
-        $this->contact = $client->fresh()->contacts()->first();
+    //     $this->contact = $client->fresh()->contacts()->first();
 
-        Auth::guard('contact')->loginUsingId($this->contact->id, true);
+    //     Auth::guard('contact')->loginUsingId($this->contact->id, true);
 
-        return $this;
-    }
+    //     return $this;
+    // }
 
 
     /**
@@ -484,10 +486,10 @@ class BillingPortalPurchasev2 extends Component
             $this->methods = [];
         }
 
-        if ($this->contact && $this->float_amount_total >= 1) {
+        if ($this->contact && $this->float_amount_total >= 0) {
             $this->methods = $this->contact->client->service()->getPaymentMethods($this->float_amount_total);
         }
-        
+
         foreach($this->methods as $method) {
 
             if($method['is_paypal'] == '1' && !$this->check_rff) {
@@ -502,7 +504,7 @@ class BillingPortalPurchasev2 extends Component
 
     protected function rff()
     {
-        
+
         $this->contact_first_name = $this->contact->first_name;
         $this->contact_last_name = $this->contact->last_name;
         $this->contact_email = $this->contact->email;
@@ -515,8 +517,7 @@ class BillingPortalPurchasev2 extends Component
             strlen($this->contact_email ?? '') == 0 ||
             strlen($this->client_city ?? '') == 0 ||
             strlen($this->client_postal_code ?? '') == 0
-        )
-        {
+        ) {
             $this->check_rff = true;
         }
 
@@ -757,7 +758,7 @@ class BillingPortalPurchasev2 extends Component
                 $data['settings']->currency_id = $currency->id;
             }
         } elseif ($this->subscription->group_settings && property_exists($this->subscription->group_settings->settings, 'currency_id')) {
-            
+
             /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
             $currencies = app('currencies');
 
@@ -768,6 +769,8 @@ class BillingPortalPurchasev2 extends Component
             if ($currency) {
                 $data['settings']->currency_id = $currency->id;
             }
+        }else {
+            $data['settings']->currency_id = $this->subscription->company->getSetting('currency_id');
         }
 
         if (array_key_exists('locale', $this->request_data)) {
@@ -775,7 +778,7 @@ class BillingPortalPurchasev2 extends Component
 
             /** @var \Illuminate\Support\Collection<\App\Models\Language> */
             $languages = app('languages');
-            
+
             $record = $languages->first(function ($item) use ($request) {
                 return $item->locale == $request['locale'];
             });
@@ -786,8 +789,12 @@ class BillingPortalPurchasev2 extends Component
         }
 
         $client = $client_repo->save($data, ClientFactory::create($company->id, $user->id));
+        $contact = $client->fresh()->contacts->first();
+        $this->contact = $contact;
 
-        return $client->fresh()->contacts->first();
+        Auth::guard('contact')->loginUsingId($contact->id, true);
+        
+        return $contact;
     }
 
 

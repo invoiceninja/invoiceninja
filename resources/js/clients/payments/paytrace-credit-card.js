@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { instant, wait } from '../wait';
+
 class PayTraceCreditCard {
     constructor() {
         this.clientKey = document.querySelector(
@@ -122,6 +124,11 @@ class PayTraceCreditCard {
     }
 
     handlePaymentWithCreditCard(event) {
+        const button = document.getElementById('pay-now');
+
+        button.querySelector('svg').classList.remove('hidden');
+        button.querySelector('span').classList.add('hidden');
+
         event.target.parentElement.disabled = true;
         document.getElementById('errors').hidden = true;
 
@@ -131,6 +138,10 @@ class PayTraceCreditCard {
 
                 errorsContainer.textContent = errors[0].description;
                 errorsContainer.hidden = false;
+
+
+                button.querySelector('svg').classList.add('hidden');
+                button.querySelector('span').classList.remove('hidden');
 
                 return (event.target.parentElement.disabled = false);
             }
@@ -161,6 +172,9 @@ class PayTraceCreditCard {
                     ).textContent = JSON.stringify(error);
                     document.getElementById('errors').hidden = false;
 
+                    button.querySelector('svg').classList.add('hidden');
+                    button.querySelector('span').classList.remove('hidden');
+
                     console.log(error);
                 });
         });
@@ -169,11 +183,16 @@ class PayTraceCreditCard {
     handlePaymentWithToken(event) {
         event.target.parentElement.disabled = true;
 
+        const button = document.getElementById('pay-now');
+
+        button.querySelector('svg').classList.remove('hidden');
+        button.querySelector('span').classList.add('hidden');
+
         document.getElementById('server_response').submit();
     }
 
     handle() {
-        
+
         Array.from(
             document.getElementsByClassName('toggle-payment-with-token')
         ).forEach((element) =>
@@ -217,7 +236,15 @@ class PayTraceCreditCard {
 
                 return this.handlePaymentWithToken(e);
             });
+
+        if (Array.from(document.getElementsByClassName('toggle-payment-with-token')).length === 0 && !instant()) {
+            document.getElementById('toggle-payment-with-credit-card').click();
+        }
     }
 }
 
-new PayTraceCreditCard().handle();
+function boot() {
+    new PayTraceCreditCard().handle();
+}
+
+instant() ? boot() : wait('#paytrace-credit-card-payment').then(() => boot())

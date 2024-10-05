@@ -12,16 +12,19 @@
 
 namespace App\PaymentDrivers\Stripe;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
-use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
+use App\Jobs\Util\SystemLogger;
+use App\Exceptions\PaymentFailed;
 use App\PaymentDrivers\StripePaymentDriver;
+use Stripe\Exception\InvalidRequestException;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use Throwable;
 
-class Alipay
+class Alipay implements LivewireMethodInterface
 {
     /** @var StripePaymentDriver */
     public $stripe;
@@ -33,26 +36,9 @@ class Alipay
 
     public function paymentView(array $data)
     {
-        $intent = \Stripe\PaymentIntent::create([
-            'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
-            'currency' => $this->stripe->client->currency()->code,
-            'payment_method_types' => ['alipay'],
-            'customer' => $this->stripe->findOrCreateCustomer(),
-            'description' => $this->stripe->getDescription(false),
-            'metadata' => [
-                'payment_hash' => $this->stripe->payment_hash->hash,
-                'gateway_type_id' => GatewayType::ALIPAY,
-            ],
-        ], $this->stripe->stripe_connect_auth);
-
-
-        $data['gateway'] = $this->stripe;
-        $data['return_url'] = $this->buildReturnUrl();
-        $data['ci_intent'] = $intent->client_secret;
-
-        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency())]);
-        $this->stripe->payment_hash->save();
-
+       
+        $data = $this->paymentData($data);
+       
         return render('gateways.stripe.alipay.pay', $data);
     }
 
@@ -80,8 +66,6 @@ class Alipay
                 $request->payment_intent,
                 $this->stripe->stripe_connect_auth
             );
-
-            nlog($pi);
 
             if (in_array($pi->status, ['succeeded', 'pending'])) {
                 return $this->processSuccesfulRedirect($pi);
@@ -145,5 +129,47 @@ class Alipay
         );
 
         throw new PaymentFailed('Failed to process the payment.', 500);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.stripe.alipay.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        try {
+            $intent = \Stripe\PaymentIntent::create([
+                'amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency()),
+                'currency' => $this->stripe->client->currency()->code,
+                'payment_method_types' => ['alipay'],
+                'customer' => $this->stripe->findOrCreateCustomer(),
+                'description' => $this->stripe->getDescription(false),
+                'metadata' => [
+                    'payment_hash' => $this->stripe->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::ALIPAY,
+                ],
+            ], $this->stripe->stripe_connect_auth);
+        }
+        catch(\Throwable $e){
+
+            throw new PaymentFailed($e->getMessage(), $e->getCode());
+            
+        }
+
+        $data['gateway'] = $this->stripe;
+        $data['return_url'] = $this->buildReturnUrl();
+        $data['ci_intent'] = $intent->client_secret;
+
+        $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['stripe_amount' => $this->stripe->convertToStripeAmount($data['total']['amount_with_fee'], $this->stripe->client->currency()->precision, $this->stripe->client->currency())]);
+        $this->stripe->payment_hash->save();
+
+        return $data;
     }
 }

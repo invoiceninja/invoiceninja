@@ -11,8 +11,9 @@
 
 namespace App\Repositories;
 
-use App\Models\Company;
 use App\Utils\Ninja;
+use App\Models\Company;
+use App\Repositories\BaseRepository;
 
 /**
  * CompanyRepository.
@@ -55,6 +56,10 @@ class CompanyRepository extends BaseRepository
 
         if(isset($data['smtp_password'])) {
             $company->smtp_password = $data['smtp_password'];
+        }
+        
+        if (isset($data['e_invoice'])) {
+            $company->e_invoice = $data['e_invoice'];
         }
 
         $company->save();

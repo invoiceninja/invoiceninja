@@ -183,13 +183,13 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     public function preferredLocale()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
         return $languages->first(function ($item) {
             return $item->id == $this->company->getSetting('language_id');
-        })->locale;
+        })->locale ?? 'en';
     }
 
     /**
@@ -203,7 +203,6 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     {
         return $this
             ->withTrashed()
-            // ->company()
             ->where('id', $this->decodePrimaryKey($value))
             ->firstOrFail();
     }
@@ -219,4 +218,15 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
         return $domain.'/vendor/key_login/'.$this->contact_key;
     }
+
+    public function getAdminLink($use_react_link = false): string
+    {
+        return $use_react_link ? $this->getReactLink() : config('ninja.app_url');
+    }
+
+    private function getReactLink(): string
+    {
+        return config('ninja.react_url')."/#/vendors/{$this->vendor->hashed_id}";
+    }
+
 }

@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessBECS {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -17,13 +19,13 @@ class ProcessBECS {
 
     setupStripe = () => {
 
-        if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+            // this.stripe.stripeAccount = this.stripeConnect;
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
@@ -64,30 +66,30 @@ class ProcessBECS {
     handle = () => {
         document.getElementById('pay-now').addEventListener('click', (e) => {
 
-        let errors = document.getElementById('errors');
+            let errors = document.getElementById('errors');
 
-        if (document.getElementById('becs-name').value === "") {
-            document.getElementById('becs-name').focus();
-            errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
-            errors.hidden = false;
-            return;
-        }
+            if (document.getElementById('becs-name').value === "") {
+                document.getElementById('becs-name').focus();
+                errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
+                errors.hidden = false;
+                return;
+            }
 
-        if (document.getElementById('becs-email-address').value === "") {
-            document.getElementById('becs-email-address').focus();
-            errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
-            errors.hidden = false;
-            return ;
-        }
+            if (document.getElementById('becs-email-address').value === "") {
+                document.getElementById('becs-email-address').focus();
+                errors.textContent = document.querySelector('meta[name=translation-email-required]').content;
+                errors.hidden = false;
+                return;
+            }
 
 
-        if (!document.getElementById('becs-mandate-acceptance').checked) {
-            document.getElementById('becs-mandate-acceptance').focus();
-            errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
-            errors.hidden = false;
-            console.log("Terms");
-            return ;
-        }
+            if (!document.getElementById('becs-mandate-acceptance').checked) {
+                document.getElementById('becs-mandate-acceptance').focus();
+                errors.textContent = document.querySelector('meta[name=translation-terms-required]').content;
+                errors.hidden = false;
+                console.log("Terms");
+                return;
+            }
 
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
@@ -129,17 +131,21 @@ class ProcessBECS {
         errors.textContent = message;
         errors.hidden = false;
 
-            document.getElementById('pay-now').disabled = false;
-            document.querySelector('#pay-now > svg').classList.add('hidden');
-            document.querySelector('#pay-now > span').classList.remove('hidden');
+        document.getElementById('pay-now').disabled = false;
+        document.querySelector('#pay-now > svg').classList.add('hidden');
+        document.querySelector('#pay-now > span').classList.remove('hidden');
     }
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessBECS(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
-new ProcessBECS(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-becs-payment').then(() => boot());

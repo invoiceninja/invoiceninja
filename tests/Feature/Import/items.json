@@ -1,0 +1,204 @@
+{
+    "Item": [
+      {
+       "Name": "Concrete",
+       "Description": "Concrete for fountain installation",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "3",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:36:03-07:00",
+        "LastUpdatedTime": "2024-06-19T12:47:47-07:00"
+       }
+      },
+      {
+       "Name": "Design",
+       "Description": "Custom Design",
+       "UnitPrice": 75,
+       "sparse": true,
+       "Id": "4",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:41:38-07:00",
+        "LastUpdatedTime": "2024-06-16T10:41:38-07:00"
+       }
+      },
+      {
+       "Name": "Gardening",
+       "Description": "Weekly Gardening Service",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "6",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:43:14-07:00",
+        "LastUpdatedTime": "2024-06-16T10:43:14-07:00"
+       }
+      },
+      {
+       "Name": "Hours",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "2",
+       "MetaData": {
+        "CreateTime": "2024-06-11T14:42:05-07:00",
+        "LastUpdatedTime": "2024-06-11T14:42:05-07:00"
+       }
+      },
+      {
+       "Name": "Installation",
+       "Description": "Installation of landscape design",
+       "UnitPrice": 50,
+       "sparse": true,
+       "Id": "7",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:43:54-07:00",
+        "LastUpdatedTime": "2024-06-16T10:43:54-07:00"
+       }
+      },
+      {
+       "Name": "Lighting",
+       "Description": "Garden Lighting",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "8",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:44:40-07:00",
+        "LastUpdatedTime": "2024-06-19T12:47:38-07:00"
+       }
+      },
+      {
+       "Name": "Maintenance & Repair",
+       "Description": "Maintenance & Repair",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "9",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:45:18-07:00",
+        "LastUpdatedTime": "2024-06-16T10:45:18-07:00"
+       }
+      },
+      {
+       "Name": "Pest Control",
+       "Description": "Pest Control Services",
+       "UnitPrice": 35,
+       "sparse": true,
+       "Id": "10",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:45:49-07:00",
+        "LastUpdatedTime": "2024-06-16T10:45:49-07:00"
+       }
+      },
+      {
+       "Name": "Pump",
+       "Description": "Fountain Pump",
+       "UnitPrice": 15,
+       "QtyOnHand": 25,
+       "sparse": true,
+       "Id": "11",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:46:45-07:00",
+        "LastUpdatedTime": "2024-06-19T13:16:17-07:00"
+       }
+      },
+      {
+       "Name": "Refunds & Allowances",
+       "Description": "Income due to refunds or allowances",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "12",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:49:18-07:00",
+        "LastUpdatedTime": "2024-06-16T10:49:18-07:00"
+       }
+      },
+      {
+       "Name": "Rock Fountain",
+       "Description": "Rock Fountain",
+       "UnitPrice": 275,
+       "QtyOnHand": 2,
+       "sparse": true,
+       "Id": "5",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:42:19-07:00",
+        "LastUpdatedTime": "2024-06-19T13:16:17-07:00"
+       }
+      },
+      {
+       "Name": "Rocks",
+       "Description": "Garden Rocks",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "13",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:50:11-07:00",
+        "LastUpdatedTime": "2024-06-19T12:47:31-07:00"
+       }
+      },
+      {
+       "Name": "Services",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "1",
+       "MetaData": {
+        "CreateTime": "2024-06-11T14:42:05-07:00",
+        "LastUpdatedTime": "2024-06-11T14:42:05-07:00"
+       }
+      },
+      {
+       "Name": "Sod",
+       "Description": "Sod",
+       "UnitPrice": 0,
+       "sparse": true,
+       "Id": "14",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:50:45-07:00",
+        "LastUpdatedTime": "2024-06-19T12:47:22-07:00"
+       }
+      },
+      {
+       "Name": "Soil",
+       "Description": "2 cubic ft. bag",
+       "UnitPrice": 10,
+       "sparse": true,
+       "Id": "15",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:51:28-07:00",
+        "LastUpdatedTime": "2024-06-19T12:47:25-07:00"
+       }
+      },
+      {
+       "Name": "Sprinkler Heads",
+       "Description": "Sprinkler Heads",
+       "UnitPrice": 2,
+       "QtyOnHand": 25,
+       "sparse": true,
+       "Id": "16",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:51:50-07:00",
+        "LastUpdatedTime": "2024-06-19T12:51:47-07:00"
+       }
+      },
+      {
+       "Name": "Sprinkler Pipes",
+       "Description": "Sprinkler Pipes",
+       "UnitPrice": 4,
+       "QtyOnHand": 31,
+       "sparse": true,
+       "Id": "17",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:52:07-07:00",
+        "LastUpdatedTime": "2024-06-19T12:57:24-07:00"
+       }
+      },
+      {
+       "Name": "Trimming",
+       "Description": "Tree and Shrub Trimming",
+       "UnitPrice": 35,
+       "sparse": true,
+       "Id": "18",
+       "MetaData": {
+        "CreateTime": "2024-06-16T10:52:42-07:00",
+        "LastUpdatedTime": "2024-06-16T10:52:42-07:00"
+       }
+      }
+     ]
+}

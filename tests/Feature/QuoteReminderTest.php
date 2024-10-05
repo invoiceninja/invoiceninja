@@ -31,8 +31,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Jobs\Util\QuoteReminderJob
+ * 
+ *  App\Jobs\Util\QuoteReminderJob
  */
 class QuoteReminderTest extends TestCase
 {
@@ -42,7 +42,7 @@ class QuoteReminderTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -71,7 +71,7 @@ class QuoteReminderTest extends TestCase
     public $token;
 
     public $cu;
-    
+
     public $invoice;
 
     private function buildData($settings = null)
@@ -112,7 +112,7 @@ class QuoteReminderTest extends TestCase
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
@@ -162,12 +162,12 @@ class QuoteReminderTest extends TestCase
 
     public function testNullReminder()
     {
-       
+
         $settings = $this->company->settings;
         $settings->enable_quote_reminder1 = false;
         $settings->quote_schedule_reminder1 = '';
         $settings->quote_num_days_reminder1 = 1;
-        
+
         $this->buildData(($settings));
 
         $this->quote->date = now()->subMonths(2)->format('Y-m-d');
@@ -185,12 +185,12 @@ class QuoteReminderTest extends TestCase
 
     public function testBeforeValidReminder()
     {
-       
+
         $settings = $this->company->settings;
         $settings->enable_quote_reminder1 = true;
         $settings->quote_schedule_reminder1 = 'before_valid_until_date';
         $settings->quote_num_days_reminder1 = 1;
-        
+
         $this->buildData(($settings));
 
         $this->quote->date = now()->addMonth()->format('Y-m-d');

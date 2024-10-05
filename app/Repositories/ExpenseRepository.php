@@ -121,7 +121,8 @@ class ExpenseRepository extends BaseRepository
             $exchange_rate = new CurrencyApi();
 
             $expense->exchange_rate = $exchange_rate->exchangeRate($expense_currency, $company_currency, Carbon::parse($expense->date));
-
+            $expense->invoice_currency_id = $company_currency;
+            
             return $expense;
         }
 

@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Casts\EncryptedCast;
 use App\DataMapper\CompanySettings;
+use App\DataMapper\QuickbooksSettings;
 use App\Models\Presenters\CompanyPresenter;
 use App\Services\Company\CompanyService;
 use App\Services\Notification\NotificationService;
@@ -111,6 +112,14 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int $convert_expense_currency
  * @property int $notify_vendor_when_paid
  * @property int $invoice_task_hours
+ * @property string|null $expense_mailbox
+ * @property boolean $expense_mailbox_active
+ * @property bool $inbound_mailbox_allow_company_users
+ * @property bool $inbound_mailbox_allow_vendors
+ * @property bool $inbound_mailbox_allow_clients
+ * @property bool $inbound_mailbox_allow_unknown
+ * @property string|null $inbound_mailbox_whitelist
+ * @property string|null $inbound_mailbox_blacklist
  * @property int $deleted_at
  * @property string|null $smtp_username
  * @property string|null $smtp_password
@@ -118,7 +127,9 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $smtp_port
  * @property string|null $smtp_encryption
  * @property string|null $smtp_local_domain
+ * @property \App\DataMapper\QuickbooksSettings|null $quickbooks
  * @property boolean $smtp_verify_peer
+ * @property int|null $legal_entity_id
  * @property-read \App\Models\Account $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read int|null $activities_count
@@ -359,12 +370,20 @@ class Company extends BaseModel
         'calculate_taxes',
         'tax_data',
         'e_invoice_certificate_passphrase',
+        'expense_mailbox_active',
+        'expense_mailbox',
+        'inbound_mailbox_allow_company_users',
+        'inbound_mailbox_allow_vendors',
+        'inbound_mailbox_allow_clients',
+        'inbound_mailbox_allow_unknown',
+        'inbound_mailbox_whitelist',
+        'inbound_mailbox_blacklist',
         'smtp_host',
         'smtp_port',
         'smtp_encryption',
         'smtp_local_domain',
         'smtp_verify_peer',
-        'e_invoice',
+        // 'e_invoice',
     ];
 
     protected $hidden = [
@@ -373,6 +392,7 @@ class Company extends BaseModel
         'ip',
         'smtp_username',
         'smtp_password',
+        'quickbooks',
     ];
 
     protected $casts = [
@@ -390,6 +410,8 @@ class Company extends BaseModel
         'smtp_username' => 'encrypted',
         'smtp_password' => 'encrypted',
         'e_invoice' => 'object',
+        'quickbooks' => QuickbooksSettings::class,
+        'smtp_port' => 'int',
     ];
 
     protected $with = [];
@@ -454,7 +476,7 @@ class Company extends BaseModel
 
     public function bank_transactions(): HasMany
     {
-        return $this->hasMany(BankTransaction::class);
+        return $this->hasMany(BankTransaction::class)->withTrashed();
     }
 
     public function bank_transaction_rules(): HasMany
@@ -554,7 +576,7 @@ class Company extends BaseModel
 
     public function activities(): HasMany
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(Activity::class)->where('account_id', $this->account_id)->orderBy('id', 'DESC')->take(50);
     }
 
     /**
@@ -684,7 +706,7 @@ class Company extends BaseModel
 
     public function language()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
@@ -733,7 +755,7 @@ class Company extends BaseModel
 
     public function currency()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
         $currencies = app('currencies');
 
@@ -829,24 +851,24 @@ class Company extends BaseModel
     public function credit_rules()
     {
         return BankTransactionRule::query()
-                                  ->where('company_id', $this->id)
-                                  ->where('applies_to', 'CREDIT')
-                                  ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'CREDIT')
+            ->get();
     }
 
     public function debit_rules()
     {
         return BankTransactionRule::query()
-                          ->where('company_id', $this->id)
-                          ->where('applies_to', 'DEBIT')
-                          ->get();
+            ->where('company_id', $this->id)
+            ->where('applies_to', 'DEBIT')
+            ->get();
     }
 
     public function resolveRouteBinding($value, $field = null)
     {
         return $this->where('id', $this->decodePrimaryKey($value))
-                    ->where('account_id', auth()->user()->account_id)
-                    ->firstOrFail();
+            ->where('account_id', auth()->user()->account_id)
+            ->firstOrFail();
     }
 
     public function domain(): string
@@ -856,7 +878,7 @@ class Company extends BaseModel
                 return $this->portal_domain;
             }
 
-            return "https://{$this->subdomain}.".config('ninja.app_domain');
+            return "https://{$this->subdomain}." . config('ninja.app_domain');
         }
 
         return config('ninja.app_url');
@@ -874,7 +896,7 @@ class Company extends BaseModel
 
     public function file_path(): string
     {
-        return $this->company_key.'/';
+        return $this->company_key . '/';
     }
 
     public function rBits()
@@ -951,7 +973,7 @@ class Company extends BaseModel
 
     public function date_format()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\DateFormat> */
         $date_formats = app('date_formats');
 
@@ -962,7 +984,7 @@ class Company extends BaseModel
 
     public function getInvoiceCert()
     {
-        if($this->e_invoice_certificate) {
+        if ($this->e_invoice_certificate) {
             return base64_decode($this->e_invoice_certificate);
         }
 

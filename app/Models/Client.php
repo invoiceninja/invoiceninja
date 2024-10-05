@@ -11,23 +11,26 @@
 
 namespace App\Models;
 
+use Laravel\Scout\Searchable;
+use App\DataMapper\ClientSync;
+use App\Utils\Traits\AppSetup;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use App\DataMapper\FeesAndLimits;
+use App\Models\Traits\Excludable;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\DataMapper\FeesAndLimits;
-use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\Presenters\ClientPresenter;
-use App\Models\Traits\Excludable;
+use Illuminate\Support\Facades\App;
 use App\Services\Client\ClientService;
-use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\ClientGroupSettingsSaver;
 use App\Utils\Traits\GeneratesCounter;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Contracts\Translation\HasLocalePreference;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Presenters\ClientPresenter;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Utils\Traits\ClientGroupSettingsSaver;
+use App\Libraries\Currency\Conversion\CurrencyApi;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
 /**
  * App\Models\Client
@@ -50,7 +53,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $last_login
  * @property int|null $industry_id
  * @property int|null $size_id
- * @property object|null $e_invoice
+ * @property object|array|null $e_invoice
  * @property string|null $address1
  * @property string|null $address2
  * @property string|null $city
@@ -69,6 +72,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property int|null $shipping_country_id
  * @property object|null $settings
  * @property object|null $group_settings
+ * @property object|null $sync
  * @property bool $is_deleted
  * @property int|null $group_settings_id
  * @property string|null $vat_number
@@ -108,7 +112,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @method static \Illuminate\Database\Eloquent\Builder|Client select()
  * @property string $payment_balance
  * @property mixed $tax_data
- * @property int $is_tax_exempt
+ * @property bool $is_tax_exempt
  * @property bool $has_valid_vat_number
  * @mixin \Eloquent
  */
@@ -123,7 +127,8 @@ class Client extends BaseModel implements HasLocalePreference
     use AppSetup;
     use ClientGroupSettingsSaver;
     use Excludable;
-    
+    use Searchable;
+
     protected $presenter = ClientPresenter::class;
 
     protected $hidden = [
@@ -186,6 +191,7 @@ class Client extends BaseModel implements HasLocalePreference
         'last_login' => 'timestamp',
         'tax_data' => 'object',
         'e_invoice' => 'object',
+        'sync' => ClientSync::class,
     ];
 
     protected $touches = [];
@@ -232,6 +238,52 @@ class Client extends BaseModel implements HasLocalePreference
         'custom_value4',
     ];
 
+    public function toSearchableArray()
+    {
+        
+        $locale = $this->locale();
+        App::setLocale($locale);
+
+        $name = ctrans('texts.client') . " | " . $this->present()->name();
+
+        if(strlen($this->vat_number ?? '') > 1)
+            $name .= " | ". $this->vat_number;
+        
+        return [
+            'name' => $name,
+            'is_deleted' => $this->is_deleted,
+            'hashed_id' => $this->hashed_id,
+            'number' => $this->number,
+            'id_number' => $this->id_number,
+            'vat_number' => $this->vat_number,
+            'balance' => $this->balance,
+            'paid_to_date' => $this->paid_to_date,
+            'phone' => $this->phone,
+            'address1' => $this->address1,
+            'address2' => $this->address2,
+            'city' => $this->city,
+            'state' => $this->state,
+            'postal_code' => $this->postal_code,
+            'website' => $this->website,
+            'private_notes' => $this->private_notes,
+            'public_notes' => $this->public_notes,
+            'shipping_address1' => $this->shipping_address1,
+            'shipping_address2' => $this->shipping_address2,
+            'shipping_city' => $this->shipping_city,
+            'shipping_state' => $this->shipping_state,
+            'shipping_postal_code' => $this->shipping_postal_code,
+            'custom_value1' => $this->custom_value1,
+            'custom_value2' => $this->custom_value2,
+            'custom_value3' => $this->custom_value3,
+            'custom_value4' => $this->custom_value4,
+            'company_key' => $this->company->company_key,
+        ];
+    }
+
+   public function getScoutKey()
+   {
+       return $this->hashed_id;
+   }
 
     public function getEntityType()
     {
@@ -297,7 +349,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Activity::class)->take(50)->orderBy('id', 'desc');
+        return $this->hasMany(Activity::class)->where('company_id', $this->company_id)->take(50)->orderBy('id', 'desc');
     }
 
     public function contacts(): HasMany
@@ -661,12 +713,27 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if ($this->currency()->code == 'CAD' && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+        if (in_array($this->currency()->code, ['CAD','USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+        // if ($this->currency()->code == 'CAD' && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::ACSS) {
                     $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
                     if ($cg && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
+                        return $cg;
+                    }
+                }
+            }
+        }
+
+        
+        if (in_array($this->currency()->code, ['GBP']) && in_array(GatewayType::BACS, array_column($pms, 'gateway_type_id'))) {
+            // if ($this->currency()->code == 'CAD' && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+            foreach ($pms as $pm) {
+                if ($pm['gateway_type_id'] == GatewayType::BACS) {
+                    $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
+
+                    if ($cg && $cg->fees_and_limits->{GatewayType::BACS}->is_enabled) {
                         return $cg;
                     }
                 }

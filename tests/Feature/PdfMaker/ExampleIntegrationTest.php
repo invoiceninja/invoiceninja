@@ -20,7 +20,8 @@ use Tests\TestCase;
 
 class ExampleIntegrationTest extends TestCase
 {
-    use MakesInvoiceValues, MockAccountData;
+    use MakesInvoiceValues;
+    use MockAccountData;
 
     protected function setUp(): void
     {

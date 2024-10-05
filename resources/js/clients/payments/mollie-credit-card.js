@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class _Mollie {
     constructor() {
         this.mollie = Mollie(
@@ -26,7 +28,7 @@ class _Mollie {
 
         let cardHolderError = document.getElementById('card-holder-error');
 
-        cardHolder.addEventListener('change', function(event) {
+        cardHolder.addEventListener('change', function (event) {
             if (event.error && event.touched) {
                 cardHolderError.textContent = event.error;
             } else {
@@ -43,7 +45,7 @@ class _Mollie {
 
         let cardNumberError = document.getElementById('card-number-error');
 
-        cardNumber.addEventListener('change', function(event) {
+        cardNumber.addEventListener('change', function (event) {
             if (event.error && event.touched) {
                 cardNumberError.textContent = event.error;
             } else {
@@ -60,7 +62,7 @@ class _Mollie {
 
         let expiryDateError = document.getElementById('expiry-date-error');
 
-        expiryDate.addEventListener('change', function(event) {
+        expiryDate.addEventListener('change', function (event) {
             if (event.error && event.touched) {
                 expiryDateError.textContent = event.error;
             } else {
@@ -77,7 +79,7 @@ class _Mollie {
 
         let verificationCodeError = document.getElementById('cvv-error');
 
-        verificationCode.addEventListener('change', function(event) {
+        verificationCode.addEventListener('change', function (event) {
             if (event.error && event.touched) {
                 verificationCodeError.textContent = event.error;
             } else {
@@ -97,7 +99,7 @@ class _Mollie {
             return document.getElementById('server-response').submit();
         }
 
-        this.mollie.createToken().then(function(result) {
+        this.mollie.createToken().then(function (result) {
             let token = result.token;
             let error = result.error;
 
@@ -166,4 +168,9 @@ class _Mollie {
     }
 }
 
-new _Mollie().handle();
+
+function boot() {
+    new _Mollie().handle();
+}
+
+instant() ? boot(): wait('#mollie-credit-card-payment').then(() => boot());

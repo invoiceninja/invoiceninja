@@ -57,6 +57,7 @@ class CompanyGatewayController extends BaseController
 
     private string $forte_key = 'kivcvjexxvdiyqtj3mju5d6yhpeht2xs';
 
+    private string $cbapowerboard_key = 'b67581d804dbad1743b61c57285142ad';
 
     /**
      * CompanyGatewayController constructor.
@@ -227,17 +228,41 @@ class CompanyGatewayController extends BaseController
 
         ApplePayDomain::dispatch($company_gateway, $company_gateway->company->db);
 
-        if (in_array($company_gateway->gateway_key, $this->stripe_keys)) {
-            StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
-        } elseif($company_gateway->gateway_key == $this->checkout_key) {
-            CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
-        } elseif($company_gateway->gateway_key == $this->forte_key) {
+        switch ($company_gateway->gateway_key) {
+            case in_array($company_gateway->gateway_key, $this->stripe_keys):
+                StripeWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+                break;
 
-            dispatch(function () use ($company_gateway) {
-                MultiDB::setDb($company_gateway->company->db);
-                $company_gateway->driver()->updateFees();
-            })->afterResponse();
+            case $this->checkout_key:
+                CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+                break;
 
+            case $this->forte_key:                
+                dispatch(function () use ($company_gateway) {
+                    MultiDB::setDb($company_gateway->company->db);
+                    $company_gateway->driver()->updateFees();
+                })->afterResponse();
+
+                break;
+
+            case $this->cbapowerboard_key:               
+                dispatch(function () use ($company_gateway) {
+                    MultiDB::setDb($company_gateway->company->db);
+                    $company_gateway->driver()->init()->settings()->updateSettings();
+                })->afterResponse();
+
+                $config = $company_gateway->getConfig();
+                $config->visa = true;
+                $config->mastercard = true;
+                $company_gateway->setConfig($config);
+                $company_gateway->save();
+
+                break;
+
+            default:
+                # code...
+                break;
+        
         }
 
         return $this->itemResponse($company_gateway);

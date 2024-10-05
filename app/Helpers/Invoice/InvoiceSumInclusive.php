@@ -64,7 +64,7 @@ class InvoiceSumInclusive
     {
         $this->invoice = $invoice;
         $this->client = $invoice->client ?? $invoice->vendor;
-        
+
         $this->precision = $this->client->currency()->precision;
         $this->rappen_rounding = $this->client->getSetting('enable_rappen_rounding');
 
@@ -128,6 +128,15 @@ class InvoiceSumInclusive
     private function calculateInvoiceTaxes()
     {
         $amount = $this->total;
+
+        if ($this->client->is_tax_exempt) {
+            $this->invoice->tax_rate1 = 0;
+            $this->invoice->tax_rate2 = 0;
+            $this->invoice->tax_rate3 = 0;
+            $this->invoice->tax_name1 = '';
+            $this->invoice->tax_name2 = '';
+            $this->invoice->tax_name3 = '';
+        }
 
         if ($this->invoice->discount > 0 && $this->invoice->is_amount_discount) {
             $amount = $this->formatValue(($this->sub_total - $this->invoice->discount), 2);

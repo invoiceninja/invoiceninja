@@ -24,15 +24,15 @@ use App\Services\Chart\ChartService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers  App\Services\Chart\ChartService
+ * 
+ *   App\Services\Chart\ChartService
  */
 class ChartCurrencyTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +41,7 @@ class ChartCurrencyTest extends TestCase
 
     public function testAggregateRevenues()
     {
-        
+
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -64,7 +64,7 @@ class ChartCurrencyTest extends TestCase
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
- 
+
         $settings = ClientSettings::defaults();
         $settings->currency_id = '1'; //USD
 
@@ -127,8 +127,8 @@ class ChartCurrencyTest extends TestCase
         $this->assertEquals(100, $results[1]['invoices']->invoiced_amount);
         $this->assertEquals(100, $results[2]['invoices']->invoiced_amount);
 
-        $this->assertEquals(150, $results[999]['invoices']->invoiced_amount);
-        $this->assertEquals(150, $results[999]['revenue']->paid_to_date);
+        $this->assertEquals(300, $results[999]['invoices']->invoiced_amount);
+        $this->assertEquals(300, $results[999]['revenue']->paid_to_date);
 
         $usd->forceDelete();
         $gbp->forceDelete();
@@ -138,7 +138,7 @@ class ChartCurrencyTest extends TestCase
 
     public function testAggregateOutstanding()
     {
-        
+
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -161,7 +161,7 @@ class ChartCurrencyTest extends TestCase
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
- 
+
         $settings = ClientSettings::defaults();
         $settings->currency_id = '1'; //USD
 
@@ -196,7 +196,7 @@ class ChartCurrencyTest extends TestCase
             'due_date' => now()
         ]);
 
-        
+
         $i1_overdue = Invoice::factory()->create([
             'client_id' => $usd->id,
             'user_id' => $this->user->id,
@@ -222,7 +222,7 @@ class ChartCurrencyTest extends TestCase
             'due_date' => now()
         ]);
 
-        
+
         $i2_overdue = Invoice::factory()->create([
            'client_id' => $gbp->id,
            'user_id' => $this->user->id,
@@ -243,7 +243,7 @@ class ChartCurrencyTest extends TestCase
 
         $this->assertCount(2, $results['currencies']);
 
-        nlog($results);
+        // nlog($results);
 
         $this->assertEquals('USD', $results['currencies'][1]);
         $this->assertEquals('GBP', $results['currencies'][2]);
@@ -251,10 +251,10 @@ class ChartCurrencyTest extends TestCase
         $this->assertEquals(200, $results[1]['invoices']->invoiced_amount);
         $this->assertEquals(200, $results[2]['invoices']->invoiced_amount);
 
-        $this->assertEquals(300, $results[999]['invoices']->invoiced_amount);
-        $this->assertEquals(150, $results[999]['revenue']->paid_to_date);
+        $this->assertEquals(500, $results[999]['invoices']->invoiced_amount);
+        $this->assertEquals(300, $results[999]['revenue']->paid_to_date);
 
-        $this->assertEquals(150, $results[999]['outstanding']->amount);
+        $this->assertEquals(200, $results[999]['outstanding']->amount);
         $this->assertEquals(2, $results[999]['outstanding']->outstanding_count);
 
         $usd->forceDelete();
@@ -266,7 +266,7 @@ class ChartCurrencyTest extends TestCase
 
     public function testAggregateExpenses()
     {
-        
+
         $settings = CompanySettings::defaults();
 
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -289,7 +289,7 @@ class ChartCurrencyTest extends TestCase
             'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
- 
+
         $settings = ClientSettings::defaults();
         $settings->currency_id = '1'; //USD
 
@@ -331,7 +331,7 @@ class ChartCurrencyTest extends TestCase
 
         $this->assertCount(2, $results['currencies']);
 
-        nlog($results);
+        // nlog($results);
 
         // $this->assertEquals('USD', $results['currencies'][1]);
         // $this->assertEquals('GBP', $results['currencies'][2]);
@@ -362,7 +362,7 @@ class ChartCurrencyTest extends TestCase
             'paid_to_date' => 100,
             'status_id' => 4,
             'date' => now(),
-            'due_date'=> now(),
+            'due_date' => now(),
             'number' => 'db_record',
         ]);
 

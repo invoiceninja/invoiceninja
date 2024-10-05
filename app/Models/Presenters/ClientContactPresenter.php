@@ -42,7 +42,7 @@ class ClientContactPresenter extends EntityPresenter
 
     public function search_display()
     {
-        return $this->name().' <'.$this->entity->email.'>' ?? '';
+        return strlen($this->entity->email ?? '') > 2 ? $this->name().' <'.$this->entity->email.'>' : $this->name();
     }
 
     public function phone()

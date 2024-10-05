@@ -21,8 +21,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\RecurringQuoteController
+ * 
+ *  App\Http\Controllers\RecurringQuoteController
  */
 class RecurringQuoteTest extends TestCase
 {
@@ -31,8 +31,8 @@ class RecurringQuoteTest extends TestCase
     use MockAccountData;
 
     public $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 

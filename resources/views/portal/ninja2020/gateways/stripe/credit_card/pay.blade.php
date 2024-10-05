@@ -27,6 +27,8 @@
     <meta name="only-authorization" content="">
     <meta name="client-postal-code" content="{{ $client->postal_code ?? '' }}">
     <meta name="stripe-require-postal-code" content="{{ $gateway->company_gateway->require_postal_code }}">
+
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')
@@ -51,10 +53,10 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-        <ul class="list-none hover:list-disc">
+        <ul class="list-none">
         @if(count($tokens) > 0)
             @foreach($tokens as $token)
-            <li class="py-2 hover:text-blue hover:bg-blue-600">
+            <li class="py-2 cursor-pointer">
                 <label class="mr-4">
                     <input
                         type="radio"
@@ -67,7 +69,7 @@
             @endforeach
         @endisset
 
-            <li class="py-2 hover:text-blue hover:bg-blue-600">
+            <li class="py-2 cursor-pointer">
                 <label>
                     <input
                         type="radio"

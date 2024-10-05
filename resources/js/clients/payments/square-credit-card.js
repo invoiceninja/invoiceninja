@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+import { wait, instant } from '../wait';
+
 class SquareCreditCard {
     constructor() {
         this.appId = document.querySelector('meta[name=square-appId]').content;
@@ -130,54 +132,58 @@ class SquareCreditCard {
 
         await this.init().then(() => {
 
-        document
-            .getElementById('authorize-card')
-            ?.addEventListener('click', (e) =>
-                this.completePaymentWithoutToken(e)
+            document
+                .getElementById('authorize-card')
+                ?.addEventListener('click', (e) =>
+                    this.completePaymentWithoutToken(e)
+                );
+
+            document.getElementById('pay-now')?.addEventListener('click', (e) => {
+                let tokenInput = document.querySelector('input[name=token]');
+
+                if (tokenInput.value) {
+                    return this.completePaymentUsingToken(e);
+                }
+
+                return this.completePaymentWithoutToken(e);
+            });
+
+            Array.from(
+                document.getElementsByClassName('toggle-payment-with-token')
+            ).forEach((element) =>
+                element.addEventListener('click', async (element) => {
+                    document
+                        .getElementById('card-container')
+                        .classList.add('hidden');
+                    document.getElementById('save-card--container').style.display =
+                        'none';
+                    document.querySelector('input[name=token]').value =
+                        element.target.dataset.token;
+                })
             );
 
-        document.getElementById('pay-now')?.addEventListener('click', (e) => {
-            let tokenInput = document.querySelector('input[name=token]');
-
-            if (tokenInput.value) {
-                return this.completePaymentUsingToken(e);
-            }
-
-            return this.completePaymentWithoutToken(e);
-        });
-
-        Array.from(
-            document.getElementsByClassName('toggle-payment-with-token')
-        ).forEach((element) =>
-            element.addEventListener('click', async (element) => {
-                document
-                    .getElementById('card-container')
-                    .classList.add('hidden');
-                document.getElementById('save-card--container').style.display =
-                    'none';
-                document.querySelector('input[name=token]').value =
-                    element.target.dataset.token;
-            })
-        );
-
-        document
-            .getElementById('toggle-payment-with-credit-card')
-            ?.addEventListener('click', async (element) => {
-                document
-                    .getElementById('card-container')
-                    .classList.remove('hidden');
-                document.getElementById('save-card--container').style.display =
-                    'grid';
-                document.querySelector('input[name=token]').value = '';
-            });
+            document
+                .getElementById('toggle-payment-with-credit-card')
+                ?.addEventListener('click', async (element) => {
+                    document
+                        .getElementById('card-container')
+                        .classList.remove('hidden');
+                    document.getElementById('save-card--container').style.display =
+                        'grid';
+                    document.querySelector('input[name=token]').value = '';
+                });
 
             document.getElementById('loader').classList.add('hidden');
             document.getElementById('payment-list').classList.remove('hidden');
             document.getElementById('toggle-payment-with-credit-card')?.click();
 
-    });
+        });
 
     }
 }
 
-new SquareCreditCard().handle();
+function boot() {
+    new SquareCreditCard().handle();
+}
+
+instant() ? boot() : wait('#square-credit-card-payment').then(() => boot());

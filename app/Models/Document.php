@@ -85,6 +85,10 @@ class Document extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
+    protected $touches = [
+        // 'documentable'
+    ];
+    
     /**
      * @var array
      */

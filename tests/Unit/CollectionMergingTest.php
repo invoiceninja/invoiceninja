@@ -16,11 +16,11 @@ use App\Factory\InvoiceItemFactory;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class CollectionMergingTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

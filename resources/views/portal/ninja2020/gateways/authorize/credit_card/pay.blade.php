@@ -3,12 +3,10 @@
 @section('gateway_head')
     <meta name="authorize-public-key" content="{{ $public_client_id }}">
     <meta name="authorize-login-id" content="{{ $api_login_id }}">
+    <meta name="instant-payment" content="yes" />
 
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <meta name="authnet-require-cvv" content="{{ $gateway->company_gateway->require_cvv }}">
-
-    <script src="{{ asset('build/public/js/card-js.min.js/card-js.min.js') }}"></script>
-    <link href="{{ asset('build/public/css/card-js.min.css/card-js.min.css') }}" rel="stylesheet" type="text/css">
 @endsection
 
 @section('gateway_content')
@@ -71,25 +69,17 @@
         <script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
     @endif
 
+    <script src="{{ asset('vendor/simple-card@0.0.4/simple-card.js') }}"></script> 
     @vite('resources/js/clients/payments/authorize-credit-card-payment.js')
 @endsection
 
 @push('footer')
 <script defer>
- 
-$(function() {
+    document.querySelector('#date').addEventListener('change', (e) => {
+        const [month, year] = e.target.value.replace(/\s/g, '').split('/');
 
-    document.getElementsByClassName("expiry")[0].addEventListener('change', function() {
-
-    str = document.getElementsByClassName("expiry")[0].value.replace(/\s/g, '');
-    const expiryArray = str.split("/");
-
-    document.getElementsByName('expiry-month')[0].value = expiryArray[0];
-    document.getElementsByName('expiry-year')[0].value = expiryArray[1];
-
+        document.getElementsByName('expiry-month')[0].value  = month;
+        document.getElementsByName('expiry-year')[0].value = `20${year}`;
     });
-
-});
-
 </script>
 @endpush

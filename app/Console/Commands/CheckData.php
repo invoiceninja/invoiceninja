@@ -44,6 +44,7 @@ use App\Factory\ClientContactFactory;
 use App\Factory\VendorContactFactory;
 use App\Jobs\Company\CreateCompanyToken;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\Traits\CleanLineItems;
 use Symfony\Component\Console\Input\InputOption;
 
 /*
@@ -80,10 +81,12 @@ Options:
  */
 class CheckData extends Command
 {
+    use CleanLineItems;
+
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=} {--line_items=}';
 
     /**
      * @var string
@@ -144,6 +147,10 @@ class CheckData extends Command
 
         if($this->option('bank_transaction')) {
             $this->fixBankTransactions();
+        }
+
+        if($this->option('line_items')) {
+            $this->cleanInvoiceLineItems();
         }
 
         $this->logMessage('Done: '.strtoupper($this->isValid ? Account::RESULT_SUCCESS : Account::RESULT_FAILURE));
@@ -1169,12 +1176,29 @@ class CheckData extends Command
                 ->whereNull('exchange_rate')
                 ->orWhere('exchange_rate', 0)
                 ->cursor()
-                ->each(function ($expense){
+                ->each(function ($expense) {
                     $expense->exchange_rate = 1;
                     $expense->saveQuietly();
-                    
+
                     $this->logMessage("Fixing - exchange rate for expense :: {$expense->id}");
 
                 });
     }
+
+    public function cleanInvoiceLineItems()
+    {
+        Invoice::withTrashed()->cursor()->each(function ($invoice) {
+            $invoice->line_items = $this->cleanItems($invoice->line_items);
+            $invoice->saveQuietly();
+        });
+
+        Credit::withTrashed()->cursor()->each(function ($invoice) {
+            $invoice->line_items = $this->cleanItems($invoice->line_items);
+            $invoice->saveQuietly();
+        });
+
+        
+    }
+    
+    
 }

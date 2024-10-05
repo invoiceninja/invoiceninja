@@ -11,14 +11,15 @@
 
 namespace App\Http\Requests\Company;
 
-use App\Utils\Ninja;
-use App\Models\Company;
-use App\Libraries\MultiDB;
 use App\Http\Requests\Request;
-use App\Utils\Traits\MakesHash;
-use App\Http\ValidationRules\ValidSettingsRule;
-use App\Http\ValidationRules\Company\ValidSubdomain;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
+use App\Http\ValidationRules\Company\ValidExpenseMailbox;
+use App\Http\ValidationRules\Company\ValidSubdomain;
+use App\Http\ValidationRules\ValidSettingsRule;
+use App\Models\Company;
+use App\Utils\Ninja;
+use App\Libraries\MultiDB;
+use App\Utils\Traits\MakesHash;
 
 class StoreCompanyRequest extends Request
 {
@@ -50,11 +51,13 @@ class StoreCompanyRequest extends Request
             $rules['portal_domain'] = 'sometimes|url';
         } else {
             if (Ninja::isHosted()) {
-                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
+                $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9-]{1,63}$/', new ValidSubdomain()];
             } else {
                 $rules['subdomain'] = 'nullable|alpha_num';
             }
         }
+
+        $rules['expense_mailbox'] = new ValidExpenseMailbox();
 
         $rules['smtp_host'] = 'sometimes|string|nullable';
         $rules['smtp_port'] = 'sometimes|integer|nullable';
@@ -84,23 +87,27 @@ class StoreCompanyRequest extends Request
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        if(Ninja::isHosted() && !isset($input['subdomain'])) {
+        if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
+            unset($input['expense_mailbox']);
+        }
+
+        if (Ninja::isHosted() && !isset($input['subdomain'])) {
             $input['subdomain'] = MultiDB::randomSubdomainGenerator();
         }
 
-        if(isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
+        if (isset($input['smtp_username']) && strlen(str_replace("*", "", $input['smtp_username'])) < 2) {
             unset($input['smtp_username']);
         }
 
-        if(isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
+        if (isset($input['smtp_password']) && strlen(str_replace("*", "", $input['smtp_password'])) < 2) {
             unset($input['smtp_password']);
         }
 
-        if(isset($input['smtp_port'])) {
+        if (isset($input['smtp_port'])) {
             $input['smtp_port'] = (int) $input['smtp_port'];
         }
 
-        if(isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
+        if (isset($input['smtp_verify_peer']) && is_string($input['smtp_verify_peer'])) {
             $input['smtp_verify_peer'] == 'true' ? true : false;
         }
 

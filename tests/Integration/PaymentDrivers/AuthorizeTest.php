@@ -34,7 +34,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class AuthorizeTest extends TestCase
 {
@@ -44,7 +44,7 @@ class AuthorizeTest extends TestCase
 
     public $customer_payment_profile = 1512424103;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -170,11 +170,11 @@ class AuthorizeTest extends TestCase
         $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
-            nlog('Succesfully created customer profile : '.$response->getCustomerProfileId()."\n");
+            // nlog('Succesfully created customer profile : '.$response->getCustomerProfileId()."\n");
             $paymentProfiles = $response->getCustomerPaymentProfileIdList();
-        // nlog(print_r($paymentProfiles, 1));
+            // nlog(print_r($paymentProfiles, 1));
         } else {
-            nlog("ERROR :  Invalid response\n");
+            // nlog("ERROR :  Invalid response\n");
             $errorMessages = $response->getMessages()->getMessage();
             // nlog('Response : '.$errorMessages[0]->getCode().'  '.$errorMessages[0]->getText()."\n");
         }
@@ -336,32 +336,32 @@ class AuthorizeTest extends TestCase
                 $tresponse = $response->getTransactionResponse();
 
                 if ($tresponse != null && $tresponse->getMessages() != null) {
-                    nlog(' Transaction Response code : '.$tresponse->getResponseCode()."\n");
-                    nlog('Charge Customer Profile APPROVED  :'."\n");
-                    nlog(' Charge Customer Profile AUTH CODE : '.$tresponse->getAuthCode()."\n");
-                    nlog(' Charge Customer Profile TRANS ID  : '.$tresponse->getTransId()."\n");
-                    nlog(' Code : '.$tresponse->getMessages()[0]->getCode()."\n");
-                    nlog(' Description : '.$tresponse->getMessages()[0]->getDescription()."\n");
+                    // nlog(' Transaction Response code : '.$tresponse->getResponseCode()."\n");
+                    // nlog('Charge Customer Profile APPROVED  :'."\n");
+                    // nlog(' Charge Customer Profile AUTH CODE : '.$tresponse->getAuthCode()."\n");
+                    // nlog(' Charge Customer Profile TRANS ID  : '.$tresponse->getTransId()."\n");
+                    // nlog(' Code : '.$tresponse->getMessages()[0]->getCode()."\n");
+                    // nlog(' Description : '.$tresponse->getMessages()[0]->getDescription()."\n");
                 } else {
-                    nlog("Transaction Failed \n");
+                    // nlog("Transaction Failed \n");
                     if ($tresponse->getErrors() != null) {
-                        nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode()."\n");
-                        nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText()."\n");
+                        // nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode()."\n");
+                        // nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText()."\n");
                     }
                 }
             } else {
-                nlog("Transaction Failed \n");
+                // nlog("Transaction Failed \n");
                 $tresponse = $response->getTransactionResponse();
                 if ($tresponse != null && $tresponse->getErrors() != null) {
-                    nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode()."\n");
-                    nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText()."\n");
+                    // nlog(' Error code  : '.$tresponse->getErrors()[0]->getErrorCode()."\n");
+                    // nlog(' Error message : '.$tresponse->getErrors()[0]->getErrorText()."\n");
                 } else {
-                    nlog(' Error code  : '.$response->getMessages()->getMessage()[0]->getCode()."\n");
-                    nlog(' Error message : '.$response->getMessages()->getMessage()[0]->getText()."\n");
+                    // nlog(' Error code  : '.$response->getMessages()->getMessage()[0]->getCode()."\n");
+                    // nlog(' Error message : '.$response->getMessages()->getMessage()[0]->getText()."\n");
                 }
             }
         } else {
-            nlog("No response returned \n");
+            // nlog("No response returned \n");
         }
 
         $this->assertNotNull($response);

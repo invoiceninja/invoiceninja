@@ -24,7 +24,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class TaxSummaryReportTest extends TestCase
 {
@@ -32,7 +32,7 @@ class TaxSummaryReportTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -164,8 +164,6 @@ class TaxSummaryReportTest extends TestCase
 
         $pl = new TaxSummaryReport($this->company, $this->payload);
         $response = $pl->run();
-
-        nlog($response);
 
         $this->assertIsString($response);
 

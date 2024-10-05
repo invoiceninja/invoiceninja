@@ -21,8 +21,8 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Http\ValidationRules\NewUniqueUserRule
+ * 
+ *   App\Http\ValidationRules\NewUniqueUserRule
  */
 class UniqueEmailTest extends TestCase
 {
@@ -30,7 +30,7 @@ class UniqueEmailTest extends TestCase
 
     protected $rule;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -104,8 +104,10 @@ class UniqueEmailTest extends TestCase
         $this->assertTrue($this->rule->passes('email', 'nohit@example.com'));
     }
 
-    protected function tearDown() :void
+    protected function tearDown(): void
     {
+        parent::tearDown();
+
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();
     }

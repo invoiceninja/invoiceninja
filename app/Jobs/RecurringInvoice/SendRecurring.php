@@ -50,8 +50,6 @@ class SendRecurring implements ShouldQueue
      */
     public function __construct(public RecurringInvoice $recurring_invoice, public string $db = 'db-ninja-01')
     {
-        $this->recurring_invoice = $recurring_invoice;
-        $this->db = $db;
     }
 
     /**
@@ -176,8 +174,8 @@ class SendRecurring implements ShouldQueue
     private function createRecurringInvitations($invoice): Invoice
     {
         if ($this->recurring_invoice->invitations->count() == 0) {
-            $this->recurring_invoice->service()->createInvitations()->save();
-            $this->recurring_invoice = $this->recurring_invoice->fresh();
+            $this->recurring_invoice = $this->recurring_invoice->service()->createInvitations()->save();
+            // $this->recurring_invoice = $this->recurring_invoice->fresh();
         }
 
         $this->recurring_invoice->invitations->each(function ($recurring_invitation) use ($invoice) {

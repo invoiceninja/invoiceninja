@@ -23,15 +23,15 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class UnappliedPaymentDeleteTest extends TestCase
 {
     use MakesHash;
     use DatabaseTransactions;
     use MockUnitData;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -178,16 +178,11 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         $response = null;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            $this->assertNotNull($message);
-            nlog($message);
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments', $data);
+
 
         $arr = $response->json();
 

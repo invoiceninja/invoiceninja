@@ -54,7 +54,7 @@ class DocumentExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($document) {
-                    
+
                     /** @var \App\Models\Document $document */
                     $row = $this->buildRow($document);
                     return $this->processMetaData($row, $document);
@@ -101,7 +101,7 @@ class DocumentExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                    /** @var mixed $entity */
+                  /** @var mixed $entity */
                   $this->csv->insertOne($this->buildRow($entity));
               });
 

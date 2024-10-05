@@ -22,7 +22,6 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     public function transform(string $key, mixed $entity): mixed
     {
         $task = false;
-
         if($entity instanceof Task) {
             $task = $entity;
         } elseif($entity->task) {
@@ -96,7 +95,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return '';
 
     }
-    
+
     /**
      * billable
      *
@@ -106,7 +105,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
         return '';
     }
-    
+
     /**
      * items_notes
      * @todo
@@ -115,7 +114,7 @@ class TaskDecorator extends Decorator implements DecoratorInterface
     {
         return '';
     }
-    
+
     public function duration(Task $task)
     {
         return $task->calcDuration();
@@ -131,5 +130,13 @@ class TaskDecorator extends Decorator implements DecoratorInterface
         return $task->project()->exists() ? $task->project->name : '';
     }
 
+    public function assigned_user_id(Task $task)
+    {
+        return $task->assigned_user ? $task->assigned_user->present()->name() : '';
+    }
 
+    public function user_id(Task $task)
+    {
+        return $task->user ? $task->user->present()->name() : '';
+    }
 }

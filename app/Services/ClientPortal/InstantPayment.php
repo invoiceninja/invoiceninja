@@ -51,7 +51,7 @@ class InstantPayment
         $cc->email = $this->request->contact_email;
         $cc->client->postal_code = strlen($cc->client->postal_code ?? '') > 1 ? $cc->client->postal_code : $this->request->client_postal_code;
         $cc->client->city = strlen($cc->client->city ?? '') > 1 ? $cc->client->city : $this->request->client_city;
-        $cc->client->shipping_postal_code = strlen($cc->client->shipping_postal_code ?? '') > 1 ? $cc->client->shipping_postal_code :  $cc->client->postal_code;
+        $cc->client->shipping_postal_code = strlen($cc->client->shipping_postal_code ?? '') > 1 ? $cc->client->shipping_postal_code : $cc->client->postal_code;
         $cc->client->shipping_city = strlen($cc->client->shipping_city ?? '') > 1 ? $cc->client->shipping_city : $cc->client->city;
         $cc->pushQuietly();
 
@@ -242,7 +242,7 @@ class InstantPayment
             $hash_data['billing_context'] = Cache::get($this->request->query('hash'));
         } elseif ($this->request->hash) {
             $hash_data['billing_context'] = Cache::get($this->request->hash);
-        } elseif ($old_hash = PaymentHash::query()->where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->orderBy('id','desc')->first()) {
+        } elseif ($old_hash = PaymentHash::query()->where('fee_invoice_id', $first_invoice->id)->whereNull('payment_id')->orderBy('id', 'desc')->first()) {
             if (isset($old_hash->data->billing_context)) {
                 $hash_data['billing_context'] = $old_hash->data->billing_context;
             }

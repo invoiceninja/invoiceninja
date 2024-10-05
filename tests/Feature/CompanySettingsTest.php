@@ -8,6 +8,7 @@
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
+
 namespace Tests\Feature;
 
 use App\DataMapper\CompanySettings;
@@ -21,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Utils\Traits\CompanySettingsSaver
+ * 
+ *  App\Utils\Traits\CompanySettingsSaver
  */
 class CompanySettingsTest extends TestCase
 {
@@ -31,7 +32,7 @@ class CompanySettingsTest extends TestCase
     use MockAccountData;
     // use RefreshDatabase;
 
-    public function setUp() :void
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -81,7 +82,7 @@ class CompanySettingsTest extends TestCase
         $this->company->saveSettings($settings, $this->company);
 
         $response = false;
-        
+
         try {
             $response = $this->withHeaders([
                     'X-API-SECRET' => config('ninja.api_secret'),

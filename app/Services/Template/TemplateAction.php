@@ -162,6 +162,7 @@ class TemplateAction implements ShouldQueue
 
         $ts = $template_service
                     ->setCompany($this->company)
+                    ->setEntity($first_entity)
                     ->addGlobal(['currency_code' => $currency_code])
                     ->build($data);
 
@@ -220,7 +221,7 @@ class TemplateAction implements ShouldQueue
             Project::class => 'projects',
             Client::class => 'clients',
             Vendor::class => 'vendors',
-            default =>'invoices',
+            default => 'invoices',
         };
     }
 

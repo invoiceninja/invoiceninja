@@ -27,8 +27,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers \App\Models\RecurringInvoice
+ * 
+ *  \App\Models\RecurringInvoice
  */
 class RecurringDatesTest extends TestCase
 {
@@ -36,7 +36,7 @@ class RecurringDatesTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -141,7 +141,7 @@ class RecurringDatesTest extends TestCase
 
     public function testDailyFrequencyCalc5()
     {
-        
+
         $account = Account::factory()->create();
 
         $settings = CompanySettings::defaults();
@@ -226,7 +226,7 @@ class RecurringDatesTest extends TestCase
 
     public function testDailyFrequencyCalc4()
     {
-        
+
         $account = Account::factory()->create();
 
         $settings = CompanySettings::defaults();
@@ -310,7 +310,7 @@ class RecurringDatesTest extends TestCase
 
     public function testDailyFrequencyCalc3()
     {
-        
+
         $account = Account::factory()->create();
 
         $settings = CompanySettings::defaults();

@@ -12,18 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Company::whereNotNull('tax_data')
-                ->cursor()
-                ->each(function($company){
+        // Company::whereNotNull('tax_data')
+        //         ->cursor()
+        //         ->each(function($company){
 
-                    if($company->tax_data?->version == 'alpha')
-                    {
+        //             if($company->tax_data?->version == 'alpha' && ($company->tax_data->seller_subregion ?? false))
+        //             {
 
-                        $company->update(['tax_data' => new \App\DataMapper\Tax\TaxModel($company->tax_data)]);
+        //                 $company->update(['tax_data' => new \App\DataMapper\Tax\TaxModel($company->tax_data)]);
                         
-                    }
+        //             }
 
-                });
+        //         });
     }
 
     /**

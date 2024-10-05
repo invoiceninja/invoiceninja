@@ -11,25 +11,140 @@
 
 namespace Tests\Unit;
 
-use App\Factory\CloneQuoteToInvoiceFactory;
-use App\Models\Invoice;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Invoice;
+use Tests\MockAccountData;
+use App\Factory\InvoiceItemFactory;
+use App\Factory\CloneQuoteToInvoiceFactory;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
+ * 
  */
 class CloneQuoteToInvoiceFactoryTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->makeTestData();
+    }
+
+    public function testCloneItemSanityInvoice()
+    {
+                
+        $line_items = [];
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100000000;
+        $item->type_id = '1';
+
+        $line_items[] = $item;
+        
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 100000000;
+        $item->type_id = '1';
+
+        $line_items[] = $item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 2;
+        $item->type_id = '3';
+
+        $line_items[] = $item;
+
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 2;
+        $item->type_id = '4';
+
+        $line_items[] = $item;
+
+        $dataX = [
+            'status_id' => 1,
+            'number' => '',
+            'discount' => 0,
+            'is_amount_discount' => 1,
+            'po_number' => '3434343',
+            'public_notes' => 'notes',
+            'is_deleted' => 0,
+            'custom_value1' => 0,
+            'custom_value2' => 0,
+            'custom_value3' => 0,
+            'custom_value4' => 0,
+            'client_id' => $this->client->hashed_id,
+            'line_items' => $line_items,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices?mark_sent=true', $dataX);
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $this->assertCount(2, $data['data']['line_items']);
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/quotes?mark_sent=true', $dataX);
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $this->assertCount(2, $data['data']['line_items']);
+
+
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/credits?mark_sent=true', $dataX);
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $this->assertCount(2, $data['data']['line_items']);
+
+
+        $dataX['frequency_id'] = 1;
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/recurring_invoices?mark_sent=true', $dataX);
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $this->assertCount(2, $data['data']['line_items']);
+
+        $dataX['frequency_id'] = 1;
+        $dataX['vendor_id'] = $this->vendor->hashed_id;
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->postJson('/api/v1/purchase_orders?mark_sent=true', $dataX);
+
+        $response->assertStatus(200);
+
+        $data = $response->json();
+
+        $this->assertCount(2, $data['data']['line_items']);
+
     }
 
     public function testCloneProperties()

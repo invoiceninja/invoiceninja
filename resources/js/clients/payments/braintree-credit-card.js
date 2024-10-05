@@ -8,6 +8,7 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
 
 class BraintreeCreditCard {
     initBraintreeDataCollector() {
@@ -43,40 +44,39 @@ class BraintreeCreditCard {
         }
 
         let payNow = document.getElementById('pay-now');
-
-        params = JSON.parse(document.querySelector('input[name=threeds]').value);
+        let params = JSON.parse(document.querySelector('input[name=threeds]').value);
 
         payNow.addEventListener('click', () => {
             dropinInstance.requestPaymentMethod({
                 threeDSecure: {
-                  challengeRequested:true,
-                  amount: params.amount,
-                  email: params.email,
-                  billingAddress: {
-                    givenName: params.billingAddress.givenName, // ASCII-printable characters required, else will throw a validation error
-                    surname: params.billingAddress.surname, // ASCII-printable characters required, else will throw a validation error
-                    phoneNumber: params.billingAddress.phoneNumber,
-                    streetAddress: params.billingAddress.streetAddress,
-                    extendedAddress: params.billingAddress.extendedAddress,
-                    locality: params.billingAddress.locality,
-                    region: params.billingAddress.region,
-                    postalCode: params.billingAddress.postalCode,
-                    countryCodeAlpha2: params.billingAddress.countryCodeAlpha2 
-                  }
+                    challengeRequested: true,
+                    amount: params.amount,
+                    email: params.email,
+                    billingAddress: {
+                        givenName: params.billingAddress.givenName, // ASCII-printable characters required, else will throw a validation error
+                        surname: params.billingAddress.surname, // ASCII-printable characters required, else will throw a validation error
+                        phoneNumber: params.billingAddress.phoneNumber,
+                        streetAddress: params.billingAddress.streetAddress,
+                        extendedAddress: params.billingAddress.extendedAddress,
+                        locality: params.billingAddress.locality,
+                        region: params.billingAddress.region,
+                        postalCode: params.billingAddress.postalCode,
+                        countryCodeAlpha2: params.billingAddress.countryCodeAlpha2
+                    }
                 }
-                }, function(err, payload) {
-                    if (err) {
-                      console.log(err);
-                      dropin.clearSelectedPaymentMethod();
-                      alert("There was a problem verifying this card, please contact your merchant");
-                      return;
-                    }
-                      
-                    if (document.querySelector('input[name=threeds_enable]').value === 'true' && !payload.liabilityShifted) {
-                      console.log('Liability did not shift', payload);
-                      alert("There was a problem verifying this card, please contact your merchant");
-                      return;
-                    }
+            }, function (err, payload) {
+                if (err) {
+                    console.log(err);
+                    dropin.clearSelectedPaymentMethod();
+                    alert("There was a problem verifying this card, please contact your merchant");
+                    return;
+                }
+
+                if (document.querySelector('input[name=threeds_enable]').value === 'true' && !payload.liabilityShifted) {
+                    console.log('Liability did not shift', payload);
+                    alert("There was a problem verifying this card, please contact your merchant");
+                    return;
+                }
 
                 payNow.disabled = true;
 
@@ -138,4 +138,8 @@ class BraintreeCreditCard {
     }
 }
 
-new BraintreeCreditCard().handle();
+function boot() {
+    new BraintreeCreditCard().handle();
+}
+
+instant() ? boot() : wait('#braintree-credit-card-payment', 'meta[name=client-token]').then(() => boot());

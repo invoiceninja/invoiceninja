@@ -65,9 +65,9 @@ use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentificationType\PartyIdentificat
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 
 /**
- * @test
+ * 
  */
-class FACT1Test extends TestCase
+class Fact1Test extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
@@ -91,8 +91,8 @@ class FACT1Test extends TestCase
         $settings = ClientSettings::defaults();
         $settings->currency_id = '42';
 
-//VAT
-//19%
+        //VAT
+        //19%
         $client = Client::factory()
         ->create([
             'user_id' => $this->user->id,
@@ -118,7 +118,7 @@ class FACT1Test extends TestCase
 
         $items = [];
 
-        $item = new InvoiceItem;
+        $item = new InvoiceItem();
         $item->cost = 10;
         $item->quantity = 10;
         $item->tax_name1 = 'VAT';
@@ -130,16 +130,16 @@ class FACT1Test extends TestCase
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
             'client_id' => $client->id,
-            'number' => 'INV-'.rand(1000,1000000),
+            'number' => 'INV-'.rand(1000, 1000000),
             'line_items' => [$item],
             'due_date' => now()->addDays(20)->format('Y-m-d'),
             'status_id' => 1,
             'discount' => 0,
         ]);
-        
+
         $_invoice->service()->markSent()->save();
         $calc = $_invoice->calc();
-        
+
         $invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
         $invoice->UBLVersionID = '2.1';
         $invoice->CustomizationID = 'urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1';
@@ -152,18 +152,18 @@ class FACT1Test extends TestCase
 
         $asp = new AccountingSupplierParty();
         $party = new Party();
-        
+
         $party_identification = new PartyIdentification();
         $party_identification->ID = 'company_id_number';
         $party->PartyIdentification[] = $party_identification;
-        
+
         $sp_address = new PostalAddress();
         $sp_address->StreetName = $this->company->settings->address1;
         $sp_address->CityName = 'SECTOR2';
         $sp_address->CountrySubentity = 'RO-B';
 
         $country = new Country();
-        $country->IdentificationCode='RO';
+        $country->IdentificationCode = 'RO';
         $sp_address->Country = $country;
 
         $party->PostalAddress = $sp_address;
@@ -237,7 +237,7 @@ class FACT1Test extends TestCase
         $tc->ID = "S";
 
         $taxable = $this->getTaxable($_invoice);
-        
+
         $taxable_amount = new TaxableAmount();
         $taxable_amount->amount = $taxable;
         $taxable_amount->currencyID = $_invoice->client->currency()->code;
@@ -247,9 +247,9 @@ class FACT1Test extends TestCase
         $tax_sub_total->TaxCategory = $tc;
         $tax_sub_total->TaxableAmount = $taxable_amount;
         $taxtotal->TaxSubtotal[] = $tax_sub_total;
-        
+
         $invoice->TaxTotal[] = $taxtotal;
-        
+
         $lmt = new LegalMonetaryTotal();
 
         $lea = new LineExtensionAmount();
@@ -258,35 +258,34 @@ class FACT1Test extends TestCase
 
         $lmt->LineExtensionAmount = $lea;
 
-        $tea = new TaxExclusiveAmount;
+        $tea = new TaxExclusiveAmount();
         $tea->amount = $taxable;
         $tea->currencyID = $_invoice->client->currency()->code;
 
         $lmt->TaxExclusiveAmount = $tea;
 
-        $tia = new TaxInclusiveAmount;
+        $tia = new TaxInclusiveAmount();
         $tia->amount = $_invoice->amount;
         $tia->currencyID = $_invoice->client->currency()->code;
 
         $lmt->TaxInclusiveAmount = $tia;
 
-        $pa = new PayableAmount;
+        $pa = new PayableAmount();
         $pa->amount = $_invoice->amount;
         $pa->currencyID = $_invoice->client->currency()->code;
 
         $lmt->PayableAmount = $pa;
         $invoice->LegalMonetaryTotal = $lmt;
 
-        foreach($_invoice->line_items as $key => $item)
-        {
+        foreach($_invoice->line_items as $key => $item) {
 
-            $invoice_line = new InvoiceLine;
+            $invoice_line = new InvoiceLine();
             $invoice_line->ID = $key++;
 
             $iq = new InvoicedQuantity();
             $iq->amount = $item->cost;
             $iq->unitCode = 'H87';
-            
+
             $invoice_line->InvoicedQuantity = $iq;
 
             $invoice_line->Note = substr($item->notes, 0, 200);
@@ -294,7 +293,7 @@ class FACT1Test extends TestCase
             $ctc = new ClassifiedTaxCategory();
             $ctc->ID = 'S';
 
-            $i = new Item;
+            $i = new Item();
             $i->Description = $item->notes;
             $i->Name = $item->product_key;
 
@@ -311,7 +310,7 @@ class FACT1Test extends TestCase
             $invoice_line->Item = $i;
 
 
-            $lea = new LineExtensionAmount;
+            $lea = new LineExtensionAmount();
             $lea->amount = $item->line_total;
             $lea->currencyID = $_invoice->client->currency()->code;
 
@@ -327,7 +326,7 @@ class FACT1Test extends TestCase
             $lea = new LineExtensionAmount();
             $lea->amount = $item->line_total;
             $lea->currencyID = $_invoice->client->currency()->code;
-            
+
             $invoice_line->LineExtensionAmount = $lea;
 
             $invoice->InvoiceLine[] = $invoice_line;
@@ -375,7 +374,7 @@ class FACT1Test extends TestCase
         $discriminator = new ClassDiscriminatorFromClassMetadata($classMetadataFactory);
 
         $normalizer = new ObjectNormalizer($classMetadataFactory, $metadataAwareNameConverter, null, $propertyInfo);
-        
+
         $normalizers = [  new DateTimeNormalizer(), $normalizer,  new ArrayDenormalizer() , ];
         $encoders = [$encoder, new JsonEncoder()];
         $serializer = new Serializer($normalizers, $encoders);
@@ -385,7 +384,7 @@ class FACT1Test extends TestCase
             // AbstractObjectNormalizer::SKIP_UNINITIALIZED_VALUES => true,
         ];
 
-        
+
         // $invoice = $normalizer->normalize($invoice, 'json', $n_context);
         // echo print_r($invoice);
         // $invoice = $serializer->serialize($invoice, 'xml', $n_context);

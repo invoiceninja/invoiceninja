@@ -50,7 +50,7 @@ class StorePurchaseOrderRequest extends Request
 
         $rules['number'] = ['nullable', Rule::unique('purchase_orders')->where('company_id', $user->company()->id)];
 
-        
+
         $rules['invitations'] = 'sometimes|bail|array';
         $rules['invitations.*.vendor_contact_id'] = 'bail|required|distinct';
 
@@ -95,6 +95,7 @@ class StorePurchaseOrderRequest extends Request
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+            $input['line_items'] = $this->cleanFeeItems($input['line_items']);
             $input['amount'] = $this->entityTotalAmount($input['line_items']);
 
         }

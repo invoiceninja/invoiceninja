@@ -31,8 +31,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\SubscriptionController
+ * 
+ *  App\Http\Controllers\SubscriptionController
  */
 class SubscriptionApiTest extends TestCase
 {
@@ -96,7 +96,7 @@ class SubscriptionApiTest extends TestCase
             'company_id' => $c2->id,
             'user_id' => $this->user->id,
         ]);
-        
+
         $i = Invoice::factory()->create([
             'company_id' => $c2->id,
             'user_id' => $this->user->id,
@@ -161,7 +161,7 @@ class SubscriptionApiTest extends TestCase
         $this->assertEquals('Australia/Sydney', $timezone_now->timezoneName);
 
         $this->travelTo($timezone_now->copy()->startOfDay()->subHour());
-        
+
         $i = false;
 
         //Capture companies within the window of 00:00 and 00:30
@@ -179,11 +179,11 @@ class SubscriptionApiTest extends TestCase
                     ->get();
 
         }
-        
+
         $this->assertFalse($i);
 
         $this->travelTo($timezone_now->copy()->startOfDay());
-        
+
         if(now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
@@ -308,12 +308,12 @@ class SubscriptionApiTest extends TestCase
             'client_id' => $this->client->id,
         ]);
 
-        
+
         $s = Subscription::factory()
         ->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            
+
         ]);
 
         $data = [
@@ -346,12 +346,12 @@ class SubscriptionApiTest extends TestCase
             'client_id' => $this->client->id,
         ]);
 
-        
+
         $s = Subscription::factory()
         ->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            
+
         ]);
 
         $data = [
@@ -374,7 +374,7 @@ class SubscriptionApiTest extends TestCase
         $this->assertEquals($s->id, $i->subscription_id);
 
     }
-    
+
     public function testSubscriptionFilter()
     {
         $response = $this->withHeaders([
@@ -413,7 +413,7 @@ class SubscriptionApiTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
-            
+
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

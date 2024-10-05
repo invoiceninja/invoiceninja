@@ -52,7 +52,7 @@ class CreditExport extends BaseExport
 
         $report = $query->cursor()
                 ->map(function ($credit) {
-                    
+
                     /** @var \App\Models\Credit $credit */
                     $row = $this->buildRow($credit);
                     return $this->processMetaData($row, $credit);
@@ -167,16 +167,13 @@ class CreditExport extends BaseExport
             } elseif(isset($transformed_credit[$searched_credit_key])) {
                 $entity[$keyval] = $transformed_credit[$searched_credit_key];
             } else {
-
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $credit);
-                // $entity[$key] = '';
-                // $entity[$keyval] = $this->resolveKey($keyval, $credit, $this->credit_transformer);
             }
 
         }
 
-        return $this->decorateAdvancedFields($credit, $entity);
+        $entity = $this->decorateAdvancedFields($credit, $entity);
+        return $this->convertFloats($entity);
     }
 
     public function addCreditStatusFilter($query, $status): Builder

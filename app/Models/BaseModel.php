@@ -17,6 +17,7 @@ use App\Utils\Traits\MakesHash;
 use App\Jobs\Entity\CreateRawPdf;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Traits\Excludable;
+use App\Services\EDocument\Jobes\SendEDocument;
 use App\Services\PdfMaker\PdfMerge;
 use Illuminate\Database\Eloquent\Model;
 use App\Utils\Traits\UserSessionAttributes;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundExceptio
  * @package App\Models
  * @property-read mixed $hashed_id
  * @property string $number
+ * @property object|array|null $e_invoice
  * @property int $company_id
  * @property int $id
  * @property int $user_id
@@ -294,6 +296,37 @@ class BaseModel extends Model
         if ($subscriptions) {
             WebhookHandler::dispatch($event_id, $this->withoutRelations(), $this->company, $additional_data);
         }
+
+        // special catch here for einvoicing eventing
+        if($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && is_null($this->backup) && $this->client->getSetting('e_invoice_type') == 'PEPPOL'){
+            \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
+        }
+
+    }
+
+    
+    /**
+     * arrayFilterRecursive nee filterNullsRecursive
+     *
+     * Removes null properties from an array
+     * 
+     * @param  array $array
+     * @return array
+     */
+    public function filterNullsRecursive(array $array): array
+    {
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                // Recursively filter the nested array
+                $array[$key] = $this->filterNullsRecursive($value);
+            }
+            // Remove null values
+            if (is_null($array[$key])) {
+                unset($array[$key]);
+            }
+        }
+
+        return $array;
     }
 
     /**
@@ -374,10 +407,9 @@ class BaseModel extends Model
 
         $files->push($company_docs);
 
-        try{
+        try {
             $pdf = (new PdfMerge($files->flatten()->toArray()))->run();
-        }
-        catch(\Exception $e){
+        } catch(\Exception $e) {
             nlog("Exception:: BaseModel:: PdfMerge::" . $e->getMessage());
         }
 

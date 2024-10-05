@@ -53,4 +53,9 @@ class Currency extends StaticModel
         'deleted_at' => 'timestamp',
         'precision' => 'integer',
     ];
+
+    public function getName(): string
+    {
+        return trans('texts.currency_'.$this->name);
+    }
 }

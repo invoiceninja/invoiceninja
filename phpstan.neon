@@ -6,6 +6,7 @@ parameters:
     level: 5
     paths:
         - app
+        - Modules
     excludePaths:
         analyseAndScan:
             - 'vendor'
@@ -16,6 +17,7 @@ parameters:
             - 'app/DataMapper/Analytics/*'
             - 'app/PaymentDrivers/Authorize/*'
             - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
+            - 'app/Http/Middleware/ThrottleRequestsWithPredis.php'
             - 'app/Utils/Traits/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
@@ -37,4 +39,5 @@ parameters:
         - '#Expression on left side of ?? is not nullable.#'
         - '#Left side of && is always true.#'
         - '#Right side of && is always true.#'
-        
+        - '#is never read, only written.#'
+        - '#is never written#'

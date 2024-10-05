@@ -46,9 +46,10 @@ class TaskRepository extends BaseRepository
             $this->new_task = false;
         }
 
-        if(!is_numeric($task->rate) && !isset($data['rate']))
+        if(!is_numeric($task->rate) && !isset($data['rate'])) {
             $data['rate'] = 0;
-        
+        }
+
         $task->fill($data);
         $task->saveQuietly();
 
@@ -117,14 +118,16 @@ class TaskRepository extends BaseRepository
         }
 
         $key_values = array_column($time_log, 0);
-        
-        if(count($key_values) > 0)
+
+        if(count($key_values) > 0) {
             array_multisort($key_values, SORT_ASC, $time_log);
+        }
 
         foreach($time_log as $key => $value) {
 
-            if(is_array($time_log[$key]) && count($time_log[$key]) >=2)
+            if(is_array($time_log[$key]) && count($time_log[$key]) >= 2) {
                 $time_log[$key][1] = $this->roundTimeLog($time_log[$key][0], $time_log[$key][1]);
+            }
 
         }
 
@@ -146,6 +149,10 @@ class TaskRepository extends BaseRepository
         }
 
         $task->calculated_start_date = $this->harvestStartDate($time_log, $task);
+
+        if(isset(end($time_log)[1])) {
+            $task->is_running = end($time_log)[1] == 0;
+        }
 
         $task->time_log = json_encode($time_log);
 
@@ -259,7 +266,7 @@ class TaskRepository extends BaseRepository
 
             $log = array_merge($log, [$new]);
             $task->time_log = json_encode($log);
-
+            $task->is_running = true;
             $task->saveQuietly();
         }
 
@@ -303,11 +310,12 @@ class TaskRepository extends BaseRepository
             $log = array_merge($log, [$last]);//check at this point, it may be prepending here.
 
             $task->time_log = json_encode($log);
+            $task->is_running = false;
             $task->saveQuietly();
         }
 
         $this->calculateProjectDuration($task);
-        
+
         return $task;
 
     }
@@ -356,7 +364,7 @@ class TaskRepository extends BaseRepository
         return $task->number;
     }
 
-    private function calculateProjectDuration(Task $task) 
+    private function calculateProjectDuration(Task $task)
     {
 
         if($task->project) {
@@ -411,7 +419,7 @@ class TaskRepository extends BaseRepository
         if ($task->is_deleted) {
             return;
         }
-        
+
         parent::delete($task);
 
         $this->calculateProjectDuration($task);

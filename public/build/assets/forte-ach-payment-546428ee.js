@@ -1,0 +1,9 @@
+var s=Object.defineProperty;var d=(n,e,t)=>e in n?s(n,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):n[e]=t;var o=(n,e,t)=>(d(n,typeof e!="symbol"?e+"":e,t),t);import{i,w as u}from"./wait-8f4ae121.js";/**
+ * Invoice Ninja (https://invoiceninja.com)
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://opensource.org/licenses/AAL
+ */class c{constructor(e){o(this,"handleAuthorization",()=>{var e=document.getElementById("account-number").value,t=document.getElementById("routing-number").value,r={api_login_id:this.apiLoginId,account_number:e,routing_number:t,account_type:"checking"};return document.getElementById("pay-now")&&(document.getElementById("pay-now").disabled=!0,document.querySelector("#pay-now > svg").classList.remove("hidden"),document.querySelector("#pay-now > span").classList.add("hidden")),forte.createToken(r).success(this.successResponseHandler).error(this.failedResponseHandler),!1});o(this,"successResponseHandler",e=>(document.getElementById("payment_token").value=e.onetime_token,document.getElementById("server_response").submit(),!1));o(this,"failedResponseHandler",e=>{var t='<div class="alert alert-failure mb-4"><ul><li>'+e.response_description+"</li></ul></div>";return document.getElementById("forte_errors").innerHTML=t,document.getElementById("pay-now").disabled=!1,document.querySelector("#pay-now > svg").classList.add("hidden"),document.querySelector("#pay-now > span").classList.remove("hidden"),!1});o(this,"handle",()=>{let e=document.getElementById("pay-now");return e&&e.addEventListener("click",t=>{this.handleAuthorization()}),this});this.apiLoginId=e}}function a(){const n=document.querySelector('meta[name="forte-api-login-id"]').content;new c(n).handle()}i()?a():u("#force-ach-payment").then(()=>a());

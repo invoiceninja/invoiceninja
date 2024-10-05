@@ -101,8 +101,11 @@ class ActivityExport extends BaseExport
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->date_format = DateFormat::find($this->company->settings->date_format_id)->format;
+        /** @var \App\Models\DateFormat $df */
+        $df = DateFormat::query()->find($this->company->settings->date_format_id);
 
+        $this->date_format = $df->format; 
+        
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->entity_keys);
         }
@@ -129,8 +132,8 @@ class ActivityExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                
-                /** @var \App\Models\Activity $entity */
+
+                  /** @var \App\Models\Activity $entity */
 
                   $this->buildRow($entity);
               });

@@ -13,13 +13,14 @@ namespace App\Mail\Admin;
 
 use App\Models\ClientContact;
 use App\Models\Company;
+use App\Models\VendorContact;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
 
 class ClientUnsubscribedObject
 {
     public function __construct(
-        public ClientContact $contact,
+        public ClientContact | VendorContact$contact,
         public Company $company,
         private bool $use_react_link = false
     ) {

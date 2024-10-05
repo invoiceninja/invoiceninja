@@ -14,8 +14,8 @@ namespace Tests\Unit;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\Traits\MakesInvoiceValues
+ * 
+ *   App\Utils\Traits\MakesInvoiceValues
  */
 class MakesInvoiceValuesTest extends TestCase
 {

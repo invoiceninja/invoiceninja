@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Ninja;
 use Illuminate\Support\Facades\App;
+use App\Models\Product;
 
 class AddGatewayFee extends AbstractService
 {
@@ -50,7 +51,7 @@ class AddGatewayFee extends AbstractService
 
         $invoice_items = collect($invoice_items)->filter(function ($item) {
             return $item->type_id != '3';
-        });
+        })->toArray();
 
         $this->invoice->line_items = $invoice_items;
 
@@ -80,6 +81,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
             $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
+            $invoice_item->tax_id = (string)Product::PRODUCT_TYPE_OVERRIDE_TAX;
         }
 
         $invoice_items = (array) $this->invoice->line_items;
@@ -138,12 +140,6 @@ class AddGatewayFee extends AbstractService
 
         if (floatval($new_balance) - floatval($balance) != 0) {
             $adjustment = $new_balance - $balance;
-
-            // $this->invoice
-            // ->client
-            // ->service()
-            // ->updateBalance($adjustment * -1)
-            // ->save();
 
             $this->invoice
             ->ledger()

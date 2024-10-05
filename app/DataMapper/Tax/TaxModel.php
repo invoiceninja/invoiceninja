@@ -17,7 +17,7 @@ class TaxModel
     public string $seller_subregion = 'CA';
 
     /** @var string $version */
-    public string $version = 'beta';
+    public string $version = 'gamma';
 
     /** @var object $regions */
     public object $regions;
@@ -34,10 +34,14 @@ class TaxModel
         if(!$model) {
             $this->regions = $this->init();
         } else {
-            
+
+            if(!$model->seller_subregion) {
+                $this->seller_subregion = '';
+            }
+
             //@phpstan-ignore-next-line
             foreach($model as $key => $value) {
-                $this->{$key} = $value; 
+                $this->{$key} = $value;
             }
 
         }
@@ -48,8 +52,7 @@ class TaxModel
     public function migrate(): self
     {
 
-        if($this->version == 'alpha')
-        {
+        if($this->version == 'alpha') {
             $this->regions->EU->subregions->PL = new \stdClass();
             $this->regions->EU->subregions->PL->tax_rate = 23;
             $this->regions->EU->subregions->PL->tax_name = 'VAT';
@@ -57,6 +60,32 @@ class TaxModel
             $this->regions->EU->subregions->PL->apply_tax = false;
 
             $this->version = 'beta';
+        }
+
+        if($this->version == 'beta') {
+
+            //CEUTA
+            $this->regions->EU->subregions->{'ES-CE'} = new \stdClass();
+            $this->regions->EU->subregions->{'ES-CE'}->tax_rate = 4;
+            $this->regions->EU->subregions->{'ES-CE'}->tax_name = 'IGIC';
+            $this->regions->EU->subregions->{'ES-CE'}->reduced_tax_rate = 4;
+            $this->regions->EU->subregions->{'ES-CE'}->apply_tax = false;
+
+            //MELILLA ML 4
+            $this->regions->EU->subregions->{'ES-ML'} = new \stdClass();
+            $this->regions->EU->subregions->{'ES-ML'}->tax_rate = 4;
+            $this->regions->EU->subregions->{'ES-ML'}->tax_name = 'IGIC';
+            $this->regions->EU->subregions->{'ES-ML'}->reduced_tax_rate = 4;
+            $this->regions->EU->subregions->{'ES-ML'}->apply_tax = false;
+
+            //CANARIAS CN 7/3
+            $this->regions->EU->subregions->{'ES-CN'} = new \stdClass();
+            $this->regions->EU->subregions->{'ES-CN'}->tax_rate = 7;
+            $this->regions->EU->subregions->{'ES-CN'}->tax_name = 'IGIC';
+            $this->regions->EU->subregions->{'ES-CN'}->reduced_tax_rate = 4;
+            $this->regions->EU->subregions->{'ES-CN'}->apply_tax = false;
+
+            $this->version = 'gamma';
         }
 
         return $this;
@@ -419,6 +448,25 @@ class TaxModel
         $this->regions->EU->subregions->ES->tax_name = 'IVA';
         $this->regions->EU->subregions->ES->reduced_tax_rate = 10;
         $this->regions->EU->subregions->ES->apply_tax = false;
+
+        $this->regions->EU->subregions->{'ES-CE'} = new \stdClass();
+        $this->regions->EU->subregions->{'ES-CE'}->tax_rate = 4;
+        $this->regions->EU->subregions->{'ES-CE'}->tax_name = 'IGIC';
+        $this->regions->EU->subregions->{'ES-CE'}->reduced_tax_rate = 4;
+        $this->regions->EU->subregions->{'ES-CE'}->apply_tax = false;
+
+        $this->regions->EU->subregions->{'ES-ML'} = new \stdClass();
+        $this->regions->EU->subregions->{'ES-ML'}->tax_rate = 4;
+        $this->regions->EU->subregions->{'ES-ML'}->tax_name = 'IGIC';
+        $this->regions->EU->subregions->{'ES-ML'}->reduced_tax_rate = 4;
+        $this->regions->EU->subregions->{'ES-ML'}->apply_tax = false;
+
+        $this->regions->EU->subregions->{'ES-CN'} = new \stdClass();
+        $this->regions->EU->subregions->{'ES-CN'}->tax_rate = 7;
+        $this->regions->EU->subregions->{'ES-CN'}->tax_name = 'IGIC';
+        $this->regions->EU->subregions->{'ES-CN'}->reduced_tax_rate = 3;
+        $this->regions->EU->subregions->{'ES-CN'}->apply_tax = false;
+
 
         $this->regions->EU->subregions->FI = new \stdClass();
         $this->regions->EU->subregions->FI->tax_rate = 24;

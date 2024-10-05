@@ -52,6 +52,11 @@ class StoreProductRequest extends Request
         $rules['stock_notification_threshold'] = 'sometimes|numeric';
         $rules['stock_notification'] = 'sometimes|bool';
 
+        $rules['tax_rate1'] = 'bail|sometimes|numeric';
+        $rules['tax_rate2'] = 'bail|sometimes|numeric';
+        $rules['tax_rate3'] = 'bail|sometimes|numeric';
+
+
         return $rules;
     }
 
@@ -66,6 +71,10 @@ class StoreProductRequest extends Request
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
+
+        $input['tax_name1'] =  $input['tax_name1'] ?? '';
+        $input['tax_name2'] =  $input['tax_name2'] ?? '';
+        $input['tax_name3'] =  $input['tax_name3'] ?? '';
 
         $this->replace($input);
     }

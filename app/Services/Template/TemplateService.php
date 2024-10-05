@@ -124,7 +124,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format'];
+        $allowedFilters = ['replace', 'escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -218,9 +218,10 @@ class TemplateService
         $tm = new TemplateMock($this->company);
         $tm->setSettings($this->getSettings())->init();
 
-        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first();
+        $this->entity = $this->company->invoices()->first() ?? $this->company->quotes()->first() ?? (new \App\Services\Pdf\PdfMock(['entity_type' => 'invoice'], $this->company))->initEntity();
 
         $this->data = $tm->engines;
+
         $this->variables = $tm->variables[0];
         $this->twig->addGlobal('currency_code', $this->company->currency()->code);
         $this->twig->addGlobal('show_credits', true);
@@ -319,10 +320,13 @@ class TemplateService
                 nlog("error = " . $e->getMessage());
                 throw ($e);
             }
-            
+
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
+
+            $template = htmlspecialchars($template, ENT_XML1, 'UTF-8');
+
             $f->appendXML(html_entity_decode($template));
 
             $replacements[] = $f;
@@ -337,6 +341,13 @@ class TemplateService
 
         return $this;
 
+    }
+
+    public function setEntity($entity): self
+    {
+        $this->entity = $entity;
+
+        return $this;
     }
 
     /**
@@ -357,6 +368,7 @@ class TemplateService
         }
 
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        
         $this->save();
 
         return $this;
@@ -481,6 +493,8 @@ class TemplateService
                 'aging' => $processed = $value,
                 default => $processed = [],
             };
+
+            // nlog(json_encode($processed));
 
             return $processed;
 
@@ -911,7 +925,7 @@ class TemplateService
             'custom_value4' => $entity->client->custom_value4 ?? '',
             'address' => $entity->client->present()->address(),
             'shipping_address' => $entity->client->present()->shipping_address(),
-            'locale' => substr($entity->client->locale(), 0, 2),      
+            'locale' => substr($entity->client->locale(), 0, 2),
             ] : [];
     }
     /**
@@ -943,6 +957,7 @@ class TemplateService
                 'custom_value4' => $task->custom_value4 ?: '',
                 'status' => $task->status ? $task->status->name : '',
                 'user' => $this->userInfo($task->user),
+                'assigned_user' => $task->assigned_user ? $this->userInfo($task->assigned_user) : [],
                 'client' => $this->getClient($task),
             ];
 
@@ -974,6 +989,7 @@ class TemplateService
         return [
             'name' => $user->present()->name(),
             'email' => $user->email,
+            'signature' => $user->signature ?? '',
         ];
     }
 
@@ -1000,6 +1016,7 @@ class TemplateService
             'tasks' => ($project->tasks && !$nested) ? $this->processTasks($project->tasks, true) : [], //@phpstan-ignore-line
             'client' => $this->getClient($project),
             'user' => $this->userInfo($project->user),
+            'assigned_user' => $project->assigned_user ? $this->userInfo($project->assigned_user) : [],
             'invoices' => $this->processInvoices($project->invoices)
         ];
 

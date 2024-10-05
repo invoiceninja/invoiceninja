@@ -2,6 +2,7 @@
 
 @section('gateway_head')
     <meta name="forte-api-login-id" content="{{$gateway->company_gateway->getConfigField("apiLoginId")}}">
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')

@@ -246,6 +246,24 @@ class RecurringInvoice extends BaseModel
 
     protected $touches = [];
 
+    public static array $bulk_update_columns = [
+        'tax_rate1',
+        'tax_name1',
+        'tax_rate2',
+        'tax_name2',
+        'tax_rate3',
+        'tax_name3',
+        'custom_value1',
+        'custom_value2',
+        'custom_value3',
+        'custom_value4',
+        'uses_inclusive_taxes',
+        'private_notes',
+        'public_notes',
+        'terms',
+        'footer',
+    ];
+
     public function getEntityType()
     {
         return self::class;
@@ -285,7 +303,7 @@ class RecurringInvoice extends BaseModel
 
     public function activities()
     {
-        return $this->hasMany(Activity::class)->orderBy('id', 'DESC')->take(50);
+        return $this->hasMany(Activity::class)->where('company_id', $this->company_id)->where('client_id', $this->client_id)->orderBy('id', 'DESC')->take(50);
     }
 
     public function history()

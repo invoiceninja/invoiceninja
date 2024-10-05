@@ -14,6 +14,9 @@
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
             <input class="input w-full" id="address_1" name="address_1" type="text" placeholder="Address Line 1" required value="{{ old('address_1', $address_1) }}">
+        @error('address_1')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
         </dd>
     </div>
 
@@ -23,6 +26,9 @@
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
             <input class="input w-full" id="address_2" name="address_2" type="text" placeholder="Address Line 2" value="{{ old('address_2', $address_2) }}">
+        @error('address_2')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
         </dd>
     </div>
 
@@ -32,6 +38,9 @@
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
             <input class="input w-full" id="city" name="city" type="text" placeholder="City" required value="{{ old('city', $city) }}">
+        @error('city')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
         </dd>
     </div>
 
@@ -41,6 +50,9 @@
         </dt>
         <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
             <input class="input w-full" id="postal_code" name="postal_code" type="text" placeholder="Postal Code" required value="{{ old('postal_code', $postal_code ) }}">
+        @error('postal_code')
+        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+        @enderror
         </dd>
     </div>
 
@@ -56,6 +68,10 @@
                 <input type="radio" id="ca" name="country" value="CA" required @checked(old('country', $country) == 'CA')>
                 <label for="ca">{{ ctrans('texts.canada') }}</label><br>
             @endif
+
+            @error('country')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
         </dd>
     </div>
 

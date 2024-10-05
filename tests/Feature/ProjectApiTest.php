@@ -23,8 +23,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ProjectController
+ * 
+ *  App\Http\Controllers\ProjectController
  */
 class ProjectApiTest extends TestCase
 {
@@ -34,7 +34,7 @@ class ProjectApiTest extends TestCase
 
     protected $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -66,7 +66,7 @@ class ProjectApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(0, $arr['data']['task_rate']);
-            
+
     }
 
     public function testCreateProjectWithNullTaskRate2()
@@ -109,7 +109,7 @@ class ProjectApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(10, $arr['data']['task_rate']);
-            
+
     }
 
     public function testCreateProjectWithNullTaskRate5()
@@ -155,7 +155,7 @@ class ProjectApiTest extends TestCase
         $arr = $response->json();
 
         $this->assertEquals(10, $arr['data']['task_rate']);
-            
+
     }
 
     public function testProjectIncludesZeroCount()
@@ -185,7 +185,7 @@ class ProjectApiTest extends TestCase
             'project_id' => $this->project->id,
         ]);
 
-        
+
         $e = Expense::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -193,7 +193,7 @@ class ProjectApiTest extends TestCase
             'project_id' => $this->project->id,
         ]);
 
-        
+
         $q = Quote::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,

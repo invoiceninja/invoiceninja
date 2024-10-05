@@ -21,7 +21,7 @@ use App\Utils\Traits\AppSetup;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class RecurringExpenseCloneTest extends TestCase
 {
@@ -29,7 +29,7 @@ class RecurringExpenseCloneTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->faker = \Faker\Factory::create();

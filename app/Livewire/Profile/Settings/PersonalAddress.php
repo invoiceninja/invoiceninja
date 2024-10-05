@@ -20,8 +20,6 @@ class PersonalAddress extends Component
 
     public $country_id;
 
-    public $countries;
-
     public $saved;
 
     protected $rules = [
@@ -33,7 +31,7 @@ class PersonalAddress extends Component
         'country_id' => ['sometimes'],
     ];
 
-    public function mount($countries)
+    public function mount()
     {
         $this->fill([
             'profile' => auth()->guard('contact')->user()->client,
@@ -43,8 +41,6 @@ class PersonalAddress extends Component
             'state' => auth()->guard('contact')->user()->client->state,
             'postal_code' => auth()->guard('contact')->user()->client->postal_code,
             'country_id' => auth()->guard('contact')->user()->client->country_id,
-
-            'countries' => $countries,
             'saved' => ctrans('texts.save'),
         ]);
     }

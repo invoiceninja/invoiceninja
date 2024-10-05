@@ -19,13 +19,14 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class IDEAL implements MethodInterface
+class IDEAL implements MethodInterface, LivewireMethodInterface
 {
     protected MolliePaymentDriver $mollie;
 
@@ -175,6 +176,19 @@ class IDEAL implements MethodInterface
      */
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, string $status = 'paid'): RedirectResponse
     {
+        $p = \App\Models\Payment::query()
+                    ->withTrashed()
+                    ->where('company_id', $this->mollie->client->company_id)
+                    ->where('transaction_reference', $payment->id)
+                    ->first();
+
+        if($p) {
+            $p->status_id = Payment::STATUS_COMPLETED;
+            $p->save();
+
+            return redirect()->route('client.payments.show', ['payment' => $p->hashed_id]);
+        }
+
         $data = [
             'gateway_type_id' => GatewayType::IDEAL,
             'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
@@ -196,7 +210,7 @@ class IDEAL implements MethodInterface
             $this->mollie->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $payment_record->hashed_id]);
     }
 
     /**
@@ -208,5 +222,25 @@ class IDEAL implements MethodInterface
     public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
     {
         return $this->processSuccessfulPayment($payment, 'open');
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        // Doesn't support, it's offsite payment method.
+
+        return '';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $this->paymentView($data);
+
+        return $data;
     }
 }

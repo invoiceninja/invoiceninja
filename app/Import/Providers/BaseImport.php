@@ -105,7 +105,7 @@ class BaseImport
         }
 
         nlog("found {$entity_type}");
-        
+
         $csv = base64_decode($base64_encoded_csv);
         $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 
@@ -390,6 +390,7 @@ class BaseImport
 
             try {
                 $invoice_data = $invoice_transformer->transform($raw_invoice);
+                $invoice_data['user_id'] = $this->company->owner()->id;
 
                 $invoice_data['line_items'] = $this->cleanItems(
                     $invoice_data['line_items'] ?? []
@@ -474,7 +475,7 @@ class BaseImport
         $tasks = $this->groupTasks($tasks, $task_number_key);
 
         nlog($tasks);
-        
+
         foreach ($tasks as $raw_task) {
             $task_data = [];
 
@@ -706,8 +707,8 @@ class BaseImport
 
         if ($invoice->status_id == Invoice::STATUS_DRAFT) {
             return $invoice;
-        } 
-        
+        }
+
         $invoice = $invoice
             ->service()
             ->markSent()

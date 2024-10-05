@@ -17,14 +17,14 @@ use App\Models\User;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class ArrayFiltersTest extends TestCase
 {
     private string $import_version = '';
-     
+
     private array $version_keys = [
-        'baseline' =>[],
+        'baseline' => [],
         '5.7.34' => [
             Payment::class => [
                 'is_deleted',
@@ -59,7 +59,7 @@ class ArrayFiltersTest extends TestCase
         ],
     ];
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }
@@ -87,7 +87,7 @@ class ArrayFiltersTest extends TestCase
             if($version == $key) {
                 $version_index = $index;
             }
-        
+
             $index++;
         }
 
@@ -118,12 +118,12 @@ class ArrayFiltersTest extends TestCase
             if($version == $key) {
                 $version_index = $index;
             }
-        
+
             $index++;
         }
 
         $this->assertEquals(2, $version_index);
-        
+
         $index = 0;
         $version_index = 0;
 
@@ -132,7 +132,7 @@ class ArrayFiltersTest extends TestCase
             if($version == $key) {
                 $version_index = $index;
             }
-                    
+
             $index++;
             return $value;
 
@@ -159,7 +159,7 @@ class ArrayFiltersTest extends TestCase
             if($version == $key) {
                 $version_index = $index;
             }
-                                
+
             $index++;
             return $value;
 
@@ -181,7 +181,7 @@ class ArrayFiltersTest extends TestCase
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
             if($version == $key) {
                 $version_index = $index;
-                nlog("version = {$version_index}");
+                // nlog("version = {$version_index}");
             }
             $index++;
             return $value;
@@ -189,7 +189,7 @@ class ArrayFiltersTest extends TestCase
         })
         ->slice($version_index ?? 0)
         ->pluck(Payment::class);
-        
+
         $x = collect($p)->diffKeys($filters->filter()->flatten()->flip());
 
         $this->assertEquals(5, $filters->count());
@@ -206,7 +206,7 @@ class ArrayFiltersTest extends TestCase
                  if($this->import_version == $key) {
                      $version_index = $index;
                  }
-                                                    
+
                  $index++;
                  return $value;
 
@@ -217,11 +217,11 @@ class ArrayFiltersTest extends TestCase
              ->when($version_index > 0, function ($collection) use (&$version_index, $class) {
                  return $collection->slice($version_index)->pluck($class)->filter();
              });
-        
+
         return collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray();
 
         // return $filters->count() > 0 ?  collect($obj_array)->diffKeys($filters->flatten()->flip())->toArray() : $obj_array;
- 
+
     }
 
     public function testFilterArrayOne()

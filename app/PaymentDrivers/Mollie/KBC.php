@@ -19,13 +19,14 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class KBC implements MethodInterface
+class KBC implements MethodInterface, LivewireMethodInterface
 {
     protected MolliePaymentDriver $mollie;
 
@@ -192,5 +193,25 @@ class KBC implements MethodInterface
         );
 
         return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        // Doesn't support, it's offsite payment method.
+
+        return '';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $this->paymentView($data);
+
+        return $data;
     }
 }

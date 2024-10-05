@@ -80,11 +80,14 @@ class StorePaymentRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('amount', 0)."|".$this->input('client_id', '')."|".$user->company()->company_key))
-            throw new DuplicatePaymentException('Duplicate request.', 429);
+        $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
 
-        \Illuminate\Support\Facades\Cache::put(($this->ip()."|".$this->input('amount', 0)."|".$this->input('client_id', '')."|".$user->company()->company_key), true, 1);
-        
+        if(\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('amount', 0)."|".$client_id."|".$user->company()->company_key)) {
+            throw new DuplicatePaymentException('Duplicate request.', 429);
+        }
+
+        \Illuminate\Support\Facades\Cache::put(($this->ip()."|".$this->input('amount', 0)."|".$client_id."|".$user->company()->company_key), true, 1);
+
         $input = $this->all();
 
         $invoices_total = 0;
@@ -104,7 +107,7 @@ class StorePaymentRequest extends Request
                     $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($value['invoice_id']);
                 }
 
-                if (array_key_exists('amount', $value)) {
+                if (array_key_exists('amount', $value) && is_numeric($value['amount'])) {
                     $invoices_total += $value['amount'];
                 }
             }
@@ -118,7 +121,10 @@ class StorePaymentRequest extends Request
             foreach ($input['credits'] as $key => $value) {
                 if (isset($value['credit_id']) && is_string($value['credit_id'])) {
                     $input['credits'][$key]['credit_id'] = $this->decodePrimaryKey($value['credit_id']);
-                    $credits_total += $value['amount'];
+
+                    if (array_key_exists('amount', $value) && is_numeric($value['amount'])) {
+                        $credits_total += $value['amount'];
+                    }
                 }
             }
         }

@@ -37,19 +37,6 @@ class StripeConnectController extends BaseController
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
 
-        // $company_gateway = CompanyGateway::query()
-        //     ->where('gateway_key', 'd14dd26a47cecc30fdd65700bfb67b34')
-        //     ->where('company_id', $request->getCompany()->id)
-        //     ->first();
-
-        // if ($company_gateway) {
-        //     $config = $company_gateway->getConfig();
-
-        //     if (property_exists($config, 'account_id') && strlen($config->account_id) > 5) {
-        //         return view('auth.connect.existing');
-        //     }
-        // }
-
         $stripe_client_id = config('ninja.ninja_stripe_client_id');
         $redirect_uri = config('ninja.app_url').'/stripe/completed';
         $endpoint = "https://connect.stripe.com/oauth/authorize?response_type=code&client_id={$stripe_client_id}&redirect_uri={$redirect_uri}&scope=read_write&state={$token}";
@@ -96,6 +83,10 @@ class StripeConnectController extends BaseController
 
         if(!$response) {
             return view('auth.connect.access_denied');
+        }
+
+        if(!$request->getTokenContent()) {
+            return view('auth.connect.session_expired');
         }
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);

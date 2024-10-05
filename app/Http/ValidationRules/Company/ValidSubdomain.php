@@ -12,31 +12,22 @@
 namespace App\Http\ValidationRules\Company;
 
 use App\Libraries\MultiDB;
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
- * Class ValidCompanyQuantity.
+ * Class ValidSubdomain.
  */
-class ValidSubdomain implements Rule
+class ValidSubdomain implements ValidationRule
 {
-    public function __construct()
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-    }
 
-    public function passes($attribute, $value)
-    {
-        if (empty($value)) {
-            return true;
+        if(empty($value))
+            return;
+        
+        if (!MultiDB::checkDomainAvailable($value)) {
+            $fail(ctrans('texts.subdomain_taken'));
         }
-
-        return MultiDB::checkDomainAvailable($value);
-    }
-
-    /**
-     * @return string
-     */
-    public function message()
-    {
-        return ctrans('texts.subdomain_taken');
     }
 }

@@ -24,15 +24,15 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ActivityController
+ * 
+ *  App\Http\Controllers\ActivityController
  */
 class MaxAmountTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +41,7 @@ class MaxAmountTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-        
+
     }
 
     public function testInvoiceMaxAmount()
@@ -65,7 +65,7 @@ class MaxAmountTest extends TestCase
         $response->assertStatus(422);
 
         $i = Invoice::factory()->create($data);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -96,7 +96,7 @@ class MaxAmountTest extends TestCase
         $response->assertStatus(422);
 
         $i = Credit::factory()->create($data);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -127,7 +127,7 @@ class MaxAmountTest extends TestCase
         $response->assertStatus(422);
 
         $i = Quote::factory()->create($data);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -136,7 +136,7 @@ class MaxAmountTest extends TestCase
         $response->assertStatus(422);
     }
 
-public function testPurchaseOrderMaxAmount()
+    public function testPurchaseOrderMaxAmount()
     {
         $item = new InvoiceItem();
         $item->cost = 10000000000000000;
@@ -157,7 +157,7 @@ public function testPurchaseOrderMaxAmount()
         $response->assertStatus(422);
 
         $i = PurchaseOrder::factory()->create($data);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -188,7 +188,7 @@ public function testPurchaseOrderMaxAmount()
         $response->assertStatus(422);
 
         $i = RecurringInvoice::factory()->create($data);
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,

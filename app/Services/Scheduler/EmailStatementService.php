@@ -70,7 +70,7 @@ class EmailStatementService
             'show_aging_table' => $this->scheduler->parameters['show_aging_table'] ?? true,
             'show_credits_table' => $this->scheduler->parameters['show_credits_table'] ?? true,
             'only_clients_with_invoices' => $this->scheduler->parameters['only_clients_with_invoices'] ?? false,
-            'status' => $this->scheduler->parameters['status']
+            'status' => $this->scheduler->parameters['status'] ?? 'all',
         ];
     }
 

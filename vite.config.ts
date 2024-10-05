@@ -50,6 +50,12 @@ export default defineConfig({
             'resources/js/clients/payments/stripe-przelewy24.js',
             'resources/js/clients/payments/stripe-browserpay.js',
             'resources/js/clients/payments/stripe-fpx.js',
+            'resources/js/clients/payments/stripe-ach-pay.js',
+            'resources/js/clients/payments/stripe-bank-transfer.js',
+            'resources/js/clients/payment_methods/authorize-stripe-acss.js',
+            'resources/js/clients/payment_methods/authorize-powerboard-card.js',
+            'resources/js/clients/payments/powerboard-credit-card.js',
+            'resources/js/clients/payments/blockonomics.js',
         ]),
         viteStaticCopy({
             targets: [

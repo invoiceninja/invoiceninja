@@ -88,7 +88,7 @@ class PreviewInvoiceRequest extends Request
     public function resolveInvitation()
     {
         $invitation = false;
-        
+
         /** @phpstan-ignore-next-line */
         if(! $this->entity_id ?? false) {
             return $this->stubInvitation();

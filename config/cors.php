@@ -32,3 +32,5 @@ return [
     'supports_credentials' => false,
 
 ];
+
+// don't forget to check app/Http/Middleware/Cors.php

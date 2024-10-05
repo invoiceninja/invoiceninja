@@ -26,8 +26,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\QuoteController
+ * 
+ *  App\Http\Controllers\QuoteController
  */
 class QuoteTest extends TestCase
 {
@@ -37,7 +37,7 @@ class QuoteTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -69,7 +69,7 @@ class QuoteTest extends TestCase
                     'X-API-SECRET' => config('ninja.api_secret'),
                     'X-API-TOKEN' => $this->token,
                 ])->postJson('/api/v1/quotes', $data);
-        
+
         $arr = $response->json();
         // nlog($arr);
 
@@ -95,7 +95,7 @@ class QuoteTest extends TestCase
         $arr = $response->json();
 
         $this->assertEmpty($arr['data']['due_date']);
-        
+
         $response = $this->withHeaders([
                             'X-API-SECRET' => config('ninja.api_secret'),
                             'X-API-TOKEN' => $this->token,
@@ -128,7 +128,7 @@ class QuoteTest extends TestCase
         $arr = $response->json();
 
         $this->assertNotEmpty($arr['data']['due_date']);
-        
+
         $response = $this->withHeaders([
                             'X-API-SECRET' => config('ninja.api_secret'),
                             'X-API-TOKEN' => $this->token,
@@ -191,7 +191,7 @@ class QuoteTest extends TestCase
         $response->assertStatus(200);
 
         $arr = $response->json();
-        
+
         $this->assertEquals(now()->addDay()->format('Y-m-d'), $arr['data']['due_date']);
         $this->assertEquals(now()->format('Y-m-d'), $arr['data']['partial_due_date']);
         $this->assertEquals(1, $arr['data']['partial']);
@@ -215,7 +215,7 @@ class QuoteTest extends TestCase
             'client_id' => $c->id,
             'status_id' => 2,
             'date' => now(),
-            'line_items' =>[
+            'line_items' => [
                 [
                     'type_id' => '2',
                     'cost' => 200,
@@ -249,7 +249,7 @@ class QuoteTest extends TestCase
         $t = $p->tasks()->where('description', 'Test200')->first();
 
         $this->assertEquals(200, $t->rate);
-        
+
         $t = $p->tasks()->where('description', 'Test100')->first();
 
         $this->assertEquals(100, $t->rate);

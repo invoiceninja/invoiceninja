@@ -1,7 +1,8 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => 'ACH', 'card_title' => 'ACH'])
 
 @section('gateway_head')
-    <meta name="client-token" content="{{ $client_token ?? '' }}"/>
+    <meta name="client-token" content="{{ $client_token ?? '' }}" />
+    <meta name="instant-payment" content="yes" />
 @endsection
 
 @section('gateway_content')
@@ -19,7 +20,15 @@
         <input type="hidden" name="gateway_type_id" value="2">
         <input type="hidden" name="gateway_response" id="gateway_response">
         <input type="hidden" name="is_default" id="is_default">
-        <input type="hidden" name="nonce" hidden>
+        <input type="hidden" name="nonce" hidden />
+        
+        @isset($payment_hash)
+            <input type="hidden" name="payment_hash" value="{{ $payment_hash }}" />
+        @endisset
+
+        @isset($authorize_then_redirect)
+            <input type="hidden" name="authorize_then_redirect" value="true" />
+        @endisset
     </form>
 
     <div class="alert alert-failure mb-4" hidden id="errors"></div>
@@ -93,6 +102,5 @@
     <script src="https://js.braintreegateway.com/web/3.81.0/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.81.0/js/us-bank-account.min.js"></script>
     
-    <script defer src="{{ asset('js/clients/payment_methods/braintree-ach.js') }}"></script>
-
+    @vite('resources/js/clients/payment_methods/braintree-ach.js')
 @endsection

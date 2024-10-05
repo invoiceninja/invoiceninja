@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class UserSalesReportTest extends TestCase
 {
@@ -34,7 +34,7 @@ class UserSalesReportTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

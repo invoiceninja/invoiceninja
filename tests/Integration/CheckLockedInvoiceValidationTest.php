@@ -17,15 +17,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\ValidationRules\Invoice\LockedInvoiceRule
+ * 
+ *  App\Http\ValidationRules\Invoice\LockedInvoiceRule
  */
 class CheckLockedInvoiceValidationTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

@@ -42,8 +42,9 @@ class CreateInvitations extends AbstractService
     public function run()
     {
 
-        if(!$this->purchase_order->vendor)
+        if(!$this->purchase_order->vendor) {
             return $this->purchase_order;
+        }
 
         $contacts = $this->purchase_order->vendor->contacts()->get();
 

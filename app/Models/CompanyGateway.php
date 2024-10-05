@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $update_details
  * @property bool $is_deleted
  * @property string $config
+ * @property object $settings
  * @property mixed $fees_and_limits
  * @property string|null $custom_value1
  * @property string|null $custom_value2
@@ -74,6 +75,7 @@ class CompanyGateway extends BaseModel
 
     protected $casts = [
         'fees_and_limits' => 'object',
+        'settings' => 'object',
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -154,8 +156,10 @@ class CompanyGateway extends BaseModel
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321, //GoCardless
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
-        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTPay
+        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTCPay
         '91be24c7b792230bced33e930ac61676' => 325,
+        'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
+        'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
     ];
 
     protected $touches = [];
@@ -394,11 +398,11 @@ class CompanyGateway extends BaseModel
         if ($fee > 0) {
             $fees_and_limits = $this->fees_and_limits->{$gateway_type_id};
 
-            if (strlen($fees_and_limits->fee_percent) >= 1) {
+            if (isset($fees_and_limits->fee_percent) && $fees_and_limits->fee_percent > 0) {
                 $label .= $fees_and_limits->fee_percent . '%';
             }
 
-            if (strlen($fees_and_limits->fee_amount) >= 1 && $fees_and_limits->fee_amount > 0) {
+            if (isset($fees_and_limits->fee_amount) && $fees_and_limits->fee_amount > 0) {
                 if (strlen($label) > 1) {
                     $label .= ' + ' . Number::formatMoney($fees_and_limits->fee_amount, $client);
                 } else {
@@ -420,7 +424,6 @@ class CompanyGateway extends BaseModel
         }
 
         $fee = 0;
-
 
         if ($fees_and_limits->adjust_fee_percent ?? false) {
             $adjusted_fee = 0;
@@ -448,11 +451,7 @@ class CompanyGateway extends BaseModel
                 } else {
                     $fee += round(($amount * $fees_and_limits->fee_percent / 100), 2);
                 }
-                //elseif ($fees_and_limits->adjust_fee_percent) {
-                //   $fee += round(($amount / (1 - $fees_and_limits->fee_percent / 100) - $amount), 2);
-                //} else {
-
-                //}
+                
             }
         }
         /* Cap fee if we have to here. */
@@ -466,21 +465,29 @@ class CompanyGateway extends BaseModel
         if ($include_taxes) {
             if ($fees_and_limits->fee_tax_rate1) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate1 / 100), 2);
-                // info("fee after adding fee tax 1 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate2) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate2 / 100), 2);
-                // info("fee after adding fee tax 2 = {$fee}");
             }
 
             if ($fees_and_limits->fee_tax_rate3) {
                 $fee += round(($pre_tax_fee * $fees_and_limits->fee_tax_rate3 / 100), 2);
-                // info("fee after adding fee tax 3 = {$fee}");
             }
         }
 
         return $fee;
+    }
+
+    public function getSettings()
+    {
+        return $this->settings ?? new \stdClass;
+    }
+
+    public function setSettings($settings)
+    {
+        $this->settings = $settings;
+        $this->save();
     }
 
     public function webhookUrl()

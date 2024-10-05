@@ -14,11 +14,11 @@ namespace Tests\Unit;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class UrlTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

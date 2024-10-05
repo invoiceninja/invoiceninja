@@ -13,6 +13,7 @@ namespace App\Models;
 
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
+use Laravel\Scout\Searchable;
 use App\Jobs\Mail\NinjaMailer;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
@@ -100,6 +101,8 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     use HasFactory;
     use AppSetup;
 
+    use Searchable;
+
     /* Used to authenticate a contact */
     protected $guard = 'contact';
 
@@ -164,6 +167,28 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'custom_value4',
         'email',
     ];
+
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->present()->search_display(),
+            'hashed_id' => $this->client->hashed_id,
+            'email' => $this->email,
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
+            'phone' => $this->phone,
+            'custom_value1' => $this->custom_value1,
+            'custom_value2' => $this->custom_value2,
+            'custom_value3' => $this->custom_value3,
+            'custom_value4' => $this->custom_value4,
+            'company_key' => $this->company->company_key,
+        ];
+    }
+
+    public function getScoutKey()
+    {
+       return $this->hashed_id;
+    }
 
     /*
     V2 type of scope
@@ -271,13 +296,13 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function preferredLocale()
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
         return $languages->first(function ($item) {
             return $item->id == $this->client->getSetting('language_id');
-        })->locale;
+        })->locale ?? 'en';
     }
 
     public function routeNotificationForMail($notification)
