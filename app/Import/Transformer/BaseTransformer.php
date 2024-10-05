@@ -347,11 +347,27 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-        if (array_key_exists($field, $data)) {
-            return Number::parseFloat($data[$field]);
+        if (array_key_exists($field, $data)) {\
+            return $this->parseStringToFloat($data, $field);
+            // return Number::parseFloat($data[$field]);
         }
 
         return 0;
+
+    }
+
+    private function parseStringToFloat($data, $field): float
+    {
+
+        $currency = $this->company->currency();
+        
+        $amount = preg_replace('/[^\d,.-]/', '', $data[$field]);
+
+        $amount = str_replace($currency->thousand_separator, '', $amount);
+        
+        $amount = $currency->decimal_separator !== '.' ? str_replace($currency->decimal_separator, '.', $amount) : $amount;
+    
+        return (float) $amount;
 
     }
 
