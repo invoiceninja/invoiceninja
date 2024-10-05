@@ -84,6 +84,7 @@ class CreateCompany
             '724' => $company = $this->spanishSetup($company),
             '36'  => $company = $this->australiaSetup($company),
             '710' => $company = $this->southAfticaSetup($company),
+            '554' => $company = $this->newZealandSetup($company),
             default => $company->save(),
         };
 
@@ -129,6 +130,22 @@ class CreateCompany
 
         return '840';
 
+    }
+
+    private function newZealandSetup($company): Company
+    {
+
+        $company->enabled_tax_rates = 1;
+
+        $settings = $company->settings;
+        $settings->currency_id = '15';
+        $settings->timezone_id = '113';
+
+        $company->settings = $settings;
+
+        $company->save();
+
+        return $company;
     }
 
     private function spanishSetup(Company $company): Company
