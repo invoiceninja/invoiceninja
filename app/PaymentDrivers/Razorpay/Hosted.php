@@ -19,6 +19,7 @@ use App\Models\GatewayType;
 use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\RazorpayPaymentDriver;
 use Illuminate\Http\RedirectResponse;
@@ -26,7 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Razorpay\Api\Errors\SignatureVerificationError;
 
-class Hosted implements MethodInterface
+class Hosted implements MethodInterface, LivewireMethodInterface
 {
     protected RazorpayPaymentDriver $razorpay;
 
@@ -67,23 +68,7 @@ class Hosted implements MethodInterface
      */
     public function paymentView(array $data): View
     {
-        $order = $this->razorpay->gateway->order->create([
-            'currency' => $this->razorpay->client->currency()->code,
-            'amount' => $this->razorpay->convertToRazorpayAmount((float) $this->razorpay->payment_hash->data->amount_with_fee),
-        ]);
-
-        $this->razorpay->payment_hash->withData('order_id', $order->id);
-        $this->razorpay->payment_hash->withData('order_amount', $order->amount);
-
-        $data['gateway'] = $this->razorpay;
-
-        $data['options'] = [
-            'key' => $this->razorpay->company_gateway->getConfigField('apiKey'),
-            'amount' => $this->razorpay->convertToRazorpayAmount((float) $this->razorpay->payment_hash->data->amount_with_fee),
-            'currency' => $this->razorpay->client->currency()->code,
-            'name' => $this->razorpay->company_gateway->company->present()->name(),
-            'order_id' => $order->id,
-        ];
+        $data = $this->paymentData($data);
 
         return render('gateways.razorpay.hosted.pay', $data);
     }
@@ -173,5 +158,39 @@ class Hosted implements MethodInterface
         );
 
         throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.razorpay.hosted.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $order = $this->razorpay->gateway->order->create([
+            'currency' => $this->razorpay->client->currency()->code,
+            'amount' => $this->razorpay->convertToRazorpayAmount((float) $this->razorpay->payment_hash->data->amount_with_fee),
+        ]);
+
+        $this->razorpay->payment_hash->withData('order_id', $order->id);
+        $this->razorpay->payment_hash->withData('order_amount', $order->amount);
+
+        $data['gateway'] = $this->razorpay;
+
+        $data['options'] = [
+            'key' => $this->razorpay->company_gateway->getConfigField('apiKey'),
+            'amount' => $this->razorpay->convertToRazorpayAmount((float) $this->razorpay->payment_hash->data->amount_with_fee),
+            'currency' => $this->razorpay->client->currency()->code,
+            'name' => $this->razorpay->company_gateway->company->present()->name(),
+            'order_id' => $order->id,
+        ];
+
+        return $data;
     }
 }

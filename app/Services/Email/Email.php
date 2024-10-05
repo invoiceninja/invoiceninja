@@ -11,38 +11,39 @@
 
 namespace App\Services\Email;
 
-use App\DataMapper\Analytics\EmailFailure;
-use App\DataMapper\Analytics\EmailSuccess;
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
-use App\Libraries\MultiDB;
-use App\Mail\Engine\PaymentEmailEngine;
+use Log;
+use App\Models\User;
+use App\Utils\Ninja;
 use App\Models\Client;
-use App\Models\ClientContact;
+use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Models\VendorContact;
 use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
+use App\Libraries\MultiDB;
+use App\Models\ClientContact;
+use App\Models\VendorContact;
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
 use App\Utils\VendorHtmlEngine;
+use App\Libraries\Google\Google;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
+use Postmark\Models\PostmarkException;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Mail\Engine\PaymentEmailEngine;
+use Illuminate\Queue\InteractsWithQueue;
 use GuzzleHttp\Exception\ClientException;
-use Illuminate\Bus\Queueable;
+use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Mail\Mailable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use Log;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
 
 class Email implements ShouldQueue
 {
@@ -250,7 +251,7 @@ class Email implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
+        if(in_array($this->email_object->settings->email_sending_method, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
         }
     }
@@ -290,6 +291,20 @@ class Email implements ShouldQueue
 
             LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject))
                 ->send();
+
+        } catch(\Symfony\Component\Mailer\Exception\TransportException $e){
+            nlog("Mailer failed with a Transport Exception {$e->getMessage()}");
+            
+            if(Ninja::isHosted() && $this->mailer == 'smtp'){
+                $settings = $this->email_object->settings;
+                $settings->email_sending_method = 'default';
+                $this->company->settings = $settings;
+                $this->company->save();
+            }
+
+            $this->fail();
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
 
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
@@ -361,16 +376,10 @@ class Email implements ShouldQueue
              * this merges a text string with a json object
              * need to harvest the ->Message property using the following
              */
-            if ($e instanceof ClientException) { //postmark specific failure
-                $response = $e->getResponse();
-                $message_body = json_decode($response->getBody()->getContents());
-
-                if ($message_body && property_exists($message_body, 'Message')) {
-                    $message = $message_body->Message;
-                }
+            if ($e instanceof PostmarkException) { //postmark specific failure
 
                 $this->fail();
-                $this->entityEmailFailed($message);
+                $this->entityEmailFailed($e->getMessage());
                 $this->cleanUpMailers();
 
                 return;
@@ -381,10 +390,8 @@ class Email implements ShouldQueue
                 /* If the is an entity attached to the message send a failure mailer */
                 $this->entityEmailFailed($message);
 
-                /* Don't send postmark failures to Sentry */
-                if (Ninja::isHosted() && (!$e instanceof ClientException)) {
-                    app('sentry')->captureException($e);
-                }
+                app('sentry')->captureException($e);
+
             }
 
             $this->tearDown();
@@ -526,7 +533,7 @@ class Email implements ShouldQueue
     {
 
         /** Force free/trials onto specific mail driver */
-        if($this->mailer == 'default' && $this->company->account->isNewHostedAccount()) {
+        if($this->email_object->settings->email_sending_method == 'default' && $this->company->account->isNewHostedAccount()) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
@@ -646,7 +653,7 @@ class Email implements ShouldQueue
 
         $user = $this->resolveSendingUser();
 
-        $sending_email = (isset($this->email_object->settings->custom_sending_email) && stripos($this->email_object->settings->custom_sending_email, "@")) ? $this->email_object->settings->custom_sending_email : $user->email;
+        $sending_email = (isset($this->email_object->settings->custom_sending_email) && (stripos($this->email_object->settings->custom_sending_email, "@")) !== false) ? $this->email_object->settings->custom_sending_email : $user->email;
         $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable
@@ -677,7 +684,6 @@ class Email implements ShouldQueue
             }
         }
     }
-
 
     /**
      * Ensure we discard any data that is not required
@@ -972,7 +978,7 @@ class Email implements ShouldQueue
      * @param  string $message
      * @return void
      */
-    private function entityEmailFailed($message): void
+    private function entityEmailFailed(string $message = ''): void
     {
         $class = get_class($this->email_object->entity);
 

@@ -15,8 +15,8 @@
 @endphp
 @section('gateway_head')
     <meta http-equiv="Content-Security-Policy" content="
-        frame-src 'self' https://c.paypal.com https://www.sandbox.paypal.com https://www.paypal.com; 
-        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://c.paypal.com https://www.paypalobjects.com https://www.paypal.com https://www.sandbox.paypal.com/;
+        frame-src 'self' https://c.paypal.com https://www.sandbox.paypal.com https://www.paypal.com https://www.paypalobjects.com; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://c.paypal.com https://www.paypalobjects.com https://www.paypal.com https://www.sandbox.paypal.com https://www.google-analytics.com;
         img-src * data: 'self'; 
         style-src 'self' 'unsafe-inline';"
         >
@@ -171,12 +171,21 @@
                 
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
                 document.getElementById('errors').hidden = false;
+
+                document.getElementById('pay-now').disabled = false;
+                document.querySelector('#pay-now > svg').classList.add('hidden');
+                document.querySelector('#pay-now > span').classList.remove('hidden');
+                
             });
 
         },
-        onCancel: function() {
+        onError: function(error) {
 
-            window.location.href = "/client/invoices/";
+            throw new Error(error);
+
+        },
+        onCancel: function() {
+            window.location.href = "/client/invoices/{{ $invoice_hash }}";
         },
         onClick: function (){
            
@@ -231,14 +240,12 @@
         cardField.submit().then(() => {
 
         }).catch((error) => {
-
-            console.log(error);
             
             let msg;
 
             if(!['INVALID_NUMBER','INVALID_CVV','INVALID_EXPIRY'].includes(error.message))
             {
-                const errorM = parseError(error.message);
+                const errorM = parseError(error);
                 msg = handle422Error(errorM);
             }
 
@@ -255,7 +262,7 @@
             else if(error.message == 'INVALID_EXPIRY') {
               document.getElementById('errors').textContent = "{{ ctrans('texts.invalid_cvv') }}";
             }
-            else if(msg.description){
+            else if(msg?.description){
                 document.getElementById('errors').textContent = msg?.description;
             }
             document.getElementById('errors').hidden = false;
@@ -270,7 +277,7 @@
   }
 
     function handle422Error(errorData) {
-        const errorDetails = errorData.details || [];
+        const errorDetails = errorData?.details || [];
         const detail = errorDetails[0];        
         return detail;
     }

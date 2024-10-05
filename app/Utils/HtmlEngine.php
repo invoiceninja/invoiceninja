@@ -229,7 +229,10 @@ class HtmlEngine
 
             $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.paid') .'</div>', 'label' => ''];
 
-            $data['$show_paid_stamp'] = ['value' => $this->entity->status_id == 4 && $this->settings->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
+            if($this->entity->status_id == 5)
+                $data['$status_logo'] = ['value' => '<div class="stamp is-paid"> ' . ctrans('texts.cancelled') .'</div>', 'label' => ''];
+
+            $data['$show_paid_stamp'] = ['value' => in_array($this->entity->status_id, [4,5]) && $this->settings->show_paid_stamp ? 'flex' : 'none', 'label' => ''];
 
             $data['$invoice.vendor'] = ['value' => $this->entity->vendor?->present()->name() ?: '', 'label' => ctrans('texts.vendor_name')];
 
@@ -399,11 +402,19 @@ class HtmlEngine
         $data['$taxes'] = ['value' => Number::formatMoney($this->entity_calc->getItemTotalTaxes(), $this->client) ?: ' ', 'label' => ctrans('texts.taxes')];
         $data['$invoice.taxes'] = &$data['$taxes'];
 
+
         $data['$user.name'] = ['value' => $this->entity->user->present()->name(), 'label' => ctrans('texts.name')];
+
+        $data['$user.signature'] = ['value' => $this->entity->user->signature ?? '', 'label' => ctrans('texts.signature')];
         $data['$user.first_name'] = ['value' => $this->entity->user->first_name, 'label' => ctrans('texts.first_name')];
         $data['$user.last_name'] = ['value' => $this->entity->user->last_name, 'label' => ctrans('texts.last_name')];
         $data['$created_by_user'] = &$data['$user.name'];
+
         $data['$assigned_to_user'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->present()->name() : '', 'label' => ctrans('texts.name')];
+        $data['$assigned_user.signature'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->signature : '', 'label' => ctrans('texts.signature')];
+
+        $data['$assigned_user.first_name'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->first_name : '', 'label' => ctrans('texts.first_name')];
+        $data['$assigned_user.last_name'] = ['value' => $this->entity->assigned_user ? $this->entity->assigned_user->last_name : '', 'label' => ctrans('texts.last_name')];
 
         $data['$user_iban'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->client) ?: ' ', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];
 
@@ -507,7 +518,9 @@ class HtmlEngine
 
         $data['$client.lang_2'] = ['value' => optional($this->client->language())->locale, 'label' => ''];
 
+
         $data['$client.balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
+        $data['$client.payment_balance'] = ['value' => Number::formatMoney($this->client->payment_balance, $this->client), 'label' => ctrans('texts.payment_balance_on_file')];
         $data['$client_balance'] = ['value' => Number::formatMoney($this->client->balance, $this->client), 'label' => ctrans('texts.account_balance')];
         $data['$paid_to_date'] = ['value' => Number::formatMoney($this->entity->paid_to_date, $this->client), 'label' => ctrans('texts.paid_to_date')];
 
@@ -662,7 +675,7 @@ class HtmlEngine
         }
 
         $data['$contact.signature_raw'] = ['value' => $this->invitation->signature_base64, 'label' => ctrans('texts.signature')];
-        $data['$contact.signature_date'] = ['value' => $this->translateDate($this->invitation->signature_date ?? '1970-01-01', $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.date')];
+        $data['$contact.signature_date'] = ['value' => $this->invitation->signature_date ? $this->translateDate($this->invitation->signature_date, $this->client->date_format(), $this->client->locale()) : ' ', 'label' => ctrans('texts.date')];
         $data['$contact.signature_ip'] = ['value' => $this->invitation->signature_ip ?? '', 'label' => ctrans('texts.address')];
 
         $data['$thanks'] = ['value' => '', 'label' => ctrans('texts.thanks')];
@@ -729,6 +742,7 @@ class HtmlEngine
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];
         $data['$payment.transaction_reference'] = ['value' => '', 'label' => ctrans('texts.transaction_reference')];
         $data['$payment.refunded'] = ['value' => '', 'label' => ctrans('texts.refund')];
+        $data['$payment_error'] = ['value' => '', 'label' => ctrans('texts.error')];
 
         if ($this->entity_string == 'invoice' && $this->entity->net_payments()->exists()) {
             $payment_list = '<br><br>';
@@ -1015,98 +1029,98 @@ class HtmlEngine
      * of Repeating headers and footers on the PDF.
      * @return string The css string
      */
-//     private function generateCustomCSS(): string
-//     {
-//         $header_and_footer = '
-// .header, .header-space {
-//   height: 160px;
-// }
+    //     private function generateCustomCSS(): string
+    //     {
+    //         $header_and_footer = '
+    // .header, .header-space {
+    //   height: 160px;
+    // }
 
-// .footer, .footer-space {
-//   height: 160px;
-// }
+    // .footer, .footer-space {
+    //   height: 160px;
+    // }
 
-// .footer {
-//   position: fixed;
-//   bottom: 0;
-//   width: 100%;
-// }
+    // .footer {
+    //   position: fixed;
+    //   bottom: 0;
+    //   width: 100%;
+    // }
 
-// .header {
-//   position: fixed;
-//   top: 0mm;
-//   width: 100%;
-// }
+    // .header {
+    //   position: fixed;
+    //   top: 0mm;
+    //   width: 100%;
+    // }
 
-// @media print {
-//    thead {display: table-header-group;}
-//    tfoot {display: table-footer-group;}
-//    button {display: none;}
-//    body {margin: 0;}
-// }';
+    // @media print {
+    //    thead {display: table-header-group;}
+    //    tfoot {display: table-footer-group;}
+    //    button {display: none;}
+    //    body {margin: 0;}
+    // }';
 
-//         $header = '
-// .header, .header-space {
-//   height: 160px;
-// }
+    //         $header = '
+    // .header, .header-space {
+    //   height: 160px;
+    // }
 
-// .header {
-//   position: fixed;
-//   top: 0mm;
-//   width: 100%;
-// }
+    // .header {
+    //   position: fixed;
+    //   top: 0mm;
+    //   width: 100%;
+    // }
 
-// @media print {
-//    thead {display: table-header-group;}
-//    button {display: none;}
-//    body {margin: 0;}
-// }';
+    // @media print {
+    //    thead {display: table-header-group;}
+    //    button {display: none;}
+    //    body {margin: 0;}
+    // }';
 
-//         $footer = '
+    //         $footer = '
 
-// .footer, .footer-space {
-//   height: 160px;
-// }
+    // .footer, .footer-space {
+    //   height: 160px;
+    // }
 
-// .footer {
-//   position: fixed;
-//   bottom: 0;
-//   width: 100%;
-// }
+    // .footer {
+    //   position: fixed;
+    //   bottom: 0;
+    //   width: 100%;
+    // }
 
-// @media print {
-//    tfoot {display: table-footer-group;}
-//    button {display: none;}
-//    body {margin: 0;}
-// }';
-//         $css = '';
+    // @media print {
+    //    tfoot {display: table-footer-group;}
+    //    button {display: none;}
+    //    body {margin: 0;}
+    // }';
+    //         $css = '';
 
-//         if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
-//             $css .= $header_and_footer;
-//         } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
-//             $css .= $header;
-//         } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
-//             $css .= $footer;
-//         }
+    //         if ($this->settings->all_pages_header && $this->settings->all_pages_footer) {
+    //             $css .= $header_and_footer;
+    //         } elseif ($this->settings->all_pages_header && ! $this->settings->all_pages_footer) {
+    //             $css .= $header;
+    //         } elseif (! $this->settings->all_pages_header && $this->settings->all_pages_footer) {
+    //             $css .= $footer;
+    //         }
 
-//         $css .= '
-// .page {
-//   page-break-after: always;
-// }
+    //         $css .= '
+    // .page {
+    //   page-break-after: always;
+    // }
 
-// @page {
-//   margin: 0mm
-// }
+    // @page {
+    //   margin: 0mm
+    // }
 
-// html {
-//         ';
+    // html {
+    //         ';
 
-//         $css .= 'font-size:'.$this->settings->font_size.'px;';
+    //         $css .= 'font-size:'.$this->settings->font_size.'px;';
 
-//         $css .= '}';
+    //         $css .= '}';
 
-//         return $css;
-//     }
+    //         return $css;
+    //     }
 
     /**
      * Generate markup for HTML images on entity.
@@ -1161,7 +1175,7 @@ class HtmlEngine
         }
 
         return '
-<div>
+<div class=\"center\">
 <!--[if (gte mso 9)|(IE)]>
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>

@@ -15,7 +15,7 @@ use App\DataProviders\SMSNumbers;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class SmsNumberTest extends TestCase
 {

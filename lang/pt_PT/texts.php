@@ -3443,7 +3443,7 @@ debitar da sua conta de acordo com essas instruções. Está elegível a um reem
     'reminder2_sent' => 'Lembrete 2 Enviado',
     'reminder3_sent' => 'Lembrete 3 Enviado',
     'reminder_last_sent' => 'Último Lembrete Enviado',
-    'pdf_page_info' => 'Página: atual de: total',
+    'pdf_page_info' => 'Página: :current de: :total',
     'emailed_credits' => 'Créditos enviados por e-mail com sucesso',
     'view_in_stripe' => 'Ver em Formato Lista',
     'rows_per_page' => 'Colunas por Página',

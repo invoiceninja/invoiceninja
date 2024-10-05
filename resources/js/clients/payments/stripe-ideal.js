@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';    
+
 class ProcessIDEALPay {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -18,13 +20,13 @@ class ProcessIDEALPay {
     setupStripe = () => {
 
 
-        if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+            // this.stripe.stripeAccount = this.stripeConnect;
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
@@ -57,7 +59,7 @@ class ProcessIDEALPay {
                 errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
                 errors.hidden = false;
                 console.log("name");
-                return ;
+                return;
             }
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
@@ -81,11 +83,17 @@ class ProcessIDEALPay {
     };
 }
 
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessIDEALPay(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+instant() ? boot() : wait('#stripe-ideal-payment').then(() => boot());
 
-new ProcessIDEALPay(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-ideal-payment').then(() => boot());

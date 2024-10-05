@@ -15,11 +15,11 @@ use App\Http\ValidationRules\ValidAmount;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class AmountValidationRuleTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
     }

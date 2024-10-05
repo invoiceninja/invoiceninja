@@ -8,21 +8,33 @@
  * @license https://opensource.org/licenses/AAL
  */
 
+import { wait, instant } from '../wait';
+
 class ForteAuthorizeCard {
     constructor(apiLoginId) {
         this.apiLoginId = apiLoginId;
         this.cardHolderName = document.getElementById('cardholder_name');
+
+        this.sc = createSimpleCard({
+            fields: {
+                card: {
+                    number: '#number',
+                    date: '#date',
+                    cvv: '#cvv',
+                },
+            },
+        });
+
+        this.sc.mount();
     }
 
     handleAuthorization = () => {
-        var myCard = $('#my-card');
-
-        var data = {
+        const data = {
             api_login_id: this.apiLoginId,
-            card_number: myCard.CardJs('cardNumber').replace(/[^\d]/g, ''),
-            expire_year: myCard.CardJs('expiryYear').replace(/[^\d]/g, ''),
-            expire_month: myCard.CardJs('expiryMonth').replace(/[^\d]/g, ''),
-            cvv: document.getElementById('cvv').value.replace(/[^\d]/g, ''),
+            card_number: this.sc.value('number')?.replace(/[^\d]/g, ''),
+            expire_year: `20${this.sc.value('year')?.replace(/[^\d]/g, '')}`,
+            expire_month: this.sc.value('month')?.replace(/[^\d]/g, ''),
+            cvv: this.sc.value('cvv')?.replace(/[^\d]/g, ''),
         };
 
         let payNowButton = document.getElementById('pay-now');
@@ -75,9 +87,13 @@ class ForteAuthorizeCard {
     };
 }
 
-const apiLoginId = document.querySelector(
-    'meta[name="forte-api-login-id"]'
-).content;
+function boot() {
+    const apiLoginId = document.querySelector(
+        'meta[name="forte-api-login-id"]'
+    ).content;
 
-/** @handle */
-new ForteAuthorizeCard(apiLoginId).handle();
+    /** @handle */
+    new ForteAuthorizeCard(apiLoginId).handle();
+}
+
+instant() ? boot() : wait('#forte-credit-card-payment').then(() => boot());

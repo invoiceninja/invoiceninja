@@ -68,7 +68,10 @@ class ProcessPostmarkWebhook implements ShouldQueue
         return SystemLog::query()
             ->where('company_id', $this->invitation->company_id)
             ->where('type_id', SystemLog::TYPE_WEBHOOK_RESPONSE)
-            ->whereJsonContains('log', ['MessageID' => $message_id])
+            ->where('category_id', SystemLog::CATEGORY_MAIL)
+            // ->where('client_id', $this->invitation->contact->client_id)
+            // ->whereJsonContains('log', ['MessageID' => $message_id])
+            ->where('log->MessageID', $message_id)
             ->orderBy('id', 'desc')
             ->first();
 
@@ -163,7 +166,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processOpen()
     {
         $this->invitation->opened_date = now();
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
 
@@ -203,7 +206,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processDelivery()
     {
         $this->invitation->email_status = 'delivered';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $data = array_merge($this->request, ['history' => $this->fetchMessage()]);
 
@@ -255,7 +258,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processBounce()
     {
         $this->invitation->email_status = 'bounced';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $bounce = new EmailBounce(
             $this->request['Tag'],
@@ -306,7 +309,7 @@ class ProcessPostmarkWebhook implements ShouldQueue
     private function processSpamComplaint()
     {
         $this->invitation->email_status = 'spam';
-        $this->invitation->save();
+        $this->invitation->saveQuietly();
 
         $spam = new EmailSpam(
             $this->request['Tag'],
@@ -442,4 +445,10 @@ class ProcessPostmarkWebhook implements ShouldQueue
 
         }
     }
+
+    public function middleware()
+    {
+        return [new \Illuminate\Queue\Middleware\WithoutOverlapping($this->request['Tag'])];
+    }
+
 }

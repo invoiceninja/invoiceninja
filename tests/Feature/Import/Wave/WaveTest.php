@@ -26,8 +26,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Import\Providers\Wave
+ * 
+ *  App\Import\Providers\Wave
  */
 class WaveTest extends TestCase
 {

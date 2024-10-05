@@ -433,6 +433,8 @@ class Import implements ShouldQueue
 
         $rules = (new UpdateCompanyRequest())->rules();
 
+        unset($rules['expense_mailbox']);
+        
         $validator = Validator::make($data, $rules);
 
         if ($validator->fails()) {
@@ -2069,7 +2071,7 @@ class Import implements ShouldQueue
         nlog($exception->getMessage());
 
         app('sentry')->captureException($exception);
-        
+
     }
 
 

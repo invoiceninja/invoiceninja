@@ -6,6 +6,7 @@ tags:
       description: "Find out more"
       url: "https://invoiceninja.github.io"
   - name: clients
+    x-tag-expanded: true
     description: |
       Endpoint definitions for interacting with clients.
   - name: products
@@ -13,7 +14,26 @@ tags:
       Endpoint definitions for interacting with products.
   - name: invoices
     description: |
-      Endpoint definitions for interacting with invoices.
+
+      ## Invoice Statuses
+      
+      - STATUS_DRAFT = 1
+        - Draft invoices are not visible in the client portal, are not active and they do not impact the client balance
+      - STATUS_SENT = 2
+        - Send invoices are visible in the client portal, are active and impact the client balance
+      - STATUS_PARTIAL = 3
+        - An invoice which has been partially paid
+      - STATUS_PAID = 4
+        - An invoice which has been fully paid
+      - STATUS_CANCELLED = 5
+        - When a invoice is cancelled the invoice balance is set to zero and the status updated to Cancelled, the client balance is also adjusted down. If payments have been applied to the invoice these will remain linked to the invoice
+      - STATUS_REVERSED = 6
+        - When a invoice has been reversed, the previous payments relationships are unlinked and cannot be restored
+      - STATUS_OVERDUE = -1
+        - An invoice which is still payable past its due date
+      - STATUS_UNPAID = -2
+        - An invoice which is not yet due, but also, not paid
+        
   - name: Recurring Invoices
     description: |
       Endpoint definitions for interacting with recurring_invoices.

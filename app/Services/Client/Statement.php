@@ -55,79 +55,94 @@ class Statement
     public function run(): ?string
     {
 
-        $this
-            ->setupOptions()
-            ->setupEntity();
+        try {
+            $this
+                ->setupOptions()
+                ->setupEntity();
 
-        $html = new HtmlEngine($this->getInvitation());
+            $html = new HtmlEngine($this->getInvitation());
 
-        $variables = [];
-        $variables = $html->generateLabelsAndValues();
+            $variables = [];
+            $variables = $html->generateLabelsAndValues();
 
-        $option_template = &$this->options['template'];
+            $option_template = &$this->options['template'];
 
-        $custom_statement_template = \App\Models\Design::where('id', $this->decodePrimaryKey($this->client->getSetting('statement_design_id')))->where('is_template', true)->first();
+            $custom_statement_template = \App\Models\Design::where('id', $this->decodePrimaryKey($this->client->getSetting('statement_design_id')))->where('is_template', true)->first();
 
-        if($custom_statement_template || $option_template && $option_template != '') {
+            if($custom_statement_template || $option_template && $option_template != '') {
 
-            $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
-            $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
-            $variables['labels']['$start_date_label'] = ctrans('texts.start_date');
-            $variables['labels']['$end_date_label'] = ctrans('texts.end_date');
+                $variables['values']['$start_date'] = $this->translateDate($this->options['start_date'], $this->client->date_format(), $this->client->locale());
+                $variables['values']['$end_date'] = $this->translateDate($this->options['end_date'], $this->client->date_format(), $this->client->locale());
+                $variables['labels']['$start_date_label'] = ctrans('texts.start_date');
+                $variables['labels']['$end_date_label'] = ctrans('texts.end_date');
 
-            return $this->templateStatement($variables);
-        }
+                return $this->templateStatement($variables);
+            }
 
-        if ($this->getDesign()->is_custom) {
-            $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
+            if ($this->getDesign()->is_custom) {
+                $this->options['custom_partials'] = \json_decode(\json_encode($this->getDesign()->design), true);
 
-            $template = new PdfMakerDesign(\App\Services\PdfMaker\Design::CUSTOM, $this->options);
-        } else {
-            $template = new PdfMakerDesign(strtolower($this->getDesign()->name), $this->options);
-        }
+                $template = new PdfMakerDesign(\App\Services\PdfMaker\Design::CUSTOM, $this->options);
+            } else {
+                $template = new PdfMakerDesign(strtolower($this->getDesign()->name), $this->options);
+            }
 
-        $variables = $html->generateLabelsAndValues();
-        $variables['values']['$show_paid_stamp'] = 'none'; //do not show paid stamp on statement
+            $variables = $html->generateLabelsAndValues();
+            $variables['values']['$show_paid_stamp'] = 'none'; //do not show paid stamp on statement
 
-        $state = [
-            'template' => $template->elements([
-                'client' => $this->client,
-                'entity' => $this->entity,
-                'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
-                '$product' => $this->getDesign()->design->product,
+            $state = [
+                'template' => $template->elements([
+                    'client' => $this->client,
+                    'entity' => $this->entity,
+                    'pdf_variables' => (array) $this->entity->company->settings->pdf_variables,
+                    '$product' => $this->getDesign()->design->product,
+                    'variables' => $variables,
+                    'invoices' => $this->getInvoices()->cursor(),
+                    'payments' => $this->getPayments()->cursor(),
+                    'credits' => $this->getCredits()->cursor(),
+                    'aging' => $this->getAging(),
+                ], \App\Services\PdfMaker\Design::STATEMENT),
                 'variables' => $variables,
-                'invoices' => $this->getInvoices()->cursor(),
-                'payments' => $this->getPayments()->cursor(),
-                'credits' => $this->getCredits()->cursor(),
-                'aging' => $this->getAging(),
-            ], \App\Services\PdfMaker\Design::STATEMENT),
-            'variables' => $variables,
-            'options' => [
-            ],
-            'process_markdown' => $this->entity->client->company->markdown_enabled,
-        ];
+                'options' => [
+                ],
+                'process_markdown' => $this->entity->client->company->markdown_enabled,
+            ];
 
-        $maker = new PdfMaker($state);
+            $maker = new PdfMaker($state);
 
-        $maker
-            ->design($template)
-            ->build();
+            $maker
+                ->design($template)
+                ->build();
 
-        $pdf = null;
-        $html = $maker->getCompiledHTML(true);
+            $pdf = null;
+            $html = $maker->getCompiledHTML(true);
 
-        if ($this->rollback) {
-            \DB::connection(config('database.default'))->rollBack();
+            if ($this->rollback) {
+                \DB::connection(config('database.default'))->rollBack();
+                $this->rollback = false;
+            }
+
+            $pdf = $this->convertToPdf($html);
+
+            $this->setVariables($variables);
+
+            $maker = null;
+            $state = null;
+
+            return $pdf;
+        }
+        catch(\Throwable $th){
+            
+            nlog("STATEMENT:: Throwable::" . $th->getMessage());
+
+            if ($this->rollback) {
+                \DB::connection(config('database.default'))->rollBack();
+            }
+
         }
 
-        $pdf = $this->convertToPdf($html);
+        return null;
 
-        $this->setVariables($variables);
-
-        $maker = null;
-        $state = null;
-
-        return $pdf;
     }
 
     public function setVariables($variables): self
@@ -178,18 +193,13 @@ class Statement
     {
         $pdf = false;
 
-        try {
-            if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
-                $pdf = (new Phantom())->convertHtmlToPdf($html);
-            } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-                $pdf = (new NinjaPdf())->build($html);
-            } else {
-                $pdf = $this->makePdf(null, null, $html);
-            }
-        } catch (\Exception $e) {
-            nlog(print_r($e->getMessage(), true));
+        if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
+            $pdf = (new Phantom())->convertHtmlToPdf($html);
+        } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
+            $pdf = (new NinjaPdf())->build($html);
+        } else {
+            $pdf = $this->makePdf(null, null, $html);
         }
-
 
         return $pdf;
     }
@@ -208,7 +218,7 @@ class Statement
             DB::connection(config('database.default'))->beginTransaction();
 
             $this->rollback = true;
-
+            
             $invoice = InvoiceFactory::create($this->client->company->id, $this->client->user->id);
             $invoice->client_id = $this->client->id;
             $invoice->line_items = $this->buildLineItems();

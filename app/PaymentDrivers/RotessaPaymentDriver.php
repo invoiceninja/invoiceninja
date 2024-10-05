@@ -12,22 +12,15 @@
 namespace App\PaymentDrivers;
 
 use App\DataMapper\ClientSettings;
-use Omnipay\Omnipay;
 use App\Models\Client;
-use App\Models\Payment;
 use App\Models\SystemLog;
-use App\Models\PaymentHash;
 use Illuminate\Support\Arr;
 use App\Models\GatewayType;
-use Omnipay\Rotessa\Gateway;
 use App\Models\ClientContact;
 use App\Utils\Traits\MakesHash;
 use App\Jobs\Util\SystemLogger;
 use App\PaymentDrivers\BaseDriver;
 use App\Models\ClientGatewayToken;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Database\Eloquent\Builder;
-use App\PaymentDrivers\Rotessa\Resources\Customer;
 use App\PaymentDrivers\Rotessa\PaymentMethod as Acss;
 use App\PaymentDrivers\Rotessa\PaymentMethod as BankTransfer;
 use Illuminate\Support\Facades\Http;
@@ -42,15 +35,11 @@ class RotessaPaymentDriver extends BaseDriver
 
     public $can_authorise_credit_card = true;
 
-    public Gateway $gateway;
-
     public $payment_method;
 
     public static $methods = [
         GatewayType::BANK_TRANSFER => BankTransfer::class,
-        //GatewayType::BACS => Bacs::class,
         GatewayType::ACSS => Acss::class,
-        // GatewayType::DIRECT_DEBIT => DirectDebit::class
     ];
 
     public function init(): self
@@ -115,14 +104,15 @@ class RotessaPaymentDriver extends BaseDriver
     public function importCustomers() {
         
         try {
-            $result = $this->gatewayRequest('get','customers',[]);
+            $result = $this->gatewayRequest('get','customers',[]); //Rotessa customers
 
             if($result->failed())
                 $result->throw();
             
-            $customers = collect($result->json())->unique('email');
+            $customers = collect($result->json())->unique('email'); //Rotessa customer emails
         
             $client_emails = $customers->pluck('email')->all();
+
             $company_id = $this->company_gateway->company->id;
             // get existing customers
             $client_contacts = ClientContact::where('company_id', $company_id)
@@ -138,60 +128,32 @@ class RotessaPaymentDriver extends BaseDriver
             }  );
 
             // create payment methods
-            $client_contacts->each(
+            collect($client_contacts)->each(
                 function($contact)  {
-                    // $result = $this->gateway->getCustomersId(['id' => ($contact = (object) $contact)->id])->send();
+                    
                     $contact = (object)$contact;
                     
                     $result = $this->gatewayRequest("get","customers/{$contact->id}");
                     $result = $result->json();
                     
-                    $this->client = Client::find($contact->client_id);
+                    $this->client = Client::query()->find($contact->client_id);
             
-                    $customer = (new Customer($result))->additional(['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ] );
-                    $this->findOrCreateCustomer($customer->additional + $customer->jsonSerialize());
+                    $customer = array_merge($result, ['id' => $contact->id, 'custom_identifier' => $contact->custom_identifier ]);
+
+                    $this->findOrCreateCustomer($customer);
+
                 }
             );
             
             // create new clients from rotessa customers
             $client_emails = $client_contacts->pluck('email')->all();
+
             $client_contacts = $customers->filter(function ($value, $key) use ($client_emails) {
                 return !in_array(((object) $value)->email, $client_emails);
             })->each( function($customer) use ($company_id) {
                 
                 $customer = $this->gatewayRequest("get", "customers/{$customer['id']}")->json();
-                /**
-                    {
-                        "account_number": "11111111"
-                        "active": true,
-                        "address": {
-                            "address_1": "123 Main Street",
-                            "address_2": "Unit 4",
-                            "city": "Birmingham",
-                            "id": 114397,
-                            "postal_code": "36016",
-                            "province_code": "AL"
-                        },
-                        "authorization_type": "Online",
-                        "bank_account_type": "Checking",
-                        "bank_name": "Scotiabank",
-                        "created_at": "2015-02-10T23:50:45.000-06:00",
-                        "custom_identifier": "Mikey",
-                        "customer_type": "Personal",
-                        "email": "mikesmith@test.com",
-                        "financial_transactions": [],
-                        "home_phone": "(204) 555 5555",
-                        "id": 1,
-                        "identifier": "Mikey",
-                        "institution_number": "",
-                        "name": "Mike Smith",
-                        "phone": "(204) 555 4444",
-                        "routing_number": "111111111",
-                        "transaction_schedules": [],
-                        "transit_number": "",
-                        "updated_at": "2015-02-10T23:50:45.000-06:00"
-                    } 
-                    */
+
                 $settings = ClientSettings::defaults();
                 $settings->currency_id = $this->company_gateway->company->getSetting('currency_id');
                 $customer = (object)$customer;
@@ -220,8 +182,7 @@ class RotessaPaymentDriver extends BaseDriver
                 $client->contacts()->saveMany([$contact]);
                 $contact = $client->contacts()->first();
                 $this->client = $client;
-                $customer = (new Customer((array) $customer))->additional(['id' => $customer->id, 'custom_identifier' => $customer->custom_identifier ?? $contact->id ] );
-                $this->findOrCreateCustomer($customer->additional + $customer->jsonSerialize());
+
             });
         } catch (\Throwable $th) {
            $data = [
@@ -241,6 +202,7 @@ class RotessaPaymentDriver extends BaseDriver
     
     public function findOrCreateCustomer(array $data)
     {
+
         $result = null; 
         try {
            
@@ -248,37 +210,33 @@ class RotessaPaymentDriver extends BaseDriver
                 ->where('company_gateway_id', $this->company_gateway->id)
                 ->where('client_id', $this->client->id)
                 ->where('is_deleted',0)
-                ->orWhere(function (Builder $query) use ($data) {
-                    $query->where('token', join(".", Arr::only($data, ['id','custom_identifier']))) 
-                    ->where('gateway_customer_reference', Arr::only($data,'id'));
-                })
+                ->where('gateway_customer_reference', Arr::only($data,'id'))
                 ->exists();
+
             if ($existing) 
                 return true;
-            else if(!Arr::has($data,'id')) {
-                // $result = $this->gateway->authorize($data)->send();
-                // if (!$result->isSuccessful()) throw new \Exception($result->getMessage(), (int) $result->getCode());
+            
+            if(!isset($data['id'])) {
 
                 $result = $this->gatewayRequest('post', 'customers', $data);
 
                 if($result->failed()) 
                     $result->throw();
 
-                $customer = new Customer($result->json());
-                $data = array_filter($customer->resolve());
-
+                $data = $result->json();
+                nlog($data);
             }
             
-            // $payment_method_id = Arr::has($data,'address.postal_code') && ((int) $data['address']['postal_code'])? GatewayType::BANK_TRANSFER: GatewayType::ACSS; 
-            // TODO: Check/ Validate postal code between USA vs CAN
             $payment_method_id = GatewayType::ACSS;
+
             $gateway_token = $this->storeGatewayToken( [
-                'payment_meta' => $data + ['brand' => 'Bank Transfer', 'last4' => substr($data['account_number'], -4), 'type' => GatewayType::ACSS ],
+                'payment_meta' => ['brand' => 'Bank Transfer', 'last4' => substr($data['account_number'], -4), 'type' => GatewayType::ACSS ],
                 'token' => join(".", Arr::only($data, ['id','custom_identifier'])),
                 'payment_method_id' => $payment_method_id ,
-            ], ['gateway_customer_reference' => 
-                    $data['id'] 
-                , 'routing_number' => Arr::has($data,'routing_number') ? $data['routing_number'] : $data['transit_number'] ]);
+            ], [
+                'gateway_customer_reference' => $data['id'], 
+                'routing_number' => Arr::has($data,'routing_number') ? $data['routing_number'] : $data['transit_number'] 
+            ]);
             
             return $data['id'];
             
@@ -292,9 +250,16 @@ class RotessaPaymentDriver extends BaseDriver
                 'code' => 500
             ];
 
-            SystemLogger::dispatch(['server_response' => is_null($result) ? '' : $result->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
+            SystemLogger::dispatch(['server_response' => $data, 'data' => []], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE,  880 , $this->client, $this->company_gateway->company);
             
-            throw $th;
+                try{
+                    $errors = explode("422:", $th->getMessage())[1];
+                }
+                catch(\Exception){
+                    $errors = 'Unknown error occured';
+                }
+
+            throw new \Exception($errors, $th->getCode());
         }
     }
 
@@ -313,4 +278,13 @@ class RotessaPaymentDriver extends BaseDriver
         return $this->company_gateway->getConfigField('testMode') ? 'https://sandbox-api.rotessa.com/v1/' : 'https://api.rotessa.com/v1/';
     }
 
+    public function processPaymentViewData(array $data): array
+    {
+        return $this->payment_method->paymentData($data);
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return $this->payment_method->livewirePaymentView($data);
+    }
 }

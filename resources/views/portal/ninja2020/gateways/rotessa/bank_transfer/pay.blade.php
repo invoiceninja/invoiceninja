@@ -24,8 +24,8 @@
                         <input type="radio" data-token="{{ $token->token }}" name="payment-type"
                             class="form-radio cursor-pointer toggle-payment-with-token" />
                         <span class="ml-1 cursor-pointer">
-                            {{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} ({{ $token->meta->brand }})
-                             &nbsp; {{ ctrans('texts.account_number') }}#: {{ $token->meta->account_number }}
+                            {{ App\Models\GatewayType::getAlias($token->gateway_type_id) }} ({{ $token->meta->brand ?? 'Bank Transfer' }})
+                             &nbsp; {{ ctrans('texts.account_number') }}#: {{ $token->meta?->last4 ?? '' }}
                         </span>
                     </label><br/>
                 @endforeach
@@ -63,5 +63,12 @@
         document.getElementById('pay-now').addEventListener('click', function() {
             document.getElementById('server-response').submit();
         });
+
+        const first = document.querySelector('input[name="payment-type"]');
+
+        if (first) {
+            first.click();
+        }
+
     </script>
 @endpush

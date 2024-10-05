@@ -22,14 +22,14 @@ use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\Auth\LoginController
+ * 
+ *  App\Http\Controllers\Auth\LoginController
  */
 class LoginTest extends TestCase
 {
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
         Session::start();
@@ -155,7 +155,7 @@ class LoginTest extends TestCase
         $account->default_company_id = $company->id;
         $account->save();
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $company->id;
         $company_token->account_id = $account->id;
@@ -186,14 +186,11 @@ class LoginTest extends TestCase
             'password' => '123456',
         ];
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-            ])->post('/api/v1/login', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            nlog(print_r($message, 1));
-        }
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+        ])->postJson('/api/v1/login', $data);
+
 
         $arr = $response->json();
 

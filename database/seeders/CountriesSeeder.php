@@ -29,7 +29,7 @@ class CountriesSeeder extends Seeder
     {
         Model::unguard();
 
-        $countries = json_decode($this->countries, 1);
+        $countries = json_decode($this->countries, true);
 
         foreach($countries as $country)
         {

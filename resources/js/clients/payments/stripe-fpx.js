@@ -8,6 +8,8 @@
  * @license https://www.elastic.co/licensing/elastic-license 
  */
 
+import { wait, instant } from '../wait';
+
 class ProcessFPXPay {
     constructor(key, stripeConnect) {
         this.key = key;
@@ -18,13 +20,13 @@ class ProcessFPXPay {
     setupStripe = () => {
 
 
-        if (this.stripeConnect){
-           // this.stripe.stripeAccount = this.stripeConnect;
-           
-           this.stripe = Stripe(this.key, {
-              stripeAccount: this.stripeConnect,
-            }); 
-           
+        if (this.stripeConnect) {
+            // this.stripe.stripeAccount = this.stripeConnect;
+
+            this.stripe = Stripe(this.key, {
+                stripeAccount: this.stripeConnect,
+            });
+
         }
         else {
             this.stripe = Stripe(this.key);
@@ -39,7 +41,7 @@ class ProcessFPXPay {
                 fontSize: '16px',
             },
         };
-        this.fpx = elements.create('fpxBank', {style: style, accountHolderType: 'individual',});
+        this.fpx = elements.create('fpxBank', { style: style, accountHolderType: 'individual', });
         this.fpx.mount("#fpx-bank-element");
         return this;
     };
@@ -81,13 +83,15 @@ class ProcessFPXPay {
     }
 }
 
+function boot() {
+    const publishableKey = document.querySelector(
+        'meta[name="stripe-publishable-key"]'
+    )?.content ?? '';
+    
+    const stripeConnect =
+        document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    
+    new ProcessFPXPay(publishableKey, stripeConnect).setupStripe().handle();
+}
 
-
-const publishableKey = document.querySelector(
-    'meta[name="stripe-publishable-key"]'
-)?.content ?? '';
-
-const stripeConnect =
-    document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
-
-new ProcessFPXPay(publishableKey, stripeConnect).setupStripe().handle();
+instant() ? boot() : wait('#stripe-fpx-payment').then(() => boot());

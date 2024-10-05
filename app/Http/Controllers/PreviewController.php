@@ -148,6 +148,9 @@ class PreviewController extends BaseController
             ! empty(request()->input('entity')) &&
             ! empty(request()->input('entity_id'))) {
 
+            if($request->input('entity') == 'purchase_order')
+                return $preview = app(\App\Http\Controllers\PreviewPurchaseOrderController::class)->show($request);
+
             $design_object = json_decode(json_encode(request()->input('design')));
 
             if (! is_object($design_object)) {
@@ -293,10 +296,14 @@ class PreviewController extends BaseController
         $ts = (new TemplateService());
 
         try {
+            
             $ts->setCompany($company)
                 ->setTemplate($design_object)
                 ->mock();
+
         } catch(SyntaxError $e) {
+        } catch(\Exception $e) {
+            return response()->json(['message' => 'invalid data access', 'errors' => ['design.design.body' => $e->getMessage()]], 422);
         }
 
         if (request()->query('html') == 'true') {

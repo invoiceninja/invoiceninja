@@ -53,7 +53,7 @@ class RefundPayment
 
         $is_gateway_refund = ($this->refund_data['gateway_refund'] !== false || $this->refund_failed || (isset($this->refund_data['via_webhook']) && $this->refund_data['via_webhook'] !== false)) ? ctrans('texts.yes') : ctrans('texts.no');
         $notes = ctrans('texts.refunded') . " : {$this->total_refund} - " . ctrans('texts.gateway_refund') . " : " . $is_gateway_refund;
-        
+
         $this->createActivity($notes);
         $this->finalize();
 
@@ -103,6 +103,7 @@ class RefundPayment
                     //block prevents the edge case where a partial refund was attempted.
                     $this->refund_data['invoices'] = $this->payment->invoices->map(function ($invoice) {
                         return [
+                            'date' => now()->addSeconds($invoice->client->timezone_offset())->format('Y-m-d'),
                             'invoice_id' => $invoice->id,
                             'amount' => $invoice->pivot->amount,
                         ];
@@ -178,7 +179,7 @@ class RefundPayment
      */
     private function setStatus()
     {
-        if ($this->total_refund == $this->payment->amount || floatval($this->payment->amount) == floatval($this->payment->refunded))  {
+        if ($this->total_refund == $this->payment->amount || floatval($this->payment->amount) == floatval($this->payment->refunded)) {
             $this->payment->status_id = Payment::STATUS_REFUNDED;
         } else {
             $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
@@ -284,7 +285,7 @@ class RefundPayment
                         ->save();
 
                 $invoice->ledger()
-                        ->updateInvoiceBalance($refunded_invoice['amount'], "Refund of payment # {$this->payment->number}")
+                        ->updateInvoiceBalance(abs($refunded_invoice['amount']), "Refund of payment # {$this->payment->number}")
                         ->save();
 
                 if ($invoice->amount == $invoice->balance) {

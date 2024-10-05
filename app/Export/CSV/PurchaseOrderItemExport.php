@@ -101,15 +101,15 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query->cursor()
               ->each(function ($resource) {
-                
-                /** @var \App\Models\PurchaseOrder $resource */
-                $this->iterateItems($resource);
 
-                foreach($this->storage_array as $row) {
-                    $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
-                }
+                  /** @var \App\Models\PurchaseOrder $resource */
+                  $this->iterateItems($resource);
 
-                $this->storage_array = [];
+                  foreach($this->storage_array as $row) {
+                      $this->storage_item_array[] = $this->processItemMetaData($row, $resource);
+                  }
+
+                  $this->storage_array = [];
 
               });
 
@@ -129,9 +129,9 @@ class PurchaseOrderItemExport extends BaseExport
 
         $query->cursor()
             ->each(function ($purchase_order) {
-               
-            /** @var \App\Models\PurchaseOrder $purchase_order */
-            $this->iterateItems($purchase_order);
+
+                /** @var \App\Models\PurchaseOrder $purchase_order */
+                $this->iterateItems($purchase_order);
             });
 
         $this->csv->insertAll($this->storage_array);
@@ -174,9 +174,10 @@ class PurchaseOrderItemExport extends BaseExport
             $transformed_items = array_merge($transformed_purchase_order, $item_array);
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
-
-            $this->storage_array[] = $entity;
+ 
+            $this->storage_array[] = $this->convertFloats($entity);
         }
+        
     }
 
     private function buildRow(PurchaseOrder $purchase_order): array
@@ -197,37 +198,19 @@ class PurchaseOrderItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $purchase_order);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
         }
 
-        return $this->decorateAdvancedFields($purchase_order, $entity);
+        $entity = $this->decorateAdvancedFields($purchase_order, $entity);
+
+        return $entity;
+
     }
 
     private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array
     {
-        // if (in_array('currency_id', $this->input['report_keys'])) {
-        //     $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
-        // }
-
-        // if(array_key_exists('type', $entity)) {
-        //     $entity['type'] = $purchase_order->typeIdString($entity['type']);
-        // }
-
-        // if(array_key_exists('tax_category', $entity)) {
-        //     $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
-        // }
-
-        // if($this->force_keys) {
-        //     $entity['vendor'] = $purchase_order->vendor->present()->name();
-        //     $entity['vendor_id_number'] = $purchase_order->vendor->id_number;
-        //     $entity['vendor_number'] = $purchase_order->vendor->number;
-        //     $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
-        // }
-
+      
         if (in_array('purchase_order.currency_id', $this->input['report_keys'])) {
             $entity['purchase_order.currency_id'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
         }
@@ -247,8 +230,6 @@ class PurchaseOrderItemExport extends BaseExport
         if (in_array('purchase_order.assigned_user_id', $this->input['report_keys'])) {
             $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
         }
-
-
 
         return $entity;
     }

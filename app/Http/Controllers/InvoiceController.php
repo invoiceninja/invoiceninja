@@ -475,7 +475,10 @@ class InvoiceController extends BaseController
      */
     public function destroy(DestroyInvoiceRequest $request, Invoice $invoice)
     {
-        $this->invoice_repo->delete($invoice);
+
+        if (!$invoice->is_deleted) {
+            $this->invoice_repo->delete($invoice);
+        }
 
         return $this->itemResponse($invoice->fresh());
     }
@@ -503,7 +506,7 @@ class InvoiceController extends BaseController
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if ($invoices->count() == 0 ) {
+        if ($invoices->count() == 0) {
             return response()->json(['message' => 'No Invoices Found']);
         }
 

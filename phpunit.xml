@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false"
-  bootstrap="vendor/autoload.php" colors="true" processIsolation="true" stopOnError="true" stopOnFailure="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd"
-  cacheDirectory=".phpunit.cache" backupStaticProperties="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  backupGlobals="false"
+  bootstrap="vendor/autoload.php" 
+  colors="true" 
+  processIsolation="true" 
+  stopOnError="true" 
+  stopOnFailure="true" 
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.0/phpunit.xsd"
+  cacheDirectory=".phpunit.cache" 
+  backupStaticProperties="false">
   <testsuites>
     <testsuite name="Unit">
       <directory suffix="Test.php">./tests/Unit</directory>
@@ -26,6 +33,7 @@
     <env name="DB_CONNECTION" value="sqlite"/>
     <env name="DB_DATABASE" value=":memory:"/>
     <env name="DB_STRICT" value="false"/>
+    <env name="SCOUT_DRIVER" value="null"/>
   </php>
   <logging/>
 </phpunit>

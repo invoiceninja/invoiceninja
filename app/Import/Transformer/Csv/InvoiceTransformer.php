@@ -36,6 +36,7 @@ class InvoiceTransformer extends BaseTransformer
         $invoiceStatusMap = [
             'sent' => Invoice::STATUS_SENT,
             'draft' => Invoice::STATUS_DRAFT,
+            'paid' => Invoice::STATUS_PAID,
         ];
 
         $transformed = [

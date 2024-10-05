@@ -106,9 +106,9 @@ class TaskExport extends BaseExport
 
         $query->cursor()
               ->each(function ($entity) {
-                
-                /** @var \App\Models\Task $entity*/
-                $this->buildRow($entity);
+
+                  /** @var \App\Models\Task $entity*/
+                  $this->buildRow($entity);
               });
 
         $this->csv->insertAll($this->storage_array);
@@ -156,13 +156,15 @@ class TaskExport extends BaseExport
                 $entity[$key] = $transformed_entity[$parts[1]];
             } elseif (array_key_exists($key, $transformed_entity)) {
                 $entity[$key] = $transformed_entity[$key];
-            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration', 'task.billable', 'task.item_notes'])) {
+            } elseif (in_array($key, ['task.start_date', 'task.end_date', 'task.duration', 'task.billable', 'task.item_notes', 'task.time_log'])) {
                 $entity[$key] = '';
             } else {
                 $entity[$key] = $this->decorator->transform($key, $task);
             }
 
         }
+
+        $entity = $this->convertFloats($entity);
 
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, true)) && count(json_decode($task->time_log, true)) == 0)) {
             $this->storage_array[] = $entity;
@@ -207,6 +209,9 @@ class TaskExport extends BaseExport
                 $seconds = $task->calcDuration();
                 $entity['task.duration'] = $seconds;
                 $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
+
+                $entity['task.time_log'] = (isset($item[1]) && $item[1] != 0) ? $item[1] - $item[0] : ctrans('texts.is_running');
+
             }
 
             if (in_array('task.billable', $this->input['report_keys']) || in_array('billable', $this->input['report_keys'])) {
@@ -218,7 +223,7 @@ class TaskExport extends BaseExport
             }
 
             $entity = $this->decorateAdvancedFields($task, $entity);
-
+            
             $this->storage_array[] = $entity;
 
             $entity['task.start_date'] = '';

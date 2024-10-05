@@ -33,7 +33,6 @@ class ComposerServiceProvider extends ServiceProvider
             $view->with('states', $states);
         });
 
-        // CAProvinces View Composer
         view()->composer(['*.rotessa.components.address','*.rotessa.components.banks.CA.bank','*.rotessa.components.dropdowns.country.CA'], function ($view) {
             $provinces = CAProvinces::get();
             $view->with('provinces', $provinces);
@@ -50,6 +49,6 @@ class ComposerServiceProvider extends ServiceProvider
     public function register()
     {
         //
-        
+
     }
 }

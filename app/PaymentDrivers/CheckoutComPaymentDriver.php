@@ -406,14 +406,16 @@ class CheckoutComPaymentDriver extends BaseDriver
             $response = $this->gateway->getPaymentsClient()->requestPayment($paymentRequest);
 
             if ($response['status'] == 'Authorized') {
-                $this->confirmGatewayFee($request);
-
+                
                 $data = [
                     'payment_method' => $response['source']['id'],
                     'payment_type' => PaymentType::parseCardType(strtolower($response['source']['scheme'])),
                     'amount' => $amount,
                     'transaction_reference' => $response['id'],
+                    'gateway_type_id' => GatewayType::CREDIT_CARD,
                 ];
+
+                $this->confirmGatewayFee($data);
 
                 $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
 
@@ -616,5 +618,10 @@ class CheckoutComPaymentDriver extends BaseDriver
                  }
 
              });
+    }
+    
+    public function livewirePaymentView(array $data): string
+    {
+        return $this->payment_method->livewirePaymentView($data);
     }
 }

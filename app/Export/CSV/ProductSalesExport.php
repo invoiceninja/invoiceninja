@@ -23,7 +23,7 @@ use League\Csv\Writer;
 
 class ProductSalesExport extends BaseExport
 {
-    public string $date_key = 'created_at';
+    public string $date_key = 'date';
 
     /** @var Collection<\App\Models\Product> $products*/
     protected Collection $products;
@@ -65,12 +65,6 @@ class ProductSalesExport extends BaseExport
         'custom_value3' => 'custom_value3',
         'custom_value4' => 'custom_value4',
     ];
-
-    // private array $decorate_keys = [
-    //     'client',
-    //     'currency',
-    //     'date',
-    // ];
 
     public function __construct(Company $company, array $input)
     {
@@ -149,10 +143,10 @@ class ProductSalesExport extends BaseExport
 
                       if($product_keys) {
                           if(in_array($item->product_key, $product_keys)) {
-                              $this->csv->insertOne($this->buildRow($invoice, $item));
+                              $this->csv->insertOne($this->convertFloats($this->buildRow($invoice, $item)));
                           }
                       } else {
-                          $this->csv->insertOne($this->buildRow($invoice, $item));
+                          $this->csv->insertOne($this->convertFloats($this->buildRow($invoice, $item)));
                       }
 
                   }
@@ -181,7 +175,7 @@ class ProductSalesExport extends BaseExport
                 'tax_amount3' => $key->sum('tax_amount3'),
             ];
 
-            return $data;
+            return $this->convertFloats($data);
 
         })->reject(function ($value) {
             return $value === false;
@@ -231,8 +225,9 @@ class ProductSalesExport extends BaseExport
                 $entity[$keyval] = '';
             }
         }
+        
         $entity = $this->decorateAdvancedFields($invoice, $entity);
-
+        
         $this->sales->push($entity);
 
         return $entity;
@@ -241,8 +236,6 @@ class ProductSalesExport extends BaseExport
     private function decorateAdvancedFields(Invoice $invoice, $entity): array
     {
 
-        //$product = $this->getProduct($entity['product_key']);
-        // $entity['cost'] = $product->cost ?? 0;
         /** @var float $unit_cost */
         $unit_cost = $entity['cost'] == 0 ? 1 : $entity['cost'];
 

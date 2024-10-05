@@ -23,8 +23,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\ProductController
+ * 
+ *  App\Http\Controllers\ProductController
  */
 class ProductTest extends TestCase
 {
@@ -33,8 +33,8 @@ class ProductTest extends TestCase
     use MockAccountData;
 
     protected $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -51,6 +51,27 @@ class ProductTest extends TestCase
         $this->makeTestData();
         $this->withoutExceptionHandling();
 
+    }
+
+    public function testRequiredFields()
+    {
+        
+        $product = [
+            'cost' => 10,
+            'vendor_id' => $this->vendor->hashed_id
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/products', $product)
+        ->assertStatus(200);
+
+        $arr = $response->json();
+
+        $p = Product::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertNull($p->vendor_id);
     }
 
     public function testProductCostMigration()
@@ -147,7 +168,7 @@ class ProductTest extends TestCase
             ])->post('/api/v1/products/bulk', $update)
             ->assertStatus(200);
         } catch(\Exception $e) {
-            
+
         }
 
         $p = $p->fresh();

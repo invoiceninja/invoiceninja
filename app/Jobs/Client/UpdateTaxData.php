@@ -69,7 +69,7 @@ class UpdateTaxData implements ShouldQueue
             }
 
 
-        } catch(\Exception $e) {            
+        } catch(\Exception $e) {
             nlog("Exception:: UpdateTaxData::" . $e->getMessage());
             nlog("problem getting tax data => ".$e->getMessage());
         }

@@ -15,11 +15,11 @@ use App\DataMapper\CompanySettings;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class PdfVariablesTest extends TestCase
 {
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

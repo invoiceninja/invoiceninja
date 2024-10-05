@@ -20,14 +20,14 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class InvoiceAmountPaymentTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -173,7 +173,7 @@ class InvoiceAmountPaymentTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->post('/api/v1/invoices?mark_sent=true', $invoice)
+        ])->postJson('/api/v1/invoices?mark_sent=true', $invoice)
             ->assertStatus(200);
 
         $arr = $response->json();
@@ -181,6 +181,17 @@ class InvoiceAmountPaymentTest extends TestCase
         $invoice_one_hashed_id = $arr['data']['id'];
 
         $invoice = Invoice::find($this->decodePrimaryKey($invoice_one_hashed_id));
+
+        $line_items = (array)$invoice->line_items;
+        $item = InvoiceItemFactory::create();
+        $item->quantity = 1;
+        $item->cost = 5;
+        $item->type_id = '3';
+
+        $line_items[] = $item;
+
+        $invoice->line_items = $line_items;
+        $invoice->calc()->getInvoice();
 
         $this->assertEquals(25, $invoice->balance);
         $this->assertEquals(25, $invoice->amount);

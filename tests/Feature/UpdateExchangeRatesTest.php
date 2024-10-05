@@ -15,16 +15,13 @@ use App\Jobs\Util\UpdateExchangeRates;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 use App\Models\Currency;
 use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Session;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Jobs\Util\UpdateExchangeRates
+ * 
+ *  App\Jobs\Util\UpdateExchangeRates
  */
 class UpdateExchangeRatesTest extends TestCase
 {
@@ -32,41 +29,33 @@ class UpdateExchangeRatesTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        $this->makeTestData();
+        if(empty(config('ninja.currency_converter_api_key'))) {
+            $this->markTestSkipped("no currency key set");
+        }
 
-        Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
-        Model::reguard();
     }
 
     public function testExchangeRate()
     {
-        if (! empty(config('ninja.currency_converter_api_key'))) {
-            $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
+        $cc_endpoint = sprintf('https://openexchangerates.org/api/latest.json?app_id=%s', config('ninja.currency_converter_api_key'));
 
-            $client = new \GuzzleHttp\Client();
-            $response = $client->get($cc_endpoint);
+        $client = new \GuzzleHttp\Client();
+        $response = $client->get($cc_endpoint);
 
-            $currency_api = json_decode($response->getBody());
+        $currency_api = json_decode($response->getBody());
 
-            UpdateExchangeRates::dispatchSync();
+        UpdateExchangeRates::dispatchSync();
 
-            $currencies = Cache::get('currencies');
+        $gbp_currency = app('currencies')->first(function ($item) {
+            return $item->id == 2;
+        });
 
-            $gbp_currency = $currencies->filter(function ($item) {
-                return $item->id == 2;
-            })->first();
+        $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
 
-            $this->assertEquals($currency_api->rates->GBP, $gbp_currency->exchange_rate);
-        } else {
-            $this->markTestSkipped('No API Key set');
-        }
     }
 
     public function testExchangeRateConversion()

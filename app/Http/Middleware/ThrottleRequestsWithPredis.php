@@ -1,20 +1,29 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Cache\RateLimiter;
+use Illuminate\Contracts\Redis\Factory as Redis;
 use Illuminate\Redis\Limiters\DurationLimiter;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 
-class ThrottleRequestsWithPredis extends ThrottleRequests
+class ThrottleRequestsWithPredis extends \Illuminate\Routing\Middleware\ThrottleRequests
 {
     /**
      * The Redis factory implementation.
      *
-     * @var \Illuminate\Redis\Connections\Connection
+     * @var \Illuminate\Contracts\Redis\Factory
      */
-    protected $redis;
+    protected $redis; /** @phpstan-ignore-line */
 
     /**
      * The timestamp of the end of the current duration by key.
@@ -32,15 +41,18 @@ class ThrottleRequestsWithPredis extends ThrottleRequests
 
     /**
      * Create a new request throttler.
-     *
-     * @param  \Illuminate\Cache\RateLimiter  $limiter
      * @return void
      */
-    public function __construct(RateLimiter $limiter)
-    {
-        parent::__construct($limiter);
 
-        $this->redis = \Illuminate\Support\Facades\Redis::connection('sentinel-cache');
+    /** @phpstan-ignore-next-line */
+    public function __construct(RateLimiter $limiter, Redis $redis)
+    {
+        
+        /** @phpstan-ignore-next-line */
+        parent::__construct($limiter); /** @phpstan-ignore-line */
+        
+        /** @phpstan-ignore-next-line */
+        $this->redis = \Illuminate\Support\Facades\Redis::connection('sentinel-cache'); /** @phpstan-ignore-line */
     }
 
     /**
@@ -56,7 +68,7 @@ class ThrottleRequestsWithPredis extends ThrottleRequests
     protected function handleRequest($request, Closure $next, array $limits)
     {
         foreach ($limits as $limit) {
-            if ($this->tooManyAttempts($limit->key, $limit->maxAttempts, $limit->decayMinutes)) {
+            if ($this->tooManyAttempts($limit->key, $limit->maxAttempts, $limit->decaySeconds)) {
                 throw $this->buildException($request, $limit->key, $limit->maxAttempts, $limit->responseCallback);
             }
         }
@@ -79,16 +91,16 @@ class ThrottleRequestsWithPredis extends ThrottleRequests
      *
      * @param  string  $key
      * @param  int  $maxAttempts
-     * @param  int  $decayMinutes
+     * @param  int  $decaySeconds
      * @return mixed
      */
-    protected function tooManyAttempts($key, $maxAttempts, $decayMinutes)
+    protected function tooManyAttempts($key, $maxAttempts, $decaySeconds)
     {
         $limiter = new DurationLimiter(
-            $this->redis,
+            $this->getRedisConnection(),
             $key,
             $maxAttempts,
-            $decayMinutes * 60
+            $decaySeconds
         );
 
         return tap(! $limiter->acquire(), function () use ($key, $limiter) {
@@ -120,5 +132,14 @@ class ThrottleRequestsWithPredis extends ThrottleRequests
     protected function getTimeUntilNextRetry($key)
     {
         return $this->decaysAt[$key] - $this->currentTime();
+    }
+
+    /**
+     * Get the Redis connection that should be used for throttling.
+     *
+     */
+    protected function getRedisConnection()
+    {
+        return $this->redis;
     }
 }

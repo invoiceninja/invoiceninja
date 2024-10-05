@@ -1,7 +1,12 @@
 @extends('portal.ninja2020.layout.payments', ['gateway_title' => ctrans('texts.paypal'), 'card_title' => ''])
 
 @section('gateway_head')
-
+    <meta http-equiv="Content-Security-Policy" content="
+        frame-src 'self' https://c.paypal.com https://www.sandbox.paypal.com https://www.paypal.com https://www.paypalobjects.com; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://c.paypal.com https://www.paypalobjects.com https://www.paypal.com https://www.sandbox.paypal.com https://www.google-analytics.com;
+        img-src * data: 'self'; 
+        style-src 'self' 'unsafe-inline';"
+        >
 @endsection
 
 @section('gateway_content')
@@ -82,12 +87,13 @@ inset: 6px;
         },
         onApprove: function(data, actions) {
             
+            document.getElementById('paypal-button-container').hidden = true;
             document.getElementById('is_working').classList.remove('hidden');
 
             document.getElementById("gateway_response").value =JSON.stringify( data );
             
             formData = JSON.stringify(Object.fromEntries(new FormData(document.getElementById("server_response")))),
-
+ 
             fetch('{{ route('client.payments.response') }}', {
                 method: 'POST',
                 headers: {
@@ -125,14 +131,19 @@ inset: 6px;
                 document.getElementById("server_response").submit();
             })
             .catch(error => {
+
+                document.getElementById('is_working').classList.add('hidden');
+                document.getElementById('paypal-button-container').hidden = false;
+
                 console.error('Error:', error);
                 document.getElementById('errors').textContent = `Sorry, your transaction could not be processed...\n\n${error.message}`;
                 document.getElementById('errors').hidden = false;
+
             });
 
         },
         onCancel: function() {
-            window.location.href = "/client/invoices/";
+            window.location.href = "/client/invoices/{{ $invoice_hash }}";
         },
         onError: function(error) {
 
@@ -143,14 +154,6 @@ inset: 6px;
             document.getElementById("server_response").submit();
         },
         onClick: function (){
-
-            console.log(fundingSource);
-
-            if(fundingSource != 'card')
-              document.getElementById('paypal-button-container').hidden = true;
-
-            // document.getElementById('is_working').classList.remove('hidden');
-            document.querySelector('div[data-ref="required-fields-container').classList.add('hidden');
             
         },
         onInit: function (){

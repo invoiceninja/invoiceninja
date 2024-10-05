@@ -11,32 +11,34 @@
 
 namespace App\Exceptions;
 
-use App\Utils\Ninja;
-use Aws\Exception\CredentialsException;
-use GuzzleHttp\Exception\ConnectException;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
-use Illuminate\Database\Eloquent\RelationNotFoundException;
-use Illuminate\Encryption\MissingAppKeyException;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
-use Illuminate\Http\Request;
-use Illuminate\Queue\MaxAttemptsExceededException;
-use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Validation\ValidationException;
-use InvalidArgumentException;
-use League\Flysystem\UnableToCreateDirectory;
-use PDOException;
-use Sentry\Laravel\Integration;
-use Sentry\State\Scope;
-use Symfony\Component\Console\Exception\CommandNotFoundException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Process\Exception\RuntimeException;
 use Throwable;
+use PDOException;
+use App\Utils\Ninja;
+use Sentry\State\Scope;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use InvalidArgumentException;
+use Sentry\Laravel\Integration;
+use Illuminate\Support\Facades\Schema;
+use Aws\Exception\CredentialsException;
+use Illuminate\Database\QueryException;
+use GuzzleHttp\Exception\ConnectException;
+use Illuminate\Auth\AuthenticationException;
+use League\Flysystem\UnableToCreateDirectory;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Encryption\MissingAppKeyException;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Queue\MaxAttemptsExceededException;
+use Elastic\Transport\Exception\NoNodeAvailableException;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
+use Symfony\Component\Process\Exception\RuntimeException;
+use Illuminate\Database\Eloquent\RelationNotFoundException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Database\Eloquent\ModelNotFoundException as ModelNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -52,6 +54,8 @@ class Handler extends ExceptionHandler
         ValidationException::class,
         // ModelNotFoundException::class,
         NotFoundHttpException::class,
+        RelationNotFoundException::class,
+        NoNodeAvailableException::class,
     ];
 
     protected $selfHostDontReport = [
@@ -65,6 +69,8 @@ class Handler extends ExceptionHandler
         RuntimeException::class,
         InvalidArgumentException::class,
         CredentialsException::class,
+        RelationNotFoundException::class,
+        QueryException::class,
     ];
 
     protected $hostedDontReport = [
@@ -73,6 +79,7 @@ class Handler extends ExceptionHandler
         ValidationException::class,
         ModelNotFoundException::class,
         NotFoundHttpException::class,
+        RelationNotFoundException::class,
     ];
 
     /**

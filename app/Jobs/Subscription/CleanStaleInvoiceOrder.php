@@ -59,7 +59,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
 
             Invoice::query()
                    ->withTrashed()
-                   ->where('status_id', Invoice::STATUS_SENT)
+                   ->where('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                    ->where('updated_at', '<', now()->subHour())
                    ->where('balance', '>', 0)
                    ->whereJsonContains('line_items', ['type_id' => '3'])
@@ -95,7 +95,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                 ->each(function ($invoice) {
                     $invoice->service()->removeUnpaidGatewayFees();
                 });
-    
+
             \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHours(12))->delete();
 
         }

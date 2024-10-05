@@ -262,9 +262,15 @@ class Activity extends StaticModel
     public const EMAIL_STATEMENT = 140;
 
     public const USER_NOTE = 141;
-    
+
     public const QUOTE_REMINDER1_SENT = 142;
-    
+
+    public const AUTOBILL_SUCCESS = 143; 
+
+    public const AUTOBILL_FAILURE = 144; 
+
+    public const EMAIL_EINVOICE_SUCCESS = 145;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -280,12 +286,10 @@ class Activity extends StaticModel
         'backup',
     ];
 
-
     public function getHashedIdAttribute(): string
     {
         return $this->encodePrimaryKey($this->id);
     }
-
 
     public function getEntityType()
     {
@@ -449,8 +453,9 @@ class Activity extends StaticModel
         $replacements['created_at'] = $this->created_at ?? '';
         $replacements['ip'] = $this->ip ?? '';
 
-        if($this->activity_type_id == 141)
+        if($this->activity_type_id == 141) {
             $replacements = $this->harvestNoteEntities($replacements);
+        }
 
         return $replacements;
 
@@ -469,15 +474,15 @@ class Activity extends StaticModel
             ':recurring_invoice',
             ':recurring_expense',
             ':client',
-            
+
         ];
 
-        foreach($entities as $entity)
-        {
+        foreach($entities as $entity) {
             $entity_key = substr($entity, 1);
 
-            if($this?->{$entity_key})
+            if($this?->{$entity_key}) {
                 $replacements = array_merge($replacements, $this->matchVar($entity));
+            }
 
         }
 

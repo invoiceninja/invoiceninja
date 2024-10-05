@@ -177,7 +177,7 @@ trait MakesDates
             }
 
         }
-                
+
         return match ($data['date_range']) {
             EmailStatement::LAST7 => [now()->startOfDay()->subDays(14)->format('Y-m-d'), now()->subDays(7)->startOfDay()->format('Y-m-d')],
             EmailStatement::LAST30 => [now()->startOfDay()->subDays(60)->format('Y-m-d'), now()->subDays(30)->startOfDay()->format('Y-m-d')],

@@ -22,22 +22,21 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
+ * 
  */
 class TaskRoundingTest extends TestCase
 {
+    use MakesHash;
+    use DatabaseTransactions;
+    use MockAccountData;
 
     public int $task_round_to_nearest = 1;
 
     public bool $task_round_up = true;
 
-    use MakesHash;
-    use DatabaseTransactions;
-    use MockAccountData;
-
     private $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -79,12 +78,12 @@ class TaskRoundingTest extends TestCase
 
     public function testRoundUp2()
     {
-        
+
         $start_time = 1715237056;
-        $end_time = $start_time + 60*7; 
+        $end_time = $start_time + 60 * 7;
         $this->task_round_to_nearest = 600;
 
-        $rounded = $start_time + 60*10;
+        $rounded = $start_time + 60 * 10;
 
         $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
@@ -93,13 +92,13 @@ class TaskRoundingTest extends TestCase
 
     public function testRoundUp3()
     {
-        
+
 
         $start_time = 1715213100;
-        $end_time = $start_time + 60*15; 
+        $end_time = $start_time + 60 * 15;
         $this->task_round_to_nearest = 900;
 
-        $rounded = $start_time + 60*15;
+        $rounded = $start_time + 60 * 15;
 
         $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
@@ -114,13 +113,13 @@ class TaskRoundingTest extends TestCase
 
     public function testRoundUp4()
     {
-        
+
         $start_time = 1715238000;
         $end_time = 1715238900;
 
         $this->task_round_to_nearest = 900;
 
-        $rounded = $start_time + 60*15;
+        $rounded = $start_time + 60 * 15;
 
         // $s = \Carbon\Carbon::createFromTimestamp($start_time);
         // $e = \Carbon\Carbon::createFromTimestamp($end_time);
@@ -130,7 +129,7 @@ class TaskRoundingTest extends TestCase
         // echo $x->format('Y-m-d H:i:s').PHP_EOL;
 
 
-$this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
+        $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
 
     }
@@ -155,7 +154,7 @@ $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
         ]);
 
 
-        $var = time()-800;
+        $var = time() - 800;
 
         $data = [
             'client_id' => $c->hashed_id,
@@ -222,18 +221,21 @@ $this->assertEquals($rounded, $this->roundTimeLog($start_time, $end_time));
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1 || $end_time == 0)
+        if($this->task_round_to_nearest == 1 || $end_time == 0) {
             return $end_time;
+        }
 
         $interval = $end_time - $start_time;
-        
-        if($this->task_round_up)
-            return $start_time + (int)ceil($interval/$this->task_round_to_nearest)*$this->task_round_to_nearest;
 
-        if($interval <= $this->task_round_to_nearest)
+        if($this->task_round_up) {
+            return $start_time + (int)ceil($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
+        }
+
+        if($interval <= $this->task_round_to_nearest) {
             return $start_time;
-        
-        return $start_time + (int)floor($interval/$this->task_round_to_nearest) * $this->task_round_to_nearest;
+        }
+
+        return $start_time + (int)floor($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
 
     }
 

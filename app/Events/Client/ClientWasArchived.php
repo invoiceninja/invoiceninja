@@ -58,7 +58,7 @@ class ClientWasArchived implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        
+
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
         $class = sprintf('App\\Transformers\\%sTransformer', class_basename($this->client));
@@ -79,7 +79,7 @@ class ClientWasArchived implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        
+
         return [
             new PrivateChannel("company-{$this->company->company_key}"),
         ];

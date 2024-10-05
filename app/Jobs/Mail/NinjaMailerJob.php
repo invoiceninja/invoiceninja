@@ -11,31 +11,32 @@
 
 namespace App\Jobs\Mail;
 
-use App\DataMapper\Analytics\EmailFailure;
-use App\DataMapper\Analytics\EmailSuccess;
-use App\Events\Invoice\InvoiceWasEmailedAndFailed;
-use App\Events\Payment\PaymentWasEmailedAndFailed;
-use App\Jobs\Util\SystemLogger;
-use App\Libraries\Google\Google;
-use App\Libraries\MultiDB;
-use App\Models\ClientContact;
+use App\Models\User;
+use App\Utils\Ninja;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\Models\User;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use GuzzleHttp\Exception\ClientException;
+use App\Libraries\MultiDB;
+use App\Models\ClientContact;
 use Illuminate\Bus\Queueable;
+use App\Jobs\Util\SystemLogger;
+use App\Utils\Traits\MakesHash;
+use App\Libraries\Google\Google;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Queue\SerializesModels;
+use Postmark\Models\PostmarkException;
+use Turbo124\Beacon\Facades\LightLogs;
+use Illuminate\Queue\InteractsWithQueue;
+use GuzzleHttp\Exception\ClientException;
+use App\DataMapper\Analytics\EmailFailure;
+use App\DataMapper\Analytics\EmailSuccess;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Mail;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Events\Invoice\InvoiceWasEmailedAndFailed;
+use App\Events\Payment\PaymentWasEmailedAndFailed;
 
 /*Multi Mailer implemented*/
 
@@ -48,6 +49,7 @@ class NinjaMailerJob implements ShouldQueue
     use MakesHash;
 
     public $tries = 4; //number of retries
+    
     public $deleteWhenMissingModels = true;
 
     /** @var null|\App\Models\Company $company  **/
@@ -153,6 +155,20 @@ class NinjaMailerJob implements ShouldQueue
             LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
                 ->send();
 
+        } catch(\Symfony\Component\Mailer\Exception\TransportException $e){
+            nlog("Mailer failed with a Transport Exception {$e->getMessage()}");
+            
+            if(Ninja::isHosted() && $this->mailer == 'smtp'){
+                $settings = $this->nmo->settings;
+                $settings->email_sending_method = 'default';
+                $this->company->settings = $settings;
+                $this->company->save();
+            }
+
+            $this->fail();
+            $this->cleanUpMailers();
+            $this->logMailError($e->getMessage(), $this->company->clients()->first());
+
         } catch (\Symfony\Component\Mime\Exception\RfcComplianceException $e) {
             nlog("Mailer failed with a Logic Exception {$e->getMessage()}");
             $this->fail();
@@ -227,6 +243,21 @@ class NinjaMailerJob implements ShouldQueue
             }
 
 
+            /**
+             * Post mark buries the proper message in a guzzle response
+             * this merges a text string with a json object
+             * need to harvest the ->Message property using the following
+             */
+            
+            if ($e instanceof PostmarkException) { //postmark specific failure
+                
+                $this->fail();
+                $this->entityEmailFailed($e->getMessage());
+                $this->cleanUpMailers();
+
+                return;
+            }
+
             //only report once, not on all tries
             if ($this->attempts() == $this->tries) {
                 /* If there is an entity attached to the message send a failure mailer */
@@ -234,10 +265,8 @@ class NinjaMailerJob implements ShouldQueue
                     $this->entityEmailFailed($message);
                 }
 
-                /* Don't send postmark failures to Sentry */
-                if (Ninja::isHosted() && (!$e instanceof ClientException)) {
-                    app('sentry')->captureException($e);
-                }
+                app('sentry')->captureException($e);
+
             }
 
             /* Releasing immediately does not add in the backoff */
@@ -254,7 +283,7 @@ class NinjaMailerJob implements ShouldQueue
 
     private function incrementEmailCounter(): void
     {
-        if(in_array($this->mailer, ['default','mailgun','postmark'])) {
+        if(in_array($this->nmo->settings->email_sending_method, ['default','mailgun','postmark'])) {
             Cache::increment("email_quota".$this->company->account->key);
         }
 
@@ -298,7 +327,7 @@ class NinjaMailerJob implements ShouldQueue
 
         /** Force free/trials onto specific mail driver */
 
-        if($this->mailer == 'default' && $this->company->account->isNewHostedAccount()) {
+        if($this->nmo->settings->email_sending_method == 'default' && $this->company->account->isNewHostedAccount()) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;

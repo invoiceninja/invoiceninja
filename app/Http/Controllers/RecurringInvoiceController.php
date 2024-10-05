@@ -423,7 +423,18 @@ class RecurringInvoiceController extends BaseController
         }
 
         $recurring_invoices = RecurringInvoice::withTrashed()->find($request->ids);
+        
+        if ($request->action == 'bulk_update' && $user->can('edit', $recurring_invoices->first())) {
 
+            $recurring_invoices = RecurringInvoice::withTrashed()
+                    ->company()
+                    ->whereIn('id', $request->ids);
+
+            $this->recurring_invoice_repo->bulkUpdate($recurring_invoices, $request->column, $request->new_value);
+
+            return $this->listResponse(RecurringInvoice::query()->withTrashed()->company()->whereIn('id', $request->ids));
+
+        }
 
         if($request->action == 'set_payment_link' && $request->has('subscription_id')) {
 

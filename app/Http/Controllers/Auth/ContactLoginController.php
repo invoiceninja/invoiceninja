@@ -41,9 +41,10 @@ class ContactLoginController extends Controller
         $company = false;
         $account = false;
 
-        if($request->query('intended'))
+        if($request->query('intended')) {
             $request->session()->put('url.intended', $request->query('intended'));
-        
+        }
+
         if ($request->session()->has('company_key')) {
             MultiDB::findAndSetDbByCompanyKey($request->session()->get('company_key'));
             $company = Company::where('company_key', $request->session()->get('company_key'))->first();
@@ -141,9 +142,10 @@ class ContactLoginController extends Controller
         }
 
         $this->setRedirectPath();
-        
-        if($intended)
+
+        if($intended) {
             $this->redirectTo = $intended;
+        }
 
         return $request->wantsJson()
                     ? new JsonResponse([], 204)

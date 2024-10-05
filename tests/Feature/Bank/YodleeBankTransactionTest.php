@@ -23,7 +23,7 @@ class YodleeBankTransactionTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -80,7 +80,7 @@ class YodleeBankTransactionTest extends TestCase
         $bank_transaction = BankTransaction::where('company_id', $this->company->id)->first();
         $bank_transaction->description = "super-funk-123";
         $bank_transaction->save();
-        
+
         $this->assertNotNull($this->invoice);
         $this->assertNotNull($bank_transaction);
 

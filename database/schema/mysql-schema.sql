@@ -224,6 +224,7 @@ CREATE TABLE `bank_transaction_rules` (
   `created_at` timestamp(6) NULL DEFAULT NULL,
   `updated_at` timestamp(6) NULL DEFAULT NULL,
   `deleted_at` timestamp(6) NULL DEFAULT NULL,
+  `on_credit_match` enum('create_payment','link_payment') NOT NULL DEFAULT 'create_payment',
   PRIMARY KEY (`id`),
   KEY `bank_transaction_rules_user_id_foreign` (`user_id`),
   KEY `bank_transaction_rules_company_id_foreign` (`company_id`),
@@ -447,6 +448,7 @@ CREATE TABLE `clients` (
   `has_valid_vat_number` tinyint(1) NOT NULL DEFAULT 0,
   `classification` varchar(191) DEFAULT NULL,
   `e_invoice` mediumtext DEFAULT NULL,
+  `sync` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `clients_company_id_number_unique` (`company_id`,`number`),
   KEY `clients_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -558,6 +560,16 @@ CREATE TABLE `companies` (
   `smtp_local_domain` varchar(191) DEFAULT NULL,
   `smtp_verify_peer` tinyint(1) NOT NULL DEFAULT 1,
   `e_invoice` mediumtext DEFAULT NULL,
+  `expense_mailbox_active` tinyint(1) NOT NULL DEFAULT 0,
+  `expense_mailbox` varchar(191) DEFAULT NULL,
+  `inbound_mailbox_allow_company_users` tinyint(1) NOT NULL DEFAULT 0,
+  `inbound_mailbox_allow_vendors` tinyint(1) NOT NULL DEFAULT 0,
+  `inbound_mailbox_allow_clients` tinyint(1) NOT NULL DEFAULT 0,
+  `inbound_mailbox_allow_unknown` tinyint(1) NOT NULL DEFAULT 0,
+  `inbound_mailbox_whitelist` text DEFAULT NULL,
+  `inbound_mailbox_blacklist` text DEFAULT NULL,
+  `quickbooks` text DEFAULT NULL,
+  `legal_entity_id` bigint(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `companies_company_key_unique` (`company_key`),
   KEY `companies_industry_id_foreign` (`industry_id`),
@@ -608,6 +620,7 @@ CREATE TABLE `company_gateways` (
   `require_custom_value3` tinyint(1) NOT NULL DEFAULT 0,
   `require_custom_value4` tinyint(1) NOT NULL DEFAULT 0,
   `always_show_required_fields` tinyint(1) NOT NULL DEFAULT 1,
+  `settings` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `company_gateways_company_id_deleted_at_index` (`company_id`,`deleted_at`),
   KEY `company_gateways_gateway_key_foreign` (`gateway_key`),
@@ -703,12 +716,12 @@ CREATE TABLE `countries` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `capital` varchar(255) DEFAULT NULL,
   `citizenship` varchar(255) DEFAULT NULL,
-  `country_code` varchar(3) DEFAULT NULL,
+  `country_code` varchar(4) NOT NULL,
   `currency` varchar(255) DEFAULT NULL,
   `currency_code` varchar(255) DEFAULT NULL,
   `currency_sub_unit` varchar(255) DEFAULT NULL,
   `full_name` varchar(255) DEFAULT NULL,
-  `iso_3166_2` varchar(2) DEFAULT NULL,
+  `iso_3166_2` varchar(5) NOT NULL,
   `iso_3166_3` varchar(3) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `region_code` varchar(3) DEFAULT NULL,
@@ -1193,6 +1206,8 @@ CREATE TABLE `invoices` (
   `is_proforma` tinyint(1) NOT NULL DEFAULT 0,
   `tax_data` mediumtext DEFAULT NULL,
   `e_invoice` mediumtext DEFAULT NULL,
+  `sync` text DEFAULT NULL,
+  `gateway_fee` decimal(13,6) NOT NULL DEFAULT 0.000000,
   PRIMARY KEY (`id`),
   UNIQUE KEY `invoices_company_id_number_unique` (`company_id`,`number`),
   KEY `invoices_user_id_foreign` (`user_id`),
@@ -1201,6 +1216,7 @@ CREATE TABLE `invoices` (
   KEY `invoices_company_id_index` (`company_id`),
   KEY `invoices_recurring_id_index` (`recurring_id`),
   KEY `invoices_status_id_balance_index` (`status_id`,`balance`),
+  KEY `invoices_project_id_deleted_at_index` (`project_id`,`deleted_at`),
   CONSTRAINT `invoices_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `invoices_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `invoices_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -1247,8 +1263,10 @@ CREATE TABLE `licenses` (
   `transaction_reference` varchar(191) DEFAULT NULL,
   `product_id` int(10) unsigned DEFAULT NULL,
   `recurring_invoice_id` bigint(20) unsigned DEFAULT NULL,
+  `e_invoice_quota` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `licenses_license_key_unique` (`license_key`)
+  UNIQUE KEY `licenses_license_key_unique` (`license_key`),
+  KEY `licenses_e_invoice_quota_index` (`e_invoice_quota`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `migrations`;
@@ -1286,6 +1304,7 @@ CREATE TABLE `payment_hashes` (
   PRIMARY KEY (`id`),
   KEY `payment_hashes_payment_id_foreign` (`payment_id`),
   KEY `payment_hashes_hash_index` (`hash`),
+  KEY `payment_hashes_fee_invoice_id_index` (`fee_invoice_id`),
   CONSTRAINT `payment_hashes_payment_id_foreign` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1446,6 +1465,8 @@ CREATE TABLE `products` (
   `max_quantity` int(10) unsigned DEFAULT NULL,
   `product_image` varchar(191) DEFAULT NULL,
   `tax_id` int(10) unsigned DEFAULT NULL,
+  `hash` varchar(191) DEFAULT NULL,
+  `sync` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `products_company_id_deleted_at_index` (`company_id`,`deleted_at`),
   KEY `products_user_id_foreign` (`user_id`),
@@ -1718,6 +1739,7 @@ CREATE TABLE `quotes` (
   KEY `quotes_client_id_index` (`client_id`),
   KEY `quotes_company_id_index` (`company_id`),
   KEY `quotes_company_id_updated_at_index` (`company_id`,`updated_at`),
+  KEY `quotes_project_id_deleted_at_index` (`project_id`,`deleted_at`),
   CONSTRAINT `quotes_client_id_foreign` FOREIGN KEY (`client_id`) REFERENCES `clients` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `quotes_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `companies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `quotes_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -2082,6 +2104,7 @@ CREATE TABLE `subscriptions` (
   `optional_product_ids` text DEFAULT NULL,
   `optional_recurring_product_ids` text DEFAULT NULL,
   `steps` varchar(191) DEFAULT NULL,
+  `remaining_cycles` int(11) DEFAULT -1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `subscriptions_company_id_name_unique` (`company_id`,`name`),
   KEY `billing_subscriptions_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -2389,6 +2412,7 @@ CREATE TABLE `vendors` (
   `language_id` int(10) unsigned DEFAULT NULL,
   `last_login` timestamp NULL DEFAULT NULL,
   `classification` varchar(191) DEFAULT NULL,
+  `is_tax_exempt` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `vendors_company_id_number_unique` (`company_id`,`number`),
   KEY `vendors_company_id_deleted_at_index` (`company_id`,`deleted_at`),
@@ -2670,3 +2694,21 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (237,'2024_06_02_08
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (238,'2024_06_04_123926_2024_06_04_fixes_for_btc_migration',2);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (239,'2024_06_08_043343_2024_06_08__i_s_k_currency_precision',2);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (240,'2024_06_19_015127_2024_06_19_referral_meta_data',2);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (241,'2023_12_10_110951_inbound_mail_parsing',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (242,'2024_06_11_231143_add_rotessa_gateway',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (243,'2024_06_23_040253_2024-06-23_indexesforinvoiceid_payment_hashes',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (244,'2024_07_10_043241_2024_07_10_invoice_id_index_on_projects_table',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (245,'2024_07_16_231556_2024_07_17_add_dubai_timezone',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (246,'2024_07_29_235430_2024_30_07_tax_model_migration',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (247,'2024_08_02_144614_alter_companies_quickbooks',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (248,'2024_08_04_225558_tax_model_migration_v2',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (249,'2024_08_21_001832_add_einvoice_option_license',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (250,'2024_08_26_055523_add_qb_product_hash',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (251,'2024_08_27_230111_blockonomics_gateway',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (252,'2024_09_06_042040_cba_powerboard',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (253,'2024_09_15_022436_add_autonomous_es_regions',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (254,'2024_09_16_221343_add_remaining_cycles_to_subscriptions',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (255,'2024_09_21_062105_2024_09_21_add_vn_lang',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (256,'2024_09_22_084749_2024_09_23_add_sync_column_for_qb',3);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (257,'2024_09_29_221552_add_gateway_fee_column',4);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (258,'2024_10_03_235524_add_is_tax_exempt_vendors_table',5);

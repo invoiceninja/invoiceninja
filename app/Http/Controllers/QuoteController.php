@@ -517,7 +517,7 @@ class QuoteController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
-
+nlog("booop");
         $action = $request->input('action');
 
         $ids = $request->input('ids');

@@ -55,6 +55,7 @@ class DeletedUserActivity implements ShouldQueue
         $fields->user_id = $user_id;
         $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::DELETE_USER;
+        $fields->account_id = $event->company->account_id;
 
         $this->activityRepo->save($fields, $event->user, $event->event_vars);
     }

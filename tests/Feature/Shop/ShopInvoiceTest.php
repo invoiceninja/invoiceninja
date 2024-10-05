@@ -20,8 +20,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\Shop\InvoiceController
+ * 
+ *  App\Http\Controllers\Shop\InvoiceController
  */
 class ShopInvoiceTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ShopInvoiceTest extends TestCase
     use MockAccountData;
     protected $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

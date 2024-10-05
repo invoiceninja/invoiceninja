@@ -70,7 +70,7 @@ class CreateEDocument implements ShouldQueue
         if ($this->document instanceof Invoice) {
             switch ($e_document_type) {
                 case "PEPPOL":
-                    return (new Peppol($this->document))->toXml();
+                    return (new Peppol($this->document))->run()->toXml();
                 case "FACT1":
                     return (new RoEInvoice($this->document))->generateXml();
                 case "FatturaPA":

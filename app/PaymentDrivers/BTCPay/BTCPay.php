@@ -14,6 +14,7 @@ namespace App\PaymentDrivers\BTCPay;
 
 use App\Models\Payment;
 use App\PaymentDrivers\BTCPayPaymentDriver;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\Utils\Traits\MakesHash;
 use App\PaymentDrivers\Common\MethodInterface;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
@@ -24,7 +25,7 @@ use App\Services\Email\EmailObject;
 use App\Services\Email\Email;
 use Illuminate\Support\Facades\App;
 
-class BTCPay implements MethodInterface
+class BTCPay implements MethodInterface, LivewireMethodInterface
 {
     use MakesHash;
 
@@ -49,9 +50,7 @@ class BTCPay implements MethodInterface
 
     public function paymentView($data)
     {
-        $data['gateway'] = $this->driver_class;
-        $data['amount'] = $data['total']['amount_with_fee'];
-        $data['currency'] = $this->driver_class->client->getCurrencyCode();
+        $data = $this->paymentData($data);
 
         return render('gateways.btcpay.pay', $data);
     }
@@ -175,5 +174,25 @@ class BTCPay implements MethodInterface
         } catch (\Throwable $e) {
             throw new PaymentFailed('Error during BTCPay refund : ' . $e->getMessage());
         }
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.btcpay.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $data['gateway'] = $this->driver_class;
+        $data['amount'] = $data['total']['amount_with_fee'];
+        $data['currency'] = $this->driver_class->client->getCurrencyCode();
+
+        return $data;
     }
 }

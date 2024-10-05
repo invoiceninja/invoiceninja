@@ -11,43 +11,86 @@
 
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
-use App\Http\Middleware\PasswordProtection;
-use App\Models\Company;
-use App\Models\CompanyToken;
-use App\Models\TaxRate;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Session;
-use Tests\MockAccountData;
 use Tests\TestCase;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\TaxRate;
+use Tests\MockAccountData;
+use App\Models\CompanyToken;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Http\UploadedFile;
+use App\DataMapper\CompanySettings;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
+use App\Http\Middleware\PasswordProtection;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\CompanyController
+ * 
+ *  App\Http\Controllers\CompanyController
  */
 class CompanyTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-    use DatabaseTransactions;
+    // use DatabaseTransactions;
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
-        Session::start();
-
         $this->faker = \Faker\Factory::create();
 
-        Model::reguard();
-
         $this->makeTestData();
+    }
+
+
+    public function testCompanyExpenseMailbox()
+    {
+        $safeEmail = $this->faker->safeEmail();
+
+        // Test valid email address
+        $company_update = [
+            'expense_mailbox' => $safeEmail,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->company->hashed_id, $company_update);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+        $this->assertEquals($safeEmail, $arr['data']['expense_mailbox']);
+
+        // Test invalid email address
+        $company_update = [
+            'expense_mailbox' => 'invalid-email',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['expense_mailbox']);
+
+        // Test empty email address
+        $company_update = [
+            'expense_mailbox' => '',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/companies/'.$this->encodePrimaryKey($this->company->id), $company_update);
+
+        $response->assertStatus(200);
+        $this->assertEmpty($response->json('data.expense_mailbox'));
     }
 
     public function testEnsureStrReplace()
@@ -216,4 +259,12 @@ class CompanyTest extends TestCase
         ])->delete('/api/v1/companies/'.$this->encodePrimaryKey($company->id))
         ->assertStatus(200);
     }
+
+    public function tearDown(): void
+    {
+        Account::query()->where('id', $this->company->account_id)->delete();
+
+        parent::tearDown();
+    }
+
 }

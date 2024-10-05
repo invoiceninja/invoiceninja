@@ -15,14 +15,14 @@ use App\DataMapper\CompanySettings;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\DataMapper\CompanySettings
+ * 
+ *   App\DataMapper\CompanySettings
  */
 class CompanySettingsTest extends TestCase
 {
     protected $company_settings;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 

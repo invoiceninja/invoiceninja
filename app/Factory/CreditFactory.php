@@ -16,7 +16,7 @@ use App\Models\Credit;
 
 class CreditFactory
 {
-    public static function create(int $company_id, int $user_id, object $settings = null, Client $client = null): Credit
+    public static function create(int $company_id, int $user_id): Credit
     {
         $credit = new Credit();
         $credit->status_id = Credit::STATUS_DRAFT;

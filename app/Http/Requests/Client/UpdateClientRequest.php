@@ -136,13 +136,17 @@ class UpdateClientRequest extends Request
             $input['shipping_country_id'] = $this->getCountryCode($input['shipping_country_code']);
         }
 
+        if (isset($input['e_invoice']) && is_array($input['e_invoice'])) {
+            //ensure it is normalized first!
+            $input['e_invoice'] = $this->client->filterNullsRecursive($input['e_invoice']);
+        }
 
         $this->replace($input);
     }
 
     private function getCountryCode($country_code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Country> */
         $countries = app('countries');
 
@@ -155,7 +159,7 @@ class UpdateClientRequest extends Request
 
     private function getLanguageId($language_code)
     {
-        
+
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 

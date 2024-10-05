@@ -200,7 +200,7 @@ return [
         App\Providers\MultiDBProvider::class,
         App\Providers\ClientPortalServiceProvider::class,
         App\Providers\NinjaTranslationServiceProvider::class,
-        App\Providers\StaticServiceProvider::class
+        App\Providers\StaticServiceProvider::class,
     ],
 
     /*
@@ -217,7 +217,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         'Collector' => Turbo124\Beacon\CollectorFacade::class,
         'CustomMessage' => App\Utils\ClientPortal\CustomMessage\CustomMessageFacade::class,
-        'Redis'        => Illuminate\Support\Facades\Redis::class,
+        'Redis'        => Illuminate\Support\Facades\Redis::class
     ])->toArray(),
 
 ];

@@ -58,7 +58,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Archived');
 
         if (class_exists($className)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
         }
     }
 
@@ -84,7 +84,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Restored');
 
         if (class_exists($className)) {
-            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new $className($entity, $fromDeleted, $entity->company, Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
         }
     }
 
@@ -105,7 +105,7 @@ class BaseRepository
         $className = $this->getEventClass($entity, 'Deleted');
 
         if (class_exists($className) && !($entity instanceof Company)) {
-            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+            event(new $className($entity, $entity->company, Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
         }
     }
 
@@ -147,8 +147,7 @@ class BaseRepository
      * @throws \ReflectionException
      */
     protected function alternativeSave($data, $model)
-    {   //$start = microtime(true);
-        //forces the client_id if it doesn't exist
+    {   
         if (array_key_exists('client_id', $data)) {
             $model->client_id = $data['client_id'];
         }
@@ -167,7 +166,7 @@ class BaseRepository
             $company_defaults = $client->setCompanyDefaults($data, lcfirst($resource));
             $data['exchange_rate'] = $company_defaults['exchange_rate'];
             $model->uses_inclusive_taxes = $client->getSetting('inclusive_taxes');
-            // $data = array_merge($company_defaults, $data);
+
             $data = array_merge($data, $company_defaults);
         }
 
@@ -203,6 +202,9 @@ class BaseRepository
 
         $model->saveQuietly();
 
+        if(method_exists($model, 'searchable'))
+            $model->searchable();
+        
         /* Model now persisted, now lets do some child tasks */
 
         if ($model instanceof Invoice) {
@@ -321,6 +323,17 @@ class BaseRepository
                 UpdateTaxData::dispatch($client, $client->company);
             }
 
+            /** If Peppol is enabled - we will save the e_invoice document here at this point, document will not update after being sent */
+            if(strlen($model->backup ?? '') == 0 && $client->getSetting('e_invoice_type') == 'PEPPOL' && $model->company->legal_entity_id)
+            {
+                try{
+                    $model->service()->getEInvoice();
+                }
+                catch(\Throwable $e){
+                    nlog("EXCEPTION:: BASEREPOSITORY:: Error generating e_invoice for model {$model->id}");
+                    nlog($e->getMessage());
+                }
+            }
         }
 
         if ($model instanceof Credit) {
@@ -382,6 +395,29 @@ class BaseRepository
 
     public function bulkUpdate(\Illuminate\Database\Eloquent\Builder $model, string $column, mixed $new_value): void
     {
+        /** Handle taxes being updated */
+        if(in_array($column, ['tax_name1','tax_name2','tax_name3'])) {
+
+            $parts = explode("||", $new_value);
+
+            if (count($parts) !== 2)
+                return;
+
+            $tax_name = trim($parts[0]);
+            $rate = filter_var($parts[1], FILTER_VALIDATE_FLOAT);
+
+            if ($rate === false)
+                return;
+            
+            $taxrate_column = str_replace("name", "rate", $column);
+
+            $model->update([
+                $column => $tax_name,
+                $taxrate_column => $rate,
+            ]);
+            return;
+        }
+
         $model->update([$column => $new_value]);
     }
 }

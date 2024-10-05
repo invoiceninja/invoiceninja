@@ -22,7 +22,6 @@ use Illuminate\Support\Str;
 
 class OneTimeTokenController extends BaseController
 {
-
     public function __construct()
     {
         parent::__construct();
@@ -73,6 +72,10 @@ class OneTimeTokenController extends BaseController
             'context' => $request->input('context'),
             'is_react' => $request->hasHeader('X-REACT') ? true : false,
         ];
+
+        if($request->institution_id) {
+            $data['institution_id'] = $request->institution_id;
+        }
 
         Cache::put($hash, $data, 3600);
 

@@ -16,13 +16,13 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-/** @test*/
+/** */
 class UpdateCompanyLedgerTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -30,7 +30,7 @@ class UpdateCompanyLedgerTest extends TestCase
     }
 
     /**
-     * @test
+     * 
      */
     public function testPaymentIsPresentInLedger()
     {
@@ -46,7 +46,7 @@ class UpdateCompanyLedgerTest extends TestCase
     }
 
     /**
-     * @test
+     * 
      */
     public function testInvoiceIsPresentInLedger()
     {

@@ -19,8 +19,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @coversDefaultClass App\Models\Client
+ * 
+ * DefaultClass App\Models\Client
  */
 class GroupSettingsTest extends TestCase
 {
@@ -31,8 +31,8 @@ class GroupSettingsTest extends TestCase
     public $company_settings;
     public $client_settings;
     public $settings;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -143,7 +143,7 @@ class GroupSettingsTest extends TestCase
     }
 
     /**
-     * @covers ::getMergedSettings
+     *  ::getMergedSettings
      */
     public function testGroupPriority()
     {
@@ -173,7 +173,7 @@ class GroupSettingsTest extends TestCase
     }
 
     /**
-     * @covers ::getSetting
+     *  ::getSetting
      */
     public function testCompanyFallBackPriority()
     {

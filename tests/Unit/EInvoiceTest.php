@@ -9,6 +9,8 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
+namespace Tests\Unit;
+
 use App\Jobs\EDocument\CreateEDocument;
 use App\Jobs\Entity\CreateRawPdf;
 use horstoeko\zugferd\ZugferdDocumentReader;
@@ -18,15 +20,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Jobs\Invoice\CreateXInvoice
+ * 
+ *   App\Jobs\Invoice\CreateXInvoice
  */
 class EInvoiceTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

@@ -166,6 +166,10 @@ class InvoiceTransformer extends EntityTransformer
             $data['reminder_schedule'] = (string) $invoice->reminderSchedule();
         }
 
+        if (request()->has('is_locked') && request()->query('is_locked') == 'true') {
+            $data['is_locked'] = (bool) $invoice->isLocked();
+        }
+
         return $data;
 
     }

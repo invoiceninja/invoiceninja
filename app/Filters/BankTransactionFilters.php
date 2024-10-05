@@ -108,13 +108,24 @@ class BankTransactionFilters extends QueryFilters
             }
 
             if (count($debit_or_withdrawal_array) >= 1) {
-                $query->orWhereIn('base_type', $debit_or_withdrawal_array);
+                $query->whereIn('base_type', $debit_or_withdrawal_array);
             }
         });
 
         return $this->builder;
     }
 
+    public function active_banks(string $value = ''): Builder
+    {
+
+        if (strlen($value) == 0 || $value != 'true') {
+            return $this->builder;
+        }
+
+        return $this->builder->whereHas('bank_integration', function ($query){
+            $query->where('is_deleted', 0)->whereNull('deleted_at');
+        });
+    }
 
     /**
      * Filters the list based on Bank Accounts.

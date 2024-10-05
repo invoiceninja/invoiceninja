@@ -11,12 +11,14 @@
 
 namespace App\Mail\Admin;
 
+use stdClass;
+use App\Utils\Ninja;
 use App\Models\Invoice;
 use App\Utils\HtmlEngine;
-use App\Utils\Ninja;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\App;
-use stdClass;
+use App\DataMapper\EmailTemplateDefaults;
+use App\Utils\Number;
 
 class ClientPaymentFailureObject
 {
@@ -60,20 +62,20 @@ class ClientPaymentFailureObject
         }
 
         App::forgetInstance('translator');
-        /* Init a new copy of the translator*/
         $t = app('translator');
-        /* Set the locale*/
         App::setLocale($this->client->locale());
-        /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
         $this->invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->get();
 
+        $data = $this->getData();
+
         $mail_obj = new stdClass();
         $mail_obj->amount = $this->getAmount();
-        $mail_obj->subject = $this->getSubject();
+        $mail_obj->subject = $data['subject'];
         $mail_obj->data = $this->getData();
-        $mail_obj->markdown = 'email.client.generic';
+
+        $mail_obj->markdown = 'email.template.client';
         $mail_obj->tag = $this->company->company_key;
         $mail_obj->text_view = 'email.template.text';
 
@@ -82,16 +84,32 @@ class ClientPaymentFailureObject
 
     private function getAmount()
     {
-        return array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+        $amount = array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total;
+
+        return Number::formatMoney($amount, $this->client);
     }
 
     private function getSubject()
     {
-        return
-            ctrans(
-                'texts.notification_invoice_payment_failed_subject',
-                ['invoice' => implode(',', $this->invoices->pluck('number')->toArray())]
-            );
+    
+        if(strlen($this->client->getSetting('email_subject_payment_failed') ?? '') > 2){
+            return $this->client->getSetting('email_subject_payment_failed');
+        }
+        else {
+            return EmailTemplateDefaults::getDefaultTemplate('email_subject_payment_failed', $this->client->locale());
+        }
+
+    }
+
+    private function getBody()
+    {
+                
+        if(strlen($this->client->getSetting('email_template_payment_failed') ?? '') > 2) {
+            return $this->client->getSetting('email_template_payment_failed');
+        } else {
+            return EmailTemplateDefaults::getDefaultTemplate('email_template_payment_failed', $this->client->locale());
+        }
+
     }
 
     private function getData()
@@ -104,17 +122,17 @@ class ClientPaymentFailureObject
 
         $signature = $this->client->getSetting('email_signature');
         $html_variables = (new HtmlEngine($invitation))->makeValues();
+        
+        $html_variables['$payment_error'] = $this->error ?? '';
+        $html_variables['$total'] = $this->getAmount();
+
         $signature = str_replace(array_keys($html_variables), array_values($html_variables), $signature);
+        $subject = str_replace(array_keys($html_variables), array_values($html_variables), $this->getSubject());
+        $content = str_replace(array_keys($html_variables), array_values($html_variables), $this->getBody());
 
         $data = [
-            'title' => ctrans(
-                'texts.notification_invoice_payment_failed_subject',
-                [
-                    'invoice' => $this->invoices->first()->number,
-                ]
-            ),
-            'greeting' => ctrans('texts.email_salutation', ['name' => $this->client->present()->name()]),
-            'content' => ctrans('texts.client_payment_failure_body', ['invoice' => implode(',', $this->invoices->pluck('number')->toArray()), 'amount' => $this->getAmount()]),
+            'subject' => $subject,
+            'body' => $content,
             'signature' => $signature,
             'logo' => $this->company->present()->logo(),
             'settings' => $this->client->getMergedSettings(),

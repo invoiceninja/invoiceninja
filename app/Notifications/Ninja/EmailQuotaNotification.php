@@ -66,7 +66,7 @@ class EmailQuotaNotification extends Notification
     {
         $content = "Email quota exceeded by Account {$this->account->key} \n";
 
-        $owner = $this->account->companies()->first()->owner() ?? $this->account->users()->orderBy('id','asc')->first();
+        $owner = $this->account->companies()->first()->owner() ?? $this->account->users()->orderBy('id', 'asc')->first();
         $owner_name = $owner->present()->name() ?? 'No Owner Found';
         $owner_email = $owner->email ?? 'No Owner Email Found';
 

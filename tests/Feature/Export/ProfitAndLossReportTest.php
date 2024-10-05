@@ -28,8 +28,8 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Services\Report\ProfitLoss
+ * 
+ *  App\Services\Report\ProfitLoss
  */
 class ProfitAndLossReportTest extends TestCase
 {
@@ -37,7 +37,7 @@ class ProfitAndLossReportTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

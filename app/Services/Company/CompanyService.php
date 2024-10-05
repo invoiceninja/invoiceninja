@@ -56,7 +56,10 @@ class CompanyService
                 case '724': // Spain
                     $taxes[] = ['name' => 'IVA', 'rate' => 21];
                     break;
-
+                case '554': // New Zealand                    
+                    $taxes[] = ['name' => 'GST', 'rate' => 15];
+                    break;
+    
                 default:
                     return;
             }

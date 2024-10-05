@@ -31,12 +31,6 @@ class QuoteExport extends BaseExport
 
     private Decorator $decorator;
 
-    // private array $decorate_keys = [
-    //     'client',
-    //     'currency',
-    //     'invoice',
-    // ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -127,7 +121,7 @@ class QuoteExport extends BaseExport
 
         $query->cursor()
             ->each(function ($quote) {
-                
+
                 /** @var \App\Models\Quote $quote */
                 $this->csv->insertOne($this->buildRow($quote));
             });
@@ -148,15 +142,15 @@ class QuoteExport extends BaseExport
             if (is_array($parts) && $parts[0] == 'quote' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $quote);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
             }
 
         }
-        // return $entity;
-        return $this->decorateAdvancedFields($quote, $entity);
+        
+        $entity = $this->decorateAdvancedFields($quote, $entity);
+        return $this->convertFloats($entity);
+         
+
     }
 
     private function decorateAdvancedFields(Quote $quote, array $entity): array

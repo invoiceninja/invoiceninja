@@ -70,8 +70,8 @@ class RefundPaymentRequest extends Request
             'id' => ['bail','required', new ValidRefundableRequest($input)],
             'amount' => ['numeric', 'max:99999999999999'],
             'date' => 'required',
-            'invoices.*.invoice_id' => 'required',
-            'invoices.*.amount' => 'required',
+            'invoices.*.invoice_id' => 'required|bail',
+            'invoices.*.amount' => 'required|bail|gt:0',
             'invoices' => new ValidRefundableInvoices($input),
         ];
 

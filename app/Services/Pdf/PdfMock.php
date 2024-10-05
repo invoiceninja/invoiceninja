@@ -66,7 +66,7 @@ class PdfMock
         $pdf_config->setPdfVariables();
         $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
         $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
-        $pdf_config->currency_entity = $this->mock->client;
+        $pdf_config->currency_entity = $this->mock->client ?? $this->mock->vendor;
 
         if(isset($this->request['design_id']) && $design  = Design::withTrashed()->find($this->request['design_id'])) {
             $pdf_config->design = $design;
@@ -171,11 +171,11 @@ class PdfMock
     {
         $settings = $this->company->settings;
 
-        match ($this->request['settings_type']) {
+        match ($this->request['settings_type'] ?? '') {
             'group' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'client' => $settings = ClientSettings::buildClientSettings($this->company->settings, $this->request['settings']),
             'company' => $settings = (object)$this->request['settings'],
-            default => $settings = (object)$this->request['settings'],
+            default => $settings = (object)$this->company->settings,
         };
 
         $settings = CompanySettings::setProperties($settings);

@@ -55,5 +55,14 @@
 
             document.getElementById('server-response').submit();
         });
+
+    /**
+    * @type {HTMLInputElement|null}
+    */
+    const first = document.querySelector('input[name="payment-type"]');
+
+    if (first) {
+        first.click();
+    }
     </script>
 @endpush

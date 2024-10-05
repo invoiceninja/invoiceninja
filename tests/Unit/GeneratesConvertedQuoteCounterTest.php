@@ -26,8 +26,8 @@ use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers  App\Utils\Traits\GeneratesConvertedQuoteCounter
+ * 
+ *   App\Utils\Traits\GeneratesConvertedQuoteCounter
  */
 class GeneratesConvertedQuoteCounterTest extends TestCase
 {
@@ -40,7 +40,7 @@ class GeneratesConvertedQuoteCounterTest extends TestCase
     protected $client;
     protected $company;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

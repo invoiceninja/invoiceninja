@@ -21,6 +21,7 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\AuthorizePaymentDriver;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 use App\Utils\Traits\MakesHash;
 use net\authorize\api\contract\v1\DeleteCustomerPaymentProfileRequest;
 use net\authorize\api\contract\v1\DeleteCustomerProfileRequest;
@@ -30,7 +31,7 @@ use net\authorize\api\controller\DeleteCustomerProfileController;
 /**
  * Class AuthorizeCreditCard.
  */
-class AuthorizeCreditCard
+class AuthorizeCreditCard implements LivewireMethodInterface
 {
     use MakesHash;
 
@@ -41,7 +42,7 @@ class AuthorizeCreditCard
         $this->authorize = $authorize;
     }
 
-    public function processPaymentView($data)
+    public function paymentData(array $data): array
     {
         $tokens = ClientGatewayToken::where('client_id', $this->authorize->client->id)
                                     ->where('company_gateway_id', $this->authorize->company_gateway->id)
@@ -53,6 +54,13 @@ class AuthorizeCreditCard
         $data['gateway'] = $this->authorize;
         $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
         $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
+
+        return $data;
+    }
+
+    public function processPaymentView($data)
+    {
+        $data = $this->paymentData($data);
 
         return render('gateways.authorize.credit_card.pay', $data);
     }
@@ -312,5 +320,10 @@ class AuthorizeCreditCard
             'description' => $description,
             'invoices' => $vars['invoices'],
         ];
+    }
+    
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.authorize.credit_card.pay_livewire';
     }
 }

@@ -10,8 +10,9 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\BraintreePaymentDriver;
+use App\PaymentDrivers\Common\LivewireMethodInterface;
 
-class PayPal
+class PayPal implements LivewireMethodInterface
 {
     /**
      * @var BraintreePaymentDriver
@@ -45,8 +46,7 @@ class PayPal
      */
     public function paymentView(array $data)
     {
-        $data['gateway'] = $this->braintree;
-        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+        $data = $this->paymentData($data);
 
         return render('gateways.braintree.paypal.pay', $data);
     }
@@ -72,6 +72,7 @@ class PayPal
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token,
             'deviceData' => $state['client-data'],
+            'channel' => 'invoiceninja_BT',
             'options' => [
                 'submitForSettlement' => true,
                 'paypal' => [
@@ -187,5 +188,24 @@ class PayPal
         } catch (\Exception $e) {
             return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function livewirePaymentView(array $data): string 
+    {
+        return 'gateways.braintree.paypal.pay_livewire';
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    public function paymentData(array $data): array 
+    {
+        $data['gateway'] = $this->braintree;
+        $data['client_token'] = $this->braintree->gateway->clientToken()->generate();
+
+        return $data;
     }
 }

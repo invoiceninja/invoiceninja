@@ -20,7 +20,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class UnappliedPaymentRefundTest extends TestCase
 {
@@ -28,7 +28,7 @@ class UnappliedPaymentRefundTest extends TestCase
     use DatabaseTransactions;
     use MockUnitData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 

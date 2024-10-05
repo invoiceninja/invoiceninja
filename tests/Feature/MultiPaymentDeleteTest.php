@@ -27,15 +27,16 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
- * @test
+ * 
  */
 class MultiPaymentDeleteTest extends TestCase
 {
-    use DatabaseTransactions, MakesHash;
+    use DatabaseTransactions;
+    use MakesHash;
 
     private $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -63,7 +64,7 @@ class MultiPaymentDeleteTest extends TestCase
         $cu->is_admin = true;
         $cu->save();
 
-        $token = new CompanyToken;
+        $token = new CompanyToken();
         $token->user_id = $user->id;
         $token->company_id = $company->id;
         $token->account_id = $account->id;

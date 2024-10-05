@@ -31,13 +31,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-/** @test*/
+/** */
 class CompanyLedgerTest extends TestCase
 {
     use DatabaseTransactions;
     use MakesHash;
     use AppSetup;
-    
+
     public $company;
 
     public $client;
@@ -49,15 +49,15 @@ class CompanyLedgerTest extends TestCase
     public $account;
 
     public $faker;
-    
-    protected function setUp() :void
+
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->withoutExceptionHandling();
 
         $this->artisan('db:seed --force');
-        
+
         $this->faker = \Faker\Factory::create();
         $fake_email = $this->faker->email();
 
@@ -91,7 +91,7 @@ class CompanyLedgerTest extends TestCase
 
 
         $user = User::whereEmail($fake_email)->first();
-        
+
         if (! $user) {
             $user = User::factory()->create([
                 'email' => $fake_email,
@@ -109,7 +109,7 @@ class CompanyLedgerTest extends TestCase
 
         $this->token = \Illuminate\Support\Str::random(64);
 
-        $company_token = new CompanyToken;
+        $company_token = new CompanyToken();
         $company_token->user_id = $user->id;
         $company_token->company_id = $this->company->id;
         $company_token->account_id = $this->account->id;
@@ -170,7 +170,7 @@ class CompanyLedgerTest extends TestCase
 
         // $i->service()->markSent()->save();
         // $i = $i->fresh();
-                
+
         // // \Illuminate\Support\Facades\Bus::fake();
         // // \Illuminate\Support\Facades\Bus::assertDispatched(UpdateLedger::class);
 
@@ -190,7 +190,7 @@ class CompanyLedgerTest extends TestCase
         // $cl = CompanyLedger::where('client_id', $i->client_id)
         //                    ->orderBy('id', 'desc')
         //                    ->first();
-                           
+
         // $cl = $i->company_ledger()->orderBy('id','desc')->first();
         // (new UpdateLedger($cl->id, $i->amount, $i->company->company_key, $i->company->db))->handle();
         // $cl = $cl->fresh();
@@ -284,14 +284,10 @@ class CompanyLedgerTest extends TestCase
             'date' => '2020/12/11',
         ];
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments/', $data);
-        } catch (ValidationException $e) {
-            nlog(print_r($e->validator->getMessageBag(), 1));
-        }
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/', $data);
 
         $acc = $response->json();
 

@@ -31,9 +31,16 @@ class Merge extends AbstractService
 
     public function run()
     {
+        nlog("merging {$this->mergable_client->id} into {$this->client->id}");
+        nlog("balance pre {$this->client->balance}");
+        nlog("paid_to_date pre {$this->client->paid_to_date}");
+
         $this->client->balance += $this->mergable_client->balance;
         $this->client->paid_to_date += $this->mergable_client->paid_to_date;
         $this->client->save();
+
+        nlog("balance post {$this->client->balance}");
+        nlog("paid_to_date post {$this->client->paid_to_date}");
 
         $this->updateLedger($this->mergable_client->balance);
 

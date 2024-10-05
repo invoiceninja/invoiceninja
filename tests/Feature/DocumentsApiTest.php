@@ -21,8 +21,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * @test
- * @covers App\Http\Controllers\DocumentController
+ * 
+ *  App\Http\Controllers\DocumentController
  */
 class DocumentsApiTest extends TestCase
 {
@@ -32,7 +32,7 @@ class DocumentsApiTest extends TestCase
 
     protected $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -47,7 +47,7 @@ class DocumentsApiTest extends TestCase
 
     public function testDocumentFilters()
     {
-        Document::query()->withTrashed()->cursor()->each(function ($d){
+        Document::query()->withTrashed()->cursor()->each(function ($d) {
             $d->forceDelete();
         });
 
@@ -73,7 +73,7 @@ class DocumentsApiTest extends TestCase
 
     public function testDocumentFilters2()
     {
-        Document::query()->withTrashed()->cursor()->each(function ($d){
+        Document::query()->withTrashed()->cursor()->each(function ($d) {
             $d->forceDelete();
         });
 
@@ -98,7 +98,7 @@ class DocumentsApiTest extends TestCase
 
     public function testDocumentFilters3()
     {
-        Document::query()->withTrashed()->cursor()->each(function ($d){
+        Document::query()->withTrashed()->cursor()->each(function ($d) {
             $d->forceDelete();
         });
 
@@ -114,9 +114,9 @@ class DocumentsApiTest extends TestCase
             'user_id' => $this->user->id,
             'client_id' => $this->client->id,
         ]);
-        
+
         $t->documents()->save($d);
-        
+
         $dd = Document::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -141,7 +141,7 @@ class DocumentsApiTest extends TestCase
         ])->get("/api/v1/documents?client_id={$this->client->hashed_id}&filter=craycray");
 
         $response->assertStatus(200);
-        
+
         $this->assertCount(0, $response->json()['data']);
 
         $response = $this->withHeaders([
@@ -180,6 +180,8 @@ class DocumentsApiTest extends TestCase
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
         ]);
+
+        $this->invoice->documents()->save($d);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

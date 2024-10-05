@@ -36,6 +36,7 @@ use App\Utils\Traits\Pdf\PageNumbering;
 use App\Utils\VendorHtmlEngine;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 use Turbo124\Beacon\Facades\LightLogs;
 
@@ -83,7 +84,7 @@ class PreviewPurchaseOrderController extends BaseController
      *       ),
      *     )
      */
-    public function show()
+    public function show($request)
     {
         if (request()->has('entity') &&
             request()->has('entity_id') &&

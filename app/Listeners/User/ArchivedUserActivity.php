@@ -49,6 +49,7 @@ class ArchivedUserActivity implements ShouldQueue
 
         $fields->company_id = $event->company->id;
         $fields->activity_type_id = Activity::ARCHIVE_USER;
+        $fields->account_id = $event->company->account_id;
 
         $this->activityRepo->save($fields, $event->user, $event->event_vars);
     }

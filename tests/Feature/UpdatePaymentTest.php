@@ -24,8 +24,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\PaymentController
+ * 
+ *  App\Http\Controllers\PaymentController
  */
 class UpdatePaymentTest extends TestCase
 {
@@ -35,7 +35,7 @@ class UpdatePaymentTest extends TestCase
 
     public $faker;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -72,7 +72,7 @@ class UpdatePaymentTest extends TestCase
         });
 
         $payment->paymentables()->each(function ($pivot) {
-        
+
             $this->assertTrue(Carbon::createFromTimestamp($pivot->created_at)->eq(now()->startOfDay()->subMonth()));
 
         });
@@ -108,21 +108,6 @@ class UpdatePaymentTest extends TestCase
 
         $this->assertEquals(10, $invoice->balance);
 
-        //create Unapplied payment via API
-
-        // $data = [
-        //     'amount' => $this->invoice->amount,
-        //     'client_id' => $client->hashed_id,
-        //     'invoices' => [
-        //         [
-        //         'invoice_id' => $this->invoice->hashed_id,
-        //         'amount' => $this->invoice->amount,
-        //         ],
-        //     ],
-        //     'date' => '2020/12/12',
-
-        // ];
-
         $data = [
             'amount' => 10,
             'client_id' => $client->hashed_id,
@@ -130,25 +115,11 @@ class UpdatePaymentTest extends TestCase
 
         $response = null;
 
-        try {
-            $response = $this->withHeaders([
-                'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
-            ])->post('/api/v1/payments?include=invoices,paymentables', $data);
-        } catch (ValidationException $e) {
-            $message = json_decode($e->validator->getMessageBag(), 1);
-            $this->assertNotNull($message);
-        }
-
-        // $arr = $response->json();
-        // $response->assertStatus(200);
-        // $payment_id = $arr['data']['id'];
-        // $payment = Payment::find($this->decodePrimaryKey($payment_id))->first();
-        // $payment->load('invoices');
-
-        // $this->assertNotNull($payment);
-        // $this->assertNotNull($payment->invoices());
-        // $this->assertEquals(1, $payment->invoices()->count());
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices,paymentables', $data)
+        ->assertStatus(200);
 
         $this->assertEquals(10, $client->fresh()->paid_to_date);
     }

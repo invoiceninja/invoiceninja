@@ -22,8 +22,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * @test
- * @covers App\Http\Controllers\PaymentTermController
+ * 
+ *  App\Http\Controllers\PaymentTermController
  */
 class PaymentTermsApiTest extends TestCase
 {
@@ -31,7 +31,7 @@ class PaymentTermsApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    protected function setUp() :void
+    protected function setUp(): void
     {
         parent::setUp();
 
