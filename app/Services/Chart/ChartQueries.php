@@ -46,7 +46,7 @@ trait ChartQueries
             SUM(
                 CASE 
                     WHEN expenses.currency_id = :company_currency THEN amount
-                    ELSE expenses.amount * expenses.exchange_rate
+                    ELSE expenses.amount * COALESCE(NULLIF(expenses.exchange_rate, 0), 1)
                 END
             ) AS amount
             FROM expenses
@@ -67,7 +67,7 @@ trait ChartQueries
             SUM(
                 CASE 
                     WHEN expenses.currency_id = :company_currency THEN amount
-                    ELSE expenses.amount * expenses.exchange_rate
+                    ELSE expenses.amount * COALESCE(NULLIF(expenses.exchange_rate, 0), 1)
                 END
             ) AS total,
             expenses.date
@@ -142,7 +142,7 @@ trait ChartQueries
         $user_filter = $this->is_admin ? '' : 'AND payments.user_id = '.$this->user->id;
 
         return DB::select("
-            SELECT sum((payments.amount - payments.refunded) / payments.exchange_rate) as amount,
+            SELECT sum((payments.amount - payments.refunded) / COALESCE(NULLIF(payments.exchange_rate, 0), 1)) as amount,
             IFNULL(payments.currency_id, :company_currency) as currency_id
             FROM payments
             WHERE payments.company_id = :company_id
@@ -166,7 +166,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum((payments.amount - payments.refunded) * payments.exchange_rate) as total,
+            sum((payments.amount - payments.refunded) * COALESCE(NULLIF(payments.exchange_rate, 0), 1)) as total,
             payments.date
             FROM payments
             WHERE payments.company_id = :company_id
@@ -243,7 +243,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum(invoices.balance / invoices.exchange_rate) as amount,
+            SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as amount,
             COUNT(invoices.id) as outstanding_count 
             FROM clients
             JOIN invoices
@@ -268,7 +268,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-            sum((payments.amount - payments.refunded) * payments.exchange_rate) as paid_to_date
+            sum((payments.amount - payments.refunded) *  COALESCE(NULLIF(payments.exchange_rate, 0), 1)) as paid_to_date
             FROM payments
             JOIN clients
             ON payments.client_id=clients.id
@@ -311,7 +311,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-                SUM(invoices.amount / invoices.exchange_rate) as invoiced_amount
+                SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as invoiced_amount
             FROM clients
             JOIN invoices ON invoices.client_id = clients.id
             WHERE invoices.status_id IN (2,3,4)
@@ -358,7 +358,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-                SUM(invoices.balance / invoices.exchange_rate) as total,
+                SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
             invoices.date
             FROM clients
             JOIN invoices
@@ -412,7 +412,7 @@ trait ChartQueries
 
         return DB::select("
             SELECT
-                SUM(invoices.amount / invoices.exchange_rate) as total,
+                SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
             invoices.date
             FROM clients
             JOIN invoices
