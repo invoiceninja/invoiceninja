@@ -161,34 +161,32 @@ class TaxSummaryReport extends BaseExport
         }
 
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.cash_vs_accrual'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount')]);
         $this->csv->insertOne($this->buildHeader());
-
-
-        foreach($accrual_map as $key => $value) {
-            $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company), Number::formatValue($value['tax_amount'], $this->company->currency())]);
-        }
-
-        $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.cash_accounting'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount')]);
-        $this->csv->insertOne($this->buildHeader());
-
-        foreach($cash_map as $key => $value) {
-            $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company), Number::formatValue($value['tax_amount'], $this->company->currency())]);
-        }
-        
-
-        $this->csv->insertOne([]);
-        $this->csv->insertOne([]);
         $this->csv->insertOne([ctrans('texts.cash_vs_accrual')]);
+
+        foreach($accrual_map as $value) {
+            $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company), Number::formatValue($value['tax_amount'], $this->company->currency())]);
+        }
+
+        $this->csv->insertOne([]);  
+        $this->csv->insertOne([ctrans('texts.cash_accounting')]);
+        $this->csv->insertOne($this->buildHeader());
+
+        foreach($cash_map as $value) {
+            $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company), Number::formatValue($value['tax_amount'], $this->company->currency())]);
+        }
         
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.cash_vs_accrual'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount')]);
+
         foreach($accrual_invoice_map as $map){
             $this->csv->insertOne($map);
         }
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.cash_accounting')]);
+        $this->csv->insertOne([ctrans('texts.cash_accounting'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount')]);
 
         foreach($cash_invoice_map as $map){
             $this->csv->insertOne($map);
