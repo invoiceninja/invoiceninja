@@ -63,10 +63,13 @@ class InvoiceItemExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('invoice_report_keys'));
+            nlog($this->input['report_keys']);
         }
 
         $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
 
+        nlog("xx");
+        nlog($this->input['report_keys']);
         $query = Invoice::query()
                         ->withTrashed()
                         ->with('client')
@@ -189,7 +192,7 @@ class InvoiceItemExport extends BaseExport
 
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $entity;
+            $this->storage_array[] = $this->convertFloats($entity);
 
         }
     }
@@ -200,6 +203,7 @@ class InvoiceItemExport extends BaseExport
 
         $entity = [];
 
+        
         foreach (array_values($this->input['report_keys']) as $key) {
 
             $parts = explode('.', $key);
@@ -218,34 +222,11 @@ class InvoiceItemExport extends BaseExport
         }
         
         $entity = $this->decorateAdvancedFields($invoice, $entity);
-        return $this->convertFloats($entity);
+        return $entity;
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array
     {
-        // if (in_array('currency_id', $this->input['report_keys'])) {
-        //     $entity['currency'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        // }
-
-        // if(array_key_exists('tax_category', $entity)) {
-        //     $entity['tax_category'] = $invoice->taxTypeString($entity['tax_category']);
-        // }
-
-        // if (in_array('invoice.country_id', $this->input['report_keys'])) {
-        //     $entity['invoice.country_id'] = $invoice->client->country ? ctrans("texts.country_{$invoice->client->country->name}") : '';
-        // }
-
-        // if (in_array('invoice.currency_id', $this->input['report_keys'])) {
-        //     $entity['invoice.currency_id'] = $invoice->client->currency() ? $invoice->client->currency()->code : $invoice->company->currency()->code;
-        // }
-
-        // if (in_array('invoice.client_id', $this->input['report_keys'])) {
-        //     $entity['invoice.client_id'] = $invoice->client->present()->name();
-        // }
-
-        // if (in_array('invoice.status', $this->input['report_keys'])) {
-        //     $entity['invoice.status'] = $invoice->stringStatus($invoice->status_id);
-        // }
 
         if (in_array('invoice.recurring_id', $this->input['report_keys'])) {
             $entity['invoice.recurring_id'] = $invoice->recurring_invoice->number ?? '';

@@ -1352,7 +1352,7 @@ class BaseExport
      */
     public function mergeItemsKeys(string $entity_report_keys): array
     {
-        return array_merge($this->{$entity_report_keys}, $this->item_report_keys);
+        return array_merge(array_values($this->{$entity_report_keys}), array_values($this->item_report_keys));
     }
 
     public function buildHeader(): array
