@@ -164,7 +164,7 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne($this->buildHeader());
         $this->csv->insertOne([ctrans('texts.cash_vs_accrual')]);
 
-        foreach($accrual_map as $value) {
+        foreach($accrual_map as $key => $value) {
             $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company), Number::formatValue($value['tax_amount'], $this->company->currency())]);
         }
 
@@ -172,7 +172,7 @@ class TaxSummaryReport extends BaseExport
         $this->csv->insertOne([ctrans('texts.cash_accounting')]);
         $this->csv->insertOne($this->buildHeader());
 
-        foreach($cash_map as $value) {
+        foreach($cash_map as $key => $value) {
             $this->csv->insertOne([$key, Number::formatMoney($value['tax_amount'], $this->company), Number::formatValue($value['tax_amount'], $this->company->currency())]);
         }
         
