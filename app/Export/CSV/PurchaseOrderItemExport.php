@@ -197,33 +197,19 @@ class PurchaseOrderItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_purchase_order)) {
                 $entity[$key] = $transformed_purchase_order[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $purchase_order);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $purchase_order, $this->purchase_order_transformer);
             }
         }
 
-        return $this->decorateAdvancedFields($purchase_order, $entity);
+        $entity = $this->decorateAdvancedFields($purchase_order, $entity);
+        $entity = $this->convertFloats($entity);
+        return $entity;
+
     }
 
     private function decorateAdvancedFields(PurchaseOrder $purchase_order, array $entity): array
     {
-        // if (in_array('currency_id', $this->input['report_keys'])) {
-        //     $entity['currency'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
-        // }
-
-        // if(array_key_exists('tax_category', $entity)) {
-        //     $entity['tax_category'] = $purchase_order->taxTypeString($entity['tax_category']);
-        // }
-
-        // if($this->force_keys) {
-        //     $entity['vendor'] = $purchase_order->vendor->present()->name();
-        //     $entity['vendor_id_number'] = $purchase_order->vendor->id_number;
-        //     $entity['vendor_number'] = $purchase_order->vendor->number;
-        //     $entity['status'] = $purchase_order->stringStatus($purchase_order->status_id);
-        // }
-
+      
         if (in_array('purchase_order.currency_id', $this->input['report_keys'])) {
             $entity['purchase_order.currency_id'] = $purchase_order->vendor->currency() ? $purchase_order->vendor->currency()->code : $purchase_order->company->currency()->code;
         }

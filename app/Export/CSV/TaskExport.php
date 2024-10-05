@@ -164,6 +164,8 @@ class TaskExport extends BaseExport
 
         }
 
+        $entity = $this->convertFloats($entity);
+
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, true)) && count(json_decode($task->time_log, true)) == 0)) {
             $this->storage_array[] = $entity;
         } else {
@@ -221,7 +223,7 @@ class TaskExport extends BaseExport
             }
 
             $entity = $this->decorateAdvancedFields($task, $entity);
-
+            
             $this->storage_array[] = $entity;
 
             $entity['task.start_date'] = '';

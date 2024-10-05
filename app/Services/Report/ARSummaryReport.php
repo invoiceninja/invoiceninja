@@ -113,7 +113,7 @@ class ARSummaryReport extends BaseExport
             $this->getAgingAmount('90'),
             $this->getAgingAmount('120'),
             $this->getAgingAmount('120+'),
-            Number::formatMoney($this->total, $this->client),
+            Number::formatMoney($this->total, $this->company),
         ];
 
         $this->total = 0;

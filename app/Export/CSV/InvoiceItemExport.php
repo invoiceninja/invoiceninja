@@ -213,14 +213,12 @@ class InvoiceItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $invoice);
-                // $entity[$key] = '';
-                // $entity[$key] = $this->resolveKey($key, $invoice, $this->invoice_transformer);
             }
         }
-        // return $entity;
-        return $this->decorateAdvancedFields($invoice, $entity);
+        
+        $entity = $this->decorateAdvancedFields($invoice, $entity);
+        return $this->convertFloats($entity);
     }
 
     private function decorateAdvancedFields(Invoice $invoice, array $entity): array

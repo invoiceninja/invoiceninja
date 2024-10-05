@@ -66,12 +66,6 @@ class ProductSalesExport extends BaseExport
         'custom_value4' => 'custom_value4',
     ];
 
-    // private array $decorate_keys = [
-    //     'client',
-    //     'currency',
-    //     'date',
-    // ];
-
     public function __construct(Company $company, array $input)
     {
         $this->company = $company;
@@ -232,6 +226,8 @@ class ProductSalesExport extends BaseExport
             }
         }
         $entity = $this->decorateAdvancedFields($invoice, $entity);
+
+        $entity = $this->convertFloats($entity);
 
         $this->sales->push($entity);
 

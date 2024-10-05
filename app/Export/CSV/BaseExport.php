@@ -1632,4 +1632,18 @@ class BaseExport
     {
         return \Illuminate\Support\Facades\Schema::hasColumn($table, $column);
     }
+
+    public function convertFloats(iterable $entity): iterable
+    {
+        $currency = $this->company->currency();
+        
+        foreach ($entity as $key => $value) {
+            if (is_float($value)) {
+                $entity[$key] = \App\Utils\Number::formatValue($value, $currency);
+            }
+        }
+
+        return $entity;
+
+    }
 }
