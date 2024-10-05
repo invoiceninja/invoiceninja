@@ -191,7 +191,7 @@ class ClientExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($client, $entity);
-        $this->convertFloats($entity);
+        return $this->convertFloats($entity);
     }
 
     public function processMetaData(array $row, $resource): array
