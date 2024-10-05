@@ -33,7 +33,7 @@
     <env name="DB_CONNECTION" value="sqlite"/>
     <env name="DB_DATABASE" value=":memory:"/>
     <env name="DB_STRICT" value="false"/>
-    <env name="SCOUT_DRIVER" value=null/>
+    <env name="SCOUT_DRIVER" value="null"/>
   </php>
   <logging/>
 </phpunit>

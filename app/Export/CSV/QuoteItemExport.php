@@ -207,14 +207,12 @@ class QuoteItemExport extends BaseExport
             } elseif (array_key_exists($key, $transformed_quote)) {
                 $entity[$key] = $transformed_quote[$key];
             } else {
-                // nlog($key);
                 $entity[$key] = $this->decorator->transform($key, $quote);
-                // $entity[$key] = $this->resolveKey($key, $quote, $this->quote_transformer);
             }
         }
 
         $entity = $this->decorateAdvancedFields($quote, $entity);
-        return $this->convertFloats($entity);
+        return $entity;
         
     }
     private function decorateAdvancedFields(Quote $quote, array $entity): array

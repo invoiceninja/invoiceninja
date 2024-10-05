@@ -175,7 +175,7 @@ class PurchaseOrderItemExport extends BaseExport
             $entity = $this->decorateAdvancedFields($purchase_order, $transformed_items);
             $entity = array_merge(array_flip(array_values($this->input['report_keys'])), $entity);
 
-            $this->storage_array[] = $entity;
+            $this->storage_array[] = $this->convertFloats($entity);
         }
     }
 
@@ -202,7 +202,7 @@ class PurchaseOrderItemExport extends BaseExport
         }
 
         $entity = $this->decorateAdvancedFields($purchase_order, $entity);
-        $entity = $this->convertFloats($entity);
+        // $entity = $this->convertFloats($entity);
         return $entity;
 
     }
