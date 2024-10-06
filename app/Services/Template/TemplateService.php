@@ -443,7 +443,7 @@ class TemplateService
 
             $processed = [];
 
-            if(in_array($key, ['tasks', 'projects', 'aging']) || !$value->first()) {
+            if(in_array($key, ['tasks', 'projects', 'aging', 'unapplied']) || !$value->first()) {
                 return $processed;
             }
 
@@ -491,6 +491,7 @@ class TemplateService
                 'projects' => $processed = $this->processProjects($value),
                 'purchase_orders' => $processed = $this->processPurchaseOrders($value),
                 'aging' => $processed = $value,
+                'unapplied' => $processed = $this->processPayments($value),
                 default => $processed = [],
             };
 

@@ -459,7 +459,7 @@ class CompanySettings extends BaseSettings
 
     public $show_email_footer = true;
 
-    public $company_logo_size = '60';
+    public $company_logo_size = '';
 
     public $show_paid_stamp = false;
 
@@ -1071,6 +1071,12 @@ class CompanySettings extends BaseSettings
                 '$product.item',
                 '$product.description',
                 '$product.quantity',
+            ],
+            'statement_unapplied_columns' => [
+                '$payment.number',
+                '$payment.date',
+                '$payment.amount',
+                '$payment.payment_balance',
             ],
         ];
 

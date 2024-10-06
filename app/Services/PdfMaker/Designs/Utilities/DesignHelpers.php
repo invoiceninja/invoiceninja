@@ -54,6 +54,10 @@ trait DesignHelpers
             $this->payments = $this->context['payments'];
         }
 
+        if(isset($this->context['unapplied'])){
+            $this->unapplied_payments = $this->context['unapplied'];
+        }
+
         if (isset($this->context['credits'])) {
             $this->credits = $this->context['credits'];
         }
