@@ -2361,7 +2361,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_gold_troy_ounce' => 'Once troy d\'or',
     'currency_nicaraguan_córdoba' => 'Cordoba nicaraguayen',
     'currency_malagasy_ariary' => 'Ariary malgache',
-    "currency_tongan_paanga" => "Pa'anga tongien",
+    "currency_tongan_pa_anga" => "Pa'anga tongien",
 
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Un commentaire de votre part serait grandement apprécié!',
     'writing_a_review' => 'rédiger un commentaire',
@@ -5353,7 +5353,8 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'inbound_mailbox_allow_unknown' => 'Autoriser tous les envois',
     'inbound_mailbox_allow_unknown_help' => 'Autoriser n\'importe qui à envoyer un courriel de dépenses pour traitement.',
     'quick_actions' => 'Actions rapides',
-    'end_all_sessions_help' => 'Déconnecte tous les utilisateurs et oblige tous les utilisateurs actifs à se réauthentifier.'
+    'end_all_sessions_help' => 'Déconnecte tous les utilisateurs et oblige tous les utilisateurs actifs à se réauthentifier.',
+    'updated_records' => 'Enregistrements mis à jour',
 );
 
 return $lang;

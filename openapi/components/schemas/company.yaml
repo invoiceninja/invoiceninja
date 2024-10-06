@@ -360,7 +360,82 @@
           description: "A flag determining whether to include the item description on invoices by default"
           type: boolean
           example: true
-        
+  
+        expense_mailbox:
+          description: "The email address for the expense mailbox"
+          type: string
+          example: "expenses@company.com"
+
+        expense_mailbox_active:
+          description: "Whether the expense mailbox is active"
+          type: boolean
+          example: true
+
+        inbound_mailbox_allow_company_users:
+          description: "Whether company users are allowed to use the inbound mailbox"
+          type: boolean
+          example: true
+
+        inbound_mailbox_allow_vendors:
+          description: "Whether vendors are allowed to use the inbound mailbox"
+          type: boolean
+          example: false
+
+        inbound_mailbox_allow_clients:
+          description: "Whether clients are allowed to use the inbound mailbox"
+          type: boolean
+          example: true
+
+        inbound_mailbox_allow_unknown:
+          description: "Whether unknown senders are allowed to use the inbound mailbox"
+          type: boolean
+          example: false
+
+        inbound_mailbox_whitelist:
+          description: "Comma-separated list of whitelisted email addresses for the inbound mailbox"
+          type: string
+          example: "user1@example.com,user2@example.com"
+
+        inbound_mailbox_blacklist:
+          description: "Comma-separated list of blacklisted email addresses for the inbound mailbox"
+          type: string
+          example: "spam@example.com,unwanted@example.com"
+
+        smtp_host:
+          description: "The SMTP host for sending emails"
+          type: string
+          example: "smtp.gmail.com"
+
+        smtp_port:
+          description: "The SMTP port for sending emails"
+          type: integer
+          example: 587
+
+        smtp_encryption:
+          description: "The encryption method for SMTP"
+          type: string
+          enum: [tls, ssl, null]
+          example: "tls"
+
+        smtp_local_domain:
+          description: "The local domain for SMTP"
+          type: string
+          example: "company.com"
+
+        smtp_verify_peer:
+          description: "Whether to verify the SMTP peer"
+          type: boolean
+          example: true
+
+        e_invoice:
+          description: "E-invoice settings for the company"
+          type: object
+          additionalProperties: true
+
+        legal_entity_id:
+          description: "The ID of the legal entity associated with the company"
+          type: integer
+          example: 1234
         settings:
           $ref: '#/components/schemas/CompanySettings'
       type: object
