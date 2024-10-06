@@ -98,7 +98,7 @@ class ReminderJob implements ShouldQueue
                          $query->where('is_disabled', 0);
                      })
                     ->whereHas('company.account', function ($q){
-                        $q->whereNotNull('plan')->where('plan_expire', '>', now()->subDays(2));
+                        $q->whereNotNull('plan')->where('plan_expires', '>', now()->subDays(2));
                     })
                      ->with('invitations')
                      ->cursor()
