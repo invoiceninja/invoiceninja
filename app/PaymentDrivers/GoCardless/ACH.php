@@ -227,7 +227,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
             $this->go_cardless->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($_payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $_payment->hashed_id]);
     }
 
     /**
