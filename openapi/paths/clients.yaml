@@ -3,17 +3,19 @@
       tags:
         - clients
       summary: 'List clients'
-      x-code-samples:
-      - lang: go
+      x-codeSamples:
+      - lang: php
         label: php
         source: |
           $ninja = new InvoiceNinja("your_token");
           $invoices = $ninja->clients->all();
-      x-custom-element:
-            type: markdown
-            value: |
-              ### Custom Response Description
-              This is a custom description for the response returned by the `/example` endpoint.
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/clients?per_page=10&page=1&sort=name&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       description: |
             When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
               
@@ -128,20 +130,8 @@
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
-              schema:  
-                type: object
-                properties:
-                  data: 
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Client'
-                    example:
-                      $ref: '#/components/schemas/Client'
-                  meta:
-                    type: object
-                    $ref: '#/components/schemas/Meta'
-                    example:
-                      $ref: '#/components/schemas/Meta'
+              schema:
+                $ref: '#/components/schemas/Client'
         401:
           $ref: '#/components/responses/401'
         403:
