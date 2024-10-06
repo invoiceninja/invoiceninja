@@ -31,11 +31,12 @@
     ],
     "type": "project",
     "require": {
-        "php": "^8.2",
+        "php": ">=8.2",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
+        "ext-simplexml": "*",
         "afosto/yaac": "^1.4",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
@@ -68,7 +69,6 @@
         "invoiceninja/ubl_invoice": "^2",
         "josemmo/facturae-php": "^1.7",
         "laracasts/presenter": "^0.2.1",
-        "laravel/framework": "^11.0",
         "laravel/scout": "^10.11",
         "laravel/slack-notification-channel": "^3",
         "laravel/socialite": "^5",
@@ -108,6 +108,7 @@
         "twig/intl-extra": "^3.7",
         "twig/twig": "^3.14",
         "twilio/sdk": "^6.40",
+        "wikimedia/composer-merge-plugin": "^2.1",
         "wildbit/postmark-php": "^4.0"
     },
     "require-dev": {
@@ -118,6 +119,7 @@
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
         "larastan/larastan": "^2",
+        "laravel/framework": "^v11.0",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "phpstan/phpstan": "^1.9",
@@ -172,7 +174,12 @@
         ],
         "format": [
             "vendor/bin/php-cs-fixer fix"
-        ]
+        ],
+        "update-snapshots": "./phpunit --no-coverage -d --update-snapshots",
+        "lint": "pint",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-html coverage",
+        "pcf": "vendor/bin/php-cs-fixer fix --verbose"
     },
     "config": {
         "preferred-install": "dist",
