@@ -459,7 +459,7 @@ class CompanySettings extends BaseSettings
 
     public $show_email_footer = true;
 
-    public $company_logo_size = '';
+    public $company_logo_size = '60';
 
     public $show_paid_stamp = false;
 
