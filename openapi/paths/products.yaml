@@ -3,7 +3,7 @@
       tags:
         - products
       summary: "List products"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |
@@ -96,7 +96,7 @@
       tags:
         - products
       summary: "Create Product"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |
@@ -159,7 +159,7 @@
       tags:
         - products
       summary: "Show product"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |
@@ -215,7 +215,7 @@
       tags:
         - products
       summary: "Update product"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |
@@ -287,7 +287,7 @@
       tags:
         - products
       summary: "Delete product"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |
@@ -340,7 +340,7 @@
       tags:
         - products
       summary: "Edit product"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |
@@ -435,7 +435,7 @@
       tags:
         - products
       summary: "Bulk product actions"
-      x-code-samples:
+      x-codeSamples:
       - lang: curl
         label: Curl
         source: |

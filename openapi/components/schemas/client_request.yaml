@@ -135,7 +135,6 @@
           description: 'Flag which defines if the client has a valid VAT number'
           type: boolean
           example: false
-          readOnly: true
         classification:
           description: 'The classification of the client'
           type: string

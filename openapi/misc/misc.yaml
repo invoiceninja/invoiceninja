@@ -1,14 +1,12 @@
 tags:
   - name: login
-    description: |
-      Attempts to authenticate with the API using a email/password combination.
-    externalDocs:
-      description: "Find out more"
-      url: "https://invoiceninja.github.io"
+    # description: |
+    #   Attempts to authenticate with the API using a email/password combination.
+    
   - name: clients
-    x-tag-expanded: true
-    description: |
-      Endpoint definitions for interacting with clients.
+    x-tag-expanded: false
+    # description: |
+    #   Endpoint definitions for interacting with clients.
   - name: products
     description: |
       Endpoint definitions for interacting with products.
