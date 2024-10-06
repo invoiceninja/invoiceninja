@@ -30,13 +30,13 @@ trait PdfMaker
     {
         $pdf = new Snappdf();
 
-        if (config('ninja.snappdf_chromium_path')) {
-            $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
-        }
-
         if (config('ninja.snappdf_chromium_arguments')) {
             $pdf->clearChromiumArguments();
             $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
+        }
+
+        if (config('ninja.snappdf_chromium_path')) {
+            $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
         }
 
         $html = str_ireplace(['file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost'], '', $html);
