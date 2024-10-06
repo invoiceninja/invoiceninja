@@ -38,7 +38,6 @@
 <script src="https://www.paypal.com/sdk/js?client-id={!! $client_id !!}&currency={!! $currency !!}&merchant-id={!! $merchantId !!}&components=buttons,funding-eligibility&intent=capture&enable-funding={!! $funding_source !!}"  data-partner-attribution-id="invoiceninja_SP_PPCP"></script>
 <script>
 
-//&buyer-country=US&currency=USD&enable-funding=venmo
     const fundingSource = "{!! $funding_source !!}";
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";

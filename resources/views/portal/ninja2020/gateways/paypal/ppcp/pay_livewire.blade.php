@@ -29,7 +29,6 @@
 
 @script
 <script>
-//&buyer-country=US&currency=USD&enable-funding=venmo
     const fundingSource = "{!! $funding_source !!}";
     const clientId = "{{ $client_id }}";
     const orderId = "{!! $order_id !!}";
