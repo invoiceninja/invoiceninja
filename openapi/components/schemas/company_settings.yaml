@@ -113,8 +113,9 @@
                 example: "Please approve quote"
             lock_invoices:
                 description: "Toggles whether invoices are locked once sent and cannot be modified further"
-                type: boolean
-                example: true
+                type: enum
+                enum: [off, when_sent, when_paid, end_of_month]
+                example: 'off'
             auto_archive_invoice:
                 description: "Toggles whether a invoice is archived immediately following payment"
                 type: boolean
@@ -252,7 +253,7 @@
                 type: string
                 example: "Quote Terms are..."
             invoice_taxes:
-                description: "Taxes can be applied to the invoice"
+                description: "The number of Taxes that can be applied to the invoice"
                 type: number
                 example: "1"
             invoice_design_id:
@@ -310,7 +311,8 @@
             email_sending_method:
                 description: "The email driver to use to send email, options include default, gmail, client_postmark, client_mailgun, client_brevo, office365"
                 type: string
-                example: default
+                enum: [default, gmail, office365, client_postmark, client_mailgun, mailgun, client_brevo]
+                example: 'default'
             gmail_sending_user_id:
                 description: "The hashed_id of the user account to send email from"
                 type: string
@@ -839,4 +841,13 @@
                 description: "The classification for the company"
                 type: string
                 example: "individual"
+            valid_until:
+                description: 'Default validity period for quotes'
+                type: string
+            credit_terms:
+                description: 'Default terms for credit notes'
+                type: string
+            credit_footer:
+                description: 'Default footer for credit notes'
+                type: string
         type: object
