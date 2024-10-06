@@ -400,7 +400,43 @@
       tags:
         - clients
       summary: 'Bulk client actions'
-      description: 'Archive / Restore / Delete in bulk'
+      description: |
+        Bulk actions allow to make changes to multiple clients in a single request the following actions are supported
+        
+        - archive
+        - restore
+        - delete
+        - template _requires template,template_id properties also_
+        - assign_group _requires group_settings_id also_
+        - bulk_update _ requires column,new_value also_
+
+        All of these actions require an array of client ids to perform the requested action on ie.
+
+        "ids":['id1','id2']
+
+        actions such as template, assign_group and bulk_update also require additional properties to be passed in the request
+
+        - template
+
+        The template bulk action allows the creation of a custom template using the provided template_id to be run against the array of clients provided.
+
+        - assign_group
+        
+        Allows the setting of multiple clients to a single group
+
+        - bulk_update
+
+        Allows updating certain columns on the client model in bulk. the current list of supported columns that can be updated archived_at:
+
+        - public_notes
+        - industry_id
+        - size_id
+        - country_id
+        - custom_value1
+        - custom_value2
+        - custom_value3
+        - custom_value4
+
       operationId: bulkClients
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -416,7 +452,7 @@
               
       responses:
         200:
-          description: 'The Client listresponse'
+          description: 'The Client list Response of the updated clients that were bulk updated'
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: '#/components/headers/X-MINIMUM-CLIENT-VERSION'
@@ -501,7 +537,7 @@
         - clients
       summary: 'Purge client'
       description: |
-            Handles purging a clients.
+            Handles purging a client.
 
             Please note this is a destructive action.
 
