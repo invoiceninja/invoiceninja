@@ -19,7 +19,7 @@ class PDF extends FPDI
 
     public function Footer()
     {
-        $this->SetXY(0, -6);
+        $this->SetXY(config('ninja.pdf_page_numbering_x_alignment'), config('ninja.pdf_page_numbering_y_alignment'));
 
         $this->SetFont('Arial', 'I', 9);
 
