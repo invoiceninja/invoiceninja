@@ -516,7 +516,7 @@ class CompanySettings extends BaseSettings
     public $quote_late_fee_amount1 = 0;
     public $quote_late_fee_percent1 = 0;
 
-    public string $payment_flow = 'default'; //smooth
+    public string $payment_flow = 'smooth'; //smooth
 
     public string $email_subject_payment_failed = '';
     public string $email_template_payment_failed = '';
