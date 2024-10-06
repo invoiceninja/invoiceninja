@@ -299,7 +299,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
             'gateway_type_id' => GatewayType::DIRECT_DEBIT,
         ];
 
-        $payment = $this->go_cardless->createPayment($data, Payment::STATUS_PENDING);
+        $_payment = $this->go_cardless->createPayment($data, Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
             ['response' => $payment, 'data' => $data],
@@ -310,7 +310,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
             $this->go_cardless->client->company,
         );
 
-        return redirect()->route('client.payments.show', ['payment' => $this->go_cardless->encodePrimaryKey($payment->id)]);
+        return redirect()->route('client.payments.show', ['payment' => $_payment->hashed_id]);
     }
 
     /**
