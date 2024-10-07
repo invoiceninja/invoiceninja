@@ -829,6 +829,9 @@ class HtmlEngine
             }
 
         }
+        if ($this->entity->company->tax_data->regions->EU->has_sales_above_threshold){
+            $tax_label .= ctrans('text.small_company_info') ."<br>";
+        }
 
         return $tax_label;
     }
