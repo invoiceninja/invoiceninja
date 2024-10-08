@@ -857,13 +857,13 @@ class Client extends BaseModel implements HasLocalePreference
         $terms = &$data['terms'];
         $footer = &$data['footer'];
 
-        if(!$terms || empty($terms)) {
+        if(empty($terms)) {
             $defaults['terms'] = $this->getSetting($entity_name.'_terms');
         } elseif ($terms) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if(!$footer || empty($footer)) {
+        if(empty($footer)) {
             $defaults['footer'] = $this->getSetting($entity_name.'_footer');
         } elseif ($footer) {
             $defaults['footer'] = $data['footer'];
