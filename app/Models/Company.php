@@ -126,7 +126,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $smtp_username
  * @property string|null $smtp_password
  * @property string|null $smtp_host
- * @property string|null $smtp_port
+ * @property int|null $smtp_port
  * @property string|null $smtp_encryption
  * @property string|null $smtp_local_domain
  * @property \App\DataMapper\QuickbooksSettings|null $quickbooks
