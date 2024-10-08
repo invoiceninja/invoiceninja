@@ -14,7 +14,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\ServiceProvider;
 
-class BroadcastServiceProvider extends ServiceProvider
+class BroadcastServiceProvider extends \Illuminate\Broadcasting\BroadcastServiceProvider
 {
     /**
      * Bootstrap any application services.

@@ -737,6 +737,7 @@ class HtmlEngine
         $data['$refund'] = ['value' => '', 'label' => ctrans('texts.refund')];
         $data['$refunded'] = ['value' => '', 'label' => ctrans('texts.refunded')];
 
+        $data['$payment.payment_balance'] = ['value' => '', 'label' => ctrans('texts.payment_balance')];
         $data['$payment.amount'] = ['value' => '', 'label' => ctrans('texts.payment')];
         $data['$payment.date'] = ['value' => '', 'label' => ctrans('texts.payment_date')];
         $data['$payment.number'] = ['value' => '', 'label' => ctrans('texts.payment_number')];

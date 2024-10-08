@@ -182,7 +182,7 @@
     "src": "resources/js/clients/payments/square-credit-card.js"
   },
   "resources/js/clients/payments/stripe-ach-pay.js": {
-    "file": "assets/stripe-ach-pay-22d14901.js",
+    "file": "assets/stripe-ach-pay-86d1beb3.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -372,7 +372,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-9c3f71d4.css",
+    "file": "assets/app-6dd57ed5.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

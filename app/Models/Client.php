@@ -857,19 +857,19 @@ class Client extends BaseModel implements HasLocalePreference
         $terms = &$data['terms'];
         $footer = &$data['footer'];
 
-        if (!$terms || ($terms && strlen((string)$terms) == 0)) {
+        if(!$terms || empty($terms)) {
             $defaults['terms'] = $this->getSetting($entity_name.'_terms');
         } elseif ($terms) {
             $defaults['terms'] = $data['terms'];
         }
 
-        if (!$footer || ($footer && strlen((string)$footer) == 0)) {
+        if(!$footer || empty($footer)) {
             $defaults['footer'] = $this->getSetting($entity_name.'_footer');
         } elseif ($footer) {
             $defaults['footer'] = $data['footer'];
         }
 
-        if (is_string($this->public_notes) && strlen($this->public_notes) >= 1) {
+        if (strlen($this->public_notes ?? '') >= 1) {
             $defaults['public_notes'] = $this->public_notes;
         }
 
