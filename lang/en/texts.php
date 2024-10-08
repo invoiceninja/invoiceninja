@@ -5358,7 +5358,7 @@ $lang = array(
     'end_all_sessions_help' => 'Logs out all users and requires all active users to reauthenticate.',
     'updated_records' => 'Updated Records',
     'vat_not_registered' => 'Seller not VAT registered',
-    'text.small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG'
+    'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG'
 );
 
 return $lang;

@@ -828,9 +828,9 @@ class HtmlEngine
             if($this->entity_calc->getTotalTaxes() > 0) {
                 $tax_label = '';
             }
-
         }
-        if ($this->entity->company->tax_data->regions->EU->has_sales_above_threshold){
+
+        if (!$this->entity->company->tax_data->regions->EU->has_sales_above_threshold ?? false){
             $tax_label .= ctrans('text.small_company_info') ."<br>";
         }
 
