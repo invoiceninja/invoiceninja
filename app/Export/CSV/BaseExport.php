@@ -452,6 +452,7 @@ class BaseExport
         'billable' => 'task.billable',
         'item_notes' => 'task.item_notes',
         'time_log' => 'task.time_log',
+        'log_duration_words' => 'task.time_log_duration_words',
         'user' => 'task.user_id',
         'assigned_user' => 'task.assigned_user_id',
     ];

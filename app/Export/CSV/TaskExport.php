@@ -164,6 +164,8 @@ class TaskExport extends BaseExport
 
         }
 
+        $entity = $this->decorateAdvancedFields($task, $entity);
+
         $entity = $this->convertFloats($entity);
 
         if (is_null($task->time_log) || (is_array(json_decode($task->time_log, true)) && count(json_decode($task->time_log, true)) == 0)) {
@@ -210,7 +212,9 @@ class TaskExport extends BaseExport
                 $entity['task.duration'] = $seconds;
                 $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
 
-                $entity['task.time_log'] = (isset($item[1]) && $item[1] != 0) ? $item[1] - $item[0] : ctrans('texts.is_running');
+                $time_log_entry = (isset($item[1]) && $item[1] != 0) ? $item[1] - $item[0] : ctrans('texts.is_running');
+                $entity['task.time_log'] = $time_log_entry;
+                $entity['task.time_log_duration_words'] =  is_int($time_log_entry) && $time_log_entry > 86400 ? CarbonInterval::seconds($time_log_entry)->locale($this->company->locale())->cascade()->forHumans() : $time_log_entry;
 
             }
 
@@ -222,7 +226,7 @@ class TaskExport extends BaseExport
                 $entity['task.item_notes'] = isset($item[2]) ? (string)$item[2] : '';
             }
 
-            $entity = $this->decorateAdvancedFields($task, $entity);
+            
             
             $this->storage_array[] = $entity;
 
@@ -232,6 +236,8 @@ class TaskExport extends BaseExport
             $entity['task.end_time'] = '';
             $entity['task.duration'] = '';
             $entity['task.duration_words'] = '';
+            $entity['task.time_log'] = '';
+            $entity['task.time_log_duration_words'];
             $entity['task.billable'] = '';
             $entity['task.item_notes'] = '';
 
