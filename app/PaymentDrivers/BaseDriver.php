@@ -430,6 +430,11 @@ class BaseDriver extends AbstractPaymentDriver
             $invoice_item->quantity = 1;
             $invoice_item->cost = (float)$fee_total;
 
+            if($invoice->discount > 0 && !$invoice->is_amount_discount){
+                $invoice_item->discount = -1 * $invoice->discount;
+                $invoice_item->is_amount_discount = false;
+            }
+
             $invoice_items = $invoice->line_items;
             $invoice_items[] = $invoice_item;
 
@@ -443,7 +448,7 @@ class BaseDriver extends AbstractPaymentDriver
                 $invoice_item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_OVERRIDE_TAX;
             }
 
-            $invoice->line_items = $invoice_items;
+            $invoice->line_items = array_values($invoice_items);
 
             /**Refresh Invoice values*/
             $invoice = $invoice->calc()->getInvoice();
