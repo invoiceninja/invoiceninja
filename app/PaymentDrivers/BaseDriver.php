@@ -409,7 +409,6 @@ class BaseDriver extends AbstractPaymentDriver
                         ->count();
 
         if($invoice && $fee_count == 0){
-
             
             nlog("apparently no fee, so injecting here!");
 
