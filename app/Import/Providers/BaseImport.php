@@ -194,6 +194,32 @@ class BaseImport
 
     }
 
+    public function groupClients($csvData, $key)
+    {
+        if(!$key || !isset($csvData[0][$key]))
+            return $csvData;
+
+        $grouped = [];
+
+        // Group by client name / id.
+        $grouped = [];
+
+        foreach ($csvData as $contact_item) {
+            if (empty($contact_item[$key])) {
+                $this->error_array['client'][] = [
+                    'client' => $contact_item,
+                    'error' => 'No client identifier',
+                ];
+            } else {
+                $grouped[$contact_item[$key]][] = $contact_item;
+            }
+        }
+
+        return $grouped;
+
+
+    }
+
     private function groupInvoices($csvData, $key)
     {
         if (! $key) {

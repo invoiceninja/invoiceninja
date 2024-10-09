@@ -347,8 +347,6 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-        nlog($data);
-        nlog($field);
         
         if (array_key_exists($field, $data)) {
 
