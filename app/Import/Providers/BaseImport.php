@@ -623,6 +623,11 @@ class BaseImport
                                 $invoice_data['payments']
                                 as $payment_data
                             ) {
+
+                                if($payment_data['amount'] == 0 && $invoice_data['status_id'] == 4){
+                                    $payment_data['amount'] = $invoice->amount;
+                                }
+
                                 $payment_data['user_id'] = $invoice->user_id;
                                 $payment_data['client_id'] =
                                     $invoice->client_id;
