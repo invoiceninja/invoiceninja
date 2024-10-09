@@ -122,7 +122,9 @@ class SendEDocument implements ShouldQueue
 
         $activity->save();
 
-        $model->backup = str_replace('"', '', $guid);
+        $std = new \stdClass;
+        $std->guid = str_replace('"', '', $guid);
+        $model->backup = $std;
         $model->saveQuietly();
 
     }

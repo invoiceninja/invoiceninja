@@ -405,11 +405,10 @@ class BaseDriver extends AbstractPaymentDriver
                             return $item;
                         })
                         ->whereIn('type_id', ['3'])
-                        ->where('gross_line_total', '<=', round($fee_total,2))
+                        // ->where('gross_line_total', '<=', round($fee_total,2))
                         ->count();
 
         if($invoice && $fee_count == 0){
-
             
             nlog("apparently no fee, so injecting here!");
 

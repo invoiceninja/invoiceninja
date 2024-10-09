@@ -324,7 +324,7 @@ class BaseRepository
             }
 
             /** If Peppol is enabled - we will save the e_invoice document here at this point, document will not update after being sent */
-            if(strlen($model->backup ?? '') == 0 && $client->getSetting('e_invoice_type') == 'PEPPOL' && $model->company->legal_entity_id)
+            if((!isset($model->backup) || !property_exists($model->backup, 'guid')) && $client->getSetting('e_invoice_type') == 'PEPPOL' && $model->company->legal_entity_id)
             {
                 try{
                     $model->service()->getEInvoice();
