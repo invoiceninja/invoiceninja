@@ -264,7 +264,7 @@ class CreditCard implements LivewireMethodInterface
         return 'gateways.powerboard.credit_card.pay_livewire';
     }
 
-    public function tokenBilling($request, $cgt, $client_present = false)
+    public function tokenBilling($cgt, $client_present = false)
     {
 
         $payload = [
@@ -352,7 +352,7 @@ class CreditCard implements LivewireMethodInterface
                         ->where('token', $request->token)
                         ->first();
 
-            return $this->tokenBilling($request, $cgt, true);
+            return $this->tokenBilling($cgt, true);
             
         }
         elseif($request->browser_details)

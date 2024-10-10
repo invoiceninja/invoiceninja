@@ -201,4 +201,23 @@ class Subscription extends BaseModel
                 return null;
         }
     }
+    
+    /**
+     * Calculates the maximum product quantity available
+     *
+     * @param  mixed $product
+     * @return int
+     */
+    public function maxQuantity(mixed $product): int
+    {
+        $max_quantity = data_get($product, 'max_quantity', 0);
+        $in_stock_quantity = data_get($product, 'in_stock_quantity', 0);
+        $max_limit = 100;
+
+        if(!$this->use_inventory_management)
+            return $max_quantity != 0 ? $max_quantity : $max_limit;
+
+        return $max_quantity !=0 ? $max_quantity : min($max_limit, $in_stock_quantity);
+        
+    }
 }
