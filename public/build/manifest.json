@@ -174,7 +174,7 @@
     "src": "resources/js/clients/payments/razorpay-aio.js"
   },
   "resources/js/clients/payments/square-credit-card.js": {
-    "file": "assets/square-credit-card-2fc5c3fa.js",
+    "file": "assets/square-credit-card-9e88c754.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],

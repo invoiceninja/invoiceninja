@@ -49,6 +49,14 @@ class SquareCreditCard {
         document.getElementById('errors').hidden = true;
         e.target.parentElement.disabled = true;
 
+        let payNowButton = document.getElementById('pay-now');
+        this.payNowButton = payNowButton;
+
+        this.payNowButton.disabled = true;
+
+        this.payNowButton.querySelector('svg').classList.remove('hidden');
+        this.payNowButton.querySelector('span').classList.add('hidden');
+
         let result = await this.card.tokenize();
 
         /* SCA */
@@ -99,10 +107,22 @@ class SquareCreditCard {
         document.getElementById('errors').hidden = false;
 
         e.target.parentElement.disabled = false;
+        this.payNowButton.disabled = false;
+
+        this.payNowButton.querySelector('svg').classList.add('hidden');
+        this.payNowButton.querySelector('span').classList.remove('hidden');
     }
 
     async completePaymentUsingToken(e) {
         e.target.parentElement.disabled = true;
+
+        let payNowButton = document.getElementById('pay-now');
+        this.payNowButton = payNowButton;
+
+        this.payNowButton.disabled = true;
+
+        this.payNowButton.querySelector('svg').classList.remove('hidden');
+        this.payNowButton.querySelector('span').classList.add('hidden');
 
         return document.getElementById('server_response').submit();
     }
@@ -173,7 +193,14 @@ class SquareCreditCard {
                     document.querySelector('input[name=token]').value = '';
                 });
 
-            document.getElementById('loader').classList.add('hidden');
+                Array.from(
+                        document.getElementsByClassName('loader')
+                    ).forEach((element) => {
+
+                    element.classList.add('hidden');
+
+                });
+
             document.getElementById('payment-list').classList.remove('hidden');
             document.getElementById('toggle-payment-with-credit-card')?.click();
 
