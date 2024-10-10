@@ -51,7 +51,7 @@ class Storecove
         "identifier" => "1200109963131"
     ];
 
-    private ?int $legal_entity_id;
+    private ?int $legal_entity_id = null;
 
     public StorecoveRouter $router;
 

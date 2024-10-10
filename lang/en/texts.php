@@ -5359,7 +5359,17 @@ $lang = array(
     'updated_records' => 'Updated Records',
     'vat_not_registered' => 'Seller not VAT registered',
     'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
-    'log_duration_words' => 'Log duration in words'
+    'log_duration_words' => 'Log duration in words',
+    'peppol_onboarding' => 'Looks like it\'s your first time using PEPPOL.',
+    'get_started' => 'Get Started',
+    'configure_peppol' => 'Configure PEPPOL',
+    'step' => 'Step',
+    'peppol_whitelabel_warning' => 'In order to use PEPPOL, you need to have white-label license.',
+    'peppol_plan_warning' => 'In order to use PEPPOL, you need to be on paid plan.',
+    'peppol_credits_info' => 'Text how they need a credits to operate with PEPPOL.',
+    'buy_credits' => 'Buy Credits',
+    'peppol_successfully_configured' => 'PEPPOL successsfully configured.', 
+
 );
 
 return $lang;
