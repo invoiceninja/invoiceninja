@@ -222,7 +222,7 @@ class Storecove
         }
 
         $company_defaults = [
-            'acts_as_receiver' => true,
+            'acts_as_receiver' => false,
             'acts_as_sender' => true,
             'advertisements' => ['invoice'],
         ];
