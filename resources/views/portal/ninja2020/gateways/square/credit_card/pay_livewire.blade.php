@@ -56,7 +56,7 @@
     @include('portal.ninja2020.gateways.includes.payment_details')
 
     @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
-        <div class="flex flex-col" >
+        <div class="flex flex-col">
             <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
         </div>
 
