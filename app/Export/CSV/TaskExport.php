@@ -62,9 +62,8 @@ class TaskExport extends BaseExport
 
         if (count($this->input['report_keys']) == 0) {
             $this->input['report_keys'] = array_values($this->task_report_keys);
+            $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
         }
-
-        $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
 
         $query = Task::query()
                         ->withTrashed()
@@ -207,15 +206,23 @@ class TaskExport extends BaseExport
                 $entity['task.end_time'] = ctrans('texts.is_running');
             }
 
+            $seconds = $task->calcDuration();
+            $time_log_entry = (isset($item[1]) && $item[1] != 0) ? $item[1] - $item[0] : ctrans('texts.is_running');
+
             if (in_array('task.duration', $this->input['report_keys']) || in_array('duration', $this->input['report_keys'])) {
-                $seconds = $task->calcDuration();
                 $entity['task.duration'] = $seconds;
-                $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
+            }
 
-                $time_log_entry = (isset($item[1]) && $item[1] != 0) ? $item[1] - $item[0] : ctrans('texts.is_running');
+            if (in_array('task.time_log', $this->input['report_keys']) || in_array('time_log', $this->input['report_keys'])) {
                 $entity['task.time_log'] = $time_log_entry;
-                $entity['task.time_log_duration_words'] =  is_int($time_log_entry) && $time_log_entry > 86400 ? CarbonInterval::seconds($time_log_entry)->locale($this->company->locale())->cascade()->forHumans() : $time_log_entry;
+            }
 
+            if (in_array('task.time_log_duration_words', $this->input['report_keys']) || in_array('time_log_duration_words', $this->input['report_keys'])) {
+                $entity['task.time_log_duration_words'] =  is_int($time_log_entry) ? CarbonInterval::seconds($time_log_entry)->locale($this->company->locale())->cascade()->forHumans() : $time_log_entry;
+            }
+
+            if (in_array('task.duration_words', $this->input['report_keys']) || in_array('duration_words', $this->input['report_keys'])) {
+                $entity['task.duration_words'] =  $seconds > 86400 ? CarbonInterval::seconds($seconds)->locale($this->company->locale())->cascade()->forHumans() : now()->startOfDay()->addSeconds($seconds)->format('H:i:s');
             }
 
             if (in_array('task.billable', $this->input['report_keys']) || in_array('billable', $this->input['report_keys'])) {
@@ -227,7 +234,6 @@ class TaskExport extends BaseExport
             }
 
             
-            
             $this->storage_array[] = $entity;
 
             $entity['task.start_date'] = '';
@@ -237,7 +243,7 @@ class TaskExport extends BaseExport
             $entity['task.duration'] = '';
             $entity['task.duration_words'] = '';
             $entity['task.time_log'] = '';
-            $entity['task.time_log_duration_words'];
+            $entity['task.time_log_duration_words'] = '';
             $entity['task.billable'] = '';
             $entity['task.item_notes'] = '';
 
