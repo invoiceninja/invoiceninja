@@ -404,7 +404,7 @@ class BaseDriver extends AbstractPaymentDriver
                             $item->gross_line_total = round($item->gross_line_total, 2);
                             return $item;
                         })
-                        ->whereIn('type_id', ['3'])
+                        ->whereIn('type_id', ['3','4'])
                         ->count();
 
         if($invoice && $fee_count == 0){
