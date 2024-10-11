@@ -223,6 +223,7 @@ class CompanyTransformer extends EntityTransformer
             'has_quickbooks_token' => $company->quickbooks ? true : false,
             'is_quickbooks_token_active' => $company->quickbooks?->accessTokenKey ?? false,
             'legal_entity_id' => $company->legal_entity_id ?? null,
+            'e_invoicing_token' => $company->e_invoicing_token ?? null,
         ];
     }
 
