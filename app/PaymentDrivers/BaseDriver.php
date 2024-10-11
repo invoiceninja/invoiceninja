@@ -455,12 +455,7 @@ class BaseDriver extends AbstractPaymentDriver
             $new_balance = $invoice->balance;
 
             if (floatval($new_balance) - floatval($balance) != 0) {
-                $adjustment = $new_balance - $balance;
-
-                $invoice
-                ->ledger()
-                ->updateInvoiceBalance($adjustment, 'Adjustment for adding gateway fee **Base Driver**');
-
+                $adjustment = $new_balance - $balance; 
                 $invoice->client->service()->calculateBalance();
             }
 
