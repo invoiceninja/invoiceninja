@@ -202,11 +202,7 @@ class RegisterOrLogin extends Component
 
         $this->register_fields = [...collect($this->subscription->company->client_registration_fields ?? [])->toArray()];
 
-        // if ($this->subscription->company->settings->client_portal_terms || $this->subscription->company->settings->client_portal_privacy_policy) {
-        //     $this->register_fields[] = ['key' => 'terms', 'required' => true, 'visible' => 'true'];
-        // }
-
-        $first_gateway = collect($this->subscription->company->company_gateways)
+        $first_gateway = collect($this->subscription->company->company_gateways()->withoutTrashed()->get())
             ->sortBy('sort_order')
             ->first();
 

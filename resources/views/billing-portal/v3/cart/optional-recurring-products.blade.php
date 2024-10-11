@@ -38,7 +38,7 @@
 
                         <select id="{{ $product['hashed_id'] }}" wire:change="quantity($event.target.id, $event.target.value)" class="rounded-md border-gray-300 shadow-sm sm:text-sm" {{ $subscription->use_inventory_management && $product['in_stock_quantity'] < 1 ? 'disabled' : '' }}>
                             <option {{ $entry['quantity'] == '0' ? 'selected' : '' }} value="0" selected="selected">0</option>
-                            @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product['in_stock_quantity'], min(100,$product['max_quantity'])) : min(100,$product['max_quantity'])); $i++)
+                            @for ($i = 1; $i <= $subscription->maxQuantity($product); $i++)
                                 <option {{ $entry['quantity'] == $i ? 'selected' : '' }} value="{{ $i }}">{{ $i }}</option>
                             @endfor
                         </select>

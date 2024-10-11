@@ -116,7 +116,7 @@ class Summary extends Component
         return \sprintf(
             '%s/%s',
             Number::formatMoney($recurring + $recurring_optional, $this->subscription->company),
-            RecurringInvoice::frequencyForKey($this->subscription->frequency_id)
+            RecurringInvoice::frequencyForKey($this->subscription->frequency_id ?? 0)
         );
     }
 
