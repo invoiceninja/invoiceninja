@@ -41,10 +41,10 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $update_products
  * @property bool $show_product_details
  * @property bool $client_can_register
- * @property int $custom_surcharge_taxes1
- * @property int $custom_surcharge_taxes2
- * @property int $custom_surcharge_taxes3
- * @property int $custom_surcharge_taxes4
+ * @property bool $custom_surcharge_taxes1
+ * @property bool $custom_surcharge_taxes2
+ * @property bool $custom_surcharge_taxes3
+ * @property bool $custom_surcharge_taxes4
  * @property int $show_product_cost
  * @property int $enabled_tax_rates
  * @property int $enabled_modules

@@ -165,9 +165,17 @@ class InvoiceController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
+
+        /** @var \App\Models\Company $company */
+        $company = auth()->user()->company();
+
         $invoice = InvoiceFactory::create($user->company()->id, $user->id);
         $invoice->date = now()->addSeconds($user->company()->utc_offset())->format('Y-m-d');
-
+        $invoice->custom_surcharge_tax1 = $company->custom_surcharge_taxes1;
+        $invoice->custom_surcharge_tax2 = $company->custom_surcharge_taxes2;
+        $invoice->custom_surcharge_tax3 = $company->custom_surcharge_taxes3;
+        $invoice->custom_surcharge_tax4 = $company->custom_surcharge_taxes4;
+        
         return $this->itemResponse($invoice);
     }
 
