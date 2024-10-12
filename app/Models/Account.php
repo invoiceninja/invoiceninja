@@ -58,7 +58,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property bool $is_scheduler_running
  * @property int|null $trial_duration
  * @property bool $is_onboarding
- * @property object|null $onboarding
+ * @property object|array|null $onboarding
  * @property bool $is_migrated
  * @property string|null $platform
  * @property int|null $hosted_client_count
