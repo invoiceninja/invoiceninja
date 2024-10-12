@@ -52,7 +52,7 @@
 </head>
 <body>
     <ninja>
-        {% if projects|e %}
+        {% if projects is defined and projects is not empty %}
         {% for project in projects %}
 
         <h1>{{ project.name }}</h1>
