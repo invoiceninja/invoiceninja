@@ -35,7 +35,7 @@ class TaxModel
             $this->regions = $this->init();
         } else {
 
-            if(is_null($model->seller_subregion)) {
+            if(is_null($model->seller_subregion)) {//@phpstan-ignore-line
                 $this->seller_subregion = '';
             }
 
