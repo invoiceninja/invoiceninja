@@ -37,7 +37,7 @@ class ParseEDocument extends AbstractService
      * @developer the function should be implemented with local first aproach to save costs of external providers (like mindee ocr)
      *
      * @return Expense
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function run(): Expense
     {
@@ -57,7 +57,7 @@ class ParseEDocument extends AbstractService
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
                 try {
                     return (new ZugferdEDocument($this->file, $this->company))->run();
-                } catch (Throwable $e) {
+                } catch (\Throwable $e) {
                     nlog("Zugferd Exception: " . $e->getMessage());
                 }
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:oasis:names:specification:ubl"):

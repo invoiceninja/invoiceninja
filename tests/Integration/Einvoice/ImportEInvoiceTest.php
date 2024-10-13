@@ -29,11 +29,22 @@ class ImportEInvoiceTest extends TestCase
     {
         $peppol_doc = file_get_contents(base_path('tests/Integration/Einvoice/samples/peppol.xml'));
 
+        //file present
         $this->assertNotNull($peppol_doc);
         
         $e = new EInvoice();
         $invoice = $e->decode('Peppol', $peppol_doc, 'xml');
 
+        //decodes as expected
         $this->assertNotNull($invoice);
+
+        //has prop we expect
+        $this->assertObjectHasProperty('UBLVersionID', $invoice);
+        
+        //has hydrated correctly
+        $this->assertInstanceOf(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $invoice);
+
+
+        
     }
 }

@@ -21,7 +21,7 @@ class UblEDocument extends AbstractService
     use SavesDocuments;
 
     /**
-     * @throws Exception
+     * @throws \Throwable
      */
     public function __construct(public UploadedFile $file, public Company $company)
     {
@@ -29,7 +29,7 @@ class UblEDocument extends AbstractService
     }
 
     /**
-     * @throws Exception
+     * @throws \Throwable
      */
     public function run(): Expense
     {
