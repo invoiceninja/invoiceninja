@@ -21,6 +21,7 @@ use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -61,7 +62,7 @@ class TemplateService
 
     private ?Vendor $vendor = null;
 
-    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice $entity;
+    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | Task | Project $entity;
 
     private Payment $payment;
 
@@ -92,14 +93,13 @@ class TemplateService
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
         $this->twig = new \Twig\Environment($loader, [
-                'debug' => true,
+            'debug' => true,
         ]);
 
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-
 
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
             return '<img src="' . $string . '" style="' . $style . '"></img>';
