@@ -13,6 +13,7 @@ namespace App\Services\EDocument\Imports;
 
 use App\Models\Company;
 use App\Factory\ExpenseFactory;
+use App\Services\AbstractService;
 use Illuminate\Http\UploadedFile;
 use App\Utils\Traits\SavesDocuments;
 
@@ -31,13 +32,15 @@ class UblEDocument extends AbstractService
     /**
      * @throws \Throwable
      */
-    public function run(): Expense
+    public function run(): \App\Models\Expense
     {
 
         //parse doc
 
         //append file as an attachment to the document
 
+
+        /** @var \App\Models\Expense $expense */
         $expense = ExpenseFactory::create($this->company->id, $this->company->owner()->id);
 
         return $expense;
