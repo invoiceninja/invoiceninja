@@ -1311,19 +1311,21 @@ class TemplateService
      */
     private function resolveEntity(): string
     {
-        $entity_string = '';
-
-        //@phpstan-ignore-next-line
-        match($this->entity) {
-            ($this->entity instanceof Invoice) => $entity_string = 'invoice',
-            ($this->entity instanceof Quote)  => $entity_string = 'quote',
-            ($this->entity instanceof Credit) => $entity_string = 'credit',
-            ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
-            ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
-            default => $entity_string = 'invoice',
-        };
-
-        return $entity_string;
+        switch ($this->entity) {
+            case  ($this->entity instanceof Invoice):
+               return 'invoice';
+            case  ($this->entity instanceof Quote):
+               return 'quote';
+            case  ($this->entity instanceof Credit):
+               return 'credit';
+            case  ($this->entity instanceof RecurringInvoice):
+               return 'invoice';
+            case  ($this->entity instanceof PurchaseOrder):
+               return 'purchase_order';
+            
+            default:
+               return 'invoice';
+        }
 
     }
 
