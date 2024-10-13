@@ -21,6 +21,7 @@ use App\Models\Project;
 use App\Models\PurchaseOrder;
 use App\Models\Quote;
 use App\Models\RecurringInvoice;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Utils\HostedPDF\NinjaPdf;
@@ -61,7 +62,7 @@ class TemplateService
 
     private ?Vendor $vendor = null;
 
-    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice $entity;
+    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | Task | Project $entity;
 
     private Payment $payment;
 
@@ -92,14 +93,13 @@ class TemplateService
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
         $this->twig = new \Twig\Environment($loader, [
-                'debug' => true,
+            'debug' => true,
         ]);
 
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-
 
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
             return '<img src="' . $string . '" style="' . $style . '"></img>';
@@ -1311,19 +1311,21 @@ class TemplateService
      */
     private function resolveEntity(): string
     {
-        $entity_string = '';
-
-        //@phpstan-ignore-next-line
-        match($this->entity) {
-            ($this->entity instanceof Invoice) => $entity_string = 'invoice',
-            ($this->entity instanceof Quote)  => $entity_string = 'quote',
-            ($this->entity instanceof Credit) => $entity_string = 'credit',
-            ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
-            ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
-            default => $entity_string = 'invoice',
-        };
-
-        return $entity_string;
+        switch ($this->entity) {
+            case  ($this->entity instanceof Invoice):
+               return 'invoice';
+            case  ($this->entity instanceof Quote):
+               return 'quote';
+            case  ($this->entity instanceof Credit):
+               return 'credit';
+            case  ($this->entity instanceof RecurringInvoice):
+               return 'invoice';
+            case  ($this->entity instanceof PurchaseOrder):
+               return 'purchase_order';
+            
+            default:
+               return 'invoice';
+        }
 
     }
 
