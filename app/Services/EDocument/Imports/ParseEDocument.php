@@ -11,12 +11,13 @@
 
 namespace App\Services\EDocument\Imports;
 
+use Exception;
+use App\Utils\Ninja;
 use App\Models\Company;
 use App\Models\Expense;
 use App\Services\AbstractService;
-use App\Utils\Ninja;
-use Exception;
 use Illuminate\Http\UploadedFile;
+use App\Services\EDocument\Imports\UblEDocument;
 
 class ParseEDocument extends AbstractService
 {
@@ -56,8 +57,15 @@ class ParseEDocument extends AbstractService
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
                 try {
                     return (new ZugferdEDocument($this->file, $this->company))->run();
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     nlog("Zugferd Exception: " . $e->getMessage());
+                }
+            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:oasis:names:specification:ubl"):
+                try {
+                    return (new UblEDocument($this->file, $this->company))->run();
+                }
+                catch(\Throwable $e){
+                    nlog("UBL Import Exception: " . $e->getMessage());
                 }
         }
 
