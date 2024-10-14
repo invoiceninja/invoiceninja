@@ -107,6 +107,13 @@ class StripePaymentDriver extends BaseDriver
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
 
     /**
+     * Indicates if returning responses should be headless or classic redirect.
+     * 
+     * @var bool
+     */
+    public bool $headless = false;
+
+    /**
      * Initializes the Stripe API.
      * @return self
      */
