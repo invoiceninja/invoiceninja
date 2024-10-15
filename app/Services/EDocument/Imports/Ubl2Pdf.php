@@ -39,8 +39,14 @@ class Ubl2Pdf extends AbstractService
     {
         $client = $this->clientDetails();
         $supplier = $this->supplierDetails();
-        $invoiceLines = $this->invoiceLines();
+        $invoiceDetails = $this->invoiceDetails();
         $totals = $this->totals();
+
+        nlog($client);
+        nlog($supplier);
+        nlog($invoiceDetails);
+        nlog($totals);
+
     }
 
     private function clientDetails(): array
@@ -68,14 +74,17 @@ class Ubl2Pdf extends AbstractService
     private function supplierDetails(): array
     {
         return [
-            'name' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyName.0.name', ''),
+            'name' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyName.0.Name', ''),
             'address1' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.StreetName', ''),
             'address2' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.AdditionalStreetName', ''),
             'city' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CityName', ''),
             'state' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CountrySubentity', ''),
             'postal_code' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.PostalZone', ''),
             'country_id' => $this->resolveCountry(data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.Country.IdentificationCode.value', '')),
+            'routing_id' => data_get($this->invoice, 'AccountingSupplierParty.Party.EndpointID.value', ''),
+            'id_number' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyIdentification.0.ID.value', false),
             'vat_number' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyTaxScheme.0.CompanyID.value', ''),
+            'currency_id' => $this->resolveCurrencyId(data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code)),
             'contacts' => [
                 'first_name' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Name', ''),
                 'phone' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Telephone', ''),
@@ -84,31 +93,81 @@ class Ubl2Pdf extends AbstractService
         ];
     }
 
+    private function invoiceDetails(): array
+    {
+        return [
+            'number' => data_get($this->invoice, 'ID.value', ''),
+            'date' => data_get($this->invoice, 'IssueDate', ''),
+            'due_date' => data_get($this->invoice, 'DueDate', ''),
+            // 'type' => data_get($this->invoice, 'InvoiceTypeCode.value', ''),
+            'line_items' => $this->invoiceLines(),
+            'terms' => $this->harvestTerms(),
+            'public_notes' => data_get($this->invoice, 'Note', '')
+        ];
+    }
+    private function harvestTerms(): string
+    {
+
+        $payment_means = [];
+        $payment_means[] = data_get($this->invoice, 'PaymentMeans.0.PaymentMeansCode.name', false);
+        $payment_means[] = data_get($this->invoice, 'PaymentMeans.0.PaymentID.value', false);
+        $payment_means[] = data_get($this->invoice, 'PaymentMeans.0.PayeeFinancialAccount.ID.value', false);
+        $payment_means[] = data_get($this->invoice, 'PaymentMeans.0.PayeeFinancialAccount.Name', false);
+        $payment_means[] = data_get($this->invoice, 'PaymentMeans.0.PayeeFinancialAccount.FinancialInstitutionBranch.ID.value', false);
+        $payment_means[] = data_get($this->invoice, 'PaymentTerms.0.Note', false);
+
+        $private_notes = collect($payment_means)
+                                ->reject(function ($means) {
+                                    return $means === false;
+                                })->implode("\n");
+
+        return $private_notes;
+
+    }
+
     private function invoiceLines(): array
     {
-        $lines = data_get($this->invoice, 'invoiceLine', []);
+        $lines = data_get($this->invoice, 'InvoiceLine', []);
+
         return array_map(function ($line) {
             return [
-                'quantity' => data_get($line, 'InvoicedQuantity',0),
-                'unit_code' => data_get($line, 'InvoicedQuantity.UnitCode',0),
-                'line_extension_amount' => data_get($line, 'LineExtensionAmount',0),
-                'item' => [
-                    'name' => data_get($line, 'Item.Name',''),
-                    'description' => data_get($line, 'Item.Description',''),
-                ],
-                'price' => data_get($line, 'Price.PriceAmount',0),
+                'quantity' => data_get($line, 'InvoicedQuantity.amount', 0),
+                'unit_code' => data_get($line, 'InvoicedQuantity.UnitCode','C62'),
+                'product_key' => data_get($line, 'Item.Name', ''),
+                'notes' =>  data_get($line, 'Item.Description', ''),
+                'cost' => data_get($line, 'Price.PriceAmount.value', 0),
+                'tax_name1' => data_get($line, 'Item.ClassifiedTaxCategory.0.TaxScheme.ID.value', ''),
+                'tax_rate1' => data_get($line, 'Item.ClassifiedTaxCategory.0.Percent', 0),
+                'tax_name2' => data_get($line, 'Item.ClassifiedTaxCategory.1.TaxScheme.ID.value', ''),
+                'tax_rate2' => data_get($line, 'Item.ClassifiedTaxCategory.1.Percent', 0),
+                'tax_name3' => data_get($line, 'Item.ClassifiedTaxCategory.2.TaxScheme.ID.value', ''),
+                'tax_rate3' => data_get($line, 'Item.ClassifiedTaxCategory.2.Percent', 0),
+                'line_extension_amount' => data_get($line, 'LineExtensionAmount.amount', 0),
             ];
         }, $lines);
     }
 
     private function totals(): array
     {
+        $tax_inc = data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0);
+        $tax_ex = data_get($this->invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
+        $tax_amount = data_get($this->invoice, 'TaxTotal.0.TaxAmount', 0);
+
+        $taxes = [];
+
+        foreach(data_get($this->invoice, 'TaxTotal.0.TaxSubtotal', []) as $tax_subtotal)
+        {
+            $taxes[] = [
+                'subtotal' => data_get($tax_subtotal, 'TaxableAmount.amount', 0),
+                'tax_name' => data_get($tax_subtotal, 'TaxCategory.TaxScheme.ID.value', ''),
+                'tax_rate' => data_get($tax_subtotal, 'TaxAmount.amount', 0),
+            ];
+        }
+
         return [
-            'line_extension_amount' => data_get($this->invoice, 'LegalMonetaryTotal.LineExtensionAmount',0),
-            'tax_exclusive_amount' => data_get($this->invoice, 'LegalMonetaryTotal.TaxExclusiveAmount',0),
-            'tax_inclusive_amount' => data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount',0),
-            'charge_total_amount' => data_get($this->invoice, 'LegalMonetaryTotal.ChargeTotalAmount',0),
-            'payable_amount' => data_get($this->invoice, 'LegalMonetaryTotal.PayableAmount',0),
+            'subtotal' => data_get($this->invoice, 'LegalMonetaryTotal.LineExtensionAmount.amount', 0),
+            'total' => data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0),
+            'taxes' => $taxes,
         ];
     }
 
