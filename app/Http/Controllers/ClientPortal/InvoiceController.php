@@ -91,7 +91,6 @@ class InvoiceController extends Controller
 
         return auth()->guard('contact')->user()->client->getSetting('payment_flow') == 'default' ? $this->render('invoices.show', $data) : $this->render('invoices.show_smooth', $data);
 
-        // return $this->render('invoices.show_smooth', $data);
     }
 
     public function showBlob($hash)

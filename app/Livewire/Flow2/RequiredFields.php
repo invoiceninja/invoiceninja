@@ -61,12 +61,12 @@ class RequiredFields extends Component
 
         $this->fields = $this->getContext()['fields'];
 
+        $contact = auth()->guard('contact')->user();
+
         $this->company_gateway = CompanyGateway::withTrashed()
             ->with('company')
             ->find($this->getContext()['company_gateway_id']);
-
-        $contact = auth()->guard('contact')->user();
-
+        
         $this->client_name = $contact->client->name;
         $this->contact_first_name = $contact->first_name;
         $this->contact_last_name = $contact->last_name;
@@ -138,9 +138,8 @@ class RequiredFields extends Component
     
     public function exception($e, $stopPropagation) 
     {
-       
+        app('sentry')->captureException($e);
         nlog($e->getMessage());
-
         $stopPropagation();
 
     }

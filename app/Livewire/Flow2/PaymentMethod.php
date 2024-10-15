@@ -78,9 +78,7 @@ class PaymentMethod extends Component
 
     public function exception($e, $stopPropagation) 
     {
-       
-        nlog($e->getMessage());
+        app('sentry')->captureException($e);
         $stopPropagation();
-
     }
 }
