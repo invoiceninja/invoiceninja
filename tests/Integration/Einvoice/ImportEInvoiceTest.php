@@ -12,7 +12,10 @@
 namespace Tests\Integration\Einvoice;
 
 use Tests\TestCase;
+use App\Utils\TempFile;
+use Tests\MockAccountData;
 use InvoiceNinja\EInvoice\EInvoice;
+use App\Services\EDocument\Imports\UblEDocument;
 
 
 /**
@@ -20,9 +23,27 @@ use InvoiceNinja\EInvoice\EInvoice;
  */
 class ImportEInvoiceTest extends TestCase
 {
+    
+use MockAccountData;
+
     protected function setUp(): void
     {
         parent::setUp();
+        
+        $this->makeTestData();
+
+    }
+
+    public function testImportExpenseEinvoice()
+    {
+        $file = file_get_contents(base_path('tests/Integration/Einvoice/samples/peppol.xml'));
+        
+        $file = TempFile::UploadedFileFromRaw($file, 'peppol.xml', 'xml');
+
+        $expense = (new UblEDocument($file, $this->company))->run();
+
+        $this->assertNotNull($expense);
+        
     }
 
     public function testParsingDocument()
@@ -45,57 +66,76 @@ class ImportEInvoiceTest extends TestCase
         $this->assertInstanceOf(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $invoice);
 
 
-
     }
 
-    // public function testHtmlConversion()
-    // {
+
+    public function testHtmlConversion()
+    {
                 
-    //     // Load the XML source
-    //     $xml = new \DOMDocument();
-    //     $xml->load(base_path('tests/Integration/Einvoice/samples/peppol.xml'));
+        // Load the XML source
+        $xml = new \DOMDocument();
+        $xml->load(base_path('tests/Integration/Einvoice/samples/peppol.xml'));
 
-    //     // Load XSLT stylesheet
-    //     $xsl = new \DOMDocument();
-    //     $xsl->load(base_path('tests/Integration/Einvoice/samples/peppol.xslt'));
+        // Load XSLT stylesheet
+        $xsl = new \DOMDocument();
+        $xsl->load(base_path('tests/Integration/Einvoice/samples/peppol.xslt'));
 
-    //     // Configure the transformer
-    //     $proc = new \XSLTProcessor();
-    //     $proc->importStyleSheet($xsl); // attach the xsl rules
+        // Configure the transformer
+        $proc = new \XSLTProcessor();
+        $proc->importStyleSheet($xsl); // attach the xsl rules
 
-    //     $transformed = $proc->transformToXML($xml);
-
-    //     // determining if output is html document
-    //     $html = $transformed;
-
-    //     // splitting up html document at doctype and doc
-    //     $html_array = explode("\n", $html, 15);
-
-    //     $html_doc = array_pop($html_array);
-
-    //     $html_doctype = implode("\n", $html_array);
-
-    //     // convert XHTML syntax to HTML5
-    //     // <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-    //     // <!DOCTYPE html>
+// $proc->setParameter('', 'mode', 'document');
 
 
-    //     $html_doctype = preg_replace("/<!DOCTYPE [^>]+>/", "<!DOCTYPE html>", $html_doctype);
 
-    //     // <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    //     // <html lang="en">
+// libxml_use_internal_errors(true);
+// // ... your existing code ...
+
+// $transformed = $proc->transformToXML($xml);
+// if ($transformed === false) {
+//     foreach (libxml_get_errors() as $error) {
+//         nlog($error->message);
+//     }
+// } else {
+//     nlog($transformed);
+// }
+// libxml_clear_errors();
 
 
-    //     $html_doctype = preg_replace('/ xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"| xml:lang="[^\"]*\"/', '', $html_doctype);
+
+//         nlog($transformed);
+
+        // // determining if output is html document
+        // $html = $transformed;
+
+        // // splitting up html document at doctype and doc
+        // $html_array = explode("\n", $html, 15);
+
+        // $html_doc = array_pop($html_array);
+
+        // $html_doctype = implode("\n", $html_array);
+
+        // // convert XHTML syntax to HTML5
+        // // <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+        // // <!DOCTYPE html>
 
 
-    //     // <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-    //     // to this --> <meta charset="utf-8" />
+        // $html_doctype = preg_replace("/<!DOCTYPE [^>]+>/", "<!DOCTYPE html>", $html_doctype);
 
-    //     $html_doctype = preg_replace('/<meta http-equiv=\"Content-Type\" content=\"text\/html; charset=(.*[a-z0-9-])\" \/>/i', '<meta charset="\1" />', $html_doctype);
+        // // <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+        // // <html lang="en">
 
-    //     $html = $html_doctype . "\n" . $html_doc;
-    //     nlog($html);
 
-    // }
+        // $html_doctype = preg_replace('/ xmlns=\"http:\/\/www.w3.org\/1999\/xhtml\"| xml:lang="[^\"]*\"/', '', $html_doctype);
+
+
+        // // <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        // // to this --> <meta charset="utf-8" />
+
+        // $html_doctype = preg_replace('/<meta http-equiv=\"Content-Type\" content=\"text\/html; charset=(.*[a-z0-9-])\" \/>/i', '<meta charset="\1" />', $html_doctype);
+
+        // $html = $html_doctype . "\n" . $html_doc;
+        // nlog($html);
+
+    }
 }

@@ -41,6 +41,8 @@ class ParseEDocument extends AbstractService
      */
     public function run(): Expense
     {
+        nlog("starting");
+        nlog($this->company->id);
 
         /** @var \App\Models\Account $account */
         $account = $this->company->owner()->account;
@@ -51,7 +53,6 @@ class ParseEDocument extends AbstractService
         // ZUGFERD - try to parse via Zugferd lib
         switch (true) {
             case ($extension == 'pdf' || $mimetype == 'application/pdf'):
-            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"):
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.1"):
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_2.0"):
@@ -60,6 +61,7 @@ class ParseEDocument extends AbstractService
                 } catch (\Throwable $e) {
                     nlog("Zugferd Exception: " . $e->getMessage());
                 }
+            case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:oasis:names:specification:ubl"):
                 try {
                     return (new UblEDocument($this->file, $this->company))->run();
