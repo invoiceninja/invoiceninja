@@ -11,18 +11,20 @@
 
 namespace App\Services\EDocument\Imports;
 
+use App\Utils\Ninja;
 use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Country;
 use App\Models\Expense;
+use App\Models\Currency;
 use App\Factory\VendorFactory;
 use App\Factory\ExpenseFactory;
 use App\Services\AbstractService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
 use InvoiceNinja\EInvoice\EInvoice;
 use App\Utils\Traits\SavesDocuments;
 use App\Factory\VendorContactFactory;
-use App\Models\Currency;
 use App\Repositories\ExpenseRepository;
 
 class Ubl2Pdf extends AbstractService
@@ -37,73 +39,91 @@ class Ubl2Pdf extends AbstractService
 
     public function run()
     {
-        $client = $this->clientDetails();
-        $supplier = $this->supplierDetails();
-        $invoiceDetails = $this->invoiceDetails();
-        $totals = $this->totals();
+                
+        App::forgetInstance('translator');
+        $t = app('translator');
+        App::setLocale($this->company->locale());
+        $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        nlog($client);
-        nlog($supplier);
-        nlog($invoiceDetails);
-        nlog($totals);
+        // nlog($client);
+        // nlog($supplier);
+        // nlog($invoiceDetails);
+        // nlog($totals);
+
+        $data = [
+            'client' => $this->clientDetails();
+            'supplier' => $this->supplierDetails();
+            'invoiceDetails' => $this->invoiceDetails();
+            'totals' => $this->totals();
+        ]
+    }
+
+    private function processValues(array $array): array
+    {
+
+        foreach($array as $key => $value)
+        {
+            if(empty($value))
+                unset($array[$key]);
+
+        }
+
+        return $array;
 
     }
 
     private function clientDetails(): array
     {
-        return [
-            'name' => data_get($this->invoice, 'AccountingCustomerParty.Party.PartyName.0.Name',''),
-            'address1' => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.StreetName',''),
-            'address2' => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.AdditionalStreetName',''),
-            'city' => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.CityName',''),
-            'state' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CountrySubentity',''),
-            'postal_code' => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.PostalZone',''),
-            'country_id' => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.Country.IdentificationCode.value',''),
-            'vat_number' => data_get($this->invoice, 'AccountingCustomerParty.Party.PartyTaxScheme.0.CompanyID.value',''),
-            'contacts' => [
-                'first_name' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Name',''),
-                'phone' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Telephone',''),
-                'email' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.ElectronicMail',''),
-            ],
-            'settings' => [
-                'currency_id' => $this->resolveCurrencyId(data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code))
-            ]
-        ];
+        return $this->processValues([
+            ctrans('texts.name') => data_get($this->invoice, 'AccountingCustomerParty.Party.PartyName.0.Name',''),
+            ctrans('texts.address1') => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.StreetName',''),
+            ctrans('texts.address2') => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.AdditionalStreetName',''),
+            ctrans('texts.city') => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.CityName',''),
+            ctrans('texts.state') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CountrySubentity',''),
+            ctrans('texts.postal_code') => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.PostalZone',''),
+            ctrans('texts.country_id') => data_get($this->invoice, 'AccountingCustomerParty.Party.PostalAddress.Country.IdentificationCode.value',''),
+            ctrans('texts.vat_number') => data_get($this->invoice, 'AccountingCustomerParty.Party.PartyTaxScheme.0.CompanyID.value',''),
+            ctrans('texts.contact_name') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Name',''),
+            ctrans('texts.phone') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Telephone',''),
+            ctrans('texts.email') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.ElectronicMail',''),
+        ]);
     }
 
     private function supplierDetails(): array
     {
-        return [
-            'name' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyName.0.Name', ''),
-            'address1' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.StreetName', ''),
-            'address2' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.AdditionalStreetName', ''),
-            'city' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CityName', ''),
-            'state' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CountrySubentity', ''),
-            'postal_code' => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.PostalZone', ''),
-            'country_id' => $this->resolveCountry(data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.Country.IdentificationCode.value', '')),
-            'routing_id' => data_get($this->invoice, 'AccountingSupplierParty.Party.EndpointID.value', ''),
-            'id_number' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyIdentification.0.ID.value', false),
-            'vat_number' => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyTaxScheme.0.CompanyID.value', ''),
-            'currency_id' => $this->resolveCurrencyId(data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code)),
-            'contacts' => [
-                'first_name' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Name', ''),
-                'phone' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Telephone', ''),
-                'email' => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.ElectronicMail', ''),
-            ],
-        ];
+        return $this->processValues([
+            ctrans('texts.name') => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyName.0.Name', ''),
+            ctrans('texts.address1') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.StreetName', ''),
+            ctrans('texts.address2') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.AdditionalStreetName', ''),
+            ctrans('texts.city') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CityName', ''),
+            ctrans('texts.state') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CountrySubentity', ''),
+            ctrans('texts.postal_code') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.PostalZone', ''),
+            ctrans('texts.country_id') => $this->resolveCountry(data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.Country.IdentificationCode.value', '')),
+            ctrans('texts.routing_id') => data_get($this->invoice, 'AccountingSupplierParty.Party.EndpointID.value', ''),
+            ctrans('texts.id_number') => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyIdentification.0.ID.value', false),
+            ctrans('texts.vat_number') => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyTaxScheme.0.CompanyID.value', ''),
+            ctrans('texts.currency_id') => $this->resolveCurrencyId(data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code)),
+            ctrans('texts.contact_name') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Name', ''),
+            ctrans('texts.phone') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Telephone', ''),
+            ctrans('texts.email') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.ElectronicMail', ''),
+        ]);
     }
 
     private function invoiceDetails(): array
     {
-        return [
-            'number' => data_get($this->invoice, 'ID.value', ''),
-            'date' => data_get($this->invoice, 'IssueDate', ''),
-            'due_date' => data_get($this->invoice, 'DueDate', ''),
-            // 'type' => data_get($this->invoice, 'InvoiceTypeCode.value', ''),
-            'line_items' => $this->invoiceLines(),
-            'terms' => $this->harvestTerms(),
-            'public_notes' => data_get($this->invoice, 'Note', '')
-        ];
+        $data = $this->processValues([
+            'currency' => data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code),
+            'doctype' => data_get($this->invoice, 'InvoiceTypeCode.value', "380"),
+            ctrans('texts.number') => data_get($this->invoice, 'ID.value', ''),
+            ctrans('texts.date') => data_get($this->invoice, 'IssueDate', ''),
+            ctrans('texts.due_date') => data_get($this->invoice, 'DueDate', ''),
+            ctrans('texts.terms') => $this->harvestTerms(),
+            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', '')
+        ]);
+
+        $data['line_items'] = $this->invoiceLines(),
+            
+        return $data;
     }
     private function harvestTerms(): string
     {
@@ -131,18 +151,18 @@ class Ubl2Pdf extends AbstractService
 
         return array_map(function ($line) {
             return [
-                'quantity' => data_get($line, 'InvoicedQuantity.amount', 0),
-                'unit_code' => data_get($line, 'InvoicedQuantity.UnitCode','C62'),
-                'product_key' => data_get($line, 'Item.Name', ''),
-                'notes' =>  data_get($line, 'Item.Description', ''),
-                'cost' => data_get($line, 'Price.PriceAmount.value', 0),
+                ctrans('texts.quantity') => data_get($line, 'InvoicedQuantity.amount', 0),
+                ctrans('texts.unit_code') => data_get($line, 'InvoicedQuantity.UnitCode','C62'),
+                ctrans('texts.product_key') => data_get($line, 'Item.Name', ''),
+                ctrans('texts.notes') =>  data_get($line, 'Item.Description', ''),
+                ctrans('texts.cost') => data_get($line, 'Price.PriceAmount.value', 0),
+                ctrans('texts.line_total') => data_get($line, 'LineExtensionAmount.amount', 0),
                 'tax_name1' => data_get($line, 'Item.ClassifiedTaxCategory.0.TaxScheme.ID.value', ''),
                 'tax_rate1' => data_get($line, 'Item.ClassifiedTaxCategory.0.Percent', 0),
                 'tax_name2' => data_get($line, 'Item.ClassifiedTaxCategory.1.TaxScheme.ID.value', ''),
                 'tax_rate2' => data_get($line, 'Item.ClassifiedTaxCategory.1.Percent', 0),
                 'tax_name3' => data_get($line, 'Item.ClassifiedTaxCategory.2.TaxScheme.ID.value', ''),
                 'tax_rate3' => data_get($line, 'Item.ClassifiedTaxCategory.2.Percent', 0),
-                'line_extension_amount' => data_get($line, 'LineExtensionAmount.amount', 0),
             ];
         }, $lines);
     }
