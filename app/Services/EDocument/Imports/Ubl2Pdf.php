@@ -252,8 +252,12 @@ class Ubl2Pdf extends AbstractService
         }
 
         return [
-            ctrans('texts.subtotal') => data_get($this->invoice, 'LegalMonetaryTotal.LineExtensionAmount.amount', 0),
-            ctrans('balance') => data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0),
+            'subtotal' => [
+                ctrans('texts.subtotal') => data_get($this->invoice, 'LegalMonetaryTotal.LineExtensionAmount.amount', 0),
+            ],
+            'balance' => [
+                ctrans('texts.balance_due') => data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0),
+            ],
             'taxes' => $taxes,
         ];
     }

@@ -288,18 +288,20 @@
             <td align="left" class="doc-title" width="50%"></td>
             <td align="right" width="50%">
 
-                <div class="two-col-grid">
-                {% for key,value in totals.taxes %}
-                        <dt class="order-details">{{ value.tax_name }} {{ value.tax_rate }}%</dt>
-                        <dd class="align-left">{{ value.subtotal|format_currency(metadata.currency) }}</dd>
-                    
+                <div class="two-col-grid" style="float:right;">
+                {% for key,value in totals.subtotal %}
+                <dt class="order-details">{{ key }}</dt>
+                <dd class="align-left">{{ value|format_currency(metadata.currency) }}</dd>
                 {% endfor %}
 
-                {% for key,value in totals %}
-                    {% if key != 'taxes' %}
-                        <dt class="order-details">{{ key }}</dt>
-                        <dd class="align-left">{{ value|format_currency(metadata.currency) }}</dd>
-                    {% endif %}
+                {% for key,value in totals.taxes %}
+                    <dt class="order-details">{{ value.tax_name }} {{ value.tax_rate }}%</dt>
+                    <dd class="align-left">{{ value.subtotal|format_currency(metadata.currency) }}</dd>
+                {% endfor %}
+
+                {% for key,value in totals.balance %}
+                    <dt class="order-details">{{ key }}</dt>
+                    <dd class="align-left">{{ value|format_currency(metadata.currency) }}</dd>
                 {% endfor %}
 
                 </div>
