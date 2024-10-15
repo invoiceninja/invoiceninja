@@ -58,14 +58,9 @@ class CustomPaymentDriver extends BaseDriver
         return $this;
     }
 
-    /**
-     * View for displaying custom content of the driver.
-     *
-     * @param array $data
-     * @return mixed
-     */
-    public function processPaymentView($data)
+    public function paymentData(array $data): array
     {
+
         $variables = [];
 
         if (count($this->payment_hash->invoices()) > 0) {
@@ -87,7 +82,31 @@ class CustomPaymentDriver extends BaseDriver
         $data['gateway'] = $this;
         $data['payment_hash'] = $this->payment_hash->hash;
 
+        return $data;
+
+    }
+
+    /**
+     * View for displaying custom content of the driver.
+     *
+     * @param array $data
+     * @return mixed
+     */
+    public function processPaymentView($data)
+    {
+        $data = $this->paymentData($data);
+
         return render('gateways.custom.payment', $data);
+    }
+
+    public function livewirePaymentView(array $data): string
+    {
+        return 'gateways.custom.pay_livewire';
+    }
+
+    public function processPaymentViewData(array $data): array
+    {
+        return $this->paymentData($data); 
     }
 
     /**

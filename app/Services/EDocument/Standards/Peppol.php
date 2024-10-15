@@ -992,7 +992,6 @@ class Peppol extends AbstractService
         $physical_location->Address = $address;
 
         $party->PhysicalLocation = $physical_location;
-        ;
 
         $contact = new Contact();
         $contact->ElectronicMail = $this->invoice->client->present()->email();

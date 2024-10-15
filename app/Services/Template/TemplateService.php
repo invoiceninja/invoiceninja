@@ -292,7 +292,7 @@ class TemplateService
      *
      * @return self
      */
-    private function parseNinjaBlocks(): self
+    public function parseNinjaBlocks(): self
     {
         $replacements = [];
 
@@ -350,6 +350,12 @@ class TemplateService
         return $this;
     }
 
+    public function setData(array $data): self
+    {
+        $this->data = $data;
+
+        return $this;
+    }
     /**
      * Parses all variables in the document
      *
@@ -379,7 +385,7 @@ class TemplateService
      *
      * @return self
      */
-    private function save(): self
+    public function save(): self
     {
         $this->compiled_html = str_replace('%24', '$', $this->document->saveHTML());
 
@@ -409,6 +415,14 @@ class TemplateService
 
     }
 
+    public function setRawTemplate(string $template):self
+    {
+                
+        @$this->document->loadHTML(mb_convert_encoding($template, 'HTML-ENTITIES', 'UTF-8'));
+
+        return $this;
+
+    }
     /**
      * Inject the template components
      * manually
