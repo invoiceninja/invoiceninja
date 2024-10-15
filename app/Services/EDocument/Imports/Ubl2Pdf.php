@@ -262,23 +262,23 @@ class Ubl2Pdf extends AbstractService
         ];
     }
 
-    private function resolveCountry(?string $iso_country_code): int
-    {
-        return Country::query()
-                        ->where('iso_3166_2', $iso_country_code)
-                        ->orWhere('iso_3166_3', $iso_country_code)
-                        ->first()?->id ?? (int)$this->company->settings->country_id;
-    }
+//     private function resolveCountry(?string $iso_country_code): int
+//     {
+//         return Country::query()
+//                         ->where('iso_3166_2', $iso_country_code)
+//                         ->orWhere('iso_3166_3', $iso_country_code)
+//                         ->first()?->id ?? (int)$this->company->settings->country_id;
+//     }
 
 
-    private function resolveCurrencyId(string $currency_code): int
-    {
+//     private function resolveCurrencyId(string $currency_code): int
+//     {
         
-        /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
-        $currencies = app('currencies');
+//         /** @var \Illuminate\Support\Collection<\App\Models\Currency> */
+//         $currencies = app('currencies');
 
-        return $currencies->first(function (Currency $c) use ($currency_code) {
-            return $c->code === $currency_code;
-        })?->id ?? (int) $this->company->settings->currency_id;
-    }
-}
+//         return $currencies->first(function (Currency $c) use ($currency_code) {
+//             return $c->code === $currency_code;
+//         })?->id ?? (int) $this->company->settings->currency_id;
+//     }
+// }
