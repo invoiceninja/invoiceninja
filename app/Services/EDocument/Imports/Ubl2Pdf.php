@@ -12,6 +12,7 @@
 namespace App\Services\EDocument\Imports;
 
 use App\Utils\Ninja;
+use App\Utils\Number;
 use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Country;
@@ -26,6 +27,7 @@ use InvoiceNinja\EInvoice\EInvoice;
 use App\Utils\Traits\SavesDocuments;
 use App\Factory\VendorContactFactory;
 use App\Repositories\ExpenseRepository;
+use App\Services\Template\TemplateService;
 
 class Ubl2Pdf extends AbstractService
 {
@@ -44,18 +46,57 @@ class Ubl2Pdf extends AbstractService
         $t = app('translator');
         App::setLocale($this->company->locale());
         $t->replace(Ninja::transformTranslations($this->company->settings));
-
+        $template = file_get_contents(resource_path('views/templates/ubl/td14.html'));
         // nlog($client);
         // nlog($supplier);
         // nlog($invoiceDetails);
         // nlog($totals);
 
         $data = [
-            'client' => $this->clientDetails();
-            'supplier' => $this->supplierDetails();
-            'invoiceDetails' => $this->invoiceDetails();
-            'totals' => $this->totals();
-        ]
+            'client' => $this->clientDetails(),
+            'supplier' => $this->supplierDetails(),
+            'invoiceDetails' => $this->invoiceDetails(),
+            'totals' => $this->totals(),
+            'metadata' => $this->metadata(),
+            'translations' => $this->getGenericTranslations(),
+            'css' => $this->customCss(),
+        ];
+
+        $ts = new TemplateService();
+        
+        $ts_instance = $ts->setCompany($this->company)
+                    ->setData($data)
+                    ->setRawTemplate($template)
+                    ->parseNinjaBlocks()
+                    ->save();
+
+        nlog($ts_instance->getHtml());
+
+    }
+
+    private function getGenericTranslations(): array
+    {
+        return [
+            'to' => ctrans('texts.to'),
+            'from' => ctrans('texts.from'),
+            'invoice' => ctrans('texts.invoice'),
+            'credit' => ctrans('texts.credit'),
+            'details' => ctrans('texts.details'),
+            'number' => ctrans('texts.number'),
+            'tax' => ctrans('texts.tax'),
+            
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+            // 'from' => ctrans('texts.from'),
+        ];
     }
 
     private function processValues(array $array): array
@@ -63,9 +104,11 @@ class Ubl2Pdf extends AbstractService
 
         foreach($array as $key => $value)
         {
-            if(empty($value))
+            if($value === null || $value === '')
                 unset($array[$key]);
 
+            if($value instanceof \DateTime)
+                $array[$key] = $value->format($this->company->date_format());
         }
 
         return $array;
@@ -98,33 +141,57 @@ class Ubl2Pdf extends AbstractService
             ctrans('texts.city') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CityName', ''),
             ctrans('texts.state') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.CountrySubentity', ''),
             ctrans('texts.postal_code') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.PostalZone', ''),
-            ctrans('texts.country_id') => $this->resolveCountry(data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.Country.IdentificationCode.value', '')),
+            ctrans('texts.country_id') => data_get($this->invoice, 'AccountingSupplierParty.Party.PostalAddress.Country.IdentificationCode.value', ''),
             ctrans('texts.routing_id') => data_get($this->invoice, 'AccountingSupplierParty.Party.EndpointID.value', ''),
             ctrans('texts.id_number') => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyIdentification.0.ID.value', false),
             ctrans('texts.vat_number') => data_get($this->invoice, 'AccountingSupplierParty.Party.PartyTaxScheme.0.CompanyID.value', ''),
-            ctrans('texts.currency_id') => $this->resolveCurrencyId(data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code)),
+            // ctrans('texts.currency_id') => $this->resolveCurrencyId(data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code)),
             ctrans('texts.contact_name') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Name', ''),
             ctrans('texts.phone') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.Telephone', ''),
             ctrans('texts.email') => data_get($this->invoice, 'AccountingCustomerParty.Party.Contact.ElectronicMail', ''),
         ]);
     }
 
+    private function customCss(): string
+    {
+        $css = '';
+        $css .= ".".str_replace(" ", "", ctrans('texts.product_key'))." { width: 15%;} ";
+        $css .= ".".str_replace(" ", "", ctrans('texts.quantity'))." { width: 8%;} ";
+        $css .= ".".str_replace(" ", "", ctrans('texts.notes'))." { width: 40%; } ";
+        $css .= ".".str_replace(" ", "", ctrans('texts.cost'))." { width:10%;} ";
+        $css .= ".".str_replace(" ", "", ctrans('texts.tax'))." { width:10%;} ";
+        $css .= ".".str_replace(" ", "", ctrans('texts.line_total'))." { width:15%;} ";
+
+        return $css;
+
+    }
+
     private function invoiceDetails(): array
     {
+
         $data = $this->processValues([
-            'currency' => data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code),
-            'doctype' => data_get($this->invoice, 'InvoiceTypeCode.value', "380"),
+            ctrans('texts.currency') => data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code),
+            ctrans('texts.currency_code') => data_get($this->invoice, 'InvoiceTypeCode.value', "380"),
             ctrans('texts.number') => data_get($this->invoice, 'ID.value', ''),
             ctrans('texts.date') => data_get($this->invoice, 'IssueDate', ''),
             ctrans('texts.due_date') => data_get($this->invoice, 'DueDate', ''),
-            ctrans('texts.terms') => $this->harvestTerms(),
-            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', '')
         ]);
 
-        $data['line_items'] = $this->invoiceLines(),
+        $data['line_items'] = $this->invoiceLines();
             
         return $data;
     }
+
+    private function metadata(): array
+    {
+
+        return $this->processValues([
+            'currency' => data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code),
+            ctrans('texts.terms') => $this->harvestTerms(),
+            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', '')
+        ]);
+    }
+
     private function harvestTerms(): string
     {
 
@@ -151,18 +218,18 @@ class Ubl2Pdf extends AbstractService
 
         return array_map(function ($line) {
             return [
-                ctrans('texts.quantity') => data_get($line, 'InvoicedQuantity.amount', 0),
-                ctrans('texts.unit_code') => data_get($line, 'InvoicedQuantity.UnitCode','C62'),
                 ctrans('texts.product_key') => data_get($line, 'Item.Name', ''),
+                // ctrans('texts.ocde') => data_get($line, 'InvoicedQuantity.UnitCode',''),
+                ctrans('texts.quantity') => Number::formatValue(data_get($line, 'InvoicedQuantity.amount', 0), $this->company->currency()),
                 ctrans('texts.notes') =>  data_get($line, 'Item.Description', ''),
-                ctrans('texts.cost') => data_get($line, 'Price.PriceAmount.value', 0),
-                ctrans('texts.line_total') => data_get($line, 'LineExtensionAmount.amount', 0),
+                ctrans('texts.cost') => Number::formatValue(data_get($line, 'Price.PriceAmount.amount', 0), $this->company->currency()),
                 'tax_name1' => data_get($line, 'Item.ClassifiedTaxCategory.0.TaxScheme.ID.value', ''),
                 'tax_rate1' => data_get($line, 'Item.ClassifiedTaxCategory.0.Percent', 0),
                 'tax_name2' => data_get($line, 'Item.ClassifiedTaxCategory.1.TaxScheme.ID.value', ''),
                 'tax_rate2' => data_get($line, 'Item.ClassifiedTaxCategory.1.Percent', 0),
                 'tax_name3' => data_get($line, 'Item.ClassifiedTaxCategory.2.TaxScheme.ID.value', ''),
                 'tax_rate3' => data_get($line, 'Item.ClassifiedTaxCategory.2.Percent', 0),
+                ctrans('texts.line_total') => Number::formatValue(data_get($line, 'LineExtensionAmount.amount', 0), $this->company->currency()),
             ];
         }, $lines);
     }
@@ -178,15 +245,15 @@ class Ubl2Pdf extends AbstractService
         foreach(data_get($this->invoice, 'TaxTotal.0.TaxSubtotal', []) as $tax_subtotal)
         {
             $taxes[] = [
-                'subtotal' => data_get($tax_subtotal, 'TaxableAmount.amount', 0),
+                'subtotal' => data_get($tax_subtotal, 'TaxAmount.amount', 0),
                 'tax_name' => data_get($tax_subtotal, 'TaxCategory.TaxScheme.ID.value', ''),
-                'tax_rate' => data_get($tax_subtotal, 'TaxAmount.amount', 0),
+                'tax_rate' => data_get($tax_subtotal, 'TaxCategory.Percent', 0),
             ];
         }
 
         return [
-            'subtotal' => data_get($this->invoice, 'LegalMonetaryTotal.LineExtensionAmount.amount', 0),
-            'total' => data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0),
+            ctrans('texts.subtotal') => data_get($this->invoice, 'LegalMonetaryTotal.LineExtensionAmount.amount', 0),
+            ctrans('balance') => data_get($this->invoice, 'LegalMonetaryTotal.TaxInclusiveAmount.amount', 0),
             'taxes' => $taxes,
         ];
     }
