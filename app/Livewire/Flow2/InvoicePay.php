@@ -105,15 +105,12 @@ class InvoicePay extends Component
     #[On('terms-accepted')]
     public function termsAccepted()
     {
-        nlog("Terms accepted");
-        // $this->invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id)->withoutRelations();
         $this->terms_accepted = true;
     }
 
     #[On('signature-captured')]
     public function signatureCaptured($base64)
     {
-        nlog("signature captured");
 
         $this->signature_accepted = true;
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
@@ -141,7 +138,6 @@ class InvoicePay extends Component
         $this->setContext('amount', $amount);
         $this->setContext('pre_payment', false);
         $this->setContext('is_recurring', false);
-        $this->setContext('invitation_id', $this->invitation_id);
 
         $this->payment_method_accepted = true;
 
@@ -178,9 +174,7 @@ class InvoicePay extends Component
                     empty($contact->client->{$_field})
                     || is_null($contact->client->{$_field}) //@phpstan-ignore-line
                 ) {
-
                     return $this->required_fields = true;
-
                 }
             }
 
@@ -190,7 +184,7 @@ class InvoicePay extends Component
                 }
             }
         }
-        
+
         return $this->required_fields = false;
 
     }
@@ -231,17 +225,20 @@ class InvoicePay extends Component
 
     public function mount()
     {
+        
         $this->resetContext();
 
         MultiDB::setDb($this->db);
 
         // @phpstan-ignore-next-line
         $invite = \App\Models\InvoiceInvitation::with('contact.client', 'company')->withTrashed()->find($this->invitation_id);
+        
         $client = $invite->contact->client;
         $settings = $client->getMergedSettings();
         $this->setContext('contact', $invite->contact); // $this->context['contact'] = $invite->contact;
         $this->setContext('settings', $settings); // $this->context['settings'] = $settings;
         $this->setContext('db', $this->db); // $this->context['db'] = $this->db;
+        $this->setContext('invitation_id', $this->invitation_id);
 
         if(is_array($this->invoices))
             $this->invoices = Invoice::find($this->transformKeys($this->invoices));
@@ -292,9 +289,9 @@ class InvoicePay extends Component
 
     public function exception($e, $stopPropagation) 
     {
-       
+        
+        app('sentry')->captureException($e);
         nlog($e->getMessage());
-
         $stopPropagation();
 
     }

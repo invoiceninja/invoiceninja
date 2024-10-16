@@ -610,6 +610,7 @@ class BaseController extends Controller
                     if (! $user->isAdmin()) {
                         $query->where('activities.user_id', $user->id);
                     }
+                    $query->whereColumn('companies.account_id', 'activities.account_id');
                 },
                 'company.bank_integrations' => function ($query) use ($user) {
                     if (! $user->hasPermission('view_bank_transaction')) {
