@@ -85,7 +85,7 @@ class LicenseController extends BaseController
 
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost' && request()->has('license_key')) {
-            $license_key = request()->input('license_key');
+            $license_key = trim(request()->input('license_key'));
             $product_id = 3;
 
             if(substr($license_key, 0, 3) == 'v5_') {

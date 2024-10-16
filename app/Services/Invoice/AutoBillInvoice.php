@@ -347,6 +347,8 @@ class AutoBillInvoice extends AbstractService
                     $payload = ['client_id' => $this->invoice->client_id, 'invoices' => [['invoice_id' => $this->invoice->id,'amount' => $payment_balance]]];
                     $payment_repo->save($payload, $payment);
 
+                    $this->invoice = $this->invoice->fresh();
+
                 }
             }
 
