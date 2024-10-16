@@ -58,8 +58,6 @@ class ProcessPayment extends Component
             throw new PaymentFailed($responder_data['error'], 400);
         }
 
-        
-        /*** @PATCH */
         if(isset($responder_data['component']) && $responder_data['component'] == 'CreditPaymentComponent'){
             $this->payment_view = $responder_data['view'];
             $this->payment_data_payload = $responder_data['payload'];
