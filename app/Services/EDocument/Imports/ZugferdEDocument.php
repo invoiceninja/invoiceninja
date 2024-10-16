@@ -25,6 +25,8 @@ use App\Utils\Traits\SavesDocuments;
 use Exception;
 use App\Models\Company;
 use App\Repositories\ExpenseRepository;
+use App\Repositories\VendorContactRepository;
+use App\Repositories\VendorRepository;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
 use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
@@ -139,7 +141,9 @@ class ZugferdEDocument extends AbstractService
                 if ($country)
                     $vendor->country_id = $country->id;
 
-                $vendor->save();
+                $vendor_repo = new VendorRepository(new VendorContactRepository());
+                $vendor = $vendor_repo->save([], $vendor);
+
                 $expense->vendor_id = $vendor->id;
             }
             $expense->transaction_reference = $documentno;
