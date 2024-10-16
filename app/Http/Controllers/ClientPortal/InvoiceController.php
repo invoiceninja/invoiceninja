@@ -59,7 +59,7 @@ class InvoiceController extends Controller
     public function show(ShowInvoiceRequest $request, Invoice $invoice, ?string $hash = null)
     {
         set_time_limit(0);
-
+        
         $invitation = $invoice->invitations()->where('client_contact_id', auth()->guard('contact')->user()->id)->first();
 
         // @phpstan-ignore-next-line

@@ -242,7 +242,10 @@ class InvoicePay extends Component
 
         if(is_array($this->invoices))
             $this->invoices = Invoice::find($this->transformKeys($this->invoices));
-        
+        elseif ($this->invoices instanceof \Illuminate\Support\Collection) {
+            $this->invoices = Invoice::find($this->invoices->pluck('id'));
+        }
+
         $invoices = $this->invoices->filter(function ($i) {
             $i = $i->service()
                 ->markSent()
