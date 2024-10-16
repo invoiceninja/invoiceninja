@@ -24,6 +24,7 @@ use App\Utils\TempFile;
 use App\Utils\Traits\SavesDocuments;
 use Exception;
 use App\Models\Company;
+use App\Repositories\ExpenseRepository;
 use horstoeko\zugferd\ZugferdDocumentReader;
 use horstoeko\zugferdvisualizer\ZugferdVisualizer;
 use horstoeko\zugferdvisualizer\renderer\ZugferdVisualizerLaravelRenderer;
@@ -90,6 +91,7 @@ class ZugferdEDocument extends AbstractService
                     $this->document->getDocumentTax($categoryCode, $typeCode, $basisAmount, $calculatedAmount, $rateApplicablePercent, $exemptionReason, $exemptionReasonCode, $lineTotalBasisAmount, $allowanceChargeBasisAmount, $taxPointDate, $dueDateTypeCode);
                     $expense->{"tax_amount$counter"} = $calculatedAmount;
                     $expense->{"tax_rate$counter"} = $rateApplicablePercent;
+                    $expense->{"tax_name$counter"} = $typeCode;
                     $counter++;
                 } while ($this->document->nextDocumentTax());
             }
@@ -147,7 +149,10 @@ class ZugferdEDocument extends AbstractService
             nlog("Zugferd: Document already exists");
             $expense->private_notes = $expense->private_notes . ctrans("texts.edocument_import_already_exists", ["date" => time()]);
         }
-        $expense->save();
+
+        $expense_repo = new ExpenseRepository();
+        $expense = $expense_repo->save([],$expense);
+        
         return $expense;
     }
 }

@@ -1571,6 +1571,7 @@ class Import implements ShouldQueue
 
 
             } catch(\Exception $e) {
+                nlog($e->getMessage());
                 //do nothing, gracefully :)
             }
         }
