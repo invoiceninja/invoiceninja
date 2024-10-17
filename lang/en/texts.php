@@ -5360,7 +5360,11 @@ $lang = array(
     'vat_not_registered' => 'Seller not VAT registered',
     'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
     'log_duration_words' => 'Time log duration in words',
-    'log_duration' => 'Time log duration'
+    'log_duration' => 'Time log duration',
+    'merged_vendors' => 'Successfully merged vendors',
+    'hidden_taxes_warning' => 'Somes taxes are hidden due to current tax settings. :link',
+    'tax3' => 'Third Tax',
+
 );
 
 return $lang;
