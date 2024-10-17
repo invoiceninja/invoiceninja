@@ -51,7 +51,7 @@ trait MockUnitData
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->safeEmail(),
+            'email' => $this->faker->unique()->safeEmail(),
         ]);
 
         $this->company = Company::factory()->create([
