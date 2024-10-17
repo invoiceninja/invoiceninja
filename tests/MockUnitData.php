@@ -45,6 +45,11 @@ trait MockUnitData
 
     public function makeTestData()
     {
+        
+        if (\App\Models\Country::count() == 0) {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        }
+
         $this->faker = \Faker\Factory::create();
 
         $this->account = Account::factory()->create();

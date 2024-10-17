@@ -133,11 +133,16 @@ class DeletePayment
 
         //sometimes the payment is NOT created properly, this catches the payment and prevents the paid to date reducing inappropriately.
         if ($this->update_client_paid_to_date) {
+
+            $reduced_paid_to_date = $this->payment->amount < 0 ? $this->payment->amount * -1 : min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1);
+            
+            // $reduced_paid_to_date = min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1);
+
             $this->payment
-            ->client
-            ->service()
-            ->updatePaidToDate(min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1))
-            ->save();
+                ->client
+                ->service()
+                ->updatePaidToDate($reduced_paid_to_date)
+                ->save();
         }
 
         return $this;

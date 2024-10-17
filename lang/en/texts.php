@@ -5364,7 +5364,7 @@ $lang = array(
     'merged_vendors' => 'Successfully merged vendors',
     'hidden_taxes_warning' => 'Somes taxes are hidden due to current tax settings. :link',
     'tax3' => 'Third Tax',
-
+    'negative_payment_warning' => 'Are you sure you want to create a negative payment? This cannot be used as a credit or payment.'
 );
 
 return $lang;
