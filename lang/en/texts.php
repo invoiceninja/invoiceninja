@@ -5360,7 +5360,8 @@ $lang = array(
     'vat_not_registered' => 'Seller not VAT registered',
     'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
     'log_duration_words' => 'Time log duration in words',
-    'log_duration' => 'Time log duration'
+    'log_duration' => 'Time log duration',
+    'payment_status_changed' => 'Please note that the status of your payment has been updated. We recommend refreshing the page to view the most current version.',
 );
 
 return $lang;
