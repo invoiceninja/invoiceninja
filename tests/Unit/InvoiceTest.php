@@ -93,7 +93,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals(10, $ii->amount);
         $this->assertEquals(0, $ii->balance);
         $this->assertEquals(10, $ii->paid_to_date);
-        $this->assertEquals(2, $ii->status_id);
+        $this->assertEquals(4, $ii->status_id);
 
         $p = $ii->payments->first();
 
