@@ -13,15 +13,21 @@ namespace App\Events\Invoice;
 
 use App\Models\Company;
 use App\Models\InvoiceInvitation;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Queue\SerializesModels;
+use League\Fractal\Manager;
+use App\Transformers\ArraySerializer;
+use League\Fractal\Resource\Item;
 
 /**
  * Class InvoiceWasViewed.
  */
-class InvoiceWasViewed
+class InvoiceWasViewed implements ShouldBroadcast
 {
     use SerializesModels;
-
+    use InteractsWithSockets;
 
     /**
      * Create a new event instance.
@@ -32,5 +38,30 @@ class InvoiceWasViewed
      */
     public function __construct(public InvoiceInvitation $invitation, public Company $company, public array $event_vars)
     {
+        //
+    }
+
+    public function broadcastOn(): array
+    {
+        return [
+            new PrivateChannel("company-{$this->company->company_key}"),
+        ];
+    }
+
+    public function broadcastWith(): array
+    {
+        $manager = new Manager();
+        $manager->setSerializer(new ArraySerializer());
+        $class = sprintf('App\\Transformers\\%sTransformer', class_basename($this->invitation->invoice));
+
+        $transformer = new $class();
+
+        $resource = new Item($this->invitation->invoice, $transformer, $this->invitation->invoice->getEntityType());
+
+        $manager->parseIncludes('client');
+
+        $data = $manager->createData($resource)->toArray();
+
+        return $data;
     }
 }
