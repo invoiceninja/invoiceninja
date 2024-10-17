@@ -417,7 +417,7 @@ class NinjaMailerJob implements ShouldQueue
         $company = $this->company;
 
         $smtp_host = $company->smtp_host ?? '';
-        $smtp_port = $company->smtp_port;
+        $smtp_port = (int)$company->smtp_port;
         $smtp_username = $company->smtp_username ?? '';
         $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
