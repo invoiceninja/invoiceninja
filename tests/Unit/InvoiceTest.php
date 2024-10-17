@@ -83,7 +83,7 @@ class InvoiceTest extends TestCase
         $invoice_calc = new InvoiceSum($i);
         $ii = $invoice_calc->build()->getInvoice();
 
-        $ii->service()->markSent()->save();
+        $ii = $ii->service()->markSent()->save();
 
         $this->assertEquals(10, $ii->balance);
         $this->assertEquals(2, $ii->status_id);
