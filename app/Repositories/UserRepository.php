@@ -72,7 +72,7 @@ class UserRepository extends BaseRepository
             $user->confirmation_code = $this->createDbHash($company->db);
         }
 
-        $user->account_id = $account->id;
+        $user->account_id = $account->id;//@todo we should never change the account_id if it is set at this point.
 
         if (strlen($user->password) >= 1) {
             $user->has_password = true;
