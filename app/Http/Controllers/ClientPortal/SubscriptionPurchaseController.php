@@ -86,6 +86,15 @@ class SubscriptionPurchaseController extends Controller
         ]);
     }
 
+    public function v4(Subscription $subscription, Request $request)
+    {
+        return view('billing-portal.v4.index', [
+            'subscription' => $subscription,
+            'hash' => Str::uuid()->toString(),
+            'request_data' => $request->all(),
+        ]);
+    }
+
     /**
      * Set locale for incoming request.
      *
