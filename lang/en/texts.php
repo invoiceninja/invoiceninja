@@ -5383,6 +5383,11 @@ $lang = array(
     'currency_Tajikistani_Somoni' => 'Tajikistani Somoni',
     'currency_Turkmenistani_Manat' => 'Turkmenistani Manat',
     'currency_Uzbekistani_Som' => 'Uzbekistani Som',
+    'payment_status_changed' => 'Please note that the status of your payment has been updated. We recommend refreshing the page to view the most current version.',
+    'credit_status_changed' => 'Please note that the status of your credit has been updated. We recommend refreshing the page to view the most current version.',
+    'credit_updated' => 'Credit Updated',
+    'payment_updated' => 'Payment Updated',
+    'search_placeholder' => 'Find invoices, clients, and more',
 );
 
 return $lang;
