@@ -35,7 +35,6 @@ class CheckClientExistence
         auth()->guard('contact')->user()->loadMissing(['company']); // @phpstan-ignore method.notFound
 
         $multiple_contacts = ClientContact::query()
-            // ->with('client.gateway_tokens', 'company')
             ->where('email', auth()->guard('contact')->user()->email)
             ->whereNotNull('email')
             ->where('email', '<>', '')
