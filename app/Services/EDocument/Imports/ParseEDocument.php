@@ -60,6 +60,7 @@ class ParseEDocument extends AbstractService
                     return (new ZugferdEDocument($this->file, $this->company))->run();
                 } catch (\Throwable $e) {
                     nlog("Zugferd Exception: " . $e->getMessage());
+                    break;
                 }
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:cen.eu:en16931:2017"):
             case ($extension == 'xml' || $mimetype == 'application/xml') && stristr($this->file->get(), "urn:oasis:names:specification:ubl"):
@@ -68,6 +69,7 @@ class ParseEDocument extends AbstractService
                 }
                 catch(\Throwable $e){
                     nlog("UBL Import Exception: " . $e->getMessage());
+                    break;
                 }
         }
 

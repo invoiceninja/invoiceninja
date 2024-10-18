@@ -5357,9 +5357,10 @@ E-mail: :email<b><br><b>',
     'quick_actions' => 'Snelle acties',
     'end_all_sessions_help' => 'Logt alle gebruikers uit en vereist dat alle actieve gebruikers opnieuw inloggen.',
     'updated_records' => 'Items bijgewerkt',
-    'vat_not_registered' => 'Seller not VAT registered',
-    'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
-    'log_duration_words' => 'Log duration in words'
+    'vat_not_registered' => 'Verkoper is niet btw-plichtig',
+    'small_company_info' => 'Geen openbaarmaking van omzetbelasting in overeenstemming met § 19 UStG',
+    'log_duration_words' => 'Maximale lengte logboek in woorden',
+    'log_duration' => 'Maximale lengte logboek'
 );
 
 return $lang;

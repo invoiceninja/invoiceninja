@@ -53,7 +53,7 @@ class ImportEDocument implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->company_key)];
+        return [new WithoutOverlapping($this->company->company_key."_expense_import_".$this->file_name)];
     }
 
     public function failed($exception = null)
@@ -63,7 +63,6 @@ class ImportEDocument implements ShouldQueue
         }
         
         $this->fail($exception); //manually fail - prevents future jobs with the same name from being discarded
-
         config(['queue.failed.driver' => null]);
     }
 }

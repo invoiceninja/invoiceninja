@@ -1628,10 +1628,10 @@ class ReportCsvGenerationTest extends TestCase
 
         $csv = $response->body();
 
-        $this->assertEquals('100', $this->getFirstValueByColumn($csv, 'Purchase Order Amount'));
-        $this->assertEquals('50', $this->getFirstValueByColumn($csv, 'Purchase Order Balance'));
-        $this->assertEquals('10', $this->getFirstValueByColumn($csv, 'Purchase Order Discount'));
-        $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
+        $this->assertEquals('100.00', $this->getFirstValueByColumn($csv, 'Purchase Order Amount'));
+        $this->assertEquals('50.00', $this->getFirstValueByColumn($csv, 'Purchase Order Balance'));
+        $this->assertEquals('10.00', $this->getFirstValueByColumn($csv, 'Purchase Order Discount'));
+        $this->assertEquals('1234.00', $this->getFirstValueByColumn($csv, 'Purchase Order Number'));
         $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Purchase Order Public Notes'));
         $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Purchase Order Private Notes'));
         $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Purchase Order Terms'));

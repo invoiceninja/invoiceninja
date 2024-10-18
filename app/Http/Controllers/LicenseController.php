@@ -83,6 +83,11 @@ class LicenseController extends BaseController
     {
         $this->checkLicense();
 
+        nlog("License Check::");
+        nlog(config('ninja.environment'));
+        nlog(request()->has('license_key'));
+        nlog(request()->input('license_key','No License Found'));
+
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost' && request()->has('license_key')) {
             $license_key = trim(request()->input('license_key'));
@@ -144,6 +149,8 @@ class LicenseController extends BaseController
             }
         }
 
+        nlog("No license key or environment not set to selfhost");
+
         $error = [
             'message' => ctrans('texts.invoice_license_or_environment', ['environment' => config('ninja.environment')]),
             'errors' => new stdClass(),
@@ -156,15 +163,22 @@ class LicenseController extends BaseController
     {
         $this->checkLicense();
 
-        /* Catch claim license requests */
+        /* Catch claim license requests */ 
         if (config('ninja.environment') == 'selfhost') {
+
+            nlog("Claiming v5 license");
+
             $response = Http::get("https://invoicing.co/claim_license", [
                 'license_key' => $license_key,
                 'product_id' => 3,
             ]);
 
+            $payload = $response->json();
+
+            nlog("Ninja Server Response");
+            nlog($payload);
+
             if ($response->successful()) {
-                $payload = $response->json();
 
                 $account = auth()->user()->account;
 
@@ -188,6 +202,8 @@ class LicenseController extends BaseController
                 return response()->json($error, 400);
             }
         }
+
+        nlog("Environment not set to selfhost - failing");
 
         $error = [
             'message' => ctrans('texts.invoice_license_or_environment', ['environment' => config('ninja.environment')]),
