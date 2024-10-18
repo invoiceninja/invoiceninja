@@ -5361,7 +5361,7 @@ $lang = array(
     'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
     'log_duration_words' => 'Time log duration in words',
     'log_duration' => 'Time log duration',
-    'search_placeholder' => 'Find invoices, clients, and more'
+    'search_placeholder' => 'Find invoices, clients, and more',
 );
 
 return $lang;
