@@ -11,22 +11,21 @@
 
 namespace App\Events\Credit;
 
+use App\Models\BaseModel;
 use App\Models\Company;
 use App\Models\Credit;
+use App\Utils\Traits\Invoice\Broadcasting\DefaultResourceBroadcast;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use League\Fractal\Manager;
-use App\Transformers\ArraySerializer;
-use League\Fractal\Resource\Item;
 
 class CreditWasCreated implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
     use SerializesModels;
+    use DefaultResourceBroadcast;
 
     public $credit;
 
@@ -50,30 +49,8 @@ class CreditWasCreated implements ShouldBroadcast
         $this->dontBroadcastToCurrentUser();
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function broadcastOn() 
+    public function broadcastModel(): BaseModel
     {
-        return [
-            new PrivateChannel("company-{$this->company->company_key}"),
-        ];
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function broadcastWith(): array
-    {
-        $manager = new Manager();
-        $manager->setSerializer(new ArraySerializer());
-        $class = sprintf('App\\Transformers\\%sTransformer', class_basename($this->credit));
-
-        $transformer = new $class();
-
-        $resource = new Item($this->credit, $transformer, $this->credit->getEntityType());
-        $data = $manager->createData($resource)->toArray();
-
-        return [...$data, 'x-socket-id' => $this->socket];
+        return $this->credit;
     }
 }
