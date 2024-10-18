@@ -5361,6 +5361,10 @@ $lang = array(
     'small_company_info' => 'No disclosure of sales tax in accordance with § 19 UStG',
     'log_duration_words' => 'Time log duration in words',
     'log_duration' => 'Time log duration',
+    'payment_status_changed' => 'Please note that the status of your payment has been updated. We recommend refreshing the page to view the most current version.',
+    'credit_status_changed' => 'Please note that the status of your credit has been updated. We recommend refreshing the page to view the most current version.',
+    'credit_updated' => 'Credit Updated',
+    'payment_updated' => 'Payment Updated',
     'search_placeholder' => 'Find invoices, clients, and more',
 );
 
