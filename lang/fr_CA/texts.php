@@ -5357,7 +5357,8 @@ Développe automatiquement la section des notes dans le tableau de produits pour
     'updated_records' => 'Enregistrements mis à jour',
     'vat_not_registered' => 'Vendeur non enregistré aux taxes',
     'small_company_info' => 'Aucune déclaration de taxe de vente conformément à l\'article 19 UStG',
-    'log_duration_words' => 'Durée du journal en mots'
+    'log_duration_words' => 'Durée du journal de temps exprimée en mots',
+    'log_duration' => 'Durée du journal de temps'
 );
 
 return $lang;

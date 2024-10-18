@@ -5359,7 +5359,8 @@ $lang = array(
     'updated_records' => 'Hồ sơ đã cập nhật',
     'vat_not_registered' => 'Người bán không đăng ký VAT',
     'small_company_info' => 'Không tiết lộ thuế bán hàng theo § 19 UStG',
-    'log_duration_words' => 'Thời lượng ghi nhật ký bằng từ'
+    'log_duration_words' => 'Thời gian ghi nhật ký bằng từ',
+    'log_duration' => 'Thời gian ghi nhật ký'
 );
 
 return $lang;

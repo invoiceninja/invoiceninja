@@ -5364,7 +5364,25 @@ $lang = array(
     'merged_vendors' => 'Successfully merged vendors',
     'hidden_taxes_warning' => 'Somes taxes are hidden due to current tax settings. :link',
     'tax3' => 'Third Tax',
-    'negative_payment_warning' => 'Are you sure you want to create a negative payment? This cannot be used as a credit or payment.'
+    'negative_payment_warning' => 'Are you sure you want to create a negative payment? This cannot be used as a credit or payment.',
+    'currency_Bermudian_Dollar' => 'Bermudian Dollar',
+    'currency_Central_African_CFA_Franc' => 'Central African CFA Franc',
+    'currency_Congolese_Franc' => 'Congolese Franc',
+    'currency_Djiboutian_Franc' => 'Djiboutian Franc',
+    'currency_Eritrean_Nakfa' => 'Eritrean Nakfa',
+    'currency_Falkland_Islands_Pound' => 'Falklan IslandsPound',
+    'currency_Guinean_Franc' => 'Guinean Franc',
+    'currency_Iraqi_Dinar' => 'Iraqi Dinar',
+    'currency_Lesotho_Loti' => 'Lesotho Loti',
+    'currency_Mongolian_Tugrik' => 'Mongolian Tugrik',
+    'currency_Seychellois_Rupee' => 'Seychellois Rupee',
+    'currency_Solomon_Islands_Dollar' => 'Solomon Islands Dollar',
+    'currency_Somali_Shilling' => 'Somali Shilling',
+    'currency_South_Sudanese_Pound' => 'South Sudanese Pound',
+    'currency_Sudanese_Pound' => 'Sudanese Pound',
+    'currency_Tajikistani_Somoni' => 'Tajikistani Somoni',
+    'currency_Turkmenistani_Manat' => 'Turkmenistani Manat',
+    'currency_Uzbekistani_Som' => 'Uzbekistani Som',
 );
 
 return $lang;
