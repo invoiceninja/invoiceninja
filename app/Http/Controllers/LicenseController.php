@@ -150,7 +150,7 @@ class LicenseController extends BaseController
         }
 
         nlog("No license key or environment not set to selfhost");
-        
+
         $error = [
             'message' => ctrans('texts.invoice_license_or_environment', ['environment' => config('ninja.environment')]),
             'errors' => new stdClass(),
@@ -173,8 +173,12 @@ class LicenseController extends BaseController
                 'product_id' => 3,
             ]);
 
+            $payload = $response->json();
+
+            nlog("Ninja Server Response");
+            nlog($payload);
+
             if ($response->successful()) {
-                $payload = $response->json();
 
                 $account = auth()->user()->account;
 
