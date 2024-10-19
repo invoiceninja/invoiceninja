@@ -644,8 +644,6 @@ class CreditController extends BaseController
                     EmailEntity::dispatch($invitation, $credit->company, 'credit');
                 });
 
-                // $credit->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
-
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }
