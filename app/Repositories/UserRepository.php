@@ -72,6 +72,11 @@ class UserRepository extends BaseRepository
             $user->confirmation_code = $this->createDbHash($company->db);
         }
 
+        //@18-10-2024 - ensure no cross account linkage.
+        if(is_numeric($user->account_id) && $user->account_id != $account->id){
+            throw new \Illuminate\Auth\Access\AuthorizationException("Illegal operation encountered for {$user->hashed_id}",401);
+        }
+
         $user->account_id = $account->id;//@todo we should never change the account_id if it is set at this point.
 
         if (strlen($user->password) >= 1) {
