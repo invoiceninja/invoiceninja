@@ -65,6 +65,9 @@ class SendEDocument implements ShouldQueue
                 'document' => base64_encode($xml),
                 'tenant_id' => $model->company->company_key,
                 'identifiers' => $identifiers,
+                'e_invoicing_token' => $model->company->e_invoicing_token,
+
+                // include whitelabel key.
             ];
 
             $r = Http::withHeaders($this->getHeaders())
