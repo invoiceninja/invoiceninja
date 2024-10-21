@@ -13,6 +13,9 @@
 namespace App\Http\Requests\EInvoice\Peppol;
 
 use App\Models\Country;
+use App\Rules\EInvoice\Peppol\SupportsReceiverIdentifier;
+use App\Services\EDocument\Standards\Peppol\ReceiverIdentifier;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateRequest extends FormRequest
@@ -24,7 +27,12 @@ class CreateRequest extends FormRequest
          */
         $user = auth()->user();
 
-        return $user->account->isPaid();
+        if (app()->isLocal()) {
+            return true;
+        }
+
+        return $user->account->isPaid() &&
+            $user->company()->legal_entity_id === null;
     }
 
     /**
@@ -37,18 +45,28 @@ class CreateRequest extends FormRequest
             'line1' => ['required', 'string'],
             'line2' => ['nullable', 'string'],
             'city' => ['required', 'string'],
-            'country' => ['required', 'string'],
+            'country' => ['required', 'integer', 'exists:countries,id', new SupportsReceiverIdentifier()],
             'zip' => ['required', 'string'],
             'county' => ['required', 'string'],
         ];
     }
 
-    public function prepareForValidation(): void
+    protected function failedAuthorization(): void
     {
-        $country = Country::findOrFail($this->country);
+        throw new AuthorizationException(
+            message: ctrans('texts.peppol_not_paid_message'),
+        );
+    }
 
-        $this->merge([
-            'country' => $country->iso_3166_2,
-        ]);
+    public function country(): Country
+    {
+        return Country::find($this->country);
+    }
+
+    public function receiverIdentifier(): string
+    {
+        $identifier = new ReceiverIdentifier($this->country()->iso_3166_2);
+
+        return $identifier->get();
     }
 }
