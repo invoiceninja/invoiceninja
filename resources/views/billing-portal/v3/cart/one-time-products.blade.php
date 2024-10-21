@@ -29,20 +29,18 @@
 
                 <div class="flex flex-col-reverse space-y-3">
                     <div class="flex">
-                        @if($subscription->per_seat_enabled)
-                            @if($subscription->use_inventory_management && $product['in_stock_quantity'] <= 0)
-                                <p class="text-sm font-light text-red-500 text-right mr-2 mt-2">{{ ctrans('texts.out_of_stock') }}</p>
-                            @else
-                                <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
-                            @endif
-
-                            <select id="{{ $product['hashed_id'] }}" wire:change="quantity($event.target.id, $event.target.value)" class="rounded-md border-gray-300 shadow-sm sm:text-sm" {{ $subscription->use_inventory_management && $product['in_stock_quantity'] < 1 ? 'disabled' : '' }}>
-                                <option {{ $entry['quantity'] == '0' ? 'selected' : '' }} value="0" selected="selected">0</option>
-                                @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product['in_stock_quantity'], min(100,$product['max_quantity'])) : min(100,$product['max_quantity'])); $i++)
-                                    <option {{ $entry['quantity'] == $i ? 'selected' : '' }} value="{{ $i }}">{{ $i }}</option>
-                                @endfor
-                            </select>
+                        @if($subscription->use_inventory_management && $product['in_stock_quantity'] <= 0)
+                            <p class="text-sm font-light text-red-500 text-right mr-2 mt-2">{{ ctrans('texts.out_of_stock') }}</p>
+                        @else
+                            <p class="text-sm font-light text-gray-700 text-right mr-2 mt-2">{{ ctrans('texts.qty') }}</p>
                         @endif
+
+                        <select id="{{ $product['hashed_id'] }}" wire:change="quantity($event.target.id, $event.target.value)" class="rounded-md border-gray-300 shadow-sm sm:text-sm" {{ $subscription->use_inventory_management && $product['in_stock_quantity'] < 1 ? 'disabled' : '' }}>
+                            <option value="1" selected="selected">1</option>
+                            @for ($i = 2; $i <= $subscription->maxQuantity($product); $i++)
+                                <option {{ $entry['quantity'] == $i ? 'selected' : '' }} value="{{ $i }}">{{ $i }}</option>
+                            @endfor
+                        </select>
                     </div>
                 </div>
             </div>

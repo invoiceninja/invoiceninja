@@ -74,7 +74,7 @@ class UpdateCompanyRequest extends Request
         }
 
         if (Ninja::isHosted()) {
-            $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9.-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
+            $rules['subdomain'] = ['nullable', 'regex:/^[a-zA-Z0-9-]+[a-zA-Z0-9]$/', new ValidSubdomain()];
         }
 
         $rules['expense_mailbox'] = ['sometimes','email', 'nullable', new ValidExpenseMailbox(), Rule::unique('companies')->ignore($this->company->id)];

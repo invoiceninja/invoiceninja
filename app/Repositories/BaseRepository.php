@@ -396,23 +396,24 @@ class BaseRepository
     public function bulkUpdate(\Illuminate\Database\Eloquent\Builder $model, string $column, mixed $new_value): void
     {
         /** Handle taxes being updated */
-        if(in_array($column, ['tax_name1','tax_name2','tax_name3'])) {
+        if(in_array($column, ['tax1','tax2','tax3'])) {
 
             $parts = explode("||", $new_value);
 
             if (count($parts) !== 2)
                 return;
 
-            $tax_name = trim($parts[0]);
+            $tax_name_column = str_replace("tax", "tax_name", $column);
             $rate = filter_var($parts[1], FILTER_VALIDATE_FLOAT);
-
+            $tax_name = $parts[0];
+            
             if ($rate === false)
                 return;
             
-            $taxrate_column = str_replace("name", "rate", $column);
+            $taxrate_column = str_replace("tax", "tax_rate", $column);
 
             $model->update([
-                $column => $tax_name,
+                $tax_name_column => $tax_name,
                 $taxrate_column => $rate,
             ]);
             return;

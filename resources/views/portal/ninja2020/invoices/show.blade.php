@@ -78,11 +78,14 @@
         <div class="bg-white shadow sm:rounded-lg mb-4">
             <div class="px-4 py-5 sm:p-6">
                 <div class="sm:flex sm:items-start sm:justify-between">
-                    <div>
+                    <div class="flex justify-between items-center w-full">
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             {{ ctrans('texts.invoice_number_placeholder', ['invoice' => $invoice->number])}}
                             - {{ \App\Models\Invoice::stringStatus($invoice->status_id) }}
                         </h3>
+                        @if($invoice->status_id == \App\Models\Invoice::STATUS_PAID && $invoice->payments()->exists())
+                        <span class="ml-4"><a class="button-link text-primary" href="{{ route('client.payments.show', $invoice->payments->first()->hashed_id) }}">{{ ctrans('texts.view_payment') }}</a></span>
+                        @endif
                     </div>
                 </div>
             </div>

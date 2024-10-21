@@ -216,7 +216,7 @@ class Product extends BaseModel
         return $converter->convert($this->notes ?? '');
     }
 
-    public static function markdownHelp(string $notes = '')
+    public static function markdownHelp(?string $notes = '')
     {
 
         $converter = new CommonMarkConverter([
@@ -226,7 +226,7 @@ class Product extends BaseModel
             ],
         ]);
 
-        return $converter->convert($notes);
+        return $converter->convert($notes ?? '');
 
     }
 

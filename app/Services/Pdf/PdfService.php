@@ -88,6 +88,7 @@ class PdfService
      */
     public function getPdf()
     {
+
         try {
             $pdf = $this->resolvePdfEngine($this->getHtml());
 

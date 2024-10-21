@@ -75,7 +75,7 @@
                                         @endfor
                                     }
                                     @else
-                                        @for ($i = 2; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->max_quantity)) : max(100,$product->max_quantity)); $i++)
+                                        @for ($i = 2; $i <= $subscription->maxQuantity($product); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     @endif
@@ -169,7 +169,7 @@
                                         @endif
                                         >
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, max(100,$product->max_quantity)) : max(100,$product->max_quantity)); $i++)
+                                        @for ($i = 1; $i <= $subscription->maxQuantity($product); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -211,7 +211,7 @@
                                     @endif
                                     <select wire:model.live.debounce.300ms="data.{{ $index }}.optional_qty" class="rounded-md border-gray-300 shadow-sm sm:text-sm">
                                         <option value="0" selected="selected">0</option>
-                                        @for ($i = 1; $i <= ($subscription->use_inventory_management ? min($product->in_stock_quantity, min(100,$product->max_quantity)) : min(100,$product->max_quantity)); $i++)
+                                        @for ($i = 1; $i <= $subscription->maxQuantity($product); $i++)
                                         <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -289,10 +289,6 @@
 
 
                     @if($discount)
-                    <!-- <div class="flex font-semibold justify-between py-1 text-sm uppercase">
-                        <span>{{ ctrans('texts.subtotal') }}</span>
-                        <span>{{ $sub_total }}</span>
-                    </div> -->
                     <div class="flex font-semibold justify-between py-1 text-sm uppercase">
                         <span>{{ ctrans('texts.discount') }}</span>
                         <span>{{ $discount }}</span>

@@ -830,7 +830,7 @@ class HtmlEngine
             }
         }
 
-        if (!$this->entity->company->tax_data->regions->EU->has_sales_above_threshold ?? false){
+        if (!$this->entity->company->tax_data->regions->EU->has_sales_above_threshold ?? false){ //@phpstan-ignore-line
             $tax_label .= ctrans('text.small_company_info') ."<br>";
         }
 

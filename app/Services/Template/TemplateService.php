@@ -11,38 +11,41 @@
 
 namespace App\Services\Template;
 
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Quote;
+use App\Utils\Number;
+use Twig\Error\Error;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
+use Twig\Sandbox\SecurityError;
+use App\Models\RecurringInvoice;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use League\CommonMark\CommonMarkConverter;
-use Twig\Error\Error;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extra\Intl\IntlExtension;
-use Twig\Sandbox\SecurityError;
+use League\CommonMark\CommonMarkConverter;
 
 class TemplateService
 {
     use MakesDates;
     use PdfMaker;
-
+    use MakesHash;
+    
     private \DomDocument $document;
 
     public \Twig\Environment $twig;
@@ -61,7 +64,7 @@ class TemplateService
 
     private ?Vendor $vendor = null;
 
-    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice $entity;
+    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | Task | Project $entity;
 
     private Payment $payment;
 
@@ -92,14 +95,13 @@ class TemplateService
 
         $loader = new \Twig\Loader\FilesystemLoader(storage_path());
         $this->twig = new \Twig\Environment($loader, [
-                'debug' => true,
+            'debug' => true,
         ]);
 
         $string_extension = new \Twig\Extension\StringLoaderExtension();
         $this->twig->addExtension($string_extension);
         $this->twig->addExtension(new IntlExtension());
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
-
 
         $function = new \Twig\TwigFunction('img', function ($string, $style = '') {
             return '<img src="' . $string . '" style="' . $style . '"></img>';
@@ -124,7 +126,7 @@ class TemplateService
         $this->twig->addFilter($filter);
 
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['replace', 'escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br'];
+        $allowedFilters = ['replace', 'escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br','striptags'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date',];
         $allowedProperties = ['type_id'];
         $allowedMethods = ['img','t'];
@@ -292,7 +294,7 @@ class TemplateService
      *
      * @return self
      */
-    private function parseNinjaBlocks(): self
+    public function parseNinjaBlocks(): self
     {
         $replacements = [];
 
@@ -350,6 +352,12 @@ class TemplateService
         return $this;
     }
 
+    public function setData(array $data): self
+    {
+        $this->data = $data;
+
+        return $this;
+    }
     /**
      * Parses all variables in the document
      *
@@ -379,7 +387,7 @@ class TemplateService
      *
      * @return self
      */
-    private function save(): self
+    public function save(): self
     {
         $this->compiled_html = str_replace('%24', '$', $this->document->saveHTML());
 
@@ -409,6 +417,14 @@ class TemplateService
 
     }
 
+    public function setRawTemplate(string $template):self
+    {
+                
+        @$this->document->loadHTML(mb_convert_encoding($template, 'HTML-ENTITIES', 'UTF-8'));
+
+        return $this;
+
+    }
     /**
      * Inject the template components
      * manually
@@ -612,7 +628,8 @@ class TemplateService
             $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client_or_vendor);
             $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
             $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
-
+            $item->task = strlen($item->task_id ?? '') > 1 ? $this->processInvoiceTask($item->task_id) : [];
+            
             return (array)$item;
 
         })->toArray();
@@ -929,6 +946,35 @@ class TemplateService
             'locale' => substr($entity->client->locale(), 0, 2),
             ] : [];
     }
+
+    private function processInvoiceTask(string $task_id): array
+    {
+        $task = Task::where('company_id', $this->company->id)
+                    ->where('id', $this->decodePrimaryKey($task_id))
+                    ->first();
+    
+        return $task ? [
+            'number' => (string) $task->number ?: '',
+            'description' => (string) $task->description ?: '',
+            'duration' => $task->calcDuration() ?: 0,
+            'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
+            'rate_raw' => $task->rate ?? 0,
+            'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
+            'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
+            'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+            'project' => $task->project ? $this->transformProject($task->project, true) : [],
+            'time_log' => $task->processLogsExpandedNotation(),
+            'custom_value1' => $task->custom_value1 ?: '',
+            'custom_value2' => $task->custom_value2 ?: '',
+            'custom_value3' => $task->custom_value3 ?: '',
+            'custom_value4' => $task->custom_value4 ?: '',
+            'status' => $task->status ? $task->status->name : '',
+            'user' => $this->userInfo($task->user),
+            'assigned_user' => $task->assigned_user ? $this->userInfo($task->assigned_user) : [],
+        ] : [];
+    }
+
+
     /**
      * @todo refactor
      *
@@ -1311,19 +1357,21 @@ class TemplateService
      */
     private function resolveEntity(): string
     {
-        $entity_string = '';
-
-        //@phpstan-ignore-next-line
-        match($this->entity) {
-            ($this->entity instanceof Invoice) => $entity_string = 'invoice',
-            ($this->entity instanceof Quote)  => $entity_string = 'quote',
-            ($this->entity instanceof Credit) => $entity_string = 'credit',
-            ($this->entity instanceof RecurringInvoice) => $entity_string = 'invoice',
-            ($this->entity instanceof PurchaseOrder) => $entity_string = 'purchase_order',
-            default => $entity_string = 'invoice',
-        };
-
-        return $entity_string;
+        switch ($this->entity) {
+            case  ($this->entity instanceof Invoice):
+               return 'invoice';
+            case  ($this->entity instanceof Quote):
+               return 'quote';
+            case  ($this->entity instanceof Credit):
+               return 'credit';
+            case  ($this->entity instanceof RecurringInvoice):
+               return 'invoice';
+            case  ($this->entity instanceof PurchaseOrder):
+               return 'purchase_order';
+            
+            default:
+               return 'invoice';
+        }
 
     }
 

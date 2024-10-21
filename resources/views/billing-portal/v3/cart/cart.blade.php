@@ -1,10 +1,10 @@
 <div>
-    <livewire:billing-portal.cart.recurring-products
+    <livewire:billing-portal.cart.one-time-products
         :subscription="$subscription"
         :context="$context"
     />
 
-    <livewire:billing-portal.cart.one-time-products
+    <livewire:billing-portal.cart.recurring-products
         :subscription="$subscription"
         :context="$context"
     />
@@ -17,6 +17,8 @@
         :subscription="$subscription"
         :context="$context"
     />
+
+    <div class="mt-10"></div>
 
     <livewire:billing-portal.cart.optional-one-time-products
         :subscription="$subscription"

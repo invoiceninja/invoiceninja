@@ -404,8 +404,7 @@ class BaseDriver extends AbstractPaymentDriver
                             $item->gross_line_total = round($item->gross_line_total, 2);
                             return $item;
                         })
-                        ->whereIn('type_id', ['3'])
-                        // ->where('gross_line_total', '<=', round($fee_total,2))
+                        ->whereIn('type_id', ['3','4'])
                         ->count();
 
         if($invoice && $fee_count == 0){
@@ -456,12 +455,7 @@ class BaseDriver extends AbstractPaymentDriver
             $new_balance = $invoice->balance;
 
             if (floatval($new_balance) - floatval($balance) != 0) {
-                $adjustment = $new_balance - $balance;
-
-                $invoice
-                ->ledger()
-                ->updateInvoiceBalance($adjustment, 'Adjustment for adding gateway fee **Base Driver**');
-
+                $adjustment = $new_balance - $balance; 
                 $invoice->client->service()->calculateBalance();
             }
 
