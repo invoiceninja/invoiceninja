@@ -185,7 +185,9 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
 
     Route::post('filters/{entity}', [FilterController::class, 'index'])->name('filters');
 
+
     Route::resource('client_gateway_tokens', ClientGatewayTokenController::class);
+    Route::post('client_gateway_tokens/{client_gateway_token}/setAsDefault', [ClientGatewayTokenController::class, 'setAsDefault'])->name('client_gateway_tokens.set_as_default');
 
     Route::post('connected_account', [ConnectedAccountController::class, 'index']);
     Route::post('connected_account/gmail', [ConnectedAccountController::class, 'handleGmailOauth']);
@@ -229,6 +231,8 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('documents/bulk', [DocumentController::class, 'bulk'])->name('documents.bulk');
 
     Route::post('einvoice/validateEntity', [EInvoiceController::class, 'validateEntity'])->name('einvoice.validateEntity');
+    Route::post('einvoice/configurations', [EInvoiceController::class, 'configurations'])->name('einvoice.configurations');
+    
     Route::post('einvoice/peppol/setup', [EInvoicePeppolController::class, 'setup'])->name('einvoice.peppol.setup');
     Route::post('einvoice/peppol/disconnect', [EInvoicePeppolController::class, 'disconnect'])->name('einvoice.peppol.disconnect');
 
