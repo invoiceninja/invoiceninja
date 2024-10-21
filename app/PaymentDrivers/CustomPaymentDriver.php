@@ -136,7 +136,7 @@ class CustomPaymentDriver extends BaseDriver
             $gateway_response = json_decode($request->gateway_response);
 
             if ($gateway_response->status == 'COMPLETED') {
-                $this->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $payment_hash], SystemLog::TYPE_CUSTOM);
+                $this->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $payment_hash->data], SystemLog::TYPE_CUSTOM);
 
                 $data = [
                     'payment_method' => '',

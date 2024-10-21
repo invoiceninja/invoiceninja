@@ -120,7 +120,7 @@ class CreditCard implements LivewireMethodInterface
 
             if ($charge->status == 'complete') {
 
-                $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
+                $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash->data], SystemLog::TYPE_POWERBOARD);
                 
                 $vt = $charge->customer->payment_source->vault_token;
 
@@ -291,7 +291,7 @@ class CreditCard implements LivewireMethodInterface
 
         nlog($charge);
 
-        $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
+        $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash->data], SystemLog::TYPE_POWERBOARD);
 
         return $this->processSuccessfulPayment($charge);
     }
@@ -389,7 +389,7 @@ class CreditCard implements LivewireMethodInterface
             nlog($charge);
 
             if ($charge->status == 'complete') {
-                $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash], SystemLog::TYPE_POWERBOARD);
+                $this->powerboard->logSuccessfulGatewayResponse(['response' => $charge, 'data' => $this->powerboard->payment_hash->data], SystemLog::TYPE_POWERBOARD);
                 
                 $vt = $charge->customer->payment_source->vault_token;
 
