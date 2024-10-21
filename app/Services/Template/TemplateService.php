@@ -11,39 +11,41 @@
 
 namespace App\Services\Template;
 
+use App\Models\Task;
+use App\Models\User;
+use App\Models\Quote;
+use App\Utils\Number;
+use Twig\Error\Error;
 use App\Models\Client;
-use App\Models\Company;
 use App\Models\Credit;
 use App\Models\Design;
+use App\Models\Vendor;
+use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Project;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\Task;
-use App\Models\User;
-use App\Models\Vendor;
-use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
-use App\Utils\Number;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\Error\RuntimeError;
+use App\Models\PurchaseOrder;
+use App\Utils\Traits\MakesHash;
+use App\Utils\VendorHtmlEngine;
+use Twig\Sandbox\SecurityError;
+use App\Models\RecurringInvoice;
 use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
+use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
-use App\Utils\VendorHtmlEngine;
-use League\CommonMark\CommonMarkConverter;
-use Twig\Error\Error;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extra\Intl\IntlExtension;
-use Twig\Sandbox\SecurityError;
+use League\CommonMark\CommonMarkConverter;
 
 class TemplateService
 {
     use MakesDates;
     use PdfMaker;
-
+    use MakesHash;
+    
     private \DomDocument $document;
 
     public \Twig\Environment $twig;
@@ -626,7 +628,8 @@ class TemplateService
             $item->gross_line_total = Number::formatMoney($item->gross_line_total_raw, $client_or_vendor);
             $item->tax_amount = Number::formatMoney($item->tax_amount_raw, $client_or_vendor);
             $item->product_cost = Number::formatMoney($item->product_cost_raw, $client_or_vendor);
-
+            $item->task = strlen($item->task_id ?? '') > 1 ? $this->processInvoiceTask($item->task_id) : [];
+            
             return (array)$item;
 
         })->toArray();
@@ -943,6 +946,35 @@ class TemplateService
             'locale' => substr($entity->client->locale(), 0, 2),
             ] : [];
     }
+
+    private function processInvoiceTask(string $task_id): array
+    {
+        $task = Task::where('company_id', $this->company->id)
+                    ->where('id', $this->decodePrimaryKey($task_id))
+                    ->first();
+    
+        return $task ? [
+            'number' => (string) $task->number ?: '',
+            'description' => (string) $task->description ?: '',
+            'duration' => $task->calcDuration() ?: 0,
+            'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
+            'rate_raw' => $task->rate ?? 0,
+            'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
+            'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
+            'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+            'project' => $task->project ? $this->transformProject($task->project, true) : [],
+            'time_log' => $task->processLogsExpandedNotation(),
+            'custom_value1' => $task->custom_value1 ?: '',
+            'custom_value2' => $task->custom_value2 ?: '',
+            'custom_value3' => $task->custom_value3 ?: '',
+            'custom_value4' => $task->custom_value4 ?: '',
+            'status' => $task->status ? $task->status->name : '',
+            'user' => $this->userInfo($task->user),
+            'assigned_user' => $task->assigned_user ? $this->userInfo($task->assigned_user) : [],
+        ] : [];
+    }
+
+
     /**
      * @todo refactor
      *
