@@ -5369,7 +5369,11 @@ $lang = array(
     'peppol_credits_info' => 'Text how they need a credits to operate with PEPPOL.',
     'buy_credits' => 'Buy Credits',
     'peppol_successfully_configured' => 'PEPPOL successsfully configured.', 
-
+    'peppol_not_paid_message' => 'PEPPOL is only available to paid plans. Please upgrade your plan to get access to PEPPOL.',
+    'peppol_country_not_supported' => 'PEPPOL is not available for this country.',
+    'peppol_disconnect' => 'Disconnect PEPPOL',
+    'peppol_disconnect_short' => 'Disconnect from PEPPOL.',
+    'peppol_disconnect_long' => 'PEPPOL will be disconnected from your account and...',
 );
 
 return $lang;
