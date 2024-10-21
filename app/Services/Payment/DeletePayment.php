@@ -94,7 +94,31 @@ class DeletePayment
 
                 nlog("net deletable amount - refunded = {$net_deletable}");
 
-                if (! $paymentable_invoice->is_deleted) {
+                if($paymentable_invoice->status_id == Invoice::STATUS_CANCELLED){
+                    
+                    $is_trashed = false;
+
+                    if($paymentable_invoice->trashed()){
+                        $is_trashed = true;
+                        $paymentable_invoice->restore();
+                    }
+
+                    $paymentable_invoice->service()
+                                        ->updatePaidToDate($net_deletable * -1)
+                                        ->save();
+                    
+                    $this->payment
+                         ->client
+                         ->service()
+                         ->updatePaidToDate($net_deletable * -1)
+                         ->save();
+
+                    if($is_trashed){
+                        $paymentable_invoice->delete();
+                    }
+
+                }
+                elseif (! $paymentable_invoice->is_deleted) {
                     $paymentable_invoice->restore();
 
                     $paymentable_invoice->service()

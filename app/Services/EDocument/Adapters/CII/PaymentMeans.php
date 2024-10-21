@@ -198,34 +198,6 @@ class PaymentMeans implements PaymentMeansInterface
         $SupplyChainTradeTransactionType = new \horstoeko\zugferd\entities\extended\ram\SupplyChainTradeTransactionType();
         $SupplyChainTradeTransactionType->setApplicableHeaderTradeSettlement($HeaderTradeSettlementType);
 
-        // $cii = new \horstoeko\zugferd\entities\extended\rsm\CrossIndustryInvoice();
-        // $cii->setSupplyChainTradeTransaction($SupplyChainTradeTransactionType);
-
-
-
-        $d = \horstoeko\zugferd\ZugferdDocumentBuilder::CreateNew(\horstoeko\zugferd\ZugferdProfiles::PROFILE_XRECHNUNG_3);
-        // $d->setSupplyChainTradeTransaction($SupplyChainTradeTransactionType);
-
-// nlog($d->getInvoiceObject()->getSupplyChainTradeTransaction());
-$d->getObjectHelper()->tryCall($d->getInvoiceObject()->getSupplyChainTradeTransaction(), "setSupplyChainTradeTransaction", $SupplyChainTradeTransactionType);
-
-
-$documentJsonExporter = new \horstoeko\zugferd\ZugferdDocumentJsonExporter($d);
-
-// echo $documentJsonExporter->toPrettyJsonString();
-// echo "\r\n\r\n";
-
-$jsonObject = $documentJsonExporter->toJsonObject();
-
-return $jsonObject;
-// var_dump($jsonObject);
-
-// echo "\r\n\r\n";
-
-
-        // return $cii;
-
-        // return $this;
     }
 
 }
