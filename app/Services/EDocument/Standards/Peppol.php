@@ -302,7 +302,7 @@ class Peppol extends AbstractService
 
     private EInvoice $e;
 
-    private string $api_network = Qvalia::class; // Storecove::class; // Qvalia::class;
+    private string $api_network = Storecove::class; // Storecove::class; // Qvalia::class;
     
     public Qvalia | Storecove $gateway;
 
