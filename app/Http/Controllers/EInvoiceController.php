@@ -56,33 +56,36 @@ class EInvoiceController extends BaseController
         $pmc = new PaymentMeansCode();
         $pmc->value = $request->input('payment_means.code', null);
 
-        $ctc = new CardTypeCode();
-        $ctc->value = $request->input('payment_means.card_type', null);
-        $card_account = new CardAccount();
-        $card_account->HolderName = $request->input('payment_means.cardholder_name', '');
-        $card_account->CardTypeCode = $ctc;
+        if($this->input('payment_means.code') == '48')
+        {
+            $ctc = new CardTypeCode();
+            $ctc->value = $request->input('payment_means.card_type', null);
+            $card_account = new CardAccount();
+            $card_account->HolderName = $request->input('payment_means.cardholder_name', '');
+            $card_account->CardTypeCode = $ctc;
+            $pm->CardAccount = $card_account;
+        }
 
-        $instruct_note = new InstructionNote()
-        $in
-        $fib = new FinancialInstitutionBranch();
-        $bic_id = new ID();
-        $bic_id->value = $request->input('payment_means.bic', null);
-        $fib->ID = $bic_id;
-        $pfa = new PayeeFinancialAccount();
-        $iban_id = new ID();
-        $iban_id->value = $request->input('payment_means.iban', null);
-        $pfa->ID = $iban_id;
-        $pfa->Name = $request->input('payment_means.account_name', null);
-        $pfa->FinancialInstitutionBranch = $fib;
+        if($this->input('payment_means.iban'))
+        {
+            $fib = new FinancialInstitutionBranch();
+            $bic_id = new ID();
+            $bic_id->value = $request->input('payment_means.bic', null);
+            $fib->ID = $bic_id;
+            $pfa = new PayeeFinancialAccount();
+            $iban_id = new ID();
+            $iban_id->value = $request->input('payment_means.iban', null);
+            $pfa->ID = $iban_id;
+            $pfa->Name = $request->input('payment_means.account_name', null);
+            $pfa->FinancialInstitutionBranch = $fib;
 
-        $pm->PayeeFinancialAccount = $pfa;
-        $pm->PaymentMeansCode = $pmc;
-        $pm->CardAccount = $card_account;
-        $pm->InstructionNote = $request->input('payment_means.information', null);
+            $pm->PayeeFinancialAccount = $pfa;
+            $pm->PaymentMeansCode = $pmc;
+        }
+
+        $pm->InstructionNote = $request->input('payment_means.information', '');
 
         $einvoice->PaymentMeans[] = $pm;
-
-
 
         $stub = new \stdClass();
         $stub->Invoice = $einvoice;
