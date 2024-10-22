@@ -27,8 +27,11 @@ class CreateRequestTest extends TestCase
             'country' => 'DE', // Assuming 1 is the ID for Germany
             'zip' => '12345',
             'county' => 'Test County',
+            'acts_as_sender' => true,
+            'acts_as_receiver' => true,
         ], $this->request->rules());
 
+        
         $this->assertTrue($validator->passes());
     }
 
@@ -41,6 +44,8 @@ class CreateRequestTest extends TestCase
             'country' => 999, // Invalid country ID
             'zip' => '12345',
             'county' => 'Test County',
+            'acts_as_sender' => true,
+            'acts_as_receiver' => true,
         ], $this->request->rules());
 
         $this->assertFalse($validator->passes());
@@ -73,6 +78,9 @@ class CreateRequestTest extends TestCase
             'country' => 'AT',
             'zip' => '12345',
             'county' => 'Test County',
+
+            'acts_as_sender' => true,
+            'acts_as_receiver' => true,
         ], $this->request->rules());
 
         $this->assertTrue($validator->passes());
