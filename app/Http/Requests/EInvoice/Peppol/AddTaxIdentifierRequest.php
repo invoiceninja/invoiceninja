@@ -13,16 +13,14 @@
 namespace App\Http\Requests\EInvoice\Peppol;
 
 use App\Models\Country;
+use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Auth\Access\AuthorizationException;
 use App\Rules\EInvoice\Peppol\SupportsReceiverIdentifier;
 use App\Services\EDocument\Standards\Peppol\ReceiverIdentifier;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-
-class CreateRequest extends FormRequest
+class AddTaxIdentifierRequest extends FormRequest
 {
-
     private array $vat_regex_patterns = [
         'DE' => '/^DE\d{9}$/',
         'AT' => '/^ATU\d{8}$/',
@@ -64,8 +62,7 @@ class CreateRequest extends FormRequest
             return true;
         }
 
-        return $user->account->isPaid() && $user->isAdmin() && 
-            $user->company()->legal_entity_id === null;
+        return $user->account->isPaid() && $user->isAdmin() && $user->company()->legal_entity_id != null;
     }
 
     /**
@@ -74,21 +71,20 @@ class CreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'party_name' => ['required', 'string'],
-            'line1' => ['required', 'string'],
-            'line2' => ['nullable', 'string'],
-            'city' => ['required', 'string'],
             'country' => ['required', 'bail', Rule::in(array_keys($this->vat_regex_patterns))],
-            'zip' => ['required', 'string'],
-            'county' => ['required', 'string'],
+            'vat_number' => [
+               'required',
+               'string',
+               'bail',
+               function ($attribute, $value, $fail) {
+                   if ($this->country && isset($this->vat_regex_patterns[$this->country])) {
+                       if (!preg_match($this->vat_regex_patterns[$this->country], $value)) {
+                           $fail(ctrans('texts.invalid_vat_number'));
+                       }
+                   }
+               },
+            ]
         ];
-    }
-
-    protected function failedAuthorization(): void
-    {
-        throw new AuthorizationException(
-            message: ctrans('texts.peppol_not_paid_message'),
-        );
     }
 
     public function prepareForValidation()
@@ -114,5 +110,6 @@ class CreateRequest extends FormRequest
             return $this->country == $c->id;
         });
     }
-
+    
+    
 }

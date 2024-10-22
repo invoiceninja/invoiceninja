@@ -11,6 +11,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
 use App\Http\Requests\EInvoice\Peppol\CreateRequest;
 use App\Http\Requests\EInvoice\Peppol\DisconnectRequest;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
@@ -25,17 +26,14 @@ class EInvoicePeppolController extends BaseController
          */
         $company = auth()->user()->company();
 
-        $data = [
-            ...$request->validated(),
-            'country' => $request->country()->iso_3166_2,
-        ];
+        $legal_entity_response = $storecove->createLegalEntity($request->validated(), $company);
 
-        $legal_entity_response = $storecove->createLegalEntity($data, $company);
+        $scheme = $storecove->router->resolveRouting($request->country, $company->settings->classification);
 
         $add_identifier_response = $storecove->addIdentifier(
             legal_entity_id: $legal_entity_response['id'],
             identifier: $company->settings->vat_number,
-            scheme: $request->receiverIdentifier(),
+            scheme: $scheme,
         );
 
         if ($add_identifier_response) {
@@ -48,6 +46,18 @@ class EInvoicePeppolController extends BaseController
         // @todo: Improve with proper error.
 
         return response()->noContent(status: 422);
+    }
+
+    public function addAdditionalTaxIdentifier(AddTaxIdentifierRequest $request, Storecove $storecove): Response
+    {
+        
+        $company = auth()->user()->company();
+
+        $scheme = $storecove->router->resolveRouting($request->country, $company->settings->classification);
+
+        $storecove->addAdditionalTaxIdentifier($company->legal_entity_id, $request->identifier, $scheme);
+
+        return response()->json(['message' => 'ok'], 200);
     }
 
     public function disconnect(DisconnectRequest $request, Storecove $storecove): Response

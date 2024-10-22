@@ -240,30 +240,6 @@ class Company extends BaseModel
     use AppSetup;
     use \Awobaz\Compoships\Compoships;
 
-    // const ENTITY_RECURRING_INVOICE = 'recurring_invoice';
-
-    // const ENTITY_CREDIT = 'credit';
-
-    // const ENTITY_QUOTE = 'quote';
-
-    // const ENTITY_TASK = 'task';
-
-    // const ENTITY_EXPENSE = 'expense';
-
-    // const ENTITY_PROJECT = 'project';
-
-    // const ENTITY_VENDOR = 'vendor';
-
-    // const ENTITY_TICKET = 'ticket';
-
-    // const ENTITY_PROPOSAL = 'proposal';
-
-    // const ENTITY_RECURRING_EXPENSE = 'recurring_expense';
-
-    // const ENTITY_RECURRING_TASK = 'task';
-
-    // const ENTITY_RECURRING_QUOTE = 'recurring_quote';
-
     /** @var CompanyPresenter */
     protected $presenter = CompanyPresenter::class;
 

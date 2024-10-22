@@ -222,7 +222,7 @@ class Storecove
         }
 
         $company_defaults = [
-            'acts_as_receiver' => false,
+            'acts_as_receiver' => true,
             'acts_as_sender' => true,
             'advertisements' => ['invoice'],
         ];
@@ -316,6 +316,41 @@ class Storecove
 
     }
     
+    /**
+     * addAdditionalTaxIdentifier
+     *
+     * Adds an additional TAX identifier to the legal entity, where they are selling cross border
+     * and are required to be registered in the destination country.
+     *
+     * @param  int $legal_entity_id
+     * @param  string $identifier
+     * @param  string $scheme
+     * @return mixed
+     */
+
+    public function addAdditionalTaxIdentifier(int $legal_entity_id, string $identifier, string $scheme)
+    {
+
+        $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers";
+
+        $data = [
+            "identifier" => $identifier,
+            "scheme" => $scheme,
+            "superscheme" => "iso6523-actorid-upis",
+        ];
+
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $data);
+
+        if ($r->successful()) {
+            $data = $r->json();
+
+            return $data;
+        }
+
+        return $r;
+
+    }
+
     /**
      * deleteIdentifier
      *
