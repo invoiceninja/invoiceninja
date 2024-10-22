@@ -79,6 +79,8 @@ class StoreEntityRequest extends FormRequest
             'country' => ['required', 'bail', Rule::in(array_keys($this->vat_regex_patterns))],
             'zip' => ['required', 'string'],
             'county' => ['required', 'string'],
+            'acts_as_receiver' => ['required', 'bool'],
+            'acts_as_sender' => ['required', 'bool'],
         ];
     }
 
@@ -97,6 +99,9 @@ class StoreEntityRequest extends FormRequest
             $country = $this->country();
             $input['country'] = $country->iso_3166_2;
         }
+
+        $input['acts_as_receiver'] = $input['acts_as_receiver'] ?? true;
+        $input['acts_as_sender'] = $input['acts_as_sender'] ?? true;
 
         $this->replace($input);
 

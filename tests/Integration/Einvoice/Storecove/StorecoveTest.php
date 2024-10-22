@@ -16,13 +16,14 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use Tests\MockAccountData;
+use App\Models\ClientContact;
 use App\DataMapper\InvoiceItem;
+use App\DataMapper\Tax\TaxModel;
 use App\DataMapper\ClientSettings;
 use App\DataMapper\CompanySettings;
-use App\Models\ClientContact;
 use App\Services\EDocument\Standards\Peppol;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class StorecoveTest extends TestCase
 {
@@ -42,6 +43,69 @@ class StorecoveTest extends TestCase
         }
     }
 
+    public function testUnsetOfVatNumers()
+    {
+
+      $settings = CompanySettings::defaults();
+      $settings->country_id = '276'; // germany
+
+      $tax_data = new TaxModel();
+      $tax_data->seller_subregion = 'DE';
+      $tax_data->regions->EU->has_sales_above_threshold = false;
+      $tax_data->regions->EU->tax_all_subregions = true;
+      $tax_data->regions->US->tax_all_subregions = true;
+      $tax_data->regions->US->has_sales_above_threshold = true;
+      
+      $tax_data->regions->EU->subregions->DE->vat_number = 'DE12345';
+      $tax_data->regions->EU->subregions->RO->vat_number = 'RO12345';
+
+      $company = Company::factory()->create([
+          'account_id' => $this->account->id,
+          'settings' => $settings,
+          'tax_data' => $tax_data,
+          'calculate_taxes' => true,
+      ]);
+
+
+      $this->assertEquals('DE12345', $company->tax_data->regions->EU->subregions->DE->vat_number);
+      $this->assertEquals('RO12345', $company->tax_data->regions->EU->subregions->RO->vat_number);
+      
+      $this->assertEquals('DE12345', $company->tax_data->regions->EU->subregions->DE->vat_number);
+      $this->assertEquals('RO12345', $company->tax_data->regions->EU->subregions->RO->vat_number);
+
+      $company->tax_data = $this->unsetVatNumbers($company->tax_data);
+
+      $company->save();
+
+      $company = $company->fresh();
+
+      $this->assertFalse(property_exists($company->tax_data->regions->EU->subregions->DE, 'vat_number'), "DE subregion should not have vat_number property");
+      $this->assertFalse(property_exists($company->tax_data->regions->EU->subregions->RO, 'vat_number'), "RO subregion should not have vat_number property");
+
+    }
+
+
+  private function unsetVatNumbers(mixed $taxData): mixed
+    {
+        if (isset($taxData->regions->EU->subregions)) {
+            foreach ($taxData->regions->EU->subregions as $country => $data) {
+                if (isset($data->vat_number)) {
+                    $newData = new \stdClass();
+                    if (is_object($data)) {
+                        $dataArray = get_object_vars($data);
+                        foreach ($dataArray as $key => $value) {
+                            if ($key !== 'vat_number') {
+                                $newData->$key = $value;
+                            }
+                        }
+                    }
+                    $taxData->regions->EU->subregions->$country = $newData;
+                }
+            }
+        }
+
+        return $taxData;
+    }
     // public function testCreateLegalEntity()
     // {
 
