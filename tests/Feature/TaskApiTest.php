@@ -104,6 +104,50 @@ class TaskApiTest extends TestCase
         }
     }
 
+    public function testCaseOne()
+    {
+        $time_log = '[[1729552249,1729553149],[1729553415,1729554315],[1729555129,1729556929],[1729557879,1729565079],[1729565184,1729568784]]';
+
+            $c = Client::factory()->create([
+                'user_id' => $this->user->id,
+                'company_id' => $this->company->id,
+            ]);
+
+            $data = [
+                'client_id' => $c->hashed_id,
+                'description' => 'Test Task',
+                'time_log' => $time_log,
+            ];
+
+            $response = $this->withHeaders([
+                'X-API-SECRET' => config('ninja.api_secret'),
+                'X-API-TOKEN' => $this->token,
+            ])->postJson("/api/v1/tasks", $data);
+
+
+            $response->assertStatus(200);
+
+            
+            $response = $this->withHeaders([
+               'X-API-SECRET' => config('ninja.api_secret'),
+               'X-API-TOKEN' => $this->token,
+           ])->postJson("/api/v1/tasks?start=true", $data);
+
+
+            $response->assertStatus(200);
+
+
+            $response = $this->withHeaders([
+               'X-API-SECRET' => config('ninja.api_secret'),
+               'X-API-TOKEN' => $this->token,
+           ])->postJson("/api/v1/tasks?stop=true", $data);
+
+
+            $response->assertStatus(200);
+
+
+    }
+
     public function testTimeLogWithSameStartAndStopTimes()
     {
         $settings = ClientSettings::defaults();
