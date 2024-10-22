@@ -54,6 +54,26 @@ class ProcessBankRules extends AbstractService
         }
     }
 
+    private function matchCredit()
+    {
+        $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
+                                ->whereIn('status_id', [1,2,3])
+                                ->where('is_deleted', 0)
+                                ->get();
+
+        $invoice = $this->invoices->first(function ($value, $key) {
+            return str_contains($this->bank_transaction->description, $value->number) || str_contains(str_replace("\n", "", $this->bank_transaction->description), $value->number);
+        });
+
+        if ($invoice) {
+            $this->bank_transaction->invoice_ids = $invoice->hashed_id;
+            $this->bank_transaction->status_id = BankTransaction::STATUS_MATCHED;
+            $this->bank_transaction->save();
+            return;
+        }
+
+    }
+
     // $payment.amount
     // $payment.transaction_reference
     // $payment.custom1
@@ -73,7 +93,7 @@ class ProcessBankRules extends AbstractService
     // $client.custom2
     // $client.custom3
     // $client.custom4
-    private function matchCredit()
+    private function matchCreditXX()
     {
         $match_set = [];
 
