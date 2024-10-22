@@ -32,6 +32,36 @@ class UpdateCompanyRequest extends Request
         'portal_custom_css',
         'portal_custom_head'
     ];
+    
+    private array $vat_regex_patterns = [
+        'DE' => '/^DE\d{9}$/',
+        'AT' => '/^ATU\d{8}$/',
+        'BE' => '/^BE0\d{9}$/',
+        'BG' => '/^BG\d{9,10}$/',
+        'CY' => '/^CY\d{8}L$/',
+        'HR' => '/^HR\d{11}$/',
+        'DK' => '/^DK\d{8}$/',
+        'ES' => '/^ES[A-Z0-9]\d{7}[A-Z0-9]$/',
+        'EE' => '/^EE\d{9}$/',
+        'FI' => '/^FI\d{8}$/',
+        'FR' => '/^FR\d{2}\d{9}$/',
+        'EL' => '/^EL\d{9}$/',
+        'HU' => '/^HU\d{8}$/',
+        'IE' => '/^IE\d{7}[A-Z]{1,2}$/',
+        'IT' => '/^IT\d{11}$/',
+        'LV' => '/^LV\d{11}$/',
+        'LT' => '/^LT(\d{9}|\d{12})$/',
+        'LU' => '/^LU\d{8}$/',
+        'MT' => '/^MT\d{8}$/',
+        'NL' => '/^NL\d{9}B\d{2}$/',
+        'PL' => '/^PL\d{10}$/',
+        'PT' => '/^PT\d{9}$/',
+        'CZ' => '/^CZ\d{8,10}$/',
+        'RO' => '/^RO\d{2,10}$/',
+        'SK' => '/^SK\d{10}$/',
+        'SI' => '/^SI\d{8}$/',
+        'SE' => '/^SE\d{12}$/',
+    ];
 
     /**
      * Determine if the user is authorized to make this request.
@@ -86,6 +116,24 @@ class UpdateCompanyRequest extends Request
         $rules['inbound_mailbox_whitelist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
         $rules['inbound_mailbox_blacklist'] = ['sometimes', 'string', 'nullable', 'regex:/^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}(,[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4})*$/'];
 
+        $rules['settings.vat_number'] = [
+                'nullable',
+                'string',
+                'bail',
+                'sometimes',
+                Rule::requiredIf(function () {
+                    return $this->input('settings.e_invoice_type') === 'PEPPOL';
+                }),
+                function ($attribute, $value, $fail) {
+                    $country_code = $this->getCountryCode();
+                    if ($country_code && isset($this->vat_regex_patterns[$country_code]) && $this->input('settings.e_invoice_type') === 'PEPPOL') {
+                        if (!preg_match($this->vat_regex_patterns[$country_code], $value)) {
+                            $fail(ctrans('texts.invalid_vat_number'));
+                        }
+                    }
+                },
+            ];
+
         return $rules;
     }
 
@@ -137,6 +185,12 @@ class UpdateCompanyRequest extends Request
         }
 
         $this->replace($input);
+    }
+
+
+    private function getCountryCode()
+    {
+        return auth()->user()->company()->country()->iso_3166_2;
     }
 
     /**

@@ -11,13 +11,13 @@
 
 namespace App\Services\EDocument\Gateway\Storecove;
 
-use App\DataMapper\Analytics\LegalEntityCreated;
 use App\Models\Company;
 use Illuminate\Support\Facades\Http;
+use Turbo124\Beacon\Facades\LightLogs;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use Illuminate\Http\Client\RequestException;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\DataMapper\Analytics\LegalEntityCreated;
 
 enum HttpVerb: string
 {
@@ -82,13 +82,47 @@ class Storecove
         };
 
         $uri =  "api/v2/discovery/receives";
-
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $network_data, $this->getHeaders());
-
+nlog($network_data);
+nlog($r->json());
+nlog($r->body());
         return ($r->successful() && $r->json()['code'] == 'OK') ? true : false;
 
     }
     
+
+    /**
+     * Discovery
+     *
+     * @param  string $identifier
+     * @param  string $scheme
+     * @param  string $network
+     * @return bool
+     */
+    public function exists(string $identifier, string $scheme, string $network = 'peppol'): bool
+    {
+        $network_data = [];
+
+        match ($network) {
+            'peppol' => $network_data = array_merge($this->peppol_discovery, ['scheme' => $scheme, 'identifier' => $identifier]),
+            'dbn' => $network_data = array_merge($this->dbn_discovery, ['scheme' => $scheme, 'identifier' => $identifier]),
+            default => $network_data = array_merge($this->peppol_discovery, ['scheme' => $scheme, 'identifier' => $identifier]),
+        };
+
+        $uri =  "api/v2/discovery/exists";
+
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $network_data, $this->getHeaders());
+
+        
+nlog($network_data);
+nlog($r->json());
+nlog($r->body());
+
+        return ($r->successful() && $r->json()['code'] == 'OK') ? true : false;
+
+    }
+
+
     /**
      * Unused as yet
      *
@@ -222,7 +256,7 @@ class Storecove
         }
 
         $company_defaults = [
-            'acts_as_receiver' => false,
+            'acts_as_receiver' => true,
             'acts_as_sender' => true,
             'advertisements' => ['invoice'],
         ];
@@ -232,6 +266,8 @@ class Storecove
         $r = $this->httpClient($uri, (HttpVerb::POST)->value, $payload);
 
         if($r->successful()) {
+            $data = $r->object();
+            LightLogs::create(new LegalEntityCreated($data->id, $data->tenant_id))->batch();
             return $r->json();
         }
 
@@ -247,8 +283,6 @@ class Storecove
      */
     public function getLegalEntity($id)
     {
-
-        // $uri = "legal_entities";
 
         $uri = "legal_entities/{$id}";
 
@@ -316,6 +350,86 @@ class Storecove
 
     }
     
+    /**
+     * addAdditionalTaxIdentifier
+     *
+     * Adds an additional TAX identifier to the legal entity, where they are selling cross border
+     * and are required to be registered in the destination country.
+     *
+     * @param  int $legal_entity_id
+     * @param  string $identifier
+     * @param  string $scheme
+     * @return mixed
+     */
+
+    public function addAdditionalTaxIdentifier(int $legal_entity_id, string $identifier, string $scheme)
+    {
+
+        $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers";
+
+        $data = [
+            "identifier" => $identifier,
+            "scheme" => $scheme,
+            "superscheme" => "iso6523-actorid-upis",
+        ];
+
+        $r = $this->httpClient($uri, (HttpVerb::POST)->value, $data);
+
+        if ($r->successful()) {
+            $data = $r->json();
+
+            return $data;
+        }
+
+        return $r;
+
+    }
+
+    /**
+     * removeAdditionalTaxIdentifier
+     *
+     * Adds an additional TAX identifier to the legal entity, where they are selling cross border
+     * and are required to be registered in the destination country.
+     *
+     * @param  int $legal_entity_id
+     * @param  string $tax_identifier
+     * @return mixed
+     */
+
+    public function removeAdditionalTaxIdentifier(int $legal_entity_id, string $tax_identifier)
+    {
+        $legal_entity = $this->getLegalEntity($legal_entity_id);
+
+        if(isset($legal_entity['additional_tax_identifiers']) && is_array($legal_entity['additional_tax_identifiers']))
+        {
+
+            foreach($legal_entity['additional_tax_identifiers'] as $ati)
+            {
+
+                if($ati['identifier'] == $tax_identifier)
+                {
+
+                    $uri = "legal_entities/{$legal_entity_id}/additional_tax_identifiers/{$ati['id']}";
+
+                    $r = $this->httpClient($uri, (HttpVerb::DELETE)->value, []);
+
+                    if ($r->successful()) {
+                        $data = $r->json();
+
+                        return $data;
+                    }
+
+                    return $r;
+
+                }
+            }
+
+
+        }
+
+        return false;
+    }
+
     /**
      * deleteIdentifier
      *

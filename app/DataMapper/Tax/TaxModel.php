@@ -21,7 +21,13 @@ class TaxModel
 
     /** @var object $regions */
     public object $regions;
-
+    
+    /** @var bool $act_as_sender */
+    public bool $act_as_sender = false;
+    
+    /** @var bool $act_as_receiver */
+    public bool $act_as_receiver = false;
+    
     /**
      * __construct
      *
@@ -34,15 +40,16 @@ class TaxModel
         if(!$model) {
             $this->regions = $this->init();
         } else {
-
-            if(is_null($model->seller_subregion)) {//@phpstan-ignore-line
-                $this->seller_subregion = '';
-            }
-
-            //@phpstan-ignore-next-line
-            foreach($model as $key => $value) {
+            
+            $this->seller_subregion = $model->seller_subregion ?? '';
+            $this->act_as_sender = $model->act_as_sender ?? false;
+            $this->act_as_receiver = $model->act_as_receiver ?? false;
+            
+            $modelArray = get_object_vars($model);
+            foreach ($modelArray as $key => $value) {
                 $this->{$key} = $value;
             }
+
 
         }
 
