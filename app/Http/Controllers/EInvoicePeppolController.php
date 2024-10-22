@@ -11,15 +11,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
-use App\Http\Requests\EInvoice\Peppol\CreateRequest;
-use App\Http\Requests\EInvoice\Peppol\DisconnectRequest;
-use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Http\Response;
+use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
+use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Http\Requests\EInvoice\Peppol\DisconnectRequest;
+use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
+use App\Http\Requests\EInvoice\Peppol\ShowEntityRequest;
 
 class EInvoicePeppolController extends BaseController
-{
-    public function setup(CreateRequest $request, Storecove $storecove): Response
+{    
+    public function show(ShowEntityRequest $request, Storecove $storecove)
+    {
+        $company = auth()->user()->company();
+
+        $response = $storecove->getLegalEntity($company->legal_entity_id);
+
+        return response()->json($response, 200);
+    }
+
+    /**
+     * Create a legal entity id
+     *
+     * @param  CreateRequest $request
+     * @param  Storecove $storecove
+     * @return Response
+     */
+    public function setup(StoreEntityRequest $request, Storecove $storecove): Response
     {
         /**
          * @var \App\Models\Company
@@ -47,17 +64,37 @@ class EInvoicePeppolController extends BaseController
 
         return response()->noContent(status: 422);
     }
-
-    public function addAdditionalTaxIdentifier(AddTaxIdentifierRequest $request, Storecove $storecove): Response
+    
+    /**
+     * Add an additional tax identifier to
+     * an existing legal entity id
+     *
+     * @param  AddTaxIdentifierRequest $request
+     * @param  Storecove $storecove
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addAdditionalTaxIdentifier(AddTaxIdentifierRequest $request, Storecove $storecove): \Illuminate\Http\JsonResponse
     {
         
         $company = auth()->user()->company();
+        $tax_data = $company->tax_data;
+
+        $additional_vat = $tax_data->regions->EU->subregions->{$request->country}->vat_number ?? null;
+
+        if (!is_null($additional_vat) && !empty($additional_vat)) {
+            return response()->json(['message' => 'Identifier already exists for this region.'], 400);
+        }
 
         $scheme = $storecove->router->resolveRouting($request->country, $company->settings->classification);
 
         $storecove->addAdditionalTaxIdentifier($company->legal_entity_id, $request->identifier, $scheme);
 
+        $tax_data->regions->EU->subregions->{$request->country}->vat_number = $request->identifier;
+        $company->tax_data = $tax_data;
+        $company->save();
+
         return response()->json(['message' => 'ok'], 200);
+
     }
 
     public function disconnect(DisconnectRequest $request, Storecove $storecove): Response

@@ -13,14 +13,12 @@
 namespace App\Http\Requests\EInvoice\Peppol;
 
 use App\Models\Country;
-use App\Rules\EInvoice\Peppol\SupportsReceiverIdentifier;
-use App\Services\EDocument\Standards\Peppol\ReceiverIdentifier;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 
-class CreateRequest extends FormRequest
+class StoreEntityRequest extends FormRequest
 {
 
     private array $vat_regex_patterns = [

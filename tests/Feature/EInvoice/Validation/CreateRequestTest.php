@@ -4,18 +4,18 @@ namespace Tests\Feature\EInvoice\Validation;
 
 use Tests\TestCase;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\EInvoice\Peppol\CreateRequest;
+use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
 use App\Models\Country;
 use Illuminate\Support\Collection;
 
 class CreateRequestTest extends TestCase
 {
-    protected CreateRequest $request;
+    protected StoreEntityRequest $request;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->request = new CreateRequest();
+        $this->request = new StoreEntityRequest();
     }
 
     public function testValidInput()
@@ -80,7 +80,7 @@ class CreateRequestTest extends TestCase
 
     public function testCountryPreparation()
     {
-        $request = new CreateRequest([
+        $request = new StoreEntityRequest([
             'country' => '276', // Assuming 1 is the ID for Germany
         ]);
 
