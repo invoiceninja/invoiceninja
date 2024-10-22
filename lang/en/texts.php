@@ -5403,6 +5403,8 @@ $lang = array(
     'payment_updated' => 'Payment Updated',
     'search_placeholder' => 'Find invoices, clients, and more',
     'invalid_vat_number' => "The VAT number is not valid for the selected country. Format should be Country Code followed by number only ie, DE123456789",
+    'act_as_sender' => 'Act as Sender',
+    'act_as_receiver' => 'Act as Receiver',
 );
 
 return $lang;
