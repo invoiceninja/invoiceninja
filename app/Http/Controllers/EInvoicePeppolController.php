@@ -110,6 +110,18 @@ class EInvoicePeppolController extends BaseController
 
         if ($add_identifier_response) {
             $company->legal_entity_id = $legal_entity_response['id'];
+
+            $tax_data = $company->tax_data;
+
+            $tax_data->acts_as_sender = $request->acts_as_sender;
+            $tax_data->acts_as_receiver = $request->acts_as_receiver;
+
+            $settings = $company->settings;
+            $settings->e_invoice_type = 'PEPPOL';
+            
+            $company->tax_data = $tax_data;
+            $company->settings = $settings;
+
             $company->save();
 
             return response()->noContent();
@@ -156,12 +168,24 @@ class EInvoicePeppolController extends BaseController
     
     public function updateLegalEntity(UpdateEntityRequest $request, Storecove $storecove)
     {
-        
         $company = auth()->user()->company();
 
         $r = $storecove->updateLegalEntity($company->legal_entity_id, $request->validated());
-        
 
+        if ($r) {
+            $tax_data = $company->tax_data;
+
+            $tax_data->acts_as_sender = $request->acts_as_sender;
+            $tax_data->acts_as_receiver = $request->acts_as_receiver;
+
+            $company->tax_data = $tax_data;
+
+            $company->save();
+
+            return response()->noContent();
+        }
+            
+        return response()->json(['message' => 'Error updating identifier'], 422);
     }
 
     /**
@@ -185,6 +209,12 @@ class EInvoicePeppolController extends BaseController
         if ($response) {
             $company->legal_entity_id = null;
             $company->tax_data = $this->unsetVatNumbers($company->tax_data);
+
+            $settings = $company->settings;
+            $settings->e_invoice_type = 'EN16931';
+
+            $company->settings = $settings;
+
             $company->save();
 
             return response()->noContent();
