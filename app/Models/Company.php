@@ -362,6 +362,7 @@ class Company extends BaseModel
         'smtp_local_domain',
         'smtp_verify_peer',
         // 'e_invoice',
+        'e_invoicing_token',
     ];
 
     protected $hidden = [
