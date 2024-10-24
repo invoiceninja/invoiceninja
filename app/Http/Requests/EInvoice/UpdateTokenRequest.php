@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -10,38 +9,35 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\EInvoice\Peppol;
+namespace App\Http\Requests\EInvoice;
 
-use App\Models\Country;
-use App\Rules\EInvoice\Peppol\SupportsReceiverIdentifier;
-use App\Services\EDocument\Standards\Peppol\ReceiverIdentifier;
+use App\Utils\Ninja;
+use App\Http\Requests\Request;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Http\FormRequest;
 
-class DisconnectRequest extends FormRequest
+class UpdateTokenRequest extends Request
 {
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
     public function authorize(): bool
     {
-        /**
-         * @var \App\Models\User
-         */
-        $user = auth()->user();
-
         if (app()->isLocal()) {
             return true;
         }
 
-        return $user->account->isPaid() &&
-            $user->company()->legal_entity_id !== null;
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return Ninja::isSelfHost() && $user->account->isPaid();
     }
 
-    /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            'company_key' => ['required'], 
+            'token' => 'required',
         ];
     }
 
