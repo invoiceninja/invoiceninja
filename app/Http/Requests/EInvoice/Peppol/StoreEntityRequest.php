@@ -81,6 +81,7 @@ class StoreEntityRequest extends FormRequest
             'county' => ['required', 'string'],
             'acts_as_receiver' => ['required', 'bool'],
             'acts_as_sender' => ['required', 'bool'],
+            'tenant_id' => ['required'],
         ];
     }
 

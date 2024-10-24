@@ -40,7 +40,9 @@ class DisconnectRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [];
+        return [
+            'company_key' => ['required'], 
+        ];
     }
 
     protected function failedAuthorization(): void
