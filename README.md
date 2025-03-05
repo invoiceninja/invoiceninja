@@ -10,6 +10,8 @@
 
 Invoice Ninja Version 5 is here! We've taken the best parts of version 4 and added the most requested features to create an invoicing application like no other. Check the [Invoice Ninja YouTube Channel](https://www.youtube.com/@appinvoiceninja) to get up to speed, or try the [Demo](https://react.invoicing.co/demo) now.
 
+[IN_screencast_2025_0503.webm](https://github.com/user-attachments/assets/c93969b4-f028-4b13-b386-12e50748c647)
+
 **Choose your setup**
 
 - [Hosted](https://www.invoiceninja.com): Our hosted version is a Software as a Service (SaaS) solution. You're up and running in under 5 minutes, with no need to worry about hosting or server infrastructure.
