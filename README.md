@@ -5,115 +5,139 @@
 ![v5-develop phpunit](https://github.com/invoiceninja/invoiceninja/workflows/phpunit/badge.svg?branch=v5-develop)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/d16c78aad8574466bf83232b513ef4fb)](https://www.codacy.com/gh/turbo124/invoiceninja/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=turbo124/invoiceninja&amp;utm_campaign=Badge_Grade)
 <a href="https://cla-assistant.io/invoiceninja/invoiceninja"><img src="https://cla-assistant.io/readme/badge/invoiceninja/invoiceninja" alt="CLA assistant" /></a>
-
 # Invoice Ninja 5
 
-Invoice Ninja Version 5 is here! We've taken the best parts of version 4 and added the most requested features to create an invoicing application like no other. Check the [Invoice Ninja YouTube Channel](https://www.youtube.com/@appinvoiceninja) to get up to speed, or try the [Demo](https://react.invoicing.co/demo) now.
+Invoice Ninja Version 5 is here! We've taken the best parts of Version 4 and added the most requested features to create an invoicing application like no other. Check out the **[Invoice Ninja YouTube Channel](https://www.youtube.com/@appinvoiceninja)** to get up to speed, or try the **[Demo](https://www.invoiceninja.com/demo/)** now.
 
-**Choose your setup**
+## **Choose Your Setup**
+### **🔹 Hosted:**
+Our hosted version is a **Software as a Service (SaaS)** solution. You're up and running in under **5 minutes**, with no need to worry about hosting or server infrastructure.
 
-- [Hosted](https://www.invoiceninja.com): Our hosted version is a Software as a Service (SaaS) solution. You're up and running in under 5 minutes, with no need to worry about hosting or server infrastructure.
-- [Self-Hosted](https://www.invoiceninja.org): For those who prefer to manage their own hosting and server infrastructure. This version gives you full control and flexibility.
+### **🔹 Self-Hosted:**
+For those who prefer to manage their own hosting and server infrastructure, this version gives you **full control and flexibility**.
 
-All Pro and Enterprise features from the hosted app are included in the source-available code. We offer a $30 per year white-label license to remove the Invoice Ninja branding from client-facing parts of the app.  
+> 💡 **Note:** All **Pro and Enterprise** features from the hosted app are included in the source-available code. We offer a **$30 per year white-label license** to remove the Invoice Ninja branding from client-facing parts of the app.
 
-#### Get social with us
+---
 
-* [Support Forum](https://forum.invoiceninja.com)
-* [Slack](http://slack.invoiceninja.com)
-* [Discord](https://discord.gg/ZwEdtfCwXA)
-* [Instagram](https://www.instagram.com/appinvoiceninja)
+## **📢 Get Social with Us**
+- [Support Forum](https://forum.invoiceninja.com/)
+- [Slack](https://slack.com)
+- [Discord](https://discord.com)
+- [Instagram](https://instagram.com/invoiceninja)
 
-#### Documentation
+---
 
-* [Invoice Ninja - API](https://api-docs.invoicing.co/)
-* [Invoice Ninja - Developer Guide](https://invoiceninja.github.io/en/developer-guide/)
-* [Invoice Ninja - User Guide](https://invoiceninja.github.io/en/user-guide/)
-* [Invoice Ninja - Self-Hosted Installation Guide](https://invoiceninja.github.io/en/self-host-installation/)
+## **📖 Documentation**
+- [Invoice Ninja API](https://invoiceninja.github.io/)
+- [Developer Guide](https://invoiceninja.github.io/)
+- [User Guide](https://invoiceninja.github.io/)
+- [Self-Hosted Installation Guide](https://invoiceninja.github.io/)
 
-## Installation Options and Clients
+---
 
-### Mobile Apps
-* [iPhone](https://apps.apple.com/app/id1503970375?platform=iphone)
-* [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
-* [F-Droid](https://f-droid.org/en/packages/com.invoiceninja.app)
+## **🛠️ Installation Options and Clients**
 
-### Desktop Apps
-* [macOS](https://apps.apple.com/app/id1503970375?platform=mac)
-* [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
-* [Linux - Snap](https://snapcraft.io/invoiceninja)
-* [Linux - Flatpak](https://flathub.org/apps/com.invoiceninja.InvoiceNinja)
+### **📱 Mobile Apps:**
+- [iPhone](https://apps.apple.com/app/invoice-ninja/id1166477264)
+- [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
+- [F-Droid](https://f-droid.org/packages/com.invoiceninja.app/)
 
-### Self-Hosted Server Installation 
-**Note:** The self-hosted options do support the desktop and mobile apps.
+### **💻 Desktop Apps:**
+- [macOS](https://invoiceninja.com/)
+- [Windows](https://invoiceninja.com/)
+- Linux:
+  - [Snap](https://snapcraft.io/invoiceninja)
+  - [Flatpak](https://flathub.org/apps/invoiceninja)
 
-* [Server or VM](https://invoiceninja.github.io/en/self-host-installation/)
-* [Docker File](https://hub.docker.com/r/invoiceninja/invoiceninja/)
-* [Cloudron](https://www.cloudron.io/store/com.invoiceninja.cloudronapp2.html)
-* [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
-* [Elestio](https://elest.io/open-source/invoiceninja)
-* [YunoHost](https://apps.yunohost.org/app/invoiceninja5)
+### **🖥️ Self-Hosted Server Installation**
+> 💡 **Note:** The self-hosted version supports both the **desktop** and **mobile apps**.
 
-### Recommended Providers
-* [Stripe](https://stripe.com/)
-* [Postmark](https://postmarkapp.com/)
+#### **⚙️ Installation Methods**
+- **Server or VM**
+- **Docker File**
+- **Cloudron**
+- **Softaculous**
+- **Elestio**
+- **YunoHost**
 
-## [Advanced] Quick Hosting Setup
+### **🌐 Recommended Providers**
+- **[Stripe](https://stripe.com)**
+- **[Postmark](https://postmarkapp.com)**
 
-In addition to the official [Invoice Ninja - Self-Hosted Installation Guide](https://invoiceninja.github.io/en/self-host-installation/) we have a few commands for you.
+---
 
-```sh
-git clone --single-branch --branch v5-stable https://github.com/invoiceninja/invoiceninja.git
-cp .env.example .env
-composer i -o --no-dev
+## **🚀 Quick Hosting Setup**
+In addition to the official **[Self-Hosted Installation Guide](https://invoiceninja.github.io/)**, here’s a quick setup guide:
+
+```bash
+# Clone the repository
+git clone --single-branch --branch v5-stable https://github.com/invoiceninja/invoiceninja.git  
+
+# Copy the environment file
+cp .env.example .env  
+
+# Install dependencies
+composer install -o --no-dev  
 ```
 
-Please Note: 
-Your APP_KEY in the .env file is used to encrypt data, if you lose this you will not be able to run the application.
+> ⚠️ **Important:** Your `APP_KEY` in the `.env` file is used to encrypt data. If you lose this key, you will **not** be able to run the application.
 
-Run if you want to load sample data, remember to configure .env
-```sh
-php artisan migrate:fresh --seed && php artisan db:seed && php artisan ninja:create-test-data
+### **📂 Load Sample Data**
+Run the following command **(ensure `.env` is configured first):**
+```bash
+php artisan migrate:fresh --seed && php artisan db:seed && php artisan ninja:create-test-data  
 ```
 
-To run the web server
-```sh
-php artisan serve 
+### **🌍 Start the Web Server**
+```bash
+php artisan serve  
 ```
 
-Navigate to (replace localhost with the appropriate domain)
-```
-http://localhost:8000/setup - To setup your configuration if you did not load sample data.
-http://localhost:8000/ - For Administrator Logon
+Now, navigate to the appropriate domain:
 
-user: small@example.com
-pass: password
+- **Admin Panel:**
+  - **[http://localhost:8000/setup](http://localhost:8000/setup)** → To configure your installation.  
+  - **[http://localhost:8000/](http://localhost:8000/)** → Administrator Login  
+    - **User:** `small@example.com`  
+    - **Password:** `password`  
 
-http://localhost:8000/client/login - For Client Portal
+- **Client Portal:**
+  - **[http://localhost:8000/client/login](http://localhost:8000/client/login)**  
+    - **User:** `user@example.com`  
+    - **Password:** `password`  
 
-user: user@example.com
-pass: password
-```
-## Developers Guide
+---
 
-In addition to the official [Invoice Ninja - Developer Guide](https://invoiceninja.github.io/en/developer-guide/) we've got your back with some insights.
+## **🛠️ Developers Guide**
+In addition to the official **[Developer Guide](https://invoiceninja.github.io/)**, here are some insights.
 
-### App Design
+### **📌 App Design**
+The API and client portal have been developed using **Laravel**. If you wish to contribute to this project, familiarity with **Laravel** is essential.
 
-The API and client portal have been developed using [Laravel](https://laravel.com) if you wish to contribute to this project familiarity with Laravel is essential.
+- The best place to start is **`routes/api.php`**, which describes all available API endpoints.
+- Controller methods handle different domains of the application, such as:
+  - **`InvoiceController`**
+  - **`QuoteController`**
 
-When inspecting functionality of the API, the best place to start would be in the routes/api.php file which describes all of the availabe API endpoints. The controller methods then describe all the entry points into each domain of the application, ie InvoiceController / QuoteController
+### **🔍 Understanding API Requests**
+A typical API request follows this path:
 
-The average API request follows this path into the application.
+1️⃣ **Middleware** processes the request by **inspecting the requested domain** and **authenticating the user**.
+2️⃣ **Form Requests** (`StoreInvoiceRequest`) provide authorization and validation.
+3️⃣ **Controller Methods** process the request, passing it to repositories for handling.
+4️⃣ **Service Classes** (`app/Services/Invoice`) perform additional actions such as triggering events.
+5️⃣ **Events** notify listeners (in `app/Providers/EventServiceProvider`) to handle non-blocking tasks.
+6️⃣ **Transformers** (`app/Transformers/`) convert data into a readable format before returning a response.
 
-* Middleware processes the request initially inspecting the domain being requested + provides the authentication layer.
-* The request then passes into a Form Request (Type hinted in the controller methods) which is used to provide authorization and also validation of the request. If successful, the request is then passed into the controller method where it is digested, here is an example:
-
+### **📝 Example: Storing a New Invoice**
 ```php
 public function store(StoreInvoiceRequest $request)
 {
-
-    $invoice = $this->invoice_repo->save($request->all(), InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id));
+    $invoice = $this->invoice_repo->save(
+        $request->all(),
+        InvoiceFactory::create(auth()->user()->company()->id, auth()->user()->id)
+    );
 
     $invoice = $invoice->service()
                         ->fillDefaults()
@@ -124,57 +148,37 @@ public function store(StoreInvoiceRequest $request)
     event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
     return $this->itemResponse($invoice);
-
 }
 ```
 
-Here for example we are storing a new invoice, we pass the validated request along with a factory into the invoice repository where it is processed and saved.
+---
 
-The returned invoice then passes through its service class (app/Services/Invoice) where various actions are performed.
-
-A event is then fired which notifies listeners in the application (app/Providers/EventServiceProvider) which perform non blocking sub tasks 
-
-Finally the invoice is transformed (app/Transformers/) and returned as a response via Fractal.
-
-### Developer environment
-
-Using the Quick Hosting Setup describe above you can quickly get started building out your development environment. Instead of using 
-
+## **⚙️ Developer Environment**
+To set up a development environment, use:
+```bash
+composer install -o
 ```
-composer i -o --no-dev
-``` 
+> This provides **developer tools**, including `phpunit` for running tests.
 
-use
+If you're contributing to the **main repository**, please add tests for new functionality/modifications to **increase the chances of your PR being accepted**.
 
-```
-composer i -o
-```
+💡 **Tip:** If you're planning major additions, discuss them with us on **Slack** before starting.
 
-This provides the developer tools including phpunit which allows the test suite to be run.
+---
 
-If you are considering contributing back to the main repository, please add in any tests for new functionality / modifications. This will greatly increase the chances of your PR being accepted
+## **🔐 Security & Responsible Disclosure**
+If you find a **security issue**, please report it via email:
+📩 **[contact@invoiceninja.com](mailto:contact@invoiceninja.com)**
 
-Also, if you plan any additions for the main repository, you may want to discuss this with us first on Slack where we can assist with any technical information and provide advice.
+Please follow responsible disclosure procedures. Learn more **[here](https://invoiceninja.com/security)**.
 
-## Credits
-* [Hillel Coren](https://hillelcoren.com/)
-* [David Bomba](https://github.com/turbo124)
-* [Benjamin Beganović](https://github.com/beganovich)
-* [All Contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
+---
 
+## **📜 License**
+Invoice Ninja is released under the **Elastic License**.
+See **[LICENSE](https://github.com/invoiceninja/invoiceninja/blob/master/LICENSE)** for details.
 
-## Want More?
-Checkout our other projects here!
+---
 
-[Event Schedule](https://www.eventschedule.com/)
-
-
-## Security
-
-If you find a security issue with this application, please send an email to contact@invoiceninja.com.
-Please follow responsible disclosure procedures if you detect an issue.
-For further information on responsible disclosure please read [here](https://cheatsheetseries.owasp.org/cheatsheets/Vulnerability_Disclosure_Cheat_Sheet.html).
-
-## License
-Invoice Ninja is released under the Elastic License.  
-See [LICENSE](LICENSE) for details.
+## **🚀 Want More?**
+Check out our other projects **[here](https://github.com/invoiceninja/)**!
