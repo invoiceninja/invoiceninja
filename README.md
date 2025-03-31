@@ -7,7 +7,7 @@
 <a href="https://cla-assistant.io/invoiceninja/invoiceninja"><img src="https://cla-assistant.io/readme/badge/invoiceninja/invoiceninja" alt="CLA assistant" /></a>
 # Invoice Ninja 5
 
-Invoice Ninja Version 5 is here! We've taken the best parts of Version 4 and added the most requested features to create an invoicing application like no other. Check out the **[Invoice Ninja YouTube Channel](https://www.youtube.com/@appinvoiceninja)** to get up to speed, or try the **[Demo](https://www.invoiceninja.com/demo/)** now.
+Invoice Ninja Version 5 is here! We've taken the best parts of Version 4 and added the most requested features to create an invoicing application like no other. Check out the **[Invoice Ninja YouTube Channel](https://www.youtube.com/@appinvoiceninja)** to get up to speed, or try the **[Demo](https://react.invoicing.co/demo)** now.
 
 ## **Choose Your Setup**
 ### **🔹 Hosted:**
@@ -22,9 +22,9 @@ For those who prefer to manage their own hosting and server infrastructure, this
 
 ## **📢 Get Social with Us**
 - [Support Forum](https://forum.invoiceninja.com/)
-- [Slack](https://slack.com)
-- [Discord](https://discord.com)
-- [Instagram](https://instagram.com/invoiceninja)
+- [Slack](http://slack.invoiceninja.com)
+- [Discord](https://discord.gg/ZwEdtfCwXA))
+- [Instagram](https://www.instagram.com/appinvoiceninja)
 
 ---
 
@@ -39,16 +39,16 @@ For those who prefer to manage their own hosting and server infrastructure, this
 ## **🛠️ Installation Options and Clients**
 
 ### **📱 Mobile Apps:**
-- [iPhone](https://apps.apple.com/app/invoice-ninja/id1166477264)
+- [iPhone](https://apps.apple.com/app/id1503970375?platform=iphone)
 - [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.app)
-- [F-Droid](https://f-droid.org/packages/com.invoiceninja.app/)
+- [F-Droid](https://f-droid.org/en/packages/com.invoiceninja.app)
 
 ### **💻 Desktop Apps:**
-- [macOS](https://invoiceninja.com/)
-- [Windows](https://invoiceninja.com/)
+- [macOS](https://apps.apple.com/app/id1503970375?platform=mac)
+- [Windows](https://microsoft.com/en-us/p/invoice-ninja/9n3f2bbcfdr6)
 - Linux:
   - [Snap](https://snapcraft.io/invoiceninja)
-  - [Flatpak](https://flathub.org/apps/invoiceninja)
+  - [Flatpak](https://flathub.org/apps/com.invoiceninja.InvoiceNinja)
 
 ### **🖥️ Self-Hosted Server Installation**
 > 💡 **Note:** The self-hosted version supports both the **desktop** and **mobile apps**.
