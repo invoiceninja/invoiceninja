@@ -21,9 +21,7 @@
           type: string
           example: Opnel5aKBz
         type_id:
-          description: 'The Payment Type ID'
-          type: string
-          example: '1'
+          $ref: '#/components/schemas/PaymentType'
         date:
           description: 'The Payment date'
           type: string

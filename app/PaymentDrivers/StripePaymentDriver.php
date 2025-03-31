@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\PaymentDrivers\Common\SupportsHeadlessInterface;
 use Exception;
 use Stripe\Stripe;
 use Stripe\Account;
@@ -62,7 +63,7 @@ use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
 
-class StripePaymentDriver extends BaseDriver
+class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterface
 {
     use MakesHash;
     use Utilities;
@@ -105,13 +106,6 @@ class StripePaymentDriver extends BaseDriver
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
-
-    /**
-     * Indicates if returning responses should be headless or classic redirect.
-     * 
-     * @var bool
-     */
-    public bool $headless = false;
 
     /**
      * Initializes the Stripe API.
@@ -1041,19 +1035,61 @@ class StripePaymentDriver extends BaseDriver
         }, $string);
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
+        // $this->init();
+
+        // try {
+        //     $this->verifyConnect();
+        //     return 'ok';
+        // } catch (\Throwable $th) {
+
+        // }
+
+        // return 'error';
+
         $this->init();
 
-        try {
-            $this->verifyConnect();
-            return true;
-        } catch (\Exception $e) {
+        try{
+            if ($this->stripe_connect) {
+                // Verify Connect configuration
+                if (!strlen($this->company_gateway->getConfigField('account_id')) > 1) {
+                    return 'error';
+                }
 
+                // Test Connect API access
+                \Stripe\Account::retrieve(
+                    $this->company_gateway->getConfigField('account_id'),
+                    $this->stripe_connect_auth
+                );
+            } else {
+                // Test regular API key access
+                $api_key = $this->company_gateway->getConfigField('apiKey');
+                
+                if (empty($api_key)) {
+                    return 'error';
+                }
+
+                $b = \Stripe\Balance::retrieve(); // Simple API call to verify credentials
+
+            }
+
+            return 'ok';
+        } catch (\Throwable $th) {
+            nlog("Stripe auth error: " . $th->getMessage());
+            return 'error';
         }
 
-        return false;
 
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function setHeadless(bool $headless): self
+    {
+        $this->headless = $headless;
+
+        return $this;
+    }
 }

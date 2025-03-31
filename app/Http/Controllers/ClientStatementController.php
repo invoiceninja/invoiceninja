@@ -37,6 +37,8 @@ class ClientStatementController extends BaseController
      */
     public function statement(CreateStatementRequest $request)
     {
+        set_time_limit(300);
+        
         $send_email = false;
 
         if ($request->has('send_email') && $request->send_email == 'true') {

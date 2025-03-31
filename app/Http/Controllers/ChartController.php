@@ -29,7 +29,9 @@ class ChartController extends BaseController
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -39,7 +41,9 @@ class ChartController extends BaseController
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -51,7 +55,9 @@ class ChartController extends BaseController
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -61,7 +67,9 @@ class ChartController extends BaseController
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -71,7 +79,9 @@ class ChartController extends BaseController
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
         $result = $cs->getCalculatedField($request->all());
 
         return response()->json($result, 200);

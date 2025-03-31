@@ -222,7 +222,7 @@ abstract class QueryFilters
 
     public function updated_at($value = '')
     {
-        if ($value == '') {
+        if (is_null($value) || $value == '') {
             return $this->builder;
         }
 
@@ -246,6 +246,9 @@ abstract class QueryFilters
      */
     public function is_deleted($value = 'true')
     {
+        if(is_null($value))
+            return $this->builder;
+        
         if ($value == 'true') {
             return $this->builder->where('is_deleted', $value)->withTrashed();
         }

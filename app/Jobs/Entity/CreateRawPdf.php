@@ -99,13 +99,18 @@ class CreateRawPdf
 
     public function handle()
     {
-        nlog("Generating PDF for {$this->entity_string}");
-
+        
         $pdf = $this->generatePdf();
 
         if($this->isBlankPdf($pdf)) {
       
             nlog("Blank PDF detected, generating again");
+            $pdf = $this->generatePdf();
+        }
+        
+        if ($this->isBlankPdf($pdf)) {
+
+            nlog("Blank PDF detected, generating again!!! :: {$this->entity_string} {$this->entity->id}");
             $pdf = $this->generatePdf();
         }
 
@@ -156,9 +161,10 @@ class CreateRawPdf
         return $pdf;
     }
 
-
-
-    public function failed($e)
+    public function failed($exception = null)
     {
+        if ($exception) {
+            nlog("CREATERAWPDF:: " . $exception->getMessage());
+        }
     }
 }

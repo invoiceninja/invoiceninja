@@ -427,18 +427,18 @@ class MolliePaymentDriver extends BaseDriver
         return \number_format((float) $amount, 2, '.', '');
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
         $this->init();
 
         try {
             $p = $this->gateway->payments->page();
-            return true;
+            return 'ok';
         } catch (\Exception $e) {
 
         }
 
-        return false;
+        return 'error';
 
     }
 }

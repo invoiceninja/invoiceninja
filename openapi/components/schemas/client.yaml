@@ -72,6 +72,7 @@
           type: number
           format: integer
           example: '1'
+          $ref: '#/components/schemas/CountryType'
         custom_value1:
           description: 'A custom field for storing additional information'
           type: string

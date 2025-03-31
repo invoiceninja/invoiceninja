@@ -58,6 +58,7 @@ class LocationTransformer extends EntityTransformer
             'custom_value3' => $location->custom_value3 ?: '',
             'custom_value4' => $location->custom_value4 ?: '',
             'is_deleted' => (bool) $location->is_deleted,
+            'is_shipping_location' => (bool) $location->is_shipping_location,
             'tax_data' => $location->tax_data ?: new \stdClass(),
             'updated_at' => (int) $location->updated_at,
             'archived_at' => (int) $location->deleted_at,

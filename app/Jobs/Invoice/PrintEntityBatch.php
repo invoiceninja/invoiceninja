@@ -70,7 +70,7 @@ class PrintEntityBatch implements ShouldQueue
 
         })->catch(function (Batch $batch, Throwable $e) {
             // First batch job failure detected...
-            // nlog("PrintEntityBatch failed: {$e->getMessage()}");
+            nlog("PrintEntityBatch failed: {$e->getMessage()}");
         })->finally(function (Batch $batch) {
             // The batch has finished executing...
             // nlog("I have finished");

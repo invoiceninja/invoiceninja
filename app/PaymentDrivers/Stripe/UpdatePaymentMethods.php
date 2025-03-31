@@ -248,10 +248,10 @@ class UpdatePaymentMethods
                 */
 
                 $payment_meta = new \stdClass();
-                $payment_meta->exp_month = (string) $method->card->exp_month;
-                $payment_meta->exp_year = (string) $method->card->exp_year;
-                $payment_meta->brand = (string) $method->card->brand;
-                $payment_meta->last4 = (string) $method->card->last4;
+                $payment_meta->exp_month = (string) $method->card->exp_month ?? '00';
+                $payment_meta->exp_year = (string) $method->card->exp_year ?? '0000';
+                $payment_meta->brand = (string) $method->card->brand ?? 'visa';
+                $payment_meta->last4 = (string) $method->card->last4 ?? 'link';
                 $payment_meta->type = GatewayType::CREDIT_CARD;
 
                 return $payment_meta;

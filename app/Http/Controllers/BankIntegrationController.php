@@ -260,7 +260,8 @@ class BankIntegrationController extends BaseController
                 $bank_integration->balance = $account['current_balance'];
                 $bank_integration->currency = $account['account_currency'];
                 $bank_integration->auto_sync = true;
-
+                $bank_integration->disabled_upstream = $account['account_status'] == 'READY' ? false : true;
+                
                 $bank_integration->save();
             }
         }
@@ -278,7 +279,20 @@ class BankIntegrationController extends BaseController
             $is_account_active = $nordigen->isAccountActive($bank_integration->nordigen_account_id);
             $account = $nordigen->getAccount($bank_integration->nordigen_account_id);
 
-            if (!$is_account_active || !$account || isset($account['requisition'])) {
+            if(is_array($account) && isset($account['code']) && $account['code'] == 429) {
+                
+                $bank_integration->bank_account_status = "429 Rate limit reached, check back later....";
+                $bank_integration->save();
+                return;
+            }
+            elseif(is_array($account) && isset($account['account_status']) &&!in_array($account['account_status'], ['READY', 'PROCESSING','DISCOVERED'])) {
+                $bank_integration->disabled_upstream = true;
+                $bank_integration->save();
+
+                $nordigen->disabledAccountEmail($bank_integration);
+                return;
+            }
+            elseif (!$is_account_active || !$account || isset($account['requisition'])) {
                 $bank_integration->disabled_upstream = true;
                 $bank_integration->save();
 

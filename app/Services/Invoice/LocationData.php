@@ -51,6 +51,7 @@ class LocationData extends AbstractService
     {
         return [
             // Business Address (from business location or client default)
+            'location_name' => $this->getLocationName(),
             'address' => $this->getBusinessAddress(),
             'address1' => $this->getBusinessAddress1(),
             'address2' => $this->getBusinessAddress2(),
@@ -62,6 +63,7 @@ class LocationData extends AbstractService
             'country_code' => $this->getBusinessCountryCode(),
             
             // Shipping Address (from shipping location or client default)
+            'shipping_location_name' => $this->getShippingLocationName(),
             'shipping_address' => $this->getShippingAddress(),
             'shipping_address1' => $this->getShippingAddress1(),
             'shipping_address2' => $this->getShippingAddress2(),
@@ -73,6 +75,16 @@ class LocationData extends AbstractService
             'shipping_country_code' => $this->getShippingCountryCode(),
             'shipping_exists' => strlen($this->getShippingAddress1()) > 0,
         ];
+    }
+
+    private function getLocationName(): string
+    {
+        return $this->businessLocation ? $this->businessLocation->name : '';
+    }
+
+    private function getShippingLocationName(): string
+    {
+        return $this->shippingLocation ? $this->shippingLocation->name : '';
     }
 
     private function getBusinessCountry(): ?Country

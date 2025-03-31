@@ -59,6 +59,12 @@ class PdfBuilder
 
         $this->commonmark = new CommonMarkConverter([
             'allow_unsafe_links' => false,
+            // 'renderer' => [
+            //     'block_separator' => "\n",
+            //     'inner_separator' => "\n",
+            //     'soft_break'      => "\n",
+            // ],
+            // 'html_input' => 'escape',
         ]);
     }
 
@@ -212,9 +218,9 @@ class PdfBuilder
             $template = $template->render($data);
 
             $f = $this->document->createDocumentFragment();
-
+            
+            $template = str_ireplace(['<br>', '<br />'], "<br/>", $template);
             $f->appendXML($template);
-            // $f->appendXML($template);
 
             $replacements[] = $f;
 
@@ -470,6 +476,8 @@ class PdfBuilder
         }
 
         $tbody = [];
+
+        $this->payment_amount_total = 0;
 
         foreach ($this->service->options['invoices'] as $invoice) {
             foreach ($invoice->payments as $payment) {
@@ -1633,7 +1641,8 @@ class PdfBuilder
      */
     public function statementDetails(): array
     {
-        $s_date = $this->translateDate(now(), $this->service->config->date_format, $this->service->config->locale);
+
+        $s_date = $this->translateDate($this->service->options['start_date'], $this->service->config->date_format, $this->service->config->locale) . " - " . $this->translateDate($this->service->options['end_date'], $this->service->config->date_format, $this->service->config->locale);
 
         return [
             ['element' => 'tr', 'properties' => ['data-ref' => 'statement-label'], 'elements' => [
@@ -1793,10 +1802,10 @@ class PdfBuilder
         
         $elements = [
                 ['element' => 'div', 'content' => $this->service->config->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
-                ['element' => 'div', 'content' => $this->service->config->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
-                ['element' => 'div', 'content' => $this->service->config->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
-                ['element' => 'div', 'content' => "{$this->service->config->client->shipping_city} {$this->service->config->client->shipping_state} {$this->service->config->client->shipping_postal_code}", 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.city_state_postal']],
-                ['element' => 'div', 'content' => optional($this->service->config->client->shipping_country)->name, 'show_empty' => false],
+                ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_address1'], 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
+                ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_address2'], 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address2']],
+                ['element' => 'div', 'content' => "{$this->service->html_variables['values']['$client.shipping_city']} {$this->service->html_variables['values']['$client.shipping_state']} {$this->service->html_variables['values']['$client.shipping_postal_code']}", 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.city_state_postal']],
+                ['element' => 'div', 'content' => optional($this->service->html_variables['values']['$client.shipping_country'])->name, 'show_empty' => false],
             ];
 
 
@@ -1822,6 +1831,11 @@ class PdfBuilder
 
         $variables = $this->service->config->pdf_variables['client_details'];
 
+        // 2025-03-03 - Prevent duplicating contact/client name
+        if(strlen($this->service->config->client->name ?? '') == 0 && in_array('$client.name', $variables) && in_array('$contact.full_name', $variables)) {         
+            $variables = array_diff($variables, ['$contact.full_name']);
+        }
+
         foreach ($variables as $variable) {
             $elements[] = ['element' => 'div', 'content' => $variable, 'show_empty' => false, 'properties' => ['data-ref' => 'client_details-' . substr($variable, 1)]];
         }
@@ -1844,10 +1858,11 @@ class PdfBuilder
 
         $elements = [
             ['element' => 'div', 'content' => ctrans('texts.shipping_address'), 'properties' => ['data-ref' => 'shipping_address-label', 'style' => 'font-weight: bold; text-transform: uppercase']],
-            ['element' => 'div', 'content' => $this->service->config->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
-            ['element' => 'div', 'content' => $this->service->config->client->shipping_address2, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
-            ['element' => 'div', 'content' => "{$this->service->config->client->shipping_city} {$this->service->config->client->shipping_state} {$this->service->config->client->shipping_postal_code}", 'properties' => ['data-ref' => 'shipping_address-client.city_state_postal']],
-            ['element' => 'div', 'content' => optional($this->service->config->client->shipping_country)->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_country']],
+            ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_location_name'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_location_name']],
+            ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_address1'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address1']],
+            ['element' => 'div', 'content' => $this->service->html_variables['values']['$client.shipping_address2'], 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_address2']],
+            ['element' => 'div', 'content' => "{$this->service->html_variables['values']['$client.shipping_city']} {$this->service->html_variables['values']['$client.shipping_state']} {$this->service->html_variables['values']['$client.shipping_postal_code']}", 'properties' => ['data-ref' => 'shipping_address-client.city_state_postal']],
+            ['element' => 'div', 'content' => optional($this->service->html_variables['values']['$client.shipping_country'])->name, 'show_empty' => false, 'properties' => ['data-ref' => 'shipping_address-client.shipping_country']],
         ];
 
         return $elements;
@@ -1923,7 +1938,7 @@ class PdfBuilder
     {
         foreach ($items as $key => $item) {
             foreach ($item as $variable => $value) {
-                $item[$variable] = str_replace("\n", '<br>', $value);
+                $item[$variable] = str_replace("\n", '<br/>', $value);
             }
 
             $items[$key] = $item;
@@ -2088,7 +2103,8 @@ class PdfBuilder
             $child['content'] = $child['content'] ?? '';
 
             if ($this->service->company->markdown_enabled && $this->isMarkdown($child['content'])) {
-                $child['content'] = str_ireplace(['<br>', '<br/>', '<br />'], "\r", $child['content']);
+
+                $child['content'] = str_ireplace(['<br>', '<br/>', '<br />'], "\r", $child['content']); //19-05-2025 - pivotting back to this, and allowing html_input for commonmark.
                 $child['content'] = $this->commonmark->convert($child['content']); //@phpstan-ignore-line
             }
 

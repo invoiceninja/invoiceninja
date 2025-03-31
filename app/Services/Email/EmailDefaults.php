@@ -310,9 +310,9 @@ class EmailDefaults
         if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
 
-            if ($this->email->email_object->settings->embed_documents && ($this->email->email_object->entity->documents()->where('is_public', true)->count() > 0 || $this->email->email_object->entity->company->documents()->where('is_public', true)->count() > 0)) {
-                $pdf = $this->email->email_object->entity->documentMerge($pdf);
-            }
+            // if ($this->email->email_object->settings->embed_documents && ($this->email->email_object->entity->documents()->where('is_public', true)->count() > 0 || $this->email->email_object->entity->company->documents()->where('is_public', true)->count() > 0)) {
+            //     $pdf = $this->email->email_object->entity->documentMerge($pdf);
+            // }
 
             $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
         }

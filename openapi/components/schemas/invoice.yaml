@@ -234,5 +234,8 @@
           description: 'The subscription associated with this invoice'
           type: string
           example: Opnel5aKBz
-        
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
       type: object

@@ -18,7 +18,6 @@ use App\Models\Invoice;
 use App\Models\Webhook;
 use App\Models\PurchaseOrder;
 use App\Services\Email\Email;
-use App\DataMapper\InvoiceSync;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\Services\Email\EmailObject;

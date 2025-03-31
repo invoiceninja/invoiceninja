@@ -92,7 +92,7 @@ class UpdateLocationTaxData implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->location->client->id.$this->company->company_key)];
+        return [(new WithoutOverlapping($this->location->client->id.$this->company->company_key))->releaseAfter(60)];
     }
 
     public function failed($exception)

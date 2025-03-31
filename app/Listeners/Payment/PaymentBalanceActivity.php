@@ -42,6 +42,6 @@ class PaymentBalanceActivity implements ShouldQueue
 
     public function middleware($event): array
     {
-        return [(new WithoutOverlapping($event->payment->client->id))];
+        return [(new WithoutOverlapping($event->payment->client->client_hash))->releaseAfter(60)];
     }
 }

@@ -119,9 +119,9 @@ class CreditEmailEngine extends BaseEmailEngine
 
             $pdf = ((new CreateRawPdf($this->invitation))->handle());
 
-            if ($this->client->getSetting('embed_documents') && ($this->credit->documents()->where('is_public', true)->count() > 0 || $this->credit->company->documents()->where('is_public', true)->count() > 0)) {
-                $pdf = $this->credit->documentMerge($pdf);
-            }
+            // if ($this->client->getSetting('embed_documents') && ($this->credit->documents()->where('is_public', true)->count() > 0 || $this->credit->company->documents()->where('is_public', true)->count() > 0)) {
+            //     $pdf = $this->credit->documentMerge($pdf);
+            // }
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->credit->numberFormatter().'.pdf']]);
         }

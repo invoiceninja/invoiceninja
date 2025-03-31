@@ -273,7 +273,7 @@ class RecurringInvoice extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => ctrans('texts.recurring_invoice') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -293,9 +293,10 @@ class RecurringInvoice extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
-    
+
+
     public function getEntityType()
     {
         return self::class;

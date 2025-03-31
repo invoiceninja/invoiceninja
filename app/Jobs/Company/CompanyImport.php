@@ -669,16 +669,17 @@ class CompanyImport implements ShouldQueue
 
     private function importLogo()
     {
+        $logo_path = "{$this->root_file_path}company_logo.png";
 
-        if(file_exists("{$this->root_file_path}company_logo.png")) {
-            $logo = @file_get_contents("{$this->root_file_path}company_logo.png");
+        // Check for null bytes in path
+        if (strpos($logo_path, "\0") !== false) {
+            nlog("Logo path contains null bytes - skipping logo import");
+            return $this;
+        }
 
-
-            if(!$logo) {
-                return $this;
-            }
-
-            $path = (new \App\Jobs\Util\UploadAvatar($logo, $this->company->company_key))->handle();
+        if(file_exists($logo_path)) {
+           
+            $path = (new \App\Jobs\Util\UploadAvatar($logo_path, $this->company->company_key))->handle();
             
             if ($path) {
                 $settings = $this->company->settings;
@@ -1019,6 +1020,7 @@ class CompanyImport implements ShouldQueue
             'recurring_invoice_invitations',
             'key'
         );
+
 
         return $this;
     }
@@ -1736,13 +1738,13 @@ class CompanyImport implements ShouldQueue
             if ($new_obj instanceof CompanyLedger || $new_obj instanceof EInvoicingToken) {
             } 
             elseif ($new_obj instanceof Backup) {
-
-                if(file_exists("{$this->root_file_path}/backups/{$obj->filename}")) {
-                    $file = file_get_contents("{$this->root_file_path}/backups/{$obj->filename}");
-                    $new_obj->filename = str_replace($this->old_company_key, $this->company->company_key, $new_obj->filename);
+                
+                if(is_file("{$this->root_file_path}backups/{$obj->filename}")) {
+                    $file = file_get_contents("{$this->root_file_path}backups/{$obj->filename}");
+                    $new_obj->filename = str_replace($this->old_company_key, $this->company->company_key, $obj->filename);
                     $new_obj->save();
                     $new_obj = $new_obj->fresh();
-                    $new_obj->storeBackupFile(file_get_contents("{$this->root_file_path}/backups/{$obj->filename}"));
+                    $new_obj->storeBackupFile($file);
                 }
             }
             else {

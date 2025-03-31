@@ -72,6 +72,8 @@ class SearchController extends Controller
         $user = auth()->user();
         $company = $user->company();
 
+        $search = trim($search);
+
         \Illuminate\Support\Facades\App::setLocale($company->locale());
 
         $elastic = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
@@ -109,7 +111,6 @@ class SearchController extends Controller
             'client_contacts' => $this->client_contacts,
             'invoices' => $this->invoices,
             'quotes' => $this->quotes,
-
             'expenses' => $this->expenses,
             'credits' => $this->credits,
             'recurring_invoices' => $this->recurring_invoices,
@@ -164,7 +165,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/client',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/clients/{$result['_source']['hashed_id']}"
+                        'path' => "/clients/{$result['_source']['client_id']}"
                     ];
                     break;
                 case 'quotes':
@@ -250,9 +251,9 @@ class SearchController extends Controller
 
                     $this->vendor_contacts[] = [
                         'name' => $result['_source']['name'],
-                        'type' => '/client',
+                        'type' => '/vendor',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/clients/{$result['_source']['hashed_id']}"
+                        'path' => "/vendors/{$result['_source']['vendor_id']}"
                     ];
 
                     break;
@@ -280,6 +281,7 @@ class SearchController extends Controller
     {
 
         $clients =  Client::query()
+                     ->withTrashed()
                      ->company()
                      ->where('is_deleted', 0)
                      ->when(!$user->hasPermission('view_all') || !$user->hasPermission('view_client'), function ($query) use ($user) {
@@ -314,6 +316,7 @@ class SearchController extends Controller
     {
 
         $invoices = Invoice::query()
+                     ->withTrashed()
                      ->company()
                      ->with('client')
                      ->where('is_deleted', 0)

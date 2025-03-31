@@ -84,10 +84,18 @@ class ImportJsonController extends BaseController
 
             $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
 
+            $extension = $request->file('files')->getClientOriginalExtension();
+
+            $parsed_filename = sprintf(
+                '%s.%s',
+                \Illuminate\Support\Str::random(32),
+                preg_replace('/[^a-zA-Z0-9]/', '', $extension) // Sanitize extension
+            );
+
             $file_location = $request->file('files')
                 ->storeAs(
                     'migrations',
-                    $request->file('files')->getClientOriginalName(),
+                    $parsed_filename,
                     $disk,
                 );
         }

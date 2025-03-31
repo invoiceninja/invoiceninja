@@ -334,6 +334,7 @@ class BaseRule implements RuleInterface
 
     public function defaultForeign(): self
     {
+        // nlog("default foreign");
         if ($this->invoice->client->is_tax_exempt) {
 
             $this->tax_rate1 = 0;

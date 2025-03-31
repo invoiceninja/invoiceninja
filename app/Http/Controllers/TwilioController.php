@@ -22,6 +22,7 @@ use Twilio\Rest\Client;
 class TwilioController extends BaseController
 {
     private array $invalid_codes = [
+        '+23',
         '+21',
         '+17152567760',
     ];

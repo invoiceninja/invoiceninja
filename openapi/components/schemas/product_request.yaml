@@ -1,11 +1,7 @@
     ProductRequest:
       type: object
       properties:
-        id:
-          type: string
-          description: 'The hashed product ID.'
-          example: eP01N
-          readOnly: true
+       
         assigned_user_id:
           type: string
           description: 'The hashed ID of the user assigned to this product.'
@@ -72,35 +68,35 @@
           default: 1
         tax_name1:
           type: string
-          description: 'The name of tax 1.'
+          description: 'The default tax name associated with this product'
           example: 'Tax 1'
 
         tax_rate1:
           type: number
           format: double
-          description: 'The rate of tax 1.'
+          description: 'The default tax rate for this product'
           example: 10.0
 
         tax_name2:
           type: string
-          description: 'The name of tax 2.'
+          description: 'The default tax name associated with this product'
           example: 'Tax 2'
 
         tax_rate2:
           type: number
           format: double
-          description: 'The rate of tax 2.'
+          description: 'The default tax rate for this product'
           example: 5.0
 
         tax_name3:
           type: string
-          description: 'The name of tax 3.'
+          description: 'The default tax name associated with this product'
           example: 'Tax 3'
 
         tax_rate3:
           type: number
           format: double
-          description: 'The rate of tax 3.'
+          description: 'The default tax rate for this product'
           example: 0.0
 
         in_stock_quantity:

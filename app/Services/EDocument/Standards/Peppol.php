@@ -215,7 +215,10 @@ class Peppol extends AbstractService
             }
 
             /** Auto switch between Invoice / Credit based on the amount value */
-            $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381;
+
+            // $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381;
+
+            $this->p_invoice->InvoiceTypeCode = 380;
 
             $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
             $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();

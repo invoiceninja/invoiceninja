@@ -102,42 +102,11 @@ class ClientService
         $this->client->increment('balance', $balance);
         $this->client->increment('paid_to_date', $paid_to_date);
 
-        /* 
-        try {
-            DB::connection(config('database.default'))->transaction(function () use ($balance, $paid_to_date) {
-                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-                $this->client->balance += $balance;
-                $this->client->paid_to_date += $paid_to_date;
-                $this->client->saveQuietly();
-            }, 2);
-        } catch (\Throwable $throwable) {
-            nlog("DB ERROR " . $throwable->getMessage());
-
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                DB::connection(config('database.default'))->rollBack();
-            }
-
-        }
-        */
         return $this;
     }
 
     public function updatePaidToDate(float $amount)
     {
-        // try {
-        //     DB::connection(config('database.default'))->transaction(function () use ($amount) {
-        //         $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-        //         $this->client->paid_to_date += $amount;
-        //         $this->client->saveQuietly();
-        //     }, 2);
-        // } catch (\Throwable $throwable) {
-        //     nlog("DB ERROR " . $throwable->getMessage());
-
-        //     if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-        //         DB::connection(config('database.default'))->rollBack();
-        //     }
-
-        // }
 
         $this->client->increment('paid_to_date', $amount);
 

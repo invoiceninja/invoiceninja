@@ -13,6 +13,7 @@ namespace App\Services\Invoice;
 
 use App\Events\Invoice\InvoiceWasDeleted;
 use App\Jobs\Inventory\AdjustProductInventory;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\AbstractService;
@@ -199,6 +200,16 @@ class MarkInvoiceDeleted extends AbstractService
                     ->where('paymentable_type', '=', 'invoices')
                     ->where('paymentable_id', $this->invoice->id)
                     ->update(['deleted_at' => now()]);
+
+            $pp = \App\Models\Paymentable::where('payment_id', $payment->id)
+                                ->where('paymentable_type', \App\Models\Credit::class)
+                                ->where('amount', $this->invoice->amount)
+                                ->first();
+
+            if($pp) {
+                $pp->delete();
+            }
+            
         });
 
         return $this;

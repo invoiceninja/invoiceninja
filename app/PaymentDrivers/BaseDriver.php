@@ -57,6 +57,13 @@ class BaseDriver extends AbstractPaymentDriver
     public $invitation;
 
     /**
+     * Indicates if returning responses should be headless or classic redirect.
+     *
+     * @var bool
+     */
+    public bool $headless = false;
+
+    /**
      * The Client
      *
      * @var \App\Models\Client|null $client
@@ -171,6 +178,14 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         return $fields;
+    }
+
+
+    public function setHeadless(bool $headless): self
+    {
+        $this->headless = $headless;
+
+        return $this;
     }
 
     /**
@@ -403,7 +418,7 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         $invoice = $this->payment_hash->fee_invoice;
-        
+
         if(!$invoice)
             return;
 
@@ -419,7 +434,7 @@ class BaseDriver extends AbstractPaymentDriver
         $unconfirmed_fee_count = collect($invoice->line_items)
                         ->where('type_id', '3')
                         ->count();
-                
+
         if ($unconfirmed_fee_count == 0) {
 
             nlog("apparently no fee, so injecting here!");
@@ -897,11 +912,11 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Stub for checking authentication.
      *
-     * @return bool
+     * @return string
      */
-    public function auth(): bool
+    public function auth(): string
     {
-        return true;
+        return 'ok';
     }
 
     public function importCustomers()

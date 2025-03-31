@@ -83,6 +83,12 @@ class Zoho extends BaseImport
         $entity_type = 'invoice';
 
         $data = $this->getCsvData($entity_type);
+                
+        if (empty($data)) {
+            $this->entity_count['invoices'] = 0;
+
+            return;
+        }
 
         $data = $this->preTransform($data, $entity_type);
 

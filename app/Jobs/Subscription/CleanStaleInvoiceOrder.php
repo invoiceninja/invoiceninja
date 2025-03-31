@@ -54,6 +54,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                     ->cursor()
                     ->each(function ($invoice) use ($repo) {
                         $invoice->is_proforma = false;
+                        $invoice->save();
                         $repo->delete($invoice);
                     });
 
@@ -162,6 +163,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                 ->cursor()
                 ->each(function ($invoice) use ($repo) {
                     $invoice->is_proforma = false;
+                    $invoice->save();
                     $repo->delete($invoice);
                 });
 

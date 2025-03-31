@@ -32,7 +32,7 @@ class ClientFactory extends Factory
             'paid_to_date' => 0,
             'vat_number' => $this->faker->numberBetween(123456789, 987654321),
             'id_number' => $this->faker->iban(),
-            'custom_value1' => $this->faker->dateTime(),
+            'custom_value1' => $this->faker->date(),
             'custom_value2' => $this->faker->colorName(),
             'custom_value3' => $this->faker->word(),
             'custom_value4' => $this->faker->email(),

@@ -190,13 +190,13 @@ class CBAPowerBoardPaymentDriver extends BaseDriver
     {
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
         $this->init();
 
         $this->settings()->updateSettings();
 
-        return true;
+        return 'ok';
 
 
     }

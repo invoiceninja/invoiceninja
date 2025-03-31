@@ -167,7 +167,9 @@ class InvoiceFilters extends QueryFilters
 
                 $query->whereNull('due_date')
                     ->orWhere(function ($q) {
-                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where('partial', 0);
+                        $q->where('due_date', '>=', now()->startOfDay()->subSecond())->where(function ($qq){
+                            $qq->where('partial', 0)->orWhere('balance', '>', 0);
+                        });
                     })
                     ->orWhere(function ($q) {
                         $q->where('partial_due_date', '>=', now()->startOfDay()->subSecond())->where('partial', '>', 0);
@@ -193,8 +195,8 @@ class InvoiceFilters extends QueryFilters
                     ->where('is_deleted', 0)
                     ->where('balance', '>', 0)
                     ->where(function ($query) {
-                        $query->where('due_date', '<', now())
-                            ->orWhere('partial_due_date', '<', now());
+                        $query->where('due_date', '<', now()->startOfDay()->addDay())
+                            ->orWhere('partial_due_date', '<', now()->startOfDay()->addDay());
                     })
                     ->orderBy('due_date', 'ASC');
         });

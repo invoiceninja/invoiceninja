@@ -18,6 +18,7 @@ class Markdown
     {
         $converter = new \League\CommonMark\CommonMarkConverter([
             'allow_unsafe_links' => false,
+            // 'html_input' => 'allow',
         ]);
 
         return $converter->convert($markdown);

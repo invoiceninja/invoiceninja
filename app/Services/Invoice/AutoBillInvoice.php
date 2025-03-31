@@ -58,7 +58,7 @@ class AutoBillInvoice extends AbstractService
         $is_partial = false;
 
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable()) {
+        if (! $this->invoice->refresh()->isPayable()) {
             return $this->invoice;
         }
 

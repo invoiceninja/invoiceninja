@@ -348,7 +348,7 @@ class BillingPortalPurchase extends Component
             return $this;
         }
 
-        if ((int)$this->price == 0) {
+        if ((float)$this->price <= 0) {
 
             $this->steps['payment_required'] = false;
             $this->steps['fetched_payment_methods'] = false;

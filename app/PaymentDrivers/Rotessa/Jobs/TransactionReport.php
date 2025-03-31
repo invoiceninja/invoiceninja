@@ -72,14 +72,18 @@ class TransactionReport implements ShouldQueue
                                             $payment->status_id = Payment::STATUS_COMPLETED;
                                             $payment->save();
 
-                                            SystemLogger::dispatch(
-                                                ['response' => collect($transactions)->where('id', $payment->transaction_reference)->first()->toArray(), 'data' => []],
-                                                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                                                SystemLog::EVENT_GATEWAY_SUCCESS,
-                                                SystemLog::TYPE_ROTESSA,
-                                                $payment->client,
-                                                $payment->company,
-                                            );
+                                            $references =collect($transactions)->where('id', $payment->transaction_reference)->first();
+
+                                            if($references) {
+                                                SystemLogger::dispatch(
+                                                    ['response' => $references->toArray(), 'data' => []],
+                                                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                                                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                                                    SystemLog::TYPE_ROTESSA,
+                                                    $payment->client,
+                                                    $payment->company,
+                                                );
+                                            }
 
                                         });
 

@@ -88,12 +88,7 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Basic":
 
                 //New implementation now the default 2025-02-04 - requires zugferd_version_two=false to disable
-                if(config('ninja.zugferd_version_two')){
-                    $zugferd = (new ZugferdEDocument($this->document))->run();
-                }
-                else {
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
-                }
+                $zugferd = (new ZugferdEDocument($this->document))->run();
                 
                     return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 case "Facturae_3.2":

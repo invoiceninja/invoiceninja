@@ -42,7 +42,7 @@ class QBBackup extends BaseImport implements ImportInterface
 
     public function import(string $entity)
     {
-        if (in_array($entity, ['client', 'invoice', 'product', 'payment', 'vendor', 'expense'])) {
+        if (in_array($entity, ['client', 'invoice', 'quote', 'product', 'payment', 'vendor', 'expense'])) {
             $this->{$entity}();
         }
     }
@@ -53,17 +53,30 @@ class QBBackup extends BaseImport implements ImportInterface
 
     public function client()
     {
-        $this->qb->client->importToNinja($this->qb_data['clients']);
+        if(isset($this->qb_data['clients'])) {
+            $this->qb->client->importToNinja($this->qb_data['clients']);
+        }
     }
 
     public function product()
     {
-        $this->qb->product->syncToNinja($this->qb_data['products']);
+        if(isset($this->qb_data['products'])) {
+            $this->qb->product->syncToNinja($this->qb_data['products']);
+        }
     }
 
     public function invoice()
     {
-        $this->qb->invoice->importToNinja($this->qb_data['invoices']);
+        if(isset($this->qb_data['invoices'])) {
+            $this->qb->invoice->importToNinja($this->qb_data['invoices']);
+        }
+    }
+
+    public function quote()
+    {
+        if(isset($this->qb_data['quotes'])) {
+            $this->qb->quote->importToNinja($this->qb_data['quotes']);
+        }
     }
 
     public function payment()

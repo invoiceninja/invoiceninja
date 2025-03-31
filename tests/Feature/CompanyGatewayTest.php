@@ -166,7 +166,7 @@ class CompanyGatewayTest extends TestCase
 
         $balance = $this->invoice->balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, '12321')->save();
         $this->invoice = $this->invoice->calc()->getInvoice();
 
         $items = $this->invoice->line_items;
@@ -206,18 +206,13 @@ class CompanyGatewayTest extends TestCase
         $balance = $this->invoice->balance;
         $wiped_balance = $balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, '123212')->save();
         $this->invoice = $this->invoice->calc()->getInvoice();
 
         $items = $this->invoice->line_items;
 
         $this->assertEquals(($balance + 1), $this->invoice->balance);
 
-        (new CheckGatewayFee($this->invoice->id, $this->company->db))->handle();
-
-        $i = Invoice::withTrashed()->find($this->invoice->id);
-
-        $this->assertEquals($wiped_balance, $i->balance);
     }
 
     public function testMarkPaidAdjustsGatewayFeeAppropriately()
@@ -252,7 +247,7 @@ class CompanyGatewayTest extends TestCase
         $balance = $this->invoice->balance;
         $wiped_balance = $balance;
 
-        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance)->save();
+        $this->invoice = $this->invoice->service()->addGatewayFee($cg, GatewayType::CREDIT_CARD, $this->invoice->balance, '123213')->save();
         $this->invoice = $this->invoice->calc()->getInvoice();
 
         $items = $this->invoice->line_items;

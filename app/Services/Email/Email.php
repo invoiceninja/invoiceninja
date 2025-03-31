@@ -903,6 +903,15 @@ class Email implements ShouldQueue
             ->send();
 
         $job_failure = null;
+
+        try {
+            if($this->email_object->invitation){
+                $this->email_object->invitation->email_error = substr($errors, 0, 150);
+                $this->email_object->invitation->save();
+            }
+        }catch(\Throwable $e){
+            nlog("Problem saving email error: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -957,7 +966,7 @@ class Email implements ShouldQueue
      */
     private function entityEmailFailed(string $message = ''): void
     {
-        $class = get_class($this->email_object->entity);
+        $class = $this->email_object->entity ? get_class($this->email_object->entity) : false;
 
         switch ($class) {
             case Invoice::class:

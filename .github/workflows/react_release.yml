@@ -30,6 +30,11 @@ jobs:
         id: set_date
         run: echo "current_date=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
       - name: Prepare React FrontEnd
         run: |
           git clone https://${{secrets.commit_secret}}@github.com/invoiceninja/ui.git
@@ -58,14 +63,14 @@ jobs:
           rm .env || true
           rm -rf ui || true
           # Set permissions: directories 755, files 644
-          chmod -R a=r,u+w,a+X .
+          find . -path ./vendor -prune -o -type f -exec chmod 644 {} \+
+          find . -path ./vendor -prune -o -type d -exec chmod 755 {} \+
 
       - name: Build project
         run: |
           shopt -s dotglob
           tar --exclude='public/storage' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar *
-          cd ../
-          tar --exclude='public/storage' --exclude='invoiceninja.zip' -zcvf invoiceninja.tar.gz invoiceninja/
+          tar --exclude='public/storage' --exclude='invoiceninja.zip' -zcvf /home/runner/work/invoiceninja/invoiceninja.tar.gz *
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

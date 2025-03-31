@@ -11,38 +11,40 @@
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\Analytics\AccountDeleted;
+use App\Utils\Ninja;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\CompanyUser;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringInvoice;
+use App\Utils\Traits\Uploadable;
+use App\Jobs\Mail\NinjaMailerJob;
 use App\DataMapper\CompanySettings;
-use App\Http\Requests\Company\CreateCompanyRequest;
-use App\Http\Requests\Company\DefaultCompanyRequest;
-use App\Http\Requests\Company\DestroyCompanyRequest;
+use App\Jobs\Company\CreateCompany;
+use App\Jobs\Company\CompanyTaxRate;
+use App\Jobs\Mail\NinjaMailerObject;
+use App\Mail\Company\CompanyDeleted;
+use App\Utils\Traits\SavesDocuments;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\Repositories\CompanyRepository;
+use Illuminate\Support\Facades\Storage;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Transformers\CompanyTransformer;
+use App\DataMapper\Analytics\AccountDeleted;
+use App\Transformers\CompanyUserTransformer;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Jobs\Company\CreateCompanyPaymentTerms;
+use App\Jobs\Company\CreateCompanyTaskStatuses;
 use App\Http\Requests\Company\EditCompanyRequest;
 use App\Http\Requests\Company\ShowCompanyRequest;
 use App\Http\Requests\Company\StoreCompanyRequest;
+use App\Http\Requests\Company\CreateCompanyRequest;
 use App\Http\Requests\Company\UpdateCompanyRequest;
 use App\Http\Requests\Company\UploadCompanyRequest;
-use App\Jobs\Company\CompanyTaxRate;
-use App\Jobs\Company\CreateCompany;
-use App\Jobs\Company\CreateCompanyPaymentTerms;
-use App\Jobs\Company\CreateCompanyTaskStatuses;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Jobs\Mail\NinjaMailerJob;
-use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Company\CompanyDeleted;
-use App\Models\Account;
-use App\Models\Company;
-use App\Models\CompanyUser;
-use App\Repositories\CompanyRepository;
-use App\Transformers\CompanyTransformer;
-use App\Transformers\CompanyUserTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\SavesDocuments;
-use App\Utils\Traits\Uploadable;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Storage;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Http\Requests\Company\DefaultCompanyRequest;
+use App\Http\Requests\Company\DestroyCompanyRequest;
 
 /**
  * Class CompanyController.
@@ -449,7 +451,38 @@ class CompanyController extends BaseController
 
         $this->uploadLogo($request->file('company_logo'), $company, $company);
 
-        return $this->itemResponse($company);
+        if($request->has('sync_send_time') && $request->input('sync_send_time') == 'true') {
+            
+            //Update Reminders
+            Invoice::where('company_id', $company->id)
+                    ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
+                    ->whereNotNull('next_send_date')
+                    ->where('next_send_date','>', now())
+                    ->where('balance', '>', 0)
+                    ->cursor()
+                    ->each(function ($invoice){
+                        $invoice->service()->setReminder();
+                    });
+                    
+
+            //Update Recurring Invoices
+            RecurringInvoice::where('company_id', $company->id)
+                            ->where('status_id', RecurringInvoice::STATUS_ACTIVE)
+                            ->where('next_send_date', '>', now())
+                            ->cursor()
+                            ->each(function ($recurring_invoice){
+
+                                $offset = $recurring_invoice->client->timezone_offset();
+                                $recurring_invoice->next_send_date = \Carbon\Carbon::parse($recurring_invoice->next_send_date_client)->startOfDay()->addSeconds($offset);
+                                $recurring_invoice->save();
+                                
+            });
+
+
+
+        }
+                    
+                    return $this->itemResponse($company);
     }
 
     /**

@@ -249,7 +249,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => $name,
             'is_deleted' => $this->is_deleted,
             'hashed_id' => $this->hashed_id,
@@ -282,13 +282,8 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
-
-    // public function getScoutKeyName()
-    // {
-    //     return 'hashed_id';
-    // }
 
     public function getEntityType()
     {
@@ -322,7 +317,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Location::class)->withTrashed();
+        return $this->hasMany(Location::class);
     }
 
     /**

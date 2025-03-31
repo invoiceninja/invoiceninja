@@ -53,6 +53,6 @@ class PreviewReport implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping("report-{$this->company->company_key}")];
+        return [new WithoutOverlapping("report-{$this->company->company_key}-{$this->report_class}")];
     }
 }

@@ -239,6 +239,10 @@ class ACH implements LivewireMethodInterface
                 'customer' => $state['customer'],
                 'source' => $state['source'],
                 'description' => $description,
+                'metadata' => [
+                    'payment_hash' => $this->stripe->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                ],
             ], $this->stripe->stripe_connect_auth);
 
             $payment_hash->data = array_merge((array) $payment_hash->data, $state);

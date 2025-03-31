@@ -82,10 +82,10 @@ class ClientTransformer extends BaseTransformer
             'client_hash' => Str::random(40),
             'country_id' => isset($data['client.country_id'])
                 ? $this->getCountryId($data['client.country_id'])
-                : null,
+                : $this->company->settings->country_id,
             'shipping_country_id' => isset($data['client.shipping_country'])
                 ? $this->getCountryId($data['client.shipping_country'])
-                : null,
+                : $this->company->settings->country_id,
         ];
 
         $contacts = [];

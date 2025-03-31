@@ -18,6 +18,8 @@
         <input type="hidden" name="store_card" id="store_card"/>
         <input type="submit" style="display: none" id="form_btn">
         <input type="hidden" name="payment_token" id="payment_token">
+        <input type="hidden" name="last_4" id="last_4">
+        <input type="hidden" name="account_holder_name" id="account_holder_name">
     </form>
 
     <div id="forte_errors"></div>
@@ -28,16 +30,57 @@
 
     @include('portal.ninja2020.gateways.includes.payment_details')
 
-    @component('portal.ninja2020.components.general.card-element', ['title' => 'Pay with Bank Transfer'])
-        <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
-            style="display: flex!important; justify-content: center!important;">
-            <input class="input w-full" id="routing-number" type="text" placeholder="{{ctrans('texts.routing_number')}}" required>
-        </div>
-        <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
-            style="display: flex!important; justify-content: center!important;">
-            <input class="input w-full" id="account-number" type="text" placeholder="{{ctrans('texts.account_number')}}" required>
-        </div>
+    @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.pay_with')])
+    
+        <ul class="list-none">
+            @if(count($tokens) > 0)
+                @foreach($tokens as $token)
+                <li class="py-2 cursor-pointer">
+                    <label class="flex items-center cursor-pointer px-2">
+                        <input
+                            type="radio"
+                            data-token="{{ $token->token }}"
+                            name="payment-type"
+                            class="form-check-input text-indigo-600 rounded-full cursor-pointer toggle-payment-with-token"/>
+                        <span class="ml-1 cursor-pointer">**** {{ $token->meta?->last4 }}</span>
+                    </label>
+                </li>
+                @endforeach
+            @endisset
+
+            <li class="py-2 cursor-pointer">
+                <label class="flex items-center cursor-pointer px-2">
+                    <input
+                        type="radio"
+                        id="toggle-payment-with-new-bank-account"
+                        class="form-check-input text-indigo-600 rounded-full cursor-pointer"
+                        name="payment-type"
+                        checked/>
+                    <span class="ml-1 cursor-pointer">{{ __('texts.new_bank_account') }}</span>
+                </label>
+            </li> 
+
+            <li>
+                <div id="forte-payment-container">
+                    <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                        style="display: flex!important; justify-content: center!important;">
+                        <input class="input w-full" id="account-holder-name" type="text" placeholder="{{ctrans('texts.account_holder_name')}}" required>
+                    </div>
+                    <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                        style="display: flex!important; justify-content: center!important;">
+                        <input class="input w-full" id="routing-number" type="text" placeholder="{{ctrans('texts.routing_number')}}" required>
+                    </div>
+                    <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+                        style="display: flex!important; justify-content: center!important;">
+                        <input class="input w-full" id="account-number" type="text" placeholder="{{ctrans('texts.account_number')}}" required>
+                    </div>
+                </div>
+            </li>
+        </ul>
+
     @endcomponent
+
+    
 
     @include('portal.ninja2020.gateways.includes.pay_now')
 

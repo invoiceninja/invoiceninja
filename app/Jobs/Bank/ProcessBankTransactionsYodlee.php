@@ -115,6 +115,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                     $this->bank_integration->balance = $account[0]['current_balance'];
                     $this->bank_integration->currency = $account[0]['account_currency'];
                     $this->bank_integration->bank_account_status = $account[0]['account_status'];
+                    $this->bank_integration->disabled_upstream = $account[0]['disabled_upstream'];
                     $this->bank_integration->save();
                 }
 
@@ -190,7 +191,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->bank_integration_account_id)];
+        return [(new WithoutOverlapping($this->bank_integration_account_id))->releaseAfter(60)];
     }
 
     public function backoff()

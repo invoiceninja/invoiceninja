@@ -806,6 +806,16 @@ class NinjaMailerJob implements ShouldQueue
             ->send();
 
         $job_failure = null;
+
+        try {
+            if ($this->nmo->invitation) {
+                $this->nmo->invitation->email_error = substr($errors, 0, 150);
+                $this->nmo->invitation->save();
+            }
+        } catch (\Throwable $e) {
+            nlog("Problem saving email error: {$e->getMessage()}");
+        }
+
     }
 
     /**

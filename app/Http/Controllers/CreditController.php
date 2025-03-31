@@ -213,7 +213,15 @@ class CreditController extends BaseController
 
         if ($credit->invoice_id) {
             $credit = $credit->service()->markSent()->save();
-            $credit->client->service()->updatePaidToDate(-1 * $credit->balance)->save();
+            $credit->client->service()->updatePaidToDate(-1 * $credit->balance)->save(); // If we mutate the paid to date, we need to reverse the status of the invoice, this will allow the credit note that has been created to be used and double paid to dates prevented.
+            // $invoice = $credit->invoice;
+            
+            $invoice = \App\Models\Invoice::withTrashed()->find($credit->invoice_id);
+            if ($invoice) {
+                $invoice->status_id = Invoice::STATUS_REVERSED;
+                $invoice->save();
+            }
+
         }
 
         event(new CreditWasCreated($credit, $credit->company, Ninja::eventVars($user->id)));

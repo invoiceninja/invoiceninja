@@ -307,16 +307,18 @@ class PaytracePaymentDriver extends BaseDriver
         return $fields;
     }
 
-    public function auth(): bool
+
+
+    public function auth(): string
     {
         try {
             $this->init()->generateAuthHeaders() && strlen($this->company_gateway->getConfigField('integratorId')) > 2;
-            return true;
+            return 'ok';
         } catch (\Exception $e) {
 
         }
 
-        return false;
+        return 'error';
 
     }
 

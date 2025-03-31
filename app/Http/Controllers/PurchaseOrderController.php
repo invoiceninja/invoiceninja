@@ -522,16 +522,7 @@ class PurchaseOrderController extends BaseController
         }
 
         if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
-            // $paths = $purchase_orders->map(function ($purchase_order) {
-            //     return (new CreateRawPdf($purchase_order->invitations->first()))->handle();
-            // });
-
-            // $merge = (new PdfMerge($paths->toArray()))->run();
-
-            // return response()->streamDownload(function () use ($merge) {
-            //     echo($merge);
-            // }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-        
+            
             $start = microtime(true);
 
             $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(PurchaseOrder::class, $purchase_orders->pluck('id')->toArray(), $user->company()->db))->handle();

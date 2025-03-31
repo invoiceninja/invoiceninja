@@ -104,16 +104,20 @@ class Statement
             ];
 
             $ps = new \App\Services\Pdf\PdfService($invitation, 'statement', array_merge($options, $this->options));
-            $pdf = $ps->boot();
             
+            $ps->config = (new \App\Services\Pdf\PdfConfiguration($ps))->init();
+
             $ps->config->pdf_variables = (array) $this->entity->company->settings->pdf_variables;
             $ps->html_variables = $variables;
             $ps->config->design = $this->getDesign();
 
-            $ps->designer->buildFromPartials((array)$ps->config->design->design);
-            $ps->builder->build();
-            $pdf = $ps->getPdf();
+            $ps->designer = (new \App\Services\Pdf\PdfDesigner($ps))->build();
 
+            $ps->designer->buildFromPartials((array)$ps->config->design->design);
+            
+            $ps->builder = (new \App\Services\Pdf\PdfBuilder($ps))->build();
+
+            $pdf = $ps->getPdf();
 
             return $pdf;
 
@@ -450,9 +454,15 @@ class Statement
             ->where('is_deleted', 0);
 
         if ($range == '0') {
+            // $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
             $query->where(function ($q) use ($to, $from) {
-                $q->whereBetween('due_date', [$to, $from])->orWhereNull('due_date');
+                $q->whereDate('due_date', '>=', now()->startOfDay())
+                  ->orWhere(function($q2) use ($to, $from) {
+                      $q2->whereNull('due_date')
+                      ->whereBetween('date', [$to,$from]);
+                  });
             });
+
         } else {
             $query->whereBetween('due_date', [$to, $from]);
         }
@@ -520,8 +530,8 @@ class Statement
         $id = 1;
 
         if (! empty($this->client->getSetting('statement_design_id'))) {
-            $id = (int) $this->client->getSetting('statement_design_id');
-        }
+            $id = $this->decodePrimaryKey($this->client->getSetting('statement_design_id'));
+         }
 
         return Design::withTrashed()->find($id);
     }

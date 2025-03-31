@@ -219,5 +219,9 @@
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
       type: object
       

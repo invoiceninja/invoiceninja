@@ -506,6 +506,7 @@ class HtmlEngine
         $data['$client.billing_postal_code'] = &$data['$client.postal_code'];
         $data['$client.billing_country'] = &$data['$client.country'];
 
+        $data['$client.shipping_location_name'] = ['value' => $locationData['shipping_location_name'], 'label' => ctrans('texts.shipping_location_name')];
         $data['$client.shipping_address'] = ['value' => $locationData['shipping_address'], 'label' => ctrans('texts.shipping_address')];
         $data['$client.shipping_address1'] = ['value' => $locationData['shipping_address1'], 'label' => ctrans('texts.shipping_address1')];
         $data['$client.shipping_address2'] = ['value' => $locationData['shipping_address2'], 'label' => ctrans('texts.shipping_address2')];

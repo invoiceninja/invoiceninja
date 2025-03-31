@@ -333,18 +333,18 @@ class BraintreePaymentDriver extends BaseDriver
         return response()->json([], 200);
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         try {
             $ct = $this->init()->gateway->clientToken()->generate();
 
-            return true;
+            return 'ok';
         } catch (\Exception $e) {
 
         }
 
-        return false;
+        return 'error';
     }
 
     private function find(string $customer_id = '')

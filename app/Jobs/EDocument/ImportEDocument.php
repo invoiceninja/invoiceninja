@@ -53,7 +53,7 @@ class ImportEDocument implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->company_key."_expense_import_".$this->file_name)];
+        return [(new WithoutOverlapping($this->company->company_key."_expense_import_".$this->file_name))->releaseAfter(60)];
     }
 
     public function failed($exception = null)
