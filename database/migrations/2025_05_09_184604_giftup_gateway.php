@@ -11,22 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
         $gateway = new Gateway;
-        $gateway->name = 'Gift Up!';
-        $gateway->key = 'giftup';
-        $gateway->provider = 'GiftUp';
-        $gateway->is_offsite = false;
-        $gateway->fields = json_encode([
-            'api_key' => '',
-            'test_mode' => true
-        ]);
-        $gateway->visible = true;
-        $gateway->site_url = 'https://giftup.com';
-        $gateway->default_gateway_type_id = GatewayType::CUSTOM;
-        $gateway->save();
-
+    	$gateway->name = "GiftUp"; 
+    	$gateway->key = Str::lower(Str::random(32)); 
+    	$gateway->provider = "GiftUp";
+    	$gateway->is_offsite = false; 
+    	
+    	
+        $configuration = new \stdClass;
+        $configuration->apiKey = '';
+        $configuration->testMode =  true;
+         
+        $gateway->fields = \json_encode($configuration);
         
+    	$gateway->visible = true;
+    	$gateway->site_url = "https://www.giftup.com/";
+    	$gateway->default_gateway_type_id = 30;
+    	$gateway->save();
     }
 
     /**
