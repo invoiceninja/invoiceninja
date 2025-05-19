@@ -2,80 +2,108 @@
 
 namespace App\PaymentDrivers;
 
-use App\Models\ClientGatewayToken;
+use App\Models\Client;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
-use App\PaymentDrivers\BaseDriver;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
+use App\Models\PaymentType;
+use App\Utils\Traits\MakesHash;
+ 
 use App\Exceptions\PaymentFailed;
+use App\PaymentDrivers\GiftUp\GiftUp;
+use App\Jobs\Mail\PaymentFailedMailer;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\PaymentDrivers\Forte\CreditCard;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
-class GiftUpDriver extends BaseDriver
-{
-    public $refundable = false;
-    public $token_billing = false;
-    public $can_authorise_credit_card = false;
+class GiftUpPaymentDriver extends BaseDriver
+{ 
+    use MakesHash;
 
-    const SYSTEM_LOG_TYPE = SystemLog::TYPE_CUSTOM;
+    public $refundable = false; //does this gateway support refunds?
+
+    public $token_billing = false; //does this gateway support token billing?
+
+    public $can_authorise_credit_card = false; //does this gateway support authorizations?
+
+    public $gateway; //initialized gateway
+
+    public $payment_method; //initialized payment method
+
+    public static $methods = [
+        GatewayType::GIFTUP => GiftUp::class, //maps GatewayType => Implementation class
+         
+    ];
+
+ 
+    public $api_key  = "";
+    public $test_mode = ""; 
+    public $webhook_url = "";
+  
+
+
+    public function init()
+    { 
+        $this->api_key = $this->company_gateway->getConfigField('apiKey');
+        $this->test_mode = $this->company_gateway->getConfigField('testMode'); 
+        $this->webhook_url = $this->company_gateway->webhookUrl();
+        return $this; /* This is where you boot the gateway with your auth credentials*/
+    }
+
+    /* Returns an array of gateway types for the payment gateway */
+    public function gatewayTypes(): array
+    {
+        $types = [];
+        $types[] = GatewayType::GIFTUP;
+
+        return $types;
+    }
 
     public function setPaymentMethod($payment_method_id)
     {
-        $this->payment_method = $payment_method_id;
+        $class = self::$methods[$payment_method_id];
+        $this->payment_method = new $class($this);
         return $this;
     }
 
-    public function authorizeView(array $data)
+   
+
+    public function processPaymentResponse($request)
     {
-        return render('payment_gateway_views.giftup.authorize', $data);
+        
+        return $this->payment_method->paymentResponse($request);
     }
 
-    public function authorizeResponse(Request $request)
-    {
-        throw new PaymentFailed("Authorization is not supported.");
-    }
-
-    public function processPaymentView(array $data)
-    {
-        return render('payment_gateway_views.giftup.pay', $data);
-    }
-
-    public function processPaymentResponse(Request $request)
-    {
-        $giftCardCode = $request->input('gift_card_code');
-        $amount = $this->payment_hash->amount_with_fee;
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->company_gateway->getConfigField('api_key'),
-            'Content-Type' => 'application/json',
-        ])->post('https://api.giftup.app/gift-cards/redeem', [
-            'code' => $giftCardCode,
-            'amount' => $amount,
-        ]);
-
-        if (!$response->successful()) {
-            $error = $response->json('error.message') ?? 'Gift card redemption failed.';
-            throw new PaymentFailed($error);
+    public function processWebhookRequest(Request $request)
+    { 
+       
+        if ($request->input('test') === true) {
+            return response()->json(['message' => 'Test webhook received.'], 200);
         }
+       
 
-        $this->confirmGatewayFee();
+    }
 
-        $payment = $this->createPayment($amount, [
-            'transaction_reference' => $giftCardCode,
-        ]);
+    private function failedPaymentNotification(Payment $payment): void
+    {
 
-        return redirect()->route('client.invoices.show', [
-            'invoice' => $this->payment_hash->invoice_id,
-        ]);
+        $error = ctrans('texts.client_payment_failure_body', [
+            'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
+            'amount' => array_sum(array_column($this->payment_hash->invoices(), 'amount')) + $this->payment_hash->fee_total, ]);
+
+        PaymentFailedMailer::dispatch(
+            $this->payment_hash,
+            $payment->client->company,
+            $payment->client,
+            $error
+        );
+
     }
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
-        throw new PaymentFailed('Refunds are not supported via GiftUp.');
-    }
-
-    public function tokenBilling(ClientGatewayToken $token, \App\Models\PaymentHash $payment_hash)
-    {
-        throw new PaymentFailed('Token billing is not supported via GiftUp.');
+    return false;
     }
 }
