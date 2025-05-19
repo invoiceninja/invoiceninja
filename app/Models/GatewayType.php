@@ -93,6 +93,8 @@ class GatewayType extends StaticModel
 
     public const PAYPAL_ADVANCED_CARDS = 29;
 
+    public const GIFTUP = 30;
+
     public function gateway()
     {
         return $this->belongsTo(Gateway::class);
