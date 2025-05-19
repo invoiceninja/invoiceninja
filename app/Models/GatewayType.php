@@ -164,6 +164,8 @@ class GatewayType extends StaticModel
                 return ctrans('texts.paypal_paylater');
             case self::PAYPAL_ADVANCED_CARDS:
                 return ctrans('texts.credit_card');
+            case self::GIFTUP:
+                return ctrans('tests.giftup');
 
             default:
                 return ' ';
