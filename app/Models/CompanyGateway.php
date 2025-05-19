@@ -159,6 +159,7 @@ class CompanyGateway extends BaseModel
         '91be24c7b792230bced33e930ac61676' => 325,
         'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
         'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
+        'xhefemukzlsvfk4kwlqaat3urosgt1r7' => 327, //GiftUP
     ];
 
     protected $touches = [];
