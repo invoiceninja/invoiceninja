@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -51,19 +52,11 @@ class StoreProjectRequest extends Request
             $rules['number'] = Rule::unique('projects')->where('company_id', $user->company()->id);
         }
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
 
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
     }
@@ -71,6 +64,15 @@ class StoreProjectRequest extends Request
     public function prepareForValidation()
     {
         $input = $this->decodePrimaryKeys($this->all());
+
+
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
 
         if (array_key_exists('color', $input) && is_null($input['color'])) {
             $input['color'] = '';

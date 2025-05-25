@@ -5,12 +5,12 @@ return [
     'connections' => [
         'default' => [
             'hosts' => [
-                env('ELASTIC_HOST'),
+                env('ELASTIC_HOST', 'https://localhost:9200'),
             ],
             // configure basic authentication
             'basicAuthentication' => [
-                env('ELASTIC_USERNAME'),
-                env('ELASTIC_PASSWORD'),
+                env('ELASTIC_USERNAME', 'elastic'),
+                env('ELASTIC_PASSWORD', 'changeme'),
             ],
             // configure HTTP client (Guzzle by default)
             'httpClientOptions' => [

@@ -607,7 +607,7 @@ return new class extends Migration {
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->index(['deleted_at', 'credit_id', 'company_id']);
+            $t->index(['credit_id', 'deleted_at']);
             $t->unique(['client_contact_id', 'credit_id']);
         });
 
@@ -844,7 +844,7 @@ return new class extends Migration {
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->index(['deleted_at', 'invoice_id', 'company_id']);
+            $t->index(['invoice_id', 'company_id']);
             $t->unique(['client_contact_id', 'invoice_id']);
         });
 
@@ -873,7 +873,7 @@ return new class extends Migration {
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->index(['deleted_at', 'quote_id', 'company_id']);
+            $t->index(['quote_id', 'deleted_at']);
             $t->unique(['client_contact_id', 'quote_id']);
         });
 

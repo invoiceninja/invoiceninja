@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -43,8 +44,15 @@ class MarkPaid extends AbstractService
             $this->invoice = $this->invoice->service()->markSent()->save();
         }
 
-        \DB::connection(config('database.default'))->transaction(function () {
+        $already_paid = false;
+
+        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid) {
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
+
+            if ($this->invoice->status_id == Invoice::STATUS_PAID) {
+                $already_paid = true;
+                return;
+            }
 
             if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
@@ -60,6 +68,10 @@ class MarkPaid extends AbstractService
                     ->save();
             }
         }, 1);
+
+        if ($already_paid) {
+            return $this->invoice;
+        }
 
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -66,7 +67,7 @@ class StorecoveProxy
         if (Ninja::isHosted()) {
 
             //check if the user is already on the network.
-            if($already_registered = $this->storecove->checkNetworkStatus($data)){
+            if ($already_registered = $this->storecove->checkNetworkStatus($data)) {
                 return $already_registered;
             }
 
@@ -188,7 +189,7 @@ class StorecoveProxy
         ];
 
         if ($response->json()) {
-            $body = gettype($response->json()) === 'string' 
+            $body = gettype($response->json()) === 'string'
                 ? \json_decode($response->json(), associative: true)
                 : $response->json();
 

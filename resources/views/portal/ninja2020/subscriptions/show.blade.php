@@ -67,7 +67,7 @@
                     </div>
 
                     <div class="flex mt-4 space-x-2">
-                        @livewire('recurring-invoices.update-auto-billing', ['invoice' => $invoice])
+                        @livewire('recurring-invoices.update-auto-billing', ['invoice_id' => $invoice->id, 'db' => $invoice->company->db])
                     </div>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -967,7 +968,7 @@ class BaseImport
                 $key_keys = array_slice($key_keys, 0, count($row_keys));
                 // Rebuild the $keys array with only the kept columns
                 $keys = array_intersect_key($keys, array_flip($key_keys));
-            }else if (!empty($diff)) {
+            } elseif (!empty($diff)) {
                 return false;
             }
 

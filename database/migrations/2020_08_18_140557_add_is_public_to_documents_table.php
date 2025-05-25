@@ -99,7 +99,7 @@ return new class extends Migration {
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->index(['deleted_at', 'recurring_invoice_id', 'company_id'], 'rec_co_del');
+            $t->index(['recurring_invoice_id', 'deleted_at'], 'rec_co_del');
             $t->unique(['client_contact_id', 'recurring_invoice_id'], 'cli_rec');
         });
     }

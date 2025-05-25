@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -59,24 +60,13 @@ class UpdatePurchaseOrderRequest extends Request
         $rules['discount'] = 'sometimes|numeric|max:99999999999999';
         $rules['is_amount_discount'] = ['boolean'];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
-
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        
         $rules['status_id'] = 'sometimes|integer|in:1,2,3,4,5';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
-       
+
         $rules['custom_surcharge1'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['custom_surcharge2'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
         $rules['custom_surcharge3'] = ['sometimes', 'nullable', 'bail', 'numeric', 'max:99999999999999'];
@@ -94,6 +84,14 @@ class UpdatePurchaseOrderRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['id'] = $this->purchase_order->id;
+
+        if (isset($input['documents'])) {
+            unset($input['documents']);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
 
         if (isset($input['partial']) && $input['partial'] == 0) {
             $input['partial_due_date'] = null;

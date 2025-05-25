@@ -3,10 +3,32 @@
       tags:
         - quotes
       summary: "List quotes"
-      description: "Lists quotes, search and filters allow fine grained lists to be generated.\n     *\n     *      Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available"
+      description: |
+        ## GET /api/v1/quotes
+
+        Lists quotes, search and filters allow fine grained lists to be generated.
+        
+        Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available
+      
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quotes = $ninja->quotes->all([
+            'per_page' => 10,
+            'page' => 1,
+            'sort' => 'number|asc'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes?per_page=10&page=1&sort=number&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: getQuotes
       parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/status"
@@ -96,7 +118,104 @@
       tags:
         - quotes
       summary: "Create quote"
-      description: "Adds an Quote to the system"
+      description: |
+        ## POST /api/v1/quotes
+        Creates an quote for a client.
+
+        Triggered actions are available when updating or creating an quote.
+
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+        
+        ```
+        ?send_email=true [Saves and sends the quote]
+        ?mark_sent=true [Saves and marks the quote as sent]
+        ?approve=true [Saves and approves the quote]
+        ?convert=true [Saves and converts the quote to an invoice]
+        ?save_default_footer=true [Saves the current footer as the default footer]
+        ?save_default_terms=true [Saves the current terms as the default terms]
+        
+        ```
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->quotes->create([
+            'client_id' => 'AxP7K9nY5z',
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'frequency_id' => '1',
+            'remaining_cycles' => '5',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'custom_value1' => 'custom value 1',
+            'custom_value2' => 'custom value 2',
+            'line_items' => [
+              [
+                    'quantity' => 1,
+                    'cost' => 14,
+                    'product_key' => 'sku_4_u',
+                    'notes' => 'The actual product description',
+                    'discount' => 0,
+                    'is_amount_discount' => true,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'sort_id' => '0',
+                    'custom_value1' => 'https://picsum.photos/200',
+                    'custom_value2' => '94',
+                    'custom_value3' => 'Alias vel eveniet.',
+                    'custom_value4' => 'Iusto aut quis qui.',
+                    'type_id' => '1',
+                    'tax_id' => '1'
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/quotes' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "client_id": "AxP7K9nY5z",
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "custom_value1": "custom value 1",
+              "custom_value2": "custom value 2",
+              "frequency_id": "1",
+              "remaining_cycles": "5",
+              "line_items": [
+                {
+                  "quantity": 1,
+                  "cost": 14,
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description",
+                  "discount": 0,
+                  "is_amount_discount": true,
+                  "tax_name1": "",
+                  "tax_rate1": 0,
+                  "tax_name2": "",
+                  "tax_rate2": 0,
+                  "tax_name3": "",
+                  "tax_rate3": 0,
+                  "sort_id": "0",
+                  "custom_value1": "https://picsum.photos/200",
+                  "custom_value2": "94",
+                  "custom_value3": "Alias vel eveniet.",
+                  "custom_value4": "Iusto aut quis qui.",
+                  "type_id": "1",
+                  "tax_id": "1"
+                }
+              ]
+            }'
       operationId: storeQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -133,7 +252,24 @@
       tags:
         - quotes
       summary: "Show quote"
-      description: "Displays an Quote by id"
+      description: |
+        ## GET /api/v1/quotes/{id}
+
+        Displays an Quote by id
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quote = $ninja->quotes->get("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: showQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -177,7 +313,61 @@
       tags:
         - quotes
       summary: "Update quote"
-      description: "Handles the updating of an Quote by id"
+      description: |
+        ## PUT /api/v1/quotes/{id}
+
+        Handles the updating of an Quote by id.
+
+        Triggered actions are available when updating or creating an quote.
+
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+        
+        ```
+        ?send_email=true [Saves and sends the quote]
+        ?mark_sent=true [Saves and marks the quote as sent]
+        ?approve=true [Saves and approves the quote]
+        ?convert=true [Saves and converts the quote to an invoice]
+        ?save_default_footer=true [Saves the current footer as the default footer]
+        ?save_default_terms=true [Saves the current terms as the default terms]
+        
+        ```
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->update("D2J234DFA", [
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'line_items' => [
+              [
+                'product_key' => 'sku_4_u',
+                'notes' => 'The actual product description',
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request PUT \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "line_items": [
+                {
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description"
+                }
+              ]
+            }'
       operationId: updateQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -221,7 +411,23 @@
       tags:
         - quotes
       summary: "Delete quote"
-      description: "Handles the deletion of an Quote by id"
+      description:  |
+        ## DELETE /api/v1/quotes/{id}
+
+        Handles the deletion of an Quote by id.
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $ninja->quotes->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request DELETE \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE'
       operationId: deleteQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -262,7 +468,24 @@
       tags:
         - quotes
       summary: "Edit quote"
-      description: "Displays an Quote by id"
+      description: |
+        ## GET /api/v1/quotes/{id}/edit
+
+        Displays an Quote by id for editting
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quote = $ninja->quotes->edit("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA/edit' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: editQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -307,7 +530,24 @@
       tags:
         - quotes
       summary: "Blank quote"
-      description: "Returns a blank object with default values"
+      description: |
+        ## GET /api/v1/quotes/create
+
+        Returns a blank object with default values
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quote = $ninja->quotes->create();
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes/create' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: getQuotesCreate
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -344,23 +584,71 @@
       tags:
         - quotes
       summary: "Bulk quote actions"
-      description: ""
+      description: |
+        ## POST /api/v1/quotes/bulk
+
+        Performs bulk actions on an array of quotes
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $response = $ninja->quotes->bulk([
+            'action' => 'approve',
+            'ids' => ['D2J234DFA','D2J234DFA','D2J234DFA']
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/quotes/bulk' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "action": "approve",
+              "ids": ["D2J234DFA","D2J234DFA","D2J234DFA"]
+            }'
       operationId: bulkQuotes
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed ids"
+        description: "Bulk action details"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: |
+                    The action to be performed, options include:  
+                    - `approve`  
+                      Bulk approve an array of quotes  
+                    - `convert`  
+                      Bulk convert an array of quotes to invoices  
+                    - `send_email`  
+                      Bulk send an array of quotes as emails  
+                    - `mark_sent`  
+                      Bulk mark an array of quotes as sent  
+                    - `restore`  
+                      Restores an array of quotes  
+                    - `delete`  
+                      Deletes an array of invoices  
+                    - `archive`  
+                      Archives an array of invoices  
+                ids:
+                  type: array
+                  items:
+                    description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
+                    type: string
+              example:
+                action: convert
+                ids: ['D2J234DFA','D2J234DFA','D2J234DFA']
       responses:
         200:
           description: "The Quote response"

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -133,9 +134,10 @@ class ActivityController extends BaseController
         $file = $backup->getFile();
 
         $html_backup = $file;
-        
-        if(!$file)
+
+        if (!$file) {
             return response()->json(['message' => ctrans('texts.no_backup_exists'), 'errors' => new stdClass()], 404);
+        }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom())->convertHtmlToPdf($html_backup);

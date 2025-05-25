@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -54,11 +55,15 @@ class CreateAccountRequest extends Request
             'utm_campaign'      => 'sometimes|nullable|string',
             'utm_term'          => 'sometimes|nullable|string',
             'utm_content'       => 'sometimes|nullable|string',
+            // 'cf-turnstile'      => 'required_if:token_name,web_client|string',
         ];
     }
 
     public function prepareForValidation()
     {
+
+        nlog(array_merge(['signup' => 'true', 'ipaddy' => request()->ip()], $this->all()));
+
         $input = $this->all();
 
         $input['user_agent'] = request()->server('HTTP_USER_AGENT');

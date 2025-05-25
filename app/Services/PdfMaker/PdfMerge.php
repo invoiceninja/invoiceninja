@@ -32,7 +32,7 @@ class PdfMerge
         $pdf = new FPDI();
 
         foreach ($this->files as $file) {
-            
+
             $pageCount = 0;
 
             try {
@@ -41,10 +41,10 @@ class PdfMerge
             } catch (\setasign\Fpdi\PdfParser\PdfParserException $e) {
                 // If FPDI fails, try downgrading the PDF
 
-                if(class_exists(\Modules\Admin\Services\PdfParse::class)){
-                    
+                if (class_exists(\Modules\Admin\Services\PdfParse::class)) {
+
                     $downgradedPdf = \Modules\Admin\Services\PdfParse::downgrade($file);
-                    
+
                     $pageCount = $pdf->setSourceFile(StreamReader::createByString($downgradedPdf));
                 }
 

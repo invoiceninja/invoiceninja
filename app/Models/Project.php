@@ -144,11 +144,11 @@ class Project extends BaseModel
         return $this->hasMany(Quote::class);
     }
 
-     /**
-     * Service entry points.
-     *
-     * @return ProjectService
-     */
+    /**
+    * Service entry points.
+    *
+    * @return ProjectService
+    */
     public function service(): ProjectService
     {
         return new ProjectService($this);

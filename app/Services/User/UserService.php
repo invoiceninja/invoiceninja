@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,12 +29,20 @@ class UserService
     public function invite(Company $company, bool $is_react = true)
     {
 
+        if(Ninja::isHosted() && $company->account->users()->count() == 1) {
+            $company = Company::on('db-ninja-01')->find(config('ninja.ninja_default_company_id'));
+        }
+
         try {
             $nmo = new NinjaMailerObject();
             $nmo->mailable = new NinjaMailer((new VerifyUserObject($this->user, $company, $is_react))->build());
             $nmo->company = $company;
             $nmo->to_user = $this->user;
             $nmo->settings = $company->settings;
+
+            if(\App\Utils\Ninja::isHosted()) {
+                $nmo->transport = 'default';
+            }
 
             NinjaMailerJob::dispatch($nmo, true);
 

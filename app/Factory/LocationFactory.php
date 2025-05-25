@@ -24,7 +24,7 @@ class LocationFactory
         $location->name = '';
         $location->country_id = null;
         $location->is_deleted = false;
-        
+
         return $location;
     }
 }

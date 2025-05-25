@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -33,7 +34,7 @@ class ImportQuickbooksController extends BaseController
         $authorizationUrl = $qb->sdk()->getAuthorizationUrl();
 
         nlog($authorizationUrl);
-        
+
         $state = $qb->sdk()->getState();
 
         Cache::put($state, $token, 190);

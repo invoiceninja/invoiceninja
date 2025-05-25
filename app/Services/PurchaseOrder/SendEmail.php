@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -38,7 +39,7 @@ class SendEmail extends AbstractService
     {
         $this->purchase_order->last_sent_date = now();
         $this->purchase_order->save();
-        
+
         $this->purchase_order->invitations->load('contact.vendor.country', 'purchase_order.vendor.country', 'purchase_order.company')->each(function ($invitation) {
 
             App::forgetInstance('translator');

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -495,7 +496,7 @@ class PurchaseOrderController extends BaseController
         if (Ninja::isHosted()  && $user->account->emailQuotaExceeded()) {
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
-                    
+
         if ($user->hasExactPermission('disable_emails') && (stripos($action, 'email') !== false)) {
             return response(['message' => ctrans('texts.disable_emails_error')], 400);
         }
@@ -522,16 +523,7 @@ class PurchaseOrderController extends BaseController
         }
 
         if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
-            // $paths = $purchase_orders->map(function ($purchase_order) {
-            //     return (new CreateRawPdf($purchase_order->invitations->first()))->handle();
-            // });
 
-            // $merge = (new PdfMerge($paths->toArray()))->run();
-
-            // return response()->streamDownload(function () use ($merge) {
-            //     echo($merge);
-            // }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-        
             $start = microtime(true);
 
             $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(PurchaseOrder::class, $purchase_orders->pluck('id')->toArray(), $user->company()->db))->handle();
@@ -562,7 +554,7 @@ class PurchaseOrderController extends BaseController
                 'Server-Timing' => (string)(microtime(true) - $start)
             ]);
 
-        
+
         }
 
         if ($action == 'template' && $user->can('view', $purchase_orders->first())) {
@@ -711,9 +703,9 @@ class PurchaseOrderController extends BaseController
             case 'email':
             case 'send_email':
                 //check query parameter for email_type and set the template else use calculateTemplate
-                
+
                 $purchase_order->service()->sendEmail();
-                
+
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);
                 }

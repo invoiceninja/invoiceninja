@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,28 @@ class GmailTransport extends AbstractTransport
     protected function doSend(SentMessage $message): void
     {
         nlog("In Do Send");
+
+        /** @var \Symfony\Component\Mime\Email $message */
         $message = MessageConverter::toEmail($message->getOriginalMessage()); //@phpstan-ignore-line
+
+        //ensure utf-8 encoding of subject
+        $subject = $message->getSubject();
+
+        if (!mb_check_encoding($subject, 'UTF-8') || preg_match('/Ã.|â.|Â./', $subject)) {
+
+            $possible_encodings = ['Windows-1252', 'ISO-8859-1', 'ISO-8859-15'];
+            
+            foreach ($possible_encodings as $encoding) {
+                $converted = mb_convert_encoding($subject, 'UTF-8', $encoding);
+                
+                if (mb_check_encoding($converted, 'UTF-8') && !preg_match('/Ã.|â.|Â./', $converted)) {
+                    $subject = $converted;
+                    break;
+                }
+            }
+        }
+
+        $message->subject($subject);
 
         /** @phpstan-ignore-next-line **/
         $token = $message->getHeaders()->get('gmailtoken')->getValue(); // @phpstan-ignore-line
@@ -63,28 +85,14 @@ class GmailTransport extends AbstractTransport
 
         $body->setRaw($this->base64_encode($bcc_list.$message->toString()));
 
-        // try {
         $service->users_messages->send('me', $body, []);
-        // } catch(\Google\Service\Exception $e) {
-        //     /* Need to slow down */
-        //     if ($e->getCode() == '429') {
-        //         nlog("429 google - retrying ");
 
-        //         sleep(rand(3,8));
-
-        //         try {
-        //             $service->users_messages->send('me', $body, []);
-        //         } catch(\Google\Service\Exception $e) {
-
-        //         }
-
-        //     }
-        // }
     }
 
     private function base64_encode($data)
     {
-        return rtrim(strtr(base64_encode($data), ['+' => '-', '/' => '_']), '=');
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        // return rtrim(strtr(base64_encode($data), ['+' => '-', '/' => '_']), '=');
     }
 
     public function __toString(): string

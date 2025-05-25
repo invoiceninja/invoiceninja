@@ -34,7 +34,7 @@ class ClientTransformer extends BaseTransformer
         $contact = [
             'first_name' => data_get($data, 'GivenName', ''),
             'last_name' => data_get($data, 'FamilyName', ''),
-            'phone' => data_get($data, 'PrimaryPhone.FreeFormNumber',''),
+            'phone' => data_get($data, 'PrimaryPhone.FreeFormNumber', ''),
             'email' =>  data_get($data, 'PrimaryEmailAddr.Address', null),
         ];
 

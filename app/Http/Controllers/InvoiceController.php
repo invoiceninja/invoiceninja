@@ -429,7 +429,7 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        return $this->itemResponse($invoice);
+        return $this->itemResponse($invoice->fresh());
     }
 
     /**
@@ -508,7 +508,7 @@ class InvoiceController extends BaseController
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 
-        if($user->hasExactPermission('disable_emails') && (stripos($action, 'email') !== false)){
+        if ($user->hasExactPermission('disable_emails') && (stripos($action, 'email') !== false)) {
             return response(['message' => ctrans('texts.disable_emails_error')], 400);
         }
 
@@ -550,28 +550,19 @@ class InvoiceController extends BaseController
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
             $start = microtime(true);
 
-            // 2025-01-22 Legacy implementation of bulk print
-            // $paths = $invoices->map(function ($invoice) {
-            //     return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first()))->handle();
-            // });
-
-            // return response()->streamDownload(function () use ($paths) {
-            //     echo $merge = (new PdfMerge($paths->toArray()))->run();
-            // }, 'print.pdf', ['Content-Type' => 'application/pdf']);
-
             $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Invoice::class, $invoices->pluck('id')->toArray(), $user->company()->db))->handle();
             $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;          
+            $batch_key = $batch->name;
 
             $finished = false;
 
-            do{
-                usleep(500000);
+            do {
+                usleep(300000);
                 $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
                 $finished = $batch->finished();
-            }while(!$finished);
-            
-            $paths = $invoices->map(function ($invoice) use($batch_key){
+            } while (!$finished);
+
+            $paths = $invoices->map(function ($invoice) use ($batch_key) {
                 return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$invoice->id}");
             })->filter(function ($value) {
                 return !is_null($value);

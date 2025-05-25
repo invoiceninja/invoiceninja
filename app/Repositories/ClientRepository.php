@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -147,7 +148,7 @@ class ClientRepository extends BaseRepository
     {
 
         nlog("Purging client id => {$client->id} => {$client->number}");
-        
+
         $client->contacts()->forceDelete();
         $client->tasks()->forceDelete();
         $client->invoices()->forceDelete();

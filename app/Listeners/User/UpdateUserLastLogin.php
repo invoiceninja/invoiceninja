@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -70,7 +71,7 @@ class UpdateUserLastLogin implements ShouldQueue
             $nmo->settings = $user->account->companies->first()->settings;
             $nmo->to_user = $user;
 
-            try{
+            try {
                 NinjaMailerJob::dispatch($nmo, true);
             } catch (\Exception $e) {
                 //this will catch for users that don't have their mail server configured correctly.

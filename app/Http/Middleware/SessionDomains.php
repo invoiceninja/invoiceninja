@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -38,5 +39,6 @@ class SessionDomains
         }
 
         return $next($request);
+
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Credit Ninja (https://creditninja.com).
  *

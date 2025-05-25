@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -215,7 +216,10 @@ class Peppol extends AbstractService
             }
 
             /** Auto switch between Invoice / Credit based on the amount value */
-            $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381;
+
+            // $this->p_invoice->InvoiceTypeCode = ($this->invoice->amount >= 0) ? 380 : 381;
+
+            $this->p_invoice->InvoiceTypeCode = 380;
 
             $this->p_invoice->AccountingSupplierParty = $this->getAccountingSupplierParty();
             $this->p_invoice->AccountingCustomerParty = $this->getAccountingCustomerParty();
@@ -255,7 +259,7 @@ class Peppol extends AbstractService
      */
     public function decode(mixed $invoice): self
     {
-        
+
         $this->p_invoice = $this->e->decode('Peppol', json_encode($invoice), 'json');
 
         return $this;
@@ -406,14 +410,14 @@ class Peppol extends AbstractService
     private function setOrderReference(): self
     {
 
-            $this->p_invoice->BuyerReference = $this->invoice->po_number ?? '';
+        $this->p_invoice->BuyerReference = $this->invoice->po_number ?? '';
 
-            $order_reference = new OrderReference();
-            $id = new ID();
-            $id->value = strlen($this->invoice->po_number ?? '') > 1 ? $this->invoice->po_number : $this->invoice->number;
+        $order_reference = new OrderReference();
+        $id = new ID();
+        $id->value = strlen($this->invoice->po_number ?? '') > 1 ? $this->invoice->po_number : $this->invoice->number;
 
-            $order_reference->ID = $id;
-            $this->p_invoice->OrderReference = $order_reference;
+        $order_reference->ID = $id;
+        $this->p_invoice->OrderReference = $order_reference;
 
         return $this;
 
@@ -428,7 +432,7 @@ class Peppol extends AbstractService
         $mime_code = 'application/pdf';
 
         $adr = new \InvoiceNinja\EInvoice\Models\Peppol\DocumentReferenceType\AdditionalDocumentReference();
-        
+
         // Set ID
         $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
         $id->value = $filename;
@@ -436,20 +440,20 @@ class Peppol extends AbstractService
 
         // Create EmbeddedDocumentBinaryObject
         $attachment = new \InvoiceNinja\EInvoice\Models\Peppol\AttachmentType\Attachment();
-        
+
         $binary = new \InvoiceNinja\EInvoice\Models\Peppol\EmbeddedDocumentBinaryObjectType\EmbeddedDocumentBinaryObject();
         $binary->value = base64_encode($pdf);
         $binary->mimeCode = $mime_code;
         $binary->filename = $filename;
         $attachment->EmbeddedDocumentBinaryObject = $binary;
-        
+
         $adr->Attachment = $attachment;
 
         // Add to invoice
         if (!isset($this->p_invoice->AdditionalDocumentReference)) {
             $this->p_invoice->AdditionalDocumentReference = [];
         }
-        
+
         $this->p_invoice->AdditionalDocumentReference[] = $adr;
 
         return $this;
@@ -625,11 +629,11 @@ class Peppol extends AbstractService
         $am->amount = number_format($this->calc->getTotalDiscount(), 2, '.', '');
         $lmt->AllowanceTotalAmount = $am;
 
-        $cta = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\ChargeTotalAmount();        
+        $cta = new \InvoiceNinja\EInvoice\Models\Peppol\AmountType\ChargeTotalAmount();
         $cta->currencyID = $this->invoice->client->currency()->code;
         $cta->amount = number_format($this->calc->getTotalSurcharges(), 2, '.', '');
         $lmt->ChargeTotalAmount = $cta;
-        
+
         return $lmt;
     }
 
@@ -858,7 +862,7 @@ class Peppol extends AbstractService
 
             $lea = new LineExtensionAmount();
             $lea->currencyID = $this->invoice->client->currency()->code;
-            $lea->amount = $this->invoice->uses_inclusive_taxes ? round($item->line_total - $this->calcInclusiveLineTax($item->tax_rate1, $item->line_total),2) : round($item->line_total,2);
+            $lea->amount = $this->invoice->uses_inclusive_taxes ? round($item->line_total - $this->calcInclusiveLineTax($item->tax_rate1, $item->line_total), 2) : round($item->line_total, 2);
             $line->LineExtensionAmount = $lea;
             $line->Item = $_item;
 
@@ -1127,14 +1131,14 @@ class Peppol extends AbstractService
         //@todo if we have an exact GLN/routing number we should update this, otherwise Storecove will proxy and update on transit
 
         $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\EndpointID();
-        $id->value = $this->invoice->client->routing_id 
-        ?? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number) 
+        $id->value = $this->invoice->client->routing_id
+        ?? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number)
         ?? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number)
         ?? 'fallback1234';
-        
+
         $id->schemeID = $this->resolveScheme(true);
         $party->EndpointID = $id;
-        
+
         $party->PartyName[] = $party_name;
 
         $locationData = $this->invoice->service()->location();
@@ -1193,7 +1197,7 @@ class Peppol extends AbstractService
         }
 
         $address->PostalZone = $locationData['shipping_postal_code'];
-        
+
         $country = new Country();
 
         $ic = new IdentificationCode();
@@ -1293,8 +1297,8 @@ class Peppol extends AbstractService
             }
         }
 
-        if(isset($this->invoice->e_invoice->Invoice)) {
-            foreach(get_object_vars($this->invoice->e_invoice->Invoice) as $prop => $value) {
+        if (isset($this->invoice->e_invoice->Invoice)) {
+            foreach (get_object_vars($this->invoice->e_invoice->Invoice) as $prop => $value) {
                 $this->p_invoice->{$prop} = $value;
             }
         }
@@ -1325,7 +1329,7 @@ class Peppol extends AbstractService
 
         }
 
-        if(!isset($this->p_invoice->InvoicePeriod)) {
+        if (!isset($this->p_invoice->InvoicePeriod)) {
             $ip = new InvoicePeriod();
             $ip->StartDate = new \DateTime($this->invoice->date);
             $ip->EndDate = new \DateTime($this->invoice->due_date ?? $this->invoice->date);
@@ -1334,42 +1338,40 @@ class Peppol extends AbstractService
 
         return $this;
     }
-    
+
     /**
      * standardPeppolRules
      *
      * Transform UBL => Peppol rules
-     * 
+     *
      * 1. FinancialInstitutionBranch - remove
      * 2. FinancialInstituion - remove
-     * 
+     *
      * @return self
      */
     private function standardPeppolRules(): self
     {
-        foreach($this->p_invoice->PaymentMeans as &$pm)
-        {
+        foreach ($this->p_invoice->PaymentMeans as &$pm) {
             unset($pm->PayeeFinancialAccount->FinancialInstitutionBranch);
         }
         unset($pm);
 
         return $this;
     }
-        
+
     /**
      * setPaymentTerms
      *
      * If payment terms are defined, we should include these
      * on the invoice.
-     * 
+     *
      * @return self
      */
     private function setPaymentTerms(): self
     {
         $terms_string = $this->invoice->client->getSetting('payment_terms');
 
-        if(strlen($terms_string) > 1)
-        {
+        if (strlen($terms_string) > 1) {
             $terms = new \InvoiceNinja\EInvoice\Models\Peppol\PaymentTermsType\PaymentTerms();
             $terms->Note = trans('texts.count_days', ['count' => $terms_string]);
 
@@ -1564,7 +1566,7 @@ class Peppol extends AbstractService
     {
 
         $vat_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->vat_number ?? '');
-        $tax_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number ?? ''): preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number ?? '');
+        $tax_number = $is_client ? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number ?? '') : preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number ?? '');
         $country_code = $is_client ? $this->invoice->client->country->iso_3166_2 : $this->invoice->company->country()->iso_3166_2;
 
         return '0037';

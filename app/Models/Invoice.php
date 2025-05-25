@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -12,7 +13,7 @@
 namespace App\Models;
 
 use App\Utils\Ninja;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Carbon;
 use App\DataMapper\InvoiceSync;
 use App\Helpers\Invoice\InvoiceSum;
@@ -148,6 +149,7 @@ class Invoice extends BaseModel
     use ActionsInvoice;
     use Searchable;
 
+
     protected $presenter = EntityPresenter::class;
 
     protected $touches = [];
@@ -243,13 +245,18 @@ class Invoice extends BaseModel
 
     public const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
 
+    // public function searchableAs()
+    // {
+    //     return 'invoices_index';  // for when we need to rename
+    // }
+
     public function toSearchableArray()
     {
         $locale = $this->company->locale();
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => (string)$this->company->db.":".$this->id,
             'name' => ctrans('texts.invoice') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -264,12 +271,13 @@ class Invoice extends BaseModel
             'custom_value4' => (string)$this->custom_value4,
             'company_key' => $this->company->company_key,
             'po_number' => (string)$this->po_number,
+            'line_items' => $this->line_items,
         ];
     }
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return (string)$this->company->db.":".$this->id;
     }
 
     public function getEntityType()
@@ -418,7 +426,7 @@ class Invoice extends BaseModel
      */
     public function quote(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        return $this->hasOne(Quote::class);
+        return $this->hasOne(Quote::class)->where('company_id', $this->company_id);
     }
 
     public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -455,6 +463,7 @@ class Invoice extends BaseModel
 
     public function getStatusAttribute()
     {
+        
         $due_date = $this->due_date ? Carbon::parse($this->due_date) : false;
         $partial_due_date = $this->partial_due_date ? Carbon::parse($this->partial_due_date) : false;
 
@@ -646,7 +655,7 @@ class Invoice extends BaseModel
 
     public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
-        
+
         switch ($reminder_template) {
             case 'invoice':
                 event(new InvoiceWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));

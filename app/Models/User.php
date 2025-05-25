@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -730,7 +731,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function updateReferral(ReferralEarning $entity)
     {
-        
+
         $earnings = collect($this->referral_earnings);
 
         $updated_earnings = $earnings->map(function ($earning) use ($entity) {

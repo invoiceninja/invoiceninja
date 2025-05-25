@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -249,7 +250,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => $name,
             'is_deleted' => $this->is_deleted,
             'hashed_id' => $this->hashed_id,
@@ -282,13 +283,8 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company ? $this->company->db.":".$this->id : config('database.default').":".$this->id; //28-04-2025 handle removing clients when purged
     }
-
-    // public function getScoutKeyName()
-    // {
-    //     return 'hashed_id';
-    // }
 
     public function getEntityType()
     {
@@ -322,7 +318,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(Location::class)->withTrashed();
+        return $this->hasMany(Location::class);
     }
 
     /**
@@ -716,13 +712,14 @@ class Client extends BaseModel implements HasLocalePreference
             }
         }
 
-        if (in_array($this->currency()->code, ['CAD','USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+        // if (in_array($this->currency()->code, ['USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+            if (in_array($this->currency()->code, ['CAD','USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
             // if ($this->currency()->code == 'CAD' && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::ACSS) {
                     $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                    if ($cg && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
+                    if ($cg && $cg->gateway_key != '91be24c7b792230bced33e930ac61676' && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
                         return $cg;
                     }
                 }
@@ -748,7 +745,6 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function getBankTransferMethodType()
     {
-
 
         $pms = $this->service()->getPaymentMethods(-1);
 
@@ -805,6 +801,7 @@ class Client extends BaseModel implements HasLocalePreference
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::ACSS) {
                     $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
+                    // $cg = CompanyGateway::query()->where('id', $pm['company_gateway_id'])->where('gateway_key', '!=', '91be24c7b792230bced33e930ac61676')->first();
 
                     if ($cg && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
                         return GatewayType::ACSS;
@@ -1040,31 +1037,33 @@ class Client extends BaseModel implements HasLocalePreference
     {
         return $this->getSetting('e_invoice_type') == 'PEPPOL' && $this->company->peppolSendingEnabled() && is_null($this->checkDeliveryNetwork());
     }
-    
+
     /**
      * checkDeliveryNetwork
      *
      * Checks whether the client country is supported
      * for sending over the PEPPOL network.
-     * 
+     *
      * @return string|null
      */
     public function checkDeliveryNetwork(): ?string
     {
 
-        if(!isset($this->country->iso_3166_2))
+        if (!isset($this->country->iso_3166_2)) {
             return "Client has no country set!";
-        
+        }
+
         $br = new \App\DataMapper\Tax\BaseRule();
 
         $government_countries = array_merge($br->peppol_business_countries, $br->peppol_government_countries);
 
-        if(in_array($this->country->iso_3166_2, $government_countries) && $this->classification == 'government'){
+        if (in_array($this->country->iso_3166_2, $government_countries) && $this->classification == 'government') {
             return null;
         }
 
-        if(in_array($this->country->iso_3166_2, $br->peppol_business_countries))
+        if (in_array($this->country->iso_3166_2, $br->peppol_business_countries)) {
             return null;
+        }
 
         return "Country {$this->country->full_name} ( {$this->country->iso_3166_2} ) is not supported by the PEPPOL network for e-delivery.";
 

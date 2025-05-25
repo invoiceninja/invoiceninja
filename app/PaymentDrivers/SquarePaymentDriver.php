@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -435,7 +436,7 @@ class SquarePaymentDriver extends BaseDriver
         return $amount;
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         $api_response = $this->init()
@@ -444,7 +445,7 @@ class SquarePaymentDriver extends BaseDriver
                     ->listCustomers();
 
 
-        return (bool) count($api_response->getErrors()) == 0;
+        return (bool) count($api_response->getErrors()) == 0 ? 'ok' : 'error';
 
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -64,9 +65,9 @@ class InvoiceRepository extends BaseRepository
      */
     public function delete($invoice): Invoice
     {
-        
+
         $invoice = \DB::transaction(function () use ($invoice) {
-           return \App\Models\Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
+            return \App\Models\Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
         });
 
         if (!$invoice || $invoice->is_deleted) {
@@ -75,7 +76,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->is_deleted = true;
         $invoice->saveQuietly();
-        
+
         $invoice = $invoice->service()->markDeleted()->save();
 
         return $invoice;

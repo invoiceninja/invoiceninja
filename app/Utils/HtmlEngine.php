@@ -129,7 +129,7 @@ class HtmlEngine
         $t->replace(Ninja::transformTranslations($this->settings));
 
         $locationData = $this->entity->service()->location();
-        
+
         $data = [];
 
         $data['$date_client_now'] = ['value' => now()->setTimezone($this->client->timezone()->name)->addSeconds($this->client->utc_offset())->format($this->client->date_format()), 'label' => ''];
@@ -241,7 +241,7 @@ class HtmlEngine
             if (strlen($this->company->getSetting('qr_iban')) > 5) {
                 try {
                     $data['$swiss_qr'] = ['value' => (new SwissQrGenerator($this->entity, $this->company))->run(), 'label' => ''];
-                    $data['$swiss_qr_raw'] = ['value' => html_entity_decode($data['$swiss_qr']['value']), 'label' => '']; 
+                    $data['$swiss_qr_raw'] = ['value' => html_entity_decode($data['$swiss_qr']['value']), 'label' => ''];
                 } catch (\Exception $e) {
                     $data['$swiss_qr'] = ['value' => '', 'label' => ''];
                     $data['$swiss_qr_raw'] = ['value' => '', 'label' => ''];
@@ -506,6 +506,7 @@ class HtmlEngine
         $data['$client.billing_postal_code'] = &$data['$client.postal_code'];
         $data['$client.billing_country'] = &$data['$client.country'];
 
+        $data['$client.shipping_location_name'] = ['value' => $locationData['shipping_location_name'], 'label' => ctrans('texts.shipping_location_name')];
         $data['$client.shipping_address'] = ['value' => $locationData['shipping_address'], 'label' => ctrans('texts.shipping_address')];
         $data['$client.shipping_address1'] = ['value' => $locationData['shipping_address1'], 'label' => ctrans('texts.shipping_address1')];
         $data['$client.shipping_address2'] = ['value' => $locationData['shipping_address2'], 'label' => ctrans('texts.shipping_address2')];
@@ -583,7 +584,6 @@ class HtmlEngine
         }
 
         $logo_url = $this->company->present()->logo($this->settings);
-
 
         $data['$company.logo'] = ['value' => $logo ?: ' ', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
@@ -679,7 +679,7 @@ class HtmlEngine
             $data['$contact.signature'] = ['value' => '', 'label' => ''];
         }
 
-        if($this->entity->quote){
+        if ($this->entity->quote) {
             $data['$quote.reference'] = ['value' => $this->entity->quote->number ?: '&nbsp;', 'label' => ctrans('texts.quote_number')];
         }
 
@@ -779,7 +779,7 @@ class HtmlEngine
             }
         }
 
-        if (($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') && isset($this->company?->custom_fields?->company1)) {
+        if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
             $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity, $data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
             $data['$sepa_qr_code_raw'] = ['value' => html_entity_decode($data['$sepa_qr_code']['value']), 'label' => ''];
         }
@@ -970,7 +970,7 @@ class HtmlEngine
 
         return $country ? $country->iso_3166_2 : ' ';
     }
-   
+
     private function lineTaxValues(): string
     {
         $tax_map = $this->entity_calc->getTaxMap();

@@ -27,14 +27,14 @@ trait WithSecureContext
 
         $context = \Illuminate\Support\Facades\Cache::get(session()->getId()) ?? false;
 
-        if(!$context){
+        if (!$context) {
 
             usleep(300000); //@monitor - inject delay to catch delays in cache updating
 
             $context = \Illuminate\Support\Facades\Cache::get(session()->getId()) ?? [];
 
         }
-        
+
         return $context;
 
     }
@@ -63,7 +63,7 @@ trait WithSecureContext
         $this->dispatch(self::CONTEXT_UPDATE);
 
         return $clone;
-        
+
     }
 
     public function resetContext(): void

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,6 +16,7 @@ use App\Http\Requests\Import\ImportRequest;
 use App\Http\Requests\Import\PreImportRequest;
 use App\Jobs\Import\CSVIngest;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use League\Csv\Reader;
@@ -71,6 +73,7 @@ class ImportController extends Controller
      */
     public function preimport(PreImportRequest $request)
     {
+        App::setLocale(auth()->user()->company()->getLocale());
         // Create a reference
         $hash = Str::random(32);
 

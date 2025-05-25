@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -159,7 +160,7 @@ class UpdateCompanyRequest extends Request
             $input['e_invoice'] = $this->company->filterNullsRecursive($input['e_invoice']);
         }
 
-        if(isset($input['calculate_taxes']) && $input['calculate_taxes'] == true) {
+        if (isset($input['calculate_taxes']) && $input['calculate_taxes'] == true) {
             $input['settings']['tax_name1'] = '';
             $input['settings']['tax_rate1'] = 0;
             $input['settings']['tax_name2'] = '';
@@ -170,7 +171,7 @@ class UpdateCompanyRequest extends Request
             $input['enabled_item_tax_rates'] = 1;
         }
 
-        if(isset($input['session_timeout']) && $input['session_timeout'] < 0) {
+        if (isset($input['session_timeout']) && $input['session_timeout'] < 0) {
             $input['session_timeout'] = 0;
         }
 
@@ -200,7 +201,7 @@ class UpdateCompanyRequest extends Request
         if (Ninja::isHosted()) {
             foreach ($this->protected_input as $protected_var) {
 
-                if(isset($settings[$protected_var])) {
+                if (isset($settings[$protected_var])) {
                     $settings[$protected_var] = str_replace("script", "", $settings[$protected_var]);
                 }
             }

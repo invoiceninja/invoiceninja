@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -42,7 +43,7 @@ class MailSentListener
      */
     public function handle(MessageSent $event)
     {
-        
+
         try {
             $message_id = $event->sent->getMessageId();
 

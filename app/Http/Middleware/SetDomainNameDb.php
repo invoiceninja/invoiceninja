@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -58,6 +59,7 @@ class SetDomainNameDb
                     MultiDB::setDb('db-ninja-01');
                     nlog('SetDomainNameDb:: I could not set the DB - defaulting to DB1');
                     $request->session()->invalidate();
+                    $request->session()->regenerate(true);
                     $request->session()->regenerateToken();
                 }
             }
@@ -76,6 +78,7 @@ class SetDomainNameDb
                     MultiDB::setDb('db-ninja-01');
                     nlog('SetDomainNameDb:: I could not set the DB - defaulting to DB1');
                     $request->session()->invalidate();
+                    $request->session()->regenerate(true);
                     $request->session()->regenerateToken();
                 }
             }

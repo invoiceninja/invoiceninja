@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -631,10 +632,9 @@ class CompanyExport implements ShouldQueue
 
         //write to tmp and email to owner();
 
-        if(Ninja::isSelfHost()) {
+        if (Ninja::isSelfHost()) {
             $this->export_data['e_invoicing_tokens'] = EInvoicingToken::all()->makeHidden(['id'])->all();
-        }
-        else {
+        } else {
             $this->export_data['e_invoicing_tokens'] = [];
         }
 
@@ -645,7 +645,7 @@ class CompanyExport implements ShouldQueue
         //////////////////////////////////// fine ////////////////////////////////////
 
         $this->writer->end();
-        
+
         $this->zipAndSend();
 
         return true;
@@ -687,7 +687,7 @@ class CompanyExport implements ShouldQueue
             foreach ($documents as $document) {
                 try {
                     $content = $document->getFile();
-                    
+
                     if ($content === false) {
                         continue;
                     }
@@ -697,7 +697,7 @@ class CompanyExport implements ShouldQueue
                     continue;
                 }
             }
-            
+
             // Free up memory after each batch
             gc_collect_cycles();
         });
@@ -713,7 +713,7 @@ class CompanyExport implements ShouldQueue
             foreach ($backups as $backup) {
                 try {
                     $content = $backup->getFile();
-                    
+
                     if ($content === false) {
                         continue;
                     }
@@ -723,7 +723,7 @@ class CompanyExport implements ShouldQueue
                     continue;
                 }
             }
-            
+
             // Free up memory after each batch
             gc_collect_cycles();
         });
@@ -736,7 +736,7 @@ class CompanyExport implements ShouldQueue
         $logo = $this->company->present()->logoFile($this->company->settings);
 
         $zip->addFromString("company_logo.png", $logo);
-        
+
         return $zip;
     }
 

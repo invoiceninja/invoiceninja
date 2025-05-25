@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -55,6 +56,13 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* The Invitation */
     public $invitation;
+
+    /**
+     * Indicates if returning responses should be headless or classic redirect.
+     *
+     * @var bool
+     */
+    public bool $headless = false;
 
     /**
      * The Client
@@ -171,6 +179,14 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         return $fields;
+    }
+
+
+    public function setHeadless(bool $headless): self
+    {
+        $this->headless = $headless;
+
+        return $this;
     }
 
     /**
@@ -403,9 +419,10 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         $invoice = $this->payment_hash->fee_invoice;
-        
-        if(!$invoice)
+
+        if (!$invoice) {
             return;
+        }
 
         if (collect($invoice->line_items)->contains('unit_code', $this->payment_hash->hash)) {
             $invoice->service()->toggleFeesPaid($this->payment_hash->hash)->save();
@@ -419,7 +436,7 @@ class BaseDriver extends AbstractPaymentDriver
         $unconfirmed_fee_count = collect($invoice->line_items)
                         ->where('type_id', '3')
                         ->count();
-                
+
         if ($unconfirmed_fee_count == 0) {
 
             nlog("apparently no fee, so injecting here!");
@@ -877,6 +894,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         return ctrans('texts.gateway_payment_text', [
             'invoices' => $invoices_string,
+            'invoice' => $invoices_string,
             'amount' => $amount,
             'client' => $this->client->present()->name(),
         ]);
@@ -897,11 +915,11 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Stub for checking authentication.
      *
-     * @return bool
+     * @return string
      */
-    public function auth(): bool
+    public function auth(): string
     {
-        return true;
+        return 'ok';
     }
 
     public function importCustomers()

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -111,6 +112,10 @@ class InvoiceController extends Controller
         }
 
         $invitation = false;
+
+        if(!isset($data['entity_type'])){
+            nlog(array_merge(["showBlob"], $data));
+        }
 
         match($data['entity_type'] ?? 'invoice') {
             'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']), //@todo - sometimes this is false!!

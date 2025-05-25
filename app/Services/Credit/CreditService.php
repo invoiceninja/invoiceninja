@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -36,7 +37,7 @@ class CreditService
 
     public function location(): array
     {
-        return (new LocationData($this->credit))->run();       
+        return (new LocationData($this->credit))->run();
     }
 
     public function getCreditPdf($invitation)

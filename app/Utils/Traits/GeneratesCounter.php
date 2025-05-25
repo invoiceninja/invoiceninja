@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -329,7 +330,7 @@ trait GeneratesCounter
         $setting_entity = $expense->company->settings->expense_number_counter;
 
         $pattern = $expense->company->settings->expense_number_pattern;
-        
+
         if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
             $pattern = $pattern.'{$counter}';
         }
@@ -534,15 +535,15 @@ trait GeneratesCounter
         $reset_counter_frequency = (int) $client->getSetting('reset_counter_frequency_id');
         $settings_entity = $client->getSettingEntity('reset_counter_frequency_id');
         $settings = $settings_entity->settings;
-        
+
         if ($reset_counter_frequency == 0) {
-            
+
             if ($client->getSetting('reset_counter_date')) {
                 $settings->reset_counter_date = "";
                 $settings_entity->settings = $settings;
                 $settings_entity->saveQuietly();
             }
-            
+
             return;
         }
 

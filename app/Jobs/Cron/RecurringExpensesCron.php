@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -112,7 +113,6 @@ class RecurringExpensesCron
 
         if ((int)$expense->company->settings->currency_id != $expense->currency_id) {
             $exchange_rate = new CurrencyApi();
-
             $expense->exchange_rate = $exchange_rate->exchangeRate($expense->currency_id, (int)$expense->company->settings->currency_id, Carbon::parse($expense->date));
         } else {
             $expense->exchange_rate = 1;

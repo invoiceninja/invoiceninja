@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -107,13 +108,19 @@ class ExpenseFilters extends QueryFilters
 
             if (in_array('paid', $status_parameters)) {
                 $query->orWhere(function ($query) {
-                    $query->whereNotNull('payment_date');
+                    $query->whereNotNull('payment_date')
+                            ->orWhere('transaction_reference', '!=', '')
+                            ->orWhereNotNull('transaction_reference');
                 });
             }
 
             if (in_array('unpaid', $status_parameters)) {
                 $query->orWhere(function ($query) {
-                    $query->whereNull('payment_date');
+                    $query->whereNull('payment_date')
+                          ->where(function ($query) {
+                              $query->where('transaction_reference', '')
+                                   ->orWhereNull('transaction_reference');
+                          });
                 });
             }
 
@@ -158,7 +165,18 @@ class ExpenseFilters extends QueryFilters
     public function match_transactions($value = '')
     {
         if ($value == 'true') {
-            return $this->builder->where('is_deleted', 0)->whereNull('transaction_id');
+            return $this->builder->where('is_deleted', 0)
+                                ->whereNull('transaction_id')
+                                ->where(function ($query) {
+                                    $query->whereHas('client', function ($sub_query) {
+                                        $sub_query->where('is_deleted', 0)->where('deleted_at', null);
+                                    })->orWhere('client_id', null);
+                                })
+                                ->where(function ($query) {
+                                    $query->whereHas('vendor', function ($sub_query) {
+                                        $sub_query->where('is_deleted', 0)->where('deleted_at', null);
+                                    })->orWhere('vendor_id', null);
+                                });
         }
 
         return $this->builder;
@@ -218,7 +236,7 @@ class ExpenseFilters extends QueryFilters
                     ->whereColumn('clients.id', 'expenses.client_id'), $sort_col[1]);
         }
 
-        
+
         if ($sort_col[0] == 'project' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
                     ->orderByRaw('ISNULL(project_id), project_id '. $sort_col[1])

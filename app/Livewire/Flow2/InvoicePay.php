@@ -145,8 +145,9 @@ class InvoicePay extends Component
 
         $company_gateway = CompanyGateway::query()->find($company_gateway_id);
 
-        if(!$company_gateway)
+        if (!$company_gateway) {
             return $this->required_fields = false;
+        }
 
         $this->checkRequiredFields($company_gateway);
     }
@@ -291,7 +292,7 @@ class InvoicePay extends Component
             'amount' => array_sum(array_column($payable_invoices, 'amount')),
             'payable_invoices' => $payable_invoices,
         ]);
-        
+
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View

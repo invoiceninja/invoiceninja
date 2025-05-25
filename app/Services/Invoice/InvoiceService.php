@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -380,7 +381,7 @@ class InvoiceService
     public function toggleFeesPaid(?string $payment_hash_string = null)
     {
         if ($payment_hash_string) {
-        
+
             $this->invoice->line_items = collect($this->invoice->line_items)
                                                 ->map(function ($item) use ($payment_hash_string) {
                                                     if ($item->type_id == '3' && (($item->unit_code ?? '') == $payment_hash_string)) {
@@ -389,10 +390,10 @@ class InvoiceService
 
                                                     return $item;
                                                 })->toArray();
-                                                
-                $this->deleteEInvoice();
 
-                return $this;
+            $this->deleteEInvoice();
+
+            return $this;
 
         }
 
@@ -440,7 +441,7 @@ class InvoiceService
         $this->invoice->invitations->each(function ($invitation) {
             try {
                 Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
-                
+
                 if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
@@ -486,7 +487,6 @@ class InvoiceService
             ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
 
             $this->invoice->client->service()->updateBalance($adjustment * -1);
-            // $this->invoice->client->service()->calculateBalance();
 
         }
 
@@ -620,7 +620,7 @@ class InvoiceService
 
     public function location(): array
     {
-        return (new LocationData($this->invoice))->run();       
+        return (new LocationData($this->invoice))->run();
     }
 
     public function workFlow()

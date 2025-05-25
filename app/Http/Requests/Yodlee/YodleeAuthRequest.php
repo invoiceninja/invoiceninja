@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ class YodleeAuthRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return Cache::has($this->state ?? $this->token);
     }
 
     /**

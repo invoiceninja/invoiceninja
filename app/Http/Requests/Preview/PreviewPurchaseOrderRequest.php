@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -41,7 +42,7 @@ class PreviewPurchaseOrderRequest extends Request
 
     public function rules()
     {
-        
+
         /** @var \App\Models\User $user */
         $user = auth()->user();
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -139,7 +140,7 @@ class License extends StaticModel
         $this->save();
 
     }
-    
+
     /**
      * updateEntity
      *
@@ -148,7 +149,7 @@ class License extends StaticModel
      */
     public function updateEntity(TaxEntity $entity, string $search_key = 'legal_entity_id')
     {
-                
+
         if (!is_array($this->entities)) {
             return;
         }
@@ -169,7 +170,7 @@ class License extends StaticModel
 
     public function countEntities(): int
     {
-                
+
         if (!is_array($this->entities)) {
             return 0;
         }
@@ -179,7 +180,7 @@ class License extends StaticModel
 
     public function findEntity(string $key, mixed $value): ?TaxEntity
     {
-                
+
         if (!is_array($this->entities)) {
             return null;
         }

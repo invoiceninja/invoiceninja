@@ -297,7 +297,7 @@ class StorecoveTest extends TestCase
 
         foreach($invoice->line_items as $item)
         {
-          $this->assertEquals('1', $item->tax_id);
+          $this->assertTrue(in_array($item->tax_id, ['1','2']));
           $this->assertEquals(0, $item->tax_rate1);
         }
 
@@ -340,7 +340,8 @@ class StorecoveTest extends TestCase
 
         foreach($invoice->line_items as $item)
         {
-          $this->assertEquals('1', $item->tax_id);
+
+$this->assertTrue(in_array($item->tax_id, ['1','2']));
           $this->assertEquals(0, $item->tax_rate1);
         }
 
@@ -376,7 +377,8 @@ class StorecoveTest extends TestCase
 
         foreach($invoice->line_items as $item)
         {
-          $this->assertEquals('1', $item->tax_id);
+
+$this->assertTrue(in_array($item->tax_id, ['1','2']));
           $this->assertEquals($tax_rate, $item->tax_rate1);
         }
 

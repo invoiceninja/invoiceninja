@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -34,19 +35,9 @@ class UpdateProductRequest extends Request
 
     public function rules()
     {
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules = [];
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
 
         $rules['cost'] = 'numeric';
         $rules['price'] = 'numeric';
@@ -62,8 +53,16 @@ class UpdateProductRequest extends Request
     {
         $input = $this->all();
 
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (! isset($input['quantity'])) {
             $input['quantity'] = 1;
+        }
+
+        if (isset($input['documents'])) {
+            unset($input['documents']);
         }
 
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {

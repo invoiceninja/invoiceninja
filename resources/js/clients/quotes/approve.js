@@ -26,6 +26,12 @@ class Approve {
         );
         displaySignatureModal.removeAttribute('style');
 
+        // Ensure next step is disabled initially
+        const nextStepButton = document.getElementById("signature-next-step");
+        if (nextStepButton) {
+            nextStepButton.disabled = true;
+        }
+
         const signaturePad = new SignaturePad(
             document.getElementById('signature-pad'),
             {
@@ -33,10 +39,19 @@ class Approve {
             }
         );
 
-        signaturePad.onEnd = function(){  
-            document.getElementById("signature-next-step").disabled = false;
+        signaturePad.onEnd = () => {  
+            if (nextStepButton && !signaturePad.isEmpty()) {
+                nextStepButton.disabled = false;
+            }
         };
 
+        signaturePad.onBegin = () => {
+            if (nextStepButton) {
+                nextStepButton.disabled = true;
+            }
+        };
+
+        signaturePad.clear();
 
         this.signaturePad = signaturePad;
     }
@@ -51,60 +66,92 @@ class Approve {
         displayInputModal.removeAttribute("style");
     }
 
+    hideInput() {
+        let displayInputModal = document.getElementById("displayInputModal");
+        displayInputModal.style.display = 'none';
+    }
+
     handle() {
+        const approveButton = document.getElementById('approve-button');
+        if (!approveButton) return;
 
-        document.getElementById("signature-next-step").disabled = true;
-
-        document.getElementById("close-button").addEventListener('click', () => {
-            const approveButton = document.getElementById("approve-button");
-
-            console.log('close button');
-
-            if(approveButton)
+        approveButton.addEventListener('click', () => {
+            approveButton.disabled = true;
+            
+            // Re-enable the approve button after 2 seconds
+            setTimeout(() => {
                 approveButton.disabled = false;
+            }, 2000);
 
-        });
+            if (this.shouldDisplayUserInput) {
+                this.displayInput();
 
-        document.getElementById("close-terms-button").addEventListener('click', () => {
-            const approveButton = document.getElementById("approve-button");
+                const inputNextStep = document.getElementById('input-next-step');
+                if (!inputNextStep) return;
 
-            console.log('close terms-button');
+                inputNextStep.addEventListener('click', () => {
+                    const userInput = document.getElementById('user_input');
+                    if (!userInput) return;
 
-            if (approveButton)
-                approveButton.disabled = false;
+                    document.querySelector(
+                        'input[name="user_input"'
+                    ).value = userInput.value;
 
-        });
+                    this.hideInput();
 
-
-        document
-            .getElementById('approve-button')
-            .addEventListener('click', () => {
-
-                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && this.shouldDisplayUserInput){
-                    this.displayInput();
+                    if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+                        this.displaySignature();
 
                         document
-                            .getElementById('input-next-step')
+                            .getElementById('signature-next-step')
                             .addEventListener('click', () => {
-                                document.querySelector(
-                                    'input[name="user_input"'
-                                ).value = document.getElementById('user_input').value;
+                                if (!this.signaturePad.isEmpty()) {
+                                    this.displayTerms();
+
+                                    document
+                                        .getElementById('accept-terms-button')
+                                        .addEventListener('click', () => {
+                                            document.querySelector(
+                                                'input[name="signature"'
+                                            ).value = this.signaturePad.toDataURL();
+                                            this.termsAccepted = true;
+                                            this.submitForm();
+                                        });
+                                }
+                            });
+                    } else if (this.shouldDisplaySignature) {
+                        this.displaySignature();
+
+                        document
+                            .getElementById('signature-next-step')
+                            .addEventListener('click', () => {
+                                if (!this.signaturePad.isEmpty()) {
+                                    document.querySelector(
+                                        'input[name="signature"'
+                                    ).value = this.signaturePad.toDataURL();
+                                    this.submitForm();
+                                }
+                            });
+                    } else if (this.shouldDisplayTerms) {
+                        this.displayTerms();
+
+                        document
+                            .getElementById('accept-terms-button')
+                            .addEventListener('click', () => {
                                 this.termsAccepted = true;
                                 this.submitForm();
                             });
-                            
-                }
+                    } else {
+                        this.submitForm();
+                    }
+                });
+            } else if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+                this.displaySignature();
 
-                if(this.shouldDisplayUserInput)
-                    this.displayInput();
-
-
-                if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
-                    this.displaySignature();
-
-                    document
-                        .getElementById('signature-next-step')
-                        .addEventListener('click', () => {
+                document
+                    .getElementById('signature-next-step')
+                    .addEventListener('click', () => {
+                        if (!this.signaturePad.isEmpty()) {
                             this.displayTerms();
 
                             document
@@ -113,48 +160,37 @@ class Approve {
                                     document.querySelector(
                                         'input[name="signature"'
                                     ).value = this.signaturePad.toDataURL();
-                                    document.querySelector(
-                                        'input[name="user_input"'
-                                    ).value = document.getElementById('user_input').value;
                                     this.termsAccepted = true;
                                     this.submitForm();
                                 });
-                                
-                        });
-                }
+                        }
+                    });
+            } else if (this.shouldDisplaySignature) {
+                this.displaySignature();
 
-                if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
-
-                    this.displaySignature();
-
-                    document
-                        .getElementById('signature-next-step')
-                        .addEventListener('click', () => {
+                document
+                    .getElementById('signature-next-step')
+                    .addEventListener('click', () => {
+                        if (!this.signaturePad.isEmpty()) {
                             document.querySelector(
                                 'input[name="signature"'
                             ).value = this.signaturePad.toDataURL();
-                            document.querySelector(
-                                'input[name="user_input"'
-                            ).value = document.getElementById('user_input').value;
                             this.submitForm();
-                        });
-                }
+                        }
+                    });
+            } else if (this.shouldDisplayTerms) {
+                this.displayTerms();
 
-                if (!this.shouldDisplaySignature && this.shouldDisplayTerms) {
-                    this.displayTerms();
-
-                    document
-                        .getElementById('accept-terms-button')
-                        .addEventListener('click', () => {
-                            this.termsAccepted = true;
-                            this.submitForm();
-                        });
-                }
-
-                if (!this.shouldDisplaySignature && !this.shouldDisplayTerms && !this.shouldDisplayUserInput) {
-                    this.submitForm();
-                }
-            });
+                document
+                    .getElementById('accept-terms-button')
+                    .addEventListener('click', () => {
+                        this.termsAccepted = true;
+                        this.submitForm();
+                    });
+            } else {
+                this.submitForm();
+            }
+        });
     }
 }
 

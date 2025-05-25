@@ -71,8 +71,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
                     ]
                 ]
             ]);
-        }
-        catch(\Throwable $e) {
+        } catch (\Throwable $e) {
             nlog($e->getMessage());
             return $this->processUnsuccessfulAuthorization($e);
         }
@@ -109,7 +108,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
     /**
      * Handle unsuccessful authorization.
      *
-     * @param \Exception | \Throwable $exception 
+     * @param \Exception | \Throwable $exception
      * @throws PaymentFailed
      */
     public function processUnsuccessfulAuthorization($exception)

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -13,6 +14,7 @@ namespace App\Observers;
 
 use App\Models\Location;
 use App\Jobs\Client\UpdateLocationTaxData;
+
 class LocationObserver
 {
     /**
@@ -37,9 +39,9 @@ class LocationObserver
      */
     public function updated(Location $location)
     {
-        
+
         if ($location->getOriginal('postal_code') != $location->postal_code && $location->country_id == 840 && $location->company->calculate_taxes && !$location->company->account->isFreeHostedClient()) {
-         UpdateLocationTaxData::dispatch($location, $location->company);
+            UpdateLocationTaxData::dispatch($location, $location->company);
         }
 
     }
@@ -52,7 +54,7 @@ class LocationObserver
      */
     public function deleted(Location $location)
     {
-        
+
     }
 
     /**
@@ -63,7 +65,7 @@ class LocationObserver
      */
     public function restored(Location $location)
     {
-        
+
     }
 
     /**

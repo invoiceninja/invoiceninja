@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -32,7 +33,7 @@ class SetEmailDb
             'errors' => new stdClass(),
         ];
 
-        if ($request->input('email') && is_string($request->input('email')) && config('ninja.db.multi_db_enabled')) {
+        if (config('ninja.db.multi_db_enabled') && $request->input('email') && is_string($request->input('email'))) {
             if (! MultiDB::userFindAndSetDb($request->input('email'))) {
                 return response()->json($error, 400);
             }

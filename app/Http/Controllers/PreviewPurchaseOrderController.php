@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -208,7 +209,7 @@ class PreviewPurchaseOrderController extends BaseController
         if (!$invitation) {
             return $this->mockEntity();
         }
-            
+
         $design_object = json_decode(json_encode(request()->input('design')), true);
 
         if (! is_array($design_object)) {
@@ -247,9 +248,9 @@ class PreviewPurchaseOrderController extends BaseController
 
     private function mockEntity()
     {
-        
+
         nlog("mockEntity");
-                
+
         $start = microtime(true);
         $user = auth()->user();
 

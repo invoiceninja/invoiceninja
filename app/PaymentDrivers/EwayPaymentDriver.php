@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -212,12 +213,13 @@ class EwayPaymentDriver extends BaseDriver
         return $fields;
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         $response = $this->init()->eway->queryTransaction('xx');
 
-        return (bool) count($response->getErrors()) == 0;
+        $message = (bool) count($response->getErrors()) == 0 ? 'ok' : 'error';
+        return $message;
 
     }
 

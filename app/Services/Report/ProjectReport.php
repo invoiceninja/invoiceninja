@@ -63,28 +63,50 @@ class ProjectReport extends BaseExport
 
         $user_name = $user ? $user->present()->name() : '';
 
+        $query = \App\Models\Project::with(['invoices','expenses','tasks'])
+                                ->where('company_id', $this->company->id);
 
-        $projects = \App\Models\Project::where('company_id', $this->company->id)
-                                            ->whereIn('id', $this->transformKeys($this->input['projects']))
-                                            ->get();
+        $projects = &$this->input['projects'];
+
+        if ($projects) {
+
+            $transformed_projects = is_string($projects) ? $this->transformKeys(explode(',', $projects)) : $this->transformKeys($projects);
+
+            if (count($transformed_projects) > 0) {
+                $query->whereIn('id', $transformed_projects);
+            }
+
+        }
+
+        $clients = &$this->input['clients'];
+
+        if ($clients) {
+            $query = $this->addClientFilter($query, $clients);
+        }
 
         $data = [
-            'projects' => $projects,
+            'projects' => $query->get(),
             'company_logo' => $this->company->present()->logo(),
             'company_name' => $this->company->present()->name(),
             'created_on' => $this->translateDate(now()->format('Y-m-d'), $this->company->date_format(), $this->company->locale()),
             'created_by' => $user_name,
-            
             // 'charts' => $this->getCharts($projects),
         ];
 
         $ts = new TemplateService();
 
+        /** @var Project $_project */
+        $_project = $query->first();
+
         $ts_instance = $ts->setCompany($this->company)
-                    ->setData($data)
+                    // ->setData($data)
+                    ->processData($data)
                     ->setRawTemplate(file_get_contents(resource_path($this->template)))
+                    ->addGlobal(['currency_code' => $_project->client->company->currency()->code])
+                    ->setGlobals()
                     ->parseNinjaBlocks()
                     ->save();
+
 
         return $ts_instance->getPdf();
     }
@@ -92,7 +114,7 @@ class ProjectReport extends BaseExport
     // private function getTaskAllocationData(Project $project)
     // {
     //     $tasks = $project->tasks()->withTrashed()->map(function ($task) {
-            
+
     //         return [
     //             'label' => strlen($task->description ?? '') > 0 ? $task->description : $task->number,
     //             'hours' => ($task->calcDuration() / 3600)
@@ -101,11 +123,11 @@ class ProjectReport extends BaseExport
     //     });
 
     //     $taskAllocationData = [
-    //         'labels' => $tasks->pluck('label'), 
+    //         'labels' => $tasks->pluck('label'),
     //         'datasets' => [
     //             [
     //                 'label' => 'Hours Spent',
-    //                 'data' => $tasks->pluck('hours'), 
+    //                 'data' => $tasks->pluck('hours'),
     //                 'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
     //                 'borderColor' => 'rgba(54, 162, 235, 1)',
     //                 'borderWidth' => 1

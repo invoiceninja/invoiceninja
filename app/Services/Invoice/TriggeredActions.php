@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -37,7 +38,7 @@ class TriggeredActions extends AbstractService
                 $this->invoice->service()->autoBill();
             } catch (\Exception $e) {
                 nlog("Exception:: TriggeredActions::" . $e->getMessage());
-            } 
+            }
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
@@ -81,12 +82,12 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
-        if($this->request->has('retry_e_send') && $this->request->input('retry_e_send') == 'true' && !isset($this->invoice->backup->guid) && $this->invoice->client->peppolSendingEnabled()) {    
+        if ($this->request->has('retry_e_send') && $this->request->input('retry_e_send') == 'true' && !isset($this->invoice->backup->guid) && $this->invoice->client->peppolSendingEnabled()) {
             \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this->invoice), $this->invoice->id, $this->invoice->company->db);
         }
 
-        if($this->request->has('redirect')) {
-        
+        if ($this->request->has('redirect')) {
+
             $redirectUrl = urldecode($this->request->input('redirect'));
 
             if (filter_var($redirectUrl, FILTER_VALIDATE_URL)) {
@@ -95,7 +96,7 @@ class TriggeredActions extends AbstractService
                 $this->invoice->backup = $backup;
                 $this->invoice->saveQuietly();
             }
-            
+
         }
 
         if ($this->updated) {

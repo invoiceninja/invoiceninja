@@ -17,12 +17,11 @@ use Illuminate\Support\Str;
 
 class DesignExtractor
 {
-
     private ?string $html = null;
 
     public function __construct(private ?string $design = null, private array $options = [])
     {
-        if($design) {
+        if ($design) {
             $design = strtolower($design);
 
             Str::endsWith('.html', $design) ? $this->design = $design : $this->design = "{$design}.html";
@@ -30,29 +29,29 @@ class DesignExtractor
 
         $this->options = $options;
     }
-    
+
     public function setHtml(string $html): self
     {
         $this->html = $html;
-    
+
         return $this;
     }
 
     private function getHtml(): string
     {
         // nlog($this->design);
-        if($this->html) {
+        if ($this->html) {
             return $this->html;
         }
 
-        $this->html = file_get_contents( config('ninja.designs.base_path') . $this->design );
+        $this->html = file_get_contents(config('ninja.designs.base_path') . $this->design);
 
         return $this->html;
     }
 
     public function getSectionHTML(string $section, $id = true): ?string
     {
-    
+
         $document = new \DOMDocument();
 
         $document->validateOnParse = true;

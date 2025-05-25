@@ -156,4 +156,9 @@ return [
     'quickbooks_webhook' => [
         'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),
     ],
+    'cloudflare' => [
+        'zone_id' => env('CLOUDFLARE_SAAS_ZONE_ID', false),
+        'api_token' => env('CLOUDFLARE_SAAS_API_TOKEN', false),
+        'email' => env('CLOUDFLARE_SAAS_EMAIL', false),
+    ]
 ];

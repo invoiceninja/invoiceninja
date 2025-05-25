@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -172,7 +173,7 @@ class SwissQrGenerator
                 ->setPrintable(false)
                 ->getPaymentPart();
 
-                // return $html;
+            // return $html;
             return htmlspecialchars($html);
         } catch (\Exception $e) {
 

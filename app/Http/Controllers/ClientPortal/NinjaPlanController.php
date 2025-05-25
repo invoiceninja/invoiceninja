@@ -245,10 +245,6 @@ class NinjaPlanController extends Controller
                                            ->orderBy('id', 'DESC')
                                            ->first();
 
-                    //account status means user cannot perform upgrades until they pay their account.
-                    // $data['late_invoice'] = $late_invoice;
-
-                    //14-01-2022 remove late invoices from blocking upgrades
                     $data['late_invoice'] = false;
                 }
 

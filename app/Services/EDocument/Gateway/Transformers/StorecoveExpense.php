@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -166,8 +167,8 @@ class StorecoveExpense
         $activity_repo = new ActivityRepository();
         $activity_repo->save($fields, $expense, Ninja::eventVars());
 
-        foreach($storecove_invoice->getAttachments() ?? [] as $attachment){
-                        
+        foreach ($storecove_invoice->getAttachments() ?? [] as $attachment) {
+
             $document = \App\Utils\TempFile::UploadedFileFromBase64($attachment->getDocument(), $attachment->getFilename(), $attachment->getMimeType());
 
             $this->saveDocument($document, $expense);

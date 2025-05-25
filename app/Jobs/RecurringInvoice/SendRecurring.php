@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -61,10 +62,10 @@ class SendRecurring implements ShouldQueue
     {
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
-        
+
         // $date = now()->addSeconds($this->recurring_invoice->client->timezone_offset())->format('Y-m-d'); Rev 1
         // $date = date('Y-m-d'); //@todo this will always pull UTC date.  Rev 2.
-        // 2025-01-23 - We need to know the current date in the users timezone, as we send recurring invoices around the 
+        // 2025-01-23 - We need to know the current date in the users timezone, as we send recurring invoices around the
         // clock the actual date is not always the same as the UTC date.
         // be _very_ careful with this, as it will change the due date of the invoice.
         $date = now()->setTimezone($this->recurring_invoice->client->timezone()->name)->format('Y-m-d');
@@ -154,7 +155,7 @@ class SendRecurring implements ShouldQueue
     {
         //Admin notification for recurring invoice sent.
         if ($invoice->invitations->count() >= 1) {
-            
+
             event(new \App\Events\General\EntityWasEmailed($invoice->invitations->first(), $invoice->company, \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'invoice'));
             $invoice->entityEmailEvent($invoice->invitations->first(), 'invoice', 'email_template_invoice');
         }

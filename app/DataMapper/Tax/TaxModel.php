@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -49,7 +50,7 @@ class TaxModel
 
             foreach ($modelArray as $key => $value) {
 
-                if($key == 'seller_subregion' && $value == null) {
+                if ($key == 'seller_subregion' && $value == null) {
                     $value = '';
                 }
 
@@ -101,7 +102,7 @@ class TaxModel
         }
 
         //@pending Flutter AP upgrade - deploying this breaks the AP.
-        if($this->version == 'gamma') {
+        if ($this->version == 'gamma') {
 
             $this->regions->EU->subregions->IS = new \stdClass();
             $this->regions->EU->subregions->IS->tax_rate = 24;
@@ -193,7 +194,7 @@ class TaxModel
 
     public function stubVatNumbersOnSubregions(): self
     {
-                
+
         // US Subregions
         $this->regions->US->subregions->AL->vat_number = '';
         $this->regions->US->subregions->AK->vat_number = '';

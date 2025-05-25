@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -73,7 +74,7 @@ class EmailPayment implements ShouldQueue
         }
 
         $this->contact->load('client');
-        
+
         if ($this->payment->client->getSetting('payment_email_all_contacts') && $this->payment->invoices && $this->payment->invoices->count() >= 1) {
             $this->emailAllContacts();
             return;
@@ -112,11 +113,11 @@ class EmailPayment implements ShouldQueue
 
     private function emailAllContacts(): void
     {
-        
+
         $invoice = $this->payment->invoices->first();
 
-        $invoice->invitations->filter(function ($invite){
-            return $invite->contact->send_email && filter_var($invite->contact->email, FILTER_VALIDATE_EMAIL) !== false; 
+        $invoice->invitations->filter(function ($invite) {
+            return $invite->contact->send_email && filter_var($invite->contact->email, FILTER_VALIDATE_EMAIL) !== false;
         })->each(function ($invite) {
 
 

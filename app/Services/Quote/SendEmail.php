@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -33,12 +34,13 @@ class SendEmail
     public function run()
     {
 
-        if(in_array($this->reminder_template, ["email_quote_template_reminder1","reminder1"]))
+        if (in_array($this->reminder_template, ["email_quote_template_reminder1","reminder1"])) {
             $this->reminder_template = "email_quote_template_reminder1";
-        elseif(in_array($this->reminder_template, ['custom1','custom2','custom3']))
+        } elseif (in_array($this->reminder_template, ['custom1','custom2','custom3'])) {
             $this->reminder_template = "email_template_".$this->reminder_template;
-        else    
+        } else {
             $this->reminder_template = "email_template_".$this->quote->calculateTemplate('quote');
+        }
 
         $this->quote->service()->markSent()->save();
 

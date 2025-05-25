@@ -129,7 +129,7 @@ return new class extends Migration {
             $t->timestamps(6);
             $t->softDeletes('deleted_at', 6);
 
-            $t->index(['deleted_at', 'recurring_quote_id', 'company_id'], 'rec_co_del_q');
+            $t->index(['recurring_quote_id', 'deleted_at'], 'rec_co_del_q');
             $t->unique(['client_contact_id', 'recurring_quote_id'], 'cli_rec_q');
         });
     }

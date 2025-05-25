@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -54,6 +55,7 @@ class Merge extends AbstractService
         $this->mergable_client->projects()->update(['client_id' => $this->client->id]);
         $this->mergable_client->quotes()->update(['client_id' => $this->client->id]);
         $this->mergable_client->recurring_invoices()->update(['client_id' => $this->client->id]);
+        $this->mergable_client->recurring_expenses()->update(['client_id' => $this->client->id]);
         $this->mergable_client->tasks()->update(['client_id' => $this->client->id]);
         $this->mergable_client->documents()->update(['documentable_id' => $this->client->id]);
 

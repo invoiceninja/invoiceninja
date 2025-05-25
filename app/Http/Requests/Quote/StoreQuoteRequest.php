@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -46,19 +47,10 @@ class StoreQuoteRequest extends Request
 
         $rules['client_id'] = ['required', 'bail', Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['number'] = ['bail','nullable', Rule::unique('quotes')->where('company_id', $user->company()->id)];
 
@@ -105,6 +97,15 @@ class StoreQuoteRequest extends Request
 
         $input['amount'] = 0;
         $input['balance'] = 0;
+
+
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
 
         if (isset($input['line_items']) && is_array($input['line_items'])) {
             $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];

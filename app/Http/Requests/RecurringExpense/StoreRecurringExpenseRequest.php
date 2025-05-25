@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -56,17 +57,10 @@ class StoreRecurringExpenseRequest extends Request
         $rules['tax_amount3'] = 'numeric';
         $rules['currency_id'] = 'bail|required|integer|exists:currencies,id';
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
     }
@@ -80,6 +74,14 @@ class StoreRecurringExpenseRequest extends Request
         $input = $this->all();
 
         $input = $this->decodePrimaryKeys($input);
+
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
             $input['next_send_date_client'] = $input['next_send_date'];

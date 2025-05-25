@@ -26,7 +26,7 @@ class UpdateAutoBilling extends Component
 
     public function mount()
     {
-        MultiDB::setDb($this->db);
+        MultiDB::setDb($this->db ?? config('database.default'));
     }
 
     #[Computed]

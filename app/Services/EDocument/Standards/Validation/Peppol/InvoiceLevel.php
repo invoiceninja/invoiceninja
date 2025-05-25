@@ -17,9 +17,8 @@ use InvoiceNinja\EInvoice\Models\Peppol\PeriodType\InvoicePeriod;
 
 class InvoiceLevel
 {
- 
-	/** @var InvoicePeriod[] */
-	#[SerializedName('cac:InvoicePeriod')]
-	public array $InvoicePeriod;
+    /** @var InvoicePeriod[] */
+    #[SerializedName('cac:InvoicePeriod')]
+    public array $InvoicePeriod;
 
 }

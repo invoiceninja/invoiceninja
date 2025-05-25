@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -41,7 +42,7 @@ class DownloadAvailable implements ShouldBroadcast
     public function broadcastWith(): array
     {
 
-        ctrans('texts.document_download_subject');
+        // ctrans('texts.document_download_subject');
 
         return [
             'message' => $this->message,

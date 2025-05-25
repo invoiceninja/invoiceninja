@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -167,19 +168,19 @@ class InvoiceSumInclusive
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
             $this->total_taxes += $tax;
 
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
         }
 
         return $this;
@@ -329,12 +330,12 @@ class InvoiceSumInclusive
 
     public function getSubTotal()
     {
-        return round($this->sub_total,2);
+        return round($this->sub_total, 2);
     }
 
     public function getGrossSubTotal()
     {
-        return round($this->sub_total,2);
+        return round($this->sub_total, 2);
     }
 
     public function setSubTotal($value)
@@ -346,7 +347,7 @@ class InvoiceSumInclusive
 
     public function getTotalDiscount()
     {
-        return round($this->total_discount,2);
+        return round($this->total_discount, 2);
     }
 
     public function getTotalTaxes()
@@ -361,7 +362,7 @@ class InvoiceSumInclusive
 
     public function getTotal()
     {
-        return round($this->total,2);
+        return round($this->total, 2);
     }
 
     public function setTaxMap()
@@ -372,7 +373,7 @@ class InvoiceSumInclusive
         }
 
         $this->tax_map = collect();
-        
+
         $keys = $this->invoice_items->getGroupedTaxes()->pluck('key')->unique();
 
         $values = $this->invoice_items->getGroupedTaxes();

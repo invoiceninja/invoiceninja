@@ -37,9 +37,9 @@ trait PdfMakerUtilities
         $element = $this->document->getElementById($selector);
 
         if ($section) {
-           return $element->getAttribute($section);
+            return $element->getAttribute($section);
         }
-        
+
         return $element->nodeValue;
     }
 
@@ -94,7 +94,7 @@ trait PdfMakerUtilities
     private function isMarkdown(string $content): bool
     {
         $content = str_ireplace('<br>', "\n", $content);
-        
+
         $markdownPatterns = [
             '/^\s*#{1,6}\s/m',  // Headers
             '/^\s*[-+*]\s/m',   // Lists

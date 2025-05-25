@@ -90,6 +90,7 @@ class GeneratesCounterTest extends TestCase
         $invoice->number = null;
         $invoice->status_id = Invoice::STATUS_DRAFT;
         $invoice->save();
+        $invoice->calc()->getInvoice();
 
             $this->travelTo('2025-02-01');
 
@@ -114,6 +115,8 @@ class GeneratesCounterTest extends TestCase
             $invoice->number = null;
             $invoice->status_id = Invoice::STATUS_DRAFT;
             $invoice->save();
+
+            $invoice->calc()->getInvoice();
 
             $invoice = $invoice->service()->markSent()->save();
 
@@ -155,6 +158,8 @@ class GeneratesCounterTest extends TestCase
         $invoice->status_id = Invoice::STATUS_DRAFT;
         $invoice->save();
 
+        $invoice->calc()->getInvoice();
+
         $invoice = $invoice->service()->markSent()->save();
         
         $this->assertNotNull($invoice->number);
@@ -172,6 +177,8 @@ class GeneratesCounterTest extends TestCase
         $invoice->number = null;
         $invoice->status_id = Invoice::STATUS_DRAFT;
         $invoice->save();
+
+        $invoice->calc()->getInvoice();
 
         $invoice = $invoice->service()->markSent()->save();
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -53,7 +54,7 @@ class CreditWasUpdated implements ShouldBroadcast
     {
         return $this->credit;
     }
-    
+
     public function broadcastIncludes(): array
     {
         return [

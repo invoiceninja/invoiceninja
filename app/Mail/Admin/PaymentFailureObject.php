@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -60,9 +61,9 @@ class PaymentFailureObject
         if (strlen($bccs) > 1) {
             if (\App\Utils\Ninja::isHosted() && $this->company->account->isPaid()) {
                 $mail_obj->bcc = explode(',', str_replace(' ', '', $bccs));
-            } 
-            
-            if(Ninja::isSelfHost()){
+            }
+
+            if (Ninja::isSelfHost()) {
                 $mail_obj->bcc = explode(',', str_replace(' ', '', $bccs));
             }
         }

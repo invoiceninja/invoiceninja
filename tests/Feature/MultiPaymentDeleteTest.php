@@ -157,6 +157,8 @@ class MultiPaymentDeleteTest extends TestCase
         $this->assertEquals(162, $invoice->client->fresh()->balance);
         $this->assertEquals(163, $invoice->client->fresh()->paid_to_date);
 
+        sleep(1);
+
         $data = [
             'amount' => 162.0,
             'client_id' => $this->encodePrimaryKey($client->id),
@@ -289,6 +291,7 @@ class MultiPaymentDeleteTest extends TestCase
             ],
             'date' => '2019/12/12',
         ];
+sleep(1);
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),

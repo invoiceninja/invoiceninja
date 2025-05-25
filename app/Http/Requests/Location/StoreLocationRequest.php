@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -44,7 +45,7 @@ class StoreLocationRequest extends Request
         $rules['vendor_id'] = 'required_without:client_id|nullable|integer|bail|exists:vendors,id,company_id,'.$user->companyId();
 
         $rules['country_id'] = 'integer|bail|exists:countries,id';
-        
+
         return $this->globalRules($rules);
     }
 

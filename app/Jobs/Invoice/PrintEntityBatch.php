@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -39,7 +40,9 @@ class PrintEntityBatch implements ShouldQueue
     use SerializesModels;
     use Batchable;
 
-    public function __construct(private mixed $class, private array $entity_ids, private string $db){}
+    public function __construct(private mixed $class, private array $entity_ids, private string $db)
+    {
+    }
 
     public function handle()
     {
@@ -47,16 +50,16 @@ class PrintEntityBatch implements ShouldQueue
         MultiDB::setDb($this->db);
 
         $batch_key = Str::uuid();
-        
+
         $invites = $this->class::with('invitations')->withTrashed()
                         ->whereIn('id', $this->entity_ids)
                         ->get()
-                        ->map(function ($entity) use ($batch_key){
+                        ->map(function ($entity) use ($batch_key) {
                             return new CreateBatchablePdf($entity->invitations->first(), "{$batch_key}-{$entity->id}");
                         })->toArray();
 
         $mergedPdf = null;
-        
+
         $batch = Bus::batch($invites)
         ->before(function (Batch $batch) {
             // The batch has been created but no jobs have been added...
@@ -70,7 +73,7 @@ class PrintEntityBatch implements ShouldQueue
 
         })->catch(function (Batch $batch, Throwable $e) {
             // First batch job failure detected...
-            // nlog("PrintEntityBatch failed: {$e->getMessage()}");
+            nlog("PrintEntityBatch failed: {$e->getMessage()}");
         })->finally(function (Batch $batch) {
             // The batch has finished executing...
             // nlog("I have finished");

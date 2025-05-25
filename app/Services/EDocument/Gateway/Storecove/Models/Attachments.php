@@ -6,7 +6,6 @@ use Symfony\Component\Serializer\Attribute\SerializedPath;
 
 class Attachments
 {
-
     #[SerializedPath('[cac:Attachment][cbc:EmbeddedDocumentBinaryObject][#]')]
     public ?string $document;
 

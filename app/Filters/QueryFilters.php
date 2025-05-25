@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -222,7 +223,7 @@ abstract class QueryFilters
 
     public function updated_at($value = '')
     {
-        if ($value == '') {
+        if (is_null($value) || $value == '') {
             return $this->builder;
         }
 
@@ -241,11 +242,15 @@ abstract class QueryFilters
 
     /**
      *
-     * @param string $value
+     * @param ?string $value
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function is_deleted($value = 'true')
     {
+        if (is_null($value)) {
+            return $this->builder;
+        }
+
         if ($value == 'true') {
             return $this->builder->where('is_deleted', $value)->withTrashed();
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -137,7 +138,7 @@ class Credit extends BaseModel
     use MakesInvoiceValues;
     use MakesReminders;
     use Searchable;
-    
+
     protected $presenter = CreditPresenter::class;
 
     protected $fillable = [
@@ -205,7 +206,7 @@ class Credit extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => ctrans('texts.credit') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -225,7 +226,7 @@ class Credit extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
 
     public function getEntityType()
@@ -442,17 +443,17 @@ class Credit extends BaseModel
     /**
      * entityEmailEvent
      *
-     * Translates the email type into an activity + notification 
+     * Translates the email type into an activity + notification
      * that matches.
      */
     public function entityEmailEvent($invitation, $reminder_template)
     {
-        
+
         switch ($reminder_template) {
             case 'credit':
                 event(new CreditWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
-            
+
             default:
                 // code...
                 break;

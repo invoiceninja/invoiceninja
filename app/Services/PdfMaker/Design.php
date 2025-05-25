@@ -22,7 +22,6 @@ use App\Utils\Traits\MakesInvoiceValues;
 use DOMDocument;
 use Illuminate\Support\Str;
 
-
 /**
  * @deprecated 2025-02-04
  */
@@ -103,7 +102,7 @@ class Design extends BaseDesign
             $design = $this->composeFromPartials(
                 $this->options['custom_partials']
             );
-            
+
             // Remove NULL bytes
             $design = str_replace("\0", '', $design);
             // Remove UTF-7 BOM
@@ -119,7 +118,7 @@ class Design extends BaseDesign
             $path . $this->design
         );
 
-        
+
         // Remove NULL bytes
         $design = str_replace("\0", '', $design);
         // Remove UTF-7 BOM
@@ -842,7 +841,7 @@ class Design extends BaseDesign
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'visi' => $this->visibilityCheck($column_visibility, $column)]];
             }
         }
-                
+
         $visible_elements = array_filter($elements, function ($element) {
             return $element['properties']['visi'] ?? true;
         });
@@ -881,11 +880,11 @@ class Design extends BaseDesign
 
     private function visibilityCheck(array $column_visibility, string $column): bool
     {
-        if(!$this->settings_object->getSetting('hide_empty_columns_on_pdf')){
+        if (!$this->settings_object->getSetting('hide_empty_columns_on_pdf')) {
             return true;
         }
 
-        if(array_key_exists($column, $column_visibility)){
+        if (array_key_exists($column, $column_visibility)) {
             return !$column_visibility[$column];
         }
 
@@ -910,7 +909,7 @@ class Design extends BaseDesign
             return [];
         }
 
-        
+
         $_type = Str::startsWith($type, '$') ? ltrim($type, '$') : $type;
         $table_type = "{$_type}_columns";
         $column_visibility = $this->getColumnVisibility($this->entity->line_items, $_type);
@@ -935,7 +934,7 @@ class Design extends BaseDesign
 
                 for ($i = 0; $i < count($product_customs); $i++) {
                     if ($product_customs[$i]) {
-                        $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.delivery_note' . ($i + 1)], 'properties' => ['data-ref' => 'delivery_note_table.product' . ($i + 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, 'product'.($i+1))]];
+                        $element['elements'][] = ['element' => 'td', 'content' => $row['delivery_note.delivery_note' . ($i + 1)], 'properties' => ['data-ref' => 'delivery_note_table.product' . ($i + 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, 'product'.($i + 1))]];
                     }
                 }
 
@@ -962,18 +961,18 @@ class Design extends BaseDesign
                     }
                 }
 
-                    // Then, filter the elements array
-                    $element['elements'] = array_map(function ($el) {
-                        if (isset($el['properties']['visi'])) { //@phpstan-ignore-line
-                            if ($el['properties']['visi'] === false) {
-                                $el['properties']['style'] = 'display: none;';
-                            }
-                            unset($el['properties']['visi']);
+                // Then, filter the elements array
+                $element['elements'] = array_map(function ($el) {
+                    if (isset($el['properties']['visi'])) { //@phpstan-ignore-line
+                        if ($el['properties']['visi'] === false) {
+                            $el['properties']['style'] = 'display: none;';
                         }
-                        return $el;
-                    }, $element['elements']);
+                        unset($el['properties']['visi']);
+                    }
+                    return $el;
+                }, $element['elements']);
 
-                    $elements[] = $element;
+                $elements[] = $element;
 
             }
 
@@ -1013,7 +1012,7 @@ class Design extends BaseDesign
                     }
                 }
             } else {
-                
+
                 foreach ($this->context['pdf_variables'][$table_type] as $key => $cell) {
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
@@ -1039,7 +1038,7 @@ class Design extends BaseDesign
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax2-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } elseif ($cell == '$task.tax_rate3') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => 'task_table-task.tax3-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
-                    }elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
+                    } elseif ($cell == '$product.unit_cost' || $cell == '$task.rate') {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['style' => 'white-space: nowrap;', 'data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
                     } else {
                         $element['elements'][] = ['element' => 'td', 'content' => $row[$cell], 'properties' => ['data-ref' => "{$_type}_table-" . substr($cell, 1) . '-td', 'visi' => $this->visibilityCheck($column_visibility, $cell)]];
@@ -1047,7 +1046,7 @@ class Design extends BaseDesign
                 }
             }
 
-            
+
             $visible_elements = array_filter($element['elements'], function ($el) {
                 if (isset($el['properties']['visi']) && $el['properties']['visi']) {
                     return true;
@@ -1111,7 +1110,7 @@ class Design extends BaseDesign
             $filtered_items->toArray(),
             $type_id === '1' ? '$product' : '$task'
         );
-        
+
         $columns = [];
 
         // Initialize all columns as empty
@@ -1155,7 +1154,7 @@ class Design extends BaseDesign
         $variables = $this->context['pdf_variables']['total_columns'];
         $show_terms_label = $this->entityVariableCheck('$entity.terms') ? 'display: none;' : '';
 
-        
+
         $elements = [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
                 ['element' => 'div', 'properties' => ['data-ref' => 'total_table-public_notes', 'style' => 'text-align: left;'], 'elements' => [

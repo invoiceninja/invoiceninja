@@ -153,7 +153,7 @@
                         <div class="dark-bg"
                              style="background-color:#f9f9f9; padding-bottom: 20px; margin-top:20px;">
                             @if($logo && strpos($logo, 'blank.png') === false)
-                            <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt=" " border="0" style="width: 50%; max-width: 570px; height: auto; display: block;" class="g-img">
+                            <img class="" src="{{ $logo ?? '' }}" alt=" " border="0" style="display: block; width: auto; max-width: 300px; max-height: 100px; height: auto; margin: 0 auto;" class="g-img">
                             @endif
                         </div>
                     </td>

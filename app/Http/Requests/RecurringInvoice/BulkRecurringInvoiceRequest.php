@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -42,14 +43,14 @@ class BulkRecurringInvoiceRequest extends Request
             'column' => ['required_if:action,bulk_update', 'string', Rule::in(\App\Models\RecurringInvoice::$bulk_update_columns)],
         ];
 
-        switch($this->column) {
+        switch ($this->column) {
             case 'remaining_cycles':
                 $rules['new_value'] = ['required_if:action,bulk_update', 'string', 'min:1'];
                 break;
             case 'uses_inclusive_taxes':
                 $rules['new_value'] = ['required_if:action,bulk_update', 'boolean'];
                 break;
-                            
+
         }
 
         return $rules;
@@ -62,10 +63,10 @@ class BulkRecurringInvoiceRequest extends Request
             $input['ids'] = $this->transformKeys($input['ids']);
         }
 
-        if(!isset($input['new_value'])) {
+        if (!isset($input['new_value'])) {
             $input['new_value'] = '';
         }
-        
+
         $this->replace($input);
     }
 }

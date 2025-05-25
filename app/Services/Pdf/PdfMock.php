@@ -114,7 +114,7 @@ class PdfMock
     public function build(): self
     {
         $this->mock = $this->initEntity();
-        
+
         $this->setPdfService();
 
         return $this;
@@ -246,6 +246,7 @@ class PdfMock
         return ['values' =>
          [
     '$client.shipping_postal_code' => '46420',
+    '$client.shipping_location_name' => 'Location Name',
     '$client.billing_postal_code' => '11243',
     '$company.city_state_postal' => "{$this->settings->city}, {$this->settings->state}, {$this->settings->postal_code}",
     '$company.postal_city_state' => "{$this->settings->postal_code}, {$this->settings->city}, {$this->settings->state}",
@@ -571,6 +572,7 @@ class PdfMock
     {
         return [
             '$show_shipping_address_visibility_label' => ctrans('texts.shipping_address'),
+            '$client.shipping_location_name_label' => ctrans('texts.name'),
             '$client.shipping_postal_code_label' => ctrans('texts.shipping_postal_code'),
             '$show_shipping_address_block_label' => ctrans('texts.shipping_address'),
             '$client.billing_postal_code_label' => ctrans('texts.billing_postal_code'),

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://creditninja.com).
  *

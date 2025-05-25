@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -51,19 +52,8 @@ class UpdatePaymentRequest extends Request
             'credits.*.amount' => ['required', 'bail'],
         ];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
 
         return $rules;
     }
@@ -74,8 +64,16 @@ class UpdatePaymentRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (isset($input['amount'])) {
             unset($input['amount']);
+        }
+
+        if (isset($input['documents'])) {
+            unset($input['documents']);
         }
 
         if (isset($input['invoices']) && is_array($input['invoices']) !== false) {

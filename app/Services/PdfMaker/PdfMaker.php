@@ -62,7 +62,7 @@ class PdfMaker
 
     public function build()
     {
-        
+
         if (isset($this->data['template']) && isset($this->data['variables'])) {
             $this->getEmptyElements($this->data['template'], $this->data['variables']);
         }

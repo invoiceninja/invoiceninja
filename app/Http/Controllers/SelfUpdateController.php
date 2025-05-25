@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -127,8 +128,6 @@ class SelfUpdateController extends BaseController
         Artisan::call('config:clear');
         Artisan::call('cache:clear');
         Artisan::call('ninja:design-update');
-
-        // $this->runModelChecks();
 
         nlog('Called Artisan commands');
 

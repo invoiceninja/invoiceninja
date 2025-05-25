@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -96,17 +97,32 @@ class UpdateInvoicePayment
             if ($invoice->is_proforma) {
                 //keep proforma's hidden
                 if (property_exists($this->payment_hash->data, 'pre_payment') && $this->payment_hash->data->pre_payment == "1") {
+
+                    if($invoice->balance != 0){
+                        $invoice->client->service()->updateBalance($invoice->balance*-1);
+                        $invoice->balance = 0;
+                        $invoice->status_id = \App\Models\Invoice::STATUS_PAID;
+                        $invoice->saveQuietly();
+                    
+                        $invoice
+                            ->ledger()
+                            ->updateInvoiceBalance(($invoice->balance + $paid_amount) * -1, "Prepayment Balance Adjustment");
+
+                    }
+                    else {
+
+                        $invoice
+                        ->ledger()
+                        ->updateInvoiceBalance($paid_amount * -1, "Prepayment Balance Adjustment");
+
+                    }
+
                     $invoice->payments()->each(function ($p) {
                         $p->pivot->forceDelete();
                         $p->invoices()->each(function ($i) {
                             $i->pivot->forceDelete();
                         });
                     });
-
-
-                    $invoice
-                    ->ledger()
-                    ->updateInvoiceBalance($paid_amount * -1, "Prepayment Balance Adjustment");
 
                     $invoice->is_deleted = true;
                     $invoice->deleted_at = now();

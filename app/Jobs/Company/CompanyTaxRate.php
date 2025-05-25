@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -94,7 +95,7 @@ class CompanyTaxRate implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->company_key)];
+        return [(new WithoutOverlapping($this->company->company_key))->releaseAfter(60)];
     }
 
     public function failed($e)

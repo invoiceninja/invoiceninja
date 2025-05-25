@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -29,27 +30,23 @@ class RedirectIfAuthenticated
     {
         switch ($guard) {
             case 'contact':
-                if (Auth::guard($guard)->check()) {
-                    return redirect()->route('client.dashboard');
-                }
+
+                Auth::logout();
+
+                // if (Auth::guard($guard)->check()) {
+                //     return redirect()->route('client.dashboard');
+                // }
                 break;
             case 'user':
                 Auth::logout();
-                // if (Auth::guard($guard)->check()) {
-                //     return redirect()->route('dashboard.index');
-                // }
                 break;
             case 'vendor':
                 if (Auth::guard($guard)->check()) {
-                    //TODO create routes for vendor
-                    //  return redirect()->route('vendor.dashboard');
                 }
                 break;
             default:
                 Auth::logout();
-                // if (Auth::guard($guard)->check()) {
-                //     return redirect('/');
-                // }
+
                 break;
         }
 

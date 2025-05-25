@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -54,9 +55,9 @@ class ContactRegisterController extends Controller
 
         $data = [
             'formed_disabled' => $company->account->isFreeHostedClient(),
-            'register_company' => $company, 
-            'account' => $company->account, 
-            'submitsForm' => false, 
+            'register_company' => $company,
+            'account' => $company->account,
+            'submitsForm' => false,
             'show_turnstile' => $show_turnstile
         ];
 
@@ -65,7 +66,7 @@ class ContactRegisterController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        
+
         $company = $request->company();
 
         if (! $company->client_can_register || $company->account->isFreeHostedClient()) {

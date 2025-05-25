@@ -32,6 +32,9 @@ class TasksTable extends Component
     public function mount()
     {
         MultiDB::setDb($this->db);
+
+        $this->sort_asc = false;
+
     }
 
     public function render()

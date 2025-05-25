@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -13,10 +14,13 @@ namespace App\Http\Middleware;
 
 use App\Libraries\MultiDB;
 use Closure;
+use Hashids\Hashids;
 use Illuminate\Http\Request;
-use stdClass;
 
-class SetDb
+/**
+ * Class ValidJson.
+ */
+class ValidJson
 {
     /**
      * Handle an incoming request.
@@ -27,19 +31,17 @@ class SetDb
      */
     public function handle($request, Closure $next)
     {
-        $error = [
-            'message' => 'Invalid Token',
-            'errors' => new stdClass(),
-        ];
 
-        if ($request->header('X-API-TOKEN') && config('ninja.db.multi_db_enabled')) {
-            if (! MultiDB::findAndSetDb($request->header('X-API-TOKEN'))) {
-                return response()->json($error, 403);
-            }
-        } elseif (! config('ninja.db.multi_db_enabled')) {
-            return $next($request);
-        } else {
-            return response()->json($error, 403);
+        if (
+            $request->isJson() &&
+            $request->getContent() !== '' &&
+            is_null(json_decode($request->getContent())) &&
+            json_last_error() !== JSON_ERROR_NONE
+        ) {
+            return response()->json([
+                'message' => 'Malformed JSON payload.',
+                'error' => 'Invalid JSON data provided',
+            ], 400);
         }
 
         return $next($request);

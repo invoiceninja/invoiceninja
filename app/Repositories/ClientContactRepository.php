@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -48,7 +49,7 @@ class ClientContactRepository extends BaseRepository
         }
 
         /* Set first record to primary - always */
-        $contacts = $contacts->sortByDesc('is_primary')->filter(function ($contact){
+        $contacts = $contacts->sortByDesc('is_primary')->filter(function ($contact) {
             return is_array($contact);
         })->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;

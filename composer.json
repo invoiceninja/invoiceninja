@@ -42,7 +42,9 @@
         "authorizenet/authorizenet": "^2.0",
         "awobaz/compoships": "^2.1",
         "aws/aws-sdk-php": "^3.319",
+        "babenkoivan/elastic-migrations": "^4.0",
         "babenkoivan/elastic-scout-driver": "^4.0",
+        "babenkoivan/elastic-scout-driver-plus": "^5.1",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "dev-master",
         "braintree/braintree_php": "^6.23",
@@ -101,7 +103,7 @@
         "socialiteproviders/microsoft": "^4.1",
         "sprain/swiss-qr-bill": "^4.3",
         "square/square": "30.0.0.*",
-        "stripe/stripe-php": "^12",
+        "stripe/stripe-php": "^13",
         "symfony/brevo-mailer": "^7.1",
         "symfony/http-client": "^7.0.3",
         "symfony/mailer": "7.1.6",
@@ -222,6 +224,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/turbo124/snappdf"
+        },
+        {
+            "type": "path",
+            "url": "../admin-api"
         }
     ],
     "minimum-stability": "dev",

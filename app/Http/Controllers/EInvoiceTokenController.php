@@ -42,7 +42,7 @@ class EInvoiceTokenController extends BaseController
 
             return response()->noContent();
         }
-        
+
 
         nlog($response->body());
 

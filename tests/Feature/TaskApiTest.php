@@ -104,6 +104,36 @@ class TaskApiTest extends TestCase
         }
     }
 
+    public function testPutTaskTimeLog()
+    {
+
+        $task = Task::factory()->create([
+            'client_id' => $this->client->id,
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'description' => 'Test Task', 
+        ]);
+
+        $data = [
+            'time_log' => [
+                [
+                    1744546939,
+                    1744552309,
+                    "Stijlelementen verfijnd en visuele consistentie verbeterd binnen het Platform Alain concept.",
+                    true
+                ]
+            ]
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson("/api/v1/tasks/{$task->hashed_id}", $data);
+
+        $response->assertStatus(200);
+
+    }
+
     public function testTaskLogGenerationforInvoices()
     {
         $this->company->invoice_task_datelog = true;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -238,6 +239,24 @@ class CompanyGatewayController extends BaseController
                 break;
 
             case $this->forte_key:
+
+                $config = $company_gateway->getConfig();
+
+                $config->authOrganizationId = !str_starts_with($config->authOrganizationId, 'org_')
+                    ? 'org_' . $config->authOrganizationId
+                    : $config->authOrganizationId;
+
+                $config->organizationId = !str_starts_with($config->organizationId, 'org_')
+                    ? 'org_' . $config->organizationId
+                    : $config->organizationId;
+
+                $config->locationId = !str_starts_with($config->locationId, 'loc_')
+                    ? 'loc_' . $config->locationId
+                    : $config->locationId;
+
+                $company_gateway->setConfig($config);
+                $company_gateway->save();
+
                 dispatch(function () use ($company_gateway) {
                     MultiDB::setDb($company_gateway->company->db);
                     $company_gateway->driver()->updateFees();
@@ -246,6 +265,7 @@ class CompanyGatewayController extends BaseController
                 break;
 
             case $this->cbapowerboard_key:
+
                 dispatch(function () use ($company_gateway) {
                     MultiDB::setDb($company_gateway->company->db);
                     $company_gateway->driver()->init()->settings()->updateSettings();
@@ -443,14 +463,42 @@ class CompanyGatewayController extends BaseController
         $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->save();
 
-        if ($company_gateway->gateway_key == $this->checkout_key) {
-            CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
-        } elseif ($company_gateway->gateway_key == $this->forte_key) {
+        switch ($company_gateway->gateway_key) {
 
-            dispatch(function () use ($company_gateway) {
-                MultiDB::setDb($company_gateway->company->db);
-                $company_gateway->driver()->updateFees();
-            })->afterResponse();
+            case $this->checkout_key:
+                CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+                break;
+
+            case $this->forte_key:
+
+                $config = $company_gateway->getConfig();
+
+                $config->authOrganizationId = !str_starts_with($config->authOrganizationId, 'org_')
+                    ? 'org_' . $config->authOrganizationId
+                    : $config->authOrganizationId;
+
+                $config->organizationId = !str_starts_with($config->organizationId, 'org_')
+                    ? 'org_' . $config->organizationId
+                    : $config->organizationId;
+
+                $config->locationId = !str_starts_with($config->locationId, 'loc_')
+                    ? 'loc_' . $config->locationId
+                    : $config->locationId;
+
+                $company_gateway->setConfig($config);
+                $company_gateway->save();
+
+
+                dispatch(function () use ($company_gateway) {
+                    MultiDB::setDb($company_gateway->company->db);
+                    $company_gateway->driver()->updateFees();
+                })->afterResponse();
+
+                break;
+
+            default:
+                # code...
+                break;
 
         }
 
@@ -583,8 +631,8 @@ class CompanyGatewayController extends BaseController
 
     public function test(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
-        return response()->json(['message' => $company_gateway->driver()->auth() ? 'true' : 'false'], 200);
+        $message = $company_gateway->driver()->auth();
+        return response()->json(['message' => $message], 200);
 
     }
 

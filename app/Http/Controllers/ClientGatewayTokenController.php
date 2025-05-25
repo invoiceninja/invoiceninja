@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -417,16 +418,16 @@ class ClientGatewayTokenController extends BaseController
     {
         $this->client_gateway_token_repo->delete($client_gateway_token);
 
-        if($client_gateway_token->is_default) {
+        if ($client_gateway_token->is_default) {
             $cgt = ClientGatewayToken::where('client_id', $client_gateway_token->client_id)
                                     ->where('company_gateway_id', $client_gateway_token->company_gateway_id)
                                     ->first();
 
-            if($cgt){
+            if ($cgt) {
                 $cgt->is_default = true;
                 $cgt->save();
             }
-            
+
         }
 
         return $this->itemResponse($client_gateway_token->fresh());

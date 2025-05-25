@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -37,8 +38,8 @@ class ClientSyncCast implements CastsAttributes
 
     public function set($model, string $key, $value, array $attributes)
     {
-                
-                
+
+
         if (is_null($value)) {
             return [$key => null];
         }

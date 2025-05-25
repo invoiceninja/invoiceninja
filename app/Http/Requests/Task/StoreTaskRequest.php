@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -78,19 +79,10 @@ class StoreTaskRequest extends Request
             }
         }];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
     }
@@ -102,6 +94,14 @@ class StoreTaskRequest extends Request
 
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
+        }
+
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
         }
 
         /* Ensure the project is related */

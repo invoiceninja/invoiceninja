@@ -63,7 +63,7 @@ class Blockonomics implements LivewireMethodInterface
 
         nlog($response->body());
 
-        if ($response->status() == 401) { 
+        if ($response->status() == 401) {
             return ['success' => false, 'message' => 'API Key is incorrect'];
         };
 
@@ -76,7 +76,7 @@ class Blockonomics implements LivewireMethodInterface
         } else {
             return ['success' => false, 'message' => "Could not generate new address (This may be a temporary error. Please try again). \n\n<br><br> If this continues, please ask website administrator to check blockonomics registered email address for error messages"];
         }
-        
+
     }
 
     public function getBTCPrice()

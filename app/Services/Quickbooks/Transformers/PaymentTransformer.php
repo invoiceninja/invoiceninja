@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://Paymentninja.com).
  *
@@ -57,21 +58,22 @@ class PaymentTransformer extends BaseTransformer
                 ->where('sync->qb_id', data_get($qb_data, 'invoice_id'))
                 ->first();
 
-        if(!$invoice)
+        if (!$invoice) {
             return;
+        }
 
         $lines = data_get($qb_data, 'Line', []) ?? [];
 
-        if(!empty($lines) && !isset($lines[0])) {
+        if (!empty($lines) && !isset($lines[0])) {
             $lines = [$lines];
         }
 
-        foreach($lines as $item) {
+        foreach ($lines as $item) {
             $id = data_get($item, 'LinkedTxn.TxnId', false);
             $tx_type = data_get($item, 'LinkedTxn.TxnType', false);
             $amount = data_get($item, 'Amount', 0);
 
-            if($tx_type == 'Invoice' && $id == $invoice->sync->qb_id && $amount > 0) {
+            if ($tx_type == 'Invoice' && $id == $invoice->sync->qb_id && $amount > 0) {
 
                 $paymentable = new \App\Models\Paymentable();
                 $paymentable->payment_id = $payment->id;
@@ -99,7 +101,7 @@ class PaymentTransformer extends BaseTransformer
             ->where('sync->qb_id', $ninja_payment_data['id'])
             ->first();
 
-        if($search_payment) {
+        if ($search_payment) {
             return $search_payment;
         }
 

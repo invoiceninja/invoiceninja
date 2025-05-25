@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -55,7 +56,7 @@ class BankTransactionRepository extends BaseRepository
 
         $bt = $this->unlink($entity);
 
-       parent::delete($bt);
+        parent::delete($bt);
 
     }
 

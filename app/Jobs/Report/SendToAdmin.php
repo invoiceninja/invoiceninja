@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -44,6 +45,8 @@ class SendToAdmin implements ShouldQueue
 
     protected string $file_name;
 
+    public $tries = 1;
+
     /**
      * Create a new job instance.
      */
@@ -64,7 +67,7 @@ class SendToAdmin implements ShouldQueue
         $files = [];
         $files[] = ['file' => $csv, 'file_name' => "{$this->file_name}", 'mime' => 'text/csv'];
 
-        if(in_array(get_class($export), [ARDetailReport::class, ARSummaryReport::class, ClientBalanceReport::class, ClientSalesReport::class, TaxSummaryReport::class])) {
+        if (in_array(get_class($export), [ARDetailReport::class, ARSummaryReport::class, ClientBalanceReport::class, ClientSalesReport::class, TaxSummaryReport::class])) {
             $pdf = base64_encode($export->getPdf());
             $files[] = ['file' => $pdf, 'file_name' => str_replace(".csv", ".pdf", $this->file_name), 'mime' => 'application/pdf'];
         }
@@ -89,8 +92,15 @@ class SendToAdmin implements ShouldQueue
 
     }
 
-    public function middleware()
+    // public function middleware()
+    // {
+    //     return [(new WithoutOverlapping("report-{$this->company->company_key}-{$this->report_class}"))->expireAfter(60)];
+    // }
+
+    public function failed(\Throwable $exception = null)
     {
-        return [new WithoutOverlapping("report-{$this->company->company_key}")];
+        if($exception) {
+            nlog("EXCEPTION:: SendToAdmin:: could not email report for" . $exception->getMessage());
+        }
     }
 }

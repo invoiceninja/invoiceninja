@@ -1,4 +1,5 @@
 <?php
+
 /**
  * client Ninja (https://invoiceninja.com).
  *
@@ -39,6 +40,13 @@ class InvoiceTransformer extends BaseTransformer
             'sent' => Invoice::STATUS_SENT,
             'draft' => Invoice::STATUS_DRAFT,
             'paid' => Invoice::STATUS_PAID,
+            '1' => Invoice::STATUS_PAID,
+            '0' => Invoice::STATUS_SENT,
+            'true' => Invoice::STATUS_PAID,
+            'false' => Invoice::STATUS_SENT,
+            '' => Invoice::STATUS_SENT,
+            'yes' => Invoice::STATUS_PAID,
+            'no' => Invoice::STATUS_SENT,
         ];
 
         $transformed = [
@@ -151,7 +159,7 @@ class InvoiceTransformer extends BaseTransformer
                     ),
                 ],
             ];
-        } elseif ($status === 'paid') {
+        } elseif ($status === 'paid' || $transformed['status_id'] === Invoice::STATUS_PAID) {
             $transformed['payments'] = [
                 [
                     'date' => isset($invoice_data['payment.date'])

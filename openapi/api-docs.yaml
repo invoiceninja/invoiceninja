@@ -71,7 +71,7 @@ info:
   license:
     name: 'Elastic License'
     url: 'https://www.elastic.co/licensing/elastic-license'
-  version: 5.10.53
+  version: 5.11.48
 
 servers:
   - url: 'https://demo.invoiceninja.com'
@@ -116,7 +116,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Activity'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -381,7 +380,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/BankIntegration'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -837,7 +835,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/BankTransaction'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -1244,7 +1241,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/BankTransactionRule'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -1620,7 +1616,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/ClientGatewayToken'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -1913,7 +1908,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Company'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -2349,7 +2343,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/CompanyGateway'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -2671,7 +2664,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/CompanyLedger'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -2783,7 +2775,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Design'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3099,7 +3090,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Document'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3216,7 +3206,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/ExpenseCategory'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3520,7 +3509,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Expense'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3913,7 +3901,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/GroupSetting'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -4609,7 +4596,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/PaymentTerm'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -5051,7 +5037,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/RecurringExpense'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -5418,7 +5403,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/RecurringQuote'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -6322,7 +6306,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Subscription'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -6671,7 +6654,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/SystemLog'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -6984,7 +6966,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/TaskStatus'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -7297,7 +7278,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/TaxRate'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -7614,7 +7594,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/CompanyToken'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -7922,7 +7901,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/User'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -8378,7 +8356,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Webhook'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -9109,26 +9086,43 @@ paths:
       tags:
         - locations
       summary: 'List locations'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->locations->all([]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations?per_page=10&page=1&sort=name&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       description: |
-            When retrieving a list of locations you can chain query parameters to filter the dataset. For example:
-            
-            ```
-            /api/v1/locations?name=warehouse*
-            ```
-            
-            You can also sort the results:
-            
-            ```
-            /api/v1/locations?sort=name|desc
-            ```
+        ##  GET /api/v1/locations
 
-            For pagination, use per_page and page parameters:
-            
-            ```
-            /api/v1/locations?per_page=15&page=2
-            ```
+        Locations are additional addresses that are applicable to a client. This is useful when a client has multiple addresses for shipping, billing, etc.
 
-            The default per_page value is 20.
+        When retrieving a list of locations you can chain query parameters to filter the dataset. For example:
+        
+        ```html
+        /api/v1/locations?name=warehouse*
+        ```
+        
+        You can also sort the results:
+        
+        ```html
+        /api/v1/locations?sort=name|desc
+        ```
+
+        For pagination, use per_page and page parameters:
+        
+        ```html
+        /api/v1/locations?per_page=15&page=2
+        ```
+
+        The default per_page value is 20.
       operationId: getLocations
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9171,7 +9165,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Location'
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Location'
         401:
           $ref: '#/components/responses/401'
         403:
@@ -9187,7 +9186,57 @@ paths:
       tags:
         - locations
       summary: 'Create location'
-      description: 'Adds a location to a company'
+      description: |
+        ##  POST /api/v1/locations
+
+        Adds a location to a company
+      x-codeSamples:
+        - lang: php
+          label: php
+          source: |
+            $ninja = new InvoiceNinja("YOUR-TOKEN");
+            
+            $client = $ninja->locations->create([
+                'name' => 'A unique client location name',
+                'address1' => '123 Main St',
+                'address2' => 'Apt 1',
+                'city' => 'New York',
+                'state' => 'NY',
+                'postal_code' => '10001',
+                'country_id' => '1',
+                'custom_value1' => 'Custom field value 1',
+                'custom_value2' => 'Custom field value 2',
+                'custom_value3' => 'Custom field value 3',
+                'custom_value4' => 'Custom field value 4',
+                'is_deleted' => false,
+                'is_shipping_location' => true,
+                'client_id' => 'x2fd23',
+                'vendor_id' => 'jd78Dhjs'
+            ]);
+        - lang: curl
+          label: curl
+          source: |
+            curl -X POST https://demo.invoiceninja.com/api/v1/locations \
+              -H "X-API-TOKEN: YOUR-TOKEN" \
+              -H "Content-Type: application/json" \
+              -H "X-Requested-With: XMLHttpRequest" \
+              -d '{
+                "name": "A unique location name",
+                "address1": "123 Main St",
+                "address2": "Apt 1",
+                "city": "New York",
+                "state": "NY",
+                "postal_code": "10001",
+                "country_id": "1",
+                "custom_value1": "Custom field value 1",
+                "custom_value2": "Custom field value 2",
+                "custom_value3": "Custom field value 3",
+                "custom_value4": "Custom field value 4",
+                "is_deleted": false,
+                "is_shipping_location": true,
+                "client_id": "x2fd23",
+                "vendor_id": "jd78Dhjs"
+              }'
       operationId: storeLocation
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9230,7 +9279,10 @@ paths:
       tags:
         - locations
       summary: 'Show location'
-      description: 'Displays a location by id'
+      description: |
+        ##  GET /api/v1/locations/{id}
+
+        Displays a location by id
       operationId: showLocation
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9268,12 +9320,28 @@ paths:
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
 
     put:
       tags:
         - locations
       summary: 'Update location'
-      description: 'Handles the updating of a location by id'
+      description: |
+        ##  PUT /api/v1/locations/{id}
+
+        Handles the updating of a location by id
       operationId: updateLocation
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9318,12 +9386,37 @@ paths:
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->update("D2J234DFA", [
+              'name' => 'Updated Location Name',
+              'address1' => '456 New Street',
+              'city' => 'Los Angeles'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X PUT https://demo.invoiceninja.com/api/v1/locations/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "name": "Updated Location Name",
+              "address1": "456 New Street",
+              "city": "Los Angeles"
+            }'
 
     delete:
       tags:
         - locations
       summary: 'Delete location'
-      description: 'Handles the deletion of a location by id'
+      description: |
+        ##  DELETE /api/v1/locations/{id}
+
+        Handles the deletion of a location by id
       operationId: deleteLocation
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9356,13 +9449,29 @@ paths:
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->locations->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X DELETE \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
 
   /api/v1/locations/create:
     get:
       tags:
         - locations
       summary: 'Blank Location'
-      description: 'Returns a blank object with default values'
+      description: |
+        ##  GET /api/v1/locations/create
+
+        Returns a blank object with default values
       operationId: getLocationsCreate
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9392,6 +9501,19 @@ paths:
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $location = $ninja->locations->model();
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://demo.invoiceninja.com/api/v1/locations/create' \
+            --header 'X-API-TOKEN: YOUR-TOKEN' \
+            --header 'Accept: application/json'
 
   /api/v1/locations/bulk:
     post:
@@ -9399,6 +9521,8 @@ paths:
         - locations
       summary: 'Bulk location actions'
       description: |
+        ##  POST /api/v1/locations/bulk
+
         Bulk actions allow to make changes to multiple locations in a single request. The following actions are supported:
         
         - archive
@@ -9408,6 +9532,26 @@ paths:
         All of these actions require an array of location ids to perform the requested action on ie.
 
         "ids":['id1','id2']
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->locations->bulk([
+              'action' => 'archive',
+              'ids' => ['locationId1', 'locationId2']
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X POST https://demo.invoiceninja.com/api/v1/locations/bulk \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "action": "archive",
+              "ids": ["locationId1", "locationId2"]
+            }'
       operationId: bulkLocations
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -9444,14 +9588,33 @@ paths:
           $ref: '#/components/responses/429'
         default:
           $ref: '#/components/responses/default'
+    
   /api/v1/recurring_invoices:
     get:
       tags:
         - Recurring Invoices
       summary: "List recurring invoices"
       description: |
-        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
+        ## GET /api/v1/recurring_invoices
 
+        Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->recurring_invoices->all([
+            'per_page' => 10,
+            'page' => 1,
+            'sort' => 'number|asc'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/recurring_invoices?per_page=10&page=1&sort=number&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: getRecurringInvoices
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -9494,6 +9657,38 @@ paths:
           schema:
             type: string
           example: id|desc number|desc balance|asc 
+        - name: number
+          in: query
+          description: |
+            Filters the list by number.
+          required: false
+          schema:
+            type: string
+          example: ?number=123
+        - name: product_key
+          in: query
+          description: |
+            Filters the list by product_key.
+          required: false
+          schema:
+            type: string
+          example: ?product_key=123
+        - name: next_send_between
+          in: query
+          description: |
+            Filters the list by next_send_between.
+          required: false
+          schema:
+            type: string
+          example: ?next_send_between=2025-01-01|2025-01-31
+        - name: frequency_id
+          in: query
+          description: |
+            Filters the list by frequency_id.
+          required: false
+          schema:
+            type: string
+          example: ?frequency_id=1,2,3
       responses:
         200:
           description: "A list of recurring_invoices"
@@ -9532,12 +9727,98 @@ paths:
       tags:
         - Recurring Invoices
       summary: "Create recurring invoice"
-      description: "Adds a Recurring Invoice to the system"
+      description: |
+        ## POST /api/v1/recurring_invoices
+
+        Adds a Recurring Invoice to the system
       operationId: storeRecurringInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->recurring_invoices->create([
+            'client_id' => 'AxP7K9nY5z',
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'custom_value1' => 'custom value 1',
+            'custom_value2' => 'custom value 2',
+            'line_items' => [
+              [
+                    'quantity' => 1,
+                    'cost' => 14,
+                    'product_key' => 'sku_4_u',
+                    'notes' => 'The actual product description',
+                    'discount' => 0,
+                    'is_amount_discount' => true,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'sort_id' => '0',
+                    'custom_value1' => 'https://picsum.photos/200',
+                    'custom_value2' => '94',
+                    'custom_value3' => 'Alias vel eveniet.',
+                    'custom_value4' => 'Iusto aut quis qui.',
+                    'type_id' => '1',
+                    'tax_id' => '1'
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/recurring_invoices' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "client_id": "AxP7K9nY5z",
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "custom_value1": "custom value 1",
+              "custom_value2": "custom value 2",
+              "line_items": [
+                {
+                  "quantity": 1,
+                  "cost": 14,
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description",
+                  "discount": 0,
+                  "is_amount_discount": true,
+                  "tax_name1": "",
+                  "tax_rate1": 0,
+                  "tax_name2": "",
+                  "tax_rate2": 0,
+                  "tax_name3": "",
+                  "tax_rate3": 0,
+                  "sort_id": "0",
+                  "custom_value1": "https://picsum.photos/200",
+                  "custom_value2": "94",
+                  "custom_value3": "Alias vel eveniet.",
+                  "custom_value4": "Iusto aut quis qui.",
+                  "type_id": "1",
+                  "tax_id": "1"
+                }
+              ]
+            }'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecurringInvoiceRequest"
       responses:
         200:
           description: "Returns the saved RecurringInvoice object"
@@ -10447,10 +10728,32 @@ paths:
       tags:
         - quotes
       summary: "List quotes"
-      description: "Lists quotes, search and filters allow fine grained lists to be generated.\n     *\n     *      Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available"
+      description: |
+        ## GET /api/v1/quotes
+
+        Lists quotes, search and filters allow fine grained lists to be generated.
+        
+        Query parameters can be added to performed more fine grained filtering of the quotes, these are handled by the QuoteFilters class which defines the methods available
+      
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quotes = $ninja->quotes->all([
+            'per_page' => 10,
+            'page' => 1,
+            'sort' => 'number|asc'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes?per_page=10&page=1&sort=number&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: getQuotes
       parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/status"
@@ -10540,7 +10843,104 @@ paths:
       tags:
         - quotes
       summary: "Create quote"
-      description: "Adds an Quote to the system"
+      description: |
+        ## POST /api/v1/quotes
+        Creates an quote for a client.
+
+        Triggered actions are available when updating or creating an quote.
+
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+        
+        ```
+        ?send_email=true [Saves and sends the quote]
+        ?mark_sent=true [Saves and marks the quote as sent]
+        ?approve=true [Saves and approves the quote]
+        ?convert=true [Saves and converts the quote to an invoice]
+        ?save_default_footer=true [Saves the current footer as the default footer]
+        ?save_default_terms=true [Saves the current terms as the default terms]
+        
+        ```
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->quotes->create([
+            'client_id' => 'AxP7K9nY5z',
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'frequency_id' => '1',
+            'remaining_cycles' => '5',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'custom_value1' => 'custom value 1',
+            'custom_value2' => 'custom value 2',
+            'line_items' => [
+              [
+                    'quantity' => 1,
+                    'cost' => 14,
+                    'product_key' => 'sku_4_u',
+                    'notes' => 'The actual product description',
+                    'discount' => 0,
+                    'is_amount_discount' => true,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'sort_id' => '0',
+                    'custom_value1' => 'https://picsum.photos/200',
+                    'custom_value2' => '94',
+                    'custom_value3' => 'Alias vel eveniet.',
+                    'custom_value4' => 'Iusto aut quis qui.',
+                    'type_id' => '1',
+                    'tax_id' => '1'
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/quotes' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "client_id": "AxP7K9nY5z",
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "custom_value1": "custom value 1",
+              "custom_value2": "custom value 2",
+              "frequency_id": "1",
+              "remaining_cycles": "5",
+              "line_items": [
+                {
+                  "quantity": 1,
+                  "cost": 14,
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description",
+                  "discount": 0,
+                  "is_amount_discount": true,
+                  "tax_name1": "",
+                  "tax_rate1": 0,
+                  "tax_name2": "",
+                  "tax_rate2": 0,
+                  "tax_name3": "",
+                  "tax_rate3": 0,
+                  "sort_id": "0",
+                  "custom_value1": "https://picsum.photos/200",
+                  "custom_value2": "94",
+                  "custom_value3": "Alias vel eveniet.",
+                  "custom_value4": "Iusto aut quis qui.",
+                  "type_id": "1",
+                  "tax_id": "1"
+                }
+              ]
+            }'
       operationId: storeQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -10577,7 +10977,24 @@ paths:
       tags:
         - quotes
       summary: "Show quote"
-      description: "Displays an Quote by id"
+      description: |
+        ## GET /api/v1/quotes/{id}
+
+        Displays an Quote by id
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quote = $ninja->quotes->get("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: showQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -10621,7 +11038,61 @@ paths:
       tags:
         - quotes
       summary: "Update quote"
-      description: "Handles the updating of an Quote by id"
+      description: |
+        ## PUT /api/v1/quotes/{id}
+
+        Handles the updating of an Quote by id.
+
+        Triggered actions are available when updating or creating an quote.
+
+        These are query parameters that can be chained in order to perform additional actions on the entity, these include:
+        
+        ```
+        ?send_email=true [Saves and sends the quote]
+        ?mark_sent=true [Saves and marks the quote as sent]
+        ?approve=true [Saves and approves the quote]
+        ?convert=true [Saves and converts the quote to an invoice]
+        ?save_default_footer=true [Saves the current footer as the default footer]
+        ?save_default_terms=true [Saves the current terms as the default terms]
+        
+        ```
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->update("D2J234DFA", [
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'line_items' => [
+              [
+                'product_key' => 'sku_4_u',
+                'notes' => 'The actual product description',
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request PUT \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "line_items": [
+                {
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description"
+                }
+              ]
+            }'
       operationId: updateQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -10665,7 +11136,23 @@ paths:
       tags:
         - quotes
       summary: "Delete quote"
-      description: "Handles the deletion of an Quote by id"
+      description:  |
+        ## DELETE /api/v1/quotes/{id}
+
+        Handles the deletion of an Quote by id.
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $ninja->quotes->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request DELETE \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE'
       operationId: deleteQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -10706,7 +11193,24 @@ paths:
       tags:
         - quotes
       summary: "Edit quote"
-      description: "Displays an Quote by id"
+      description: |
+        ## GET /api/v1/quotes/{id}/edit
+
+        Displays an Quote by id for editting
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quote = $ninja->quotes->edit("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes/D2J234DFA/edit' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: editQuote
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -10751,7 +11255,24 @@ paths:
       tags:
         - quotes
       summary: "Blank quote"
-      description: "Returns a blank object with default values"
+      description: |
+        ## GET /api/v1/quotes/create
+
+        Returns a blank object with default values
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $quote = $ninja->quotes->create();
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/quotes/create' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: getQuotesCreate
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -10788,23 +11309,71 @@ paths:
       tags:
         - quotes
       summary: "Bulk quote actions"
-      description: ""
+      description: |
+        ## POST /api/v1/quotes/bulk
+
+        Performs bulk actions on an array of quotes
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $response = $ninja->quotes->bulk([
+            'action' => 'approve',
+            'ids' => ['D2J234DFA','D2J234DFA','D2J234DFA']
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/quotes/bulk' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "action": "approve",
+              "ids": ["D2J234DFA","D2J234DFA","D2J234DFA"]
+            }'
       operationId: bulkQuotes
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
       requestBody:
-        description: "Hashed ids"
+        description: "Bulk action details"
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                description: "Array of hashed IDs to be bulk 'actioned"
-                type: integer
-                example: "[0,1,2,3]"
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: |
+                    The action to be performed, options include:  
+                    - `approve`  
+                      Bulk approve an array of quotes  
+                    - `convert`  
+                      Bulk convert an array of quotes to invoices  
+                    - `send_email`  
+                      Bulk send an array of quotes as emails  
+                    - `mark_sent`  
+                      Bulk mark an array of quotes as sent  
+                    - `restore`  
+                      Restores an array of quotes  
+                    - `delete`  
+                      Deletes an array of invoices  
+                    - `archive`  
+                      Archives an array of invoices  
+                ids:
+                  type: array
+                  items:
+                    description: "Array of hashed IDs to be bulk 'actioned - ['D2J234DFA','D2J234DFA','D2J234DFA']"
+                    type: string
+              example:
+                action: convert
+                ids: ['D2J234DFA','D2J234DFA','D2J234DFA']
       responses:
         200:
           description: "The Quote response"
@@ -10994,8 +11563,27 @@ paths:
         - invoices
       summary: "List invoices"
       description: |
+        ##  GET /api/v1/invoices
+
         Lists invoices with the option to chain multiple query parameters allowing fine grained filtering of the list.  
-        
+      
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->invoices->all([
+            'per_page' => 10,
+            'page' => 1,
+            'sort' => 'number|asc'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoices?per_page=10&page=1&sort=number&sort_dir=asc' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: getInvoices
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11041,6 +11629,9 @@ paths:
             - custom_value2  
             - custom_value3  
             - custom_value4
+            - client.name
+            - client.contacts.[first_name, last_name, email]
+            - line_items.[product_key, notes]
           required: false
           schema:
             type: string
@@ -11060,7 +11651,7 @@ paths:
           required: false
           schema:
             type: string
-          example: ?over_due=
+          example: ?overdue=
         - name: payable
           in: query
           description: |
@@ -11084,6 +11675,39 @@ paths:
           schema:
             type: string
           example: ?private_notes=super secret
+        - name: date
+          in: query
+          description: |
+            Filters the invoices by invoice date returns a list of invoices after (and including) the date
+          required: false
+          schema:
+            type: string
+          example: ?date=2022-01-01
+        - name: date_range
+          in: query
+          description: |
+            Filters the invoices by invoice date returns a list of invoices between two dates
+          required: false
+          schema:
+            type: string
+          example: ?date_range=2022-01-01,2022-01-31
+        - name: status_id
+          in: query
+          description: |
+            Filters the invoices by status id
+
+            ```html
+              STATUS_DRAFT = 1;
+              STATUS_SENT = 2;
+              STATUS_PARTIAL = 3;
+              STATUS_PAID = 4;
+              STATUS_CANCELLED = 5;
+              STATUS_REVERSED = 6;
+            ```
+          required: false
+          schema:
+            type: integer
+          example: ?status_id=1
       responses:
         200:
           description: "A list of invoices"
@@ -11123,9 +11747,11 @@ paths:
         - invoices
       summary: "Create invoice"
       description: | 
-        Adds a invoice to a company
+        ## POST /api/v1/invoices
+        Creates an invoice for a client.
 
-        Triggered actions are available when updating or creating an invoice.  
+        Triggered actions are available when updating or creating an invoice.
+
         These are query parameters that can be chained in order to perform additional actions on the entity, these include:
 
           ```
@@ -11136,8 +11762,90 @@ paths:
           ?cancel=true [Saves and marks the invoice as cancelled]
           ?save_default_footer=true [Saves the current footer as the default footer]
           ?save_default_terms=true [Saves the current terms as the default terms]
+          ?retry_e_send=true [Saves and retries the e-send for the invoice]
+          ?redirect=https://example.com [Saves and redirects to the given url]
           ```
-
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoices = $ninja->invoices->create([
+            'client_id' => 'AxP7K9nY5z',
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'frequency_id' => '1',
+            'remaining_cycles' => '5',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'custom_value1' => 'custom value 1',
+            'custom_value2' => 'custom value 2',
+            'line_items' => [
+              [
+                    'quantity' => 1,
+                    'cost' => 14,
+                    'product_key' => 'sku_4_u',
+                    'notes' => 'The actual product description',
+                    'discount' => 0,
+                    'is_amount_discount' => true,
+                    'tax_name1' => '',
+                    'tax_rate1' => 0,
+                    'tax_name2' => '',
+                    'tax_rate2' => 0,
+                    'tax_name3' => '',
+                    'tax_rate3' => 0,
+                    'sort_id' => '0',
+                    'custom_value1' => 'https://picsum.photos/200',
+                    'custom_value2' => '94',
+                    'custom_value3' => 'Alias vel eveniet.',
+                    'custom_value4' => 'Iusto aut quis qui.',
+                    'type_id' => '1',
+                    'tax_id' => '1'
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/invoices' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "client_id": "AxP7K9nY5z",
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "custom_value1": "custom value 1",
+              "custom_value2": "custom value 2",
+              "frequency_id": "1",
+              "remaining_cycles": "5",
+              "line_items": [
+                {
+                  "quantity": 1,
+                  "cost": 14,
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description",
+                  "discount": 0,
+                  "is_amount_discount": true,
+                  "tax_name1": "",
+                  "tax_rate1": 0,
+                  "tax_name2": "",
+                  "tax_rate2": 0,
+                  "tax_name3": "",
+                  "tax_rate3": 0,
+                  "sort_id": "0",
+                  "custom_value1": "https://picsum.photos/200",
+                  "custom_value2": "94",
+                  "custom_value3": "Alias vel eveniet.",
+                  "custom_value4": "Iusto aut quis qui.",
+                  "type_id": "1",
+                  "tax_id": "1"
+                }
+              ]
+            }'
       operationId: storeInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11181,7 +11889,23 @@ paths:
       tags:
         - invoices
       summary: "Show invoice"
-      description: "Displays an invoice by id"
+      description: |
+        ## GET /api/v1/invoices/{id}
+
+        Displays an invoice by id
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->get("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: showInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11227,6 +11951,7 @@ paths:
         - invoices
       summary: "Update invoice"
       description: |
+        ## PUT /api/v1/invoices/{id}
         Handles the updating of an invoice by id.
 
         Triggered actions are available when updating or creating an invoice.  
@@ -11240,8 +11965,47 @@ paths:
           ?cancel=true [Saves and marks the invoice as cancelled]
           ?save_default_footer=true [Saves the current footer as the default footer]
           ?save_default_terms=true [Saves the current terms as the default terms]
+          ?retry_e_send=true [Saves and retries the e-send for the invoice]
+          ?redirect=https://example.com [Saves and redirects to the given url]
           ```
 
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->update("D2J234DFA", [
+            'date' => '2022-01-01',
+            'due_date' => '2022-01-31',
+            'private_notes' => 'super secret',
+            'public_notes' => 'public notes',
+            'line_items' => [
+              [
+                'product_key' => 'sku_4_u',
+                'notes' => 'The actual product description',
+              ]
+            ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request PUT \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "date": "2022-01-01",
+              "due_date": "2022-01-31",
+              "private_notes": "super secret",
+              "public_notes": "public notes",
+              "line_items": [
+                {
+                  "product_key": "sku_4_u",
+                  "notes": "The actual product description"
+                }
+              ]
+            }'
       operationId: updateInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11285,7 +12049,24 @@ paths:
       tags:
         - invoices
       summary: "Delete invoice"
-      description: "Handles the deletion of an invoice by id"
+      description: |
+        ## DELETE /api/v1/invoices/{id}
+
+        Handles the deletion of an invoice by id.
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $ninja->invoices->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request DELETE \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: deleteInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11326,7 +12107,24 @@ paths:
       tags:
         - invoices
       summary: "Edit invoice"
-      description: "Displays an invoice by id for editting"
+      description: |
+        ## GET /api/v1/invoices/{id}/edit
+
+        Displays an invoice by id for editting
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA/edit' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       operationId: editInvoice
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -11372,12 +12170,24 @@ paths:
       tags:
         - invoices
       summary: "Blank invoice"
-      description: "Returns a blank object with default values"
-      operationId: getInvoicesCreate
-      parameters:
-        - $ref: "#/components/parameters/X-API-TOKEN"
-        - $ref: "#/components/parameters/X-Requested-With"
-        - $ref: "#/components/parameters/include"
+      description: |
+        ## GET /api/v1/invoices/create
+
+        Returns a blank object with default values
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->model();
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoices/create' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       responses:
         200:
           description: "A blank invoice object"
@@ -11411,6 +12221,8 @@ paths:
         - invoices
       summary: "Bulk invoice actions"
       description: |
+        ## POST /api/v1/invoices/bulk
+
         There are multiple actions that are available including:  
 
       operationId: bulkInvoices
@@ -11418,6 +12230,27 @@ paths:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/index"
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $response = $ninja->invoices->bulk([
+            'action' => 'bulk_download',
+            'ids' => ['D2J234DFA','D2J234DFA','D2J234DFA']
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/invoices/bulk' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json' \
+            --header 'Content-Type: application/json' \
+            --data '{
+              "action": "bulk_download",
+              "ids": ["D2J234DFA","D2J234DFA","D2J234DFA"]
+            }'
       requestBody:
         description: "Bulk action details"
         required: true
@@ -11427,24 +12260,24 @@ paths:
               type: object
               properties:
                 email_type:
-                  type: enum
-                  description: "The email type to be sent, when bulk emailing invoices"
-                  enum:
-                    - invoice
-                    - quote
-                    - credit
-                    - payment
-                    - payment_partial
-                    - statement
-                    - reminder1
-                    - reminder2
-                    - reminder3
-                    - reminder_endless
-                    - custom1
-                    - custom2
-                    - custom3
-                    - purchase_order
-                    - email_quote_template_reminder1
+                  type: string
+                  description: |
+                    The email type to be sent, when bulk emailing invoices options include:
+                    - `invoice` (default)
+                    - `quote`
+                    - `credit`
+                    - `payment`
+                    - `payment_partial`
+                    - `statement`
+                    - `reminder1`
+                    - `reminder2`
+                    - `reminder3`
+                    - `reminder_endless`
+                    - `custom1`
+                    - `custom2`
+                    - `custom3`
+                    - `purchase_order`
+                    - `email_quote_template_reminder1`
                 action:
                   type: string
                   description: |
@@ -11579,8 +12412,24 @@ paths:
       tags:
         - invoices
       summary: "Download invoice PDF"
-      description: "Downloads a specific invoice"
-      operationId: downloadInvoice
+      description: |
+        ## GET /api/v1/invoice/{invitation_key}/download
+
+        Downloads a specific invoice
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->download("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoice/D2J234DFA/download' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -11620,8 +12469,24 @@ paths:
       tags:
         - invoices
       summary: "Download delivery note"
-      description: "Downloads a specific invoice delivery notes"
-      operationId: deliveryNote
+      description: |
+        ## GET /api/v1/invoices/{id}/delivery_note
+
+        Downloads a specific invoice delivery notes
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->deliveryNote("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request GET \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA/delivery_note' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -11661,8 +12526,24 @@ paths:
       tags:
         - invoices
       summary: "Add invoice document"
-      description: "Handles the uploading of a document to a invoice"
-      operationId: uploadInvoice
+      description: |
+        ## POST /api/v1/invoices/{id}/upload
+
+        Handles the uploading of a document to a invoice
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $invoice = $ninja->invoices->upload("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl --request POST \
+            --url 'https://invoicing.co/api/v1/invoices/D2J234DFA/upload' \
+            --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
+            --header 'Accept: application/json'
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -12610,6 +13491,25 @@ paths:
         - payments
       summary: "Create payment"
       description: "Adds an Payment to the system"
+      x-codeSamples:
+        - lang: php
+          label: php
+          source: |
+            $ninja = new InvoiceNinja("YOUR-TOKEN");
+            
+            $payment = $ninja->payments->create([
+                'client_id' => 'x2fd23',
+                'amount' => 100,
+                'date' => '2021-01-01',
+                'transaction_reference' => '1234567890',
+                'type_id' => 1,
+                'invoices' => [
+                    [
+                        'invoice_id' => 'jd78Dhjs',
+                        'amount' => 100,
+                    ]
+                ]
+            ]);
       operationId: storePayment
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -12623,12 +13523,12 @@ paths:
           schema:
             type: boolean
       requestBody:
-        description: "The payment request"
+        description: "The payment request can be as simple as a client id and amount, or as complex as a full payment with invoices and associated credits that should be applied."
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Payment"
+              $ref: "#/components/schemas/PaymentRequest"
       responses:
         200:
           description: "Returns the saved Payment object"
@@ -13080,7 +13980,8 @@ paths:
     get:
       tags:
         - clients
-      summary: 'List clients'
+      summary: |
+        List clients
       x-codeSamples:
       - lang: php
         label: php
@@ -13100,31 +14001,32 @@ paths:
             --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
             --header 'Accept: application/json'
       description: |
-            When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
+            ##  GET /api/v1/clients  
+            When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000
               
             ```
             /api/v1/clients?balance=gt:1000
             ``` 
             
-            You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order:\
+            You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order
             
             ```
             /api/v1/clients?sort=name|desc
             ```
 
-            You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob":\
+            You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob"
             
             ```
             /api/v1/clients?balance=gt:1000&name=Bob*
             ```
 
-            If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships:\
+            If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships
             
             ```
             /api/v1/clients?include=activities,ledger,system_logs'
             ```
 
-            The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page:\
+            The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page
             
             ```
             /api/v1/clients?per_page=15&page=2
@@ -13312,10 +14214,12 @@ paths:
         - clients
       summary: 'Create client'
       description: |
-            Adds a client to a company
-              
-            > 🚨 Important    
-            When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
+
+        ##  POST /api/v1/clients  
+        Adds a client to a company
+          
+        > 🚨 Important    
+        When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
       x-codeSamples:
         - lang: php
           label: php
@@ -13352,7 +14256,8 @@ paths:
                     "first_name": "John",
                     "last_name": "Smith",
                     "email": "john@example.com",
-                    "phone": "555-0123"
+                    "phone": "555-0123",
+                    "send_email": true
                   }
                 ],
                 "address1": "123 Main St",
@@ -13368,7 +14273,6 @@ paths:
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/client_include'
       requestBody:
-        description: Client object that needs to be added to the company
         required: true
         content:
           application/json:
@@ -13403,7 +14307,11 @@ paths:
       tags:
         - clients
       summary: 'Show client'
-      description: 'Displays a client by id'
+      description: |
+        ##  GET /api/v1/clients/{id}
+
+        Displays a client by id
+
       x-codeSamples:
       - lang: php
         label: php
@@ -13460,6 +14368,8 @@ paths:
         - clients
       summary: 'Update client'
       description: |
+        ##  PUT /api/v1/clients/{id}
+
         Handles the updating of a client by id
 
         > 🚨 Important    
@@ -13548,12 +14458,17 @@ paths:
         - clients
       summary: 'Delete client'
       description: |
+        ##  DELETE /api/v1/clients/{id}
+
         Handles the deletion of a client by id
 
         > ❗ Note
         Deleting a client does not purge the client from the system. The delete action will remove the clients data from all 
-        views in the application but keep it all on file. A Client can be laterrestored reversing this action.  To permanently wipe a client and
-        all of their records from the system, use the /purge route
+        views in the application but keep it on file in case it needs to be restored.
+        
+        A Client can be later restored reversing this action.  
+        
+        To permanently wipe a client and all of their records from the system, use the [/purge route](/#tag/clients/POST/api/v1/clients/{id}/purge)
 
       x-codeSamples:
       - lang: php
@@ -13607,7 +14522,21 @@ paths:
       tags:
         - clients
       summary: 'Edit Client'
-      description: 'Displays a client by id, essentially an alias of the show route'
+      description: |
+        ##  GET /api/v1/clients/{id}/edit
+        Displays a client by id, essentially an alias of the show route
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $client = $ninja->clients->show('clientId123');
+      - lang: curl
+        label: php
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/clients/clientId123 \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       operationId: editClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -13651,7 +14580,23 @@ paths:
       tags:
         - clients
       summary: 'Blank Client'
-      description: 'Returns a blank object with default values'
+      description: |
+        ##  GET /api/v1/clients/create  
+
+        Returns a blank object with default values
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $client = $ninja->clients->model();
+      - lang: curl
+        label: php
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/clients/create \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       operationId: getClientsCreate
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -13688,6 +14633,8 @@ paths:
         - clients
       summary: 'Bulk client actions'
       description: |
+        ##  POST /api/v1/clients/bulk
+
         Bulk actions allow to make changes to multiple clients in a single request the following actions are supported
         
         - archive
@@ -13695,7 +14642,7 @@ paths:
         - delete
         - template _requires template,template_id properties also_
         - assign_group _requires group_settings_id also_
-        - bulk_update _ requires column,new_value also_
+        - bulk_update _requires column,new_value also_
 
         All of these actions require an array of client ids to perform the requested action on ie.
 
@@ -13709,7 +14656,7 @@ paths:
 
         - assign_group
         
-        Allows the setting of multiple clients to a single group
+        Allows setting multiple clients to a single group
 
         - bulk_update
 
@@ -13787,7 +14734,11 @@ paths:
       tags:
         - clients
       summary: 'Add client document'
-      description: 'Handles the uploading of a document to a client, please note due to a quirk in REST you will need to use a _method parameter with value of POST'
+      description: |
+        ##  POST /api/v1/clients/{id}/upload
+
+        Handles the uploading of a document to a client, please note due to a quirk in REST you will need to use a _method parameter with value of POST
+
       x-codeSamples:
       - lang: php
         label: php
@@ -13875,11 +14826,13 @@ paths:
         - clients
       summary: 'Purge client'
       description: |
-            Handles purging a client.
+        ##  POST /api/v1/clients/{id}/purge
 
-            > ❗ Note
-            This is a destructive action.
-            This action will remove all data associated with the client and cannot be undone.
+        Handles purging a client.
+
+        > ❗ Note
+        This is a destructive action.
+        This action will remove all data associated with the client and cannot be undone.
       x-codeSamples:
       - lang: php
         label: php
@@ -13933,15 +14886,17 @@ paths:
         - clients
       summary: 'Merge client'
       description: |
-            Handles merging 2 clients
+        ##  POST /api/v1/clients/{id}/{mergeable_client_hashed_id}/merge
 
-            The id parameter is the client that will be the primary client after the merge has completed. 
+        Handles merging 2 clients
 
-            The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
+        The id parameter is the client that will be the primary client after the merge has completed. 
 
-            > 🚨 **Important**    
-            This action requires elevated permissions, please note the X-API-PASSWORD header requirements for this route.
-            
+        The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
+
+        > 🚨 **Important**    
+        This action requires elevated permissions, please note the X-API-PASSWORD header requirements for this route.
+        
       x-codeSamples:
       - lang: php
         label: php
@@ -14003,7 +14958,11 @@ paths:
       tags:
         - clients
       summary: 'Client statement PDF'
-      description: 'Return a PDF of the client statement'
+      description: |
+        ##  POST /api/v1/client_statement
+
+        Return a PDF of the client statement
+
       operationId: clientStatement
       x-codeSamples:
       - lang: php
@@ -14093,7 +15052,11 @@ paths:
       tags:
         - clients
       summary: 'Removes email suppression of a user in the system'
-      description: 'Emails are suppressed by PostMark, when they receive a Hard bounce / Spam Complaint. This endpoint allows you to remove the suppression and send emails to the user again.'
+      description: |
+        ##  POST /api/v1/reactivate_email/{bounce_id}
+
+        Emails are suppressed by PostMark, when they receive a Hard bounce / Spam Complaint. This endpoint allows you to remove the suppression and send emails to the user again.
+
       operationId: reactivateEmail
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -14137,7 +15100,11 @@ paths:
       tags:
         - clients
       summary: 'Update tax data'
-      description: 'Updates the clients tax data - if their address has changed'
+      description: |
+        ##  POST /api/v1/clients/{client}/updateTaxData
+
+        Updates the clients tax data - if their address has changed
+
       operationId: updateClientTaxData
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -14678,13 +15645,7 @@ paths:
         - products
       summary: "List products"
       x-codeSamples:
-      - lang: curl
-        label: Curl
-        source: |
-          curl -X GET 'https://invoicing.co/api/v1/products?filter=search&per_page=20&page=1&include=documents' \
-          -H "X-API-TOKEN:company-token-test" \
-          -H "X-Requested-With: XMLHttpRequest";
-      - lang: go
+      - lang: php
         label: PHP
         source: |
           $ninja = new InvoiceNinja("your_token");
@@ -14694,7 +15655,15 @@ paths:
             'page' => 1,
             'include' => 'documents'
           ]);
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products?filter=search&per_page=20&page=1&include=documents' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
       description: |
+        ##  GET /api/v1/products
         Lists products within your company.
         
         You can search and filter the result set using query parameters. These can be chained together allowing fine grained lists to be generated.    
@@ -14771,15 +15740,7 @@ paths:
         - products
       summary: "Create Product"
       x-codeSamples:
-      - lang: curl
-        label: Curl
-        source: |
-          curl -X POST 'https://invoicing.co/api/v1/products' \
-          -H "X-API-TOKEN:company-token-test" \
-          -H "Content-Type:application/json" \
-          -d '{"product_key":"sku_1","notes":"product description","cost":1,"price":10}' \
-          -H "X-Requested-With: XMLHttpRequest";
-      - lang: go
+      - lang: php
         label: PHP
         source: |
           $ninja = new InvoiceNinja("your_token");
@@ -14789,7 +15750,18 @@ paths:
             'cost' => 1,
             'price' => 10
           ]);
-      description: "Adds a product to a company"
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X POST 'https://invoicing.co/api/v1/products' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "Content-Type:application/json" \
+          -d '{"product_key":"sku_1","notes":"product description","cost":1,"price":10}' \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  POST /api/v1/products
+        Adds a product to a company
       operationId: storeProduct
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -14834,18 +15806,21 @@ paths:
         - products
       summary: "Show product"
       x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->show("{id}");
       - lang: curl
         label: Curl
         source: |
           curl -X GET 'https://invoicing.co/api/v1/products/{id}' \
           -H "X-API-TOKEN:company-token-test" \
           -H "X-Requested-With: XMLHttpRequest";
-      - lang: php
-        label: PHP
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          $product = $ninja->products->get("{id}");
-      description: "Displays a product by id"
+      
+      description: |
+        ##  GET /api/v1/products/{id}
+        Displays a product by id
       operationId: showProduct
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -14890,6 +15865,15 @@ paths:
         - products
       summary: "Update product"
       x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->update("id", [
+            "name" => "Updated Product",
+            "price" => 150.0,
+            "description" => "An updated description of the product"
+          ]);
       - lang: curl
         label: Curl
         source: |
@@ -14901,16 +15885,10 @@ paths:
             "price": 150.0,
             "notes": "An updated description of the product"
           }'
-      - lang: go
-        label: PHP
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          $product = $ninja->products->update("id", [
-            "name" => "Updated Product",
-            "price" => 150.0,
-            "description" => "An updated description of the product"
-          ]);
-      description: "Handles the updating of a product by id"
+      
+      description: |
+        ##  PUT /api/v1/products/{id}
+        Handles the updating of a product by id
       operationId: updateProduct
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -14961,19 +15939,25 @@ paths:
       tags:
         - products
       summary: "Delete product"
+      description: |
+        ##  DELETE /api/v1/products/{id}
+        Handles the deletion of a product by id
       x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $ninja->products->bulk([
+              'action' => 'delete',
+              'ids' => ['productId1', 'productId2']
+          ]);
       - lang: curl
         label: Curl
         source: |
           curl -X DELETE 'https://invoicing.co/api/v1/products/{id}' \
           -H "X-API-TOKEN:company-token-test" \
           -H "X-Requested-With: XMLHttpRequest";
-      - lang: go
-        label: PHP
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          $ninja->products->bulk("delete", "id");
-      description: "Handles the deletion of a product by id"
+      
       operationId: deleteProduct
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -15015,18 +15999,21 @@ paths:
         - products
       summary: "Edit product"
       x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->show("{id}");
       - lang: curl
         label: Curl
         source: |
           curl -X GET 'https://invoicing.co/api/v1/products/{id}/edit' \
           -H "X-API-TOKEN:company-token-test" \
           -H "X-Requested-With: XMLHttpRequest";
-      - lang: php
-        label: PHP
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          $product = $ninja->products->get("{id}");
-      description: "Displays an Product by id"
+      
+      description: |
+        ##  GET /api/v1/products/{id}/edit
+        Displays an Product by id
       operationId: editProduct
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -15071,7 +16058,22 @@ paths:
       tags:
         - products
       summary: "Blank product"
-      description: "Returns a blank product object with default values"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->model();
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X GET 'https://invoicing.co/api/v1/products/create' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      
+      description: |
+        ##  GET /api/v1/products/create
+        Returns a blank product object with default values
       operationId: getProductsCreate
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -15110,6 +16112,14 @@ paths:
         - products
       summary: "Bulk product actions"
       x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->bulk([
+              'action' => 'archive',
+              'ids' => ['productId1', 'productId2']
+          ]);
       - lang: curl
         label: Curl
         source: |
@@ -15118,12 +16128,10 @@ paths:
           -d '{"action":"archive","ids":["id","id2"]}' \
           -H "X-API-TOKEN:company-token-test" \
           -H "X-Requested-With: XMLHttpRequest";
-      - lang: php
-        label: PHP
-        source: |
-          $ninja = new InvoiceNinja("your_token");
-          $product = $ninja->products->bulk("action", ["id","id2"]);
-      description: "Archive / Restore / Delete  / Set tax id in bulk"
+      
+      description: |
+        ##  POST /api/v1/products/bulk
+        Archive / Restore / Delete  / Set tax id in bulk
       operationId: bulkProducts
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -15168,7 +16176,21 @@ paths:
       tags:
         - products
       summary: "Add product document"
-      description: "Handles the uploading of a document to a product"
+      x-codeSamples:
+      - lang: php
+        label: PHP
+        source: |
+          $ninja = new InvoiceNinja("your_token");
+          $product = $ninja->products->upload("id", "document");
+      - lang: curl
+        label: Curl
+        source: |
+          curl -X POST 'https://invoicing.co/api/v1/products/{id}/upload' \
+          -H "X-API-TOKEN:company-token-test" \
+          -H "X-Requested-With: XMLHttpRequest";
+      description: |
+        ##  POST /api/v1/products/{id}/upload
+        Handles the uploading of a document to a product"
       operationId: uploadProduct
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -15421,6 +16443,12 @@ components:
         system_logs [System logs related to the client]
         group_settings [The group settings object the client is assigned to]
         
+        ```
+
+        Usage:
+
+        ```html
+        /api/v1/clients?include=contacts,documents,activities
         ```
       required: false
       schema:
@@ -16018,6 +17046,654 @@ components:
           type: string
           example: JSON
       type: object
+
+    PaymentType:
+      type: string
+      description: The payment type used to complete this payment
+      example: "1"
+      enum:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+        - "7"
+        - "8"
+        - "9"
+        - "10"
+        - "11"
+        - "12"
+        - "13"
+        - "14"
+        - "15"
+        - "16"
+        - "17"
+        - "18"
+        - "19"
+        - "20"
+        - "21"
+        - "22"
+        - "23"
+        - "24"
+        - "25"
+        - "26"
+        - "27"
+        - "28"
+        - "29"
+        - "30"
+        - "31"
+        - "32"
+        - "33"
+      x-enumDescriptions:
+        "1": Bank Transfer
+        "2": Cash
+        "3": Debit
+        "4": ACH
+        "5": Visa Card
+        "6": MasterCard
+        "7": American Express
+        "8": Discover Card
+        "9": Diners Card
+        "10": EuroCard
+        "11": Nova
+        "12": Credit Card Other
+        "13": PayPal
+        "14": Google Wallet
+        "15": Check
+        "16": Carte Blanche
+        "17": UnionPay
+        "18": JCB
+        "19": Laser
+        "20": Maestro
+        "21": Solo
+        "22": Switch
+        "23": iZettle
+        "24": Swish
+        "25": Venmo
+        "26": Money Order
+        "27": Alipay
+        "28": Sofort
+        "29": SEPA Direct Debit
+        "30": GoCardless
+        "31": Cryptocurrency
+        "32": Credit
+        "33": Zelle
+
+    CurrencyType:
+      oneOf:
+        - type: integer
+          title: "Currency Types"
+          description: |
+            Available currency types:
+            - 1: US Dollar
+            - 2: British Pound
+            - 3: Euro
+            - 4: South African Rand
+            - 5: Danish Krone
+            - 6: Israeli Shekel
+            - 7: Swedish Krona
+            - 8: Kenyan Shilling
+            - 9: Canadian Dollar
+            - 10: Philippine Peso
+            - 11: Indian Rupee
+            - 12: Australian Dollar
+            - 13: Singapore Dollar
+            - 14: Norske Kroner
+            - 15: New Zealand Dollar
+            - 16: Vietnamese Dong
+            - 17: Swiss Franc
+            - 18: Guatemalan Quetzal
+            - 19: Malaysian Ringgit
+            - 20: Brazilian Real
+            - 21: Thai Baht
+            - 22: Nigerian Naira
+            - 23: Argentine Peso
+            - 24: Bangladeshi Taka
+            - 25: United Arab Emirates Dirham
+            - 26: Hong Kong Dollar
+            - 27: Indonesian Rupiah
+            - 28: Mexican Peso
+            - 29: Egyptian Pound
+            - 30: Colombian Peso
+            - 31: West African Franc
+            - 32: Chinese Renminbi
+            - 33: Rwandan Franc
+            - 34: Tanzanian Shilling
+            - 35: Netherlands Antillean Guilder
+            - 36: Trinidad and Tobago Dollar
+            - 37: East Caribbean Dollar
+            - 38: Ghanaian Cedi
+            - 39: Bulgarian Lev
+            - 40: Aruban Florin
+            - 41: Turkish Lira
+            - 42: Romanian New Leu
+            - 43: Croatian Kuna
+            - 44: Saudi Riyal
+            - 45: Japanese Yen
+            - 46: Maldivian Rufiyaa
+            - 47: Costa Rican Colón
+            - 48: Pakistani Rupee
+            - 49: Polish Zloty
+            - 50: Sri Lankan Rupee
+            - 51: Czech Koruna
+            - 52: Uruguayan Peso
+            - 53: Namibian Dollar
+            - 54: Tunisian Dinar
+            - 55: Russian Ruble
+            - 56: Mozambican Metical
+            - 57: Omani Rial
+            - 58: Ukrainian Hryvnia
+            - 59: Macanese Pataca
+            - 60: Taiwan New Dollar
+            - 61: Dominican Peso
+            - 62: Chilean Peso
+            - 63: Icelandic Króna
+            - 64: Papua New Guinean Kina
+            - 65: Jordanian Dinar
+            - 66: Myanmar Kyat
+            - 67: Peruvian Sol
+            - 68: Botswana Pula
+            - 69: Hungarian Forint
+            - 70: Ugandan Shilling
+            - 71: Barbadian Dollar
+            - 72: Brunei Dollar
+            - 73: Georgian Lari
+            - 74: Qatari Riyal
+            - 75: Honduran Lempira
+            - 76: Surinamese Dollar
+            - 77: Bahraini Dinar
+            - 78: Venezuelan Bolivars
+            - 79: South Korean Won
+            - 80: Moroccan Dirham
+            - 81: Jamaican Dollar
+            - 82: Angolan Kwanza
+            - 83: Haitian Gourde
+            - 84: Zambian Kwacha
+            - 85: Nepalese Rupee
+            - 86: CFP Franc
+            - 87: Mauritian Rupee
+            - 88: Cape Verdean Escudo
+            - 89: Kuwaiti Dinar
+            - 90: Algerian Dinar
+            - 91: Macedonian Denar
+            - 92: Fijian Dollar
+            - 93: Bolivian Boliviano
+            - 94: Albanian Lek
+            - 95: Serbian Dinar
+            - 96: Lebanese Pound
+            - 97: Armenian Dram
+            - 98: Azerbaijan Manat
+            - 99: Bosnia and Herzegovina Convertible Mark
+            - 100: Belarusian Ruble
+            - 101: Gibraltar Pound
+            - 102: Moldovan Leu
+            - 103: Kazakhstani Tenge
+            - 104: Ethiopian Birr
+            - 105: Gambia Dalasi
+            - 106: Paraguayan Guarani
+            - 107: Malawi Kwacha
+            - 108: Zimbabwean Dollar
+            - 109: Cambodian Riel
+            - 110: Vanuatu Vatu
+            - 111: Cuban Peso
+            - 112: Cayman Island Dollar
+            - 113: Swazi lilangeni
+            - 114: BZ Dollar
+            - 115: Libyan Dinar
+            - 116: Silver Troy Ounce
+            - 117: Gold Troy Ounce
+            - 118: Nicaraguan Córdoba
+            - 119: Malagasy ariary
+            - 120: Tongan Pa anga
+            - 121: Lao kip
+            - 122: Bhutan Ngultrum
+            - 123: Mauritanian Ouguiya
+            - 124: Bermudian Dollar
+            - 125: Central African CFA Franc
+            - 126: Congolese Franc
+            - 127: Djiboutian Franc
+            - 128: Eritrean Nakfa
+            - 129: Falkland Islands Pound
+            - 130: Guinean Franc
+            - 131: Iraqi Dinar
+            - 132: Lesotho Loti
+            - 133: Mongolian Tugrik
+            - 134: Seychellois Rupee
+            - 135: Solomon Islands Dollar
+            - 136: Somali Shilling
+            - 137: South Sudanese Pound
+            - 138: Sudanese Pound
+            - 139: Tajikistani Somoni
+            - 140: Turkmenistani Manat
+            - 141: Uzbekistani Som
+            - 142: Samoan Tala
+
+    LanguageType:
+      oneOf:
+        - type: integer
+          title: "Language Types"
+          description: |
+            Available language types:
+            - 1: English - United States
+            - 2: Italian
+            - 3: German
+            - 4: French
+            - 5: Portuguese - Brazilian
+            - 6: Dutch
+            - 7: Spanish
+            - 8: Norwegian
+            - 9: Danish
+            - 10: Japanese
+            - 11: Swedish
+            - 12: Spanish - Spain
+            - 13: French - Canada
+            - 14: Lithuanian
+            - 15: Polish
+            - 16: Czech
+            - 17: Croatian
+            - 18: Albanian
+            - 19: Greek
+            - 20: English - United Kingdom
+            - 21: Portuguese - Portugal
+            - 22: Slovenian
+            - 23: Finnish
+            - 24: Romanian
+            - 25: Turkish - Turkey
+            - 26: Thai
+            - 27: Macedonian
+            - 28: Chinese - Taiwan
+            - 29: Russian (Russia)
+            - 30: Arabic
+            - 31: Persian
+            - 32: Latvian
+            - 33: Serbian
+            - 34: Slovak
+            - 35: Estonian
+            - 36: Bulgarian
+            - 37: Hebrew
+            - 38: Khmer
+            - 39: Hungarian
+            - 40: French - Swiss
+            - 41: Lao
+            - 42: Vietnamese
+
+    TimezoneType:
+      oneOf:
+        - type: integer
+          title: "Timezone Types"
+          description: |
+            Available timezone types:
+            - 1: Pacific/Midway
+            - 2: Pacific/Pago_Pago
+            - 3: Pacific/Honolulu
+            - 4: America/Anchorage
+            - 5: America/Los_Angeles
+            - 6: America/Tijuana
+            - 7: America/Phoenix
+            - 8: America/Denver
+            - 9: America/Chihuahua
+            - 10: America/Mazatlan
+            - 11: America/Mexico_City
+            - 12: America/Monterrey
+            - 13: America/Regina
+            - 14: America/Chicago
+            - 15: America/New_York
+            - 16: America/Indiana/Indianapolis
+            - 17: America/Bogota
+            - 18: America/Lima
+            - 19: America/Caracas
+            - 20: America/Halifax
+            - 21: America/La_Paz
+            - 22: America/Santiago
+            - 23: America/St_Johns
+            - 24: America/Argentina/Buenos_Aires
+            - 25: America/Godthab
+            - 26: America/Sao_Paulo
+            - 27: Atlantic/Stanley
+            - 28: Atlantic/Azores
+            - 29: Atlantic/Cape_Verde
+            - 30: Africa/Casablanca
+            - 31: Europe/Dublin
+            - 32: Europe/Lisbon
+            - 33: Europe/London
+            - 34: Africa/Monrovia
+            - 35: Europe/Amsterdam
+            - 36: Europe/Belgrade
+            - 37: Europe/Berlin
+            - 38: Europe/Bratislava
+            - 39: Europe/Brussels
+            - 40: Europe/Budapest
+            - 41: Europe/Copenhagen
+            - 42: Europe/Ljubljana
+            - 43: Europe/Madrid
+            - 44: Europe/Paris
+            - 45: Europe/Prague
+            - 46: Europe/Rome
+            - 47: Europe/Sarajevo
+            - 48: Europe/Skopje
+            - 49: Europe/Stockholm
+            - 50: Europe/Vienna
+            - 51: Europe/Warsaw
+            - 52: Europe/Zagreb
+            - 53: Europe/Athens
+            - 54: Europe/Bucharest
+            - 55: Africa/Cairo
+            - 56: Africa/Harare
+            - 57: Europe/Helsinki
+            - 58: Asia/Jerusalem
+            - 59: Europe/Kyiv
+            - 60: Europe/Minsk
+            - 61: Europe/Riga
+            - 62: Europe/Sofia
+            - 63: Europe/Tallinn
+            - 64: Europe/Vilnius
+            - 65: Europe/Istanbul
+            - 66: Asia/Baghdad
+            - 67: Asia/Kuwait
+            - 68: Africa/Nairobi
+            - 69: Asia/Riyadh
+            - 70: Asia/Tehran
+            - 71: Europe/Moscow
+            - 72: Asia/Baku
+            - 73: Europe/Volgograd
+            - 74: Asia/Muscat
+            - 75: Asia/Tbilisi
+            - 76: Asia/Yerevan
+            - 77: Asia/Kabul
+            - 78: Asia/Karachi
+            - 79: Asia/Tashkent
+            - 80: Asia/Kolkata
+            - 81: Asia/Kathmandu
+            - 82: Asia/Yekaterinburg
+            - 83: Asia/Almaty
+            - 84: Asia/Dhaka
+            - 85: Asia/Novosibirsk
+            - 86: Asia/Bangkok
+            - 87: Asia/Ho_Chi_Minh
+            - 88: Asia/Jakarta
+            - 89: Asia/Krasnoyarsk
+            - 90: Asia/Chongqing
+            - 91: Asia/Hong_Kong
+            - 92: Asia/Kuala_Lumpur
+            - 93: Australia/Perth
+            - 94: Asia/Singapore
+            - 95: Asia/Taipei
+            - 96: Asia/Ulaanbaatar
+            - 97: Asia/Urumqi
+            - 98: Asia/Irkutsk
+            - 99: Asia/Seoul
+            - 100: Asia/Tokyo
+            - 101: Australia/Adelaide
+            - 102: Australia/Darwin
+            - 103: Asia/Yakutsk
+            - 104: Australia/Brisbane
+            - 110: Australia/Sydney
+            - 106: Pacific/Guam
+            - 107: Australia/Hobart
+            - 108: Australia/Melbourne
+            - 109: Pacific/Port_Moresby
+            - 111: Asia/Vladivostok
+            - 112: Asia/Magadan
+            - 113: Pacific/Auckland
+            - 114: Pacific/Fiji
+            - 115: Asia/Dubai
+
+    CountryType:
+      oneOf:
+        - type: integer
+          title: "Country Types"
+          description: |
+            Available country types:
+            - 4: Afghanistan (AF/AFG)
+            - 8: Albania (AL/ALB)
+            - 10: Antarctica (AQ/ATA)
+            - 12: Algeria (DZ/DZA)
+            - 16: American Samoa (AS/ASM)
+            - 20: Andorra (AD/AND)
+            - 24: Angola (AO/AGO)
+            - 28: Antigua and Barbuda (AG/ATG)
+            - 31: Azerbaijan (AZ/AZE)
+            - 32: Argentina (AR/ARG)
+            - 36: Australia (AU/AUS)
+            - 40: Austria (AT/AUT)
+            - 44: Bahamas (BS/BHS)
+            - 48: Bahrain (BH/BHR)
+            - 50: Bangladesh (BD/BGD)
+            - 51: Armenia (AM/ARM)
+            - 52: Barbados (BB/BRB)
+            - 56: Belgium (BE/BEL)
+            - 60: Bermuda (BM/BMU)
+            - 64: Bhutan (BT/BTN)
+            - 68: Bolivia, Plurinational State of (BO/BOL)
+            - 70: Bosnia and Herzegovina (BA/BIH)
+            - 72: Botswana (BW/BWA)
+            - 74: Bouvet Island (BV/BVT)
+            - 76: Brazil (BR/BRA)
+            - 84: Belize (BZ/BLZ)
+            - 86: British Indian Ocean Territory (IO/IOT)
+            - 90: Solomon Islands (SB/SLB)
+            - 92: Virgin Islands, British (VG/VGB)
+            - 96: Brunei Darussalam (BN/BRN)
+            - 100: Bulgaria (BG/BGR)
+            - 104: Myanmar (MM/MMR)
+            - 108: Burundi (BI/BDI)
+            - 112: Belarus (BY/BLR)
+            - 116: Cambodia (KH/KHM)
+            - 120: Cameroon (CM/CMR)
+            - 124: Canada (CA/CAN)
+            - 132: Cape Verde (CV/CPV)
+            - 136: Cayman Islands (KY/CYM)
+            - 140: Central African Republic (CF/CAF)
+            - 144: Sri Lanka (LK/LKA)
+            - 148: Chad (TD/TCD)
+            - 152: Chile (CL/CHL)
+            - 156: China (CN/CHN)
+            - 158: Taiwan (TW/TWN)
+            - 162: Christmas Island (CX/CXR)
+            - 166: Cocos (Keeling) Islands (CC/CCK)
+            - 170: Colombia (CO/COL)
+            - 174: Comoros (KM/COM)
+            - 175: Mayotte (YT/MYT)
+            - 178: Congo (CG/COG)
+            - 180: Congo, the Democratic Republic of the (CD/COD)
+            - 184: Cook Islands (CK/COK)
+            - 188: Costa Rica (CR/CRI)
+            - 191: Croatia (HR/HRV)
+            - 192: Cuba (CU/CUB)
+            - 196: Cyprus (CY/CYP)
+            - 203: Czech Republic (CZ/CZE)
+            - 204: Benin (BJ/BEN)
+            - 208: Denmark (DK/DNK)
+            - 212: Dominica (DM/DMA)
+            - 214: Dominican Republic (DO/DOM)
+            - 218: Ecuador (EC/ECU)
+            - 222: El Salvador (SV/SLV)
+            - 226: Equatorial Guinea (GQ/GNQ)
+            - 231: Ethiopia (ET/ETH)
+            - 232: Eritrea (ER/ERI)
+            - 233: Estonia (EE/EST)
+            - 234: Faroe Islands (FO/FRO)
+            - 238: Falkland Islands (Malvinas) (FK/FLK)
+            - 239: South Georgia and the South Sandwich Islands (GS/SGS)
+            - 242: Fiji (FJ/FJI)
+            - 246: Finland (FI/FIN)
+            - 248: Åland Islands (AX/ALA)
+            - 250: France (FR/FRA)
+            - 254: French Guiana (GF/GUF)
+            - 258: French Polynesia (PF/PYF)
+            - 260: French Southern Territories (TF/ATF)
+            - 262: Djibouti (DJ/DJI)
+            - 266: Gabon (GA/GAB)
+            - 268: Georgia (GE/GEO)
+            - 270: Gambia (GM/GMB)
+            - 275: Palestine (PS/PSE)
+            - 276: Germany (DE/DEU)
+            - 288: Ghana (GH/GHA)
+            - 292: Gibraltar (GI/GIB)
+            - 296: Kiribati (KI/KIR)
+            - 300: Greece (GR/GRC)
+            - 304: Greenland (GL/GRL)
+            - 308: Grenada (GD/GRD)
+            - 312: Guadeloupe (GP/GLP)
+            - 316: Guam (GU/GUM)
+            - 320: Guatemala (GT/GTM)
+            - 324: Guinea (GN/GIN)
+            - 328: Guyana (GY/GUY)
+            - 332: Haiti (HT/HTI)
+            - 334: Heard Island and McDonald Islands (HM/HMD)
+            - 336: Holy See (Vatican City State) (VA/VAT)
+            - 340: Honduras (HN/HND)
+            - 344: Hong Kong (HK/HKG)
+            - 348: Hungary (HU/HUN)
+            - 352: Iceland (IS/ISL)
+            - 356: India (IN/IND)
+            - 360: Indonesia (ID/IDN)
+            - 364: Iran, Islamic Republic of (IR/IRN)
+            - 368: Iraq (IQ/IRQ)
+            - 372: Ireland (IE/IRL)
+            - 376: Israel (IL/ISR)
+            - 380: Italy (IT/ITA)
+            - 384: Côte d'Ivoire (CI/CIV)
+            - 388: Jamaica (JM/JAM)
+            - 392: Japan (JP/JPN)
+            - 398: Kazakhstan (KZ/KAZ)
+            - 400: Jordan (JO/JOR)
+            - 404: Kenya (KE/KEN)
+            - 408: Korea, Democratic People's Republic of (KP/PRK)
+            - 410: Korea, Republic of (KR/KOR)
+            - 414: Kuwait (KW/KWT)
+            - 417: Kyrgyzstan (KG/KGZ)
+            - 418: Lao People's Democratic Republic (LA/LAO)
+            - 422: Lebanon (LB/LBN)
+            - 426: Lesotho (LS/LSO)
+            - 428: Latvia (LV/LVA)
+            - 430: Liberia (LR/LBR)
+            - 434: Libya (LY/LBY)
+            - 438: Liechtenstein (LI/LIE)
+            - 440: Lithuania (LT/LTU)
+            - 442: Luxembourg (LU/LUX)
+            - 446: Macao (MO/MAC)
+            - 450: Madagascar (MG/MDG)
+            - 454: Malawi (MW/MWI)
+            - 458: Malaysia (MY/MYS)
+            - 462: Maldives (MV/MDV)
+            - 466: Mali (ML/MLI)
+            - 470: Malta (MT/MLT)
+            - 474: Martinique (MQ/MTQ)
+            - 478: Mauritania (MR/MRT)
+            - 480: Mauritius (MU/MUS)
+            - 484: Mexico (MX/MEX)
+            - 492: Monaco (MC/MCO)
+            - 496: Mongolia (MN/MNG)
+            - 498: Moldova, Republic of (MD/MDA)
+            - 499: Montenegro (ME/MNE)
+            - 500: Montserrat (MS/MSR)
+            - 504: Morocco (MA/MAR)
+            - 508: Mozambique (MZ/MOZ)
+            - 512: Oman (OM/OMN)
+            - 516: Namibia (NA/NAM)
+            - 520: Nauru (NR/NRU)
+            - 524: Nepal (NP/NPL)
+            - 528: Netherlands (NL/NLD)
+            - 531: Curaçao (CW/CUW)
+            - 533: Aruba (AW/ABW)
+            - 534: Sint Maarten (Dutch part) (SX/SXM)
+            - 535: Bonaire, Sint Eustatius and Saba (BQ/BES)
+            - 540: New Caledonia (NC/NCL)
+            - 548: Vanuatu (VU/VUT)
+            - 554: New Zealand (NZ/NZL)
+            - 558: Nicaragua (NI/NIC)
+            - 562: Niger (NE/NER)
+            - 566: Nigeria (NG/NGA)
+            - 570: Niue (NU/NIU)
+            - 574: Norfolk Island (NF/NFK)
+            - 578: Norway (NO/NOR)
+            - 580: Northern Mariana Islands (MP/MNP)
+            - 581: United States Minor Outlying Islands (UM/UMI)
+            - 583: Micronesia, Federated States of (FM/FSM)
+            - 584: Marshall Islands (MH/MHL)
+            - 585: Palau (PW/PLW)
+            - 586: Pakistan (PK/PAK)
+            - 591: Panama (PA/PAN)
+            - 598: Papua New Guinea (PG/PNG)
+            - 600: Paraguay (PY/PRY)
+            - 604: Peru (PE/PER)
+            - 608: Philippines (PH/PHL)
+            - 612: Pitcairn (PN/PCN)
+            - 616: Poland (PL/POL)
+            - 620: Portugal (PT/PRT)
+            - 624: Guinea-Bissau (GW/GNB)
+            - 626: Timor-Leste (TL/TLS)
+            - 630: Puerto Rico (PR/PRI)
+            - 634: Qatar (QA/QAT)
+            - 638: Réunion (RE/REU)
+            - 642: Romania (RO/ROU)
+            - 643: Russian Federation (RU/RUS)
+            - 646: Rwanda (RW/RWA)
+            - 652: Saint Barthélemy (BL/BLM)
+            - 654: Saint Helena, Ascension and Tristan da Cunha (SH/SHN)
+            - 659: Saint Kitts and Nevis (KN/KNA)
+            - 660: Anguilla (AI/AIA)
+            - 662: Saint Lucia (LC/LCA)
+            - 663: Saint Martin (French part) (MF/MAF)
+            - 666: Saint Pierre and Miquelon (PM/SPM)
+            - 670: Saint Vincent and the Grenadines (VC/VCT)
+            - 674: San Marino (SM/SMR)
+            - 678: Sao Tome and Principe (ST/STP)
+            - 682: Saudi Arabia (SA/SAU)
+            - 686: Senegal (SN/SEN)
+            - 688: Serbia (RS/SRB)
+            - 690: Seychelles (SC/SYC)
+            - 694: Sierra Leone (SL/SLE)
+            - 702: Singapore (SG/SGP)
+            - 703: Slovakia (SK/SVK)
+            - 704: Viet Nam (VN/VNM)
+            - 705: Slovenia (SI/SVN)
+            - 706: Somalia (SO/SOM)
+            - 710: South Africa (ZA/ZAF)
+            - 716: Zimbabwe (ZW/ZWE)
+            - 724: Spain (ES/ESP)
+            - 728: South Sudan (SS/SSD)
+            - 729: Sudan (SD/SDN)
+            - 732: Western Sahara (EH/ESH)
+            - 740: Suriname (SR/SUR)
+            - 744: Svalbard and Jan Mayen (SJ/SJM)
+            - 748: Swaziland (SZ/SWZ)
+            - 752: Sweden (SE/SWE)
+            - 756: Switzerland (CH/CHE)
+            - 760: Syrian Arab Republic (SY/SYR)
+            - 762: Tajikistan (TJ/TJK)
+            - 764: Thailand (TH/THA)
+            - 768: Togo (TG/TGO)
+            - 772: Tokelau (TK/TKL)
+            - 776: Tonga (TO/TON)
+            - 780: Trinidad and Tobago (TT/TTO)
+            - 784: United Arab Emirates (AE/ARE)
+            - 788: Tunisia (TN/TUN)
+            - 792: Turkey (TR/TUR)
+            - 795: Turkmenistan (TM/TKM)
+            - 796: Turks and Caicos Islands (TC/TCA)
+            - 798: Tuvalu (TV/TUV)
+            - 800: Uganda (UG/UGA)
+            - 804: Ukraine (UA/UKR)
+            - 807: Macedonia, the former Yugoslav Republic of (MK/MKD)
+            - 818: Egypt (EG/EGY)
+            - 826: United Kingdom (GB/GBR)
+            - 831: Guernsey (GG/GGY)
+            - 832: Jersey (JE/JEY)
+            - 833: Isle of Man (IM/IMN)
+            - 834: Tanzania, United Republic of (TZ/TZA)
+            - 840: United States (US/USA)
+            - 850: Virgin Islands, U.S. (VI/VIR)
+            - 854: Burkina Faso (BF/BFA)
+            - 858: Uruguay (UY/URY)
+            - 860: Uzbekistan (UZ/UZB)
+            - 862: Venezuela, Bolivarian Republic of (VE/VEN)
+            - 876: Wallis and Futuna (WF/WLF)
+            - 882: Samoa (WS/WSM)
+            - 887: Yemen (YE/YEM)
+            - 894: Zambia (ZM/ZMB)
     Meta:
       properties:
         pagination:
@@ -16054,6 +17730,69 @@ components:
           type: object
           description: 'The pagination links'
           readOnly: true
+    LocationRequest:
+      properties:
+        name:
+          description: 'The location name'
+          type: string
+          example: 'Warehouse A'
+        address1:
+          description: 'The first line of the address'
+          type: string
+          example: '123 Business Street'
+        address2:
+          description: 'The second line of the address'
+          type: string
+          example: 'Suite 100'
+        city:
+          description: 'The city name'
+          type: string
+          example: 'San Francisco'
+        state:
+          description: 'The state or region'
+          type: string
+          example: 'CA'
+        postal_code:
+          description: 'The postal or zip code'
+          type: string
+          example: '94107'
+        country_id:
+          description: 'The ID of the associated country'
+          type: string
+          example: '840'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          nullable: true
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          nullable: true
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          nullable: true
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          nullable: true
+        is_shipping_location:
+          description: 'Indicates if this is a shipping location'
+          type: boolean
+          example: true
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The vendor hashed id'
+          type: string
+          example: Opnel5aKBz
+      type: object 
     Document:
       properties:
         id:
@@ -16219,12 +17958,6 @@ components:
           example: 1.00
           description: 'The total amount of tax applied to the product offered for this line item'
           readOnly: true
-        date:
-          type: string
-          format: date-time
-          example: '2023-03-19T00:00:00Z'
-          description: 'Deprecated'
-          deprecated: true
         custom_value1:
           type: string
           example: 'Custom value 1'
@@ -16352,6 +18085,7 @@ components:
           type: number
           format: integer
           example: '1'
+          $ref: '#/components/schemas/CountryType'
         custom_value1:
           description: 'A custom field for storing additional information'
           type: string
@@ -16684,106 +18418,94 @@ components:
           description: 'Boolean flag indicating if taxes are charged on the fourth custom surcharge amount'
           type: boolean
           example: true
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
       type: object
     InvoiceRequest:
       required:
         - client_id        
       properties:
-        id:
-          description: 'The invoice hashed id'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         user_id:
           description: 'The user hashed id'
           type: string
-          example: Opnel5aKBz
+          example: 'AxP7K9nY5z'
         assigned_user_id:
           description: 'The assigned user hashed id'
           type: string
-          example: Opnel5aKBz
+          example: 'Bw2M8vR4qL'
         client_id:
           description: 'The client hashed id'
           type: string
-          example: Opnel5aKBz
-        status_id:
-          description: 'The invoice status variable'
-          type: string
-          example: '4'
-          readOnly: true
+          example: 'Ht5N9cX3jK'
         number:
           description: 'The invoice number - is a unique alpha numeric number per invoice per company'
           type: string
-          example: INV_101
+          example: 'INV-2024-0001'
         po_number:
           description: 'The purchase order associated with this invoice'
           type: string
-          example: PO-1234
+          example: 'PO-2024-0123'
         terms:
           description: 'The invoice terms'
           type: string
-          example: 'These are invoice terms'
+          example: 'Net 30 - Payment is due within 30 days of invoice date'
         public_notes:
           description: 'The public notes of the invoice'
           type: string
-          example: 'These are some public notes'
+          example: 'Thank you for your business. Please include invoice number with payment.'
         private_notes:
           description: 'The private notes of the invoice'
           type: string
-          example: 'These are some private notes'
+          example: 'Client requested expedited delivery - premium rates apply'
         footer:
           description: 'The invoice footer notes'
           type: string
-          example: ''
+          example: 'Payment accepted via bank transfer or credit card'
         custom_value1:
           description: 'A custom field value'
           type: string
-          example: '2022-10-01'
+          example: 'Department: Sales'
         custom_value2:
           description: 'A custom field value'
           type: string
-          example: 'Something custom'
+          example: 'Region: North America'
         custom_value3:
           description: 'A custom field value'
           type: string
-          example: ''
+          example: 'Contract: C-2024-156'
         custom_value4:
           description: 'A custom field value'
           type: string
-          example: ''
+          example: 'Priority: High'
         tax_name1:
           description: 'The tax name'
           type: string
-          example: ''
+          example: 'VAT'
         tax_name2:
           description: 'The tax name'
           type: string
-          example: ''
+          example: 'GST'
         tax_rate1:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 20.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 5.00
         tax_name3:
           description: 'The tax name'
           type: string
-          example: ''
+          example: 'State Tax'
         tax_rate3:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
-        total_taxes:
-          description: 'The total taxes for the invoice'
-          type: number
-          format: float
-          example: '10.00'
-          readOnly: true
+          example: 8.50
         line_items:
           type: array
           description: 'An array of objects which define the line items of the invoice'
@@ -16794,43 +18516,20 @@ components:
           description: 'An array of objects which define the invitations of the invoice'
           items:
             $ref: '#/components/schemas/InvoiceInvitationRequest'
-        amount:
-          description: 'The invoice amount'
-          type: number
-          format: float
-          example: '10.00'
-          readOnly: true
-        balance:
-          description: 'The invoice balance'
-          type: number
-          format: float
-          example: '10.00'
-          readOnly: true
-        paid_to_date:
-          description: 'The amount paid on the invoice to date'
-          type: number
-          format: float
-          example: '10.00'
-          readOnly: true
         discount:
           description: 'The invoice discount, can be an amount or a percentage'
           type: number
           format: float
-          example: '10.00'
+          example: 15.00
         partial:
           description: 'The deposit/partial amount'
           type: number
           format: float
-          example: '10.00'
+          example: 250.00
         is_amount_discount:
           description: 'Flag determining if the discount is an amount or a percentage'
           type: boolean
           example: true
-        is_deleted:
-          description: 'Defines if the invoice has been deleted'
-          type: boolean
-          example: true
-          readOnly: true
         uses_inclusive_taxes:
           description: 'Defines the type of taxes used as either inclusive or exclusive'
           type: boolean
@@ -16839,67 +18538,37 @@ components:
           description: 'The Invoice Date'
           type: string
           format: date
-          example: '1994-07-30'
-        last_sent_date:
-          description: 'The last date the invoice was sent out'
-          type: string
-          format: date
-          example: '1994-07-30'
-          readOnly: true
-        next_send_date:
-          description: 'The Next date for a reminder to be sent'
-          type: string
-          format: date
-          example: '1994-07-30'
-          readOnly: true
+          example: '2024-03-15'
         partial_due_date:
           description: 'The due date for the deposit/partial amount'
           type: string
           format: date
-          example: '1994-07-30'
+          example: '2024-03-29'
         due_date:
           description: 'The due date of the invoice'
           type: string
           format: date
-          example: '1994-07-30'
-        last_viewed:
-          description: Timestamp
-          type: number
-          format: integer
-          example: '1434342123'
-          readOnly: true
-        updated_at:
-          description: Timestamp
-          type: number
-          format: integer
-          example: '1434342123'
-          readOnly: true
-        archived_at:
-          description: Timestamp
-          type: number
-          format: integer
-          example: '1434342123'
-          readOnly: true
+          example: '2024-04-14'
         custom_surcharge1:
           description: 'First Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 25.00
         custom_surcharge2:
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 35.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 45.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 55.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
@@ -16924,11 +18593,7 @@ components:
     ProductRequest:
       type: object
       properties:
-        id:
-          type: string
-          description: 'The hashed product ID.'
-          example: eP01N
-          readOnly: true
+       
         assigned_user_id:
           type: string
           description: 'The hashed ID of the user assigned to this product.'
@@ -16995,35 +18660,35 @@ components:
           default: 1
         tax_name1:
           type: string
-          description: 'The name of tax 1.'
+          description: 'The default tax name associated with this product'
           example: 'Tax 1'
 
         tax_rate1:
           type: number
           format: double
-          description: 'The rate of tax 1.'
+          description: 'The default tax rate for this product'
           example: 10.0
 
         tax_name2:
           type: string
-          description: 'The name of tax 2.'
+          description: 'The default tax name associated with this product'
           example: 'Tax 2'
 
         tax_rate2:
           type: number
           format: double
-          description: 'The rate of tax 2.'
+          description: 'The default tax rate for this product'
           example: 5.0
 
         tax_name3:
           type: string
-          description: 'The name of tax 3.'
+          description: 'The default tax name associated with this product'
           example: 'Tax 3'
 
         tax_rate3:
           type: number
           format: double
-          description: 'The rate of tax 3.'
+          description: 'The default tax rate for this product'
           example: 0.0
 
         in_stock_quantity:
@@ -18286,6 +19951,10 @@ components:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
       type: object
       
     Payment:
@@ -18311,9 +19980,7 @@ components:
           type: string
           example: Opnel5aKBz
         type_id:
-          description: 'The Payment Type ID'
-          type: string
-          example: '1'
+          $ref: '#/components/schemas/PaymentType'
         date:
           description: 'The Payment date'
           type: string
@@ -18596,6 +20263,10 @@ components:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
           example: true
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
       type: object
     Subscription:
       properties:
@@ -20818,7 +22489,10 @@ components:
           description: 'The subscription associated with this invoice'
           type: string
           example: Opnel5aKBz
-        
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
       type: object
     ClientRequest:
       required:
@@ -20886,6 +22560,7 @@ components:
             Optionally, instead of the country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the country_code property.
           type: number
           format: integer
+          $ref: '#/components/schemas/CountryType'
           example: '1'
         custom_value1:
           description: 'A custom field for storing additional information'
@@ -20998,49 +22673,44 @@ components:
       type: object
     ClientContactRequest:
       properties:
-        id:
-          description: 'The hashed if of the contact'
-          type: string
-          example: Opnel5aKBz
-          readOnly: true
         first_name:
           description: 'The first name of the contact'
           type: string
-          example: John
+          example: Sarah
         last_name:
           description: 'The last name of the contact'
           type: string
-          example: Doe
+          example: Johnson
         phone:
           description: 'The phone number of the contact'
           type: string
-          example: 555-152-4524
+          example: '+1-555-123-4567'
         custom_value1:
           description: 'A Custom field value'
           type: string
-          example: ''
+          example: 'Preferred Customer'
         custom_value2:
           description: 'A Custom field value'
           type: string
-          example: ''
+          example: 'West Region'
         custom_value3:
           description: 'A Custom field value'
           type: string
-          example: ''
+          example: 'Referral: Jane Smith'
         custom_value4:
           description: 'A Custom field value'
           type: string
-          example: ''
+          example: 'Account #12345'
         email:
           description: 'The email of the contact'
           type: string
-          example: ''
+          example: 'sarah.johnson@example.com'
         password:
           description: 'The hashed password of the contact'
           type: string
-          example: '*****'
+          example: '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
         send_email:
-          description: 'Boolean value determines is this contact should receive emails'
+          description: 'Boolean flag that determines if this contact should receive emails'
           type: boolean
           example: true
       type: object
@@ -21103,6 +22773,174 @@ components:
           type: string
           example: AS3df3A
       type: object
+    RecurringInvoiceRequest:
+      properties:
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        frequency_id:
+          description: 'The recurring invoice frequency'
+          type: number
+          example: '4'
+        remaining_cycles:
+          description: 'The number of invoices left to be generated'
+          type: number
+          example: '4'
+        number:
+          description: 'The recurringinvoice number - is a unique alpha numeric number per invoice per company'
+          type: string
+          example: INV_101
+        po_number:
+          description: 'The purchase order associated with this recurring invoice'
+          type: string
+          example: PO-1234
+        terms:
+          description: 'The invoice terms'
+          type: string
+          example: 'These are invoice terms'
+        public_notes:
+          description: 'The public notes of the invoice'
+          type: string
+          example: 'These are some public notes'
+        private_notes:
+          description: 'The private notes of the invoice'
+          type: string
+          example: 'These are some private notes'
+        footer:
+          description: 'The invoice footer notes'
+          type: string
+          example: ''
+        custom_value1:
+          description: 'A custom field value'
+          type: string
+          example: '2022-10-01'
+        custom_value2:
+          description: 'A custom field value'
+          type: string
+          example: 'Something custom'
+        custom_value3:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        custom_value4:
+          description: 'A custom field value'
+          type: string
+          example: ''
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: ''
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: '10.00'
+        line_items:
+          description: 'An array of objects which define the line items of the invoice'
+          type: object
+          example: ''
+        discount:
+          description: 'The invoice discount, can be an amount or a percentage'
+          type: number
+          format: float
+          example: '10.00'
+        partial:
+          description: 'The deposit/partial amount'
+          type: number
+          format: float
+          example: '10.00'
+        is_amount_discount:
+          description: 'Flag determining if the discount is an amount or a percentage'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The Invoice Date'
+          type: string
+          format: date
+          example: '1994-07-30'
+        partial_due_date:
+          description: 'The due date for the deposit/partial amount'
+          type: string
+          format: date
+          example: '1994-07-30'
+        due_date:
+          description: 'The due date of the invoice'
+          type: string
+          format: date
+          example: '1994-07-30'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: '10.00'
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        location_id:
+          description: 'The client location id that this invoice relates to'
+          type: string
+          example: Opnel5aKBz
+      type: object
+      
     Product:
       type: object
       properties:
@@ -21260,6 +23098,58 @@ components:
                 ```
           example: '1'
 
+    PaymentRequest:
+      properties:
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_contact_id:
+          description: 'The client contact hashed id'
+          type: string
+          example: Opnel5aKBz
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: Opnel5aKBz
+        type_id:
+          $ref: '#/components/schemas/PaymentType'
+        date:
+          description: 'The Payment date'
+          type: string
+          example: 1-1-2014
+        transaction_reference:
+          description: 'The transaction reference as defined by the payment gateway'
+          type: string
+          example: xcsSxcs124asd
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        private_notes:
+          description: 'The private notes of the payment'
+          type: string
+          example: 'The payment was refunded due to error'
+        amount:
+          description: 'The amount of this payment'
+          type: number
+          example: 10
+        invoices:
+          description: ''
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoicePaymentable'
+        credits:
+          description: ''
+          type: array
+          items:
+            $ref: '#/components/schemas/CreditPaymentable'
+        number:
+          description: 'The payment number - is a unique alpha numeric number per payment per company'
+          type: string
+          example: PAY_101
+      type: object
+    
     RecurringQuote:
       properties:
         id:
@@ -23181,6 +25071,7 @@ tags:
 
 externalDocs:
   description: "Client Libraries"
+  url: 'https://invoiceninja.github.io'
   x-libraries:
     - name: PHP SDK
       description: Official PHP client library
@@ -23193,3 +25084,4 @@ externalDocs:
 
 security:
   - ApiKeyAuth: []
+    

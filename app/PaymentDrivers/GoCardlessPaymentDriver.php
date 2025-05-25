@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -98,7 +99,7 @@ class GoCardlessPaymentDriver extends BaseDriver
     public function init(): self
     {
         $environment = $this->company_gateway->getConfigField('testMode') ? \GoCardlessPro\Environment::SANDBOX : \GoCardlessPro\Environment::LIVE;
-        
+
         if ($this->company_gateway->getConfigField('oauth2')) {
             $environment = \GoCardlessPro\Environment::LIVE;
         }
@@ -458,7 +459,8 @@ class GoCardlessPaymentDriver extends BaseDriver
         $mandates = $this->gateway->mandates()->list();
 
         foreach ($mandates->records as $mandate) {
-            if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+            if ($customer->id != $mandate->links->customer || !in_array($mandate->status,['active', 'pending_submission']) || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+            // if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
                 continue;
             }
 
@@ -568,15 +570,16 @@ class GoCardlessPaymentDriver extends BaseDriver
         return render('gateways.gocardless.verification');
     }
 
-    public function auth(): bool
+
+    public function auth(): string
     {
         try {
             $customers = $this->init()->gateway->customers()->list();
-            return true;
+            return 'ok';
         } catch (\Exception $e) {
 
         }
 
-        return false;
+        return 'error';
     }
 }

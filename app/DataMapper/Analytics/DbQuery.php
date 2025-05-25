@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -73,7 +74,7 @@ class DbQuery extends GenericMixedMetric
         $this->string_metric6 = $string_metric6;
         $this->double_metric2 = $double_metric2;
         $this->string_metric7 = $string_metric7;
-        $this->string_metric8 = mb_convert_encoding($string_metric8, "UTF-8");
-        $this->string_metric9 = mb_convert_encoding($string_metric9, "UTF-8");
+        $this->string_metric8 = mb_convert_encoding($string_metric8 ?? '', "UTF-8");
+        $this->string_metric9 = mb_convert_encoding($string_metric9 ?? '', "UTF-8");
     }
 }

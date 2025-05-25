@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Payment Ninja (https://paymentninja.com).
  *

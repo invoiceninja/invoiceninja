@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,36 +28,31 @@ class UploadAvatar implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected $file;
-
-    protected $directory;
-
-    public function __construct($file, $directory)
+    public function __construct(protected mixed $file, protected string $directory)
     {
-        $this->file = $file;
-        $this->directory = $directory;
     }
-
     public function handle(): ?string
     {
-        $tmp_file = sha1(time()).'.png'; //@phpstan-ignore-line
 
-        $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
+        $url = null;
 
-        $im = imagecreatefromstring(file_get_contents($this->file));
-        imagealphablending($im, false);
-        imagesavealpha($im, true);
-        $file_png = imagepng($im, sys_get_temp_dir().'/'.$tmp_file);
+        try {
+            $tmp_file = sha1(time()).'.png'; //@phpstan-ignore-line
 
-        $path = Storage::disk($disk)->putFile($this->directory, new File(sys_get_temp_dir().'/'.$tmp_file));
+            $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
 
-        $url = Storage::disk($disk)->url($path);
+            $im = imagecreatefromstring(file_get_contents($this->file));
+            imagealphablending($im, false);
+            imagesavealpha($im, true);
+            $file_png = imagepng($im, sys_get_temp_dir().'/'.$tmp_file);
 
-        //return file path
-        if ($url) {
-            return $url;
-        } else {
-            return null;
+            $path = Storage::disk($disk)->putFile($this->directory, new File(sys_get_temp_dir().'/'.$tmp_file));
+
+            $url = Storage::disk($disk)->url($path);
+        } catch (\Exception $e) {
+            nlog($e->getMessage());
         }
+
+        return $url;
     }
 }

@@ -33,7 +33,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Activity'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -298,7 +297,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/BankIntegration'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -754,7 +752,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/BankTransaction'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -1161,7 +1158,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/BankTransactionRule'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -1537,7 +1533,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/ClientGatewayToken'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -1830,7 +1825,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Company'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -2266,7 +2260,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/CompanyGateway'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -2588,7 +2581,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/CompanyLedger'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -2700,7 +2692,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Design'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3016,7 +3007,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Document'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3133,7 +3123,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/ExpenseCategory'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3437,7 +3426,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Expense'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -3830,7 +3818,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/GroupSetting'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -4526,7 +4513,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/PaymentTerm'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -4968,7 +4954,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/RecurringExpense'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -5335,7 +5320,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/RecurringQuote'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -6239,7 +6223,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Subscription'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -6588,7 +6571,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/SystemLog'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -6901,7 +6883,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/TaskStatus'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -7214,7 +7195,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/TaxRate'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -7531,7 +7511,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/CompanyToken'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -7839,7 +7818,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/User'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"
@@ -8295,7 +8273,6 @@ paths:
                     items:
                       $ref: '#/components/schemas/Webhook'
                   meta:
-                    type: object
                     $ref: '#/components/schemas/Meta'
         401:
           $ref: "#/components/responses/401"

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -68,7 +69,7 @@ class PreviewController extends BaseController
         $entity_obj->fill($request->all());
 
         if (!$entity_obj->id || $request->entity == 'recurring_invoice') {
-            $entity_obj->design_id = intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
+            $entity_obj->design_id = $entity_obj->design_id ?: intval($this->decodePrimaryKey($settings->{$entity_prop."_design_id"}));
             $entity_obj->footer = empty($entity_obj->footer) ? $settings->{$entity_prop."_footer"} : $entity_obj->footer;
             $entity_obj->terms = empty($entity_obj->terms) ? $settings->{$entity_prop."_terms"} : $entity_obj->terms;
             $entity_obj->public_notes = empty($entity_obj->public_notes) ? $request->getClient()->public_notes : $entity_obj->public_notes;
@@ -146,7 +147,7 @@ class PreviewController extends BaseController
     public function show(ShowPreviewRequest $request)
     {
 
-        
+
         if ($request->input('design.is_template')) {
             return $this->template();
         }
@@ -170,12 +171,11 @@ class PreviewController extends BaseController
                 return $this->blankEntity();
             }
 
-            if($entity_obj->client){
+            if ($entity_obj->client) {
                 $entity_obj->load('client');
                 $locale = $entity_obj->client->preferredLocale();
                 $settings = $entity_obj->client->getMergedSettings();
-            }
-            else {
+            } else {
                 $entity_obj->load('vendor');
                 $locale = $entity_obj->vendor->preferredLocale();
                 $settings = $entity_obj->vendor->getMergedSettings();
@@ -199,7 +199,7 @@ class PreviewController extends BaseController
 
             $ps->builder
             ->build();
-            
+
             if ($request->query('html') == 'true') {
                 return $ps->getHtml();
             }
@@ -307,11 +307,10 @@ class PreviewController extends BaseController
 
         $entity_string = 'invoice';
 
-        if(request()->input('entity') == 'purchase_order') {
+        if (request()->input('entity') == 'purchase_order') {
             $invitation = PurchaseOrderInvitation::where('company_id', $company->id)->orderBy('id', 'desc')->first();
             $entity_string = 'purchase_order';
-        }
-        else{
+        } else {
             /** @var \App\Models\InvoiceInvitation $invitation */
             $invitation = InvoiceInvitation::where('company_id', $company->id)->orderBy('id', 'desc')->first();
         }
@@ -371,7 +370,7 @@ class PreviewController extends BaseController
         $request['entity_type'] = request()->input('entity', 'invoice');
 
         $pdf = (new PdfMock($request, $company))->build();
-        
+
         if (request()->query('html') == 'true') {
             return $pdf->getHtml();
         }

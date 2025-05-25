@@ -53,7 +53,7 @@ class UpdateEntityRequest extends FormRequest
         $this->replace($input);
     }
 
-    // public function after(): array 
+    // public function after(): array
     // {
     //     return [
     //         function (Validator $validator) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -144,7 +145,7 @@ class InvoiceSum
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
 
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) >= 2) {
@@ -152,7 +153,7 @@ class InvoiceSum
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name2, $this->invoice->tax_rate2);
 
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) >= 2) {
@@ -160,7 +161,7 @@ class InvoiceSum
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name3, $this->invoice->tax_rate3);
 
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
         }
 
         return $this;

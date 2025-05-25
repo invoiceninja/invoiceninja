@@ -21,7 +21,7 @@ class OAuthConnectRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return Cache::has($this->token);
     }
 
     /**

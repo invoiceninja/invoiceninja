@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -70,7 +71,7 @@ class DesignUpdate extends Command
     private function handleOnDb()
     {
         foreach (Design::where('is_custom', false)->get() as $design) {
-            
+
             $invoice_design = new \App\Services\Pdf\DesignExtractor($design->name);
 
             $design_object = new stdClass();

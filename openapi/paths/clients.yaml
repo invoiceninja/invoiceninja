@@ -2,7 +2,8 @@
     get:
       tags:
         - clients
-      summary: 'List clients'
+      summary: |
+        List clients
       x-codeSamples:
       - lang: php
         label: php
@@ -22,31 +23,32 @@
             --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
             --header 'Accept: application/json'
       description: |
-            When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000:\
+            ##  GET /api/v1/clients  
+            When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000
               
             ```
             /api/v1/clients?balance=gt:1000
             ``` 
             
-            You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order:\
+            You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order
             
             ```
             /api/v1/clients?sort=name|desc
             ```
 
-            You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob":\
+            You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob"
             
             ```
             /api/v1/clients?balance=gt:1000&name=Bob*
             ```
 
-            If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships:\
+            If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships
             
             ```
             /api/v1/clients?include=activities,ledger,system_logs'
             ```
 
-            The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page:\
+            The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page
             
             ```
             /api/v1/clients?per_page=15&page=2
@@ -234,10 +236,12 @@
         - clients
       summary: 'Create client'
       description: |
-            Adds a client to a company
-              
-            > 🚨 Important    
-            When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
+
+        ##  POST /api/v1/clients  
+        Adds a client to a company
+          
+        > 🚨 Important    
+        When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
       x-codeSamples:
         - lang: php
           label: php
@@ -274,7 +278,8 @@
                     "first_name": "John",
                     "last_name": "Smith",
                     "email": "john@example.com",
-                    "phone": "555-0123"
+                    "phone": "555-0123",
+                    "send_email": true
                   }
                 ],
                 "address1": "123 Main St",
@@ -290,7 +295,6 @@
         - $ref: '#/components/parameters/index'
         - $ref: '#/components/parameters/client_include'
       requestBody:
-        description: Client object that needs to be added to the company
         required: true
         content:
           application/json:
@@ -325,7 +329,11 @@
       tags:
         - clients
       summary: 'Show client'
-      description: 'Displays a client by id'
+      description: |
+        ##  GET /api/v1/clients/{id}
+
+        Displays a client by id
+
       x-codeSamples:
       - lang: php
         label: php
@@ -382,6 +390,8 @@
         - clients
       summary: 'Update client'
       description: |
+        ##  PUT /api/v1/clients/{id}
+
         Handles the updating of a client by id
 
         > 🚨 Important    
@@ -470,12 +480,17 @@
         - clients
       summary: 'Delete client'
       description: |
+        ##  DELETE /api/v1/clients/{id}
+
         Handles the deletion of a client by id
 
         > ❗ Note
         Deleting a client does not purge the client from the system. The delete action will remove the clients data from all 
-        views in the application but keep it all on file. A Client can be laterrestored reversing this action.  To permanently wipe a client and
-        all of their records from the system, use the /purge route
+        views in the application but keep it on file in case it needs to be restored.
+        
+        A Client can be later restored reversing this action.  
+        
+        To permanently wipe a client and all of their records from the system, use the [/purge route](/#tag/clients/POST/api/v1/clients/{id}/purge)
 
       x-codeSamples:
       - lang: php
@@ -529,7 +544,21 @@
       tags:
         - clients
       summary: 'Edit Client'
-      description: 'Displays a client by id, essentially an alias of the show route'
+      description: |
+        ##  GET /api/v1/clients/{id}/edit
+        Displays a client by id, essentially an alias of the show route
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $client = $ninja->clients->show('clientId123');
+      - lang: curl
+        label: php
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/clients/clientId123 \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       operationId: editClient
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -573,7 +602,23 @@
       tags:
         - clients
       summary: 'Blank Client'
-      description: 'Returns a blank object with default values'
+      description: |
+        ##  GET /api/v1/clients/create  
+
+        Returns a blank object with default values
+
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $client = $ninja->clients->model();
+      - lang: curl
+        label: php
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/clients/create \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       operationId: getClientsCreate
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -610,6 +655,8 @@
         - clients
       summary: 'Bulk client actions'
       description: |
+        ##  POST /api/v1/clients/bulk
+
         Bulk actions allow to make changes to multiple clients in a single request the following actions are supported
         
         - archive
@@ -617,7 +664,7 @@
         - delete
         - template _requires template,template_id properties also_
         - assign_group _requires group_settings_id also_
-        - bulk_update _ requires column,new_value also_
+        - bulk_update _requires column,new_value also_
 
         All of these actions require an array of client ids to perform the requested action on ie.
 
@@ -631,7 +678,7 @@
 
         - assign_group
         
-        Allows the setting of multiple clients to a single group
+        Allows setting multiple clients to a single group
 
         - bulk_update
 
@@ -709,7 +756,11 @@
       tags:
         - clients
       summary: 'Add client document'
-      description: 'Handles the uploading of a document to a client, please note due to a quirk in REST you will need to use a _method parameter with value of POST'
+      description: |
+        ##  POST /api/v1/clients/{id}/upload
+
+        Handles the uploading of a document to a client, please note due to a quirk in REST you will need to use a _method parameter with value of POST
+
       x-codeSamples:
       - lang: php
         label: php
@@ -797,11 +848,13 @@
         - clients
       summary: 'Purge client'
       description: |
-            Handles purging a client.
+        ##  POST /api/v1/clients/{id}/purge
 
-            > ❗ Note
-            This is a destructive action.
-            This action will remove all data associated with the client and cannot be undone.
+        Handles purging a client.
+
+        > ❗ Note
+        This is a destructive action.
+        This action will remove all data associated with the client and cannot be undone.
       x-codeSamples:
       - lang: php
         label: php
@@ -855,15 +908,17 @@
         - clients
       summary: 'Merge client'
       description: |
-            Handles merging 2 clients
+        ##  POST /api/v1/clients/{id}/{mergeable_client_hashed_id}/merge
 
-            The id parameter is the client that will be the primary client after the merge has completed. 
+        Handles merging 2 clients
 
-            The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
+        The id parameter is the client that will be the primary client after the merge has completed. 
 
-            > 🚨 **Important**    
-            This action requires elevated permissions, please note the X-API-PASSWORD header requirements for this route.
-            
+        The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
+
+        > 🚨 **Important**    
+        This action requires elevated permissions, please note the X-API-PASSWORD header requirements for this route.
+        
       x-codeSamples:
       - lang: php
         label: php
@@ -925,7 +980,11 @@
       tags:
         - clients
       summary: 'Client statement PDF'
-      description: 'Return a PDF of the client statement'
+      description: |
+        ##  POST /api/v1/client_statement
+
+        Return a PDF of the client statement
+
       operationId: clientStatement
       x-codeSamples:
       - lang: php
@@ -1015,7 +1074,11 @@
       tags:
         - clients
       summary: 'Removes email suppression of a user in the system'
-      description: 'Emails are suppressed by PostMark, when they receive a Hard bounce / Spam Complaint. This endpoint allows you to remove the suppression and send emails to the user again.'
+      description: |
+        ##  POST /api/v1/reactivate_email/{bounce_id}
+
+        Emails are suppressed by PostMark, when they receive a Hard bounce / Spam Complaint. This endpoint allows you to remove the suppression and send emails to the user again.
+
       operationId: reactivateEmail
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'
@@ -1059,7 +1122,11 @@
       tags:
         - clients
       summary: 'Update tax data'
-      description: 'Updates the clients tax data - if their address has changed'
+      description: |
+        ##  POST /api/v1/clients/{client}/updateTaxData
+
+        Updates the clients tax data - if their address has changed
+
       operationId: updateClientTaxData
       parameters:
         - $ref: '#/components/parameters/X-API-TOKEN'

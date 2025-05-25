@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -59,12 +60,12 @@ class UpdateTaxData implements ShouldQueue
 
         try {
 
-            
+
             if (!$this->client->state && $this->client->postal_code) {
-                
+
                 $this->client->update(['state' => USStates::getState($this->client->postal_code)]);
                 $this->client->refresh();
-                
+
             }
 
             $tax_provider->setBillingAddress($this->getBillingAddress())
@@ -94,11 +95,11 @@ class UpdateTaxData implements ShouldQueue
 
     private function getShippingAddress(): array
     {
-        if(strlen($this->client->shipping_address1 ?? '') < 3) {
+        if (strlen($this->client->shipping_address1 ?? '') < 3) {
             return $this->getBillingAddress();
         }
 
-        return 
+        return
         [
             'address2' => $this->client->shipping_address2,
             'address1' => $this->client->shipping_address1,
@@ -107,12 +108,12 @@ class UpdateTaxData implements ShouldQueue
             'postal_code' => $this->client->shipping_postal_code,
             'country' => $this->client->shipping_country()->exists() ? $this->client->shipping_country->name : $this->client->country->name,
         ];
-    
+
     }
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->client->id.$this->company->company_key)];
+        return [(new WithoutOverlapping($this->client->id.$this->company->company_key))->releaseAfter(60)];
     }
 
     public function failed($exception)

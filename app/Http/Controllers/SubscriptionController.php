@@ -345,7 +345,7 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateSubscriptionRequest $request, Subscription $subscription): \Illuminate\Http\Response
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
         if ($request->entityIsDeleted($subscription)) {
             return $request->disallowUpdate();

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -42,6 +43,8 @@ class StoreBankTransactionRequest extends Request
 
         $rules['bank_integration_id'] = 'bail|required|exists:bank_integrations,id,company_id,'.$user->company()->id.',is_deleted,0';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'nullable', 'max:99999999999999'];
+        $rules['base_type'] = ['required','in:debit,credit,DEBIT,CREDIT', 'bail'];
+        
         return $rules;
     }
 

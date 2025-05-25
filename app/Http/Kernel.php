@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -29,7 +30,6 @@ use App\Http\Middleware\PhantomSecret;
 use App\Http\Middleware\QueryLogging;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\SessionDomains;
-use App\Http\Middleware\SetDb;
 use App\Http\Middleware\SetDbByCompanyKey;
 use App\Http\Middleware\SetDocumentDb;
 use App\Http\Middleware\SetDomainNameDb;
@@ -150,7 +150,6 @@ class Kernel extends HttpKernel
         'portal_enabled' => ClientPortalEnabled::class,
         'url_db' =>  UrlSetDb::class,
         'web_db' => SetWebDb::class,
-        'api_db' => SetDb::class,
         'company_key_db' => SetDbByCompanyKey::class,
         'locale' => Locale::class,
         'vendor_locale' => VendorLocale::class,
@@ -163,6 +162,7 @@ class Kernel extends HttpKernel
         'user_verified' => UserVerified::class,
         'document_db' => SetDocumentDb::class,
         'session_domain' => SessionDomains::class,
+        'valid_json' => \App\Http\Middleware\ValidJson::class,
         //we dyanamically add the throttle middleware in RouteServiceProvider
     ];
 
@@ -172,7 +172,6 @@ class Kernel extends HttpKernel
         SessionDomains::class,
         Cors::class,
         SetDomainNameDb::class,
-        SetDb::class,
         SetWebDb::class,
         UrlSetDb::class,
         ContactSetDb::class,

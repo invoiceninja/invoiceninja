@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -39,6 +40,7 @@ use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
 use League\Fractal\Serializer\ArraySerializer;
+use Str;
 
 class BaseExport
 {
@@ -208,6 +210,7 @@ class BaseExport
         "assigned_user" => "recurring_invoice.assigned_user_id",
         "user" => "recurring_invoice.user_id",
         "frequency_id" => "recurring_invoice.frequency_id",
+        "remaining_cycles" => "recurring_invoice.remaining_cycles",
         "next_send_date" => "recurring_invoice.next_send_date",
         "custom_value1" => "recurring_invoice.custom_value1",
         "custom_value2" => "recurring_invoice.custom_value2",
@@ -1322,7 +1325,7 @@ class BaseExport
 
                 $this->start_date = $fin_year_start->format('Y-m-d');
                 $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
-                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
+                return $query->whereBetween($this->date_key, [$this->start_date, $this->end_date])->orderBy($this->date_key, 'ASC');
             case 'last_year':
 
                 $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
@@ -1335,7 +1338,7 @@ class BaseExport
 
                 $this->start_date = $fin_year_start->format('Y-m-d');
                 $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
-                return $query->whereBetween($this->date_key, [now()->startOfYear(), now()])->orderBy($this->date_key, 'ASC');
+                return $query->whereBetween($this->date_key, [$this->start_date, $this->end_date])->orderBy($this->date_key, 'ASC');
             case 'custom':
                 $this->start_date = $custom_start_date->format('Y-m-d');
                 $this->end_date = $custom_end_date->format('Y-m-d');
@@ -1366,7 +1369,7 @@ class BaseExport
 
         $header = [];
         // nlog("header");
-        foreach ($this->input['report_keys'] as $value) {
+        foreach ($this->input['report_keys'] as &$value) {
 
             $key = array_search($value, $this->entity_keys);
             $original_key = $key;
@@ -1459,7 +1462,10 @@ class BaseExport
             $key = str_replace('product.', '', $key);
             $key = str_replace('task.', '', $key);
 
-            if (stripos($value, 'custom_value') !== false) {
+            if (stripos($value, 'tax.') !== false) {
+                $value = Str::after($value, 'tax.');
+                $header[] = $value;
+            } elseif (stripos($value, 'custom_value') !== false) {
                 $parts = explode(".", $value);
 
                 if (count($parts) == 2 && in_array($parts[0], ['credit','quote','invoice','purchase_order','recurring_invoice'])) {
@@ -1500,6 +1506,7 @@ class BaseExport
 
     public function processMetaData(array $row, $resource): array
     {
+        nlog($row);
         $class = get_class($resource);
 
         $entity = '';
@@ -1679,7 +1686,7 @@ class BaseExport
             if (is_float($value)) {
 
                 //Careful not to convert discount % to currency
-                if($key == 'discount' && isset($entity->is_amount_discount) && !$entity->is_amount_discount) {
+                if ($key == 'discount' && isset($entity->is_amount_discount) && !$entity->is_amount_discount) {
                     continue;
                 }
 

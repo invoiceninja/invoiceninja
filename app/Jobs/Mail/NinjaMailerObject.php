@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,7 +29,7 @@ class NinjaMailerObject
 
     public $settings;
 
-    public $transport; //not yet used
+    public $transport; //Used to force the mailer
 
     /* Variable for cascading notifications */
     public $entity_string = false;

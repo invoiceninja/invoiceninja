@@ -158,7 +158,7 @@
                     <td align="center" cellpadding="20">
                         <div style="border: 1px solid #c2c2c2; border-bottom: none; padding-bottom: 10px; border-top-left-radius: 3px; border-top-right-radius: 3px; padding-top:10px;">
                             @if($logo && strpos($logo, 'blank.png') === false)
-                             <img class="" src="{{ $logo ?? '' }}" width="50%" height="" alt=" " border="0" style="width: 50%; max-width: 570px; display: block;">
+                             <img class="" src="{{ $logo ?? '' }}" alt=" " border="0" style="display: block; width: auto; max-width: 300px; max-height: 100px; height: auto; margin: 0 auto;">
                             @endif
                         </div>
                     </td>

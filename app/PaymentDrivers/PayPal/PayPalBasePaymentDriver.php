@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -499,17 +500,17 @@ class PayPalBasePaymentDriver extends BaseDriver
 
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         try {
             $this->init()->getClientToken();
-            return true;
+            return 'ok';
         } catch (\Exception $e) {
 
         }
 
-        return false;
+        return 'error';
     }
 
     public function importCustomers()

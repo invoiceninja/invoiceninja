@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -882,9 +883,9 @@ class Company extends BaseModel
 
     public function notification(Notification $notification)
     {
-        try{
+        try {
             return new NotificationService($this, $notification);
-        } catch(\Throwable $th){
+        } catch (\Throwable $th) {
             nlog("Could not access notification service");
             nlog($th->getMessage());
             return null;

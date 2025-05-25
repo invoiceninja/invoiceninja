@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -38,6 +39,22 @@ class CompanyObserver
     {
         if (Ninja::isHosted() && $company->portal_mode == 'domain' && $company->isDirty('portal_domain')) {
             \Modules\Admin\Jobs\Domain\CustomDomain::dispatch($company->getOriginal('portal_domain'), $company)->onQueue('domain');
+        }
+
+        if (Ninja::isHosted()) {
+
+            $property = 'name';
+            $original = data_get($company->getOriginal('settings'), $property);
+            $current = data_get($company->settings, $property);
+
+            if ($original !== $current) {
+                try {
+                    (new \Modules\Admin\Jobs\Account\FieldQuality())->checkCompanyName($current, $company);
+                } catch (\Throwable $e) {
+                    nlog(['company_name_check', $e->getMessage()]);
+                }
+            }
+
         }
 
     }

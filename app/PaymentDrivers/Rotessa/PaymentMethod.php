@@ -194,7 +194,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
         }
     }
 
-    
+
 
     /**
      * Handle unsuccessful payment for Rotessa.
@@ -271,7 +271,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
 
     public function tokenBilling(\App\Models\ClientGatewayToken $customer, \App\Models\PaymentHash $payment_hash)
     {
- 
+
         try {
 
             $transaction = array_merge($this->transaction, [

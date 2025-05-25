@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -134,7 +135,7 @@ class RecurringInvoice extends BaseModel
     use HasRecurrence;
     use PresentableTrait;
     use Searchable;
-    
+
     protected $presenter = RecurringInvoicePresenter::class;
 
     /**
@@ -273,7 +274,7 @@ class RecurringInvoice extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => ctrans('texts.recurring_invoice') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -293,9 +294,10 @@ class RecurringInvoice extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
-    
+
+
     public function getEntityType()
     {
         return self::class;
@@ -734,7 +736,7 @@ class RecurringInvoice extends BaseModel
             // if ($this->client->timezone_offset() < 0) {
             //     $next_send_date = $this->nextSendDateClient($next_send_date->addDay()->format('Y-m-d'));
             // } else {
-                $next_send_date = $this->nextDateByFrequencyNoOffset($next_send_date);
+            $next_send_date = $this->nextDateByFrequencyNoOffset($next_send_date);
             // }
         }
 

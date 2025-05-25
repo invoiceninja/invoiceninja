@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -592,7 +593,7 @@ class DesignController extends BaseController
 
                         })->update(['design_id' => $design_id]);
 
-                
+
                 // Recurring Invoice Designs are set using the global company level.
                 if ($settings_level == 'company') {
                     $company->recurring_invoices()->withTrashed()->update(['design_id' => $design_id]);

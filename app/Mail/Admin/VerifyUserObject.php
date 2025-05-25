@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -35,7 +36,9 @@ class VerifyUserObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->user->confirmation_code = $this->createDbHash($this->company->db);
+        //@phpstan-ignore-next-line
+        $this->user->confirmation_code = $this->createDbHash($this->user->companies()->first()->db);
+        // $this->user->confirmation_code = $this->createDbHash($this->company->db);
         $this->user->save();
 
         $react_redirect = '';

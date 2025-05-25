@@ -123,7 +123,7 @@ class DocumentsTable extends Component
         return $client->documents()
             ->where('is_public', true)
             ->orWhere(function ($query) use ($client) {
-                                
+
                 $query->whereHasMorph('documentable', [Company::class], function ($q) use ($client) {
                     $q->where('is_public', true)->where('company_id', $client->company_id);
                 });

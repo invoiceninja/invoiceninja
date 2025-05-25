@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -305,7 +306,7 @@ class CompanyTransformer extends EntityTransformer
 
         return $this->includeCollection($company->locations, $transformer, Location::class);
     }
-    
+
 
     public function includeBankTransactionRules(Company $company)
     {

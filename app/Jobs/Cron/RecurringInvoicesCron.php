@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -60,8 +61,8 @@ class RecurringInvoicesCron
                                                         })
                                                         ->whereHas('company', function ($query) {
                                                             $query->where('is_disabled', 0)
-                                                                  ->whereHas('account', function ($q){
-                                                                        $q->where('is_flagged', false);
+                                                                  ->whereHas('account', function ($q) {
+                                                                      $q->where('is_flagged', false);
                                                                   });
                                                         })
                                                         ->with('company')
@@ -97,14 +98,14 @@ class RecurringInvoicesCron
                                                         ->whereNotNull('next_send_date')
                                                         ->where('next_send_date', '<=', now()->toDateTimeString())
                                                         ->whereHas('client', function ($query) {
-                                                                $query->where('is_deleted', false)
-                                                                   ->whereNull('deleted_at');
+                                                            $query->where('is_deleted', false)
+                                                               ->whereNull('deleted_at');
 
                                                         })
                                                         ->whereHas('company', function ($query) {
                                                             $query->where('is_disabled', 0)
-                                                                  ->whereHas('account', function ($q){
-                                                                        $q->where('is_flagged', false);
+                                                                  ->whereHas('account', function ($q) {
+                                                                      $q->where('is_flagged', false);
                                                                   });
                                                         })
                                                         ->with('company')

@@ -13,7 +13,11 @@ return new class extends Migration
     {
             
         Schema::table('payments', function (Blueprint $table) {
-            $table->text('sync')->nullable();
+                        
+            if (!Schema::hasColumn('payments', 'sync')) {
+                $table->text('sync')->nullable();
+            }
+
         });
 
     }

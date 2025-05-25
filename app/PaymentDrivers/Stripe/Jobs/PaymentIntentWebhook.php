@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -60,8 +61,8 @@ class PaymentIntentWebhook implements ShouldQueue
     public function handle()
     {
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
-        
-        $company = Company::query()->where('company_key', $this->company_key)->first();
+
+        $company = Company::query()->where('company_key', $this->company_key)->firstOrFail();
 
         foreach ($this->stripe_request as $transaction) {
 

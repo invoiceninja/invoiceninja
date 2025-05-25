@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -45,7 +46,7 @@ class CreditTransformer extends EntityTransformer
 
         return $this->includeItem($credit->location, $transformer, \App\Models\Location::class);
     }
-    
+
     public function includeActivities(Credit $credit)
     {
         $transformer = new ActivityTransformer($this->serializer);

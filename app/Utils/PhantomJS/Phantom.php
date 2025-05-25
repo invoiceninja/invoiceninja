@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,7 +17,6 @@ use Illuminate\Support\Facades\Response;
 
 class Phantom
 {
-
     public function convertHtmlToPdf($html)
     {
         $key = config('ninja.phantomjs_key');

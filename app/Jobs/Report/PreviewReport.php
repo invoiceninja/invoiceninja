@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,6 +29,7 @@ class PreviewReport implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    public $tries = 1;
     /**
      * Create a new job instance
      */
@@ -51,8 +53,23 @@ class PreviewReport implements ShouldQueue
         Cache::put($this->hash, $report, 60 * 60);
     }
 
-    public function middleware()
+    // public function middleware()
+    // {
+    //     return [
+    //         (new WithoutOverlapping("report-{$this->company->company_key}-{$this->report_class}"))
+    //             ->releaseAfter(60)
+    //             ->expireAfter(60) // 5 minutes
+    //             ->dontRelease(), // This prevents the job from being marked as a "release" which counts towards attempts
+    //     ];
+    // }
+
+    /**
+     * Handle a job failure.
+     */
+    public function failed(\Throwable $exception = null)
     {
-        return [new WithoutOverlapping("report-{$this->company->company_key}")];
+        if($exception) {
+            nlog("EXCEPTION:: PreviewReport:: could not preview report for" . $exception->getMessage());
+        }
     }
 }

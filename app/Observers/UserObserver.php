@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -44,6 +45,17 @@ class UserObserver
                 \Modules\Admin\Jobs\Account\UpdateOwnerUser::dispatch($user->account->key, $user, $user->getOriginal('email'));
             }
         }
+
+        if (Ninja::isHosted() && $user->isDirty('first_name') || $user->isDirty('last_name')) {
+
+            try {
+                (new \Modules\Admin\Jobs\Account\FieldQuality())->checkUserName($user, $user->account->companies->first());
+            } catch (\Throwable $e) {
+                nlog(['user_name_check', $e->getMessage()]);
+            }
+
+        }
+
     }
 
     /**

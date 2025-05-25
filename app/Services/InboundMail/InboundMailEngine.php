@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -153,8 +154,9 @@ class InboundMailEngine
      */
     public function handleExpenseMailbox(InboundMail $email)
     {
-        if (empty($this->company))
+        if (empty($this->company)) {
             throw new \Exception('invalid use of inbound mail engine: no company selected');
+        }
 
         if ($this->isInvalidOrBlocked($email->from, $email->to)) {
             return;
@@ -174,8 +176,9 @@ class InboundMailEngine
     // MAIN-PROCESSORS
     protected function createExpenses(InboundMail $email)
     {
-        if (empty($this->company))
+        if (empty($this->company)) {
             throw new \Exception('invalid use of inbound mail engine: no company selected');
+        }
 
         // Skipping executions: will not result in not saving Metadata to prevent usage of these conditions, to spam
         if (!$this->company->expense_mailbox_active) {

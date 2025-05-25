@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PurchaseOrder Ninja (https://invoiceninja.com).
  *

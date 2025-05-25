@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,7 +29,7 @@ class SendEmail
     public function run()
     {
         $this->payment->load('company', 'invoices');
-        
+
         EmailPayment::dispatch($this->payment, $this->payment->company, $this->contact);
 
     }

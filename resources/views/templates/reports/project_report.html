@@ -90,13 +90,17 @@
             background: #34495e;
             color: white;
             padding: 6px;
-            text-align: center;
+            text-align: left;
         }
 
         td {
             padding: 6px;
             border-bottom: 1px solid #eee;
-            text-align: center;
+            text-align: left;
+        }
+
+        td li {
+            text-align: left;
         }
 
         tr {
@@ -140,63 +144,75 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
+
+        .page-break {
+            page-break-before: always;
+        }
     </style>
 </head>
 
 <body>
-<ninja>
-    {% if projects|e %}
-    {% for project in projects %}
+    <ninja>
+        {% if projects|e %}
+        {% for project in projects %}
+        <div class="page-break">
+        
+        <h1>{{ project.name }}</h1>
+        <h3>Due: {{ project.due_date }}</h3>
+        <h6>{{ project.current_hours }} / {{ project.budgeted_hours }}: (Hours / Budgeted Hours @ {{ project.task_rate
+            }}) -
+            Report generated on {{ "now"|date('Y-m-d') }}</h6>
 
-    <h1>{{ project.name }}</h1>
-    <h3>Due: {{ project.due_date }}</h3>
-    <h6>{{ project.current_hours }} / {{ project.budgeted_hours }}: (Hours / Budgeted Hours @ {{ project.task_rate }}) -
-        Report generated on {{ "now"|date('Y-m-d') }}</h6>
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Duration</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for task in project.tasks %}
+        {% if project.tasks is not empty %}
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ t('date') }}</th>
+                    <th>{{ t('description') }}</th>
+                    <th>{{ t('duration') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in project.tasks %}
 
-            {% for log in task.time_log%}
+                {% for log in task.time_log%}
 
-            <tr>
-                <td>{{ log.start_date }}</td>
-                <td>
-                    <div>
-                        <ul>
-                            <li>{{ log.description }}</li>
-                            <li>{{ task.user.name }}</li>
-                        </ul>
-                    </div>
+                <tr>
+                    <td>{{ log.start_date }}</td>
+                    <td>
+                        <div>
+                            <ul>
+                                <li>{{ log.description }}</li>
+                                <li>{{ task.user.name }}</li>
+                            </ul>
+                        </div>
 
-                </td>
-                <td>{{ log.duration|date('h:i:s')}}</td>
-            </tr>
-            {% endfor %}
-            {% endfor %}
-        </tbody>
-    </table>
-
-    {% if project.invoices %}
-    <table>
-        <thead>
-        <tr>
-            <th>{{ t('date')}}</th>
-            <th>{{ t('invoice_number')}}</th>
-            <th>{{ t('amount') }}</th>
-            <th>{{ t('balance') }}</th>
-        </tr>
-        </thead>
-        <tbody>
-            {% set total_amount = 0 %}
-            {% set total_balance = 0 %}
-            {% for invoice in project.invoices %}
+                    </td>
+                    <td>{{ log.duration|date('h:i:s')}}</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+        
+        {% if project.invoices %}
+        <div style="text-align: center;">
+            <h2>{{ t('invoices') }}</h2>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ t('date')}}</th>
+                    <th>{{ t('invoice_number')}}</th>
+                    <th>{{ t('amount') }}</th>
+                    <th>{{ t('balance') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_amount = 0 %}
+                {% set total_balance = 0 %}
+                {% for invoice in project.invoices %}
                 <tr>
                     <td>{{ invoice.date }}</td>
                     <td>{{ invoice.number }}</td>
@@ -205,86 +221,87 @@
                 </tr>
                 {% set total_amount = total_amount + invoice.amount_raw %}
                 {% set total_balance = total_balance + invoice.balance_raw %}
-            {% endfor%}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td></td>
-                <td></td>
-                <td>{{ total_amount }}</td>
-                <td>{{ total_balance }}</td>
-            </tr>
-        </tfoot>
-    </table>
-    {% endif %}
+                {% endfor%}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>{{ total_amount|format_currency(currency_code) }}</td>
+                    <td>{{ total_balance|format_currency(currency_code) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        {% endif %}
 
-    {% if project.expenses %}
-    <table>
-        <thead>
-            <tr>
-                <th>{{ t('date')}}</th>
-                <th>{{ t('number')}}</th>
-                <th>{{ t('amount') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set total_expense_amount = 0 %}
-            {% for expense in project.expenses %}
-            <tr>
-                <td>{{ expense.date }}</td>
-                <td>{{ expense.number }}</td>
-                <td>{{ expense.amount }}</td>
-            </tr>
-            {% set total_amount = total_amount + expense.amount_raw %}
-            {% endfor%}
-        </tbody>
-        <tfoot>
-            <tr>
-                <td></td>
-                <td></td>
-                <td>{{ total_expense_amount }}</td>
-            </tr>
-        </tfoot>
-    </table>
-    {% endif %}
+        {% if project.expenses %}
+        <div style="text-align: center;">
+            <h2>{{ t('expenses') }}</h2>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ t('date')}}</th>
+                    <th>{{ t('number')}}</th>
+                    <th>{{ t('amount') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total_expense_amount = 0 %}
+                {% for expense in project.expenses %}
+                <tr>
+                    <td>{{ expense.date }}</td>
+                    <td>{{ expense.number }}</td>
+                    <td>{{ expense.amount }}</td>
+                </tr>
+                {% set total_expense_amount = total_expense_amount + expense.amount_raw %}
+                {% endfor%}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>{{ total_expense_amount|format_currency(currency_code) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+        {% endif %}
 
-    <table>
-        <thead>
-            <tr>
-                <th>Summary</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ t('expenses') }}</td>
-                <td>{{ total_expense_amount }}</td>
-            </tr>
-            <tr>
-                <td>{{ t('invoices') }}</td>
-                <td>{{ total_amount }}</td>
-            </tr>
-            <tr>
-                <td>{{ t('budgeted') }}</td>
-                <td>{{ project.budgeted_hours * project.task_rate_raw }}</td>
-            </tr>
-            <tr>
-                <td>{{ t('budgeted') }}</td>
-                <td>{{ project.budgeted_hours * project.task_rate_raw }}</td>
-            </tr>
-            <tr>
-                <td>Budget - Expenses</td>
-                <td>{{ (project.budgeted_hours * project.task_rate_raw) - total_expense_amount }}</td>
-            </tr>
-            <tr>
-                <td>Invoices - Expenses</td>
-                <td>{{ total_amount - total_expense_amount }}</td>
-            </tr>
-        </tbody>
-    </table>
-    {% endfor %}
-    {% endif %}
-</ninja>
+        <table>
+            <thead>
+                <tr>
+                    <th>{{ t('summary') }}</th>
+                    <th>{{ t('amount') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ t('project_value') }}</td>
+                    <td>{{ (project.budgeted_hours * project.task_rate_raw)|format_currency(currency_code) }}</td>
+                </tr>
+                <tr>
+                    <td>{{ t('invoice_task_hours') }}</td>
+                    <td>{{ (project.current_hours * project.task_rate_raw)|format_currency(currency_code) }}</td>
+                </tr>
+                <tr>
+                    <td>{{ t('invoiced') }}</td>
+                    <td>{{ total_amount|format_currency(currency_code) }}</td>
+                </tr>
+                <tr>
+                    <td>{{ t('expenses') }}</td>
+                    <td>{{ total_expense_amount|format_currency(currency_code) }}</td>
+                </tr>
+                
+                <tr>
+                    <td>{{ t('profit') }}</td>
+                    <td>{{ (total_amount - total_expense_amount)|format_currency(currency_code) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+        {% endfor %}
+        {% endif %}
+    </ninja>
 </body>
 
 </html>

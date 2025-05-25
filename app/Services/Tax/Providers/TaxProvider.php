@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -144,7 +145,7 @@ class TaxProvider
 
     public function updateLocationTaxData(Location $location): self
     {
-        $this->configureProvider($this->provider, $location->country->iso_3166_2); 
+        $this->configureProvider($this->provider, $location->country->iso_3166_2);
 
         $tax_provider = new $this->provider($this->getBillingAddress());
 
@@ -158,7 +159,7 @@ class TaxProvider
         }
 
         return $this;
-    }   
+    }
     /**
      * taxShippingAddress
      *
@@ -272,7 +273,7 @@ class TaxProvider
 
         return $this;
     }
-    
+
     public function setShippingAddress(array $address): self
     {
         $this->shipping_address = $address;
@@ -285,9 +286,9 @@ class TaxProvider
         return $this->billing_address;
     }
 
-    public function getShippingAddress(): array 
+    public function getShippingAddress(): array
     {
         return $this->shipping_address;
     }
-    
+
 }

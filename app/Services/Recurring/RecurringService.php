@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -178,10 +179,10 @@ class RecurringService
         return $this;
 
     }
-    
+
     public function location(): array
     {
-        return (new LocationData($this->recurring_entity))->run();       
+        return (new LocationData($this->recurring_entity))->run();
     }
 
     public function save()

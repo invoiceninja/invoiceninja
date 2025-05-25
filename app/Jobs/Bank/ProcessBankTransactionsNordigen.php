@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Credit Ninja (https://invoiceninja.com).
  *
@@ -37,7 +38,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
     public Company $company;
     public Nordigen $nordigen;
-    public $nordigen_account;
+    public bool $nordigen_account = false;
 
     /**
      * Create a new job instance.
@@ -74,6 +75,7 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
         // UPDATE ACCOUNT
         try {
             $this->updateAccount();
+            // $this->nordigen_account = true;
         } catch (\Exception $e) {
             nlog("Nordigen: {$this->bank_integration->nordigen_account_id} - exited abnormally => " . $e->getMessage());
 
@@ -85,10 +87,10 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
             $this->bank_integration->company->notification(new GenericNinjaAdminNotification($content))->ninja();
 
-            sleep(5);
-
+            sleep(1);
             throw $e;
         }
+
         if (!$this->nordigen_account) {
             return;
         }
@@ -149,28 +151,11 @@ class ProcessBankTransactionsNordigen implements ShouldQueue
 
         }
 
-        $account = $this->nordigen->getAccount($this->bank_integration->nordigen_account_id);
-
-        if (isset($account['error'])) {
-
-            $this->bank_integration->bank_account_status = "Error:: " . $account['error'];
-            $this->bank_integration->save();
-            return;
-
-        }
-
-        if (!$account) {
-
-            $this->bank_integration->bank_account_status = "Error:: Failed to update account.";
-            $this->bank_integration->save();
-            return;
-
-        }
-
-        $this->nordigen_account = $account;
+        $this->nordigen_account = true;
         $this->bank_integration->disabled_upstream = false;
-        $this->bank_integration->bank_account_status = $account['account_status'];
-        $this->bank_integration->balance = $account['current_balance'];
+        $this->bank_integration->bank_account_status = "READY";
+        // $this->bank_integration->bank_account_status = $account['account_status'];
+        // $this->bank_integration->balance = $account['current_balance'];
         $this->bank_integration->save();
 
     }

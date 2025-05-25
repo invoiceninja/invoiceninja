@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -46,7 +47,7 @@ class QuoteTransformer extends EntityTransformer
 
         return $this->includeItem($quote->location, $transformer, \App\Models\Location::class);
     }
-    
+
     public function includeActivities(Quote $quote)
     {
         $transformer = new ActivityTransformer($this->serializer);

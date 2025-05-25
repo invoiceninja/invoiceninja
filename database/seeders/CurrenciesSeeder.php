@@ -165,7 +165,7 @@ class CurrenciesSeeder extends Seeder
             ['id' => 140, 'name' => 'Turkmenistani Manat', 'code' => 'TMT', 'symbol' => 'T', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 141, 'name' => 'Uzbekistani Som', 'code' => 'UZS', 'symbol' => 'so\'m', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 142, 'name' => 'Samoan Tala', 'code' => 'WST', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-
+            ['id' => 143, 'name' => 'Caribbean guilder', 'code' => 'XCG', 'symbol' => 'Cg', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
         ];
 
         foreach ($currencies as $currency) {

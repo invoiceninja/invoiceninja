@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://purchase_orderninja.com).
  *

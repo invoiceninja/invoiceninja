@@ -82,12 +82,6 @@
           example: 1.00
           description: 'The total amount of tax applied to the product offered for this line item'
           readOnly: true
-        date:
-          type: string
-          format: date-time
-          example: '2023-03-19T00:00:00Z'
-          description: 'Deprecated'
-          deprecated: true
         custom_value1:
           type: string
           example: 'Custom value 1'

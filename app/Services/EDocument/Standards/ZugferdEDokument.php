@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,7 +26,7 @@ use horstoeko\zugferd\ZugferdProfiles;
 /**
  * @deprecated 2025-02-04
  */
- class ZugferdEDokument extends AbstractService
+class ZugferdEDokument extends AbstractService
 {
     public ZugferdDocumentBuilder $xdocument;
 
@@ -125,7 +126,7 @@ use horstoeko\zugferd\ZugferdProfiles;
         if (isset($client->shipping_address1) && $client->shipping_country) {
             $this->xdocument->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
-       
+
         $this->injectPaymentMeans($company);
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
@@ -262,19 +263,19 @@ use horstoeko\zugferd\ZugferdProfiles;
         return $this;
 
     }
-    
+
     /**
-     * 
+     *
      * Expanded functionality to allow injecting UBL Payment Means
      * into the document
-     * 
+     *
      * @return self
      */
     private function injectPaymentMeans(Company $company): self
     {
 
         /**Check if the e_invoice object is populated */
-        if(isset($company->e_invoice->Invoice->PaymentMeans) && ($pm = $company->e_invoice->Invoice->PaymentMeans[0] ?? false)){
+        if (isset($company->e_invoice->Invoice->PaymentMeans) && ($pm = $company->e_invoice->Invoice->PaymentMeans[0] ?? false)) {
 
             switch ($pm->PaymentMeansCode->value ?? false) {
                 case '30':
@@ -287,7 +288,7 @@ use horstoeko\zugferd\ZugferdProfiles;
                     $this->xdocument->addDocumentPaymentMean(typeCode: $typecode, payeeIban: $iban, payeeAccountName: $name, payeeBic: $bic);
 
                     return $this;
-                
+
                 default:
                     # code...
                     break;

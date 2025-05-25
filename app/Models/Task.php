@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -281,7 +282,7 @@ class Task extends BaseModel
 
     public function getRate(): float
     {
-        if(is_numeric($this->rate) && $this->rate > 0) {
+        if (is_numeric($this->rate) && $this->rate > 0) {
             return $this->rate;
         }
 
@@ -373,9 +374,6 @@ class Task extends BaseModel
                 $hours = ctrans('texts.hours');
 
                 $parts = [];
-
-                // $parts[] = '<div class="task-time-details">';
-
                 $date_time = [];
 
                 if ($this->company->invoice_task_datelog) {
@@ -396,7 +394,7 @@ class Task extends BaseModel
                 if ($this->company->invoice_task_hours) {
                     $duration = $this->logDuration($log[0], $log[1]);
 
-                    if($this->company->use_comma_as_decimal_place){
+                    if ($this->company->use_comma_as_decimal_place) {
                         $duration = number_format($duration, 2, ',', '.');
                     }
 
@@ -409,10 +407,14 @@ class Task extends BaseModel
                     $parts[] = $interval_description;
                 }
 
-                // $parts[] = '</div>';
+                //need to return early if there is nothing, otherwise we end up injecting a blank new line.
+                if (count($parts) == 1 && empty($parts[0])) {
+                    return '';
+                }
 
                 return implode(PHP_EOL, $parts);
             })
+            ->filter()//filters any empty strings.
             ->implode(PHP_EOL);
 
         $body = '';

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -60,21 +61,9 @@ class UpdateVendorRequest extends Request
         ];
 
         $rules['currency_id'] = 'bail|sometimes|exists:currencies,id';
-
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
-
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        
         $rules['language_id'] = 'bail|nullable|sometimes|exists:languages,id';
         $rules['classification'] = 'bail|sometimes|nullable|in:individual,business,company,partnership,trust,charity,government,other';
 
@@ -94,8 +83,16 @@ class UpdateVendorRequest extends Request
     {
         $input = $this->all();
 
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (isset($input['name'])) {
             $input['name'] = strip_tags($input['name']);
+        }
+
+        if (isset($input['documents'])) {
+            unset($input['documents']);
         }
 
         if (array_key_exists('country_id', $input) && is_null($input['country_id'])) {

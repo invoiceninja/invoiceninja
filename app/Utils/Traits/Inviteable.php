@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -107,10 +108,6 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-
-                // if(Ninja::isHosted())
-                //     return 'https://router.invoiceninja.com/route/'.encrypt($domain.'/client/'.$entity_type.'/'.$this->key);
-                // else
                 return $domain.'/client/'.$entity_type.'/'.$this->key;
                 break;
             case 'iframe':

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -60,7 +61,7 @@ class RegisterRequest extends FormRequest
             $rules['terms'] = ['required'];
         }
 
-        $rules['cf-turnstile-response'] = ['sometimes', new Turnstile];
+        $rules['cf-turnstile-response'] = ['sometimes', new Turnstile()];
 
         return $rules;
     }

@@ -92,7 +92,6 @@ class BTCPayPaymentDriver extends BaseDriver
     public function processWebhookRequest()
     {
 
-
         $webhook_payload = file_get_contents('php://input');
 
         /** @var \stdClass $btcpayRep */

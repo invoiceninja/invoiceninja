@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -38,7 +39,7 @@ class QuoteService
 
     public function location(): array
     {
-        return (new LocationData($this->quote))->run();       
+        return (new LocationData($this->quote))->run();
     }
 
     public function createInvitations()

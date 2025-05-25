@@ -1895,7 +1895,7 @@ var country_value = e.options[e.selectedIndex].value;
                           postal_code: document.querySelector('input[name=postal_code]').value,
                           state: document.querySelector('input[name=state]').value,
                         }        
-                },
+                }, 
               }
             })
             .then((result) => {

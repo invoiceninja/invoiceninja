@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -164,22 +165,35 @@ class ClientFilters extends QueryFilters
     {
         $sort_col = explode('|', $sort);
 
-        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
-            return $this->builder;
-        }
-            
-        if ($sort_col[0] == 'documents') {
+        if (isset($sort_col[0]) && $sort_col[0] == 'documents') {
             return $this->builder;
         }
 
-        if ($sort_col[0] == 'display_name') {
+        if (isset($sort_col[0]) && $sort_col[0] == 'display_name') {
             $sort_col[0] = 'name';
+        }
+
+        if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
         }
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if ($sort_col[0] == 'number') {
             return $this->builder->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . $dir);
+        }
+
+        if ($sort_col[0] == 'name') {
+            return $this->builder
+                ->select('clients.*')
+                ->selectSub(function ($query) {
+                    $query->from('client_contacts')
+                        ->whereColumn('client_contacts.client_id', 'clients.id')
+                        ->whereNull('client_contacts.deleted_at')
+                        ->select(\DB::raw('COALESCE(NULLIF(first_name, ""), email) as contact_info'))
+                        ->limit(1);
+                }, 'first_contact_name')
+                ->orderByRaw("COALESCE(NULLIF(clients.name, ''), first_contact_name) " . $dir);
         }
 
         return $this->builder->orderBy($sort_col[0], $dir);

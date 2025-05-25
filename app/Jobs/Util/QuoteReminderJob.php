@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -131,7 +132,7 @@ class QuoteReminderJob implements ShouldQueue
             $quote->service()->touchReminder($reminder_template)->save();
 
             $enabled_reminder = 'enable_quote_'.$reminder_template;
-            
+
             if (in_array($reminder_template, ['reminder1', 'reminder2', 'reminder3', 'reminder_endless', 'endless_reminder']) &&
         $quote->client->getSetting($enabled_reminder) &&
         $quote->client->getSetting('send_reminders') &&

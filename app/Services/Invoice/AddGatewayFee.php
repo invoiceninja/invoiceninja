@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -29,7 +30,7 @@ class AddGatewayFee extends AbstractService
     {
         $gateway_fee = round($this->company_gateway->calcGatewayFee($this->amount, $this->gateway_type_id, $this->invoice->uses_inclusive_taxes), $this->invoice->client->currency()->precision);
 
-        if (! $gateway_fee || $gateway_fee == 0) {
+        if (! $gateway_fee || $gateway_fee == 0 || ($gateway_fee > 0 && $gateway_fee < 0.01)) {
             return $this->invoice;
         }
 

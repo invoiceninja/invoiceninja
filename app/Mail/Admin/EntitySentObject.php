@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -95,12 +96,12 @@ class EntitySentObject
                         'vendor' => $this->contact->vendor->present()->name(),
                         'purchase_order' => $this->entity->number,
                     ]
-                    ),
+                ),
             ];
 
             $mail_obj->markdown = 'email.admin.generic';
             $mail_obj->tag = $this->company->company_key;
-            
+
         } else {
             $mail_obj = new stdClass();
             $mail_obj->amount = $this->getAmount();
@@ -117,7 +118,7 @@ class EntitySentObject
 
     private function setTemplate()
     {
-        
+
         switch ($this->template) {
             case 'invoice':
                 $this->template_subject = 'texts.notification_invoice_sent_subject';

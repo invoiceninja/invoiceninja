@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,7 +29,6 @@ class ActivityReportController extends BaseController
     {
         parent::__construct();
     }
-
 
     public function __invoke(GenericReportRequest $request)
     {

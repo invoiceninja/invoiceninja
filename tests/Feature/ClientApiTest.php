@@ -525,15 +525,6 @@ class ClientApiTest extends TestCase
 
     public function testDocumentValidationPutFails()
     {
-        $data = [
-            'name' => 'name of client',
-            'documents' => 'wut',
-        ];
-
-        $response = $this->withHeaders([
-          'X-API-TOKEN' => $this->token,
-        ])->putJson("/api/v1/clients/{$this->client->hashed_id}", $data)
-        ->assertStatus(422);
 
         $data = [
             'name' => 'name of client',

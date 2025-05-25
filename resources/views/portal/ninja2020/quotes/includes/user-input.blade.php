@@ -23,6 +23,11 @@
                 </button>
 
             </div>
+            <div class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto" x-data>
+                <button @click="document.getElementById('displayInputModal').style.display = 'none';" type="button" class="button button-secondary" id="close-button">
+                    {{ ctrans('texts.close') }}
+                </button>
+            </div>
         </div>
     </div>
 </div>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -53,7 +54,7 @@ class QbInvoice implements SyncInterface
     {
 
         foreach ($records as $record) {
-                   
+
             $ninja_invoice_data = $this->invoice_transformer->qbToNinja($record);
 
             $payment_ids = $ninja_invoice_data['payment_ids'] ?? [];
@@ -72,16 +73,16 @@ class QbInvoice implements SyncInterface
                     $this->qbInvoiceUpdate($ninja_invoice_data, $invoice);
                 }
 
-                if(Invoice::where('company_id', $this->service->company->id)
+                if (Invoice::where('company_id', $this->service->company->id)
                     ->whereNotNull('number')
                     ->where('number', $ninja_invoice_data['number'])
                     ->exists()) {
                     $ninja_invoice_data['number'] = 'qb_'.$ninja_invoice_data['number'].'_'.rand(1000, 99999);
                 }
 
-                    $invoice->fill($ninja_invoice_data);
-                    $invoice->saveQuietly();
-                
+                $invoice->fill($ninja_invoice_data);
+                $invoice->saveQuietly();
+
 
                 $invoice = $invoice->calc()->getInvoice()->service()->markSent()->applyNumber()->createInvitations()->save();
 

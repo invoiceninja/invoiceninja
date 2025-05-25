@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -62,11 +63,11 @@ class ImportJsonController extends BaseController
 
         $metadata = [];
 
-        if($request->metadata) {
+        if ($request->metadata) {
 
             $metadata = $this->handleChunkedUpload($request);
 
-            if(!isset($metadata['uploaded_filepath'])){
+            if (!isset($metadata['uploaded_filepath'])) {
 
                 return response()->json([
                         'success' => true,
@@ -76,18 +77,25 @@ class ImportJsonController extends BaseController
                         'fileName' => $metadata['fileName']
                     ], 200);
 
-           }
+            }
 
-           $file_location = $metadata['uploaded_filepath'];
-        }
-        else{
+            $file_location = $metadata['uploaded_filepath'];
+        } else {
 
             $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
+
+            $extension = $request->file('files')->getClientOriginalExtension();
+
+            $parsed_filename = sprintf(
+                '%s.%s',
+                \Illuminate\Support\Str::random(32),
+                preg_replace('/[^a-zA-Z0-9]/', '', $extension) // Sanitize extension
+            );
 
             $file_location = $request->file('files')
                 ->storeAs(
                     'migrations',
-                    $request->file('files')->getClientOriginalName(),
+                    $parsed_filename,
                     $disk,
                 );
         }
@@ -96,78 +104,151 @@ class ImportJsonController extends BaseController
 
         unset($metadata['uploaded_filepath']);
 
-        return response()->json(array_merge(['message' => 'Processing','success' => true], $metadata ), 200);
+        return response()->json(array_merge(['message' => 'Processing','success' => true], $metadata), 200);
     }
 
     private function handleChunkedUpload(ImportJsonRequest $request)
     {
-        
         $metadata = json_decode($request->metadata, true);
-        $chunk = $request->file('file');
-
-        $tempPath = sys_get_temp_dir()."/{$metadata['fileHash']}/app/chunks/";
-
-        if(!is_dir($tempPath)) {
-            mkdir($tempPath, 0777, true);
+        
+        // Validate metadata structure
+        if (!isset($metadata['fileHash'], $metadata['fileName'], $metadata['totalChunks'], $metadata['currentChunk'])) {
+            throw new \InvalidArgumentException('Invalid metadata structure');
         }
 
-        $chunkPath = $tempPath . '/' . $metadata['currentChunk'];
-        
-        file_put_contents($chunkPath, file_get_contents($chunk));
+        // Sanitize and validate file hash (should be alphanumeric)
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $metadata['fileHash'])) {
+            throw new \InvalidArgumentException('Invalid file hash format');
+        }
+
+        // Sanitize and validate filename
+        $safeFileName = basename($metadata['fileName']);
+        if ($safeFileName !== $metadata['fileName']) {
+            throw new \InvalidArgumentException('Invalid filename');
+        }
+
+        // Validate chunk number format
+        if (!is_numeric($metadata['currentChunk']) || $metadata['currentChunk'] < 0) {
+            throw new \InvalidArgumentException('Invalid chunk number');
+        }
+
+        // Validate total chunks
+        if (!is_numeric($metadata['totalChunks']) || $metadata['totalChunks'] <= 0 || $metadata['totalChunks'] > 1000) {
+            throw new \InvalidArgumentException('Invalid total chunks');
+        }
+
+        // Validate file type
+        $chunk = $request->file('file');
+        if (!$chunk || !$chunk->isValid()) {
+            throw new \InvalidArgumentException('Invalid file chunk');
+        }
+
+        // Create a secure base directory path
+        $baseDir = storage_path('app/tmp/uploads');
+        $tempPath = $baseDir . '/' . $metadata['fileHash'] . '/chunks';
+
+        // Secure directory creation
+        if (!is_dir($tempPath)) {
+            if (!mkdir($tempPath, 0755, true)) {
+                throw new \RuntimeException('Failed to create directory');
+            }
+        }
+
+        // Secure path for chunk
+        $chunkPath = $tempPath . '/' . (int)$metadata['currentChunk'];
+
+        // Validate file size before saving
+        $maxChunkSize = 5 * 1024 * 1024; // 5MB
+        if ($chunk->getSize() > $maxChunkSize) {
+            throw new \InvalidArgumentException('Chunk size exceeds limit');
+        }
+
+        // Save chunk securely
+        if (!$chunk->move($tempPath, (string)$metadata['currentChunk'])) {
+            throw new \RuntimeException('Failed to save chunk');
+        }
 
         $uploadedChunks = count(glob($tempPath . '/*'));
 
         if ($uploadedChunks >= $metadata['totalChunks']) {
-            // Combine all chunks
-            $tempFilePath = $tempPath . $metadata['fileName'];
-            
-            $handle = fopen($tempFilePath, 'wb');
+            try {
+                // Combine chunks securely
+                $outputPath = $baseDir . '/' . $metadata['fileHash'] . '/' . $safeFileName;
+                $outputDir = dirname($outputPath);
+                
+                if (!is_dir($outputDir)) {
+                    mkdir($outputDir, 0755, true);
+                }
 
-            for ($i = 0; $i < $metadata['totalChunks']; $i++) {
-                $chunkContent = file_get_contents($tempPath . '/' . $i);
-                fwrite($handle, $chunkContent);
+                $handle = fopen($outputPath, 'wb');
+                if ($handle === false) {
+                    throw new \RuntimeException('Failed to create output file');
+                }
+
+                // Combine chunks with validation
+                for ($i = 0; $i < $metadata['totalChunks']; $i++) {
+                    $chunkFile = $tempPath . '/' . $i;
+                    if (!file_exists($chunkFile)) {
+                        throw new \RuntimeException("Missing chunk: {$i}");
+                    }
+                    
+                    $chunkContent = file_get_contents($chunkFile);
+                    if ($chunkContent === false) {
+                        throw new \RuntimeException("Failed to read chunk: {$i}");
+                    }
+                    
+                    if (fwrite($handle, $chunkContent) === false) {
+                        throw new \RuntimeException("Failed to write chunk: {$i}");
+                    }
+                }
+
+                fclose($handle);
+
+                // Store in final location
+                $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
+                $finalPath = 'migrations/' . $safeFileName;
+
+                Storage::disk($disk)->put(
+                    $finalPath,
+                    file_get_contents($outputPath),
+                    ['visibility' => 'private']
+                );
+
+                // Clean up
+                $this->secureDeleteDirectory($baseDir . '/' . $metadata['fileHash']);
+
+                $metadata['uploaded_filepath'] = $finalPath;
+                return $metadata;
+
+            } catch (\Exception $e) {
+                // Clean up on error
+                $this->secureDeleteDirectory($baseDir . '/' . $metadata['fileHash']);
+                throw $e;
             }
-
-            fclose($handle);
-            
-            $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
-
-            Storage::disk($disk)->put(
-                'migrations/'.$metadata['fileName'],
-                file_get_contents($tempFilePath),
-                ['visibility' => 'private']
-            );
-
-            $this->deleteDirectory(sys_get_temp_dir()."/{$metadata['fileHash']}");
-
-            Storage::deleteDirectory(sys_get_temp_dir()."/{$metadata['fileHash']}");
-
-            $metadata['uploaded_filepath'] = 'migrations/'.$metadata['fileName'];
-            
-            return $metadata;
-
         }
 
         return $metadata;
-
     }
 
-    private function deleteDirectory($dir) 
+    /**
+     * Securely delete a directory and its contents
+     */
+    private function secureDeleteDirectory(string $dir): void
     {
+        if (!is_dir($dir)) {
+            return;
+        }
+
         $files = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::CHILD_FIRST
         );
 
-        foreach ($files as $file) {
-            if ($file->isDir()) {
-                rmdir($file->getRealPath());
-            } else {
-                unlink($file->getRealPath());
-            }
+        foreach ($files as $fileinfo) {
+            $todo = ($fileinfo->isDir() ? 'rmdir' : 'unlink');
+            $todo($fileinfo->getRealPath());
         }
 
-        return rmdir($dir);
-    
+        rmdir($dir);
     }
 }

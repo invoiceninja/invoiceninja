@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Http;
 
 class ZipTax implements TaxProviderInterface
 {
-    private string $endpoint = 'https://api.zip-tax.com/request/v40';
+    // private string $endpoint = 'https://api.zip-tax.com/request/v40';
+
+    private string $endpoint = 'https://api.zip-tax.com/request/v50';
 
     private string $api_key = '';
 
@@ -60,6 +63,7 @@ class ZipTax implements TaxProviderInterface
      */
     private function callApi(array $parameters)
     {
+        $parameters['adjustment'] = 'auto'; //v50 specific
 
         return Http::retry(3, 1000)->withHeaders([])->get($this->endpoint, $parameters);
 

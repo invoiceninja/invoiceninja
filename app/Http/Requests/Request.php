@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -20,7 +21,7 @@ class Request extends FormRequest
     use MakesHash;
     use RuntimeFormRequest;
 
-    protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp';
+    protected $file_validation = 'sometimes|file|max:100000|mimes:png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,txt';
     /**
      * Get the validation rules that apply to the request.
      *
@@ -125,7 +126,7 @@ class Request extends FormRequest
         if (array_key_exists('location_id', $input) && is_string($input['location_id'])) {
             $input['location_id'] = $this->decodePrimaryKey($input['location_id']);
         }
-        
+
         if (array_key_exists('client_id', $input) && is_string($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }

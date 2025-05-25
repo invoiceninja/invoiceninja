@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -414,14 +415,16 @@ class RecurringInvoiceController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if((stripos($request->action, 'send_now') !== false) && $user->hasExactPermission('disable_emails')){
+        if ((stripos($request->action, 'send_now') !== false) && $user->hasExactPermission('disable_emails')) {
             return response(['message' => ctrans('texts.disable_emails_error')], 400);
         }
 
         $percentage_increase = request()->has('percentage_increase') ? request()->input('percentage_increase') : 0;
 
         if (in_array($request->action, ['increase_prices', 'update_prices'])) {
-            UpdateRecurring::dispatch($request->ids, $user->company(), $user, $request->action, $percentage_increase);
+
+            if($user->isAdmin())
+                UpdateRecurring::dispatch($request->ids, $user->company(), $user, $request->action, $percentage_increase);
 
             return response()->json(['message' => 'Update in progress.'], 200);
         }
@@ -435,6 +438,26 @@ class RecurringInvoiceController extends BaseController
                     ->whereIn('id', $request->ids);
 
             $this->recurring_invoice_repo->bulkUpdate($recurring_invoices, $request->column, $request->new_value);
+
+            /** Handle changes to the status of the recurring invoice after the remaining_cycles is updated */
+            if($request->column == 'remaining_cycles'){
+
+                if($request->new_value == 0){
+                    $recurring_invoices->each(function ($recurring_invoice) {
+                        $recurring_invoice->status_id = RecurringInvoice::STATUS_COMPLETED;
+                        $recurring_invoice->save();
+                    });
+                }
+                else {
+                    $recurring_invoices->each(function ($recurring_invoice) {
+                        
+                        if($recurring_invoice->status_id == RecurringInvoice::STATUS_COMPLETED){
+                            $recurring_invoice->status_id = RecurringInvoice::STATUS_PAUSED;
+                            $recurring_invoice->save();
+                        }
+                    });
+                }
+            }
 
             return $this->listResponse(RecurringInvoice::query()->withTrashed()->company()->whereIn('id', $request->ids));
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -278,6 +279,8 @@ class Activity extends StaticModel
     public const E_EXPENSE_CREATED = 148;
 
     public const EMAIL_CREDIT = 149;
+
+    public const ACCOUNT_DELETED = 150;
     
     protected $casts = [
         'is_system' => 'boolean',
@@ -516,7 +519,7 @@ class Activity extends StaticModel
             ':recurring_invoice' => $translation =  [substr($variable, 1) => [ 'label' =>  $this?->recurring_invoice?->number ?? '', 'hashed_id' => $this->recurring_invoice->hashed_id ?? '']],
             ':recurring_expense' => $translation =  [substr($variable, 1) => [ 'label' => $this?->recurring_expense?->number ?? '', 'hashed_id' => $this->recurring_expense->hashed_id ?? '']],
             ':payment_amount' => $translation =  [substr($variable, 1) => [ 'label' =>  Number::formatMoney($this?->payment?->amount, $this?->payment?->client ?? $this->company) ?? '', 'hashed_id' => '']],
-            ':adjustment' => $translation =  [substr($variable, 1) => [ 'label' =>  Number::formatMoney($this?->payment?->refunded, $this?->payment?->client ?? $this->company) ?? '', 'hashed_id' => '']],
+            ':adjustment' => $translation = [substr($variable, 1) => [ 'label' =>  $this->getPaymentAdjustment($this?->payment), 'hashed_id' => '']],
             ':ip' => $translation = [ 'ip' => $this->ip ?? ''],
             ':contact' => $translation = $this->resolveContact(),
             ':notes' => $translation = [ 'notes' => $this->notes ?? ''],
@@ -525,6 +528,18 @@ class Activity extends StaticModel
         };
 
         return $translation;
+    }
+
+    public function getPaymentAdjustment(?\App\Models\Payment $payment): string
+    {
+        if(!$payment)
+            return '';
+
+        preg_match('/:\s*(\d+)\s*-/', $this->notes, $matches);
+        $amount = $matches[1] ?? null;
+
+        return Number::formatMoney($amount ?? $payment->refunded, $payment?->client ?? $this->company);
+
     }
 
     private function resolveContact(): array

@@ -108,6 +108,7 @@ use App\Http\Controllers\Reports\InvoiceReportController;
 use App\Http\Controllers\Reports\PaymentReportController;
 use App\Http\Controllers\Reports\ProductReportController;
 use App\Http\Controllers\Reports\ProfitAndLossController;
+use App\Http\Controllers\Reports\ProjectReportController;
 use App\Http\Controllers\Reports\ReportPreviewController;
 use App\Http\Controllers\Reports\ActivityReportController;
 use App\Http\Controllers\Reports\ARDetailReportController;
@@ -128,7 +129,7 @@ use App\Http\Controllers\Reports\RecurringInvoiceReportController;
 use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
-    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit');
+    Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
     Route::post('api/v1/oauth_login', [LoginController::class, 'oauthApiLogin']);
 });
 
@@ -137,7 +138,7 @@ Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
-Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
 
     Route::post('password_timeout', PasswordTimeoutController::class)->name('password_timeout');
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
@@ -186,7 +187,6 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
 
     Route::post('filters/{entity}', [FilterController::class, 'index'])->name('filters');
-
 
     Route::resource('client_gateway_tokens', ClientGatewayTokenController::class);
     Route::post('client_gateway_tokens/{client_gateway_token}/setAsDefault', [ClientGatewayTokenController::class, 'setAsDefault'])->name('client_gateway_tokens.set_as_default');
@@ -366,6 +366,7 @@ Route::group(['middleware' => ['throttle:api', 'api_db', 'token_auth', 'locale']
     Route::post('reports/client_sales_report', ClientSalesReportController::class);
     Route::post('reports/tax_summary_report', TaxSummaryReportController::class);
     Route::post('reports/user_sales_report', UserSalesReportController::class);
+    Route::post('reports/projects', ProjectReportController::class);
     Route::post('reports/preview/{hash}', ReportPreviewController::class);
     Route::post('exports/preview/{hash}', ReportExportController::class);
 
@@ -467,7 +468,6 @@ Route::match(['get', 'post'], 'payment_notification_webhook/{company_key}/{compa
     ->middleware('throttle:1000,1')
     ->name('payment_notification_webhook');
 
-
 Route::post('api/v1/postmark_webhook', [PostMarkController::class, 'webhook'])->middleware('throttle:5000,1');
 Route::post('api/v1/postmark_inbound_webhook', [PostMarkController::class, 'inboundWebhook'])->middleware('throttle:1000,1');
 Route::post('api/v1/mailgun_webhook', [MailgunController::class, 'webhook'])->middleware('throttle:1000,1');
@@ -494,3 +494,10 @@ Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, '
 Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');
 
 Route::fallback([BaseController::class, 'notFound'])->middleware('throttle:404');
+
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'message' => 'API is healthy',
+    ]);
+})->middleware('throttle:20,1');

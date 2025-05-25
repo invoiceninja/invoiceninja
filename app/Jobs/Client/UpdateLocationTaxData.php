@@ -60,7 +60,7 @@ class UpdateLocationTaxData implements ShouldQueue
         $client = $this->location->client;
 
         try {
-            
+
             if (!$this->location->state && $this->location->postal_code) {
 
                 $this->location->update(['state' => USStates::getState($this->location->postal_code)]);
@@ -92,7 +92,7 @@ class UpdateLocationTaxData implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->location->client->id.$this->company->company_key)];
+        return [(new WithoutOverlapping($this->location->client->id.$this->company->company_key))->releaseAfter(60)];
     }
 
     public function failed($exception)

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Expense Ninja (https://expenseninja.com).
  *

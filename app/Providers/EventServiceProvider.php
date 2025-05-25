@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -64,6 +65,7 @@ use App\Events\Quote\QuoteWasDeleted;
 use App\Events\Quote\QuoteWasEmailed;
 use App\Events\Quote\QuoteWasUpdated;
 use App\Events\Account\AccountCreated;
+use App\Events\Account\AccountDeleted;
 use App\Events\Credit\CreditWasViewed;
 use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Quote\QuoteWasApproved;
@@ -173,6 +175,7 @@ use App\Listeners\Invoice\InvoiceViewedActivity;
 use App\Listeners\Invoice\UpdateInvoiceActivity;
 use App\Listeners\Misc\InvitationViewedListener;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
+use App\Listeners\Account\AccountDeletedListener;
 use App\Listeners\Activity\ClientUpdatedActivity;
 use App\Listeners\Activity\CreatedClientActivity;
 use App\Listeners\Activity\CreatedCreditActivity;
@@ -300,6 +303,9 @@ class EventServiceProvider extends ServiceProvider
         // ResponseReceived::class => [
         //     LogResponseReceived::class,
         // ],
+        AccountDeleted::class => [
+            AccountDeletedListener::class,
+        ],
         AccountCreated::class => [
         ],
         MessageSending::class => [

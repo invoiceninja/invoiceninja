@@ -60,12 +60,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Vendor|null $vendor
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Country|null $country
- * 
+ *
  * @mixin \Eloquent
  */
 class Location extends BaseModel
 {
-    
     use SoftDeletes;
     use Filterable;
     use Excludable;
@@ -100,6 +99,7 @@ class Location extends BaseModel
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
         'is_deleted' => 'bool',
+        'is_shipping_locaiton',
     ];
 
     protected $touches = [];

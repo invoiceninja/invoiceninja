@@ -116,7 +116,6 @@ class InstantPayment
             $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
             $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
 
-
             /*If we don't allow under/over payments force the payable amount - prevents inspect element adjustments in JS*/
 
             if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {

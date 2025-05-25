@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -396,16 +397,14 @@ class CompanyImport implements ShouldQueue
 
                             $t_id = false;
 
-                            try{
+                            try {
                                 $t_id = $this->transformId('tasks', $value->task_id);
-                            }
-                            catch(\Exception $e){
+                            } catch (\Exception $e) {
                             }
 
                             if ($t_id && $t = Task::withTrashed()->where('company_id', $this->company->id)->where('id', $t_id)->first()) {
                                 $items[$key]->task_id = $t->hashed_id;
-                            }
-                            else {
+                            } else {
                                 $items[$key]->task_id = null;
                             }
 
@@ -416,16 +415,14 @@ class CompanyImport implements ShouldQueue
                         if (isset($value->expense_id) && strlen($value->expense_id) > 1) {
 
                             $e_id = false;
-                            try{
+                            try {
                                 $e_id = $this->transformId('expenses', $value->expense_id);
-                            }
-                            catch(\Exception $e){
+                            } catch (\Exception $e) {
                             }
 
                             if ($e = Expense::withTrashed()->where('company_id', $this->company->id)->where('id', $e_id)->first()) {
                                 $items[$key]->expense_id = $e->hashed_id;
-                            }
-                            else {
+                            } else {
                                 $items[$key]->expense_id = null;
                             }
 
@@ -669,24 +666,25 @@ class CompanyImport implements ShouldQueue
 
     private function importLogo()
     {
+        $logo_path = "{$this->root_file_path}company_logo.png";
 
-        if(file_exists("{$this->root_file_path}company_logo.png")) {
-            $logo = @file_get_contents("{$this->root_file_path}company_logo.png");
+        // Check for null bytes in path
+        if (strpos($logo_path, "\0") !== false) {
+            nlog("Logo path contains null bytes - skipping logo import");
+            return $this;
+        }
 
+        if (file_exists($logo_path)) {
 
-            if(!$logo) {
-                return $this;
-            }
+            $path = (new \App\Jobs\Util\UploadAvatar($logo_path, $this->company->company_key))->handle();
 
-            $path = (new \App\Jobs\Util\UploadAvatar($logo, $this->company->company_key))->handle();
-            
             if ($path) {
                 $settings = $this->company->settings;
                 $settings->company_logo = $path;
                 $this->company->settings = $settings;
                 $this->company->save();
             }
-    
+
         }
 
         return $this;
@@ -1019,6 +1017,7 @@ class CompanyImport implements ShouldQueue
             'recurring_invoice_invitations',
             'key'
         );
+
 
         return $this;
     }
@@ -1358,14 +1357,14 @@ class CompanyImport implements ShouldQueue
                 }
 
             } elseif (file_exists("{$this->root_file_path}documents/{$document->url}")) {
-                
-                $success = Storage::disk(config('filesystems.default'))->put($new_document_url, file_get_contents("{$this->root_file_path}documents/{$document->url}"));
-            
-                if(!$success)
-                    continue;
 
-            }
-            else {
+                $success = Storage::disk(config('filesystems.default'))->put($new_document_url, file_get_contents("{$this->root_file_path}documents/{$document->url}"));
+
+                if (!$success) {
+                    continue;
+                }
+
+            } else {
                 continue;
             }
 
@@ -1734,18 +1733,16 @@ class CompanyImport implements ShouldQueue
             $new_obj->save(['timestamps' => false]);
 
             if ($new_obj instanceof CompanyLedger || $new_obj instanceof EInvoicingToken) {
-            } 
-            elseif ($new_obj instanceof Backup) {
+            } elseif ($new_obj instanceof Backup) {
 
-                if(file_exists("{$this->root_file_path}/backups/{$obj->filename}")) {
-                    $file = file_get_contents("{$this->root_file_path}/backups/{$obj->filename}");
-                    $new_obj->filename = str_replace($this->old_company_key, $this->company->company_key, $new_obj->filename);
+                if (is_file("{$this->root_file_path}backups/{$obj->filename}")) {
+                    $file = file_get_contents("{$this->root_file_path}backups/{$obj->filename}");
+                    $new_obj->filename = str_replace($this->old_company_key, $this->company->company_key, $obj->filename);
                     $new_obj->save();
                     $new_obj = $new_obj->fresh();
-                    $new_obj->storeBackupFile(file_get_contents("{$this->root_file_path}/backups/{$obj->filename}"));
+                    $new_obj->storeBackupFile($file);
                 }
-            }
-            else {
+            } else {
                 $this->ids["{$object_property}"]["{$obj->hashed_id}"] = $new_obj->id;
             }
         }
@@ -1952,10 +1949,10 @@ class CompanyImport implements ShouldQueue
 
         if (! array_key_exists($resource, $this->ids)) {
 
-            if($this->import_notifications_enabled){
+            if ($this->import_notifications_enabled) {
                 $this->sendImportMail("The Import failed due to missing data in the import file. Resource {$resource} not available.");
             }
-            
+
             throw new \Exception("Resource {$resource} not available.");
         }
 
@@ -1966,7 +1963,7 @@ class CompanyImport implements ShouldQueue
                 return $this->company_owner->id;
             }
 
-            if($this->import_notifications_enabled){
+            if ($this->import_notifications_enabled) {
                 $this->sendImportMail("The Import failed due to missing data in the import file. Key {$old} not found in {$resource}.");
             }
 

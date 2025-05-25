@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -143,7 +144,7 @@ class EntityLevel
 
         try {
             $xml = $p->run()->toXml();
-             
+
             if (count($p->getErrors()) >= 1) {
 
                 foreach ($p->getErrors() as $error) {
@@ -207,18 +208,19 @@ class EntityLevel
         if (!in_array($client->classification, ['government', 'individual']) && in_array($client->country->iso_3166_2, $this->eu_country_codes) && !$this->validString($client->vat_number)) {
             $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
         }
-        
+
         //Primary contact email is present.
-        if($client->present()->email() == 'No Email Set'){
+        if ($client->present()->email() == 'No Email Set') {
             $errors[] = ['field' => 'email', 'label' => ctrans("texts.email")];
         }
 
         $delivery_network_supported = $client->checkDeliveryNetwork();
 
-        if(is_string($delivery_network_supported))
+        if (is_string($delivery_network_supported)) {
             $errors[] = ['field' => ctrans("texts.country"), 'label' => $delivery_network_supported];
+        }
 
-        
+
 
         return $errors;
 
@@ -334,24 +336,24 @@ class EntityLevel
 
             // B2C, under threshold, no Company VAT Registerd - must charge origin country VAT
             if ($is_b2c && !$is_over_threshold && strlen($client->company->settings->vat_number) < 2) {
-               
+
             } elseif ($is_b2c) {
                 if ($is_over_threshold) {
                     // B2C over threshold - need destination VAT number
-                    if (!isset($client->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number)) {                        
+                    if (!isset($client->company->tax_data->regions->EU->subregions->{$client_country_code}->vat_number)) {
                         $this->errors['invoice'][] = "Tax Nexus is client country ({$client_country_code}) - however VAT number not present for this region.";
                     }
-                } 
-                
+                }
+
             } elseif ($is_over_threshold && !in_array($company_country_code, $eu_countries)) {
-               
-            } 
-            
+
+            }
+
 
         }
 
         return $this;
     }
 
-    
+
 }

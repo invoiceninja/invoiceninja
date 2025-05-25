@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ class MarkSent extends AbstractService
             return $this->invoice;
         }
 
-        $adjustment = $this->invoice->amount;
+        $adjustment = $this->invoice->amount ?? 0;
 
         /*Set status*/
         $this->invoice
@@ -45,8 +46,8 @@ class MarkSent extends AbstractService
              ->ledger()
              ->updateInvoiceBalance($adjustment, "Invoice {$this->invoice->number} marked as sent.");
 
-        $this->invoice->client->service()->calculateBalance();
-
+        // $this->invoice->client->service()->calculateBalance();
+        $this->invoice->client->service()->updateBalance($adjustment);
         /* Perform additional actions on invoice */
         $this->invoice
              ->service()

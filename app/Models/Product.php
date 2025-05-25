@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -234,5 +235,21 @@ class Product extends BaseModel
     public function portalUrl($use_react_url): string
     {
         return $use_react_url ? config('ninja.react_url') . "/#/products/{$this->hashed_id}/edit" : config('ninja.app_url');
+    }
+
+    public function getTaxCategoryName($tax_id)
+    {
+        return match ($tax_id) {
+            self::PRODUCT_TYPE_PHYSICAL => ctrans('texts.physical_goods'),
+            self::PRODUCT_TYPE_SERVICE => ctrans('texts.services'),
+            self::PRODUCT_TYPE_DIGITAL => ctrans('texts.digital_products'),
+            self::PRODUCT_TYPE_SHIPPING => ctrans('texts.shipping'),
+            self::PRODUCT_TYPE_EXEMPT => ctrans('texts.tax_exempt'),
+            self::PRODUCT_TYPE_REDUCED_TAX => ctrans('texts.reduced_tax'),
+            self::PRODUCT_TYPE_OVERRIDE_TAX => ctrans('texts.override_tax'),
+            self::PRODUCT_TYPE_ZERO_RATED => ctrans('texts.zero_rated'),
+            self::PRODUCT_TYPE_REVERSE_TAX => ctrans('texts.reverse_tax'),
+            default => 'Unknown',
+        };
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -125,7 +126,7 @@ class PaymentFailedMailer implements ShouldQueue
             $nmo->company = $this->company;
             $nmo->to_user = $contact;
             $nmo->settings = $settings;
-            
+
             if ($invitation) {
                 $nmo->invitation = $invitation->withoutRelations();
             }

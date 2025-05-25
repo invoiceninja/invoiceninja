@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -125,7 +126,7 @@ class RecurringInvoiceFilters extends QueryFilters
     {
 
         $sort_col = explode('|', $sort);
-        
+
         if ($sort_col[0] == 'next_send_datetime') {
             $sort_col[0] = 'next_send_date';
         }

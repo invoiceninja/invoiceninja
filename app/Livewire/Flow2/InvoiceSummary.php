@@ -43,7 +43,7 @@ class InvoiceSummary extends Component
     #[On(self::CONTEXT_UPDATE)]
     public function onContextUpdate(): void
     {
-        
+
         $_context = $this->getContext();
 
         // refactor logic for updating the price for eg if it changes with under/over pay
@@ -57,7 +57,7 @@ class InvoiceSummary extends Component
     #[On('payment-view-rendered')]
     public function handlePaymentViewRendered()
     {
-        
+
         $_context = $this->getContext();
 
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();
@@ -74,7 +74,7 @@ class InvoiceSummary extends Component
         $invitation_id = $_context['invitation_id'];
 
         $db = $_context['db'];
-        
+
         $invite = \App\Models\InvoiceInvitation::on($db)->withTrashed()->find($invitation_id);
 
         $file_name = $invite->invoice->numberFormatter().'.pdf';

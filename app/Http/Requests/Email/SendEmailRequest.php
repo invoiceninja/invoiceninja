@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -98,7 +99,7 @@ class SendEmailRequest extends Request
             $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
         }
 
-        if($input['entity'] == 'purchaseOrder'){
+        if (isset($input['entity']) && $input['entity'] == 'purchaseOrder') {
             $this->entity_plural = "purchase_orders";
         }
 
@@ -144,7 +145,7 @@ class SendEmailRequest extends Request
             return false;
         }
 
-        if($user->hasExactPermission('disable_emails')){
+        if ($user->hasExactPermission('disable_emails')) {
             $this->error_message = ctrans('texts.disable_emails_error');
             return false;
         }

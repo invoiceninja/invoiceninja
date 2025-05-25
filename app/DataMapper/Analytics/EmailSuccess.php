@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -75,9 +76,10 @@ class EmailSuccess extends GenericMixedMetric
      */
     public $string_metric8 = '';
 
-    public function __construct($string_metric7 = '', $string_metric8 = '')
+    public function __construct($string_metric7 = '', $string_metric8 = '', string $string_metric9 = '')
     {
         $this->string_metric7 = $string_metric7;
         $this->string_metric8 = $string_metric8;
+        $this->string_metric9 = $string_metric9;
     }
 }

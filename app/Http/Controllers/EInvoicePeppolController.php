@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -60,7 +61,7 @@ class EInvoicePeppolController extends BaseController
             ->setCompany($company)
             ->setup($request->validated());
 
-            nlog($response);
+        nlog($response);
 
         if (data_get($response, 'status') === 'error') {
             return response()->json(data_get($response, 'message'), status: $response['code']);
@@ -89,7 +90,7 @@ class EInvoicePeppolController extends BaseController
         $settings->tax_rate2 = 0;
         $settings->tax_name3 = '';
         $settings->tax_rate3 = 0;
-        
+
         $settings->e_invoice_type = 'PEPPOL';
         // $settings->vat_number = $request->vat_number ?? $company->settings->vat_number;
         $settings->id_number = $request->id_number ?? $company->settings->id_number;
@@ -264,7 +265,7 @@ class EInvoicePeppolController extends BaseController
 
     public function retrySend(RetrySendRequest $request)
     {
-        
+
         SendEDocument::dispatch($request->entity, $request->entity_id, auth()->user()->company()->db);
 
         return response()->json(['message' => 'trying....'], 200);

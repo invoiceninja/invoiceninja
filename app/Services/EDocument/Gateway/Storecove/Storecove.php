@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -247,7 +248,7 @@ class Storecove
 
         return $r;
     }
-     
+
     /**
      * checkNetworkStatus
      *
@@ -256,9 +257,9 @@ class Storecove
      */
     public function checkNetworkStatus(array $data): mixed
     {
-        
+
         $scheme = $this->router->resolveRouting($data['country'], $data['classification']);
-        
+
         return (strlen($data['vat_number'] ?? '') > 3 && $this->exists($data['vat_number'], $scheme)) ? [
                 'status' => 'error',
                 'code' => 422,
@@ -275,7 +276,7 @@ class Storecove
                     ]
                 ]
             ] : false;
-        
+
     }
 
     public function setupLegalEntity(array $data): array|\Illuminate\Http\Client\Response
@@ -429,7 +430,7 @@ class Storecove
 
             return $data;
         }
-       
+
         $this->deleteIdentifier($legal_entity_id);
 
         return $r;

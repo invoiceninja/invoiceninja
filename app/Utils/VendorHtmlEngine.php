@@ -408,7 +408,7 @@ class VendorHtmlEngine
         $data['$item'] = ['value' => '', 'label' => ctrans('texts.item')];
         $data['$description'] = ['value' => '', 'label' => ctrans('texts.description')];
 
-        $data['$entity_footer'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->footer ??''), $this->company), 'label' => ''];
+        $data['$entity_footer'] = ['value' => Helpers::processReservedKeywords(\nl2br($this->entity->footer ?? ''), $this->company), 'label' => ''];
         $data['$footer'] = &$data['$entity_footer'];
 
         $data['$page_size'] = ['value' => $this->settings->page_size, 'label' => ''];

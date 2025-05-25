@@ -140,7 +140,7 @@ class Purchase extends Component
         $sub = Subscription::find($this->decodePrimaryKey($this->subscription_id));
 
 
-        if(!$sub){
+        if (!$sub) {
 
 
             session()->flash('title', __('texts.subscription_unavailable'));
@@ -149,7 +149,7 @@ class Purchase extends Component
             return redirect()->route('client.error');
 
         }
-        
+
         if ($sub->steps) {
             $steps = collect(explode(',', $sub->steps))
                 ->map(fn ($step) => $classes[$step])

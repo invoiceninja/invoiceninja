@@ -160,6 +160,31 @@
         </div>
 	</div>
     <div class="table-container">
+        <h1 class="report-title">{{ t('income') }}</h1>
+         <table>
+            <thead>
+                <tr>
+                    <th>{{ t('method') }}</th>
+                    <th>{{ t('gross') }}</th>
+                    <th>{{ t('taxable_amount') }}</th>
+                    <th>{{ t('tax_exempt') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ t('cash_vs_accrual') }}</td>
+                    <td>{{ taxes.gross_sales }}</td>
+                    <td>{{ taxes.taxable_sales }}</td>
+                    <td>{{ taxes.exempt_sales }}</td>
+                </tr>
+                <tr>
+                    <td>{{ t('cash_accounting') }}</td>
+                    <td>{{ taxes.cash_gross_sales }}</td>
+                    <td>{{ taxes.cash_taxable_sales }}</td>
+                    <td>{{ taxes.cash_exempt_sales }}</td>
+                </tr>
+            </tbody>
+        </table>
         <h1 class="report-title">{{ t('tax_summary') }}</h1>
 		<table>
             <thead>

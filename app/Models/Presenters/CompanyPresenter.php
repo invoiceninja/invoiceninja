@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -51,7 +52,8 @@ class CompanyPresenter extends EntityPresenter
             $settings = $this->entity->settings;
         }
 
-        $basename = basename($this->settings->company_logo);
+        // $basename = basename($this->settings->company_logo);
+        $basename = basename($settings->company_logo);
 
         $logo = Storage::get("{$this->company_key}/{$basename}");
 
@@ -93,7 +95,7 @@ class CompanyPresenter extends EntityPresenter
 
     public function logoFile($settings)
     {
-        
+
         $context_options = [
             "ssl" => [
                "verify_peer" => false,

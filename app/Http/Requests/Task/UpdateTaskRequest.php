@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -84,19 +85,9 @@ class UpdateTaskRequest extends Request
             }
         }];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        
 
         return $this->globalRules($rules);
     }
@@ -105,8 +96,16 @@ class UpdateTaskRequest extends Request
     {
         $input = $this->decodePrimaryKeys($this->all());
 
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
+        }
+
+        if (isset($input['documents'])) {
+            unset($input['documents']);
         }
 
         /* Ensure the project is related */

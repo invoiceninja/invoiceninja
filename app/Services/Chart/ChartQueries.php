@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -285,7 +286,7 @@ trait ChartQueries
     {
 
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
-            //            AND invoices.balance > 0
+        //            AND invoices.balance > 0
 
         return DB::select("
             SELECT
@@ -310,7 +311,7 @@ trait ChartQueries
     {
 
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
-//AND invoices.balance > 0
+        //AND invoices.balance > 0
         return DB::select("
             SELECT
             SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as amount,
@@ -531,6 +532,6 @@ trait ChartQueries
             'start_date' => $start_date,
             'end_date' => $end_date,
         ]);
-        
+
     }
 }

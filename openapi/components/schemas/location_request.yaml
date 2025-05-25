@@ -1,0 +1,63 @@
+    LocationRequest:
+      properties:
+        name:
+          description: 'The location name'
+          type: string
+          example: 'Warehouse A'
+        address1:
+          description: 'The first line of the address'
+          type: string
+          example: '123 Business Street'
+        address2:
+          description: 'The second line of the address'
+          type: string
+          example: 'Suite 100'
+        city:
+          description: 'The city name'
+          type: string
+          example: 'San Francisco'
+        state:
+          description: 'The state or region'
+          type: string
+          example: 'CA'
+        postal_code:
+          description: 'The postal or zip code'
+          type: string
+          example: '94107'
+        country_id:
+          description: 'The ID of the associated country'
+          type: string
+          example: '840'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          nullable: true
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          nullable: true
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          nullable: true
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          nullable: true
+        is_shipping_location:
+          description: 'Indicates if this is a shipping location'
+          type: boolean
+          example: true
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: Opnel5aKBz
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The vendor hashed id'
+          type: string
+          example: Opnel5aKBz
+      type: object 

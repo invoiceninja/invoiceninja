@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -97,7 +98,7 @@ class NinjaMailerJob implements ShouldQueue
                 $reply_to_name = $this->nmo->settings->reply_to_email;
             }
 
-        $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
+            $this->nmo->mailable->replyTo($this->nmo->settings->reply_to_email, $reply_to_name);
         } elseif (isset($this->nmo->invitation->user)) {
             $this->nmo->mailable->replyTo($this->nmo->invitation->user->email, $this->nmo->invitation->user->present()->name());
         } else {
@@ -152,7 +153,7 @@ class NinjaMailerJob implements ShouldQueue
 
             $this->incrementEmailCounter();
 
-            LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject))
+            LightLogs::create(new EmailSuccess($this->nmo->company->company_key, $this->nmo->mailable->subject, $this->nmo->mailable->viewData['text_body'] ?? ''))
                 ->send();
 
         } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
@@ -209,7 +210,18 @@ class NinjaMailerJob implements ShouldQueue
 
             }
 
-        } catch (\Exception $e) {
+        } catch(\ErrorException $e){ //@todo - remove after symfony/mailer is updated with bug fix
+            
+            $message = "Attachment size is too large.";
+            $this->fail();
+            $this->logMailError($message, $this->company->clients()->first());
+            $this->entityEmailFailed($message);
+            $this->cleanUpMailers();
+
+            return;
+        
+        }
+        catch (\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -249,8 +261,19 @@ class NinjaMailerJob implements ShouldQueue
 
             if ($e instanceof PostmarkException) { //postmark specific failure
 
+
+                try {
+                    $response = json_decode($e->getMessage(), true);
+                    if (is_array($response) && isset($response['Message'])) {
+                        $message = $response['Message'];
+                    }
+                } catch (\Exception $jsonError) {
+                    // If JSON decode fails, use the original message
+                    $message = "Unknown issue sending via Postmark, please try again later.";
+                }
+
                 $this->fail();
-                $this->entityEmailFailed($e->getMessage());
+                $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
 
                 return;
@@ -323,14 +346,17 @@ class NinjaMailerJob implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
-        /** Force free/trials onto specific mail driver */
+        if(Ninja::isHosted() && $this->nmo?->transport == 'default') {
+            $this->mailer = config('mail.default');
+            return $this;
+        }
 
+        /** Force free/trials onto specific mail driver */
         if ($this->nmo->settings->email_sending_method == 'default' && $this->company->account->isNewHostedAccount()) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
         }
-
 
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
             //check if outlook.
@@ -513,7 +539,7 @@ class NinjaMailerJob implements ShouldQueue
     private function checkValidSendingUser($user)
     {
         /* Always ensure the user is set on the correct account */
-        if (!$user ||($user->account_id != $this->company->account_id)) {
+        if (!$user || ($user->account_id != $this->company->account_id)) {
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
         }
@@ -806,6 +832,16 @@ class NinjaMailerJob implements ShouldQueue
             ->send();
 
         $job_failure = null;
+
+        try {
+            if ($this->nmo->invitation) {
+                $this->nmo->invitation->email_error = substr($errors, 0, 150);
+                $this->nmo->invitation->save();
+            }
+        } catch (\Throwable $e) {
+            nlog("Problem saving email error: {$e->getMessage()}");
+        }
+
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -96,14 +97,29 @@ class TaxSummaryReport extends BaseExport
             $this->csv->insertOne([ctrans('texts.date_range'),' ',$this->translateDate($this->start_date, $this->company->date_format(), $this->company->locale()),' - ',$this->translateDate($this->end_date, $this->company->date_format(), $this->company->locale())]);
         }
 
-
-
         $query = $this->filterByClients($query);
         $accrual_map = [];
         $cash_map = [];
 
         $accrual_invoice_map = [];
         $cash_invoice_map = [];
+
+        // Initialize cash variables
+        $cash_gross_sales = 0;
+        $cash_taxable_sales = 0;
+        $cash_exempt_sales = 0;
+
+        $gross_sales = round($query->sum('amount'), 2);
+        $taxable_sales = round($query->where('total_taxes', '>', 0)->sum('amount'), 2);
+        $exempt_sales = round(($gross_sales - $taxable_sales), 2);
+
+        $gross_sales_money = Number::formatMoney($gross_sales, $this->company);
+        $taxable_sales_money = Number::formatMoney($taxable_sales, $this->company);
+        $exempt_sales_money = Number::formatMoney($exempt_sales, $this->company);
+
+        $gross_sales_formatted = Number::formatValue($gross_sales, $this->company->currency());
+        $taxable_sales_formatted = Number::formatValue($taxable_sales, $this->company->currency());
+        $exempt_sales_formatted = Number::formatValue($exempt_sales, $this->company->currency());
 
         foreach ($query->cursor() as $invoice) {
             $calc = $invoice->calc();
@@ -126,6 +142,9 @@ class TaxSummaryReport extends BaseExport
                     'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
                     'formatted' => Number::formatMoney($tax['total'], $this->company),
                     'tax' => Number::formatValue($tax['total'], $this->company->currency()),
+                    'name' => $tax['name'],
+                    'rate' => $tax['tax_rate'],
+                    'base_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
                 ];
 
                 //cash
@@ -141,6 +160,9 @@ class TaxSummaryReport extends BaseExport
                         if ($invoice->status_id == Invoice::STATUS_PAID) {
                             $tax_prorata = $tax['total'];
                             $cash_map[$key]['tax_amount'] += $tax['total'];
+                            $cash_gross_sales += $invoice->amount;
+                            $cash_taxable_sales += $invoice->total_taxes > 0 ? $invoice->amount : 0;
+                            $cash_exempt_sales += $invoice->total_taxes == 0 ? $invoice->amount : 0;
                         } else {
 
                             $paid_amount = $invoice->amount - $invoice->balance;
@@ -148,6 +170,10 @@ class TaxSummaryReport extends BaseExport
                             $tax_prorata = round($payment_ratio * ($tax['total'] ?? 0), 2);
 
                             $cash_map[$key]['tax_amount'] += $tax_prorata;
+
+                            $cash_gross_sales += $invoice->amount;
+                            $cash_taxable_sales += $tax_prorata > 0 ? $paid_amount : 0;
+                            $cash_exempt_sales += $tax_prorata == 0 ? $paid_amount : 0;
                         }
 
                         $cash_invoice_map[] = [
@@ -155,7 +181,9 @@ class TaxSummaryReport extends BaseExport
                             'date' => $this->translateDate($invoice->date, $this->company->date_format(), $this->company->locale()),
                             'formatted' => Number::formatMoney($tax_prorata, $this->company),
                             'tax' => Number::formatValue($tax_prorata, $this->company->currency()),
-
+                            'name' => $tax['name'],
+                            'rate' => $tax['tax_rate'],
+                            'base_amount' => $tax['base_amount'] ?? $calc->getNetSubtotal(),
                         ];
 
                     } catch (\DivisionByZeroError $e) {
@@ -167,9 +195,14 @@ class TaxSummaryReport extends BaseExport
         }
 
         $this->csv->insertOne([]);
-        $this->csv->insertOne($this->buildHeader());
         $this->csv->insertOne([ctrans('texts.cash_vs_accrual')]);
+        $this->csv->insertOne([]);
+        $this->csv->insertOne([ctrans('texts.gross'), $gross_sales_money, $gross_sales_formatted]);
+        $this->csv->insertOne([ctrans('texts.taxable_amount'), $taxable_sales_money, $taxable_sales_formatted]);
+        $this->csv->insertOne([ctrans('texts.tax_exempt'), $exempt_sales_money, $exempt_sales_formatted]);
+        $this->csv->insertOne([]);
 
+        $this->csv->insertOne($this->buildHeader());
         foreach ($accrual_map as $key => &$value) {
             $formatted_value = Number::formatValue($value['tax_amount'], $this->company->currency());
             $formatted_money = Number::formatMoney($value['tax_amount'], $this->company);
@@ -178,8 +211,23 @@ class TaxSummaryReport extends BaseExport
         }
         unset($value);
 
+        $cash_gross_sales_money = Number::formatMoney($cash_gross_sales, $this->company);
+        $cash_taxable_sales_money = Number::formatMoney($cash_taxable_sales, $this->company);
+        $cash_exempt_sales_money = Number::formatMoney($cash_exempt_sales, $this->company);
+
+        $cash_gross_sales_formatted = Number::formatValue($cash_gross_sales, $this->company->currency());
+        $cash_taxable_sales_formatted = Number::formatValue($cash_taxable_sales, $this->company->currency());
+        $cash_exempt_sales_formatted = Number::formatValue($cash_exempt_sales, $this->company->currency());
+
         $this->csv->insertOne([]);
         $this->csv->insertOne([ctrans('texts.cash_accounting')]);
+        $this->csv->insertOne([]);
+
+        $this->csv->insertOne([ctrans('texts.gross'), $cash_gross_sales_money, $cash_gross_sales_formatted]);
+        $this->csv->insertOne([ctrans('texts.taxable_amount'), $cash_taxable_sales_money, $cash_taxable_sales_formatted]);
+        $this->csv->insertOne([ctrans('texts.tax_exempt'), $cash_exempt_sales_money, $cash_exempt_sales_formatted]);
+        $this->csv->insertOne([]);
+
         $this->csv->insertOne($this->buildHeader());
 
         foreach ($cash_map as $key => &$value) {
@@ -192,7 +240,7 @@ class TaxSummaryReport extends BaseExport
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.cash_vs_accrual'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount')]);
+        $this->csv->insertOne([ctrans('texts.cash_vs_accrual'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount'), ctrans('texts.tax_name'), ctrans('texts.tax_rate'), ctrans('texts.taxable_amount')]); // for the summary add in the tax rates as headers also
 
         foreach ($accrual_invoice_map as $map) {
             $this->csv->insertOne($map);
@@ -200,7 +248,8 @@ class TaxSummaryReport extends BaseExport
 
         $this->csv->insertOne([]);
         $this->csv->insertOne([]);
-        $this->csv->insertOne([ctrans('texts.cash_accounting'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount')]);
+        $this->csv->insertOne([ctrans('texts.cash_accounting'), ctrans('texts.date'), ctrans('texts.amount'), ctrans('texts.amount'), ctrans('texts.tax_name'), ctrans('texts.tax_rate'), ctrans('texts.taxable_amount')]); // for the summary add in the tax rates as headers also
+
 
         foreach ($cash_invoice_map as $map) {
             $this->csv->insertOne($map);
@@ -211,7 +260,15 @@ class TaxSummaryReport extends BaseExport
 
         $this->taxes['cash_map'] = $cash_map;
         $this->taxes['cash_invoice_map'] = $cash_invoice_map;
-        
+
+        $this->taxes['cash_gross_sales'] = $cash_gross_sales_money;
+        $this->taxes['cash_taxable_sales'] = $cash_taxable_sales_money;
+        $this->taxes['cash_exempt_sales'] = $cash_exempt_sales_money;
+
+        $this->taxes['gross_sales'] = $gross_sales_money;
+        $this->taxes['taxable_sales'] = $taxable_sales_money;
+        $this->taxes['exempt_sales'] = $exempt_sales_money;
+
         return $this->csv->toString();
 
     }

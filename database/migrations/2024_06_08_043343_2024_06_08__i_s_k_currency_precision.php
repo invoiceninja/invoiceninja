@@ -66,7 +66,7 @@ return new class extends Migration
     'Africa/Harare' => 'Africa/Harare',
     'Europe/Helsinki' => 'Europe/Helsinki',
     'Asia/Jerusalem' => 'Asia/Jerusalem',
-    'Europe/Kiev' => 'Europe/Kiev',
+    'Europe/Kyiv' => 'Europe/Kyiv',
     'Europe/Minsk' => 'Europe/Minsk',
     'Europe/Riga' => 'Europe/Riga',
     'Europe/Sofia' => 'Europe/Sofia',

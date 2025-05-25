@@ -62,6 +62,231 @@ class PaymentTest extends TestCase
         );
     }
 
+
+    public function testDeletedCreditPayment()
+    {
+                  
+        $client = Client::factory()->create([
+            'company_id' => $this->company->id, 
+            'user_id' => $this->user->id, 
+            'balance' => 0, 
+            'paid_to_date' => 0,
+            'credit_balance' => 0,
+            'payment_balance' => 0,
+        ]);
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $invoice->client_id = $client->id;
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_taxes = false;
+
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+
+        $invoice = $invoice_calc->getInvoice()->service()->markSent()->save();
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals(10, $invoice->balance);
+
+        $credit = CreditFactory::create($this->company->id, $this->user->id);
+        $credit->client_id = $client->id;
+        $credit->status_id = Credit::STATUS_DRAFT;
+
+        $credit->line_items = $this->buildLineItems();
+        $credit->uses_inclusive_taxes = false;
+
+        $credit->save();
+
+        $credit_calc = new InvoiceSum($credit);
+        $credit_calc->build();
+
+        $credit = $credit_calc->getCredit()->service()->markSent()->save(); //$10 credit
+
+        $this->assertEquals(10, $credit->amount);
+        $this->assertEquals(10, $credit->balance);
+
+        $_c_hash = $credit->hashed_id;
+
+        $crepo = new \App\Repositories\CreditRepository();
+        $crepo->delete($credit);
+
+        $credit = $credit->refresh();
+
+        nlog("xxx");
+        nlog($credit->toArray());
+
+        $data = [
+            // 'amount' => $invoice->amount,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 10,
+                ],
+            ],
+            'credits' => [
+                [
+                    'credit_id' => $_c_hash,
+                    'amount' => 10,
+                ],
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(422);
+        
+    }
+
+    public function testRefundCreditPayment()
+    {
+             
+                
+        $client = Client::factory()->create([
+            'company_id' => $this->company->id, 
+            'user_id' => $this->user->id, 
+            'balance' => 0, 
+            'paid_to_date' => 0,
+            'credit_balance' => 0,
+            'payment_balance' => 0,
+        ]);
+
+        ClientContact::factory()->create([
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'company_id' => $this->company->id,
+            'is_primary' => 1,
+        ]);
+
+        $invoice = InvoiceFactory::create($this->company->id, $this->user->id); //stub the company and user_id
+        $invoice->client_id = $client->id;
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+
+        $invoice->line_items = $this->buildLineItems();
+        $invoice->uses_inclusive_taxes = false;
+
+        $invoice->save();
+
+        $invoice_calc = new InvoiceSum($invoice);
+        $invoice_calc->build();
+
+        $invoice = $invoice_calc->getInvoice()->service()->markSent()->save();
+        $this->assertEquals(10, $invoice->amount);
+        $this->assertEquals(10, $invoice->balance);
+
+        $credit = CreditFactory::create($this->company->id, $this->user->id);
+        $credit->client_id = $client->id;
+        $credit->status_id = Credit::STATUS_DRAFT;
+
+        $credit->line_items = $this->buildLineItems();
+        $credit->uses_inclusive_taxes = false;
+
+        $credit->save();
+
+        $credit_calc = new InvoiceSum($credit);
+        $credit_calc->build();
+
+        $credit = $credit_calc->getCredit()->service()->markSent()->save(); //$10 credit
+
+        $this->assertEquals(10, $credit->amount);
+        $this->assertEquals(10, $credit->balance);
+
+        $data = [
+            // 'amount' => $invoice->amount,
+            'client_id' => $client->hashed_id,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 10,
+                ],
+            ],
+            'credits' => [
+                [
+                    'credit_id' => $credit->hashed_id,
+                    'amount' => 10,
+                ],
+            ],
+            'date' => '2020/12/12',
+
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments?include=invoices', $data);
+
+        $arr = $response->json();
+        $response->assertStatus(200);
+
+        $payment = Payment::find($this->decodePrimaryKey($arr['data']['id']));
+
+        $this->assertEquals(0, $payment->amount);
+        $this->assertEquals(0, $payment->refunded);
+        $this->assertEquals(0, $payment->applied);
+
+        $client = $client->refresh();   
+        $this->assertEquals(0, $client->balance);
+        $this->assertEquals(10, $client->paid_to_date);
+
+        $invoice = $invoice->refresh();
+        $this->assertEquals(0, $invoice->balance);
+
+        $credit = $credit->refresh();
+        $this->assertEquals(0, $credit->balance);
+        
+        $refund_payload = [
+            'id' => $payment->hashed_id,
+            'amount' => 10,
+            'date' => '2020/12/12',
+            'gateway_refund' => false,
+            'invoices' => [
+                [
+                    'invoice_id' => $invoice->hashed_id,
+                    'amount' => 10,
+                ],
+            ],
+        ];
+        
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/payments/refund', $refund_payload);
+        
+        $response->assertStatus(200);
+
+
+        $invoice = $invoice->refresh();
+        $this->assertEquals(10, $invoice->balance);
+
+        $credit = $credit->refresh();
+        $this->assertEquals(10, $credit->balance);
+        
+        $client = $client->refresh();
+        $this->assertEquals(10, $client->balance);
+        $this->assertEquals(0, $client->paid_to_date);
+
+        $payment = $payment->refresh();
+        $this->assertEquals(0, $payment->refunded);
+        $this->assertEquals(0, $payment->applied);
+        
+    }
+
     public function testDeleteInvoiceDeletePaymentRaceCondition()
     {
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -43,24 +44,24 @@ class SendEmail extends AbstractService
 
         $this->invoice->service()->markSent()->save();
 
-        $this->invoice->invitations->filter(function ($invitation){
+        $this->invoice->invitations->filter(function ($invitation) {
             return (! $invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked);
-        })->each(function ($invitation) use($base_template) {
-            
-                $mo = new EmailObject();
-                $mo->entity_id = $invitation->invoice_id;
-                $mo->template = $this->reminder_template; 
-                $mo->email_template_body = $this->reminder_template;
-                $mo->email_template_subject = str_replace("template", "subject", $this->reminder_template);
+        })->each(function ($invitation) use ($base_template) {
 
-                $mo->entity_class = get_class($invitation->invoice);
-                $mo->invitation_id = $invitation->id;
-                $mo->client_id = $invitation->contact->client_id ?? null;
-                $mo->vendor_id = $invitation->contact->vendor_id ?? null;
+            $mo = new EmailObject();
+            $mo->entity_id = $invitation->invoice_id;
+            $mo->template = $this->reminder_template;
+            $mo->email_template_body = $this->reminder_template;
+            $mo->email_template_subject = str_replace("template", "subject", $this->reminder_template);
 
-                Email::dispatch($mo, $invitation->company);
+            $mo->entity_class = get_class($invitation->invoice);
+            $mo->invitation_id = $invitation->id;
+            $mo->client_id = $invitation->contact->client_id ?? null;
+            $mo->vendor_id = $invitation->contact->vendor_id ?? null;
 
-                $this->invoice->entityEmailEvent($invitation, $base_template, $base_template);
+            Email::dispatch($mo, $invitation->company);
+
+            $this->invoice->entityEmailEvent($invitation, $base_template, $base_template);
 
         });
 

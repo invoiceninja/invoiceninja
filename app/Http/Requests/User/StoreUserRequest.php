@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -40,13 +41,13 @@ class StoreUserRequest extends Request
     {
         $rules = [];
 
-        $rules['first_name'] = 'required|string|max:100';
-        $rules['last_name'] = 'required|string|max:100';
+        $rules['first_name'] = 'required|bail|string|max:100';
+        $rules['last_name'] = 'required|bail|string|max:100';
 
         if (config('ninja.db.multi_db_enabled')) {
-            $rules['email'] = ['email', new ValidUserForCompany(), new AttachableUser()];
+            $rules['email'] = ['required', 'bail', 'email', new ValidUserForCompany(), new AttachableUser()];
         } else {
-            $rules['email'] = ['email', new AttachableUser()];
+            $rules['email'] = ['required', 'bail', 'email', new AttachableUser()];
         }
 
         if (Ninja::isHosted()) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -111,7 +112,7 @@ class BaseRule implements RuleInterface
     ];
 
     /** EU TAXES */
-    
+
     /** Supported E Delivery Countries */
     public array $peppol_business_countries = [
         'AT',
@@ -252,10 +253,10 @@ class BaseRule implements RuleInterface
 
                 $tax_data = $company->origin_tax_data;
 
-            } elseif($this->client->location && $this->client->location->is_shipping_location && $this->client->location->tax_data){
+            } elseif ($this->invoice->location && $this->invoice->location->is_shipping_location && $this->invoice->location->tax_data) {
 
-                $tax_data = $this->client->location->tax_data;
-                
+                $tax_data = $this->invoice->location->tax_data;
+
             } elseif ($this->client->tax_data) {
 
 
@@ -334,6 +335,7 @@ class BaseRule implements RuleInterface
 
     public function defaultForeign(): self
     {
+        // nlog("default foreign");
         if ($this->invoice->client->is_tax_exempt) {
 
             $this->tax_rate1 = 0;

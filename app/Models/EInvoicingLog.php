@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -67,7 +68,6 @@ class EInvoicingLog extends Model
         return $this->belongsTo(Company::class, 'tenant_id', 'id');
     }
 
-    
+
 
 }
-

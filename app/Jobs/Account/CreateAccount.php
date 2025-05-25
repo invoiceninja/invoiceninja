@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -78,7 +79,7 @@ class CreateAccount
         if (Ninja::isHosted()) {
             $sp794f3f->hosted_client_count = config('ninja.quotas.free.clients');
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
-            $sp794f3f->account_sms_verified = true;
+            $sp794f3f->account_sms_verified = false;
 
             if (in_array($this->getDomain($this->request['email']), Domains::getDomains())) {
                 $sp794f3f->account_sms_verified = false;
@@ -121,18 +122,8 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            // $nmo = new NinjaMailerObject();
-            // $nmo->mailable = new \Modules\Admin\Mail\Welcome($sp035a66->owner());
-            // $nmo->company = $sp035a66;
-            // $nmo->settings = $sp035a66->settings;
-            // $nmo->to_user = $sp035a66->owner();
-
-            // NinjaMailerJob::dispatch($nmo, true);
-
             (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
 
-            // if($sp794f3f->referral_code && Ninja::isHosted()) //2024-11-29 - pausing on this.
-            //     \Modules\Admin\Jobs\Account\NewReferredAccount::dispatch($sp794f3f->key);
         }
 
         VersionCheck::dispatch();

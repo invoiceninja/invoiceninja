@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -48,27 +49,19 @@ class StorePaymentRequest extends Request
             'client_id' => ['bail','required',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail', 'sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required'],
-            'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
-            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)],
+            'invoices.*.invoice_id' => ['bail','required','distinct', new ValidInvoicesRules($this->all()),Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted',0)],
+            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted',0)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule(), 'max:99999999999999'],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
             'idempotency_key' => ['nullable', 'bail', 'string','max:64', Rule::unique('payments')->where('company_id', $user->company()->id)],
+            'date' => ['bail', 'nullable', 'sometimes', 'date:Y-m-d'],
         ];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         return $rules;
     }
@@ -80,15 +73,33 @@ class StorePaymentRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        $input = $this->all();
+
         $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
 
-        if (\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->input('amount', 0)."|".$client_id."|".$user->company()->company_key)) {
+        if(isset($input['invoices'][0]['invoice_id'])) {
+            $hash_key = implode(',', array_column($input['invoices'], 'invoice_id'));
+        } 
+        else {
+            $hash_key = $this->input('amount', 0);
+        }
+
+        $hash = $this->ip()."|".$hash_key."|".$client_id."|".$user->company()->company_key;
+
+        if (\Illuminate\Support\Facades\Cache::has($hash)) {
             throw new DuplicatePaymentException('Duplicate request.', 429);
         }
 
-        \Illuminate\Support\Facades\Cache::put(($this->ip()."|".$this->input('amount', 0)."|".$client_id."|".$user->company()->company_key), true, 1);
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
 
-        $input = $this->all();
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
+        \Illuminate\Support\Facades\Cache::put($hash, true, 1);
+
 
         $invoices_total = 0;
         $credits_total = 0;

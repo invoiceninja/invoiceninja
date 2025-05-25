@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -58,8 +59,11 @@ class UpdateExchangeRates implements ShouldQueue
 
                 /* Update all currencies */
                 Currency::all()->each(function ($currency) use ($currency_api) {
-                    $currency->exchange_rate = $currency_api->rates->{$currency->code};
-                    $currency->save();
+
+                    if(isset($currency_api->rates->{$currency->code})) {
+                        $currency->exchange_rate = $currency_api->rates->{$currency->code};
+                        $currency->save();
+                    }
                 });
 
                 /* Rebuild the cache */

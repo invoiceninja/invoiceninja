@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -18,7 +19,6 @@ use App\Models\Invoice;
 use App\Models\Webhook;
 use App\Models\PurchaseOrder;
 use App\Services\Email\Email;
-use App\DataMapper\InvoiceSync;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\Services\Email\EmailObject;
@@ -138,7 +138,7 @@ class EmailController extends BaseController
             $this->entity_type = PurchaseOrder::class;
             $this->entity_transformer = PurchaseOrderTransformer::class;
 
-            
+
             if ($entity_obj->invitations->count() >= 1) {
                 event(new EntityWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'purchase_order'));
                 $entity_obj->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "client");

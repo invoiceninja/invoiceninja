@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -64,7 +65,7 @@ class ActivityRepository extends BaseRepository
         $activity->save();
 
         //rate limiter
-        if(!in_array($fields->activity_type_id, [Activity::EMAIL_INVOICE, Activity::EMAIL_CREDIT, Activity::EMAIL_QUOTE, Activity::EMAIL_PURCHASE_ORDER])){
+        if (!in_array($fields->activity_type_id, [Activity::EMAIL_INVOICE, Activity::EMAIL_CREDIT, Activity::EMAIL_QUOTE, Activity::EMAIL_PURCHASE_ORDER])) {
             $this->createBackup($entity, $activity);
         }
     }
@@ -146,7 +147,7 @@ class ActivityRepository extends BaseRepository
         } elseif ($entity instanceof RecurringInvoice) {
             $entity_type = 'recurring_invoice';
             $entity_design_id = 'invoice_design_id';
-            
+
             $entity->load('client.company', 'invitations');
             $document_type = 'product';
         } elseif ($entity instanceof Quote) {

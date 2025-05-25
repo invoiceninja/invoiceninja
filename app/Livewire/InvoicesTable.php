@@ -51,13 +51,13 @@ class InvoicesTable extends Component
             ->where('is_deleted', false)
             ->where('is_proforma', false)
             ->with('client.gateway_tokens', 'client.contacts')
-            ->when($this->sort_field == 'number', function ($q){
+            ->when($this->sort_field == 'number', function ($q) {
                 $q->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . ($this->sort_asc ? 'desc' : 'asc'));
             })
-            ->when($this->sort_field != 'number', function ($q){
-                $q->orderBy($this->sort_field, ($this->sort_asc ? 'desc' : 'asc'));
+            ->when($this->sort_field != 'number', function ($q) {
+                $q->orderBy($this->sort_field, ($this->sort_asc ? 'asc' : 'desc'));
             });
-            // ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
+        // ->orderBy($this->sort_field, $this->sort_asc ? 'asc' : 'desc');
 
         if (in_array('paid', $this->status)) {
             $local_status[] = Invoice::STATUS_PAID;

@@ -46,7 +46,7 @@ class PaymentWebhookRequest extends Request
         MultiDB::findAndSetDbByCompanyKey($this->company_key);
 
         /** @var \App\Models\CompanyGateway */
-        return CompanyGateway::withTrashed()->find($this->decodePrimaryKey($this->company_gateway_id));
+        return CompanyGateway::withTrashed()->where('id', $this->decodePrimaryKey($this->company_gateway_id))->where('is_deleted', 0)->first();
     }
 
     /**

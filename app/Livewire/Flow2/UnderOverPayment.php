@@ -32,7 +32,7 @@ class UnderOverPayment extends Component
 
     public function mount()
     {
-        
+
         $_context = $this->getContext();
 
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();

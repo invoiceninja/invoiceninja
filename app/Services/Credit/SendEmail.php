@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -46,7 +47,7 @@ class SendEmail
 
         $this->credit->service()->markSent()->save();
 
-        $this->credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation)  {
+        $this->credit->invitations->load('contact.client.country', 'credit.client.country', 'credit.company')->each(function ($invitation) {
 
             $mo = new \App\Services\Email\EmailObject();
             $mo->entity_id = $this->credit->id;

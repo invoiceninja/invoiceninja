@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -44,19 +45,10 @@ class UpdateClientRequest extends Request
         /** @var  \App\Models\User $user */
         $user = auth()->user();
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        }
 
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
 
         $rules['company_logo'] = 'mimes:jpeg,jpg,png,gif|max:10000';
         $rules['industry_id'] = 'integer|nullable';
@@ -83,6 +75,29 @@ class UpdateClientRequest extends Request
             //'regex:/[@$!%*#?&.]/', // must contain a special character
         ];
 
+
+        $rules['custom_value1'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
+            if (is_array($value)) {
+                $fail("The $attribute must not be an array.");
+            }
+        }];
+        $rules['custom_value2'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
+            if (is_array($value)) {
+                $fail("The $attribute must not be an array.");
+            }
+        }];
+        $rules['custom_value3'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
+            if (is_array($value)) {
+                $fail("The $attribute must not be an array.");
+            }
+        }];
+        $rules['custom_value4'] = ['bail','nullable','sometimes',function ($attribute, $value, $fail) {
+            if (is_array($value)) {
+                $fail("The $attribute must not be an array.");
+            }
+        }];
+
+
         return $rules;
     }
 
@@ -105,10 +120,15 @@ class UpdateClientRequest extends Request
         /** @var  \App\Models\User $user */
         $user = auth()->user();
 
-        /* If the user removes the currency we must always set the default */
-        if (array_key_exists('settings', $input) && ! array_key_exists('currency_id', $input['settings'])) {
-            $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
-        } elseif (empty($input['settings']['currency_id']) ?? true) {
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+        
+        if (isset($input['documents'])) {
+            unset($input['documents']);
+        }
+
+        if (empty($input['settings']['currency_id'])) {
             $input['settings']['currency_id'] = (string) $user->company()->settings->currency_id;
         }
 
@@ -139,6 +159,13 @@ class UpdateClientRequest extends Request
         if (isset($input['e_invoice']) && is_array($input['e_invoice'])) {
             //ensure it is normalized first!
             $input['e_invoice'] = $this->client->filterNullsRecursive($input['e_invoice']);
+        }
+
+        if (isset($input['public_notes']) && $this->hasHeader('X-REACT')) {
+            $input['public_notes'] = str_replace("\n", "", $input['public_notes']);
+        }
+        if (isset($input['private_notes']) && $this->hasHeader('X-REACT')) {
+            $input['private_notes'] = str_replace("\n", "", $input['private_notes']);
         }
 
         $this->replace($input);

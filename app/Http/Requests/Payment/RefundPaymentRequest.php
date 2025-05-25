@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -52,6 +53,7 @@ class RefundPaymentRequest extends Request
         if (isset($input['invoices'])) {
             foreach ($input['invoices'] as $key => $invoice) {
                 $input['invoices'][$key]['invoice_id'] = $this->decodePrimaryKey($invoice['invoice_id']);
+                $input['invoices'][$key]['date'] = now()->format('Y-m-d');
             }
         }
 

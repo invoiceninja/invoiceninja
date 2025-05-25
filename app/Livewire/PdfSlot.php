@@ -49,7 +49,7 @@ class PdfSlot extends Component
     private $entity_type;
 
     private $preference_product_notes_for_html_view;
-    
+
     public $show_cost = true;
 
     public $show_quantity = true;
@@ -145,7 +145,7 @@ class PdfSlot extends Component
         $this->settings = $this->entity()->client ? $this->entity()->client->getMergedSettings() : $this->entity()->company->settings;
         $this->html_entity_option = $this->entity()->client ? $this->entity()->client->getSetting('show_pdfhtml_on_mobile') : $this->entity()->company->getSetting('show_pdfhtml_on_mobile');
         $this->preference_product_notes_for_html_view = $this->entity()->client ? $this->entity()->client->getSetting('preference_product_notes_for_html_view') : $this->entity()->company->getSetting('preference_product_notes_for_html_view');
-        
+
         $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_columns);
         $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_columns);
         $this->show_quantity = in_array('$product.quantity', $this->settings->pdf_variables->product_columns);

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Payment Ninja (https://paymentninja.com).
  *
@@ -32,17 +33,10 @@ class UploadPaymentRequest extends Request
     {
         $rules = [];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
 
         $rules['is_public'] = 'sometimes|boolean';
 
@@ -53,11 +47,18 @@ class UploadPaymentRequest extends Request
     {
         $input = $this->all();
 
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (isset($input['is_public'])) {
             $input['is_public'] = $this->toBoolean($input['is_public']);
         }
 
         $this->replace($input);
-
     }
 }

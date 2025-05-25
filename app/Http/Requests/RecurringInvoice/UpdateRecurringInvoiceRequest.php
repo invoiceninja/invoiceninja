@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -45,19 +46,8 @@ class UpdateRecurringInvoiceRequest extends Request
 
         $rules = [];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
 
         $rules['number'] = ['bail', 'sometimes', Rule::unique('recurring_invoices')->where('company_id', $user->company()->id)->ignore($this->recurring_invoice->id)];
 
@@ -80,6 +70,7 @@ class UpdateRecurringInvoiceRequest extends Request
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->recurring_invoice->client_id)];
+        $rules['vendor_id'] = ['nullable', 'sometimes','bail', Rule::exists('vendors', 'id')->where('company_id', $user->company()->id)];
 
         return $rules;
     }
@@ -88,12 +79,17 @@ class UpdateRecurringInvoiceRequest extends Request
     {
         $input = $this->all();
 
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (array_key_exists('due_date_days', $input) && is_null($input['due_date_days'])) {
             $input['due_date_days'] = 'terms';
         }
 
         if (!isset($input['next_send_date']) || $input['next_send_date'] == '') {
-            $input['next_send_date'] = now()->format('Y-m-d');
+            $input['next_send_date'] = $this->recurring_invoice->next_send_date ?? now()->format('Y-m-d');
         }
 
         if (array_key_exists('next_send_date', $input) && is_string($input['next_send_date'])) {
@@ -106,6 +102,10 @@ class UpdateRecurringInvoiceRequest extends Request
 
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
+        }
+
+        if (isset($input['vendor_id'])) {
+            $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);
         }
 
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
@@ -141,12 +141,25 @@ class UpdateRecurringInvoiceRequest extends Request
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);
         }
 
-        if (array_key_exists('documents', $input)) {
+        if (isset($input['documents'])) {
             unset($input['documents']);
         }
 
         if (array_key_exists('exchange_rate', $input) && (is_null($input['exchange_rate']) || $input['exchange_rate'] == 0) || !isset($input['exchange_rate'])) {
             $input['exchange_rate'] = 1;
+        }
+
+        if (isset($input['footer']) && $this->hasHeader('X-REACT')) {
+            $input['footer'] = str_replace("\n", "", $input['footer']);
+        }
+        if (isset($input['public_notes']) && $this->hasHeader('X-REACT')) {
+            $input['public_notes'] = str_replace("\n", "", $input['public_notes']);
+        }
+        if (isset($input['private_notes']) && $this->hasHeader('X-REACT')) {
+            $input['private_notes'] = str_replace("\n", "", $input['private_notes']);
+        }
+        if (isset($input['terms']) && $this->hasHeader('X-REACT')) {
+            $input['terms'] = str_replace("\n", "", $input['terms']);
         }
 
         $this->replace($input);

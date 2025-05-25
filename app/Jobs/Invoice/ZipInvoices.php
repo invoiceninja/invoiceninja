@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -58,7 +59,7 @@ class ZipInvoices implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
         App::setLocale($this->company->locale());
-        
+
         $settings = $this->company->settings;
 
         $this->invoices = Invoice::withTrashed()

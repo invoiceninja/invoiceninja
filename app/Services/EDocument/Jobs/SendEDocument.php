@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -59,7 +60,7 @@ class SendEDocument implements ShouldQueue
 
         $model = $this->entity::withTrashed()->find($this->id);
 
-        if(isset($model->backup->guid) && is_string($model->backup->guid)){
+        if (isset($model->backup->guid) && is_string($model->backup->guid)) {
             nlog("already sent!");
             return;
         }
@@ -93,7 +94,7 @@ class SendEDocument implements ShouldQueue
             'account_key' => $model->company->account->key,
             'e_invoicing_token' => $model->company->account->e_invoicing_token,
         ];
-        
+
         //Self Hosted Sending Code Path
         if (Ninja::isSelfHost() && ($model instanceof Invoice) && $model->company->peppolSendingEnabled()) {
 
@@ -101,7 +102,7 @@ class SendEDocument implements ShouldQueue
                 ->post(config('ninja.hosted_ninja_url')."/api/einvoice/submission", $payload);
 
             if ($r->successful()) {
-                
+
                 if ($r->hasHeader('X-EINVOICE-QUOTA')) {
                     $account = $model->company->account;
                     $account->e_invoice_quota = (int) $r->header('X-EINVOICE-QUOTA');
@@ -215,7 +216,7 @@ class SendEDocument implements ShouldQueue
 
         $activity->save();
 
-        if($activity_id == Activity::EINVOICE_DELIVERY_SUCCESS){
+        if ($activity_id == Activity::EINVOICE_DELIVERY_SUCCESS) {
 
             $backup = ($model->backup && is_object($model->backup)) ? $model->backup : new \stdClass();
             $backup->guid = str_replace('"', '', $notes);
