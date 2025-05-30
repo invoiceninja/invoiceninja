@@ -36,6 +36,8 @@ class PdfBuilder
 
     private array $empty_elements = [];
 
+    private bool $for_company = false;
+
     /**
      * an array of sections to be injected into the template
      *
@@ -56,6 +58,8 @@ class PdfBuilder
     public function __construct(PdfService $service)
     {
         $this->service = $service;
+
+        $this->for_company = $service->options['for_company'] ?? false;
 
         $this->commonmark = new CommonMarkConverter([
             'allow_unsafe_links' => false,
@@ -80,18 +84,18 @@ class PdfBuilder
 
         return $this;
     }
-    
+
     /**
      * removeEmptyElements
      *
      * Removes any empty elements from the DomDocument, this improves the vertical spacing of the PDF
      * This also decodes any encoded HTML elements.
-     * 
+     *
      * @return self
      */
     private function removeEmptyElements(): self
-    { 
-        
+    {
+
         $elements =[
             'product-table', 'task-table', 'delivery-note-table',
             'statement-invoice-table', 'statement-payment-table', 'statement-aging-table-totals',
@@ -100,7 +104,7 @@ class PdfBuilder
         ];
 
         foreach ($elements as $element) {
-                    
+
             $el = $this->document->getElementById($element);
 
             if ($el && $el->childElementCount === 0) {
@@ -108,7 +112,7 @@ class PdfBuilder
             }
 
         }
-                
+
         // Decode any HTML based elements.
         $xpath = new \DOMXPath($this->document);
         $elements = $xpath->query('//*[@data-state="encoded-html"]');
@@ -184,21 +188,20 @@ class PdfBuilder
 
         return $this;
     }
-    
+
     /**
      * parseTwigElements
      *
      * Parses any ninja tags in the template and processes them via TWIG.
-     * 
+     *
      * @return self
      */
     private function parseTwigElements(): self
     {
-
         $replacements = [];
         $contents = $this->document->getElementsByTagName('ninja');
 
-        $template_service = new TemplateService();
+        $template_service = new TemplateService(null, $this->for_company);
         $template_service->setCompany($this->service->company);
         $data = $template_service->processData($this->service->options)->getData();
 
@@ -229,7 +232,7 @@ class PdfBuilder
         return $this;
 
     }
-    
+
     /**
      * setDocument
      *
@@ -259,12 +262,12 @@ class PdfBuilder
 
         return $this;
     }
-    
+
     /**
      * mergeSections
      *
      * Merges the sections into the sections array.
-     * 
+     *
      * @param  array $section
      * @return self
      */
@@ -274,12 +277,12 @@ class PdfBuilder
 
         return $this;
     }
-    
+
     /**
      * setSections
      *
      * Sets the sections array.
-     * 
+     *
      * @param  mixed $sections
      * @return self
      */
@@ -441,13 +444,13 @@ class PdfBuilder
 
     /**
      * Parent method for building credits table totals for statements.
-     * 
+     *
      * @return array
      */
     public function statementCreditTableTotals(): array
     {
         $outstanding = $this->service->options['credits']->sum('balance');
-       
+
         if (\array_key_exists('show_credits_table', $this->service->options) && $this->service->options['show_credits_table'] === false) {
             return [];
         }
@@ -520,7 +523,7 @@ class PdfBuilder
                 }
             }
         }
-        
+
         return [
             ['element' => 'thead', 'elements' => $this->buildTableHeader('statement_payment')],
             ['element' => 'tbody', 'elements' => $tbody],
@@ -545,7 +548,7 @@ class PdfBuilder
             ['element' => 'div', 'content' => \sprintf('%s: %s', ctrans('texts.amount_paid'), $this->service->config->formatMoney($this->payment_amount_total))],
         ];
     }
-    
+
     /**
      * Generates the unapplied payments table totals for statements.
      *
@@ -580,7 +583,7 @@ class PdfBuilder
         }
 
         $tbody = [];
-        
+
         $this->unapplied_total = 0;
 
         foreach ($this->service->options['unapplied'] as $unapplied_payment) {
@@ -744,7 +747,7 @@ class PdfBuilder
             ['element' => 'tbody', 'elements' => $tbody],
         ];
     }
-    
+
     /**
      * Filters the visible elements for a table row and also
      * assigned the left and right radius classes to the first and last cells
@@ -754,7 +757,7 @@ class PdfBuilder
      */
     private function parseVisibleElements(array $element): array
     {
-        
+
         $visible_elements = array_filter($element['elements'], function ($el) {
             if (isset($el['properties']['visi']) && $el['properties']['visi']) {
                 return true;
@@ -806,7 +809,7 @@ class PdfBuilder
      */
     public function buildTableBody(string $type): array
     {
-        
+
         $elements = [];
 
         $items = $this->transformLineItems($this->service->config->entity->line_items, $type);
@@ -864,7 +867,7 @@ class PdfBuilder
             $element = ['element' => 'tr', 'elements' => []];
             //checks if we have custom columns in the options array with key $product/$task - looks like unused functionality
              if (isset($this->service->options[$type]) && !empty($this->service->options[$type])) {
-                
+
                 $document = new DOMDocument();
                 $document->loadHTML($this->service->options[$type], LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
 
@@ -884,7 +887,7 @@ class PdfBuilder
                     }
                 }
             } else {
-                
+
                 foreach ($this->service->config->pdf_variables[$table_type] as $key => $cell) {
                     // We want to keep aliases like these:
                     // $task.cost => $task.rate
@@ -917,14 +920,14 @@ class PdfBuilder
                     }
                 }
             }
-                                    
+
             $element = $this->parseVisibleElements($element);
 
             $elements[] = $element;
         }
 
         $document = null;
-                
+
         return $elements;
     }
 
@@ -1037,18 +1040,18 @@ class PdfBuilder
         return $data;
     }
 
-    
+
     /**
      * Filters the visible columns for a table row.
      *
      * @param  array $items
      * @param  string $type_id
-     * 
+     *
      * @return array
      */
     private function getColumnVisibility(array $items, string $type_id): array
     {
-                
+
         // Convert type_id to numeric
         $type_id = $type_id === 'product' ? '1' : '2';
 
@@ -1118,9 +1121,9 @@ class PdfBuilder
         $this->processTaxColumns($column_type);
 
         $column_visibility = $this->getColumnVisibility($this->service->config->entity->line_items, $type);
-    
+
         foreach ($this->service->config->pdf_variables[$table_type] as $column) {
-            
+
             if (array_key_exists($column, $aliases)) {
                 $elements[] = ['element' => 'th', 'content' => $aliases[$column] . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($aliases[$column], 1) . '-th', 'visi' => $this->visibilityCheck($column_visibility, $column)]];
             } elseif ($column == '$product.discount' && !$this->service->company->enable_product_discount) {
@@ -1143,7 +1146,7 @@ class PdfBuilder
                 $elements[] = ['element' => 'th', 'content' => $column . '_label', 'properties' => ['data-ref' => "{$type}_table-" . substr($column, 1) . '-th', 'visi' => $this->visibilityCheck($column_visibility, $column)]];
             }
         }
-        
+
         $visible_elements = array_filter($elements, function ($element) {
             return $element['properties']['visi'] ?? true;
         });
@@ -1166,7 +1169,7 @@ class PdfBuilder
                 $elements[$last_visible]['properties']['class'] .= ' right-radius';
             }
         }
-                
+
         $elements = array_map(function ($element) {
             if (isset($element['properties']['visi'])) {
                 if ($element['properties']['visi'] === false) {
@@ -1179,7 +1182,7 @@ class PdfBuilder
 
         return $elements;
     }
-    
+
     /**
      * visibilityCheck
      *
@@ -1394,7 +1397,7 @@ class PdfBuilder
         if (is_null($this->service->config->entity->{$_variable}) || empty($this->service->config->entity->{$_variable})) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -1605,7 +1608,7 @@ class PdfBuilder
     public function taskTable(): array
     {
 
-        if($this->service->config->entity instanceof \App\Models\PurchaseOrder) 
+        if($this->service->config->entity instanceof \App\Models\PurchaseOrder)
             return [];
 
         $task_items = collect($this->service->config->entity->line_items)->filter(function ($item) {
@@ -1760,10 +1763,10 @@ class PdfBuilder
 
     /**
      * Generates the client delivery details array
-     * 
+     *
      * We also override some variables here to ensure they are
      * appropriate for the delivery note.
-     * 
+     *
      * @return array
      *
      */
@@ -1790,7 +1793,7 @@ class PdfBuilder
         $this->service->html_variables['values']['$balance_due'] = '';
         $this->service->html_variables['values']['$amount_due'] = '';
         $this->service->html_variables['labels']['$amount_due_label'] = '';
-        
+
         $elements = [
                 ['element' => 'div', 'content' => $this->service->config->client->name, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.name']],
                 ['element' => 'div', 'content' => $this->service->config->client->shipping_address1, 'show_empty' => false, 'properties' => ['data-ref' => 'delivery_note-client.shipping_address1']],
@@ -1828,7 +1831,7 @@ class PdfBuilder
 
         return $elements;
     }
-    
+
     /**
      * Generates the shipping details section
      *
@@ -1861,7 +1864,7 @@ class PdfBuilder
      */
     public function deliveryNoteTable(): array
     {
-        
+
         $thead = [
             ['element' => 'th', 'content' => '$item_label', 'properties' => ['data-ref' => 'delivery_note-item_label']],
             ['element' => 'th', 'content' => '$description_label', 'properties' => ['data-ref' => 'delivery_note-description_label']],
@@ -2037,19 +2040,19 @@ class PdfBuilder
 
         return $element;
     }
-    
+
     /**
      * isMarkdown
      *
      * Checks if the given content is most likely markdown
-     * 
+     *
      * @param  string $content
      * @return bool
      */
     private function isMarkdown(string $content): bool
     {
         $content = str_ireplace(['<br>', '<br/>', '<br />'], "\n", $content);
-        
+
         $markdownPatterns = [
             '/^\s*#{1,6}\s/m',  // Headers
             '/^\s*[-+*]\s/m',   // Lists
@@ -2078,11 +2081,11 @@ class PdfBuilder
 
     public function createElementContent($element, $children): self
     {
-        foreach ($children as $child) {                      
+        foreach ($children as $child) {
             if (isset($child['is_empty']) && $child['is_empty'] === true) {
                 continue;
             }
-  
+
             $contains_html = false;
 
             $child['content'] = $child['content'] ?? '';
@@ -2122,7 +2125,7 @@ class PdfBuilder
 
         return $this;
     }
-    
+
     /**
      * updateVariables
      *
@@ -2133,7 +2136,7 @@ class PdfBuilder
 
         $html = strtr($this->getCompiledHTML(), $this->service->html_variables['labels']);
         $html = strtr($html, $this->service->html_variables['values']);
-        
+
         @$this->document->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
         //new block

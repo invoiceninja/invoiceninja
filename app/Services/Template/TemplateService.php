@@ -14,6 +14,7 @@ namespace App\Services\Template;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Quote;
+use App\Utils\AccountantHtmlEngine;
 use App\Utils\Number;
 use Twig\Error\Error;
 use App\Models\Client;
@@ -77,9 +78,9 @@ class TemplateService
 
     private ?object $settings = null;
 
-    public function __construct(public ?Design $template = null)
+    public function __construct(public ?Design $template = null, public $for_company = false)
+
     {
-        $this->template = $template;
         $this->init();
     }
 
@@ -118,14 +119,14 @@ class TemplateService
         });
 
         $function = new \Twig\TwigFunction('img', \Closure::fromCallable(function (string $image_src, string $image_style = '') {
-            
+
             $html = '<img src="' . $image_src . '" style="' . $image_style . '"></img>';
 
             return $html;
             // return new \Twig\Markup($html, 'UTF-8');
 
         }));
-        
+
         $this->twig->addFunction($function);
 
         $function = new \Twig\TwigFunction('t', \Closure::fromCallable(function (string $text_key) {
@@ -399,7 +400,7 @@ class TemplateService
             }
         }
 
-                
+
         $html = htmlspecialchars_decode($html, ENT_QUOTES | ENT_HTML5);
         $html = str_ireplace(['<br>'], '<br/>', $html);
 
@@ -494,14 +495,16 @@ class TemplateService
                 return $processed;
             }
 
+            $html_engine_class = $this->for_company ? AccountantHtmlEngine::class : HtmlEngine::class;
+
             match ($key) {
                 'variables' => $processed = $value->first() ?? [], //@phpstan-ignore-line
-                'invoices' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'quotes' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'credits' => $processed = (new HtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'invoices' => $processed = (new $html_engine_class($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'quotes' => $processed = (new $html_engine_class($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'credits' => $processed = (new $html_engine_class($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], //@phpstan-ignore-line
-                'tasks' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'projects' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'tasks' => $processed = (new $html_engine_class($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'projects' => $processed = (new $html_engine_class($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'aging' => $processed = [],
                 default => $processed = [],
@@ -522,7 +525,6 @@ class TemplateService
      */
     private function preProcessDataBlocks($data): array
     {
-
         return collect($data)->map(function ($value, $key) {
 
             $processed = [];
@@ -567,6 +569,9 @@ class TemplateService
                         })->toArray();
                     }
 
+                    $locale_to_use = $this->for_company ? $invoice->company->locale() : $invoice->client->locale();
+                    $date_format_to_use = $this->for_company ? $invoice->company->date_format() : $invoice->client->date_format();
+
                     return [
                         'amount' => Number::formatMoney($invoice->amount, $invoice->client),
                         'balance' => Number::formatMoney($invoice->balance, $invoice->client),
@@ -577,10 +582,10 @@ class TemplateService
                         'number' => $invoice->number ?: '',
                         'discount' => $invoice->discount,
                         'po_number' => $invoice->po_number ?: '',
-                        'date' => $this->translateDate($invoice->date, $invoice->client->date_format(), $invoice->client->locale()),
-                        'last_sent_date' => $this->translateDate($invoice->last_sent_date, $invoice->client->date_format(), $invoice->client->locale()),
-                        'next_send_date' => $this->translateDate($invoice->next_send_date, $invoice->client->date_format(), $invoice->client->locale()),
-                        'due_date' => $this->translateDate($invoice->due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'date' => $this->translateDate($invoice->date, $date_format_to_use, $locale_to_use),
+                        'last_sent_date' => $this->translateDate($invoice->last_sent_date, $date_format_to_use, $locale_to_use),
+                        'next_send_date' => $this->translateDate($invoice->next_send_date, $date_format_to_use, $locale_to_use),
+                        'due_date' => $this->translateDate($invoice->due_date, $date_format_to_use, $locale_to_use),
                         'terms' => $invoice->terms ?: '',
                         'public_notes' => $invoice->public_notes ?: '',
                         'private_notes' => $invoice->private_notes ?: '',
@@ -596,7 +601,7 @@ class TemplateService
                         'is_amount_discount' => (bool) $invoice->is_amount_discount ?? false,//@phpstan-ignore-line
                         'footer' => $invoice->footer ?? '',
                         'partial' => $invoice->partial ?? 0,
-                        'partial_due_date' => $this->translateDate($invoice->partial_due_date, $invoice->client->date_format(), $invoice->client->locale()),
+                        'partial_due_date' => $this->translateDate($invoice->partial_due_date, $date_format_to_use, $locale_to_use),
                         'custom_value1' => (string) $invoice->custom_value1 ?: '',
                         'custom_value2' => (string) $invoice->custom_value2 ?: '',
                         'custom_value3' => (string) $invoice->custom_value3 ?: '',
@@ -611,10 +616,10 @@ class TemplateService
                         'custom_surcharge_tax3' => (bool) $invoice->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $invoice->custom_surcharge_tax4,
                         'line_items' => $invoice->line_items ? $this->padLineItems($invoice->line_items, $invoice->client) : (array) [],
-                        'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                        'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                        'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $invoice->client->date_format(), $invoice->client->locale()),
-                        'reminder_last_sent' => $this->translateDate($invoice->reminder_last_sent, $invoice->client->date_format(), $invoice->client->locale()),
+                        'reminder1_sent' => $this->translateDate($invoice->reminder1_sent, $date_format_to_use, $locale_to_use),
+                        'reminder2_sent' => $this->translateDate($invoice->reminder2_sent, $date_format_to_use, $locale_to_use),
+                        'reminder3_sent' => $this->translateDate($invoice->reminder3_sent, $date_format_to_use, $locale_to_use),
+                        'reminder_last_sent' => $this->translateDate($invoice->reminder_last_sent, $date_format_to_use, $locale_to_use),
                         'paid_to_date' => Number::formatMoney($invoice->paid_to_date, $invoice->client),
                         'auto_bill_enabled' => (bool) $invoice->auto_bill_enabled,
                         'client' => $this->getClient($invoice),
@@ -641,7 +646,7 @@ class TemplateService
         return collect($items)->map(function ($item) use ($client_or_vendor) {
 
             $item->cost_raw = $item->cost ?? 0;
-            
+
             $item->discount_raw = $item->discount ?? 0;
             $item->line_total_raw = $item->line_total ?? 0;
             $item->gross_line_total_raw = $item->gross_line_total ?? 0;
@@ -652,7 +657,7 @@ class TemplateService
             $item->net_cost = Number::formatMoney($item->net_cost_raw, $client_or_vendor);
 
             $item->cost = Number::formatMoney($item->cost_raw, $client_or_vendor);
-            
+
             if ($item->is_amount_discount) {
                 $item->discount = Number::formatMoney($item->discount_raw, $client_or_vendor);
             }
@@ -679,7 +684,11 @@ class TemplateService
 
         $this->payment = $payment;
 
-        $credits = $payment->credits->map(function ($credit) use ($payment) {
+        $locale_to_use = $this->for_company ? $payment->company->locale() : $payment->client->locale();
+        $date_format_to_use = $this->for_company ? $payment->company->date_format() : $payment->client->date_format();
+
+        $credits = $payment->credits->map(function ($credit) use ($payment, $locale_to_use, $date_format_to_use) {
+
             return [
                 'credit' => $credit->number,
                 'amount_raw' => $credit->pivot->amount,
@@ -689,14 +698,14 @@ class TemplateService
                 'refunded' => Number::formatMoney($credit->pivot->refunded, $payment->client),
                 'net' => Number::formatMoney($credit->pivot->amount - $credit->pivot->refunded, $payment->client),
                 'is_credit' => true,
-                'date' => $this->translateDate($credit->date, $payment->client->date_format(), $payment->client->locale()),
-                'created_at' => $this->translateDate($credit->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
-                'updated_at' => $this->translateDate($credit->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
+                'date' => $this->translateDate($credit->date, $date_format_to_use, $locale_to_use),
+                'created_at' => $this->translateDate($credit->pivot->created_at, $date_format_to_use, $locale_to_use),
+                'updated_at' => $this->translateDate($credit->pivot->updated_at, $date_format_to_use, $locale_to_use),
                 'timestamp' => $credit->pivot->created_at->timestamp,
             ];
         });
 
-        $pivot = $payment->invoices->map(function ($invoice) use ($payment) {
+        $pivot = $payment->invoices->map(function ($invoice) use ($payment, $locale_to_use, $date_format_to_use) {
             return [
                 'invoice' => $invoice->number,
                 'amount_raw' => $invoice->pivot->amount,
@@ -706,12 +715,14 @@ class TemplateService
                 'refunded' => Number::formatMoney($invoice->pivot->refunded, $payment->client),
                 'net' => Number::formatMoney($invoice->pivot->amount - $invoice->pivot->refunded, $payment->client),
                 'is_credit' => false,
-                'date' => $this->translateDate($invoice->date, $payment->client->date_format(), $payment->client->locale()),
-                'created_at' => $this->translateDate($invoice->pivot->created_at, $payment->client->date_format(), $payment->client->locale()),
-                'updated_at' => $this->translateDate($invoice->pivot->updated_at, $payment->client->date_format(), $payment->client->locale()),
+                'date' => $this->translateDate($invoice->date, $date_format_to_use, $locale_to_use),
+                'created_at' => $this->translateDate($invoice->pivot->created_at, $date_format_to_use, $locale_to_use),
+                'updated_at' => $this->translateDate($invoice->pivot->updated_at, $date_format_to_use, $locale_to_use),
                 'timestamp' => $invoice->pivot->created_at->timestamp,
             ];
         })->concat($credits)->sortBy('timestamp')->toArray();
+
+
 
         return [
             'status' => $payment->stringStatus($payment->status_id),
@@ -724,7 +735,7 @@ class TemplateService
             'applied_raw' => $payment->applied,
             'refunded_raw' => $payment->refunded,
             'balance_raw' => ($payment->amount - $payment->applied),
-            'date' => $this->translateDate($payment->date, $payment->client->date_format(), $payment->client->locale()),
+            'date' => $this->translateDate($payment->date, $date_format_to_use, $locale_to_use),
             'method' => $payment->translatedType(),
             'currency' => $payment->currency->code ?? $this->company->currency()->code,
             'exchange_rate' => $payment->exchange_rate,
@@ -735,8 +746,8 @@ class TemplateService
             'custom_value2' => $payment->custom_value2 ?? '',
             'custom_value3' => $payment->custom_value3 ?? '',
             'custom_value4' => $payment->custom_value4 ?? '',
-            'created_at' => $this->translateDate($payment->created_at, $payment->client->date_format(), $payment->client->locale()),
-            'updated_at' => $this->translateDate($payment->updated_at, $payment->client->date_format(), $payment->client->locale()),
+            'created_at' => $this->translateDate($payment->created_at, $date_format_to_use, $locale_to_use),
+            'updated_at' => $this->translateDate($payment->updated_at, $date_format_to_use, $locale_to_use),
             'client' => $this->getClient($payment),
             'paymentables' => $pivot,
             'refund_activity' => $this->getPaymentRefundActivity($payment),
@@ -805,6 +816,10 @@ class TemplateService
     {
 
         return collect($quotes)->map(function ($quote) {
+
+            $locale_to_use = $this->for_company ? $quote->company->locale() : $quote->client->locale();
+            $date_format_to_use = $this->for_company ? $quote->company->date_format() : $quote->client->date_format();
+
             return [
                 'amount' => Number::formatMoney($quote->amount, $quote->client),
                 'balance' => Number::formatMoney($quote->balance, $quote->client),
@@ -815,11 +830,11 @@ class TemplateService
                 'number' => $quote->number ?: '',
                 'discount' => $quote->discount,
                 'po_number' => $quote->po_number ?: '',
-                'date' => $this->translateDate($quote->date, $quote->client->date_format(), $quote->client->locale()),
-                'last_sent_date' => $this->translateDate($quote->last_sent_date, $quote->client->date_format(), $quote->client->locale()),
-                'next_send_date' => $this->translateDate($quote->next_send_date, $quote->client->date_format(), $quote->client->locale()),
-                'due_date' => $this->translateDate($quote->due_date, $quote->client->date_format(), $quote->client->locale()),
-                'valid_until' => $this->translateDate($quote->due_date, $quote->client->date_format(), $quote->client->locale()),
+                'date' => $this->translateDate($quote->date, $date_format_to_use, $locale_to_use),
+                'last_sent_date' => $this->translateDate($quote->last_sent_date, $date_format_to_use, $locale_to_use),
+                'next_send_date' => $this->translateDate($quote->next_send_date, $date_format_to_use, $locale_to_use),
+                'due_date' => $this->translateDate($quote->due_date, $date_format_to_use, $locale_to_use),
+                'valid_until' => $this->translateDate($quote->due_date, $date_format_to_use, $locale_to_use),
                 'terms' => $quote->terms ?: '',
                 'public_notes' => $quote->public_notes ?: '',
                 'private_notes' => $quote->private_notes ?: '',
@@ -835,7 +850,7 @@ class TemplateService
                 'is_amount_discount' => (bool) $quote->is_amount_discount ?? false,//@phpstan-ignore-line
                 'footer' => $quote->footer ?? '',
                 'partial' => $quote->partial ?? 0,
-                'partial_due_date' => $this->translateDate($quote->partial_due_date, $quote->client->date_format(), $quote->client->locale()),
+                'partial_due_date' => $this->translateDate($quote->partial_due_date, $date_format_to_use, $locale_to_use),
                 'custom_value1' => (string) $quote->custom_value1 ?: '',
                 'custom_value2' => (string) $quote->custom_value2 ?: '',
                 'custom_value3' => (string) $quote->custom_value3 ?: '',
@@ -881,6 +896,9 @@ class TemplateService
                         })->toArray();
                     }
 
+                    $locale_to_use = $this->for_company ? $credit->company->locale() : $credit->client->locale();
+                    $date_format_to_use = $this->for_company ? $credit->company->date_format() : $credit->client->date_format();
+
                     return [
                         'amount' => Number::formatMoney($credit->amount, $credit->client),
                         'balance' => Number::formatMoney($credit->balance, $credit->client),
@@ -891,11 +909,11 @@ class TemplateService
                         'number' => $credit->number ?: '',
                         'discount' => $credit->discount,
                         'po_number' => $credit->po_number ?: '',
-                        'date' => $this->translateDate($credit->date, $credit->client->date_format(), $credit->client->locale()),
-                        'last_sent_date' => $this->translateDate($credit->last_sent_date, $credit->client->date_format(), $credit->client->locale()),
-                        'next_send_date' => $this->translateDate($credit->next_send_date, $credit->client->date_format(), $credit->client->locale()),
-                        'due_date' => $this->translateDate($credit->due_date, $credit->client->date_format(), $credit->client->locale()),
-                        'valid_until' => $this->translateDate($credit->due_date, $credit->client->date_format(), $credit->client->locale()),
+                        'date' => $this->translateDate($credit->date, $date_format_to_use, $locale_to_use),
+                        'last_sent_date' => $this->translateDate($credit->last_sent_date, $date_format_to_use, $locale_to_use),
+                        'next_send_date' => $this->translateDate($credit->next_send_date, $date_format_to_use, $locale_to_use),
+                        'due_date' => $this->translateDate($credit->due_date, $date_format_to_use, $locale_to_use),
+                        'valid_until' => $this->translateDate($credit->due_date, $date_format_to_use, $locale_to_use),
                         'terms' => $credit->terms ?: '',
                         'public_notes' => $credit->public_notes ?: '',
                         'private_notes' => $credit->private_notes ?: '',
@@ -911,7 +929,7 @@ class TemplateService
                         'is_amount_discount' => (bool) $credit->is_amount_discount ?? false, //@phpstan-ignore-line
                         'footer' => $credit->footer ?? '',
                         'partial' => $credit->partial ?? 0,
-                        'partial_due_date' => $this->translateDate($credit->partial_due_date, $credit->client->date_format(), $credit->client->locale()),
+                        'partial_due_date' => $this->translateDate($credit->partial_due_date, $date_format_to_use, $locale_to_use),
                         'custom_value1' => (string) $credit->custom_value1 ?: '',
                         'custom_value2' => (string) $credit->custom_value2 ?: '',
                         'custom_value3' => (string) $credit->custom_value3 ?: '',
@@ -926,10 +944,10 @@ class TemplateService
                         'custom_surcharge_tax3' => (bool) $credit->custom_surcharge_tax3,
                         'custom_surcharge_tax4' => (bool) $credit->custom_surcharge_tax4,
                         'line_items' => $credit->line_items ? $this->padLineItems($credit->line_items, $credit->client) : (array) [],
-                        'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $credit->client->date_format(), $credit->client->locale()),
-                        'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $credit->client->date_format(), $credit->client->locale()),
-                        'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $credit->client->date_format(), $credit->client->locale()),
-                        'reminder_last_sent' => $this->translateDate($credit->reminder_last_sent, $credit->client->date_format(), $credit->client->locale()),
+                        'reminder1_sent' => $this->translateDate($credit->reminder1_sent, $date_format_to_use, $locale_to_use),
+                        'reminder2_sent' => $this->translateDate($credit->reminder2_sent, $date_format_to_use, $locale_to_use),
+                        'reminder3_sent' => $this->translateDate($credit->reminder3_sent, $date_format_to_use, $locale_to_use),
+                        'reminder_last_sent' => $this->translateDate($credit->reminder_last_sent, $date_format_to_use, $locale_to_use),
                         'paid_to_date' => Number::formatMoney($credit->paid_to_date, $credit->client),
                         'auto_bill_enabled' => (bool) $credit->auto_bill_enabled,
                         'client' => $this->getClient($credit),
@@ -1083,6 +1101,20 @@ class TemplateService
     {
 
         return collect($tasks)->map(function ($task) use ($nested) {
+
+            if ($this->for_company) {
+                $locale_to_use = $this->for_company ? $task->company->locale() : $task->client->locale();
+            } else {
+                $locale_to_use = $task->client ? $task->client->locale() : $task->company->locale();
+            }
+
+            if ($this->for_company) {
+                $date_format_to_use = $this->for_company ? $task->company->date_format() : $task->client->date_format();
+            } else {
+                $date_format_to_use = $task->client ? $task->client->date_format() : $task->company->date_format();
+            }
+
+
             /** @var \App\Models\Task $task */
             return [
                 'number' => (string) $task->number ?: '',
@@ -1090,9 +1122,9 @@ class TemplateService
                 'duration' => $task->calcDuration() ?: 0,
                 'rate' => Number::formatMoney($task->rate ?? 0, $task->client ?? $task->company),
                 'rate_raw' => $task->rate ?? 0,
-                'created_at' => $this->translateDate($task->created_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
-                'updated_at' => $this->translateDate($task->updated_at, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()),
-                'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $task->client ? $task->client->date_format() : $task->company->date_format(), $task->client ? $task->client->locale() : $task->company->locale()) : '',
+                'created_at' => $this->translateDate($task->created_at, $date_format_to_use, $locale_to_use),
+                'updated_at' => $this->translateDate($task->updated_at, $date_format_to_use, $locale_to_use),
+                'date' => $task->calculated_start_date ? $this->translateDate($task->calculated_start_date, $date_format_to_use, $locale_to_use) : '',
                 // 'invoice_id' => $this->encodePrimaryKey($task->invoice_id) ?: '',
                 'project' => ($task->project && !$nested) ? $this->transformProject($task->project, true) : [],
                 'time_log' => $task->processLogsExpandedNotation(),
@@ -1141,15 +1173,18 @@ class TemplateService
     private function transformProject(Project $project, bool $nested = false): array
     {
 
+        $locale_to_use = $this->for_company ? $project->company->locale() : $project->client->locale();
+        $date_format_to_use = $this->for_company ? $project->company->date_format() : $project->client->date_format();
+
         return [
             'id' => $project->hashed_id,
             'name' => $project->name ?: '',
             'number' => $project->number ?: '',
-            'created_at' => $this->translateDate($project->created_at, $project->client->date_format(), $project->client->locale()),
-            'updated_at' =>  $this->translateDate($project->updated_at, $project->client->date_format(), $project->client->locale()),
+            'created_at' => $this->translateDate($project->created_at, $date_format_to_use, $locale_to_use),
+            'updated_at' =>  $this->translateDate($project->updated_at, $date_format_to_use, $locale_to_use),
             'task_rate' => Number::formatMoney($project->task_rate ?? 0, $project->client),
             'task_rate_raw' => $project->task_rate ?? 0,
-            'due_date' => $project->due_date ? $this->translateDate($project->due_date, $project->client->date_format(), $project->client->locale()) : '',
+            'due_date' => $project->due_date ? $this->translateDate($project->due_date, $date_format_to_use, $locale_to_use) : '',
             'private_notes' => (string) $project->private_notes ?: '',
             'public_notes' => (string) $project->public_notes ?: '',
             'budgeted_hours' => (float) $project->budgeted_hours,
@@ -1656,7 +1691,7 @@ class TemplateService
             }
 
             $contains_html = str_contains($child['content'], '<') && str_contains($child['content'], '>');
-        
+
             if ($contains_html) {
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
                 // encode it for us, preventing any errors on the processing stage.

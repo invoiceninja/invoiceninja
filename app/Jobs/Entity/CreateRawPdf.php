@@ -51,7 +51,7 @@ class CreateRawPdf
     /**
      * @param $invitation
      */
-    public function __construct($invitation, private ?string $type = null)
+    public function __construct($invitation, private ?string $type = null, private ?bool $for_company = false)
     {
 
         $this->invitation = $invitation;
@@ -104,7 +104,7 @@ class CreateRawPdf
         $pdf = $this->generatePdf();
 
         if($this->isBlankPdf($pdf)) {
-      
+
             nlog("Blank PDF detected, generating again");
             $pdf = $this->generatePdf();
         }
@@ -116,12 +116,12 @@ class CreateRawPdf
     private function isBlankPdf($pdf): bool
     {
 
-        $size = mb_strlen($pdf, '8bit'); 
+        $size = mb_strlen($pdf, '8bit');
 
-        $blankPdfSize = 12 * 1024; 
-        $tolerance = 100; 
+        $blankPdfSize = 12 * 1024;
+        $tolerance = 100;
 
-        if($size <= $blankPdfSize) 
+        if($size <= $blankPdfSize)
             nlog("PDF EXCEPTION:: size: {$size}, blank PDF size: {$blankPdfSize}, tolerance: {$tolerance}");
 
         return abs($size) <= $blankPdfSize;
@@ -134,6 +134,7 @@ class CreateRawPdf
             'client' => $this->entity->client ?? false,
             'vendor' => $this->entity->vendor ?? false,
             "{$this->entity_string}s" => [$this->entity],
+            'for_company' => $this->for_company
         ]);
 
         try {

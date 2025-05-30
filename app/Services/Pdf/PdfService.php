@@ -20,6 +20,7 @@ use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\QuoteInvitation;
 use App\Models\RecurringInvoiceInvitation;
+use App\Utils\AccountantHtmlEngine;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\HtmlEngine;
 use App\Utils\PhantomJS\Phantom;
@@ -143,9 +144,15 @@ class PdfService
 
         $this->config = (new PdfConfiguration($this))->init();
 
+        if (!empty($this->options['for_company']) && $this->options['for_company'] === true) {
+            $html_engine_class = AccountantHtmlEngine::class;
+        } else {
+            $html_engine_class = HtmlEngine::class;
+        }
+
         $this->html_variables = ($this->invitation instanceof \App\Models\PurchaseOrderInvitation) ?
                                     (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues() :
-                                    (new HtmlEngine($this->invitation))->generateLabelsAndValues();
+                                    (new $html_engine_class($this->invitation))->generateLabelsAndValues();
 
         $this->designer = (new PdfDesigner($this))->build();
 
