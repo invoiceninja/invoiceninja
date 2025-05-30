@@ -18,7 +18,7 @@ use App\Services\AbstractService;
 
 class GetInvoicePdf extends AbstractService
 {
-    public function __construct(public Invoice $invoice, public ?ClientContact $contact = null)
+    public function __construct(public Invoice $invoice, public ?ClientContact $contact = null, public bool $for_company = false)
     {
     }
 
@@ -34,7 +34,7 @@ class GetInvoicePdf extends AbstractService
             $invitation = $this->invoice->invitations->first();
         }
 
-        return (new CreateRawPdf($invitation))->handle();
+        return (new CreateRawPdf($invitation, null, $this->for_company))->handle();
 
     }
 }

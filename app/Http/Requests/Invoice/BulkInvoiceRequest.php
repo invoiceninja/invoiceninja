@@ -31,6 +31,7 @@ class BulkInvoiceRequest extends Request
             'template_id' => 'sometimes|string',
             'send_email' => 'sometimes|bool',
             'subscription_id' => 'sometimes|string',
+            'for_company' => 'sometimes|bool',
         ];
     }
 

@@ -45,7 +45,7 @@ class ZipInvoices implements ShouldQueue
      * @param $email
      * Create a new job instance.
      */
-    public function __construct(public mixed $invoices, public Company $company, public User $user)
+    public function __construct(public mixed $invoices, public Company $company, public User $user, public $for_company = false)
     {
     }
 
@@ -58,7 +58,7 @@ class ZipInvoices implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
         App::setLocale($this->company->locale());
-        
+
         $settings = $this->company->settings;
 
         $this->invoices = Invoice::withTrashed()
@@ -93,7 +93,7 @@ class ZipInvoices implements ShouldQueue
                     }
                 }
 
-                $file = $invoice->service()->getRawInvoicePdf();
+                $file = $invoice->service()->getRawInvoicePdf(null, $this->for_company);
                 $zip_file_name = $invoice->getFileName();
                 $zipFile->addFromString($zip_file_name, $file);
 

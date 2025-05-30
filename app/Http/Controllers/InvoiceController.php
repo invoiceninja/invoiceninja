@@ -499,6 +499,7 @@ class InvoiceController extends BaseController
 
         $action = $request->input('action');
         $ids = $request->input('ids');
+        $for_company = $request->boolean('for_company');
 
         if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
             return response(['message' => 'Please verify your account to send emails.'], 400);
@@ -542,8 +543,8 @@ class InvoiceController extends BaseController
 
             $filename = $invoices->first()->getFileName();
 
-            return response()->streamDownload(function () use ($invoices) {
-                echo $invoices->first()->service()->getInvoicePdf();
+            return response()->streamDownload(function () use ($invoices, $for_company) {
+                echo $invoices->first()->service()->getInvoicePdf(null, $for_company);
             }, $filename, ['Content-Type' => 'application/pdf']);
         }
 
@@ -561,7 +562,7 @@ class InvoiceController extends BaseController
 
             $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Invoice::class, $invoices->pluck('id')->toArray(), $user->company()->db))->handle();
             $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
-            $batch_key = $batch->name;          
+            $batch_key = $batch->name;
 
             $finished = false;
 
@@ -570,7 +571,7 @@ class InvoiceController extends BaseController
                 $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
                 $finished = $batch->finished();
             }while(!$finished);
-            
+
             $paths = $invoices->map(function ($invoice) use($batch_key){
                 return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$invoice->id}");
             })->filter(function ($value) {
@@ -850,7 +851,6 @@ class InvoiceController extends BaseController
      */
     public function downloadPdf($invitation_key)
     {
-
         $invitation = $this->invoice_repo->getInvitationByKey($invitation_key);
 
         if (! $invitation) {
@@ -862,8 +862,8 @@ class InvoiceController extends BaseController
         App::setLocale($invitation->contact->preferredLocale());
 
         $file_name = $invoice->numberFormatter().'.pdf';
-
-        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
+        $for_company = request()->boolean('for_company');
+        $file = (new \App\Jobs\Entity\CreateRawPdf($invitation,  null, $for_company))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

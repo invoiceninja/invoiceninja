@@ -192,16 +192,16 @@ class InvoiceService
         return $this;
     }
 
-    public function getInvoicePdf($contact = null)
+    public function getInvoicePdf($contact = null, $for_company = false)
     {
-        return (new GetInvoicePdf($this->invoice, $contact))->run();
+        return (new GetInvoicePdf($this->invoice, $contact, $for_company))->run();
     }
 
-    public function getRawInvoicePdf($contact = null)
+    public function getRawInvoicePdf($contact = null, $for_company = false)
     {
         $invitation = $contact ? $this->invoice->invitations()->where('contact_id', $contact->id)->first() : $this->invoice->invitations()->first();
 
-        return (new CreateRawPdf($invitation))->handle();
+        return (new CreateRawPdf($invitation, null, $for_company))->handle();
     }
 
     public function getInvoiceDeliveryNote(Invoice $invoice, \App\Models\ClientContact $contact = null)
@@ -380,7 +380,7 @@ class InvoiceService
     public function toggleFeesPaid(?string $payment_hash_string = null)
     {
         if ($payment_hash_string) {
-        
+
             $this->invoice->line_items = collect($this->invoice->line_items)
                                                 ->map(function ($item) use ($payment_hash_string) {
                                                     if ($item->type_id == '3' && (($item->unit_code ?? '') == $payment_hash_string)) {
@@ -389,7 +389,7 @@ class InvoiceService
 
                                                     return $item;
                                                 })->toArray();
-                                                
+
                 $this->deleteEInvoice();
 
                 return $this;
@@ -440,7 +440,7 @@ class InvoiceService
         $this->invoice->invitations->each(function ($invitation) {
             try {
                 Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
-                
+
                 if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
                 }
@@ -620,7 +620,7 @@ class InvoiceService
 
     public function location(): array
     {
-        return (new LocationData($this->invoice))->run();       
+        return (new LocationData($this->invoice))->run();
     }
 
     public function workFlow()
