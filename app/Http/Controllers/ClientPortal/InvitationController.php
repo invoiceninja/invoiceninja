@@ -169,18 +169,19 @@ class InvitationController extends Controller
         }
     }
 
-    public function routerForDownload(string $entity, string $invitation_key)
+    public function routerForDownload(string $entity, string $invitation_key, Request $request)
     {
         set_time_limit(45);
+        $for_company = $request->query('for_company') === 'true' ? true : false;
 
         // if (Ninja::isHosted()) {
-        return $this->returnRawPdf($entity, $invitation_key);
+        return $this->returnRawPdf($entity, $invitation_key, $for_company);
         // }
 
         // return redirect('client/'.$entity.'/'.$invitation_key.'/download_pdf');
     }
 
-    private function returnRawPdf(string $entity, string $invitation_key)
+    private function returnRawPdf(string $entity, string $invitation_key, bool $for_company = false)
     {
         if (!in_array($entity, ['invoice', 'credit', 'quote', 'recurring_invoice'])) {
             return response()->json(['message' => 'Invalid resource request']);
@@ -201,7 +202,7 @@ class InvitationController extends Controller
 
         $file_name = $invitation->{$entity}->numberFormatter().'.pdf';
 
-        $file = (new CreateRawPdf($invitation))->handle();
+        $file = (new CreateRawPdf($invitation, null, $for_company))->handle();
 
         $headers = ['Content-Type' => 'application/pdf'];
 

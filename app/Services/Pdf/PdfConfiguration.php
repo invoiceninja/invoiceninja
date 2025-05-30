@@ -120,11 +120,15 @@ class PdfConfiguration
 
         $t = app('translator');
 
-        App::setLocale($this->settings_object->locale());
+        if (!empty($this->service->options['for_company']) && $this->service->options['for_company'] === true) {
+           $localeToApply = $this->settings_object->company->locale();
+        } else {
+            $localeToApply = $this->settings_object->locale();
+        }
 
+        App::setLocale($localeToApply);
         $t->replace(Ninja::transformTranslations($this->settings));
-
-        $this->locale = $this->settings_object->locale();
+        $this->locale = $localeToApply;
 
         return $this;
     }
