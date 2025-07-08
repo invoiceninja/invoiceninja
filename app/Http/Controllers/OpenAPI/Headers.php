@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @OA\Header(
  *     header="X-MINIMUM-CLIENT-VERSION",

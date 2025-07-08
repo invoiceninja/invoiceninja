@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -73,6 +74,7 @@ use Laracasts\Presenter\PresentableTrait;
  * @property string|null $bank_integration_account_id
  * @property bool $is_trial
  * @property int $e_invoice_quota
+ * @property int $docuninja_num_users
  * @property-read int|null $bank_integrations_count
  * @property-read int|null $companies_count
  * @property-read int|null $company_users_count
@@ -309,7 +311,7 @@ class Account extends BaseModel
         }
 
         // 09-03-2023 - winds forward expiry checks to ensure we don't cut off users prior to billing cycle being commenced
-        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()->subHours(12))) {
+        if ($this->plan_expires && Carbon::parse($this->plan_expires)->lt(now()->subHours(23))) {
             return false;
         }
 
@@ -637,5 +639,10 @@ class Account extends BaseModel
         }
 
         return 0;
+    }
+
+    public function canTrial(): bool
+    {
+        return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14);
     }
 }

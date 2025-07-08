@@ -1,25 +1,27 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Quote;
 
-use App\Events\Quote\QuoteWasApproved;
-use App\Exceptions\QuoteConversion;
-use App\Jobs\EDocument\CreateEDocument;
-use App\Models\Project;
-use App\Models\Quote;
-use App\Repositories\QuoteRepository;
-use App\Services\Quote\UpdateReminder;
 use App\Utils\Ninja;
+use App\Models\Quote;
+use App\Models\Project;
 use App\Utils\Traits\MakesHash;
+use App\Exceptions\QuoteConversion;
+use App\Repositories\QuoteRepository;
+use App\Events\Quote\QuoteWasApproved;
+use App\Services\Invoice\LocationData;
+use App\Services\Quote\UpdateReminder;
+use App\Jobs\EDocument\CreateEDocument;
 use Illuminate\Support\Facades\Storage;
 
 class QuoteService
@@ -33,6 +35,11 @@ class QuoteService
     public function __construct($quote)
     {
         $this->quote = $quote;
+    }
+
+    public function location(): array
+    {
+        return (new LocationData($this->quote))->run();
     }
 
     public function createInvitations()
@@ -86,9 +93,7 @@ class QuoteService
 
     public function sendEmail($contact = null, $email_type = 'quote'): self
     {
-        $send_email = new SendEmail($this->quote, $email_type, $contact);
-
-        $send_email->run();
+        (new SendEmail($this->quote, $email_type, $contact))->run();
 
         return $this;
     }

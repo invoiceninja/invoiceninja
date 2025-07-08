@@ -36,9 +36,10 @@ class Purify
         'ninja',
 
         // SVG Elements
-        'svg', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 
+        'svg', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline',
         'polygon', 'g', 'text', 'tspan', 'defs', 'use', 'title',
     ];
+
 
     private static array $allowed_attributes = [
         // Global Attributes
@@ -55,7 +56,7 @@ class Purify
         'data-state' => ['*'],
 
         //SVG
-         'd' => ['*'],
+        'd' => ['*'],
         'viewBox' => ['*'],
         'xmlns' => ['http://www.w3.org/2000/svg'],
         'fill' => ['*'],
@@ -71,7 +72,7 @@ class Purify
         'preserveAspectRatio' => ['*'],
         'version' => ['*'],
         'xlink:href' => ['#*'], // Only allow internal references
-
+        'fill-rule' => ['nonzero', 'evenodd'],
         // Layout & Presentation
         'align' => ['left', 'center', 'right', 'justify'],
         'valign' => ['top', 'middle', 'bottom', 'baseline'],
@@ -113,8 +114,9 @@ class Purify
         'charset' => ['*'],
         'name' => ['*'],
         'content' => ['*'],
-        'http-equiv' => ['*'],
+        'http-equiv' => ['cache-control'],
         'viewport' => ['*'],
+        'xmlns' => ['http://www.w3.org/2000/svg']
     ];
 
     private static array $dangerous_css_patterns = [
@@ -214,19 +216,35 @@ class Purify
         return implode('; ', $safe_declarations);
     }
 
+    private static array $dangerous_svg_elements = [
+        'script',
+        'handler',
+        'foreignObject',
+        'annotation-xml',
+        'color-profile',
+        'style',  // or carefully sanitize if needed
+        'onload',
+        'onerror',
+        'onunload',
+        'onabort'
+    ];
+
+    private static function isDangerousSvgElement(string $tagName): bool
+    {
+        return in_array(strtolower($tagName), self::$dangerous_svg_elements);
+    }
+
     public static function clean(string $html): string
-    { 
-        if(config('ninja.disable_purify_html')){
+    {
+        if (config('ninja.disable_purify_html')) {
             return str_replace('%24', '$', $html);
         }
 
         $html = str_replace('%24', '$', $html);
-
         libxml_use_internal_errors(true);
-        libxml_disable_entity_loader(true);
 
         $document = new \DOMDocument();
-        @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')));
+        @$document->loadHTML(htmlspecialchars_decode(htmlspecialchars($html, ENT_QUOTES, 'UTF-8')), LIBXML_NONET);
 
         // Function to recursively check nodes
         $cleanNodes = function ($node) use (&$cleanNodes) {
@@ -267,10 +285,39 @@ class Purify
                     $current_attributes[$attr->name] = $attr->value;
                 }
 
-                // First, remove ALL attributes from the node
-                while ($node->attributes->length > 0) {
-                    $attr = $node->attributes->item(0);
-                    $node->removeAttribute($attr->nodeName);
+                // Handle SVG node separately
+                if ($node->tagName === 'svg') {
+                    // Keep only allowed SVG attributes
+                    $current_attributes = [];
+                    foreach ($node->attributes as $attr) {
+
+                        if (in_array($attr->name, self::$dangerous_svg_elements)) {
+                            $node->removeAttribute($attr->name);
+                        }
+
+                    }
+
+                } else {
+                    // First, remove ALL attributes from the node
+                    // while ($node->attributes->length > 0) {
+                    //     $attr = $node->attributes->item(0);
+                    //     $node->removeAttribute($attr->nodeName);
+                    // }
+
+
+                    if ($node instanceof \DOMElement) {
+                        // Create a list of attributes to remove
+                        $attributes_to_remove = [];
+                        foreach ($node->attributes as $attr) {
+                            $attributes_to_remove[] = $attr->nodeName;
+                        }
+
+                        // Remove the attributes
+                        foreach ($attributes_to_remove as $attr_name) {
+                            $node->removeAttribute($attr_name);
+                        }
+                    }
+
                 }
 
                 // Then add back only the allowed attributes
@@ -361,13 +408,18 @@ class Purify
 
             $html = str_replace('%24', '$', $document->saveHTML());
 
+            // nlog("post purify => {$html}");
             return $html;
 
         } catch (\Exception $e) {
 
             nlog('Error cleaning HTML: ' . $e->getMessage());
-            
+
+            libxml_clear_errors();
+
             throw new \RuntimeException('HTML sanitization failed');
+        } finally {
+            libxml_clear_errors();
         }
 
     }

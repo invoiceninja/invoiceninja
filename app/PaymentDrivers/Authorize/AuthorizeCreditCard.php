@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -80,6 +80,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
         if ($request->has('store_card') && $request->input('store_card') === true) {
 
             $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
+            $authorise_payment_method->setPaymentMethodId(\App\Models\GatewayType::CREDIT_CARD);
 
             $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
             $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
@@ -95,6 +96,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
             $data = $authorise_transaction->chargeCustomer($gateway_customer_reference, $data);
 
             $transaction_id = $data['transaction_id'];
+
             nlog($transaction_id);
 
         }
@@ -136,7 +138,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     {
         $client_gateway_token = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->token))
-            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
             ->first();
 
         if (! $client_gateway_token) {
@@ -158,7 +160,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
 
         // if ($response != null && $response->getMessages()->getResultCode() == 'Ok') {
         if ($response != null && $response->getMessages() != null) {
-            $this->storePayment($payment_hash, $data);
+            $this->storePayment($payment_hash, $data, $gateway_type = $cgt->gateway_type_id);
 
             $vars = [
                 'invoices' => $payment_hash->invoices(),
@@ -212,7 +214,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
         return $this->processFailedResponse($data, $request);
     }
 
-    private function storePayment($payment_hash, $data)
+    private function storePayment($payment_hash, $data, $gateway_type)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
@@ -220,8 +222,8 @@ class AuthorizeCreditCard implements LivewireMethodInterface
 
         $payment_record = [];
         $payment_record['amount'] = $amount;
-        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
-        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
+        $payment_record['payment_type'] = $gateway_type == GatewayType::CREDIT_CARD ? PaymentType::CREDIT_CARD_OTHER : PaymentType::ACH;
+        $payment_record['gateway_type_id'] = $gateway_type;
         $payment_record['transaction_reference'] = $response->getTransId();
 
         $payment = $this->authorize->createPayment($payment_record);
@@ -232,7 +234,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     private function processSuccessfulResponse($data, $request)
     {
         $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
-        $payment = $this->storePayment($payment_hash, $data);
+        $payment = $this->storePayment($payment_hash, $data, \App\Models\GatewayType::CREDIT_CARD);
 
         $vars = [
             'invoices' => $payment_hash->invoices(),

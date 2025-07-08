@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -69,7 +70,6 @@ class AdjustProductInventory implements ShouldQueue
 
             if ($p) {
                 $p->in_stock_quantity += $i->quantity;
-
                 $p->saveQuietly();
             }
         });
@@ -94,7 +94,7 @@ class AdjustProductInventory implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->company_key)];
+        return [(new WithoutOverlapping($this->company->company_key))->releaseAfter(60)];
     }
 
     private function newInventoryAdjustment()

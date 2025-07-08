@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -312,7 +313,11 @@ class PayPalWebhook implements ShouldQueue
     //--------------------------------------------------------------------------------------//
     private function verifyWebhook(): bool
     {
-        nlog($this->headers);
+        // nlog($this->headers);
+
+        if(!isset($this->headers['paypal-auth-algo'][0]))
+          return false;
+
         $request = [
             'auth_algo' => $this->headers['paypal-auth-algo'][0],
             'cert_url' => $this->headers['paypal-cert-url'][0],

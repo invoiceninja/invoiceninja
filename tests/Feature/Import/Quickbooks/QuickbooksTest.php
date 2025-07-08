@@ -40,10 +40,10 @@ class QuickbooksTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();      
-        
-        if(config('ninja.is_travis'))
-        {
-            $this->markTestSkipped('No need to run this test on Travis');
+                
+
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test for GH Actions');
         }
         elseif(Company::whereNotNull('quickbooks')->count() == 0){
             $this->markTestSkipped('No need to run this test on Travis');
@@ -51,8 +51,6 @@ class QuickbooksTest extends TestCase
 
         $this->faker = \Faker\Factory::create();
     }
-
-
 
     public function createQbProduct()
     {

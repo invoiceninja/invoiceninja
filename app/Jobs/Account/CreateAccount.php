@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,13 +51,13 @@ class CreateAccount
 
     public function handle()
     {
-        if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
-            return $this->create();
-        } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
-            return response()->json(['message' => Ninja::selfHostedMessage()], 400);
-        } elseif (! Ninja::boot()) {
-            return response()->json(['message' => Ninja::parse()], 401);
-        }
+        // if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
+        //     return $this->create();
+        // } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
+        //     return response()->json(['message' => Ninja::selfHostedMessage()], 400);
+        // } elseif (! Ninja::boot()) {
+        //     return response()->json(['message' => Ninja::parse()], 401);
+        // }
 
         return $this->create();
     }
@@ -78,7 +79,7 @@ class CreateAccount
         if (Ninja::isHosted()) {
             $sp794f3f->hosted_client_count = config('ninja.quotas.free.clients');
             $sp794f3f->hosted_company_count = config('ninja.quotas.free.max_companies');
-            $sp794f3f->account_sms_verified = true;
+            $sp794f3f->account_sms_verified = false;
 
             if (in_array($this->getDomain($this->request['email']), Domains::getDomains())) {
                 $sp794f3f->account_sms_verified = false;
@@ -114,6 +115,7 @@ class CreateAccount
             event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }
 
+
         $spaa9f78->fresh();
 
         if (Ninja::isHosted()) {
@@ -121,18 +123,8 @@ class CreateAccount
             $t = app('translator');
             $t->replace(Ninja::transformTranslations($sp035a66->settings));
 
-            $nmo = new NinjaMailerObject();
-            $nmo->mailable = new \Modules\Admin\Mail\Welcome($sp035a66->owner());
-            $nmo->company = $sp035a66;
-            $nmo->settings = $sp035a66->settings;
-            $nmo->to_user = $sp035a66->owner();
-
-            NinjaMailerJob::dispatch($nmo, true);
-
             (new \Modules\Admin\Jobs\Account\NinjaUser([], $sp035a66))->handle();
 
-            // if($sp794f3f->referral_code && Ninja::isHosted()) //2024-11-29 - pausing on this.
-            //     \Modules\Admin\Jobs\Account\NewReferredAccount::dispatch($sp794f3f->key);
         }
 
         VersionCheck::dispatch();

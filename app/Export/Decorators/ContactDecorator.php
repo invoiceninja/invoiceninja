@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,11 +23,11 @@ class ContactDecorator implements DecoratorInterface
         if ($entity instanceof ClientContact) {
             $contact = $entity;
         } elseif ($entity->contacts) {
-            $contact = $entity->contacts()->first();
+            $contact = $entity->contacts()->orderBy('is_primary', 'desc')->first();
         } elseif ($entity->client) {
-            $contact = $entity->client->primary_contact->first() ?? $entity->client->contacts()->whereNotNull('email')->first();
+            $contact = $entity->client->primary_contact->first() ?? $entity->client->contacts()->whereNotNull('email')->orderBy('is_primary', 'desc')->first();
         } elseif ($entity->vendor) {
-            $contact = $entity->vendor->primary_contact->first() ?? $entity->vendor->contacts()->whereNotNull('email')->first();
+            $contact = $entity->vendor->primary_contact->first() ?? $entity->vendor->contacts()->whereNotNull('email')->orderBy('is_primary', 'desc')->first();
         }
 
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -102,7 +102,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         try {
             $response = $this->checkout->gateway->getPaymentsClient()->requestPayment($request);
 
-            if ($response['approved'] && $response['status'] === 'Authorized') {
+            if (isset($response['approved']) && $response['status'] === 'Authorized') {
                 $payment_meta = new \stdClass();
                 $payment_meta->exp_month = (string) $response['source']['expiry_month'];
                 $payment_meta->exp_year = (string) $response['source']['expiry_year'];

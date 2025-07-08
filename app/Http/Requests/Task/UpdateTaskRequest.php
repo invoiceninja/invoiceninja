@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,6 +78,14 @@ class UpdateTaskRequest extends Request
                 if (!is_int($k[0]) || !is_int($k[1])) {
                     return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. Unix timestamps only.');
                 }
+
+                if(count($k) > 4) {
+                    return $fail('The timelog can only have up to 4 elements.');
+                }
+
+                if(isset($k[3]) && !is_bool($k[3])) {
+                    return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. The 4th element must be a boolean.');
+                }
             }
 
             if (!$this->checkTimeLog($values)) {
@@ -84,19 +93,9 @@ class UpdateTaskRequest extends Request
             }
         }];
 
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        } else {
-            $rules['documents'] = 'bail|sometimes|array';
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        
 
         return $this->globalRules($rules);
     }
@@ -105,8 +104,16 @@ class UpdateTaskRequest extends Request
     {
         $input = $this->decodePrimaryKeys($this->all());
 
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
         if (array_key_exists('status_id', $input) && is_string($input['status_id'])) {
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
+        }
+
+        if (isset($input['documents'])) {
+            unset($input['documents']);
         }
 
         /* Ensure the project is related */

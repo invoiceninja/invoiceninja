@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm66131="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeQuantityUnitBasisCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeQuantityUnitBasisCode:D22A"
+    elementFormDefault="qualified"
+    version="3.2">
+  <xsd:simpleType name="FreightChargeQuantityUnitBasisCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="ZZZ"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

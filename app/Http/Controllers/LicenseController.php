@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -110,7 +111,7 @@ class LicenseController extends BaseController
 
                 return response()->json($error, 400);
             } elseif ($data) {
-                $date = date_create($data)->modify('+1 year');
+                $date = date_create($data);
 
                 if ($date < date_create()) {
                     $error = [
@@ -168,6 +169,11 @@ class LicenseController extends BaseController
         /* Catch claim license requests */
         if (config('ninja.environment') == 'selfhost') {
 
+            if (config('ninja.license_key')) {
+                nlog("License key found in config - using that instead");
+                $license_key = config('ninja.license_key');
+            }
+
             nlog("Claiming v5 license");
 
             $response = Http::get("https://invoicing.co/claim_license", [
@@ -180,12 +186,12 @@ class LicenseController extends BaseController
             nlog("Ninja Server Response");
             nlog($payload);
 
-            if ($response->successful()) {
+            if ($response->successful() && is_array($payload)) {
 
                 $account = auth()->user()->account;
 
                 $account->plan_term = Account::PLAN_TERM_YEARLY;
-                $account->plan_expires = Carbon::parse($payload['expires'])->addYear()->format('Y-m-d');
+                $account->plan_expires = Carbon::parse($payload['expires'])->format('Y-m-d');
                 $account->plan = Account::PLAN_WHITE_LABEL;
                 $account->save();
 

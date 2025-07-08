@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -119,6 +119,10 @@ class AuthorizeTransaction
         $transactionRequestType->setOrder($order);
         $transactionRequestType->addToTransactionSettings($duplicateWindowSetting);
 
+        $solution = new \net\authorize\api\contract\v1\SolutionType();
+        $solution->setId($this->authorize->company_gateway->getConfigField('testMode') ? 'AAA100303' : 'AAA172036');
+        $transactionRequestType->setSolution($solution);
+
         $transactionRequestType->setPayment($paymentOne);
         $transactionRequestType->setCurrencyCode($this->authorize->client->currency()->code);
 
@@ -145,7 +149,7 @@ class AuthorizeTransaction
                 nlog(' Description : '.$tresponse->getMessages()[0]->getDescription());
                 nlog(print_r($tresponse->getMessages()[0], 1));
 
-                if ($tresponse->getResponseCode() == "4") {
+                if ($tresponse->getResponseCode()== "4" || $tresponse->getMessages()[0]->getCode() == "253") {
                     //notify user that this transaction is being held under FDS review:
                     FDSReview::dispatch((string)$tresponse->getTransId(), $this->authorize->payment_hash, $this->authorize->company_gateway->company->db);
                 }

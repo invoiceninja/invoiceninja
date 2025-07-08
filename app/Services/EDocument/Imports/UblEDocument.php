@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -97,6 +98,8 @@ class UblEDocument extends AbstractService
 
         $vendor = $this->findOrCreateVendor($invoice);
 
+        nlog($invoice);
+        nlog(data_get($invoice, 'PaymentMeans.0', false));
         $TaxExclusiveAmount = data_get($invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
         $TaxInclusiveAmount = data_get($invoice, 'LegalMonetaryTotal.TaxExclusiveAmount.amount', 0);
         $ChargeTotalAmount = data_get($invoice, 'LegalMonetaryTotal.ChargeTotalAmount.amount', 0);
@@ -106,9 +109,11 @@ class UblEDocument extends AbstractService
         $currency_code = data_get($invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code);
         $date = data_get($invoice, 'IssueDate', now()->format('Y-m-d'));
 
+        $attachments = data_get($invoice, 'AdditionalDocumentReference', []);
+
         $payment_means = [];
         $payment_means[] = data_get($invoice, 'PaymentMeans.0.PaymentMeansCode.name', false);
-        $payment_means[] = data_get($invoice, 'PaymentMeans.0.PaymentID.value', false);
+        $payment_means[] = data_get($invoice, 'PaymentMeans.0.PaymentID.0.value', false);
         $payment_means[] = data_get($invoice, 'PaymentMeans.0.PayeeFinancialAccount.ID.value', false);
         $payment_means[] = data_get($invoice, 'PaymentMeans.0.PayeeFinancialAccount.Name', false);
         $payment_means[] = data_get($invoice, 'PaymentMeans.0.PayeeFinancialAccount.FinancialInstitutionBranch.ID.value', false);
@@ -180,6 +185,29 @@ class UblEDocument extends AbstractService
         $data['documents'][] = $this->file;
 
         $expense = $repo->save($data, $expense);
+
+
+        if ($expense->company->account->hasFeature(\App\Models\Account::FEATURE_DOCUMENTS)) {
+
+            foreach ($attachments as $attachment) {
+
+
+                $a = data_get($attachment, 'Attachment.EmbeddedDocumentBinaryObject', false);
+
+                if (!$a) {
+                    continue;
+                }
+
+                $doc_name = data_get($a, '@filename', "doc.pdf");
+                $mime_type = data_get($a, '@mimeCode', "application/pdf");
+                $document_data = data_get($a, '#', false);
+
+                if ($document_data) {
+                    $document = \App\Utils\TempFile::UploadedFileFromBase64($document_data, $doc_name, $mime_type);
+                    $this->saveDocument($document, $expense);
+                }
+            }
+        }
 
         return $expense;
 

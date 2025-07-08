@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Credit Ninja (https://invoiceninja.com).
  *
@@ -170,6 +171,12 @@ class MatchBankTransactions implements ShouldQueue
 
             if ($expense && !$expense->transaction_id) {
                 $expense->transaction_id = $this->bt->id;
+                $expense->payment_date = $this->bt->date;
+
+                if (empty($expense->transaction_reference)) {
+                    $expense->transaction_reference = $this->bt->description;
+                }
+
                 $expense->save();
 
                 $this->bt->expense_id = $this->coalesceExpenses($expense->hashed_id);
@@ -323,6 +330,9 @@ class MatchBankTransactions implements ShouldQueue
                         ->updatePaidToDate($_amount)
                         ->setCalculatedStatus()
                         ->save();
+
+
+                    event('eloquent.updated: App\Models\Invoice', $this->invoice);
                 }
             });
         }, 2);
@@ -339,7 +349,8 @@ class MatchBankTransactions implements ShouldQueue
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);
 
         $payment->amount = $this->bt->amount;
-        $payment->applied = $this->applied_amount;
+        $payment->applied = min($this->bt->amount, $this->applied_amount);
+        // $payment->applied = $this->applied_amount;
         $payment->status_id = Payment::STATUS_COMPLETED;
         $payment->client_id = $this->invoice->client_id;
         $payment->transaction_reference = $this->bt->description;
@@ -377,7 +388,7 @@ class MatchBankTransactions implements ShouldQueue
         $this->invoice
             ->client
             ->service()
-            ->updateBalanceAndPaidToDate($this->applied_amount * -1, $amount)
+            ->updateBalanceAndPaidToDate(min($this->bt->amount, $this->applied_amount) * -1, $amount)
             ->save();
 
         $this->invoice = $this->invoice
@@ -455,6 +466,6 @@ class MatchBankTransactions implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping($this->company->account->bank_integration_account_id)];
+        return [(new WithoutOverlapping($this->company->account->bank_integration_account_id))->releaseAfter(60)];
     }
 }

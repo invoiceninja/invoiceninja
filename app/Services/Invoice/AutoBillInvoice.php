@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,7 +59,7 @@ class AutoBillInvoice extends AbstractService
         $is_partial = false;
 
         /* Is the invoice payable? */
-        if (! $this->invoice->isPayable()) {
+        if (! $this->invoice->refresh()->isPayable()) {
             return $this->invoice;
         }
 
@@ -116,8 +117,10 @@ class AutoBillInvoice extends AbstractService
 
         nlog("Gateway present - adding gateway fee on {$amount}");
 
+        $payment_hash_string = Str::random(32);
+
         /* $gateway fee */
-        $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount)->save();
+        $this->invoice = $this->invoice->service()->addGatewayFee($gateway_token->gateway, $gateway_token->gateway_type_id, $amount, $payment_hash_string)->save();
 
         //change from $this->invoice->amount to $this->invoice->balance
         if ($is_partial) {
@@ -135,7 +138,7 @@ class AutoBillInvoice extends AbstractService
         /* Build payment hash */
 
         $payment_hash = PaymentHash::create([
-            'hash' => Str::random(32),
+            'hash' => $payment_hash_string,
             'data' => [
                 'amount_with_fee' => $amount + $fee,
                 'invoices' => [
@@ -163,11 +166,11 @@ class AutoBillInvoice extends AbstractService
 
             nlog('payment NOT captured for '.$this->invoice->number.' with error '.$e->getMessage());
             event(new InvoiceAutoBillFailed($this->invoice, $this->invoice->company, Ninja::eventVars(), $e->getMessage()));
-            
+
             $this->invoice->increment('auto_bill_tries', 1);
             $this->invoice->refresh();
 
-            if ($this->invoice->auto_bill_tries == 3) {
+            if ($this->invoice->auto_bill_tries == 4) {
 
                 \App\Models\Invoice::where('id', $this->invoice->id)->update([
                     'auto_bill_enabled' => false,

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,6 +29,7 @@ use App\Services\EDocument\Standards\FatturaPA;
 use App\Services\EDocument\Standards\RoEInvoice;
 use App\Services\EDocument\Standards\OrderXDocument;
 use App\Services\EDocument\Standards\FacturaEInvoice;
+use App\Services\EDocument\Standards\ZugferdEDocument;
 use App\Services\EDocument\Standards\ZugferdEDokument;
 
 class CreateEDocument implements ShouldQueue
@@ -85,7 +87,9 @@ class CreateEDocument implements ShouldQueue
                 case "XInvoice-Extended":
                 case "XInvoice-BasicWL":
                 case "XInvoice-Basic":
-                    $zugferd = (new ZugferdEDokument($this->document))->run();
+
+                    //New implementation now the default 2025-02-04 - requires zugferd_version_two=false to disable
+                    $zugferd = (new ZugferdEDocument($this->document))->run();
 
                     return $this->returnObject ? $zugferd->xdocument : $zugferd->getXml();
                 case "Facturae_3.2":

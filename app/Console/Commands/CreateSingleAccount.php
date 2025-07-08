@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,6 +33,7 @@ use App\Models\TaxRate;
 use App\Libraries\MultiDB;
 use App\Models\TaskStatus;
 use App\Models\CompanyToken;
+use App\Models\Subscription;
 use App\Models\ClientContact;
 use App\Models\VendorContact;
 use App\Models\CompanyGateway;
@@ -142,6 +144,12 @@ class CreateSingleAccount extends Command
             'portal_domain' => 'http://ninja.test:8000',
             'track_inventory' => true
         ]);
+
+        $custom_fields = new \stdClass();
+        $custom_fields->client1 = 'CKey|single_line_text';
+        $custom_fields->client2 = 'AKey|single_line_text';
+        $company->custom_fields = $custom_fields;
+
         $faker = \Faker\Factory::create();
 
         $settings = $company->settings;
@@ -255,7 +263,11 @@ class CreateSingleAccount extends Command
                 'company_id' => $company->id,
                 'name' => 'cypress'
             ]);
-
+        
+        $client->custom_value1 = $company->company_key;
+        $client->custom_value2 = $account->key;
+        $client->save();
+        
         ClientContact::factory()->create([
                     'user_id' => $user->id,
                     'client_id' => $client->id,
@@ -406,8 +418,8 @@ class CreateSingleAccount extends Command
             'company_id' => $company->id,
             'product_key' => 'pro_plan',
             'notes' => 'The Pro Plan',
-            'cost' => 10,
-            'price' => 10,
+            'cost' => 12,
+            'price' => 12,
             'quantity' => 1,
         ]);
 
@@ -416,8 +428,38 @@ class CreateSingleAccount extends Command
             'company_id' => $company->id,
             'product_key' => 'enterprise_plan',
             'notes' => 'The Enterprise Plan',
-            'cost' => 14,
-            'price' => 14,
+            'cost' => 16,
+            'price' => 16,
+            'quantity' => 1,
+        ]);
+
+        $pe5 = Product::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'product_key' => 'enterprise_plan_5',
+            'notes' => 'The Enterprise Plan 5',
+            'cost' => 28,
+            'price' => 28,
+            'quantity' => 1,
+        ]);
+
+        $pe10 = Product::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'product_key' => 'enterprise_plan_10',
+            'notes' => 'The Enterprise Plan 10',
+            'cost' => 56,
+            'price' => 56,
+            'quantity' => 1,
+        ]);
+
+        $pe20 = Product::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'product_key' => 'enterprise_plan_20',
+            'notes' => 'The Enterprise Plan 20',
+            'cost' => 112,
+            'price' => 112,
             'quantity' => 1,
         ]);
 
@@ -428,6 +470,28 @@ class CreateSingleAccount extends Command
             'notes' => 'The Free Plan',
             'cost' => 0,
             'price' => 0,
+            'quantity' => 1,
+        ]);
+
+
+        $p4= Product::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'product_key' => 'docuninja_user',
+            'notes' => 'The DocuNinja Monthly User Plan',
+            'cost' => 6,
+            'price' => 6,
+            'quantity' => 1,
+        ]);
+
+        
+        $p5 = Product::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'product_key' => 'docuninja_user_annual',
+            'notes' => 'The DocuNinja Annual User Plan',
+            'cost' => 60,
+            'price' => 60,
             'quantity' => 1,
         ]);
 
@@ -463,7 +527,118 @@ class CreateSingleAccount extends Command
         $sub->allow_plan_changes = true;
         $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $sub->save();
+
+        if(!\App\Models\Subscription::find(6)){
+                        
+            $sub = SubscriptionFactory::create($company->id, $user->id);
+            $sub->id = 6;
+            $sub->name = " PRO Pro Plan";
+            $sub->group_id = $gs->id;
+            $sub->recurring_product_ids = "{$p1->hashed_id}";
+            $sub->webhook_configuration = $webhook_config;
+            $sub->allow_plan_changes = true;
+            $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+            $sub->save();
+
+        }
+
+        if (!\App\Models\Subscription::find(11)) {
+
+            $sub = SubscriptionFactory::create($company->id, $user->id);
+            $sub->id = 11;
+            $sub->name = " EEE Enterprise Plan";
+            $sub->group_id = $gs->id;
+            $sub->recurring_product_ids = "{$p2->hashed_id}";
+            $sub->webhook_configuration = $webhook_config;
+            $sub->allow_plan_changes = true;
+            $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+            $sub->max_seats_limit =2;
+            $sub->per_seat_enabled = true;
+            $sub->save();
+
+        }
+                
+        $_sub = $sub->replicate();
+        $_sub->id = 41;
+        $_sub->name = "Enterprise Plan 3-5 Users";
+        $_sub->recurring_product_ids = "{$pe5->hashed_id}";
+        $_sub->max_seats_limit =5;
+        $_sub->per_seat_enabled = true;
+        $_sub->save();
+        
+        $_sub = $sub->replicate();
+        $_sub->id = 46;
+        $_sub->name = "Enterprise Plan 6-10 Users";
+        $_sub->recurring_product_ids = "{$pe10->hashed_id}";
+        $_sub->max_seats_limit =10;
+        $_sub->per_seat_enabled = true;
+        $_sub->save();
+        
+        $_sub = $sub->replicate();  
+        $_sub->id = 51;
+        $_sub->name = "Enterprise Plan 11-20 Users";
+        $_sub->recurring_product_ids = "{$pe20->hashed_id}";
+        $_sub->max_seats_limit =20;
+        $_sub->per_seat_enabled = true;
+        $_sub->save();
+     
+
+        $sub = SubscriptionFactory::create($company->id, $user->id);
+        $sub->name = "DocuNinja Monthly Plan";
+        $sub->group_id = $gs->id;
+        $sub->recurring_product_ids = "{$p4->hashed_id}";
+        $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
+        $sub->save();
+
+        $sub = SubscriptionFactory::create($company->id, $user->id);
+        $sub->name = "DocuNinja Annual Plan";
+        $sub->group_id = $gs->id;
+        $sub->recurring_product_ids = "{$p5->hashed_id}";
+        $sub->webhook_configuration = $webhook_config;
+        $sub->allow_plan_changes = true;
+        $sub->frequency_id = RecurringInvoice::FREQUENCY_ANNUALLY;
+        $sub->save();
+
+
+        if($config = config('admin-api.products')){
+
+            foreach($config as $key => $product){
+
+                if(!$p = Product::where('product_key', $key)->first()){
+
+                    $p = Product::factory()->create([
+                        'user_id' => $user->id,
+                        'company_id' => $company->id,
+                        'product_key' => $key,
+                        'notes' => $product['description'],
+                        'price' => $product['price']
+                    ]);
+
+                    if(!Subscription::find($product['subscription_id'])){
+
+                        $sub = SubscriptionFactory::create($company->id, $user->id);
+                        $sub->id = $product['subscription_id'];
+                        $sub->name = $product['description'];
+                        $sub->recurring_product_ids = "{$p->hashed_id}";
+                        $sub->webhook_configuration = $webhook_config;
+                        $sub->allow_plan_changes = true;
+                        $sub->frequency_id = $product['term'] == 'month' ? RecurringInvoice::FREQUENCY_MONTHLY : RecurringInvoice::FREQUENCY_ANNUALLY;
+                        $sub->max_seats_limit = $product['users'] ?? 1;
+                        $sub->per_seat_enabled = true;
+                        $sub->save();
+
+                    }
+                }
+
+            }
+
+        }
+
+
     }
+
 
     private function createClient($company, $user)
     {

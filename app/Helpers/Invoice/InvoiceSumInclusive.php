@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -167,19 +168,19 @@ class InvoiceSumInclusive
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
             $this->total_taxes += $tax;
 
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
         }
 
         return $this;
@@ -214,6 +215,13 @@ class InvoiceSumInclusive
     public function getTotalSurcharges()
     {
         return $this->total_custom_values;
+    }
+
+    public function getTotalNetSurcharges()
+    {
+        $map = $this->invoice_items->getCustomSurchargeNetMap();
+
+        return $map->sum('custom_surcharge1') + $map->sum('custom_surcharge2') + $map->sum('custom_surcharge3') + $map->sum('custom_surcharge4');
     }
 
     public function getRecurringInvoice()
@@ -322,12 +330,12 @@ class InvoiceSumInclusive
 
     public function getSubTotal()
     {
-        return round($this->sub_total,2);
+        return round($this->sub_total, 2);
     }
 
     public function getGrossSubTotal()
     {
-        return round($this->sub_total,2);
+        return round($this->sub_total, 2);
     }
 
     public function setSubTotal($value)
@@ -339,7 +347,7 @@ class InvoiceSumInclusive
 
     public function getTotalDiscount()
     {
-        return round($this->total_discount,2);
+        return round($this->total_discount, 2);
     }
 
     public function getTotalTaxes()
@@ -354,7 +362,7 @@ class InvoiceSumInclusive
 
     public function getTotal()
     {
-        return round($this->total,2);
+        return round($this->total, 2);
     }
 
     public function setTaxMap()

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -65,7 +66,11 @@ class PostMarkController extends BaseController
     public function webhook(Request $request)
     {
         if ($request->header('X-API-SECURITY') && $request->header('X-API-SECURITY') == config('services.postmark.token')) {
-            ProcessPostmarkWebhook::dispatch($request->all())->delay(15);
+            ProcessPostmarkWebhook::dispatch($request->all(), $request->header('X-API-SECURITY'))->delay(15);
+
+            return response()->json(['message' => 'Success'], 200);
+        } elseif ($request->header('X-API-SECURITY') && stripos($request->header('X-API-SECURITY'), \Illuminate\Support\Facades\Cache::get('client_postmark_keys')) !== false) {
+            ProcessPostmarkWebhook::dispatch($request->all(), $request->header('X-API-SECURITY'))->delay(15);
 
             return response()->json(['message' => 'Success'], 200);
         }

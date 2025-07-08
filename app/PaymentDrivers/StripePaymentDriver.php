@@ -5,13 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers;
 
+use App\PaymentDrivers\Common\SupportsHeadlessInterface;
 use Exception;
 use Stripe\Stripe;
 use Stripe\Account;
@@ -62,7 +63,7 @@ use App\PaymentDrivers\Stripe\Jobs\PaymentIntentFailureWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentProcessingWebhook;
 use App\PaymentDrivers\Stripe\Jobs\PaymentIntentPartiallyFundedWebhook;
 
-class StripePaymentDriver extends BaseDriver
+class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterface
 {
     use MakesHash;
     use Utilities;
@@ -107,13 +108,6 @@ class StripePaymentDriver extends BaseDriver
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_STRIPE;
 
     /**
-     * Indicates if returning responses should be headless or classic redirect.
-     * 
-     * @var bool
-     */
-    public bool $headless = false;
-
-    /**
      * Initializes the Stripe API.
      * @return self
      */
@@ -133,8 +127,7 @@ class StripePaymentDriver extends BaseDriver
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            // Stripe::setApiVersion('2022-11-15');
-            Stripe::setAPiVersion('2023-08-16');
+            Stripe::setAPiVersion('2023-10-16');
         }
 
         return $this;
@@ -556,7 +549,7 @@ class StripePaymentDriver extends BaseDriver
 
         //Search by email
         $searchResults = \Stripe\Customer::all([
-            'email' => $this->client->present()->email(),
+            'email' => (string)$this->client->present()->email(),
             'limit' => 2,
             'starting_after' => null,
         ], $this->stripe_connect_auth);
@@ -657,13 +650,13 @@ class StripePaymentDriver extends BaseDriver
                 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency()),
             ], $meta);
 
-            if (in_array($response->status, [$response::STATUS_SUCCEEDED, 'pending'])) {
+            if (in_array($response->status, ['succeeded', 'pending'])) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all()], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
 
                 return [
                     'transaction_reference' => $response->charge,
                     'transaction_response' => json_encode($response),
-                    'success' => $response->status == $response::STATUS_SUCCEEDED ? true : false,
+                    'success' => in_array($response->status, ['succeeded', 'pending']) ? true : false,
                     'description' => $response->metadata,
                     'code' => $response,
                 ];
@@ -1041,19 +1034,51 @@ class StripePaymentDriver extends BaseDriver
         }, $string);
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
+
         $this->init();
 
         try {
-            $this->verifyConnect();
-            return true;
-        } catch (\Exception $e) {
+            if ($this->stripe_connect) {
+                // Verify Connect configuration
+                if (!strlen($this->company_gateway->getConfigField('account_id')) > 1) {
+                    return 'error';
+                }
 
+                // Test Connect API access
+                \Stripe\Account::retrieve(
+                    $this->company_gateway->getConfigField('account_id'),
+                    $this->stripe_connect_auth
+                );
+            } else {
+                // Test regular API key access
+                $api_key = $this->company_gateway->getConfigField('apiKey');
+
+                if (empty($api_key)) {
+                    return 'error';
+                }
+
+                $b = \Stripe\Balance::retrieve(); // Simple API call to verify credentials
+
+            }
+
+            return 'ok';
+        } catch (\Throwable $th) {
+            nlog("Stripe auth error: " . $th->getMessage());
+            return 'error';
         }
 
-        return false;
 
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function setHeadless(bool $headless): self
+    {
+        $this->headless = $headless;
+
+        return $this;
+    }
 }

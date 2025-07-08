@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,7 +14,8 @@ namespace App\Models;
 
 use App\Utils\Ninja;
 use App\Utils\Number;
-use Laravel\Scout\Searchable;
+use App\DataMapper\QuoteSync;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\InvoiceSum;
@@ -55,6 +57,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_deleted
  * @property array|null $line_items
  * @property object|null $backup
+ * @property object|null $sync
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
@@ -165,6 +168,7 @@ class Quote extends BaseModel
         'subscription_id',
         'uses_inclusive_taxes',
         'vendor_id',
+        'location_id',
     ];
 
     protected $casts = [
@@ -180,6 +184,8 @@ class Quote extends BaseModel
         'is_deleted' => 'boolean',
         'is_amount_discount' => 'bool',
         'e_invoice' => 'object',
+        'sync' => QuoteSync::class,
+
     ];
 
     public const STATUS_DRAFT = 1;
@@ -198,7 +204,7 @@ class Quote extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => ctrans('texts.quote') . " " . ($this->number ?? '') . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -218,7 +224,7 @@ class Quote extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
 
     public function getEntityType()
@@ -266,6 +272,11 @@ class Quote extends BaseModel
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function location(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Location::class)->withTrashed();
     }
 
     public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -466,22 +477,23 @@ class Quote extends BaseModel
         return true;
 
     }
-    
+
     /**
      * entityEmailEvent
      *
-     * Translates the email type into an activity + notification 
+     * Translates the email type into an activity + notification
      * that matches.
      */
-    public function entityEmailEvent($invitation, $reminder_template)
+    public function entityEmailEvent($invitation, $reminder_template, $template = '')
     {
-        
+
         switch ($reminder_template) {
             case 'quote':
                 event(new QuoteWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
             case 'email_quote_template_reminder1':
-                event(new QuoteReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
+            case 'reminder1':
+                event(new QuoteReminderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'email_quote_template_reminder1'));
                 break;
             case 'custom1':
             case 'custom2':
@@ -489,11 +501,11 @@ class Quote extends BaseModel
                 event(new QuoteWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
             default:
-                // code...
+                event(new QuoteWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
                 break;
         }
     }
 
-    
-    
+
+
 }

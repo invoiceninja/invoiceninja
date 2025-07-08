@@ -35,7 +35,7 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])->middle
 
 Route::get('auth/{provider}', [LoginController::class, 'redirectToProvider']);
 
-Route::middleware('url_db')->group(function () {
+Route::middleware(['url_db'])->group(function () {
     Route::get('/user/confirm/{confirmation_code}', [UserController::class, 'confirm']);
     Route::post('/user/confirm/{confirmation_code}', [UserController::class, 'confirmWithPassword']);
 });
@@ -56,5 +56,7 @@ Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePa
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
 Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');
 Route::get('gocardless/oauth/connect/{token}', [GoCardlessOAuthController::class, 'connect']);
+
+Route::redirect('buy_now', 'https://invoiceninja.invoicing.co/client/subscriptions/O5xe7Rwd7r/purchase', 301);
 
 \Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['token_auth']]);

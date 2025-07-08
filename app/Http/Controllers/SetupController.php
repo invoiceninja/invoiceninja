@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,7 +78,7 @@ class SetupController extends Controller
         $db_database = $request->input('db_database');
         $db_username = $request->input('db_username');
         $db_password = $request->input('db_password');
-        $mail_port = $request->input('mail_port');
+        $mail_port = $request->input('mail_port', 0);
         $encryption = $request->input('encryption');
         $mail_host = $request->input('mail_host');
         $mail_username = $request->input('mail_username');

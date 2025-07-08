@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Cache;
 use App\Jobs\EDocument\CreateEDocument;
 use App\Models\PurchaseOrderInvitation;
 use App\Models\RecurringInvoiceInvitation;
-use App\Services\PdfMaker\Designs\Utilities\DesignHelpers;
+use App\Services\Pdf\Markdown;
 
 class PdfSlot extends Component
 {
@@ -47,6 +47,8 @@ class PdfSlot extends Component
     private $html_variables;
 
     private $entity_type;
+
+    private $preference_product_notes_for_html_view;
 
     public $show_cost = true;
 
@@ -88,11 +90,6 @@ class PdfSlot extends Component
 
     public function getPdf()
     {
-
-        // if(!$this->invitation) {
-        //     $this->entity()->service()->createInvitations();
-        //     $this->invitation = $this->entity()->invitations()->first();
-        // }
 
         $blob = [
             'entity_type' => $this->resolveEntityType(),
@@ -147,6 +144,7 @@ class PdfSlot extends Component
 
         $this->settings = $this->entity()->client ? $this->entity()->client->getMergedSettings() : $this->entity()->company->settings;
         $this->html_entity_option = $this->entity()->client ? $this->entity()->client->getSetting('show_pdfhtml_on_mobile') : $this->entity()->company->getSetting('show_pdfhtml_on_mobile');
+        $this->preference_product_notes_for_html_view = $this->entity()->client ? $this->entity()->client->getSetting('preference_product_notes_for_html_view') : $this->entity()->company->getSetting('preference_product_notes_for_html_view');
 
         $this->show_cost = in_array('$product.unit_cost', $this->settings->pdf_variables->product_columns);
         $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_columns);
@@ -162,8 +160,8 @@ class PdfSlot extends Component
                             (new VendorHtmlEngine($this->invitation()))->generateLabelsAndValues() :
                             (new HtmlEngine($this->invitation()))->generateLabelsAndValues();
 
-        $this->entity()->terms = $this->entity()->parseHtmlVariables('terms', $this->html_variables);
-        $this->entity()->public_notes = $this->entity()->parseHtmlVariables('public_notes', $this->html_variables);
+        $terms = $this->entity()->parseHtmlVariables('terms', $this->html_variables);
+        $public_notes = $this->entity()->parseHtmlVariables('public_notes', $this->html_variables);
 
         return render('components.livewire.pdf-slot', [
             'invitation' => $this->invitation(),
@@ -182,6 +180,8 @@ class PdfSlot extends Component
             'entity_details' => $this->getEntityDetails(),
             'user_details' => $this->getUserDetails(),
             'user_name' => $this->getUserName(),
+            'terms' => $terms,
+            'public_notes' => $public_notes,
         ]);
     }
 
@@ -287,12 +287,13 @@ class PdfSlot extends Component
             return $item->type_id == 1 || $item->type_id == 6 || $item->type_id == 5;
         })->map(function ($item) {
 
-            $notes = strlen($item->notes) > 4 ? $item->notes : $item->product_key;
+            //$notes = strlen($item->notes) > 4 ? $item->notes : $item->product_key;
+            $notes = $this->preference_product_notes_for_html_view ? $item->notes : $item->product_key;
 
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity()->client ?: $this->entity()->vendor),
-                'notes' => $this->invitation()->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($notes) : $notes,
+                'notes' => $this->invitation()->company->markdown_enabled ? Markdown::parse($notes) : $notes,
                 'line_total' => Number::formatMoney($item->line_total, $this->entity()->client ?: $this->entity()->vendor),
             ];
         });
@@ -308,7 +309,7 @@ class PdfSlot extends Component
             return [
                 'quantity' => $item->quantity,
                 'cost' => Number::formatMoney($item->cost, $this->entity()->client ?: $this->entity()->vendor),
-                'notes' => $this->invitation()->company->markdown_enabled ? DesignHelpers::parseMarkdownToHtml($item->notes) : $item->notes,
+                'notes' => $this->invitation()->company->markdown_enabled ? Markdown::parse($item->notes) : $item->notes,
                 'line_total' => Number::formatMoney($item->line_total, $this->entity()->client ?: $this->entity()->vendor),
             ];
         });

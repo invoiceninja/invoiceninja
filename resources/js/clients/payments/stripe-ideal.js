@@ -21,7 +21,6 @@ class ProcessIDEALPay {
 
 
         if (this.stripeConnect) {
-            // this.stripe.stripeAccount = this.stripeConnect;
 
             this.stripe = Stripe(this.key, {
                 stripeAccount: this.stripeConnect,
@@ -32,8 +31,6 @@ class ProcessIDEALPay {
             this.stripe = Stripe(this.key);
         }
 
-
-        let elements = this.stripe.elements();
         var options = {
             style: {
                 base: {
@@ -45,40 +42,48 @@ class ProcessIDEALPay {
                     },
                 },
             },
+            clientSecret: document.querySelector('meta[name=pi-client-secret').content,
         };
-        this.ideal = elements.create('idealBank', options);
-        this.ideal.mount("#ideal-bank-element");
+
+        this.elements = this.stripe.elements(options);
+
+
+        const paymentElementOptions = { layout: 'accordion' };
+        this.ideal = this.elements.create('payment', paymentElementOptions);
+        this.ideal.mount('#payment-element');
+
         return this;
     };
 
     handle = () => {
-        document.getElementById('pay-now').addEventListener('click', (e) => {
+        document.getElementById('pay-now').addEventListener('click', async (e) => {
+            e.preventDefault();
             let errors = document.getElementById('errors');
+            errors.textContent = '';
+            errors.hidden = true;
 
-            if (!document.getElementById('ideal-name').value) {
-                errors.textContent = document.querySelector('meta[name=translation-name-required]').content;
-                errors.hidden = false;
-                console.log("name");
-                return;
-            }
             document.getElementById('pay-now').disabled = true;
             document.querySelector('#pay-now > svg').classList.remove('hidden');
             document.querySelector('#pay-now > span').classList.add('hidden');
 
-            this.stripe.confirmIdealPayment(
-                document.querySelector('meta[name=pi-client-secret').content,
-                {
-                    payment_method: {
-                        ideal: this.ideal,
-                        billing_details: {
-                            name: document.getElementById("ideal-name").value,
-                        },
-                    },
+            const { error } = await this.stripe.confirmPayment({
+                elements: this.elements,
+                confirmParams: {
                     return_url: document.querySelector(
-                        'meta[name="return-url"]'
-                    ).content,
-                }
-            );
+                                'meta[name="return-url"]'
+                            ).content,
+                },
+            });
+
+            if (error) {
+                errors.textContent = error.message;
+                errors.hidden = false;
+
+                document.getElementById('pay-now').disabled = false;
+                document.querySelector('#pay-now > svg').classList.add('hidden');
+                document.querySelector('#pay-now > span').classList.remove('hidden');
+            } 
+
         });
     };
 }
@@ -93,7 +98,5 @@ function boot() {
     
     new ProcessIDEALPay(publishableKey, stripeConnect).setupStripe().handle();
 }
-
-instant() ? boot() : wait('#stripe-ideal-payment').then(() => boot());
 
 instant() ? boot() : wait('#stripe-ideal-payment').then(() => boot());

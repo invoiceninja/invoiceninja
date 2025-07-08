@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -75,7 +76,7 @@ class InvitationController extends Controller
         }
 
         $is_silent = 'false';
-
+        $session_is_silent = session()->get('is_silent') ?? false;
         $key = $entity.'_id';
 
         $entity_obj = 'App\Models\\'.ucfirst(Str::camel($entity)).'Invitation';
@@ -104,6 +105,9 @@ class InvitationController extends Controller
 
         if (request()->has('client_hash') && request()->input('client_hash') == $invitation->contact->client->client_hash) {
             request()->session()->invalidate();
+            request()->session()->regenerate(true);
+            request()->session()->regenerateToken();
+
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         } elseif ((bool) $invitation->contact->client->getSetting('enable_client_portal_password') !== false) {
             //if no contact password has been set - allow user to set password - then continue to view entity
@@ -123,17 +127,19 @@ class InvitationController extends Controller
 
         } else {
             request()->session()->invalidate();
+            request()->session()->regenerate(true);
+            request()->session()->regenerateToken();
             auth()->guard('contact')->loginUsingId($client_contact->id, true);
         }
 
         if (auth()->guard('contact')->user() && ! request()->has('silent') && ! $invitation->viewed_date) {
             $invitation->markViewed();
 
-            if (!session()->get('is_silent')) {
+            if (! $session_is_silent) {
                 event(new InvitationWasViewed($invitation->{$entity}, $invitation, $invitation->{$entity}->company, Ninja::eventVars()));
             }
 
-            if (!session()->get('is_silent')) {
+            if (! $session_is_silent) {
                 $this->fireEntityViewedEvent($invitation, $entity);
             }
         } else {
@@ -232,17 +238,21 @@ class InvitationController extends Controller
         $contact->password = Hash::make($request->password);
         $contact->save();
 
+        $is_silent = session()->get('is_silent') ?? false;
+
         $request->session()->invalidate();
+        request()->session()->regenerate(true);
+        request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($contact->id, true);
 
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
 
-            if (! session()->get('is_silent')) {
+            if (! $is_silent) {
                 event(new InvitationWasViewed($invitation->{$request->entity_type}, $invitation, $invitation->{$request->entity_type}->company, Ninja::eventVars()));
             }
 
-            if (! session()->get('is_silent')) {
+            if (! $is_silent) {
                 $this->fireEntityViewedEvent($invitation, $request->entity_type);
             }
         }
@@ -262,6 +272,9 @@ class InvitationController extends Controller
             abort(403, 'You are not authorized to view this resource');
         }
 
+        request()->session()->invalidate();
+        request()->session()->regenerate(true);
+        request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($contact->id, true);
 
         return redirect()->route('client.payments.show', $payment->hashed_id);
@@ -279,6 +292,11 @@ class InvitationController extends Controller
             $invitation->contact->restore();
         }
 
+        $is_silent = session()->get('is_silent') ?? false;
+
+        request()->session()->invalidate();
+        request()->session()->regenerate(true);
+        request()->session()->regenerateToken();
         auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
 
         $invoice = $invitation->invoice->service()->removeUnpaidGatewayFees()->save();
@@ -286,13 +304,15 @@ class InvitationController extends Controller
         if (! $invitation->viewed_date) {
             $invitation->markViewed();
 
-            if (!session()->get('is_silent')) {
+            if (! $is_silent) {
                 event(new InvitationWasViewed($invitation->invoice, $invitation, $invitation->invoice->company, Ninja::eventVars()));
-            }
-
-            if (!session()->get('is_silent')) {
                 $this->fireEntityViewedEvent($invitation, $invoice);
             }
+
+        }
+
+        if (! $is_silent) {
+            event(new ContactLoggedIn($invitation->contact, $invitation->contact->company, Ninja::eventVars()));
         }
 
         if ($invoice->partial > 0) {

@@ -36,10 +36,10 @@ class ExpenseTransformer extends BaseTransformer
         $expense = [
             'amount' => data_get($data, 'TotalAmt'),
             'date' => Carbon::parse(data_get($data, 'TxnDate', ''))->format('Y-m-d'),
-            'currency_id' => $this->resolveCurrency(data_get($data, 'CurrencyRef.value', '')),
+            'currency_id' => $this->resolveCurrency(data_get($data, 'CurrencyRef', '')),
             'private_notes' => data_get($data, 'PrivateNote', null),
             'public_notes' => null,
-            'number' => data_get($data, 'Id.value', null),
+            'number' => data_get($data, 'Id', null),
             'transaction_reference' => data_get($data, 'DocNumber', ''),
             'should_be_invoiced' => false,
             'invoice_documents' => false,
@@ -63,7 +63,7 @@ class ExpenseTransformer extends BaseTransformer
     {
 
         $related = data_get($entity, 'EntityRef.type');
-        $entity_id = data_get($entity, 'EntityRef.value');
+        $entity_id = data_get($entity, 'EntityRef');
 
         switch ($related) {
             case 'Vendor':

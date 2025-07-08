@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,7 +61,7 @@ class RegisterRequest extends FormRequest
             $rules['terms'] = ['required'];
         }
 
-        $rules['cf-turnstile-response'] = ['sometimes', new Turnstile];
+        $rules['cf-turnstile-response'] = ['sometimes', new Turnstile()];
 
         return $rules;
     }

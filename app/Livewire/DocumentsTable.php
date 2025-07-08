@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -118,8 +118,17 @@ class DocumentsTable extends Component
 
     protected function documents()
     {
-        return $this->client()->documents()
-            ->where('is_public', true);
+        $client = $this->client();
+
+        return $client->documents()
+            ->where('is_public', true)
+            ->orWhere(function ($query) use ($client) {
+
+                $query->whereHasMorph('documentable', [Company::class], function ($q) use ($client) {
+                    $q->where('is_public', true)->where('company_id', $client->company_id);
+                });
+
+            });
     }
 
     protected function credits()

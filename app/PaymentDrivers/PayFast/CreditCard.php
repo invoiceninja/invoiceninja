@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -195,6 +195,11 @@ class CreditCard implements LivewireMethodInterface
      */
     public function paymentResponse(Request $request)
     {
+
+        if($request->token){
+            return $this->processTokenPayment($request->token, $request->payment_hash);
+        }
+
         $response_array = $request->all();
 
         nlog($request->all());
@@ -214,6 +219,27 @@ class CreditCard implements LivewireMethodInterface
         } else {
             $this->processUnsuccessfulPayment($response_array);
         }
+    }
+
+
+    private function processTokenPayment(string $token, string $payment_hash)
+    {
+
+        $client_gateway_token = \App\Models\ClientGatewayToken::query()
+            ->where('token', $token)
+            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
+            ->first();
+
+        if (! $client_gateway_token) {
+            throw new \App\Exceptions\PaymentFailed(ctrans('texts.payment_token_not_found'), 401);
+        }
+
+        $payment_hash = \App\Models\PaymentHash::with('fee_invoice')->where('hash', $payment_hash)->firstOrFail();
+
+        $payment = $this->payfast->tokenBilling($client_gateway_token, $payment_hash);
+
+        return redirect()->route('client.payments.show', ['payment' => $payment->hashed_id]);
+
     }
 
     private function processSuccessfulPayment($response_array)

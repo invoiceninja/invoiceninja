@@ -1,17 +1,20 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Invoice;
 
+use App\Events\Invoice\InvoiceWasDeleted;
 use App\Jobs\Inventory\AdjustProductInventory;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Models\Quote;
 use App\Services\AbstractService;
@@ -33,9 +36,6 @@ class MarkInvoiceDeleted extends AbstractService
 
     public function run()
     {
-        if ($this->invoice->is_deleted) {
-            return $this->invoice;
-        }
 
         if ($this->invoice->company->track_inventory) {
             (new AdjustProductInventory($this->invoice->company, $this->invoice, []))->handleDeletedInvoice();
@@ -48,6 +48,10 @@ class MarkInvoiceDeleted extends AbstractService
              ->adjustPaidToDateAndBalance()
              ->adjustLedger()
              ->triggeredActions();
+
+        $this->invoice->delete();
+
+        event(new \App\Events\Invoice\InvoiceWasDeleted($this->invoice, $this->invoice->company, \App\Utils\Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
 
         return $this->invoice;
     }
@@ -62,10 +66,16 @@ class MarkInvoiceDeleted extends AbstractService
     private function adjustPaidToDateAndBalance()
     {
 
+        $ba = $this->balance_adjustment * -1;
+        $aa = $this->adjustment_amount * -1;
+        $cb = $this->invoice->client->balance;
+
+        nlog("APB => {$this->invoice->number} - BA={$ba} - AA={$aa} - CB={$cb}");
+
         $this->invoice
              ->client
              ->service()
-             ->updateBalanceAndPaidToDate($this->balance_adjustment * -1, $this->adjustment_amount * -1)
+             ->updateBalanceAndPaidToDate($ba, $aa)
              ->save();
 
         return $this;
@@ -130,6 +140,18 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->balance_adjustment = $this->invoice->balance;
 
+        $pre_count = count((array)$this->invoice->line_items);
+
+        $items = collect((array)$this->invoice->line_items)
+                    ->filter(function ($item) {
+                        return $item->type_id != '3';
+                    })->toArray();
+
+        if (count($items) < $pre_count) {
+            $this->invoice->line_items = array_values($items);
+            $this->invoice = $this->invoice->calc()->getInvoice();
+        }
+
         return $this;
     }
 
@@ -179,6 +201,16 @@ class MarkInvoiceDeleted extends AbstractService
                     ->where('paymentable_type', '=', 'invoices')
                     ->where('paymentable_id', $this->invoice->id)
                     ->update(['deleted_at' => now()]);
+
+            $pp = \App\Models\Paymentable::where('payment_id', $payment->id)
+                                ->where('paymentable_type', \App\Models\Credit::class)
+                                ->where('amount', $this->invoice->amount)
+                                ->first();
+
+            if ($pp) {
+                $pp->delete();
+            }
+
         });
 
         return $this;

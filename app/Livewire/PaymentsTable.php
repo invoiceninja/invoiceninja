@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,6 +33,10 @@ class PaymentsTable extends Component
     public function mount()
     {
         MultiDB::setDb($this->db);
+
+        $this->sort_asc = false;
+
+        $this->sort_field = 'date';
     }
 
     public function render()
@@ -44,10 +48,10 @@ class PaymentsTable extends Component
             ->where('is_deleted', false)
             ->whereIn('status_id', [Payment::STATUS_FAILED, Payment::STATUS_COMPLETED, Payment::STATUS_PENDING, Payment::STATUS_REFUNDED, Payment::STATUS_PARTIALLY_REFUNDED])
             // ->orderBy($this->sort_field, $this->sort_asc ? 'desc' : 'asc')
-            ->when($this->sort_field == 'number', function ($q){
+            ->when($this->sort_field == 'number', function ($q) {
                 $q->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . ($this->sort_asc ? 'desc' : 'asc'));
             })
-            ->when($this->sort_field != 'number', function ($q){
+            ->when($this->sort_field != 'number', function ($q) {
                 $q->orderBy($this->sort_field, ($this->sort_asc ? 'desc' : 'asc'));
             })
             ->withTrashed()

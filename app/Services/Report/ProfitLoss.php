@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -82,11 +83,7 @@ class ProfitLoss
 
      */
 
-    protected array $payload;
-
-    protected Company $company;
-
-    public function __construct(Company $company, array $payload)
+    public function __construct(protected Company $company, protected array $payload)
     {
         $this->currency_api = new CurrencyApi();
 
@@ -629,9 +626,33 @@ class ProfitLoss
                 $this->end_date = (new \Carbon\Carbon('-3 months'))->endOfQuarter();
                 break;
 
+            case 'last_year':
+                            
+                $first_month_of_year = $this->company->first_month_of_year ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+                $fin_year_start->subYearNoOverflow();
+
+                if (now()->subYear()->lt($fin_year_start)) {
+                    $fin_year_start->subYearNoOverflow();
+                }
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
+
+                break;
+
             case 'this_year':
-                $this->start_date = now()->startOfYear();
-                $this->end_date = now();
+                            
+                $first_month_of_year = $this->company->first_month_of_year ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+                if (now()->lt($fin_year_start)) {
+                    $fin_year_start->subYearNoOverflow();
+                }
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
+
                 break;
 
             case 'custom':

@@ -400,18 +400,6 @@ class PdfConfiguration
             $precision = strlen($parts[1]);
         }
 
-        /* 08-02-2023 special if block to render $0.5 to $0.50*/
-        // if ($v < 1 && strlen($v) == 3) {
-        //     $precision = 2;
-        // } elseif ($v < 1) {
-        //     $precision = strlen($v) - strrpos($v, '.') - 1;
-        // } elseif ($v > 1) {
-        //     $precision = strlen($v) - strrpos($v, '.') - 1;
-        // }
-        // if (is_array($parts) && $parts[0] != 0) {
-        //     $precision = 2;
-        // }
-
         //04-04-2023 if currency = JPY override precision to 0
         if ($this->currency->code == 'JPY') {
             $precision = 0;

@@ -95,7 +95,7 @@ class ConstantsSeeder extends Seeder
         $timezones[] = ['name'=>'Africa/Harare', 'location' => '(GMT+02:00) Harare', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Helsinki', 'location' => '(GMT+02:00) Helsinki', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Asia/Jerusalem', 'location' => '(GMT+02:00) Jerusalem', 'utc_offset' => 7200];
-        $timezones[] = ['name'=>'Europe/Kiev', 'location' => '(GMT+02:00) Kyiv', 'utc_offset' => 7200];
+        $timezones[] = ['name'=>'Europe/Kyiv', 'location' => '(GMT+02:00) Kyiv', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Minsk', 'location' => '(GMT+02:00) Minsk', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Riga', 'location' => '(GMT+02:00) Riga', 'utc_offset' => 7200];
         $timezones[] = ['name'=>'Europe/Sofia', 'location' => '(GMT+02:00) Sofia', 'utc_offset' => 7200];

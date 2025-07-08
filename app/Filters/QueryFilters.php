@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -222,7 +223,7 @@ abstract class QueryFilters
 
     public function updated_at($value = '')
     {
-        if ($value == '') {
+        if (is_null($value) || $value == '') {
             return $this->builder;
         }
 
@@ -241,11 +242,15 @@ abstract class QueryFilters
 
     /**
      *
-     * @param string $value
+     * @param ?string $value
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public function is_deleted($value = 'true')
     {
+        if (is_null($value)) {
+            return $this->builder;
+        }
+
         if ($value == 'true') {
             return $this->builder->where('is_deleted', $value)->withTrashed();
         }

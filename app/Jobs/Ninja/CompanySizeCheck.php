@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,6 +16,7 @@ use App\Libraries\MultiDB;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -54,6 +56,8 @@ class CompanySizeCheck implements ShouldQueue
                 }
             });
 
+            User::withTrashed()->where('failed_logins', '>', 0)->update(['failed_logins' => 0]);
+
             nlog("updating all client credit balances");
 
             Client::query()
@@ -87,6 +91,8 @@ class CompanySizeCheck implements ShouldQueue
                 MultiDB::setDB($db);
 
                 nlog("Company size check db {$db}");
+
+                User::withTrashed()->where('failed_logins', '>', 0)->update(['failed_logins' => 0]);
 
                 Company::where('is_large', false)->withCount(['invoices', 'clients', 'products', 'quotes'])->cursor()->each(function ($company) {
                     if ($company->invoices_count > 500 || $company->products_count > 500 || $company->clients_count > 500 || $company->quotes_count > 500) {

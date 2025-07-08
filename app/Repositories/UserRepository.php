@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -91,7 +92,7 @@ class UserRepository extends BaseRepository
             /*No company user exists - attach the user*/
             if (! $cu) {
                 $data['company_user']['account_id'] = $account->id;
-                $data['company_user']['notifications'] = CompanySettings::notificationDefaults();
+                $data['company_user']['notifications'] = isset($data['company_user']['notifications']['email']) ? $data['company_user']['notifications'] : CompanySettings::notificationDefaults();
                 $user->companies()->attach($company->id, $data['company_user']);
             } else {
                 if (auth()->user()->isAdmin()) {

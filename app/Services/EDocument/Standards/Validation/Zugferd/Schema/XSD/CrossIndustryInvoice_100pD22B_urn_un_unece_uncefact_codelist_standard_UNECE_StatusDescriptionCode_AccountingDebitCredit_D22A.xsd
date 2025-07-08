@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm64405AccountingDebitCredit="urn:un:unece:uncefact:codelist:standard:UNECE:StatusDescriptionCode_AccountingDebitCredit:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:StatusDescriptionCode_AccountingDebitCredit:D22A"
+    elementFormDefault="qualified"
+    version="3.5">
+  <xsd:simpleType name="StatusDescriptionCodeAccountingDebitCreditContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="29"/>
+      <xsd:enumeration value="30"/>
+      <xsd:enumeration value="31"/>
+      <xsd:enumeration value="32"/>
+      <xsd:enumeration value="33"/>
+      <xsd:enumeration value="34"/>
+      <xsd:enumeration value="66"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -38,7 +39,7 @@ class RotessaPaymentDriver extends BaseDriver
     public $payment_method;
 
     public static $methods = [
-        GatewayType::BANK_TRANSFER => BankTransfer::class,
+        // GatewayType::BANK_TRANSFER => BankTransfer::class,
         GatewayType::ACSS => Acss::class,
     ];
 
@@ -204,8 +205,11 @@ class RotessaPaymentDriver extends BaseDriver
 
     public function findOrCreateCustomer(array $data)
     {
-
+        nlog($data);
+        
         $result = null;
+        
+        
         try {
 
             $existing = ClientGatewayToken::query()
@@ -274,6 +278,15 @@ class RotessaPaymentDriver extends BaseDriver
         nlog($r->body());
 
         return $r;
+    }
+
+    public function tokenBilling(\App\Models\ClientGatewayToken $cgt, \App\Models\PaymentHash $payment_hash)
+    {
+
+        $this->setPaymentMethod($cgt->gateway_type_id);
+
+        return $this->payment_method->tokenBilling($cgt, $payment_hash);
+
     }
 
     private function getUrl(): string

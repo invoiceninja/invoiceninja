@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,12 +56,13 @@ class PaymentMethod extends Component
 
     public function mount()
     {
-        $this->variables = $this->getContext()['variables'];
-        $this->amount = array_sum(array_column($this->getContext()['payable_invoices'], 'amount'));
+        $_context = $this->getContext();
+        $this->variables = $_context['variables'];
+        $this->amount = array_sum(array_column($_context['payable_invoices'], 'amount'));
 
-        MultiDB::setDb($this->getContext()['db']);
+        MultiDB::setDb($_context['db']);
 
-        $contact = $this->getContext()['contact'] ?? auth()->guard('contact')->user();
+        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
 
         $this->methods = $contact->client->service()->getPaymentMethods($this->amount);
 

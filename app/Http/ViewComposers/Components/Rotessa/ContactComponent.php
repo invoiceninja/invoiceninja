@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -26,7 +27,7 @@ class ContactComponent extends Component
 
         $contact = collect($contact->client->contacts->firstWhere('is_primary', 1)->toArray())->merge([
             'home_phone' => $contact->client->phone,
-            'custom_identifier' => $contact->client->client_hash,
+            'custom_identifier' => $contact->client->number . 'X' . rand(1000, 9999),
             'name' => $contact->client->name,
             'id' => null,
         ])->all();

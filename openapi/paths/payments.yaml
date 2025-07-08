@@ -84,18 +84,44 @@
         - payments
       summary: "Create payment"
       description: "Adds an Payment to the system"
+      x-codeSamples:
+        - lang: php
+          label: php
+          source: |
+            $ninja = new InvoiceNinja("YOUR-TOKEN");
+            
+            $payment = $ninja->payments->create([
+                'client_id' => 'x2fd23',
+                'amount' => 100,
+                'date' => '2021-01-01',
+                'transaction_reference' => '1234567890',
+                'type_id' => 1,
+                'invoices' => [
+                    [
+                        'invoice_id' => 'jd78Dhjs',
+                        'amount' => 100,
+                    ]
+                ]
+            ]);
       operationId: storePayment
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - name: email_receipt
+          in: query
+          description: |
+            If true, the payment will be emailed to the client. If false, no email will be sent. This will override any other email settings for payments.
+          required: false
+          schema:
+            type: boolean
       requestBody:
-        description: "The payment request"
+        description: "The payment request can be as simple as a client id and amount, or as complex as a full payment with invoices and associated credits that should be applied."
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Payment"
+              $ref: "#/components/schemas/PaymentRequest"
       responses:
         200:
           description: "Returns the saved Payment object"

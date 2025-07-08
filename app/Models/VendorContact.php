@@ -1,17 +1,18 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
@@ -87,7 +88,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     use SoftDeletes;
     use HasFactory;
     use Searchable;
-    
+
     /* Used to authenticate a vendor */
     protected $guard = 'vendor';
 
@@ -128,9 +129,9 @@ class VendorContact extends Authenticatable implements HasLocalePreference
     public function toSearchableArray()
     {
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => $this->present()->search_display(),
-            'hashed_id' => $this->vendor ->hashed_id,
+            'hashed_id' => $this->hashed_id,
             'email' => $this->email,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
@@ -140,12 +141,13 @@ class VendorContact extends Authenticatable implements HasLocalePreference
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'vendor_id' => $this->vendor->hashed_id,
         ];
     }
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
 
     public function avatar()

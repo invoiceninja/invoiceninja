@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -106,23 +107,6 @@ class BaseModel extends Model
     {
         return (new Carbon($value))->format('Y-m-d');
     }
-
-    // public function __call($method, $params)
-    // {
-    //     $entity = strtolower(class_basename($this));
-
-    //     if ($entity) {
-    //         $configPath = "modules.relations.$entity.$method";
-
-    //         if (config()->has($configPath)) {
-    //             $function = config()->get($configPath);
-
-    //             return call_user_func_array([$this, $function[0]], $function[1]);
-    //         }
-    //     }
-
-    //     return parent::__call($method, $params);
-    // }
 
     /**
     * @param  \Illuminate\Database\Eloquent\Builder  $query

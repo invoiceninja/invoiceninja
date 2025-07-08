@@ -49,12 +49,13 @@
                      x-transition:leave-end="transform opacity-0 scale-95"
                      class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg">
                     <div class="py-1 rounded-md bg-white ring-1 ring-black ring-opacity-5">
+                        @if(auth()->guard('contact')->user()->client->getSetting('enable_client_profile_update'))
                         <a data-ref="client-profile-dropdown-settings"
                            href="{{ route('client.profile.edit', ['client_contact' => auth()->guard('contact')->user()->hashed_id]) }}"
                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                             {{ ctrans('texts.profile') }}
                         </a>
-
+                        @endif
                         <a href="{{ route('client.logout') }}"
                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
                             {{ ctrans('texts.logout') }}

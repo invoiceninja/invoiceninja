@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,7 +35,19 @@ class InvoiceTransformer extends EntityTransformer
         'payments',
         'client',
         'activities',
+        'location',
     ];
+
+    public function includeLocation(Invoice $invoice)
+    {
+        $transformer = new LocationTransformer($this->serializer);
+
+        if (!$invoice->location) {
+            return null;
+        }
+
+        return $this->includeItem($invoice->location, $transformer, \App\Models\Location::class);
+    }
 
     public function includeInvitations(Invoice $invoice)
     {
@@ -160,6 +173,7 @@ class InvoiceTransformer extends EntityTransformer
             'tax_info' => $invoice->tax_data ?: new \stdClass(),
             'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
             'backup' => $invoice->backup ?: new \stdClass(),
+            'location_id' => $this->encodePrimaryKey($invoice->location_id),
         ];
 
         if (request()->has('reminder_schedule') && request()->query('reminder_schedule') == 'true') {

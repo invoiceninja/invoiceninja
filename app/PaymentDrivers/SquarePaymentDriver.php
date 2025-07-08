@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -435,7 +436,7 @@ class SquarePaymentDriver extends BaseDriver
         return $amount;
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         $api_response = $this->init()
@@ -444,7 +445,7 @@ class SquarePaymentDriver extends BaseDriver
                     ->listCustomers();
 
 
-        return (bool) count($api_response->getErrors()) == 0;
+        return (bool) count($api_response->getErrors()) == 0 ? 'ok' : 'error';
 
     }
 

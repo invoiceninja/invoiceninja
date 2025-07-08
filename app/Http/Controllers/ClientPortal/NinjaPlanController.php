@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,6 +54,8 @@ class NinjaPlanController extends Controller
         if (MultiDB::findAndSetDbByContactKey($contact_key) && $client_contact = ClientContact::where('contact_key', $contact_key)->first()) {
             nlog('Ninja Plan Controller - Found and set Client Contact');
 
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
             Auth::guard('contact')->loginUsingId($client_contact->id, true);
 
             return $this->plan();
@@ -157,6 +159,7 @@ class NinjaPlanController extends Controller
             $account->hosted_company_count = 10;
             $account->trial_started = now();
             $account->trial_plan = 'pro';
+            $account->created_at = now();
             $account->save();
         }
 
@@ -243,10 +246,6 @@ class NinjaPlanController extends Controller
                                            ->orderBy('id', 'DESC')
                                            ->first();
 
-                    //account status means user cannot perform upgrades until they pay their account.
-                    // $data['late_invoice'] = $late_invoice;
-
-                    //14-01-2022 remove late invoices from blocking upgrades
                     $data['late_invoice'] = false;
                 }
 

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -107,10 +108,6 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-
-                // if(Ninja::isHosted())
-                //     return 'https://router.invoiceninja.com/route/'.encrypt($domain.'/client/'.$entity_type.'/'.$this->key);
-                // else
                 return $domain.'/client/'.$entity_type.'/'.$this->key;
                 break;
             case 'iframe':

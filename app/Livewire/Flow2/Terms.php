@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,10 +30,11 @@ class Terms extends Component
     #[Computed()]
     public function invoice()
     {
-        
-        $invitation_id = $this->getContext()['invitation_id'];
+        $_context = $this->getContext();
 
-        $db = $this->getContext()['db'];
+        $invitation_id = $_context['invitation_id'];
+
+        $db = $_context['db'];
 
         $invite = \App\Models\InvoiceInvitation::on($db)->withTrashed()->find($invitation_id);
 

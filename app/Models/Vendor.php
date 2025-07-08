@@ -1,17 +1,18 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\AppSetup;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;
@@ -95,7 +96,7 @@ class Vendor extends BaseModel
     use PresentableTrait;
     use AppSetup;
     use Searchable;
-    
+
     protected $fillable = [
         'name',
         'assigned_user_id',
@@ -154,7 +155,7 @@ class Vendor extends BaseModel
         }
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => $name,
             'is_deleted' => $this->is_deleted,
             'hashed_id' => $this->hashed_id,
@@ -180,7 +181,7 @@ class Vendor extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
 
     protected $presenter = VendorPresenter::class;
@@ -213,6 +214,11 @@ class Vendor extends BaseModel
     public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Activity::class);
+    }
+
+    public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Location::class)->withTrashed();
     }
 
     public function getCurrencyCode(): string
@@ -317,6 +323,11 @@ class Vendor extends BaseModel
     public function locale(): string
     {
         return $this->language ? $this->language->locale : $this->company->locale();
+    }
+
+    public function preferredLocale(): string
+    {
+        return $this->locale();
     }
 
     public function language(): \Illuminate\Database\Eloquent\Relations\BelongsTo

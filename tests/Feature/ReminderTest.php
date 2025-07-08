@@ -159,6 +159,83 @@ class ReminderTest extends TestCase
 
     }
 
+    public function testReminderLogic()
+    {
+        
+        $account = Account::factory()->create([
+            'hosted_client_count' => 1000,
+            'hosted_company_count' => 1000,
+        ]);
+
+        $account->num_users = 3;
+        $account->save();
+
+        $user = User::factory()->create([
+            'account_id' => $this->account->id,
+            'confirmation_code' => 'xyz123',
+            'email' => $this->faker->unique()->safeEmail(),
+        ]);
+
+        $settings = CompanySettings::defaults();
+        $settings->client_online_payment_notification = false;
+        $settings->client_manual_payment_notification = false;
+        $settings->send_reminders = true;
+        $settings->enable_reminder1 = true;
+        $settings->enable_reminder2 = true;
+        $settings->enable_reminder3 = true;
+        $settings->enable_reminder_endless = false;
+        $settings->num_days_reminder1 = 1;
+        $settings->num_days_reminder2 = 14;
+        $settings->num_days_reminder3 = 21;
+        $settings->schedule_reminder1 = 'after_due_date';
+        $settings->schedule_reminder2 = 'after_due_date';
+        $settings->schedule_reminder3 = 'after_due_date';
+        $settings->reminder_send_time = 0;
+        $settings->late_fee_amount1 = 0;
+        $settings->late_fee_amount2 = 49;
+        $settings->late_fee_amount3 = 0;
+        $settings->late_fee_percent1 = 0;
+        $settings->late_fee_percent2 = 0;
+        $settings->late_fee_percent3 = 1.01;
+        $settings->endless_reminder_frequency_id = '0';
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
+
+        $company->settings = $settings;
+        $company->save();
+
+        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
+
+        $token = \Illuminate\Support\Str::random(64);
+
+        $c_settings = \App\DataMapper\ClientSettings::defaults();
+        $c_settings->send_reminders = false;
+        $c_settings->currency_id = '1';
+
+        $client = Client::factory()->create([
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'is_deleted' => 0,
+            'name' => 'bob',
+            'address1' => '1234',
+            'balance' => 100,
+            'paid_to_date' => 50,
+            'settings' => $c_settings,
+        ]);
+
+        $this->assertTrue($client->getSetting('enable_reminder1'));
+        $this->assertFalse($client->getSetting('send_reminders'));
+
+        $account->delete();
+    }
+
     public function testReminderScheduleNy()
     {
                 

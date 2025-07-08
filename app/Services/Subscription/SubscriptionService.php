@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -110,7 +111,7 @@ class SubscriptionService
             $recurring_invoice = $recurring_invoice_repo->save([], $recurring_invoice);
             $recurring_invoice->auto_bill = $this->subscription->auto_bill;
             $recurring_invoice->auto_bill_enabled = ($this->subscription->auto_bill == 'always' || $this->subscription->auto_bill == 'optout') ? true : false;
-            
+
             /* Start the recurring service */
             $recurring_invoice->service()
                               ->start()

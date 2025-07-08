@@ -1,17 +1,17 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Controllers;
 
-use App\DataMapper\InvoiceSync;
 use App\Utils\Ninja;
 use App\Models\Quote;
 use App\Models\Credit;
@@ -27,9 +27,9 @@ use App\Transformers\QuoteTransformer;
 use Illuminate\Mail\Mailables\Address;
 use App\Events\Credit\CreditWasEmailed;
 use App\Transformers\CreditTransformer;
+use App\Events\General\EntityWasEmailed;
 use App\Transformers\InvoiceTransformer;
 use App\Http\Requests\Email\SendEmailRequest;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Transformers\PurchaseOrderTransformer;
 use App\Transformers\RecurringInvoiceTransformer;
 
@@ -80,8 +80,8 @@ class EmailController extends BaseController
 
         }
 
-        $entity_obj->invitations->each(function ($invitation) use ($entity_obj, $mo) {
-            if (! $invitation->contact->trashed() && $invitation->contact->email) {
+        $entity_obj->invitations->each(function ($invitation) use ($entity_obj, $mo, $template) {
+            if (! $invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
                 $entity_obj->service()->markSent()->save();
 
                 $mo->invitation_id = $invitation->id;
@@ -89,6 +89,8 @@ class EmailController extends BaseController
                 $mo->vendor_id = $invitation->contact->vendor_id ?? null;
 
                 Email::dispatch($mo, $invitation->company);
+                $entity_obj->entityEmailEvent($invitation, $template, $template);
+
             }
         });
 
@@ -102,7 +104,7 @@ class EmailController extends BaseController
             $this->entity_transformer = InvoiceTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) {
-                $entity_obj->entityEmailEvent($entity_obj->invitations->first(), $template, $template);
+                event(new EntityWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'invoice'));
                 $entity_obj->sendEvent(Webhook::EVENT_SENT_INVOICE, "client");
             }
         }
@@ -112,7 +114,7 @@ class EmailController extends BaseController
             $this->entity_transformer = QuoteTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) {
-                $entity_obj->entityEmailEvent($entity_obj->invitations->first(), $template);
+                event(new EntityWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'quote'));
                 $entity_obj->sendEvent(Webhook::EVENT_SENT_QUOTE, "client");
             }
         }
@@ -122,7 +124,7 @@ class EmailController extends BaseController
             $this->entity_transformer = CreditTransformer::class;
 
             if ($entity_obj->invitations->count() >= 1) {
-                event(new CreditWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
+                event(new EntityWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'credit'));
                 $entity_obj->sendEvent(Webhook::EVENT_SENT_CREDIT, "client");
             }
         }
@@ -135,6 +137,13 @@ class EmailController extends BaseController
         if ($entity_obj instanceof PurchaseOrder) {
             $this->entity_type = PurchaseOrder::class;
             $this->entity_transformer = PurchaseOrderTransformer::class;
+
+
+            if ($entity_obj->invitations->count() >= 1) {
+                event(new EntityWasEmailed($entity_obj->invitations->first(), $entity_obj->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'purchase_order'));
+                $entity_obj->sendEvent(Webhook::EVENT_SENT_PURCHASE_ORDER, "client");
+            }
+
         }
 
         return $this->itemResponse($entity_obj->fresh());

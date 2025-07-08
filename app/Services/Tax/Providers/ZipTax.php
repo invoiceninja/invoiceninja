@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Http;
 
 class ZipTax implements TaxProviderInterface
 {
-    private string $endpoint = 'https://api.zip-tax.com/request/v40';
+    // private string $endpoint = 'https://api.zip-tax.com/request/v40';
+
+    private string $endpoint = 'https://api.zip-tax.com/request/v50';
 
     private string $api_key = '';
 
@@ -60,6 +63,7 @@ class ZipTax implements TaxProviderInterface
      */
     private function callApi(array $parameters)
     {
+        $parameters['adjustment'] = 'auto'; //v50 specific
 
         return Http::retry(3, 1000)->withHeaders([])->get($this->endpoint, $parameters);
 

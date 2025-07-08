@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,8 +46,8 @@ class MultiDB
 {
     public const DB_PREFIX = 'db-ninja-';
 
-    public static $dbs = ['db-ninja-01', 'db-ninja-02'];
-    // public static $dbs = ['db-ninja-01', 'db-ninja-02', 'db-ninja-03'];
+    // public static $dbs = ['db-ninja-01', 'db-ninja-02'];
+    public static $dbs = ['db-ninja-01', 'db-ninja-02', 'db-ninja-03'];
 
     private static $protected_domains = [
         'www',
@@ -324,6 +325,32 @@ class MultiDB
         return false;
     }
 
+    public static function getCompanyToken($token): ?CompanyToken
+    {
+        $current_db = config('database.default');
+
+        foreach (self::$dbs as $db) {
+            self::setDB($db);
+
+            if ($ct = CompanyToken::with([
+                'user.account',
+                'company',
+                'account',
+                'cu'
+            ])->where('token', $token)->first()) {
+
+                self::setDB($db);
+
+                return $ct;
+            }
+        }
+
+        self::setDB($current_db);
+
+        return null;
+
+    }
+
     public static function findAndSetDb($token): bool
     {
         $current_db = config('database.default');
@@ -538,9 +565,8 @@ class MultiDB
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
-            if ($company = Company::on($db)->where($query_array)->first()) {
-                self::setDb($db);
-
+            self::setDb($db);
+            if ($company = Company::where($query_array)->first()) {
                 return $company;
             }
         }
@@ -559,9 +585,8 @@ class MultiDB
         $current_db = config('database.default');
 
         foreach (self::$dbs as $db) {
-            if ($company = Company::on($db)->where("expense_mailbox", $expense_mailbox)->first()) {
-                self::setDb($db);
-
+            self::setDb($db);
+            if ($company = Company::where("expense_mailbox", $expense_mailbox)->first()) {
                 return $company;
             }
         }
@@ -600,7 +625,6 @@ class MultiDB
         foreach (self::$dbs as $db) {
             if ($invite = $class::on($db)->where('key', $invitation_key)->exists()) {
                 self::setDb($db);
-
                 return true;
             }
         }
@@ -628,7 +652,7 @@ class MultiDB
 
         foreach (self::$dbs as $db) {
             self::setDB($db);
-            if ($exists = Account::where('account_sms_verification_number', $phone)->where('account_sms_verified', true)->exists()) {
+            if ($exists = Account::on($db)->where('account_sms_verification_number', $phone)->where('account_sms_verified', true)->exists()) {
                 self::setDb($current_db);
                 return true;
             }
@@ -692,6 +716,7 @@ class MultiDB
     {
         /* This will set the database connection for the request */
         config(['database.default' => $database]);
+
     }
 
     public static function setDefaultDatabase()

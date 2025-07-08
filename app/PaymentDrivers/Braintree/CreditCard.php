@@ -5,26 +5,28 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers\Braintree;
 
-use App\Exceptions\PaymentFailed;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
+use App\Models\PaymentType;
 use App\Http\Requests\Request;
 use App\Jobs\Util\SystemLogger;
-use App\Models\GatewayType;
-use App\Models\Payment;
-use App\Models\PaymentType;
-use App\Models\SystemLog;
+use App\Utils\Traits\MakesHash;
+use App\Exceptions\PaymentFailed;
 use App\PaymentDrivers\BraintreePaymentDriver;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class CreditCard implements LivewireMethodInterface
 {
+    use MakesHash;
     /**
      * @var BraintreePaymentDriver
      */
@@ -108,6 +110,10 @@ class CreditCard implements LivewireMethodInterface
 
         $token = $this->getPaymentToken($request->all(), $customer->id);
 
+        $total_taxes = \App\Models\Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->braintree->payment_hash->invoices(), 'invoice_id')))->withTrashed()->sum('total_taxes');
+        $invoice = $this->braintree->payment_hash->fee_invoice;
+        $po_number = $invoice->po_number ?? $invoice->number ?? '';
+
         $data = [
             'amount' => $this->braintree->payment_hash->data->amount_with_fee, //@phpstan-ignore-line
             'paymentMethodToken' => $token,
@@ -122,7 +128,9 @@ class CreditCard implements LivewireMethodInterface
                 'locality' => $this->braintree->client->city ?: '',
                 'postalCode' => $this->braintree->client->postal_code ?: '',
                 'countryCodeAlpha2' => $this->braintree->client->country ? $this->braintree->client->country->iso_3166_2 : 'US',
-            ]
+            ],
+            'taxAmount' => $total_taxes,
+            'purchaseOrderNumber' => substr($po_number, 0, 16),
         ];
 
         if ($this->braintree->company_gateway->getConfigField('merchantAccountId')) {

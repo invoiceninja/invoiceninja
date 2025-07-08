@@ -5,45 +5,46 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Controllers\Auth;
 
-use App\DataMapper\Analytics\LoginFailure;
-use App\DataMapper\Analytics\LoginMeta;
-use App\DataMapper\Analytics\LoginSuccess;
-use App\Events\User\UserLoggedIn;
-use App\Http\Controllers\BaseController;
-use App\Http\Requests\Login\LoginRequest;
-use App\Jobs\Account\CreateAccount;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Libraries\MultiDB;
-use App\Libraries\OAuth\OAuth;
-use App\Libraries\OAuth\Providers\Google;
-use App\Models\Account;
-use App\Models\CompanyToken;
-use App\Models\CompanyUser;
-use App\Models\User;
-use App\Transformers\CompanyUserTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\User\LoginCache;
-use App\Utils\Traits\UserSessionAttributes;
-use App\Utils\TruthSource;
 use Google_Client;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Illuminate\Http\JsonResponse;
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Account;
+use App\Libraries\MultiDB;
+use App\Utils\TruthSource;
+use Microsoft\Graph\Model;
+use App\Models\CompanyUser;
+use App\Models\CompanyToken;
 use Illuminate\Http\Request;
+use App\Libraries\OAuth\OAuth;
+use App\Events\User\UserLoggedIn;
+use Illuminate\Http\JsonResponse;
+use PragmaRX\Google2FA\Google2FA;
+use App\Jobs\Account\CreateAccount;
+use App\Events\User\UserLoginFailed;
 use Illuminate\Support\Facades\Auth;
+use App\Utils\Traits\User\LoginCache;
 use Illuminate\Support\Facades\Cache;
+use Turbo124\Beacon\Facades\LightLogs;
+use App\DataMapper\Analytics\LoginMeta;
+use App\Http\Controllers\BaseController;
+use App\Jobs\Company\CreateCompanyToken;
 use Illuminate\Support\Facades\Response;
 use Laravel\Socialite\Facades\Socialite;
-use Microsoft\Graph\Model;
-use PragmaRX\Google2FA\Google2FA;
-use Turbo124\Beacon\Facades\LightLogs;
+use App\Http\Requests\Login\LoginRequest;
+use App\Libraries\OAuth\Providers\Google;
+use Illuminate\Database\Eloquent\Builder;
+use App\DataMapper\Analytics\LoginFailure;
+use App\DataMapper\Analytics\LoginSuccess;
+use App\Utils\Traits\UserSessionAttributes;
+use App\Transformers\CompanyUserTransformer;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends BaseController
 {
@@ -112,7 +113,18 @@ class LoginController extends BaseController
                 ->increment()
                 ->batch();
 
-            LightLogs::create(new LoginMeta($request->email, $request->ip, 'success'))
+
+            $ip = '';
+
+            if (request()->hasHeader('Cf-Connecting-Ip')) {
+                $ip = request()->header('Cf-Connecting-Ip');
+            } elseif (request()->hasHeader('X-Forwarded-For')) {
+                $ip = request()->header('X-Forwarded-For');
+            } else {
+                $ip = request()->ip() ?: ' ';
+            }
+
+            LightLogs::create(new LoginMeta($request->email, $ip, 'success'))
                 ->batch();
 
             /** @var \App\Models\User $user */
@@ -151,21 +163,33 @@ class LoginController extends BaseController
             }
 
             /*On the hosted platform, only owners can login for free/pro accounts*/
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterpriseClient()) {
-                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$user->account->isEnterprisePaidClient()) {
+                return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 401);
             }
 
             event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
             return $this->timeConstrainedResponse($cu);
         } else {
+
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
+                
+            $ip = '';
 
-            LightLogs::create(new LoginMeta($request->email, $request->ip, 'failure'))
-                ->batch();
+            if (request()->hasHeader('Cf-Connecting-Ip')) {
+                $ip = request()->header('Cf-Connecting-Ip');
+            } elseif (request()->hasHeader('X-Forwarded-For')) {
+                $ip = request()->header('X-Forwarded-For');
+            } else {
+                $ip = request()->ip() ?: ' ';
+            }
 
+            LightLogs::create(new LoginMeta($request->email, $ip, 'failure'))->batch();
+
+            event(new UserLoginFailed($request->email, $ip));
+            
             $this->incrementLoginAttempts($request);
 
             return response()
@@ -208,7 +232,7 @@ class LoginController extends BaseController
             $cu->where('company_id', $company_token->company_id);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -280,7 +304,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
-            Auth::login($existing_user, true);
+            Auth::login($existing_user, false);
 
             /** @var \App\Models\CompanyUser $cu */
             $cu = $this->hydrateCompanyUser();
@@ -289,7 +313,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) {
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -301,7 +325,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
             }
 
-            Auth::login($existing_login_user, true);
+            Auth::login($existing_login_user, false);
             /** @var \App\Models\User $user */
 
             $user = auth()->user();
@@ -318,7 +342,7 @@ class LoginController extends BaseController
                 return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
             }
 
-            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterpriseClient()) {
+            if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_login_user->account->isEnterprisePaidClient()) {
                 return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
             }
 
@@ -335,6 +359,10 @@ class LoginController extends BaseController
             $name[1] = request()->has('last_name') ? request()->input('last_name') : $name[1];
         }
 
+        if ($provider == 'apple' && !$user->email) {
+            return response()->json(['message' => 'This signup method is not supported as no email was provided'], 403);
+        }
+
         $new_account = [
             'first_name' => $name[0],
             'last_name' => $name[1],
@@ -348,7 +376,7 @@ class LoginController extends BaseController
 
         $account = (new CreateAccount($new_account, request()->getClientIp()))->handle();
 
-        Auth::login($account->default_company->owner(), true);
+        Auth::login($account->default_company->owner(), false);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -363,7 +391,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 
@@ -448,15 +476,8 @@ class LoginController extends BaseController
                 return $this->existingOauthUser($existing_user);
             }
 
-            // If this is a result user/email combo - lets add their OAuth details details
-            if ($email && $existing_login_user = MultiDB::hasUser(['email' => $email])) {
-                if (!$existing_login_user->account) {
-                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
-                }
-
-                Auth::login($existing_login_user, true);
-
-                return $this->existingLoginUser($user->getId(), 'microsoft');
+            if (MultiDB::hasUser(['email' => $email, 'oauth_provider_id' => null])) {
+                return response()->json(['message' => 'User exists, but never authenticated with OAuth, please use your email and password to login.'], 400);
             }
 
             // Signup!
@@ -488,7 +509,7 @@ class LoginController extends BaseController
      */
     private function existingOauthUser($existing_user)
     {
-        Auth::login($existing_user, true);
+        Auth::login($existing_user, false);
 
         /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser();
@@ -497,9 +518,11 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$existing_user->account->isEnterprisePaidClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
+
+        event(new UserLoggedIn($existing_user, $existing_user->account->default_company, Ninja::eventVars($existing_user->id)));
 
         return $this->timeConstrainedResponse($cu);
     }
@@ -522,9 +545,11 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
+
+        event(new UserLoggedIn($user, $user->account->default_company, Ninja::eventVars($user->id)));
 
         return $this->timeConstrainedResponse($cu);
     }
@@ -557,26 +582,21 @@ class LoginController extends BaseController
                 return $this->existingOauthUser($existing_user);
             }
 
-            //If this is a result user/email combo - lets add their OAuth details details
-            if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) {
-                if (!$existing_login_user->account) {
-                    return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
-                }
-
-                Auth::login($existing_login_user, true);
-
-                return $this->existingLoginUser($google->harvestSubField($user), 'google');
+            if (MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => null])) {
+                return response()->json(['message' => 'Please use your email and password to login.'], 400);
             }
+
+
         }
 
         if ($user) {
             //check the user doesn't already exist in some form
-            if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user)])) {
+            if ($existing_login_user = MultiDB::hasUser(['email' => $google->harvestEmail($user), 'oauth_provider_id' => 'google'])) {
                 if (!$existing_login_user->account) {
                     return response()->json(['message' => 'User exists, but not attached to any companies! Orphaned user!'], 400);
                 }
 
-                Auth::login($existing_login_user, true);
+                Auth::login($existing_login_user, false);
 
                 return $this->existingLoginUser($google->harvestSubField($user), 'google');
             }
@@ -615,7 +635,7 @@ class LoginController extends BaseController
             return $account;
         }
 
-        Auth::login($account->default_company->owner(), true);
+        Auth::login($account->default_company->owner(), false);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -630,7 +650,7 @@ class LoginController extends BaseController
             return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
         }
 
-        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterpriseClient()) {
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !auth()->user()->account->isEnterprisePaidClient()) {
             return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
         }
 

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,8 +16,6 @@ use App\Libraries\MultiDB;
 use App\Models\Activity;
 use App\Models\Company;
 use App\Models\DateFormat;
-use App\Models\Task;
-use App\Transformers\ActivityTransformer;
 use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -35,6 +34,7 @@ class ActivityExport extends BaseExport
         'date' => 'date',
         'activity' => 'activity',
         'address' => 'address',
+        'notes' => 'notes',
     ];
 
     public function __construct(Company $company, array $input)
@@ -71,7 +71,7 @@ class ActivityExport extends BaseExport
         Carbon::parse($activity->created_at)->format($this->date_format),
         ctrans("texts.activity_{$activity->activity_type_id}", [
             'payment_amount' => $activity->payment ? $activity->payment->amount : '',
-            'adjustment' => $activity->payment ? $activity->payment->refunded : '',
+            'adjustment' => $activity->getPaymentAdjustment($activity->payment),
             'client' => $activity->client ? $activity->client->present()->name() : '',
             'contact' => $activity->contact ? $activity->contact->present()->name() : '',
             'quote' => $activity->quote ? $activity->quote->number : '',
@@ -89,6 +89,7 @@ class ActivityExport extends BaseExport
             'recurring_expense' => $activity->recurring_expense ? $activity->recurring_expense->number : '',
         ]),
         $activity->ip,
+        $activity->notes,
         ];
 
     }
@@ -114,6 +115,10 @@ class ActivityExport extends BaseExport
                         ->where('company_id', $this->company->id);
 
         $query = $this->addDateRange($query, 'activities');
+
+        if ($this->input['activity_type_id'] ?? false) {
+            $query->where('activity_type_id', $this->input['activity_type_id']);
+        }
 
         return $query;
     }

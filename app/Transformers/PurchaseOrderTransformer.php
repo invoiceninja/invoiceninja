@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -151,6 +152,7 @@ class PurchaseOrderTransformer extends EntityTransformer
             'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
             'tax_info' => $purchase_order->tax_data ?: new \stdClass(),
             'e_invoice' => $purchase_order->e_invoice ?: new \stdClass(),
+            'location_id' => $this->encodePrimaryKey($purchase_order->location_id),
 
         ];
     }

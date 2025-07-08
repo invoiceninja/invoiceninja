@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +14,7 @@ namespace App\Services\Tax\Providers;
 
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Location;
 
 class TaxProvider
 {
@@ -51,6 +53,10 @@ class TaxProvider
     private mixed $api_credentials;
 
     private bool $updated_client = false;
+
+    private array $billing_address = [];
+
+    private array $shipping_address = [];
 
     public function __construct(public Company $company, public ?Client $client = null)
     {
@@ -117,25 +123,7 @@ class TaxProvider
     {
         $this->configureProvider($this->provider, $this->client->country->iso_3166_2); //hard coded for now to one provider, but we'll be able to swap these out later
 
-        $billing_details = [
-            'address2' => $this->client->address2,
-            'address1' => $this->client->address1,
-            'city' => $this->client->city,
-            'state' => $this->client->state,
-            'postal_code' => $this->client->postal_code,
-            'country' => $this->client->country->name,
-        ];
-
-        $shipping_details = [
-            'address2' => $this->client->shipping_address2,
-            'address1' => $this->client->shipping_address1,
-            'city' => $this->client->shipping_city,
-            'state' => $this->client->shipping_state,
-            'postal_code' => $this->client->shipping_postal_code,
-            'country' => $this->client->shipping_country()->exists() ? $this->client->shipping_country->name : $this->client->country->name,
-        ];
-
-        $taxable_address = $this->taxShippingAddress() ? $shipping_details : $billing_details;
+        $taxable_address = $this->taxShippingAddress() ? $this->getShippingAddress() : $this->getBillingAddress();
 
         $tax_provider = new $this->provider($taxable_address);
 
@@ -155,6 +143,23 @@ class TaxProvider
 
     }
 
+    public function updateLocationTaxData(Location $location): self
+    {
+        $this->configureProvider($this->provider, $location->country->iso_3166_2);
+
+        $tax_provider = new $this->provider($this->getBillingAddress());
+
+        $tax_provider->setApiCredentials($this->api_credentials);
+
+        $tax_data = $tax_provider->run();
+
+        if ($tax_data) {
+            $location->tax_data = $tax_data;
+            $location->saveQuietly();
+        }
+
+        return $this;
+    }
     /**
      * taxShippingAddress
      *
@@ -260,6 +265,30 @@ class TaxProvider
 
         return $this;
 
+    }
+
+    public function setBillingAddress(array $address): self
+    {
+        $this->billing_address = $address;
+
+        return $this;
+    }
+
+    public function setShippingAddress(array $address): self
+    {
+        $this->shipping_address = $address;
+
+        return $this;
+    }
+
+    public function getBillingAddress(): array
+    {
+        return $this->billing_address;
+    }
+
+    public function getShippingAddress(): array
+    {
+        return $this->shipping_address;
     }
 
 }

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -148,6 +149,7 @@ class InvoiceItemSum
     public function __construct(RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
+        $this->total_discount = 0;
 
         $this->invoice = $invoice;
         $this->client = $invoice->client ?? $invoice->vendor;
@@ -240,9 +242,10 @@ class InvoiceItemSum
     {
         if ($this->invoice->is_amount_discount) {
             $this->setLineTotal($this->getLineTotal() - $this->formatValue($this->item->discount, $this->currency->precision));
+            $this->total_discount += $this->item->discount;
         } else {
             $discount = ($this->item->line_total * ($this->item->discount / 100));
-
+            $this->total_discount += $discount;
             $this->setLineTotal($this->formatValue(($this->getLineTotal() - $discount), $this->currency->precision));
         }
 
@@ -345,10 +348,10 @@ class InvoiceItemSum
     private function getPeppolSurchargeTaxes(): self
     {
 
-        if (!($this->client->getSetting('e_invoice_type') == 'PEPPOL')) {
+        if (!$this->client->getSetting('enable_e_invoice')) {
             return $this;
         }
-        
+
         collect($this->invoice->line_items)
             ->flatMap(function ($item) {
                 return collect([1, 2, 3])
@@ -398,9 +401,19 @@ class InvoiceItemSum
 
         $key = str_replace(' ', '', $tax_name.$tax_rate);
 
+        //Handles an edge case where a blank line is entered.
+        if ($tax_rate > 0 && $amount == 0) {
+            return;
+        }
+
         $group_tax = ['key' => $key, 'total' => $tax_total, 'tax_name' => $tax_name.' '.Number::formatValueNoTrailingZeroes(floatval($tax_rate), $this->client).'%', 'tax_id' => $tax_id, 'tax_rate' => $tax_rate, 'base_amount' => $amount];
 
         $this->tax_collection->push(collect($group_tax));
+    }
+
+    public function getTotalDiscount()
+    {
+        return $this->total_discount;
     }
 
     public function getTotalTaxes()
@@ -417,7 +430,7 @@ class InvoiceItemSum
 
     public function setLineTotal($total)
     {   //Here we go! Epsilon in PHP, who would have thunk it....
-        $this->item->line_total = round(((float) $total + 0.000000000000004),2);
+        $this->item->line_total = round(((float) $total + 0.000000000000004), 2);
 
         return $this;
     }

@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:clm210AccountingE501="urn:un:unece:uncefact:codelist:standard:EDIFICAS-EU:AccountingAccountType:D11A"
+    xmlns:clm210AccountingE601="urn:un:unece:uncefact:codelist:standard:EDIFICAS-EU:AccountingAmountType:D11A"
+    xmlns:clm5ISO42173A="urn:un:unece:uncefact:codelist:standard:ISO:ISO3AlphaCurrencyCode:2012-08-31"
+    xmlns:clm61229LineStatusCode="urn:un:unece:uncefact:codelist:standard:UNECE:ActionCode:D22A"
+    xmlns:clm63131="urn:un:unece:uncefact:codelist:standard:UNECE:AddressType:D22A"
+    xmlns:clm64465="urn:un:unece:uncefact:codelist:standard:UNECE:AdjustmentReasonDescriptionCode:D22A"
+    xmlns:clm65189AllowanceChargeID="urn:un:unece:uncefact:codelist:standard:UNECE:AllowanceChargeIdentificationCode:D22A"
+    xmlns:clm64465AllowanceChargeReasonCode="urn:un:unece:uncefact:codelist:standard:UNECE:AllowanceChargeReasonCode:D22A"
+    xmlns:clm67233AutomaticDataCaptureMethodCode="urn:un:unece:uncefact:codelist:standard:UNECE:AutomaticDataCaptureMethodCode:D22A"
+    xmlns:clm67085b="urn:un:unece:uncefact:codelist:standard:UNECE:CargoOperationalCategoryCode:D22A"
+    xmlns:clm6Recommendation21AnnexI="urn:un:unece:uncefact:codelist:standard:UNECE:CargoTypeCode:1996Rev2Final"
+    xmlns:clm67357="urn:un:unece:uncefact:codelist:standard:UNECE:CommodityIdentificationCode:D22A"
+    xmlns:clm63155CommunicationChannelCode="urn:un:unece:uncefact:codelist:standard:UNECE:CommunicationMeansTypeCode:D22A"
+    xmlns:clm63139ContactTypeCode="urn:un:unece:uncefact:codelist:standard:UNECE:ContactFunctionCode:D22A"
+    xmlns:clm68339="urn:un:unece:uncefact:codelist:standard:UNECE:DangerousGoodsPackingCode:D22A"
+    xmlns:clm68273="urn:un:unece:uncefact:codelist:standard:UNECE:DangerousGoodsRegulationCode:D22A"
+    xmlns:clm62379dateonly="urn:un:unece:uncefact:codelist:standard:UNECE:DateOnlyFormatCode:D21B"
+    xmlns:clm64053="urn:un:unece:uncefact:codelist:standard:UNECE:DeliveryTermsCode:2020"
+    xmlns:clm64055DeliveryTermsFunctionCode="urn:un:unece:uncefact:codelist:standard:UNECE:DeliveryTermsFunctionCode:D22A"
+    xmlns:clm66145="urn:un:unece:uncefact:codelist:standard:UNECE:DimensionTypeCode:D22A"
+    xmlns:clm61001="urn:un:unece:uncefact:codelist:standard:UNECE:DocumentNameCode:D22A"
+    xmlns:clm61001Accounting="urn:un:unece:uncefact:codelist:standard:UNECE:DocumentNameCode_Accounting:D22A"
+    xmlns:clm61373="urn:un:unece:uncefact:codelist:standard:UNECE:DocumentStatusCode:D22A"
+    xmlns:clm65153="urn:un:unece:uncefact:codelist:standard:UNECE:DutyTaxFeeTypeCode:D22A"
+    xmlns:clm65305="urn:un:unece:uncefact:codelist:standard:UNECE:DutyorTaxorFeeCategoryCode:D22A"
+    xmlns:clm62475="urn:un:unece:uncefact:codelist:standard:UNECE:EventTimeReferenceCode:D22A"
+    xmlns:clm62475PaymentTermsEvent="urn:un:unece:uncefact:codelist:standard:UNECE:EventTimeReferenceCodePaymentTermsEvent:D22A"
+    xmlns:clm66131="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeQuantityUnitBasisCode:D22A"
+    xmlns:clm65243="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeTariffCode:D22A"
+    xmlns:clm6TDED7357="urn:un:unece:uncefact:codelist:standard:UNECE:GoodsTypeCode:D22A"
+    xmlns:clm6TDED7361="urn:un:unece:uncefact:codelist:standard:UNECE:GoodsTypeExtensionCode:D22A"
+    xmlns:clm63227="urn:un:unece:uncefact:codelist:standard:UNECE:LocationFunctionCode:D22A"
+    xmlns:clm6Recommendation20Linear="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeLinear:4"
+    xmlns:clm6Recommendation20Volume="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeVolume:4"
+    xmlns:clm6Recommendation20Weight="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeWeight:4"
+    xmlns:clm61225MessageFunctionTypeCode="urn:un:unece:uncefact:codelist:standard:UNECE:MessageFunctionCode:D22A"
+    xmlns:clm67065="urn:un:unece:uncefact:codelist:standard:UNECE:PackageTypeCode:2006"
+    xmlns:clm67233PackagingMarkingCode="urn:un:unece:uncefact:codelist:standard:UNECE:PackagingMarkingCode:D22A"
+    xmlns:clm63035="urn:un:unece:uncefact:codelist:standard:UNECE:PartyRoleCode:D22A"
+    xmlns:clm63035ChargePaying="urn:un:unece:uncefact:codelist:standard:UNECE:PartyRoleCode_ChargePaying:D22A"
+    xmlns:clm64431="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentGuaranteeMeansCode:D22A"
+    xmlns:clm64435="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentMeansChannelCode:D22A"
+    xmlns:clm64461="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentMeansCode:D22A"
+    xmlns:clm64279="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentTermsTypeCode:D22A"
+    xmlns:clm65375="urn:un:unece:uncefact:codelist:standard:UNECE:PriceTypeCode:D22A"
+    xmlns:clm61153ReferenceTypeCode="urn:un:unece:uncefact:codelist:standard:UNECE:ReferenceTypeCode:D22A"
+    xmlns:clm64517="urn:un:unece:uncefact:codelist:standard:UNECE:SealConditionCode:D22A"
+    xmlns:clm69303="urn:un:unece:uncefact:codelist:standard:UNECE:SealingPartyRoleCode:D22A"
+    xmlns:clm64405="urn:un:unece:uncefact:codelist:standard:UNECE:StatusCode:D22A"
+    xmlns:clm64405AccountingDebitCredit="urn:un:unece:uncefact:codelist:standard:UNECE:StatusDescriptionCode_AccountingDebitCredit:D22A"
+    xmlns:clm62379timeonly="urn:un:unece:uncefact:codelist:standard:UNECE:TimeOnlyFormatCode:D21B"
+    xmlns:clm62379="urn:un:unece:uncefact:codelist:standard:UNECE:TimePointFormatCode:D21B"
+    xmlns:clm68053="urn:un:unece:uncefact:codelist:standard:UNECE:TransportEquipmentCategoryCode:D22A"
+    xmlns:clm68169="urn:un:unece:uncefact:codelist:standard:UNECE:TransportEquipmentFullnessCode:D22A"
+    xmlns:clm6Recommendation28="urn:un:unece:uncefact:codelist:standard:UNECE:TransportMeansTypeCode:2007"
+    xmlns:clm6Recommendation19="urn:un:unece:uncefact:codelist:standard:UNECE:TransportModeCode:2"
+    xmlns:clm68051="urn:un:unece:uncefact:codelist:standard:UNECE:TransportMovementStageCode:D22A"
+    xmlns:clm64237TransportPaymentArrangementCode="urn:un:unece:uncefact:codelist:standard:UNECE:TransportPaymentArrangementCode:D22A"
+    xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
+    xmlns:ids5ISO316612A="urn:un:unece:uncefact:identifierlist:standard:ISO:ISOTwo-letterCountryCode:SecondEdition2006"
+    xmlns:ids6Recommendation23="urn:un:unece:uncefact:identifierlist:standard:UNECE:FreightCostCode:4"
+    xmlns:ids64277="urn:un:unece:uncefact:identifierlist:standard:UNECE:PaymentTermsDescriptionIdentifier:D22A"
+    targetNamespace="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
+    elementFormDefault="qualified"
+    version="100.D22B">
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:EDIFICAS-EU:AccountingAccountType:D11A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_EDIFICAS-EU_AccountingAccountType_D11A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:EDIFICAS-EU:AccountingAmountType:D11A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_EDIFICAS-EU_AccountingAmountType_D11A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:ISO:ISO3AlphaCurrencyCode:2012-08-31" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_ISO_ISO3AlphaCurrencyCode_2012-08-31.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:ActionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_ActionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:AddressType:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_AddressType_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:AdjustmentReasonDescriptionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_AdjustmentReasonDescriptionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:AllowanceChargeIdentificationCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_AllowanceChargeIdentificationCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:AllowanceChargeReasonCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_AllowanceChargeReasonCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:AutomaticDataCaptureMethodCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_AutomaticDataCaptureMethodCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:CargoOperationalCategoryCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_CargoOperationalCategoryCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:CargoTypeCode:1996Rev2Final" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_CargoTypeCode_1996Rev2Final.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:CommodityIdentificationCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_CommodityIdentificationCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:CommunicationMeansTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_CommunicationMeansTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:ContactFunctionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_ContactFunctionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DangerousGoodsPackingCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DangerousGoodsPackingCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DangerousGoodsRegulationCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DangerousGoodsRegulationCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DateOnlyFormatCode:D21B" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DateOnlyFormatCode_D21B.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DeliveryTermsCode:2020" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DeliveryTermsCode_2020.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DeliveryTermsFunctionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DeliveryTermsFunctionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DimensionTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DimensionTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DocumentNameCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DocumentNameCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DocumentNameCode_Accounting:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DocumentNameCode_Accounting_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DocumentStatusCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DocumentStatusCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DutyTaxFeeTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DutyTaxFeeTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:DutyorTaxorFeeCategoryCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_DutyorTaxorFeeCategoryCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:EventTimeReferenceCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_EventTimeReferenceCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:EventTimeReferenceCodePaymentTermsEvent:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_EventTimeReferenceCodePaymentTermsEvent_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeQuantityUnitBasisCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_FreightChargeQuantityUnitBasisCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:FreightChargeTariffCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_FreightChargeTariffCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:GoodsTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_GoodsTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:GoodsTypeExtensionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_GoodsTypeExtensionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:LocationFunctionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_LocationFunctionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeLinear:4" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_MeasurementUnitCommonCodeLinear_4.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeVolume:4" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_MeasurementUnitCommonCodeVolume_4.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:MeasurementUnitCommonCodeWeight:4" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_MeasurementUnitCommonCodeWeight_4.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:MessageFunctionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_MessageFunctionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PackageTypeCode:2006" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PackageTypeCode_2006.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PackagingMarkingCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PackagingMarkingCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PartyRoleCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PartyRoleCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PartyRoleCode_ChargePaying:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PartyRoleCode_ChargePaying_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentGuaranteeMeansCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PaymentGuaranteeMeansCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentMeansChannelCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PaymentMeansChannelCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentMeansCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PaymentMeansCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PaymentTermsTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PaymentTermsTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:PriceTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_PriceTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:ReferenceTypeCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_ReferenceTypeCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:SealConditionCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_SealConditionCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:SealingPartyRoleCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_SealingPartyRoleCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:StatusCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_StatusCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:StatusDescriptionCode_AccountingDebitCredit:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_StatusDescriptionCode_AccountingDebitCredit_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TimeOnlyFormatCode:D21B" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TimeOnlyFormatCode_D21B.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TimePointFormatCode:D21B" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TimePointFormatCode_D21B.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportEquipmentCategoryCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TransportEquipmentCategoryCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportEquipmentFullnessCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TransportEquipmentFullnessCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportMeansTypeCode:2007" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TransportMeansTypeCode_2007.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportModeCode:2" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TransportModeCode_2.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportMovementStageCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TransportMovementStageCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:codelist:standard:UNECE:TransportPaymentArrangementCode:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_codelist_standard_UNECE_TransportPaymentArrangementCode_D22A.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_data_standard_UnqualifiedDataType_100.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:identifierlist:standard:ISO:ISOTwo-letterCountryCode:SecondEdition2006" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_identifierlist_standard_ISO_ISOTwo-letterCountryCode_SecondEdition2006.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:identifierlist:standard:UNECE:FreightCostCode:4" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_identifierlist_standard_UNECE_FreightCostCode_4.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:identifierlist:standard:UNECE:PaymentTermsDescriptionIdentifier:D22A" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_identifierlist_standard_UNECE_PaymentTermsDescriptionIdentifier_D22A.xsd"/>
+  <xsd:complexType name="AccountingAccountTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm210AccountingE501:AccountingAccountTypeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="210"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="AccountingAmountTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm210AccountingE601:AccountingAmountTypeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="210"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="AccountingDebitCreditStatusCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="AccountingDebitCreditStatusCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64405AccountingDebitCredit:StatusDescriptionCodeAccountingDebitCreditContentType">
+        <xsd:attribute name="listID" type="xsd:token" fixed="4405_Accounting Debit Credit"/>
+        <xsd:attribute name="listAgencyID" type="qdt:AccountingDebitCreditStatusCodeListAgencyIDContentType" fixed="6"/>
+        <xsd:attribute name="listVersionID" type="xsd:token" fixed="D22A"/>
+        <xsd:attribute name="listURI" type="xsd:anyURI"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="AccountingDocumentCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="AccountingDocumentCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm61001Accounting:DocumentNameCodeAccountingContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:AccountingDocumentCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="AddressTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="AddressTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm63131:AddressTypeContentType">
+        <xsd:attribute name="listID" type="xsd:token" fixed="3131"/>
+        <xsd:attribute name="listAgencyID" type="qdt:AddressTypeCodeListAgencyIDContentType" fixed="6"/>
+        <xsd:attribute name="listVersionID" type="xsd:token" fixed="D22A"/>
+        <xsd:attribute name="name" type="xsd:string"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="AdjustmentReasonCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="AdjustmentReasonCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64465:AdjustmentReasonDescriptionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:AdjustmentReasonCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="AllowanceChargeIdentificationCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm65189AllowanceChargeID:AllowanceChargeIdentificationCodeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="AllowanceChargeReasonCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="AllowanceChargeReasonCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64465AllowanceChargeReasonCode:AllowanceChargeReasonCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:AllowanceChargeReasonCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="AutomaticDataCaptureMethodCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="AutomaticDataCaptureMethodCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm67233AutomaticDataCaptureMethodCode:AutomaticDataCaptureMethodCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:AutomaticDataCaptureMethodCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="CargoCategoryCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="CargoCategoryCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm6Recommendation21AnnexI:CargoTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:CargoCategoryCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="CargoCommodityCategoryCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm67357:CommodityIdentificationCodeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="CargoOperationalCategoryCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="CargoOperationalCategoryCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm67085b:CargoOperationalCategoryCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:CargoOperationalCategoryCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="ChargePayingPartyRoleCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="ChargePayingPartyRoleCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm63035ChargePaying:PartyRoleCodeChargePayingContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:ChargePayingPartyRoleCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="CommunicationChannelCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="CommunicationChannelCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm63155CommunicationChannelCode:CommunicationMeansTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:CommunicationChannelCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="ContactTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="ContactTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm63139ContactTypeCode:ContactFunctionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:ContactTypeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="CountryIDSchemeAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="5"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="CountryIDType">
+    <xsd:simpleContent>
+      <xsd:extension base="ids5ISO316612A:ISOTwoletterCountryCodeContentType">
+        <xsd:attribute name="schemeAgencyID" type="qdt:CountryIDSchemeAgencyIDContentType"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="CurrencyCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="5"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="CurrencyCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm5ISO42173A:ISO3AlphaCurrencyCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:CurrencyCodeListAgencyIDContentType" fixed="5"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="DangerousGoodsPackagingLevelCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DangerousGoodsPackagingLevelCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm68339:DangerousGoodsPackingCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DangerousGoodsPackagingLevelCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="DangerousGoodsRegulationCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DangerousGoodsRegulationCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm68273:DangerousGoodsRegulationCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DangerousGoodsRegulationCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="DateOnlyFormattedDateTimeType">
+    <xsd:sequence>
+      <xsd:element name="DateTimeString">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="format" type="clm62379dateonly:DateOnlyFormatCodeContentType"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="DeliveryTermsCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DeliveryTermsCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64053:DeliveryTermsCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DeliveryTermsCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="DeliveryTermsFunctionCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DeliveryTermsFunctionCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64055DeliveryTermsFunctionCode:DeliveryTermsFunctionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DeliveryTermsFunctionCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="DimensionTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DimensionTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm66145:DimensionTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DimensionTypeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="DocumentCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DocumentCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm61001:DocumentNameCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DocumentCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="DocumentStatusCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="DocumentStatusCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm61373:DocumentStatusCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:DocumentStatusCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="FormattedDateTimeType">
+    <xsd:sequence>
+      <xsd:element name="DateTimeString">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="format" type="clm62379:TimePointFormatCodeContentType"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="FreightChargeTariffClassCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="FreightChargeTariffClassCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm65243:FreightChargeTariffCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:FreightChargeTariffClassCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="FreightChargeTypeIDSchemeAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="FreightChargeTypeIDType">
+    <xsd:simpleContent>
+      <xsd:extension base="ids6Recommendation23:FreightCostCodeContentType">
+        <xsd:attribute name="schemeAgencyID" type="qdt:FreightChargeTypeIDSchemeAgencyIDContentType"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="GoodsTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm6TDED7357:GoodsTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="GoodsTypeExtensionCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm6TDED7361:GoodsTypeExtensionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="LinearUnitMeasureType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="unitCode" type="clm6Recommendation20Linear:MeasurementUnitCommonCodeLinearContentType"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="LineStatusCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="LineStatusCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm61229LineStatusCode:ActionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:LineStatusCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="LocationFunctionCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="LocationFunctionCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm63227:LocationFunctionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:LocationFunctionCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="LogisticsChargeCalculationBasisCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm66131:FreightChargeQuantityUnitBasisCodeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="MessageFunctionCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="MessageFunctionCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm61225MessageFunctionTypeCode:MessageFunctionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:MessageFunctionCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="PackageTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm67065:PackageTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="xsd:token" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PackagingMarkingCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PackagingMarkingCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm67233PackagingMarkingCode:PackagingMarkingCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PackagingMarkingCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PartyRoleCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PartyRoleCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm63035:PartyRoleCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PartyRoleCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PaymentGuaranteeMeansCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PaymentGuaranteeMeansCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64431:PaymentGuaranteeMeansCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PaymentGuaranteeMeansCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PaymentMeansChannelCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PaymentMeansChannelCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64435:PaymentMeansChannelCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PaymentMeansChannelCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PaymentMeansCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PaymentMeansCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64461:PaymentMeansCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PaymentMeansCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PaymentTermsEventTimeReferenceCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PaymentTermsEventTimeReferenceCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm62475PaymentTermsEvent:EventTimeReferenceCodePaymentTermsEventContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PaymentTermsEventTimeReferenceCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PaymentTermsIDSchemeAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PaymentTermsIDType">
+    <xsd:simpleContent>
+      <xsd:extension base="ids64277:PaymentTermsDescriptionIdentifierContentType">
+        <xsd:attribute name="schemeAgencyID" type="qdt:PaymentTermsIDSchemeAgencyIDContentType"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PaymentTermsTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PaymentTermsTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64279:PaymentTermsTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PaymentTermsTypeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="PriceTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="PriceTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm65375:PriceTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:PriceTypeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="ReferenceCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="ReferenceCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm61153ReferenceTypeCode:ReferenceTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:ReferenceCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="SealConditionCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="SealConditionCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64517:SealConditionCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:SealConditionCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="SealingPartyRoleCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="SealingPartyRoleCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm69303:SealingPartyRoleCodeContentType">
+        <xsd:attribute name="listID" type="xsd:token" fixed="9303"/>
+        <xsd:attribute name="listAgencyID" type="qdt:SealingPartyRoleCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="StatusCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="StatusCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64405:StatusCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:StatusCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TaxCategoryCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TaxCategoryCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm65305:DutyorTaxorFeeCategoryCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TaxCategoryCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TaxTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TaxTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm65153:DutyTaxFeeTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TaxTypeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="TimeOnlyFormattedDateTimeType">
+    <xsd:sequence>
+      <xsd:element name="DateTimeString">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="format" type="clm62379timeonly:TimeOnlyFormatCodeContentType"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:simpleType name="TimeReferenceCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TimeReferenceCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm62475:EventTimeReferenceCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TimeReferenceCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportEquipmentCategoryCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TransportEquipmentCategoryCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm68053:TransportEquipmentCategoryCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TransportEquipmentCategoryCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportEquipmentFullnessCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TransportEquipmentFullnessCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm68169:TransportEquipmentFullnessCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TransportEquipmentFullnessCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportMeansTypeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TransportMeansTypeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm6Recommendation28:TransportMeansTypeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TransportMeansTypeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportModeCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TransportModeCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm6Recommendation19:TransportModeCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TransportModeCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportMovementStageCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TransportMovementStageCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm68051:TransportMovementStageCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TransportMovementStageCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:simpleType name="TransportServicePaymentArrangementCodeListAgencyIDContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="6"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  <xsd:complexType name="TransportServicePaymentArrangementCodeType">
+    <xsd:simpleContent>
+      <xsd:extension base="clm64237TransportPaymentArrangementCode:TransportPaymentArrangementCodeContentType">
+        <xsd:attribute name="listAgencyID" type="qdt:TransportServicePaymentArrangementCodeListAgencyIDContentType" fixed="6"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="VolumeUnitMeasureType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="unitCode" type="clm6Recommendation20Volume:MeasurementUnitCommonCodeVolumeContentType"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+  <xsd:complexType name="WeightUnitMeasureType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:decimal">
+        <xsd:attribute name="unitCode" type="clm6Recommendation20Weight:MeasurementUnitCommonCodeWeightContentType"/>
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+</xsd:schema>

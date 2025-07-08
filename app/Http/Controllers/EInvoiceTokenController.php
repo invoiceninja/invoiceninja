@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,11 +15,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\BaseController;
 use App\Http\Requests\EInvoice\UpdateTokenRequest;
 use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
 class EInvoiceTokenController extends BaseController
 {
-    public function __invoke(UpdateTokenRequest $request): Response
+    public function __invoke(UpdateTokenRequest $request): Response|JsonResponse
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -42,6 +43,9 @@ class EInvoiceTokenController extends BaseController
             return response()->noContent();
         }
 
-        return response()->noContent(status: 422);
+
+        nlog($response->body());
+
+        return response()->json(['message' => 'Failed to update token'], 422);
     }
 }

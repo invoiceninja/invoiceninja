@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,6 +31,8 @@ class InvoiceExport extends BaseExport
     public Writer $csv;
 
     private Decorator $decorator;
+
+    private array $tax_names = [];
 
     public function __construct(Company $company, array $input)
     {
@@ -120,6 +123,55 @@ class InvoiceExport extends BaseExport
         $this->csv = Writer::createFromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
+        if ($tax_amount_position = array_search('invoice.total_taxes', $this->input['report_keys'])) {
+            $first_part = array_slice($this->input['report_keys'], 0, $tax_amount_position + 1);
+            $second_part = array_slice($this->input['report_keys'], $tax_amount_position + 1);
+            $labels = [];
+
+            $this->tax_names = $query->get()
+                ->flatMap(function ($invoice) {
+                    $taxes = [];
+
+                    /** @var \App\Models\Invoice $invoice */
+                    // Invoice level taxes
+                    if (strlen($invoice->tax_name1 ?? '') > 1 && $invoice->tax_rate1 > 0) {
+                        $taxes[] = trim($invoice->tax_name1) . ' ' . \App\Utils\Number::formatValueNoTrailingZeroes(floatval($invoice->tax_rate1), $invoice->client) . '%';
+                    }
+                    if (strlen($invoice->tax_name2 ?? '') > 1 && $invoice->tax_rate2 > 0) {
+                        $taxes[] = trim($invoice->tax_name2) . ' ' . \App\Utils\Number::formatValueNoTrailingZeroes(floatval($invoice->tax_rate2), $invoice->client) . '%';
+                    }
+                    if (strlen($invoice->tax_name3 ?? '') > 1 && $invoice->tax_rate3 > 0) {
+                        $taxes[] = trim($invoice->tax_name3) . ' ' . \App\Utils\Number::formatValueNoTrailingZeroes(floatval($invoice->tax_rate3), $invoice->client) . '%';
+                    }
+
+                    // Line item taxes
+                    $line_taxes = collect($invoice->line_items)->flatMap(function ($item) use ($invoice) {
+                        $taxes = [];
+                        if (strlen($item->tax_name1 ?? '') > 1 && $item->tax_rate1 > 0) {
+                            $taxes[] = trim($item->tax_name1) . ' ' . \App\Utils\Number::formatValueNoTrailingZeroes(floatval($item->tax_rate1), $invoice->client) . '%';
+                        }
+                        if (strlen($item->tax_name2 ?? '') > 1 && $item->tax_rate2 > 0) {
+                            $taxes[] = trim($item->tax_name2) . ' ' . \App\Utils\Number::formatValueNoTrailingZeroes(floatval($item->tax_rate2), $invoice->client) . '%';
+                        }
+                        if (strlen($item->tax_name3 ?? '') > 1 && $item->tax_rate3 > 0) {
+                            $taxes[] = trim($item->tax_name3) . ' ' . \App\Utils\Number::formatValueNoTrailingZeroes(floatval($item->tax_rate3), $invoice->client) . '%';
+                        }
+                        return $taxes;
+                    });
+
+                    return array_merge($taxes, $line_taxes->toArray());
+                })
+                ->unique()
+                ->toArray();
+
+
+            foreach ($this->tax_names as $tax_name) {
+                $labels[] = 'tax.'.$tax_name;
+            }
+
+            $this->input['report_keys'] = array_merge($first_part, $labels, $second_part);
+        }
+
         //insert the header
         $this->csv->insertOne($this->buildHeader());
 
@@ -145,13 +197,31 @@ class InvoiceExport extends BaseExport
 
             if (is_array($parts) && $parts[0] == 'invoice' && array_key_exists($parts[1], $transformed_invoice)) {
                 $entity[$key] = $transformed_invoice[$parts[1]];
+            } elseif ($decorated_value = $this->decorator->transform($key, $invoice)) {
+                $entity[$key] = $decorated_value;
             } else {
-                $entity[$key] = $this->decorator->transform($key, $invoice);
+                $entity[$key] = '';
             }
 
         }
 
+        
+        if (count($this->tax_names) > 0) {
+
+            $calc = $invoice->calc();
+            $taxes = $calc->getTaxMap()->merge($calc->getTotalTaxMap())->toArray();
+
+            foreach ($this->tax_names as $tax_name) {
+                $entity[$tax_name] = 0;
+            }
+
+            foreach ($taxes as $tax) {
+                $entity[$tax['name']] = ($entity[$tax['name']] ?? 0) + $tax['total'];
+            }
+        }
+
         $entity = $this->decorateAdvancedFields($invoice, $entity);
+
         return  $this->convertFloats($entity);
     }
 

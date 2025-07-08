@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -523,7 +524,15 @@ class CompanySettings extends BaseSettings
     public string $email_subject_payment_failed = '';
     public string $email_template_payment_failed = '';
 
+    public bool $enable_client_profile_update = true;
+    public bool $preference_product_notes_for_html_view = true;
+
+    public bool $unlock_invoice_documents_after_payment = false;
+
     public static $casts = [
+        'unlock_invoice_documents_after_payment' => 'bool',
+        'preference_product_notes_for_html_view' => 'bool',
+        'enable_client_profile_update'       => 'bool',
         'merge_e_invoice_to_pdf'             => 'bool',
         'payment_flow'                       => 'string',
         'enable_quote_reminder1'             => 'bool',

@@ -60,15 +60,19 @@
             }
         }
     };
-
-        
     
-    const stripe = Stripe(document.querySelector('meta[name="stripe-publishable-key"]').getAttribute('content'));
-    const stripeConnect = document.querySelector('meta[name="stripe-account-id"]')?.content ?? '';
+    const publishableKey = document.querySelector('meta[name="stripe-publishable-key"]').getAttribute('content');
+    const stripeConnect = document.querySelector('meta[name="stripe-account-id"]').getAttribute('content') ?? '';
 
-    if(stripeConnect)
-        stripe.stripeAccount = stripeConnect;
-        
+    let stripe;
+
+    if(stripeConnect){
+       stripe = Stripe(publishableKey, { stripeAccount: stripeConnect}); 
+    }
+    else {
+       stripe = Stripe(publishableKey);
+    }
+
     // Set up Stripe.js and Elements to use in checkout form, passing the client secret obtained in step 3
     const elements = stripe.elements(options);
     // Create and mount the Payment Element
@@ -89,7 +93,7 @@
             elements,
             confirmParams: {
                 return_url: '{!! $return_url !!}',
-            },
+            }
 
         });
             
@@ -102,7 +106,7 @@
             } 
 
         
-        });
+    });
 
 
 </script>

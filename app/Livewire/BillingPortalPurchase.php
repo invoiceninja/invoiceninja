@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -348,7 +349,7 @@ class BillingPortalPurchase extends Component
             return $this;
         }
 
-        if ((int)$this->price == 0) {
+        if ((float)$this->price <= 0) {
 
             $this->steps['payment_required'] = false;
             $this->steps['fetched_payment_methods'] = false;

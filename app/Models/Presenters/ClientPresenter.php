@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,11 +60,11 @@ class ClientPresenter extends EntityPresenter
     {
         $primary_contact = $this->entity->primary_contact->first();
 
-        if ($primary_contact && strlen($primary_contact->email) > 1) {
+        if ($primary_contact && filter_var($primary_contact->email, FILTER_VALIDATE_EMAIL)) {
             return $primary_contact->email;
         }
 
-        $contact = $this->entity->contacts->whereNotNull('email')->first();
+        $contact = $this->entity->contacts->where('email', '!=', '')->first();
 
         return $contact ? $contact->email : 'No Email Set';
     }
@@ -157,29 +158,6 @@ class ClientPresenter extends EntityPresenter
 
         return $str;
     }
-
-    // public function getCityState()
-    // {
-    //     $settings = $this->entity->getMergedSettings();
-
-    //     $country = false;
-
-    //     if ($settings->country_id) {
-    //         $country = Country::find($settings->country_id);
-    //     }
-
-    //     $swap = $country && $country->swap_postal_code;
-
-    //     $city = e($settings->city ?: '');
-    //     $state = e($settings->state ?: '');
-    //     $postalCode = e($settings->postal_code ?: '');
-
-    //     if ($city || $state || $postalCode) {
-    //         return $this->cityStateZip($city, $state, $postalCode, $swap);
-    //     } else {
-    //         return false;
-    //     }
-    // }
 
     public function getCityState()
     {

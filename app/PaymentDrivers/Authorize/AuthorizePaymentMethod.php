@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,6 +39,12 @@ class AuthorizePaymentMethod
 
     private $payment_method_id;
 
+    public function setPaymentMethodId($payment_method_id)
+    {
+        $this->payment_method_id = $payment_method_id;
+        return $this;
+    }
+
     public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;
@@ -52,9 +58,11 @@ class AuthorizePaymentMethod
             return $this->authorizeCreditCard();
         }
 
-        // case GatewayType::BANK_TRANSFER:
-        //     return $this->authorizeBankTransfer();
-        //     break;
+        if ($this->authorize->payment_method instanceof AuthorizeACH) {
+            $this->payment_method_id = GatewayType::BANK_TRANSFER;
+
+            return $this->authorizeBankTransfer();
+        }
     }
 
     public function authorizeResponseView($request)
@@ -88,6 +96,15 @@ class AuthorizePaymentMethod
 
     public function authorizeBankTransfer()
     {
+
+        
+        $data['gateway'] = $this->authorize;
+        $data['public_client_id'] = $this->authorize->init()->getPublicClientKey();
+        $data['api_login_id'] = $this->authorize->company_gateway->getConfigField('apiLoginId');
+
+        return render('gateways.authorize.ach.authorize', $data);
+
+
     }
 
     public function authorizeCreditCardResponse($data)
@@ -110,6 +127,25 @@ class AuthorizePaymentMethod
 
     public function authorizeBankTransferResponse($data)
     {
+       
+        $client_profile_id = null;
+        $this->payment_method_id = GatewayType::BANK_TRANSFER; //override in case we have come from a payment.
+
+        if ($client_gateway_token = $this->authorize->findClientGatewayRecord()) {
+            $payment_profile = $this->addPaymentMethodToClient($client_gateway_token->gateway_customer_reference, $data);
+            $gateway_customer_reference = $client_gateway_token->gateway_customer_reference;
+        } else {
+            $gateway_customer_reference = (new AuthorizeCreateCustomer($this->authorize, $this->authorize->client))->create($data);
+            $payment_profile = $this->addPaymentMethodToClient($gateway_customer_reference, $data);
+        }
+
+        $cgt = $this->createClientGatewayToken($payment_profile, $gateway_customer_reference);
+
+        if(isset($data['is_running_payment']))
+            return $cgt;
+
+        return redirect()->route('client.payment_methods.index');
+
     }
 
     public function createClientGatewayToken($payment_profile, $gateway_customer_reference)
@@ -120,20 +156,27 @@ class AuthorizePaymentMethod
         $data['token'] = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
         $data['payment_method_id'] = $this->payment_method_id;
         $data['payment_meta'] = $this->buildPaymentMethod($payment_profile);
-        $data['payment_method_id'] = GatewayType::CREDIT_CARD;
 
         $additional['gateway_customer_reference'] = $gateway_customer_reference;
 
-        $this->authorize->storeGatewayToken($data, $additional);
+        return $this->authorize->storeGatewayToken($data, $additional);
     }
 
     public function buildPaymentMethod($payment_profile)
     {
+        if ($this->payment_method_id == GatewayType::BANK_TRANSFER) {
+            $brand = sprintf($payment_profile->getPaymentProfile()->getPayment()->getBankAccount()->getBankName());
+            $last4 = (string) $payment_profile->getPaymentProfile()->getPayment()->getBankAccount()->getAccountNumber();
+        } else {
+            $brand = (string) $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardType();
+            $last4 = (string) $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardNumber();
+        }
+
         $payment_meta = new stdClass();
         $payment_meta->exp_month = 'xx';
         $payment_meta->exp_year = 'xx';
-        $payment_meta->brand = (string) $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardType();
-        $payment_meta->last4 = (string) $payment_profile->getPaymentProfile()->getPayment()->getCreditCard()->getCardNumber();
+        $payment_meta->brand = $brand;
+        $payment_meta->last4 = $last4;
         $payment_meta->type = $this->payment_method;
 
         return $payment_meta;
@@ -191,8 +234,7 @@ class AuthorizePaymentMethod
 
         $paymentprofile->setPayment($paymentOne);
         $paymentprofile->setDefaultPaymentProfile(true);
-        $paymentprofiles[] = $paymentprofile;
-
+        
         // Assemble the complete transaction request
         $paymentprofilerequest = new CreateCustomerPaymentProfileRequest();
         $paymentprofilerequest->setMerchantAuthentication($this->authorize->merchant_authentication);
@@ -200,12 +242,12 @@ class AuthorizePaymentMethod
         // Add an existing profile id to the request
         $paymentprofilerequest->setCustomerProfileId($gateway_customer_reference);
         $paymentprofilerequest->setPaymentProfile($paymentprofile);
-        $paymentprofilerequest->setValidationMode('liveMode');
+        $paymentprofilerequest->setValidationMode($this->authorize->validationMode());
 
         // Create the controller and get the response
         $controller = new CreateCustomerPaymentProfileController($paymentprofilerequest);
         $response = $controller->executeWithApiResponse($this->authorize->mode());
-
+        
         if (($response != null) && ($response->getMessages()->getResultCode() == 'Ok')) {
             return $this->getPaymentProfile($gateway_customer_reference, $response->getCustomerPaymentProfileId());
         } else {

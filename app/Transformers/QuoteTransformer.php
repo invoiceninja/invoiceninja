@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,7 +33,20 @@ class QuoteTransformer extends EntityTransformer
     protected array $availableIncludes = [
         'activities',
         'client',
+        'location',
     ];
+
+
+    public function includeLocation(Quote $quote)
+    {
+        $transformer = new LocationTransformer($this->serializer);
+
+        if (!$quote->location) {
+            return null;
+        }
+
+        return $this->includeItem($quote->location, $transformer, \App\Models\Location::class);
+    }
 
     public function includeActivities(Quote $quote)
     {
@@ -150,6 +164,7 @@ class QuoteTransformer extends EntityTransformer
             'subscription_id' => $this->encodePrimaryKey($quote->subscription_id),
             'tax_info' => $quote->tax_data ?: new \stdClass(),
             'e_invoice' => $quote->e_invoice ?: new \stdClass(),
+            'location_id' => $this->encodePrimaryKey($quote->location_id),
 
         ];
     }

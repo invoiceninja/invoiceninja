@@ -119,7 +119,7 @@ class DownloadHistoricalInvoiceTest extends TestCase
         $obj->invoice_id = $this->invoice->id;
         $obj->user_id = $this->invoice->user_id;
         $obj->company_id = $this->company->id;
-
+        $obj->activity_type_id = \App\Models\Activity::EMAIL_INVOICE;
         $activity_repo->save($obj, $this->invoice, Ninja::eventVars());
     }
 

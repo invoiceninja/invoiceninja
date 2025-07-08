@@ -43,6 +43,160 @@ class CreditTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testCreditReversalScenarioInvoicePartiallyPaid()
+    {
+             
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'balance' => 0,
+            'paid_to_date' => 0,
+        ]);
+        
+        $ii = new InvoiceItem();
+        $ii->cost = 100;
+        $ii->quantity = 1;
+        $ii->product_key = 'xx';
+        $ii->notes = 'yy';
+
+        $i = \App\Models\Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $c->id,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'discount' => 0,
+            'line_items' => [
+                $ii
+            ],
+            'status_id' => 1,
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i = $i->service()->markSent()->save();
+
+        $this->assertEquals(100, $i->balance);
+        $this->assertEquals(100, $i->amount);
+
+        $i->service()->applyPaymentAmount(50, 'test');
+        $i->refresh();
+        
+        $this->assertEquals(50, $i->balance);
+        $this->assertEquals(100, $i->amount);
+
+        $credit_array = $i->withoutRelations()->toArray();
+        $credit_array['invoice_id'] = $i->hashed_id;
+        $credit_array['client_id'] = $c->hashed_id;
+        
+        $ii = new InvoiceItem();
+        $ii->cost = 50;
+        $ii->quantity = 1;
+        $ii->product_key = 'xx';
+        $ii->notes = 'yy';
+
+        $credit_array['line_items'] = [$ii];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->post('/api/v1/credits', $credit_array);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertEquals(50, $arr['data']['balance']);
+        $this->assertEquals(50, $arr['data']['amount']);
+        $this->assertEquals(2, $arr['data']['status_id']);
+
+        $i->refresh();
+        $c->refresh();
+
+        $this->assertEquals(0, $c->balance);
+        $this->assertEquals(6, $i->status_id);
+    }
+
+
+    public function testCreditReversalScenarioInvoicePaidInFull()
+    {
+             
+        $c = Client::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'balance' => 0,
+            'paid_to_date' => 0,
+        ]);
+        
+        $ii = new InvoiceItem();
+        $ii->cost = 100;
+        $ii->quantity = 1;
+        $ii->product_key = 'xx';
+        $ii->notes = 'yy';
+
+        $i = \App\Models\Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $c->id,
+            'tax_name1' => '',
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'tax_rate1' => 0,
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'discount' => 0,
+            'line_items' => [
+                $ii
+            ],
+            'status_id' => 1,
+        ]);
+
+        $i = $i->calc()->getInvoice();
+        $i = $i->service()->markSent()->save();
+
+        $this->assertEquals(100, $i->balance);
+        $this->assertEquals(100, $i->amount);
+
+        $i->service()->applyPaymentAmount(100, 'test');
+        $i->refresh();
+        
+        $this->assertEquals(0, $i->balance);
+        $this->assertEquals(100, $i->amount);
+        $this->assertEquals(4, $i->status_id);
+
+        $credit_array = $i->withoutRelations()->toArray();
+        $credit_array['invoice_id'] = $i->hashed_id;
+        $credit_array['client_id'] = $c->hashed_id;
+        
+        $ii = new InvoiceItem();
+        $ii->cost = 100;
+        $ii->quantity = 1;
+        $ii->product_key = 'xx';
+        $ii->notes = 'yy';
+
+        $credit_array['line_items'] = [$ii];
+
+        $response = $this->withHeaders([
+                    'X-API-SECRET' => config('ninja.api_secret'),
+                    'X-API-TOKEN' => $this->token,
+                ])->post('/api/v1/credits', $credit_array);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $this->assertEquals(100, $arr['data']['balance']);
+        $this->assertEquals(100, $arr['data']['amount']);
+        $this->assertEquals(2, $arr['data']['status_id']);
+
+        $i->refresh();
+        $c->refresh();
+
+        $this->assertEquals(0, $c->balance);
+        $this->assertEquals(6, $i->status_id);
+    }
+
     public function testPaidToDateAdjustments()
     {
 
@@ -144,7 +298,7 @@ class CreditTest extends TestCase
         $c = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'balance' => 100,
+            'balance' => 0,
         ]);
 
         $ii = new InvoiceItem();
@@ -195,8 +349,9 @@ class CreditTest extends TestCase
 
 
         $cr->calc()->getCredit();
-
         $cr->service()->markSent()->save();
+
+        $c->refresh();
 
         $this->assertEquals(100, $i->balance);
         $this->assertEquals(100, $i->amount);
@@ -249,6 +404,7 @@ class CreditTest extends TestCase
         $this->assertEquals(100, $cr->paid_to_date);
         $this->assertEquals(4, $i->status_id);
 
+        
         $this->assertEquals(100, $c->paid_to_date);
         $this->assertEquals(0, $c->balance);
 

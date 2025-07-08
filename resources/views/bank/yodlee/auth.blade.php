@@ -103,6 +103,11 @@
             fastLinkURL: '{{ $fasttrack_url }}',
             accessToken: 'Bearer {{ $access_token }}',
             params: {
+              @if($provider_id)
+              flow: '{{ $flow }}',
+              providerAccountId: {{ $provider_id }},
+              reauthenticate: true,
+              @endif
               configName : '{{ $config_name }}'
             },
             onSuccess: function (data) {

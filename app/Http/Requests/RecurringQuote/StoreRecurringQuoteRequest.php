@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,7 +13,6 @@
 namespace App\Http\Requests\RecurringQuote;
 
 use App\Http\Requests\Request;
-use App\Http\ValidationRules\Recurring\UniqueRecurringQuoteNumberRule;
 use App\Models\Client;
 use App\Models\RecurringQuote;
 use App\Utils\Traits\CleanLineItems;
@@ -44,26 +44,16 @@ class StoreRecurringQuoteRequest extends Request
         $user = auth()->user();
 
         $rules = [];
-
-        if ($this->file('documents') && is_array($this->file('documents'))) {
-            $rules['documents.*'] = $this->fileValidation();
-        } elseif ($this->file('documents')) {
-            $rules['documents'] = $this->fileValidation();
-        }
-
-        if ($this->file('file') && is_array($this->file('file'))) {
-            $rules['file.*'] = $this->fileValidation();
-        } elseif ($this->file('file')) {
-            $rules['file'] = $this->fileValidation();
-        }
-
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
+        $rules['documents'] = 'bail|sometimes|array';
+        $rules['documents.*'] = $this->fileValidation();
         $rules['client_id'] = 'required|exists:clients,id,company_id,'.$user->company()->id;
 
         $rules['invitations.*.client_contact_id'] = 'distinct';
 
         $rules['frequency_id'] = 'required|integer|digits_between:1,12';
-
-        $rules['number'] = new UniqueRecurringQuoteNumberRule($this->all());
+        $rules['number'] = ['bail', 'nullable', \Illuminate\Validation\Rule::unique('recurring_quotes')->where('company_id', $user->company()->id)];
 
         return $rules;
     }
@@ -74,6 +64,14 @@ class StoreRecurringQuoteRequest extends Request
         $input = $this->decodePrimaryKeys($input);
 
         $input['line_items'] = isset($input['line_items']) ? $this->cleanItems($input['line_items']) : [];
+
+        if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('documents', [$this->file('documents')]);
+        }
+
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
 
         if (isset($input['auto_bill'])) {
             $input['auto_bill_enabled'] = $this->setAutoBillFlag($input['auto_bill']);

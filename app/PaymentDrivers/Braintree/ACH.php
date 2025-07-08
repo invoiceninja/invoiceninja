@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -140,6 +141,10 @@ class ACH implements MethodInterface, LivewireMethodInterface
             ->where('id', $this->decodePrimaryKey($request->source))
             ->firstOrFail();
 
+        $total_taxes = \App\Models\Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->braintree->payment_hash->invoices(), 'invoice_id')))->withTrashed()->sum('total_taxes');
+        $invoice = $this->braintree->payment_hash->fee_invoice;
+        $po_number = $invoice->po_number ?? $invoice->number ?? '';
+
         $result = $this->braintree->gateway->transaction()->sale([
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token->token,
@@ -147,6 +152,8 @@ class ACH implements MethodInterface, LivewireMethodInterface
             'options' => [
                 'submitForSettlement' => true,
             ],
+            'taxAmount' => $total_taxes,
+            'purchaseOrderNumber' => substr($po_number, 0, 16),
         ]);
 
         if ($result->success) {

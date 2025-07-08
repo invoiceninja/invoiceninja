@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -133,9 +134,10 @@ class ActivityController extends BaseController
         $file = $backup->getFile();
 
         $html_backup = $file;
-        
-        if(!$file)
+
+        if (!$file) {
             return response()->json(['message' => ctrans('texts.no_backup_exists'), 'errors' => new stdClass()], 404);
+        }
 
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom())->convertHtmlToPdf($html_backup);
@@ -245,19 +247,20 @@ class ActivityController extends BaseController
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
                 // no break
+                break;
             case Task::class:
                 $activity->task_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
                 // no break
+                break;
             case Payment::class:
                 $activity->payment_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 // no break
+                break;
             default:
                 # code...
                 break;

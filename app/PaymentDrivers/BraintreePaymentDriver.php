@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -222,6 +222,7 @@ class BraintreePaymentDriver extends BaseDriver
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
         $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
+        $total_taxes = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->sum('total_taxes');
 
         if ($invoice) {
             $description = "Invoice {$invoice->number} for {$amount} for client {$this->client->present()->name()}";
@@ -235,9 +236,12 @@ class BraintreePaymentDriver extends BaseDriver
             'amount' => $amount,
             'paymentMethodToken' => $cgt->token,
             'deviceData' => '',
+            'channel' => 'invoiceninja_BT',
             'options' => [
                 'submitForSettlement' => true,
             ],
+            'taxAmount' => $total_taxes,
+            'purchaseOrderNumber' => substr($invoice->po_number ?? $invoice->number, 0, 16),
         ]);
 
         if ($result->success) {
@@ -304,6 +308,7 @@ class BraintreePaymentDriver extends BaseDriver
         $fields[] = ['name' => 'client_address_line_1', 'label' => ctrans('texts.address1'), 'type' => 'text', 'validation' => 'required'];
         $fields[] = ['name' => 'client_city', 'label' => ctrans('texts.city'), 'type' => 'text', 'validation' => 'required'];
         $fields[] = ['name' => 'client_state', 'label' => ctrans('texts.state'), 'type' => 'text', 'validation' => 'required'];
+        $fields[] = ['name' => 'client_postal_code', 'label' => ctrans('texts.postal_code'), 'type' => 'text', 'validation' => 'required'];
         $fields[] = ['name' => 'client_country_id', 'label' => ctrans('texts.country'), 'type' => 'text', 'validation' => 'required'];
 
         return $fields;
@@ -332,18 +337,18 @@ class BraintreePaymentDriver extends BaseDriver
         return response()->json([], 200);
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         try {
             $ct = $this->init()->gateway->clientToken()->generate();
 
-            return true;
+            return 'ok';
         } catch (\Exception $e) {
 
         }
 
-        return false;
+        return 'error';
     }
 
     private function find(string $customer_id = '')

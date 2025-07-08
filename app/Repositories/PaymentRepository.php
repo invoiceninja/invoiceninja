@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -75,7 +76,7 @@ class PaymentRepository extends BaseRepository
 
             $is_existing_payment = false;
 
-                $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
+            $client = Client::query()->where('id', $data['client_id'])->withTrashed()->first();
 
             /*We only update the paid to date ONCE per payment*/
             if (array_key_exists('invoices', $data) && is_array($data['invoices']) && count($data['invoices']) > 0) {
@@ -93,7 +94,7 @@ class PaymentRepository extends BaseRepository
                 $_credit_totals = array_sum(array_column($data['credits'], 'amount'));
                 $client->service()->updatePaidToDate($_credit_totals)->save();
             }
-            
+
             $client->refresh();
 
         }
@@ -198,7 +199,7 @@ class PaymentRepository extends BaseRepository
             event(new PaymentWasCreated($payment, $payment->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
         }
 
-        $payment->applied += ($invoice_totals - $credit_totals); 
+        $payment->applied += ($invoice_totals - $credit_totals);
 
         $payment->saveQuietly();
 

@@ -2,11 +2,19 @@
 
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
+use Symfony\Component\Serializer\Attribute\SerializedPath;
+
 class Attachments
 {
+    #[SerializedPath('[cac:Attachment][cbc:EmbeddedDocumentBinaryObject][#]')]
     public ?string $document;
+
+    #[SerializedPath('[cac:Attachment][cbc:EmbeddedDocumentBinaryObject][@mimeCode]')]
     public ?string $mime_type;
+
+    #[SerializedPath('[cac:Attachment][cbc:EmbeddedDocumentBinaryObject][@filename]')]
     public ?string $filename;
+
     public ?string $description;
     public ?string $document_id;
     public ?bool $primary_image;

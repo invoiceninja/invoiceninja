@@ -207,13 +207,6 @@ class InstantBankPay implements MethodInterface, LivewireMethodInterface
     {
         PaymentFailureMailer::dispatch($this->go_cardless->client, $payment->status, $this->go_cardless->client->company, $this->go_cardless->payment_hash->data->amount_with_fee);
 
-        // PaymentFailureMailer::dispatch(
-        //     $this->go_cardless->client,
-        //     $payment,
-        //     $this->go_cardless->client->company,
-        //     $payment->amount
-        // );
-
         $message = [
             'server_response' => $payment,
             'data' => $this->go_cardless->payment_hash->data,

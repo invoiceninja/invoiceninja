@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://Paymentninja.com).
  *
@@ -11,10 +12,12 @@
 
 namespace App\Services\Quickbooks\Transformers;
 
-use App\Models\Company;
-use App\Models\Payment;
-use App\Factory\PaymentFactory;
 use App\Models\Credit;
+use App\Models\Company;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\DataMapper\PaymentSync;
+use App\Factory\PaymentFactory;
 
 /**
  *
@@ -35,25 +38,84 @@ class PaymentTransformer extends BaseTransformer
     {
 
         return [
+            'id' => data_get($qb_data, 'Id', null),
             'date' => data_get($qb_data, 'TxnDate', now()->format('Y-m-d')),
             'amount' => floatval(data_get($qb_data, 'TotalAmt', 0)),
             'applied' => data_get($qb_data, 'TotalAmt', 0) - data_get($qb_data, 'UnappliedAmt', 0),
             'number' => data_get($qb_data, 'DocNumber', null),
             'private_notes' => data_get($qb_data, 'PrivateNote', null),
-            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef.value')),
-            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef.value', null)),
+            'currency_id' => (string) $this->resolveCurrency(data_get($qb_data, 'CurrencyRef')),
+            'client_id' => $this->getClientId(data_get($qb_data, 'CustomerRef', null)),
         ];
     }
+
+    public function associatePaymentToInvoice(Payment $payment, mixed $qb_data)
+    {
+
+        $invoice = Invoice::query()
+                ->withTrashed()
+                ->where('company_id', $this->company->id)
+                ->where('sync->qb_id', data_get($qb_data, 'invoice_id'))
+                ->first();
+
+        if (!$invoice) {
+            return;
+        }
+
+        $lines = data_get($qb_data, 'Line', []) ?? [];
+
+        if (!empty($lines) && !isset($lines[0])) {
+            $lines = [$lines];
+        }
+
+        foreach ($lines as $item) {
+            $id = data_get($item, 'LinkedTxn.TxnId', false);
+            $tx_type = data_get($item, 'LinkedTxn.TxnType', false);
+            $amount = data_get($item, 'Amount', 0);
+
+            if ($tx_type == 'Invoice' && $id == $invoice->sync->qb_id && $amount > 0) {
+
+                $paymentable = new \App\Models\Paymentable();
+                $paymentable->payment_id = $payment->id;
+                $paymentable->paymentable_id = $invoice->id;
+                $paymentable->paymentable_type = 'invoices';
+                $paymentable->amount = $amount;
+                $paymentable->created_at = $payment->date; //@phpstan-ignore-line
+                $paymentable->save();
+
+                $invoice->service()->applyPayment($payment, $paymentable->amount);
+                return;
+            }
+        }
+
+    }
+
 
     public function buildPayment($qb_data): ?Payment
     {
         $ninja_payment_data = $this->transform($qb_data);
+
+        $search_payment = Payment::query()
+            ->withTrashed()
+            ->where('company_id', $this->company->id)
+            ->where('sync->qb_id', $ninja_payment_data['id'])
+            ->first();
+
+        if ($search_payment) {
+            return $search_payment;
+        }
+
 
         if ($ninja_payment_data['client_id']) {
             $payment = PaymentFactory::create($this->company->id, $this->company->owner()->id, $ninja_payment_data['client_id']);
             $payment->amount = $ninja_payment_data['amount'];
             $payment->applied = $ninja_payment_data['applied'];
             $payment->status_id = 4;
+
+            $sync = new PaymentSync();
+            $sync->qb_id = $ninja_payment_data['id'];
+            $payment->sync = $sync;
+
             $payment->fill($ninja_payment_data);
             $payment->save();
 
@@ -77,7 +139,9 @@ class PaymentTransformer extends BaseTransformer
     {
         $credit_line = null;
 
-        foreach ($qb_data->Line as $item) {
+        $credit_array = data_get($qb_data, 'Line', []);
+
+        foreach ($credit_array as $item) {
 
             if (data_get($item, 'LinkedTxn.TxnType', null) == 'CreditMemo') {
                 $credit_line = $item;
@@ -95,14 +159,14 @@ class PaymentTransformer extends BaseTransformer
 
         $line = new \App\DataMapper\InvoiceItem();
         $line->quantity = 1;
-        $line->cost = $credit_line->Amount;
+        $line->cost = data_get($credit_line, 'Amount', 0);
         $line->product_key = 'CREDITMEMO';
         $line->notes = $payment->private_notes;
 
-        $credit->date = $qb_data->TxnDate;
+        $credit->date = data_get($qb_data, 'TxnDate', now()->format('Y-m-d'));
         $credit->status_id = 4;
-        $credit->amount = $credit_line->Amount;
-        $credit->paid_to_date = $credit_line->Amount;
+        $credit->amount = data_get($credit_line, 'Amount', 0);
+        $credit->paid_to_date = data_get($credit_line, 'Amount', 0);
         $credit->balance = 0;
         $credit->line_items = [$line];
         $credit->save();
@@ -125,7 +189,7 @@ class PaymentTransformer extends BaseTransformer
         if (is_null($invoice) || $invoice !== 'Invoice') {
             return $invoices;
         }
-        if (is_null(($invoice_id = $this->getInvoiceId($this->getString($data, 'Line.LinkedTxn.TxnId.value'))))) {
+        if (is_null(($invoice_id = $this->getInvoiceId($this->getString($data, 'Line.LinkedTxn.TxnId'))))) {
             return $invoices;
         }
 

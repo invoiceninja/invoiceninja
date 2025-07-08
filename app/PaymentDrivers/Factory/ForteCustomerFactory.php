@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -93,17 +93,17 @@ class ForteCustomerFactory
 
     private function getBillingAddress(array $customer): array
     {
-        nlog($customer);
-        if (isset($customer['default_billing_address_token']) && isset($customer['addresses'])) {
+
+        if (isset($customer['default_billing_address_token']) && isset($customer['addresses'][0]['physical_address'])) {
 
             foreach ($customer['addresses'] as $address) {
 
-                if ($address['address_token'] != $customer['default_billing_address_token']) {
+                if ($address['address_token'] != $customer['default_billing_address_token'] || !isset($address['physical_address'])) {
                     continue;
                 }
 
                 return [
-                    'address1' => $address['physical_address']['street_line1'],
+                    'address1' => $address['physical_address']['street_line1'] ?? '',
                     'address2' => $address['physical_address']['street_line2'],
                     'city' => $address['physical_address']['locality'],
                     'state' => $address['physical_address']['region'],
@@ -117,7 +117,7 @@ class ForteCustomerFactory
 
         }
 
-        if (isset($customer['addresses'][0])) {
+        if (isset($customer['addresses'][0]['physical_address'])) {
 
             $address = $customer['addresses'][0];
 
@@ -141,7 +141,7 @@ class ForteCustomerFactory
     private function getShippingAddress(array $customer): array
     {
 
-        if (isset($customer['default_shipping_address_token'])) {
+        if (isset($customer['default_shipping_address_token']) && isset($customer['addresses'][0]['physical_address'])) {
 
             foreach ($customer['addresses'] as $address) {
 
@@ -162,7 +162,7 @@ class ForteCustomerFactory
 
         }
 
-        if (isset($customer['addresses'][1])) {
+        if (isset($customer['addresses'][1]['physical_address'])) {
 
             $address = $customer['addresses'][1];
 

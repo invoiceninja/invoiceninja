@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -184,6 +185,19 @@ class Mutator implements MutatorInterface
         $this->mutator_util->setPaymentMeans(true);
 
         return $this;
+    }
+
+    public function DK(): self
+    {
+        //Block that handle CVR for Denmark
+        $companyID = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\CompanyID();
+        $companyID->schemeID = "0184";
+        $companyID->value = $this->override_vat_number ?? preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->company->settings->id_number);
+        
+        $this->p_invoice->AccountingSupplierParty->Party->PartyLegalEntity[0]->CompanyID = $companyID;
+                
+        return $this;
+
     }
 
     /**
@@ -579,10 +593,10 @@ class Mutator implements MutatorInterface
     private function getClientPublicIdentifier(string $code): string
     {
         if ($this->invoice->client->classification == 'individual' && strlen($this->invoice->client->id_number ?? '') > 2) {
-            return $this->invoice->client->id_number;
+            return preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->id_number ?? '');
         }
 
-        return $this->invoice->client->vat_number ?? '';
+        return preg_replace("/[^a-zA-Z0-9]/", "", $this->invoice->client->vat_number ?? '');
     }
 
     public function setClientRoutingCode(): self
@@ -593,7 +607,11 @@ class Mutator implements MutatorInterface
         }
 
         //Regardless, always include the client email address as a route - Storecove will only use this as a fallback.
-        $this->setEmailRouting($this->getIndividualEmailRoute());
+        $client_email = $this->getIndividualEmailRoute();
+
+        if (strlen($client_email) > 2) {
+            $this->setEmailRouting($client_email);
+        }
 
         $code = $this->getClientRoutingCode();
         $identifier = false;
@@ -612,7 +630,8 @@ class Mutator implements MutatorInterface
             $identifier = $this->getClientPublicIdentifier($code);
         }
 
-        $identifier = str_ireplace(["FR","BE"],"", $identifier);
+        $identifier = str_ireplace(["FR","BE"], "", $identifier);
+        $identifier = preg_replace("/[^a-zA-Z0-9]/", "", $identifier);
 
         $this->setStorecoveMeta($this->buildRouting([
                 ["scheme" => $code, "id" => $identifier]

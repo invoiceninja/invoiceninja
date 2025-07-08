@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,6 +65,12 @@ class StorecoveProxy
         ];
 
         if (Ninja::isHosted()) {
+
+            //check if the user is already on the network.
+            if ($already_registered = $this->storecove->checkNetworkStatus($data)) {
+                return $already_registered;
+            }
+
             $response = $this->storecove->setupLegalEntity($data);
 
             if (is_array($response)) {
@@ -182,7 +189,7 @@ class StorecoveProxy
         ];
 
         if ($response->json()) {
-            $body = gettype($response->json()) === 'string' 
+            $body = gettype($response->json()) === 'string'
                 ? \json_decode($response->json(), associative: true)
                 : $response->json();
 
@@ -222,11 +229,12 @@ class StorecoveProxy
 
     private function remoteRequest(string $uri, array $payload = []): array
     {
+        // nlog(config('ninja.hosted_ninja_url'));
         $response = Http::baseUrl(config('ninja.hosted_ninja_url'))
             ->withHeaders($this->getHeaders())
             ->post($uri, $payload);
 
-        if ($response->successful()) {
+            if ($response->successful()) {
             if ($response->hasHeader('X-EINVOICE-QUOTA')) {
                 // @dave is there any case this will run when user is not logged in? (async)
 

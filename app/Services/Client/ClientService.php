@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,6 +22,7 @@ use App\Services\Email\Email;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\DB;
 use App\Services\Email\EmailObject;
+use App\Services\Client\MapSettings;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Database\QueryException;
@@ -82,7 +84,7 @@ class ClientService
         //         $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
         //         $this->client->balance += $amount;
         //         $this->client->saveQuietly();
-        //     }, 2); 
+        //     }, 2);
         // } catch (\Throwable $throwable) {
 
         //     if (DB::connection(config('database.default'))->transactionLevel() > 0) {
@@ -102,42 +104,11 @@ class ClientService
         $this->client->increment('balance', $balance);
         $this->client->increment('paid_to_date', $paid_to_date);
 
-        /* 
-        try {
-            DB::connection(config('database.default'))->transaction(function () use ($balance, $paid_to_date) {
-                $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-                $this->client->balance += $balance;
-                $this->client->paid_to_date += $paid_to_date;
-                $this->client->saveQuietly();
-            }, 2);
-        } catch (\Throwable $throwable) {
-            nlog("DB ERROR " . $throwable->getMessage());
-
-            if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-                DB::connection(config('database.default'))->rollBack();
-            }
-
-        }
-        */
         return $this;
     }
 
     public function updatePaidToDate(float $amount)
     {
-        // try {
-        //     DB::connection(config('database.default'))->transaction(function () use ($amount) {
-        //         $this->client = Client::withTrashed()->where('id', $this->client->id)->lockForUpdate()->first();
-        //         $this->client->paid_to_date += $amount;
-        //         $this->client->saveQuietly();
-        //     }, 2);
-        // } catch (\Throwable $throwable) {
-        //     nlog("DB ERROR " . $throwable->getMessage());
-
-        //     if (DB::connection(config('database.default'))->transactionLevel() > 0) {
-        //         DB::connection(config('database.default'))->rollBack();
-        //     }
-
-        // }
 
         $this->client->increment('paid_to_date', $amount);
 
@@ -321,6 +292,12 @@ class ClientService
         ];
 
         return $email_object;
+    }
+
+
+    public function showSettingsMap(): array
+    {
+        return (new MapSettings($this->client))->run();
     }
 
     /**

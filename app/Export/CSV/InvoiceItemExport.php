@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -20,6 +21,7 @@ use App\Utils\Ninja;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\App;
 use League\Csv\Writer;
+use App\Models\Product;
 
 class InvoiceItemExport extends BaseExport
 {
@@ -63,7 +65,6 @@ class InvoiceItemExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('invoice_report_keys'));
-            nlog($this->input['report_keys']);
         }
 
         $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
@@ -154,13 +155,33 @@ class InvoiceItemExport extends BaseExport
         return $this->csv->toString();
     }
 
+    private function filterItems(array $items): array
+    {
+        
+        //if we have product filters in place, we will also need to filter the items at this level:
+        if (isset($this->input['product_key'])) {
+            
+            $products = str_getcsv($this->input['product_key'], ',', "'");
+
+            $products = array_map(function($product) {
+                return trim($product, "'");
+            }, $products);
+
+            $items = array_filter($items, function ($item) use ($products) {
+                return in_array($item->product_key, $products);
+            });
+        }
+
+        return $items;
+    }
+
     private function iterateItems(Invoice $invoice)
     {
         $transformed_invoice = $this->buildRow($invoice);
 
         $transformed_items = [];
 
-        foreach ($invoice->line_items as $item) {
+        foreach ($this->filterItems($invoice->line_items) as $item) {
             $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
@@ -169,17 +190,18 @@ class InvoiceItemExport extends BaseExport
 
                     $tmp_key = str_replace("item.", "", $key);
 
-                    if ($tmp_key == 'type_id') {
-                        $tmp_key = 'type';
-                    }
-
                     if ($tmp_key == 'tax_id') {
-                        $tmp_key = 'tax_category';
-                    }
 
-                    if (property_exists($item, $tmp_key)) {
+                        if(!property_exists($item, 'tax_id')) {
+                            $item->tax_id = '1';
+                        }
+
+                        $item_array[$key] = $this->getTaxCategoryName((int)$item->tax_id ?? 1); // @phpstan-ignore-line
+                    }
+                    elseif (property_exists($item, $tmp_key)) {
                         $item_array[$key] = $item->{$tmp_key};
-                    } else {
+                    } 
+                    else {
                         $item_array[$key] = '';
                     }
                 }
@@ -193,6 +215,22 @@ class InvoiceItemExport extends BaseExport
             $this->storage_array[] = $this->convertFloats($entity);
 
         }
+    }
+
+    private function getTaxCategoryName($tax_id)
+    {
+        return match ($tax_id) {
+            Product::PRODUCT_TYPE_PHYSICAL => ctrans('texts.physical_goods'),
+            Product::PRODUCT_TYPE_SERVICE => ctrans('texts.services'),
+            Product::PRODUCT_TYPE_DIGITAL => ctrans('texts.digital_products'),
+            Product::PRODUCT_TYPE_SHIPPING => ctrans('texts.shipping'),
+            Product::PRODUCT_TYPE_EXEMPT => ctrans('texts.tax_exempt'),
+            Product::PRODUCT_TYPE_REDUCED_TAX => ctrans('texts.reduced_tax'),
+            Product::PRODUCT_TYPE_OVERRIDE_TAX => ctrans('texts.override_tax'),
+            Product::PRODUCT_TYPE_ZERO_RATED => ctrans('texts.zero_rated'),
+            Product::PRODUCT_TYPE_REVERSE_TAX => ctrans('texts.reverse_tax'),
+            default => 'Unknown',
+        };
     }
 
     private function buildRow(Invoice $invoice): array

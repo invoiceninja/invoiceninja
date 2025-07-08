@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,7 +23,11 @@ class Decorator implements DecoratorInterface
         $index = $this->getKeyPart(0, $key);
         $column = $this->getKeyPart(1, $key);
 
-        return $this->{$index}()->transform($column, $entity);
+        if (method_exists($this, $index)) {
+            return $this->{$index}()->transform($column, $entity);
+        }
+
+        return null;
 
     }
 
@@ -96,10 +101,10 @@ class Decorator implements DecoratorInterface
         return new PurchaseOrderDecorator();
     }
 
-    public function getKeyPart(int $index, string $key): string
+    public function getKeyPart(int $index, string $key): ?string
     {
         $parts = explode('.', $key);
 
-        return $parts[$index];
+        return $parts[$index] ?? null;
     }
 }

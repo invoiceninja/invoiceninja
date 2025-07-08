@@ -11,9 +11,11 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\BraintreePaymentDriver;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
+use App\Utils\Traits\MakesHash;
 
 class PayPal implements LivewireMethodInterface
 {
+    use MakesHash;
     /**
      * @var BraintreePaymentDriver
      */
@@ -68,6 +70,10 @@ class PayPal implements LivewireMethodInterface
 
         $token = $this->getPaymentToken($request->all(), $customer->id);
 
+        $total_taxes = \App\Models\Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->braintree->payment_hash->invoices(), 'invoice_id')))->withTrashed()->sum('total_taxes');
+        $invoice = $this->braintree->payment_hash->fee_invoice;
+        $po_number = $invoice->po_number ?? $invoice->number ?? '';
+
         $result = $this->braintree->gateway->transaction()->sale([
             'amount' => $this->braintree->payment_hash->data->amount_with_fee,
             'paymentMethodToken' => $token,
@@ -79,6 +85,8 @@ class PayPal implements LivewireMethodInterface
                     'description' => 'Meaningful description.',
                 ],
             ],
+            'taxAmount' => $total_taxes,
+            'purchaseOrderNumber' => substr($po_number, 0, 16),
         ]);
 
         if ($result->success) {

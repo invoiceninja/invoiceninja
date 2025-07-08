@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -57,7 +58,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(rand(3, 7));
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client);
 
         return $this;
     }
@@ -73,7 +74,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(rand(1, 3));
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client);
 
         return $this;
     }
@@ -89,7 +90,7 @@ class LedgerService
 
         $this->entity->company_ledger()->save($company_ledger);
 
-        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client)->delay(rand(1, 3));
+        ClientLedgerBalanceUpdate::dispatch($this->entity->company, $this->entity->client);
 
         return $this;
     }

@@ -1,26 +1,29 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\PaymentDrivers;
 
-use App\Models\ClientGatewayToken;
-use App\Models\GatewayType;
 use App\Models\Payment;
-use App\Models\PaymentHash;
 use App\Models\SystemLog;
-use App\PaymentDrivers\PayFast\CreditCard;
-use App\PaymentDrivers\PayFast\Token;
-use App\Utils\Traits\MakesHash;
+use App\Models\GatewayType;
+use App\Models\PaymentHash;
 use Illuminate\Http\Request;
+use App\Utils\Traits\MakesHash;
+use App\Models\ClientGatewayToken;
+use App\PaymentDrivers\PayFast\Token;
 use Illuminate\Support\Facades\Cache;
+use App\PaymentDrivers\PayFast\CreditCard;
+use App\PaymentDrivers\PayFast\PaymentCompletedWebhook;
+use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
 
 class PayFastPaymentDriver extends BaseDriver
 {
@@ -68,19 +71,6 @@ class PayFastPaymentDriver extends BaseDriver
 
     public function init()
     {
-        // try {
-        //     $this->payfast = new \Payfast\PayFastPayment(
-        //         [
-        //             'merchantId' => $this->company_gateway->getConfigField('merchantId'),
-        //             'merchantKey' => $this->company_gateway->getConfigField('merchantKey'),
-        //             'passPhrase' => $this->company_gateway->getConfigField('passphrase'),
-        //             'testMode' => $this->company_gateway->getConfigField('testMode'),
-        //         ]
-        //     );
-        // } catch (\Exception $e) {
-        //     nlog('##PAYFAST## There was an exception: '.$e->getMessage());
-        // }
-
         return $this;
     }
 
@@ -195,11 +185,16 @@ class PayFastPaymentDriver extends BaseDriver
         return md5(http_build_query($fields));
     }
 
-    public function processWebhookRequest(Request $request, Payment $payment = null)
+    public function processWebhookRequest(PaymentNotificationWebhookRequest $request, Payment $payment = null)
     {
         $data = $request->all();
         // nlog("payfast");
         // nlog($data);
+
+        if(array_key_exists('pf_payment_id', $data) && strlen($data['pf_payment_id']) > 1) {
+            PaymentCompletedWebhook::dispatch($data, $request->company_key, $this->company_gateway->id)->delay(10);
+            return;
+        }
 
         if (array_key_exists('m_payment_id', $data)) {
             $hash = Cache::get($data['m_payment_id']);
@@ -214,13 +209,13 @@ class PayFastPaymentDriver extends BaseDriver
 
                 default:
 
-                    $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
+                $payment_hash = PaymentHash::where('hash', $data['m_payment_id'])->first();
 
-                    $this->setPaymentMethod(GatewayType::CREDIT_CARD)
-                         ->setPaymentHash($payment_hash)
-                         ->processPaymentResponse($request);
+                $this->setPaymentMethod(GatewayType::CREDIT_CARD)
+                        ->setPaymentHash($payment_hash)
+                        ->processPaymentResponse($request);
 
-                    return response()->json([], 200);
+                return response()->json([], 200);
 
             }
         }

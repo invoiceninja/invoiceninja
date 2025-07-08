@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,13 +55,13 @@ class Backup extends BaseModel
     {
         return $this->belongsTo(Activity::class);
     }
-    
+
     /**
      * storeRemotely
      *
      * @param  string $html
      * @param  Client | Vendor $client_or_vendor
-     * 
+     *
      * @return void
      */
     public function storeRemotely(?string $html, Client | Vendor $client_or_vendor)
@@ -81,30 +82,42 @@ class Backup extends BaseModel
         $this->disk = $disk;
         $this->save();
     }
-    
+
+    public function storeBackupFile($file)
+    {
+
+        $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
+
+        Storage::disk($disk)->put($this->filename, $file);
+
+        $this->disk = $disk;
+        $this->save();
+
+    }
     /**
      * getFile
      *
      * pulls backup file from storage
-     * 
+     *
      * @return mixed
      */
     public function getFile()
     {
-        if(!$this->filename)
+        if (!$this->filename) {
             return null;
+        }
 
         $disk = Ninja::isHosted() ? $this->disk : config('filesystems.default');
 
         return Storage::disk($disk)->get($this->filename);
 
     }
-    
+
     /**
      * deleteFile
      *
      * removes backup file from storage
-     * 
+     *
      * @return void
      */
     public function deleteFile()

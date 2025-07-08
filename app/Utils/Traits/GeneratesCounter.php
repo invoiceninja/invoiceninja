@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -329,7 +330,7 @@ trait GeneratesCounter
         $setting_entity = $expense->company->settings->expense_number_counter;
 
         $pattern = $expense->company->settings->expense_number_pattern;
-        
+
         if (strlen($pattern) > 1 && (stripos($pattern, 'counter') === false)) {
             $pattern = $pattern.'{$counter}';
         }
@@ -536,13 +537,11 @@ trait GeneratesCounter
         $settings = $settings_entity->settings;
 
         if ($reset_counter_frequency == 0) {
+
             if ($client->getSetting('reset_counter_date')) {
-                // $settings = $client->company->settings;
                 $settings->reset_counter_date = "";
                 $settings_entity->settings = $settings;
                 $settings_entity->saveQuietly();
-                // $client->company->settings = $settings;
-                // $client->company->save();
             }
 
             return;

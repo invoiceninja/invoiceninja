@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -164,6 +165,16 @@ class BillingPortalPurchasev2 extends Component
 
         /** @var \App\Models\Subscription $subscription */
         $subscription = $this->subscription();
+
+        if (!$subscription) {
+
+            session()->flash('title', __('texts.subscription_unavailable'));
+            session()->flash('notification', '');
+
+            return redirect()->route('client.error');
+
+        }
+
 
         if (auth()->guard('contact')->check()) {
             $this->email = auth()->guard('contact')->user()->email;

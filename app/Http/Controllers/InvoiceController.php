@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -429,7 +429,7 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasUpdated($invoice, $invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
-        return $this->itemResponse($invoice);
+        return $this->itemResponse($invoice->fresh());
     }
 
     /**
@@ -504,8 +504,12 @@ class InvoiceController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
-        if (Ninja::isHosted() && (stripos($action, 'email') !== false) && $user->account->emailQuotaExceeded()) {
+        if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
+        }
+
+        if ($user->hasExactPermission('disable_emails') && (stripos($action, 'email') !== false)) {
+            return response(['message' => ctrans('texts.disable_emails_error')], 400);
         }
 
         if (in_array($request->action, ['auto_bill', 'mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
@@ -544,13 +548,35 @@ class InvoiceController extends BaseController
         }
 
         if ($action == 'bulk_print' && $user->can('view', $invoices->first())) {
-            $paths = $invoices->map(function ($invoice) {
-                return (new \App\Jobs\Entity\CreateRawPdf($invoice->invitations->first()))->handle();
-            });
+            $start = microtime(true);
 
-            return response()->streamDownload(function () use ($paths) {
-                echo $merge = (new PdfMerge($paths->toArray()))->run();
-            }, 'print.pdf', ['Content-Type' => 'application/pdf']);
+            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(Invoice::class, $invoices->pluck('id')->toArray(), $user->company()->db))->handle();
+            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
+            $batch_key = $batch->name;
+
+            $finished = false;
+
+            do {
+                usleep(300000);
+                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
+                $finished = $batch->finished();
+            } while (!$finished);
+
+            $paths = $invoices->map(function ($invoice) use ($batch_key) {
+                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$invoice->id}");
+            })->filter(function ($value) {
+                return !is_null($value);
+            })->toArray();
+
+            $mergedPdf = (new PdfMerge($paths))->run();
+
+            return response()->streamDownload(function () use ($mergedPdf) {
+                echo $mergedPdf;
+            }, 'print.pdf', [
+                'Content-Type' => 'application/pdf',
+                'Cache-Control:' => 'no-cache',
+                'Server-Timing' => (string)(microtime(true) - $start)
+            ]);
         }
 
         if ($action == 'template' && $user->can('view', $invoices->first())) {
@@ -586,13 +612,11 @@ class InvoiceController extends BaseController
 
             $invoice = $invoices->first();
 
-            if ($user->can('edit', $invoice)) {
-
-                $template = $request->input('email_type', $invoice->calculateTemplate('invoice'));
-
-                BulkInvoiceJob::dispatch($invoices->pluck('id')->toArray(), $user->company()->db, $template);
-
-            }
+            $invoices->filter(function ($invoice) use ($user) {
+                return $user->can('edit', $invoice);
+            })->each(function ($invoice) use ($user, $request) {
+                $invoice->service()->sendEmail(email_type: $request->input('email_type', $invoice->calculateTemplate('invoice')));
+            });
 
             return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
 

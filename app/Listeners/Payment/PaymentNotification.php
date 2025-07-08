@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -108,6 +109,13 @@ class PaymentNotification implements ShouldQueue
 
             if (($key = array_search('mail', $methods)) !== false) {
                 unset($methods[$key]);
+
+                //new check, IF the payment is on a recurring invoice AND the user had notifications disabled for recurring invoices. then we disable the notification for this payment.
+                $disabled_recurring_invoice_notifications = $this->findUserEntityNotificationType($payment, $company_user,['disable_recurring_payment_notification']);
+
+                if ($payment->invoices->first()->recurring_id && (array_search('mail', $disabled_recurring_invoice_notifications) !== false)) {
+                continue;
+                }
 
                 $nmo = new NinjaMailerObject();
                 $nmo->mailable = new NinjaMailer((new EntityPaidObject($payment, $company_user->portalType()))->build());

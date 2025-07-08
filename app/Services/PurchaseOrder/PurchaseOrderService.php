@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -156,7 +157,7 @@ class PurchaseOrderService
 
     public function sendEmail($contact = null)
     {
-        $send_email = new SendEmail($this->purchase_order, null, $contact);
+        $send_email = new SendEmail($this->purchase_order, 'purchase_order', $contact);
 
         return $send_email->run();
     }

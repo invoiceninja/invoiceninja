@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -142,8 +143,6 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
             $r = $this->gatewayRequest("/v2/checkout/orders/{$orderID}/capture", 'post', ['body' => '']);
 
             if ($r->status() == 422) {
-                //handle conditions where the client may need to try again.
-                // return $this->handleRetry($r, $request);
 
                 $r = $this->handleDuplicateInvoiceId($orderID);
 
@@ -161,7 +160,12 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $response = $r;
 
         nlog("Process response =>");
-        nlog($response->json());
+
+        if (method_exists($response, 'json')) {
+            nlog($response->json());
+        } else {
+            nlog($response);
+        }
 
         if (isset($response['status']) && $response['status'] == 'COMPLETED' && isset($response['purchase_units'])) {
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -239,6 +239,10 @@ class ACH implements LivewireMethodInterface
                 'customer' => $state['customer'],
                 'source' => $state['source'],
                 'description' => $description,
+                'metadata' => [
+                    'payment_hash' => $this->stripe->payment_hash->hash,
+                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                ],
             ], $this->stripe->stripe_connect_auth);
 
             $payment_hash->data = array_merge((array) $payment_hash->data, $state);

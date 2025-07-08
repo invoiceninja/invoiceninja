@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -172,17 +173,18 @@ class SwissQrGenerator
                 ->setPrintable(false)
                 ->getPaymentPart();
 
-            return $html;
+            // return $html;
+            return htmlspecialchars($html);
         } catch (\Exception $e) {
 
-            if (is_iterable($qrBill->getViolations())) {
+            // if (is_iterable($qrBill->getViolations())) {
 
-                foreach ($qrBill->getViolations() as $key => $violation) {
-                    nlog("qr");
-                    nlog($violation);
-                }
+            //     foreach ($qrBill->getViolations() as $key => $violation) {
+            //         nlog("qr");
+            //         nlog($violation);
+            //     }
 
-            }
+            // }
 
             // nlog($e->getMessage());
 

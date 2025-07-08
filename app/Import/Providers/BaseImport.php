@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -83,7 +84,7 @@ class BaseImport
             )
             : null;
 
-        auth()->login($this->company->owner(), true);
+        auth()->login($this->company->owner(), false);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -107,7 +108,7 @@ class BaseImport
         nlog("found {$entity_type}");
 
         $csv = base64_decode($base64_encoded_csv);
-        $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
+        // $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
@@ -196,8 +197,14 @@ class BaseImport
 
     public function groupClients($csvData, $key)
     {
-        if (!$key || !isset($csvData[0][$key])) {
-            return $csvData;
+        if (!($key && isset($csvData[0][$key]))) {
+            // Transform the flat array to match the expected grouped structure
+            // Each row becomes its own group to maintain consistency
+            $grouped = [];
+            foreach ($csvData as $index => $item) {
+                $grouped[$index] = [$item];
+            }
+            return $grouped;
         }
 
         $grouped = [];
@@ -217,7 +224,6 @@ class BaseImport
         }
 
         return $grouped;
-
 
     }
 
@@ -967,7 +973,7 @@ class BaseImport
                 $key_keys = array_slice($key_keys, 0, count($row_keys));
                 // Rebuild the $keys array with only the kept columns
                 $keys = array_intersect_key($keys, array_flip($key_keys));
-            }else if (!empty($diff)) {
+            } elseif (!empty($diff)) {
                 return false;
             }
 

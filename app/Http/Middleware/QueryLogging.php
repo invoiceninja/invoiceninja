@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,11 +67,11 @@ class QueryLogging
             $ip = '';
 
             if ($request->hasHeader('Cf-Connecting-Ip')) {
-                $ip = $request->header('Cf-Connecting-Ip');
+                $ip = $request->header('Cf-Connecting-Ip') ?? '';
             } elseif ($request->hasHeader('X-Forwarded-For')) {
-                $ip = $request->header('Cf-Connecting-Ip');
+                $ip = $request->header('Cf-Connecting-Ip') ?? '';
             } else {
-                $ip = $request->ip();
+                $ip = $request->ip() ?? '';
             }
 
             $client_version = $request->server('HTTP_USER_AGENT');
@@ -87,6 +88,7 @@ class QueryLogging
             }
 
             LightLogs::create(new DbQuery($request->method(), substr(urldecode($request->url()), 0, 180), $count, $time, $ip, $client_version, $platform))
+                ->probe($request, $ip, true)
                 ->batch();
         }
 

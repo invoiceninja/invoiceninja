@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,7 +38,7 @@ class TriggeredActions extends AbstractService
                 $this->invoice->service()->autoBill();
             } catch (\Exception $e) {
                 nlog("Exception:: TriggeredActions::" . $e->getMessage());
-            } 
+            }
         }
 
         if ($this->request->has('paid') && $this->request->input('paid') == 'true') {
@@ -81,8 +82,21 @@ class TriggeredActions extends AbstractService
             $company->save();
         }
 
-        if($this->request->has('retry_e_send') && $this->request->input('retry_e_send') == 'true' && is_null($this->invoice->backup) && $this->invoice->client->peppolSendingEnabled()) {    
+        if ($this->request->has('retry_e_send') && $this->request->input('retry_e_send') == 'true' && !isset($this->invoice->backup->guid) && $this->invoice->client->peppolSendingEnabled()) {
             \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this->invoice), $this->invoice->id, $this->invoice->company->db);
+        }
+
+        if ($this->request->has('redirect')) {
+
+            $redirectUrl = urldecode($this->request->input('redirect'));
+
+            if (filter_var($redirectUrl, FILTER_VALIDATE_URL)) {
+                $backup = ($this->invoice->backup && is_object($this->invoice->backup)) ? $this->invoice->backup : new \stdClass();
+                $backup->redirect = $redirectUrl;
+                $this->invoice->backup = $backup;
+                $this->invoice->saveQuietly();
+            }
+
         }
 
         if ($this->updated) {

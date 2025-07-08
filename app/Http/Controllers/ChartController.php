@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +30,9 @@ class ChartController extends BaseController
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -39,7 +42,9 @@ class ChartController extends BaseController
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -51,7 +56,9 @@ class ChartController extends BaseController
     {
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -61,7 +68,9 @@ class ChartController extends BaseController
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
 
         return response()->json($cs->chart_summary($request->input('start_date'), $request->input('end_date')), 200);
     }
@@ -71,7 +80,9 @@ class ChartController extends BaseController
 
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
-        $cs = new ChartService($user->company(), $user, $user->isAdmin());
+        $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
+
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
         $result = $cs->getCalculatedField($request->all());
 
         return response()->json($result, 200);

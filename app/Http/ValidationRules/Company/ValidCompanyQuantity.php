@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,6 +23,7 @@ class ValidCompanyQuantity implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
+
         $message = ctrans('texts.company_limit_reached', ['limit' => Ninja::isSelfHost() ? 10 : auth()->user()->company()->account->hosted_company_count]);
 
         $test = Ninja::isSelfHost() ?

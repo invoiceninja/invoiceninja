@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
+    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+    xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
+    targetNamespace="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+    elementFormDefault="qualified"
+    version="100.D22B">
+  <xsd:import namespace="urn:un:unece:uncefact:data:standard:QualifiedDataType:100" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_data_standard_QualifiedDataType_100.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_data_standard_ReusableAggregateBusinessInformationEntity_100.xsd"/>
+  <xsd:import namespace="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100" schemaLocation="CrossIndustryInvoice_100pD22B_urn_un_unece_uncefact_data_standard_UnqualifiedDataType_100.xsd"/>
+  <xsd:element name="CrossIndustryInvoice" type="rsm:CrossIndustryInvoiceType"/>
+  <xsd:complexType name="CrossIndustryInvoiceType">
+    <xsd:annotation>
+      <xsd:documentation source="BN/BN">Cross Industry Invoice</xsd:documentation>
+    </xsd:annotation>
+    <xsd:sequence>
+      <xsd:element name="ExchangedDocumentContext" type="ram:ExchangedDocumentContextType"/>
+      <xsd:element name="ExchangedDocument" type="ram:ExchangedDocumentType"/>
+      <xsd:element name="SupplyChainTradeTransaction" type="ram:SupplyChainTradeTransactionType"/>
+      <xsd:element name="ValuationBreakdownStatement" type="ram:ValuationBreakdownStatementType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+</xsd:schema>

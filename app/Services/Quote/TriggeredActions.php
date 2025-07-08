@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Quote Ninja (https://quoteninja.com).
  *
@@ -81,11 +82,11 @@ class TriggeredActions extends AbstractService
     private function sendEmail()
     {
         $reminder_template = $this->quote->calculateTemplate('quote');
-        
+
         $template_body = 'email_template_quote';
         $subject = 'email_subject_quote';
-    
-        if($reminder_template == 'reminder1'){
+
+        if ($reminder_template == 'reminder1') {
             $template_body = 'email_quote_template_reminder1';
             $subject = 'email_quote_subject_reminder1';
             $reminder_template = 'email_quote_template_reminder1';

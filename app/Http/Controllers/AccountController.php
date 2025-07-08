@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -103,7 +104,7 @@ class AccountController extends BaseController
         $cu = CompanyUser::query()->where('user_id', $account->users()->first()->id);
 
         $company_user = $cu->first();
-
+        
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($company_user);
         $truth->setUser($company_user->user);

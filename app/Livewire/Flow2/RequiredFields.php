@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,17 +56,19 @@ class RequiredFields extends Component
 
     public function mount(): void
     {
+        $_context = $this->getContext();
+
         MultiDB::setDB(
-            $this->getContext()['db'],
+            $_context['db'],
         );
 
-        $this->fields = $this->getContext()['fields'];
+        $this->fields = $_context['fields'];
 
         $contact = auth()->guard('contact')->user();
 
         $this->company_gateway = CompanyGateway::withTrashed()
             ->with('company')
-            ->find($this->getContext()['company_gateway_id']);
+            ->find($_context['company_gateway_id']);
 
         $this->client_name = $contact->client->name;
         $this->contact_first_name = $contact->first_name;
@@ -89,8 +91,8 @@ class RequiredFields extends Component
         $this->client_custom_value4 = $contact->client->custom_value4;
 
         $rff = new RFFService(
-            fields: $this->getContext()['fields'],
-            database: $this->getContext()['db'],
+            fields: $_context['fields'],
+            database: $_context['db'],
             company_gateway_id: (string)$this->company_gateway->id,
         );
 

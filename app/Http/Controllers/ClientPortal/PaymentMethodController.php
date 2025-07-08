@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -181,7 +181,7 @@ class PaymentMethodController extends Controller
         }
 
         if (in_array(request()->query('method'), [GatewayType::BANK_TRANSFER, GatewayType::DIRECT_DEBIT, GatewayType::SEPA, GatewayType::ACSS])) {
-            return $client_contact->client->getBankTransferGateway();
+            return $client_contact->client->getBankTransferGateway(true); //Required to allow rotessa to be used when adding a payment method.
         }
 
         abort(404, 'Gateway not found.');

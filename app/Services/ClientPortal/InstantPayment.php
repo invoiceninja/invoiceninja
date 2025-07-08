@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,7 +13,6 @@
 namespace App\Services\ClientPortal;
 
 use App\Exceptions\PaymentFailed;
-use App\Jobs\Invoice\CheckGatewayFee;
 use App\Jobs\Invoice\InjectSignature;
 use App\Jobs\Util\SystemLogger;
 use App\Models\CompanyGateway;
@@ -117,7 +116,6 @@ class InstantPayment
             $payable_amount = Number::roundValue(Number::parseFloat($payable_invoice['amount']), $client->currency()->precision);
             $invoice_balance = Number::roundValue(($invoice->partial > 0 ? $invoice->partial : $invoice->balance), $client->currency()->precision);
 
-
             /*If we don't allow under/over payments force the payable amount - prevents inspect element adjustments in JS*/
 
             if ($settings->client_portal_allow_under_payment == false && $settings->client_portal_allow_over_payment == false) {
@@ -205,8 +203,10 @@ class InstantPayment
         $credit_totals = in_array($first_invoice->client->getSetting('use_credits_payment'), ['always', 'option']) ? $first_invoice->client->service()->getCreditBalance() : 0;
         $starting_invoice_amount = $first_invoice->balance;
 
+        $payment_hash_string = Str::random(32);
+
         if ($gateway) {
-            $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals)->save();
+            $first_invoice->service()->addGatewayFee($gateway, $payment_method_id, $invoice_totals, $payment_hash_string)->save();
         }
 
         /**
@@ -249,7 +249,7 @@ class InstantPayment
         }
 
         $payment_hash = new PaymentHash();
-        $payment_hash->hash = Str::random(32);
+        $payment_hash->hash = $payment_hash_string;
         $payment_hash->data = $hash_data;
         $payment_hash->fee_total = $fee_totals;
         $payment_hash->fee_invoice_id = $first_invoice->id;

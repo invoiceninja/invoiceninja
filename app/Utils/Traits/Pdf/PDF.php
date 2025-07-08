@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -19,10 +20,7 @@ class PDF extends FPDI
 
     public function Footer()
     {
-        $this->SetXY(config('ninja.pdf_page_numbering_x_alignment'), config('ninja.pdf_page_numbering_y_alignment'));
-
         $this->SetFont('Arial', 'I', 9);
-
         $this->SetTextColor(135, 135, 135);
 
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
@@ -32,7 +30,21 @@ class PDF extends FPDI
         } catch (\Exception $e) {
         }
 
-        $this->Cell(0, 5, $trans, 0, 0, $this->text_alignment);
+        // Set Y position
+        $this->SetY(config('ninja.pdf_page_numbering_y_alignment'));
+        
+        // Set X position based on alignment
+        if ($this->text_alignment == 'L') {
+            $this->SetX(5);
+            $this->Cell($this->GetPageWidth() - 10, 5, $trans, 0, 0, 'L');
+        } elseif ($this->text_alignment == 'R') {
+            $this->SetX(0);
+            $this->Cell($this->GetPageWidth(), 5, $trans, 0, 0, 'R');
+        } else {
+            $this->SetX(0);
+            // $this->SetX(config('ninja.pdf_page_numbering_y_alignment')); // 10mm from left edge
+            $this->Cell($this->GetPageWidth(), 5, $trans, 0, 0, 'C');
+        }
     }
 
     public function setAlignment($alignment)

@@ -2,7 +2,6 @@
 
 namespace App\Http\ValidationRules\Turnstile;
 
-
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Http;
@@ -15,14 +14,13 @@ class Turnstile implements ValidationRule
             'secret' => config('ninja.cloudflare.turnstile.secret'),
             'response' => $value,
             'remoteip' => request()->ip(),
-        ]);        
+        ]);
 
         $data = $response->json();
 
-        if($data['success']){
+        if ($data['success']) {
 
-        }
-        else {
+        } else {
             $fail("Captcha failed");
         }
 

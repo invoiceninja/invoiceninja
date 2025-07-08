@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,7 +63,6 @@ class ClientLedgerBalanceUpdate implements ShouldQueue
                                                     ->where('client_id', $company_ledger->client_id)
                                                     ->where('company_id', $company_ledger->company_id)
                                                     ->whereNotNull('balance')
-                                                    // ->where('balance', '!=', 0)
                                                     ->orderBy('id', 'DESC')
                                                     ->first();
 

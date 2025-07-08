@@ -1,32 +1,34 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Invoice;
 
-use App\Events\Invoice\InvoiceWasArchived;
-use App\Jobs\EDocument\CreateEDocument;
-use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\Inventory\AdjustProductInventory;
-use App\Libraries\Currency\Conversion\CurrencyApi;
-use App\Models\CompanyGateway;
+use App\Models\Task;
+use App\Utils\Ninja;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\ProductAllocation;
 use App\Models\Subscription;
-use App\Models\Task;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
+use App\Models\CompanyGateway;
 use Illuminate\Support\Carbon;
+use App\Utils\Traits\MakesHash;
+use App\Jobs\Entity\CreateRawPdf;
+use App\Services\Invoice\LocationData;
+use App\Jobs\EDocument\CreateEDocument;
 use Illuminate\Support\Facades\Storage;
+use App\Events\Invoice\InvoiceWasArchived;
+use App\Jobs\Inventory\AdjustProductInventory;
+use App\Libraries\Currency\Conversion\CurrencyApi;
 
 class InvoiceService
 {
@@ -137,9 +139,11 @@ class InvoiceService
         return $this;
     }
 
-    public function addGatewayFee(CompanyGateway $company_gateway, $gateway_type_id, float $amount)
+    public function addGatewayFee(CompanyGateway $company_gateway, $gateway_type_id, float $amount, string $payment_hash_string)
     {
-        $this->invoice = (new AddGatewayFee($company_gateway, $gateway_type_id, $this->invoice, $amount))->run();
+        $this->removeUnpaidGatewayFees();
+
+        $this->invoice = (new AddGatewayFee($company_gateway, $gateway_type_id, $this->invoice, $amount, $payment_hash_string))->run();
 
         return $this;
     }
@@ -216,7 +220,7 @@ class InvoiceService
         return (new CreateRawPdf($invitation))->handle();
     }
 
-    public function getInvoiceDeliveryNote(Invoice $invoice, \App\Models\ClientContact $contact = null)
+    public function getInvoiceDeliveryNote(Invoice $invoice, ?\App\Models\ClientContact $contact = null)
     {
         return (new GenerateDeliveryNote($invoice, $contact))->run();
     }
@@ -231,9 +235,9 @@ class InvoiceService
         return $this->getEInvoice($contact);
     }
 
-    public function sendEmail($contact = null)
+    public function sendEmail($contact = null, $email_type = 'invoice')
     {
-        $send_email = new SendEmail($this->invoice, null, $contact);
+        $send_email = new SendEmail($this->invoice, $email_type, $contact);
 
         return $send_email->run();
     }
@@ -256,7 +260,7 @@ class InvoiceService
 
     public function markDeleted()
     {
-        $this->removeUnpaidGatewayFees();
+        // $this->removeUnpaidGatewayFees();
 
         $this->invoice = (new MarkInvoiceDeleted($this->invoice))->run();
 
@@ -389,8 +393,25 @@ class InvoiceService
         return $this;
     }
 
-    public function toggleFeesPaid()
+    public function toggleFeesPaid(?string $payment_hash_string = null)
     {
+        if ($payment_hash_string) {
+
+            $this->invoice->line_items = collect($this->invoice->line_items)
+                                                ->map(function ($item) use ($payment_hash_string) {
+                                                    if ($item->type_id == '3' && (($item->unit_code ?? '') == $payment_hash_string)) {
+                                                        $item->type_id = '4';
+                                                    }
+
+                                                    return $item;
+                                                })->toArray();
+
+            $this->deleteEInvoice();
+
+            return $this;
+
+        }
+
         $this->invoice->line_items = collect($this->invoice->line_items)
             ->map(function ($item) {
                 if ($item->type_id == '3') {
@@ -434,11 +455,8 @@ class InvoiceService
 
         $this->invoice->invitations->each(function ($invitation) {
             try {
-                // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
-                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation) . $this->invoice->getFileName("xml"));
-                // }
+                Storage::disk(config('filesystems.default'))->delete($this->invoice->client->e_document_filepath($invitation).$this->invoice->getFileName("xml"));
 
-                // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
                 if (Ninja::isHosted()) {
                     Storage::disk('public')->delete($this->invoice->client->e_document_filepath($invitation) . $this->invoice->getFileName("xml"));
                 }
@@ -483,7 +501,7 @@ class InvoiceService
                 ->ledger()
                 ->updateInvoiceBalance($adjustment * -1, 'Adjustment for removing gateway fee');
 
-            $this->invoice->client->service()->calculateBalance();
+            $this->invoice->client->service()->updateBalance($adjustment * -1);
 
         }
 
@@ -570,6 +588,18 @@ class InvoiceService
         return $this;
     }
 
+    public function unlockDocuments(): self
+    {
+
+        //2025-02-20 ** Feature to allow documents to be visible / attachable after payment **
+        if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('unlock_invoice_documents_after_payment')) {
+            $this->invoice->documents()->update(['is_public' => true]);
+        }
+
+        return $this;
+
+    }
+
     public function fillDefaults(bool $is_recurring = false)
     {
         $this->invoice->load('client.company');
@@ -606,6 +636,11 @@ class InvoiceService
         }
 
         return $this;
+    }
+
+    public function location(): array
+    {
+        return (new LocationData($this->invoice))->run();
     }
 
     public function workFlow()

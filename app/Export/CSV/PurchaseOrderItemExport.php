@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PurchaseOrder Ninja (https://invoiceninja.com).
  *
@@ -140,13 +141,33 @@ class PurchaseOrderItemExport extends BaseExport
 
     }
 
+    private function filterItems(array $items): array
+    {
+
+        //if we have product filters in place, we will also need to filter the items at this level:
+        if (isset($this->input['product_key'])) {
+                        
+            $products = str_getcsv($this->input['product_key'], ',', "'");
+
+            $products = array_map(function ($product) {
+                return trim($product, "'");
+            }, $products);
+
+            $items = array_filter($items, function ($item) use ($products) {
+                return in_array($item->product_key, $products);
+            });
+        }
+
+        return $items;
+    }
+
     private function iterateItems(PurchaseOrder $purchase_order)
     {
         $transformed_purchase_order = $this->buildRow($purchase_order);
 
         $transformed_items = [];
 
-        foreach ($purchase_order->line_items as $item) {
+        foreach ($this->filterItems($purchase_order->line_items) as $item) {
             $item_array = [];
 
             foreach (array_values(array_intersect($this->input['report_keys'], $this->item_report_keys)) as $key) { //items iterator produces item array
@@ -154,10 +175,6 @@ class PurchaseOrderItemExport extends BaseExport
                 if (str_contains($key, "item.")) {
 
                     $tmp_key = str_replace("item.", "", $key);
-
-                    if ($tmp_key == 'type_id') {
-                        $tmp_key = 'type';
-                    }
 
                     if ($tmp_key == 'tax_id') {
                         $tmp_key = 'tax_category';

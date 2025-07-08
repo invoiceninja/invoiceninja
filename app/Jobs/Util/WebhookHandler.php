@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,11 +29,12 @@ class WebhookHandler implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-
     public $tries = 1; //number of retries
 
+    public $timeout = 30;
+    
     public $deleteWhenMissingModels = true;
-
+    
     /**
      * Create a new job instance.
      *
@@ -63,6 +65,11 @@ class WebhookHandler implements ShouldQueue
                 ->each(function ($subscription) {
                     (new WebhookSingle($subscription->id, $this->entity, $this->company->db, $this->includes))->handle();
                 });
+    }
+
+    public function viaQueue()
+    {
+        return \App\Utils\Ninja::isHosted() ? 'webhooks' : 'default';
     }
 
     public function failed($exception = null)

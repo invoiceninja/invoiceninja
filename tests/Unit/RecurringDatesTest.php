@@ -61,6 +61,8 @@ class RecurringDatesTest extends TestCase
 
         $this->travelTo(\Carbon\Carbon::create(2024, 12, 1, 17, 0, 0));
 
+        $this->assertEquals('2024-12-01', now()->format('Y-m-d'));
+        
         $recurring_invoice = RecurringInvoiceFactory::create($company->id, $this->user->id);
         $recurring_invoice->line_items = $this->buildLineItems();
         $recurring_invoice->client_id = $client->id;
@@ -112,16 +114,16 @@ class RecurringDatesTest extends TestCase
         $recurring_invoice->frequency_id = RecurringInvoice::FREQUENCY_MONTHLY;
         $recurring_invoice->remaining_cycles = 5;
         $recurring_invoice->due_date_days = '1';
-        $recurring_invoice->next_send_date = now();
+        $recurring_invoice->next_send_date = now()->setTimezone($this->client->timezone()->name)->format('Y-m-d');
         $recurring_invoice->save();
         $recurring_invoice = $recurring_invoice->calc()->getInvoice();
-
         $recurring_invoice->service()->sendNow();
 
+        $r = $recurring_invoice->fresh();
         $invoice = $recurring_invoice->invoices()->latest()->first();
-
         $this->assertGreaterThan(0, $recurring_invoice->invoices()->count());
-        $expected_due_date = now()->addMonth()->startOfMonth()->format('Y-m-d');
+        $expected_due_date = now()->setTimezone($this->client->timezone()->name)->startOfDay()->addMonthWithoutOverflow()->startOfMonth()->format('Y-m-d');
+
         $this->assertEquals($expected_due_date, $invoice->due_date);
 
     }

@@ -170,7 +170,7 @@ span {
         </button>
         
         <div id="notes" class="py-10 border-b-2 border-fuschia-600"  x-show="show_notes">     
-            {!! html_entity_decode(e($entity->public_notes)) !!}
+            {!! html_entity_decode(e($public_notes)) !!}
         </div>
 
     </div>
@@ -185,7 +185,7 @@ span {
         </button>
 
         <div id="terms" class="py-10 border-b-2 border-fuschia-600"  x-show="show_terms">
-            {!! html_entity_decode($entity->terms) !!}
+            {!! html_entity_decode($terms) !!}
         </div>
 
     </div>

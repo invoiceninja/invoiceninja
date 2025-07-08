@@ -25,7 +25,7 @@ class BaseTransformer
     {
     }
 
-    public function resolveCountry(string $iso_3_code): string
+    public function resolveCountry(?string $iso_3_code): string
     {
         /** @var \App\Models\Country $country */
         $country = app('countries')->first(function ($c) use ($iso_3_code) {

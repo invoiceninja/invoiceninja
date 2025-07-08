@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,7 +14,7 @@ namespace App\Models;
 
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\Jobs\Mail\NinjaMailer;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
@@ -171,9 +172,9 @@ class ClientContact extends Authenticatable implements HasLocalePreference
     public function toSearchableArray()
     {
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => $this->present()->search_display(),
-            'hashed_id' => $this->client->hashed_id,
+            'hashed_id' => $this->hashed_id,
             'email' => $this->email,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
@@ -183,12 +184,13 @@ class ClientContact extends Authenticatable implements HasLocalePreference
             'custom_value3' => $this->custom_value3,
             'custom_value4' => $this->custom_value4,
             'company_key' => $this->company->company_key,
+            'client_id' => $this->client->hashed_id,
         ];
     }
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
 
     /*

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -480,6 +481,11 @@ class Company extends BaseModel
         return $this->hasMany(ClientContact::class)->withTrashed();
     }
 
+    public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Location::class)->withTrashed();
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
@@ -571,6 +577,18 @@ class Company extends BaseModel
     public function groups()
     {
         return $this->hasMany(GroupSetting::class);
+    }
+
+    public function backups(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Backup::class, // Target model
+            Activity::class, // Intermediate model
+            'company_id', // Foreign key on activities table
+            'activity_id', // Foreign key on backups table
+            'id', // Local key on companies table
+            'id' // Local key on activities table
+        );
     }
 
     /**
@@ -875,7 +893,13 @@ class Company extends BaseModel
 
     public function notification(Notification $notification)
     {
-        return new NotificationService($this, $notification);
+        try {
+            return new NotificationService($this, $notification);
+        } catch (\Throwable $th) {
+            nlog("Could not access notification service");
+            nlog($th->getMessage());
+            return null;
+        }
     }
 
     public function routeNotificationForSlack($notification): string

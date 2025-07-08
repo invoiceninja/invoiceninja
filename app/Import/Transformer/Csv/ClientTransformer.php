@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -34,9 +35,10 @@ class ClientTransformer extends BaseTransformer
             throw new ImportException('Client already exists');
         }
 
-        if(!is_array($data))
+        if (!is_array($data)) {
             throw new ImportException('Empty row, or invalid data encountered.');
-        
+        }
+
         $settings = ClientSettings::defaults();
         $settings->currency_id = (string) $this->getCurrencyByCode($data);
 
@@ -82,10 +84,10 @@ class ClientTransformer extends BaseTransformer
             'client_hash' => Str::random(40),
             'country_id' => isset($data['client.country_id'])
                 ? $this->getCountryId($data['client.country_id'])
-                : null,
+                : $this->company->settings->country_id,
             'shipping_country_id' => isset($data['client.shipping_country'])
                 ? $this->getCountryId($data['client.shipping_country'])
-                : null,
+                : $this->company->settings->country_id,
         ];
 
         $contacts = [];
@@ -119,8 +121,6 @@ class ClientTransformer extends BaseTransformer
         }
 
         $client['contacts'] = $contacts;
-
-        nlog($client);
 
         return $client;
 

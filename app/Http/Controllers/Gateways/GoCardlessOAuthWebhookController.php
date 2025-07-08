@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +29,7 @@ class GoCardlessOAuthWebhookController extends Controller
     public function __invoke(WebhookRequest $request)
     {
         foreach ($request->events as $event) {
-            nlog($event['action']);
+            nlog("GoCardless OAuth Webhook: " . $event['action']);
 
             $e = Arr::dot($event);
 

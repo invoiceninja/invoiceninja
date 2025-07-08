@@ -5,22 +5,23 @@
  *
  * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
  *
- * @license https://www.elastic.co/licensing/elastic-license 
+ * @license https://www.elastic.co/licensing/elastic-license
  */
 
 import { wait, instant } from '../wait';
 
 class Blockonomics {
-    
+
     constructor() {
         // Bind the method to the instance
         this.copyToClipboard = this.copyToClipboard.bind(this);
         this.refreshBTCPrice = this.refreshBTCPrice.bind(this);
-
+        this.fetchAndDisplayQRCode = this.fetchAndDisplayQRCode.bind(this);
+        this.startTimer = this.startTimer.bind(this);
     }
 
      copyToClipboard(elementId, passedElement, shouldGrabNextElementSibling) {
-        
+
         const element = shouldGrabNextElementSibling ? passedElement.nextElementSibling : passedElement;
         const originalIcon = element.src;  // Store the original icon
 
@@ -48,10 +49,73 @@ class Blockonomics {
         }, 5000);
     }
 
+
+    async fetchAndDisplayQRCode (newBtcAmount = null) {
+        try {
+            const btcAddress = document.querySelector('meta[name="btc_address"]').content;
+            const btcAmount = newBtcAmount || '{{$btc_amount}}';
+            const qrString = encodeURIComponent(`bitcoin:${btcAddress}?amount=${btcAmount}`);
+            const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=${qrString}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const svgText = await response.text();
+            document.getElementById('qrcode-container').innerHTML = svgText;
+        } catch (error) {
+            console.error('Error fetching QR code:', error);
+            document.getElementById('qrcode-container').textContent = 'Error loading QR code';
+        }
+    };
+
+    startTimer = (seconds) => {
+        const countDownDate = new Date().getTime() + seconds * 1000;
+        document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
+
+        const updateCountdown = () => {
+            const now = new Date().getTime();
+            const distance = countDownDate - now;
+
+            const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
+            if (isRefreshing) {
+                return;
+            }
+
+            if (distance < 0) {
+                refreshBTCPrice();
+                return;
+            }
+
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            const formattedSeconds = String(seconds).padStart(2, '0');
+            document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
+        }
+
+        clearInterval(window.countdownInterval);
+        window.countdownInterval = setInterval(updateCountdown, 1000);
+    }
+
+
     async refreshBTCPrice() {
         const refreshIcon = document.querySelector('.icon-refresh');
         refreshIcon.classList.add('rotating');
         document.getElementsByClassName("btc-value")[0].innerHTML = "Refreshing...";
+
+        const getBTCPrice = async () => {
+            try {
+                const currency = document.querySelector('meta[name="currency"]').content;
+                const response = await fetch(`/api/v1/get-btc-price?currency=${currency}`); // New endpoint to call server-side function
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                return data.price;
+            } catch (error) {
+                console.error('There was a problem with the BTC price fetch operation:', error);
+                // Handle error appropriately
+            }
+        }
 
         try {
             const newPrice = await getBTCPrice();
@@ -75,8 +139,8 @@ class Blockonomics {
                 openInWalletLink.href = `bitcoin:${btcAddress}?amount=${newBtcAmount}`;
 
                 // fetch and display the new QR code
-                fetchAndDisplayQRCode(newBtcAmount);
-                startTimer(600); // Restart timer for 10 minutes (600 seconds)
+                await this.fetchAndDisplayQRCode(newBtcAmount);
+                this.startTimer(600); // Restart timer for 10 minutes (600 seconds)
             }
         } finally {
             refreshIcon.classList.remove('rotating');
@@ -87,92 +151,35 @@ class Blockonomics {
     handle() {
         window.copyToClipboard = this.copyToClipboard;
         window.refreshBTCPrice = this.refreshBTCPrice;
+        window.fetchAndDisplayQRCode = this.fetchAndDisplayQRCode;
+        window.startTimer = this.startTimer;
 
-        const startTimer = (seconds) => {
-            const countDownDate = new Date().getTime() + seconds * 1000;
-            document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
-
-            const updateCountdown = () => {
-                const now = new Date().getTime();
-                const distance = countDownDate - now;
-
-                const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
-                if (isRefreshing) {
-                    return;
-                }
-
-                if (distance < 0) {
-                    refreshBTCPrice();
-                    return;
-                }
-
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                const formattedMinutes = String(minutes).padStart(2, '0');
-                const formattedSeconds = String(seconds).padStart(2, '0');
-                document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
-            }
-
-            clearInterval(window.countdownInterval);
-            window.countdownInterval = setInterval(updateCountdown, 1000);
-        }
-
-        const getBTCPrice = async () => {
-            try {
-                const currency = document.querySelector('meta[name="currency"]').content;
-                const response = await fetch(`/api/v1/get-btc-price?currency=${currency}`); // New endpoint to call server-side function
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                return data.price;
-            } catch (error) {
-                console.error('There was a problem with the BTC price fetch operation:', error);
-                // Handle error appropriately
-            }
-        }
-
-    const connectToWebsocket = () => {
-        const btcAddress = document.querySelector('meta[name="btc_address"]').content;
-        const webSocketUrl = `wss://www.blockonomics.co/payment/${btcAddress}`;
-        const ws = new WebSocket(webSocketUrl);
-
-        ws.onmessage = function (event) {
-            const data = JSON.parse(event.data);
-            console.log('Payment status:', data.status);
-            const isPaymentUnconfirmed = data.status === 0;
-            const isPaymentPartiallyConfirmed = data.status === 1;
-            // TODO: Do we need to handle Payment confirmed status?
-            // This usually takes too long to happen, so we can just wait for the unconfirmed status?
-            if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed) {
-                document.querySelector('input[name="txid"]').value = data.txid || '';
-                document.getElementById('server-response').submit();
-            }
-        }
-    };
-
-    const fetchAndDisplayQRCode = async (newBtcAmount = null) => {
-        try {
+        const connectToWebsocket = () => {
             const btcAddress = document.querySelector('meta[name="btc_address"]').content;
-            const btcAmount = newBtcAmount || '{{$btc_amount}}';
-            const qrString = encodeURIComponent(`bitcoin:${btcAddress}?amount=${btcAmount}`);
-            const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=${qrString}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            const webSocketUrl = `wss://www.blockonomics.co/payment/${btcAddress}`;
+            const ws = new WebSocket(webSocketUrl);
+
+            ws.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                const { status, txid, value } = data || {};
+                console.log('Payment status:', status);
+                const isPaymentUnconfirmed = status === 0;
+                const isPaymentPartiallyConfirmed = status === 1;
+                const isPaymentConfirmed = status === 2;
+                // Confirmation status: 0 = unconfirmed, 1 = partially confirmed, 2 = confirmed
+                // If any of the statuses are true, submit the form and redirect
+                if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed || isPaymentConfirmed) {
+                    document.querySelector('input[name="txid"]').value = txid || '';
+                    document.querySelector('input[name="status"]').value = status || '';
+                    document.querySelector('input[name="btc_amount"]').value = value || '';
+                    document.querySelector('input[name="btc_address"]').value = btcAddress || '';
+                    document.getElementById('server-response').submit();
+                }
             }
-            const svgText = await response.text();
-            document.getElementById('qrcode-container').innerHTML = svgText;
-        } catch (error) {
-            console.error('Error fetching QR code:', error);
-            document.getElementById('qrcode-container').textContent = 'Error loading QR code';
-        }
-    };
-
-    startTimer(600); // Start timer for 10 minutes (600 seconds)
-    connectToWebsocket();
-    fetchAndDisplayQRCode();
-
-    
+        };
+        startTimer(600); // Start timer for 10 minutes (600 seconds)
+        connectToWebsocket();
+        fetchAndDisplayQRCode();
     }
 
 }

@@ -1,19 +1,21 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Transformers;
 
+use App\Models\Vendor;
 use App\Models\Activity;
 use App\Models\Document;
-use App\Models\Vendor;
+use App\Models\Location;
 use App\Models\VendorContact;
 use App\Utils\Traits\MakesHash;
 
@@ -34,6 +36,7 @@ class VendorTransformer extends EntityTransformer
      */
     protected array $availableIncludes = [
         'activities',
+        'locations',
     ];
 
     /**
@@ -65,6 +68,18 @@ class VendorTransformer extends EntityTransformer
         $transformer = new DocumentTransformer($this->serializer);
 
         return $this->includeCollection($vendor->documents, $transformer, Document::class);
+    }
+
+    /**
+     * @param Vendor $vendor
+     *
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    public function includeLocations(Vendor $vendor)
+    {
+        $transformer = new LocationTransformer($this->serializer);
+
+        return $this->includeCollection($vendor->locations, $transformer, Location::class);
     }
 
     /**

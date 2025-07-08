@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Quote Ninja (https://Quoteninja.com).
  *

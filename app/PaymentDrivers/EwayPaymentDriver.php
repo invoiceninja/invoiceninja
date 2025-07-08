@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -212,12 +213,13 @@ class EwayPaymentDriver extends BaseDriver
         return $fields;
     }
 
-    public function auth(): bool
+    public function auth(): string
     {
 
         $response = $this->init()->eway->queryTransaction('xx');
 
-        return (bool) count($response->getErrors()) == 0;
+        $message = (bool) count($response->getErrors()) == 0 ? 'ok' : 'error';
+        return $message;
 
     }
 

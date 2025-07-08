@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,27 +21,36 @@ class ConfirmNordigenBankIntegrationRequest extends Request
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'ref' => 'required|string', // nordigen redirects only with the ref-property
             'lang' => 'string',
         ];
     }
-    public function getTokenContent()
+
+    /**
+     * @return array{
+     *   user_id: int,
+     *   company_key: string,
+     *   context: string,
+     *   is_react: bool,
+     *   institution_id: string,
+     *   lang: string,
+     *   redirect: string,
+     *   requisitionId: string
+     * }
+     */
+    public function getTokenContent(): array
     {
         $input = $this->all();
 
@@ -50,10 +59,12 @@ class ConfirmNordigenBankIntegrationRequest extends Request
         return $data;
     }
 
-    public function getCompany()
+    public function getCompany(): Company
     {
-        MultiDB::findAndSetDbByCompanyKey($this->getTokenContent()['company_key']);
+        $key = $this->getTokenContent()['company_key'];
 
-        return Company::where('company_key', $this->getTokenContent()['company_key'])->firstOrFail();
+        MultiDB::findAndSetDbByCompanyKey($key);
+
+        return Company::where('company_key', $key)->firstOrFail();
     }
 }

@@ -142,7 +142,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
     {
         $data = $this->paymentData($data);
 
-        if ($data['authorize_then_redirect']) {
+        if ($data['authorize_then_redirect'] ?? false) {
             return $this->authorizeView($data);
         }
 
@@ -194,27 +194,7 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
         }
     }
 
-    public function processPendingPayment($payment_id, float $amount, int $gateway_type_id, $payment_method)
-    {
-        $data = [
-            'payment_method' => $payment_method,
-            'payment_type' => $gateway_type_id,
-            'amount' => $amount,
-            'transaction_reference' => $payment_id,
-            'gateway_type_id' => $gateway_type_id,
-        ];
-        $payment = $this->rotessa->createPayment($data, Payment::STATUS_PENDING);
-        SystemLogger::dispatch(
-            [ 'data' => $data ],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_ROTESSA,
-            $this->rotessa->client,
-            $this->rotessa->client->company,
-        );
 
-        return redirect()->route('client.payments.show', [ 'payment' => $payment->hashed_id ]);
-    }
 
     /**
      * Handle unsuccessful payment for Rotessa.
@@ -288,4 +268,76 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
 
         return $data;
     }
+
+    public function tokenBilling(\App\Models\ClientGatewayToken $customer, \App\Models\PaymentHash $payment_hash)
+    {
+
+        try {
+
+            $transaction = array_merge($this->transaction, [
+                'amount' => $payment_hash->data->amount_with_fee,
+                'process_date' => now()->addSeconds($customer->client->utc_offset())->format('Y-m-d'),
+                'comment' => $this->rotessa->getDescription(false),
+                'customer_id' => $customer->gateway_customer_reference,
+            ]);
+
+            $response = $this->rotessa->gatewayRequest('post', 'transaction_schedules', $transaction);
+
+            if ($response->failed()) {
+                $response->throw();
+            }
+
+            $response = $response->json();
+
+            $data = [
+                'payment_method' => $customer->token,
+                'payment_type' => PaymentType::ACSS,
+                'amount' => $response['amount'],
+                'transaction_reference' => $response['id'],
+                'gateway_type_id' => PaymentType::ACSS,
+            ];
+
+            SystemLogger::dispatch(
+                [ 'data' => $data ],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_ROTESSA,
+                $this->rotessa->client,
+                $this->rotessa->client->company,
+            );
+
+            $payment = $this->rotessa->createPayment($data, Payment::STATUS_PENDING);
+
+            return $payment;
+
+        } catch (\Throwable $e) {
+            $this->processUnsuccessfulPayment(new \Exception($e->getMessage(), (int) $e->getCode()));
+        }
+
+    }
+
+
+    public function processPendingPayment($payment_id, float $amount, int $gateway_type_id, $payment_method)
+    {
+        $data = [
+            'payment_method' => $payment_method,
+            'payment_type' => $gateway_type_id,
+            'amount' => $amount,
+            'transaction_reference' => $payment_id,
+            'gateway_type_id' => $gateway_type_id,
+        ];
+        $payment = $this->rotessa->createPayment($data, Payment::STATUS_PENDING);
+        SystemLogger::dispatch(
+            [ 'data' => $data ],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_ROTESSA,
+            $this->rotessa->client,
+            $this->rotessa->client->company,
+        );
+
+        return redirect()->route('client.payments.show', [ 'payment' => $payment->hashed_id ]);
+    }
+
+
 }

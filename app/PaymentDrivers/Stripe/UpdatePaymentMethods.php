@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -148,7 +148,7 @@ class UpdatePaymentMethods
             $additional_data = ['gateway_customer_reference' => $customer->id];
 
             if ($customer->default_source === $method->id) {
-                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 1];
+                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 0];
             }
 
             $this->stripe->storeGatewayToken($data, $additional_data);
@@ -191,7 +191,7 @@ class UpdatePaymentMethods
             $additional_data = ['gateway_customer_reference' => $customer->id];
 
             if ($customer->default_source === $method->id) {
-                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 1];
+                $additional_data = ['gateway_customer_reference' => $customer->id, 'is_default' => 0];
             }
 
             $this->stripe->storeGatewayToken($data, $additional_data);
@@ -241,17 +241,17 @@ class UpdatePaymentMethods
                  * @class \Stripe\PaymentMethod $method
                  * @property \Stripe\StripeObject $card
                  * @class \Stripe\StripeObject $card
-                 * @property string $exp_year
-                 * @property string $exp_month
-                 * @property string $brand
-                 * @property string $last4
+                 * @property string|null $exp_year
+                 * @property string|null $exp_month
+                 * @property string|null $brand
+                 * @property string|null $last4
                 */
 
                 $payment_meta = new \stdClass();
-                $payment_meta->exp_month = (string) $method->card->exp_month;
-                $payment_meta->exp_year = (string) $method->card->exp_year;
-                $payment_meta->brand = (string) $method->card->brand;
-                $payment_meta->last4 = (string) $method->card->last4;
+                $payment_meta->exp_month = (string) ($method->card->exp_month ?? '00');
+                $payment_meta->exp_year = (string) ($method->card->exp_year ?? '0000');
+                $payment_meta->brand = (string) ($method->card->brand ?? 'visa');
+                $payment_meta->last4 = (string) ($method->card->last4 ?? 'link');
                 $payment_meta->type = GatewayType::CREDIT_CARD;
 
                 return $payment_meta;

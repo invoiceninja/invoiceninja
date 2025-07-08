@@ -22,7 +22,7 @@
                         @endif
                         @if($client->getBankTransferGateway())
                             <a data-cy="add-bank-account-link" href="{{ route('client.payment_methods.create', ['method' => $client->getBankTransferMethodType()]) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition ease-in-out duration-150">
-                                {{ ctrans('texts.bank_account') }}
+                                {{ ctrans('texts.bank_account') }} 
                             </a>
                         @endif
                         @if($client->getBACSGateway())

@@ -1,33 +1,32 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Repositories;
 
-use App\Models\Activity;
+use App\Models\User;
+use App\Models\Quote;
 use App\Models\Backup;
-use App\Models\CompanyToken;
 use App\Models\Credit;
 use App\Models\Design;
 use App\Models\Invoice;
-use App\Models\PurchaseOrder;
-use App\Models\Quote;
-use App\Models\RecurringInvoice;
-use App\Models\User;
-use App\Services\PdfMaker\Design as PdfDesignModel;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
-use App\Services\PdfMaker\PdfMaker as PdfMakerService;
+use App\Models\Activity;
 use App\Utils\HtmlEngine;
+use App\Models\CompanyToken;
+use App\Models\PurchaseOrder;
 use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\MakesInvoiceHtml;
 use App\Utils\VendorHtmlEngine;
+use App\Models\RecurringInvoice;
+use App\Services\Pdf\PdfService;
+use App\Utils\Traits\MakesInvoiceHtml;
 
 /**
  * Class for activity repository.
@@ -66,7 +65,9 @@ class ActivityRepository extends BaseRepository
         $activity->save();
 
         //rate limiter
-        $this->createBackup($entity, $activity);
+        if (!in_array($fields->activity_type_id, [Activity::EMAIL_INVOICE, Activity::EMAIL_CREDIT, Activity::EMAIL_QUOTE, Activity::EMAIL_PURCHASE_ORDER])) {
+            $this->createBackup($entity, $activity);
+        }
     }
 
     /**
@@ -109,7 +110,7 @@ class ActivityRepository extends BaseRepository
             $backup->json_backup = '';
             $backup->save();
 
-            $backup->storeRemotely($this->generateVendorHtml($entity), $entity->vendor);
+            $backup->storeRemotely($this->generateHtml($entity), $entity->vendor);
 
             return;
 
@@ -118,7 +119,7 @@ class ActivityRepository extends BaseRepository
 
     public function getTokenId(array $event_vars)
     {
-        if ($event_vars['token']) {
+        if (isset($event_vars['token']) &&$event_vars['token']) {
             /** @var \App\Models\CompanyToken $company_token **/
             $company_token = CompanyToken::query()->where('token', $event_vars['token'])->first();
 
@@ -130,79 +131,45 @@ class ActivityRepository extends BaseRepository
         return false;
     }
 
-    private function generateVendorHtml($entity)
-    {
-        $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->vendor->getSetting('purchase_order_design_id'));
-
-        $design = Design::withTrashed()->find($entity_design_id);
-
-        if (! $entity->invitations()->exists() || ! $design) {
-            return '';
-        }
-
-        $entity->load('vendor.company', 'invitations');
-
-        $html = new VendorHtmlEngine($entity->invitations->first()->load('purchase_order', 'contact'));
-
-        if ($design->is_custom) {
-            $options = [
-                'custom_partials' => json_decode(json_encode($design->design), true),
-            ];
-            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
-        } else {
-            $template = new PdfMakerDesign(strtolower($design->name));
-        }
-
-        $state = [
-            'template' => $template->elements([
-                'vendor' => $entity->vendor,
-                'entity' => $entity,
-                'pdf_variables' => (array) $entity->company->settings->pdf_variables,
-                '$product' => $design->design->product,
-            ]),
-            'variables' => $html->generateLabelsAndValues(),
-            'options' => [
-                'all_pages_header' => $entity->vendor->getSetting('all_pages_header'),
-                'all_pages_footer' => $entity->vendor->getSetting('all_pages_footer'),
-                'vendor' => $entity->vendor,
-                'entity' => $entity,
-            ],
-            'process_markdown' => $entity->vendor->company->markdown_enabled,
-        ];
-
-        $maker = new PdfMakerService($state);
-
-        $html = $maker->design($template)
-                    ->build()
-                    ->getCompiledHTML(true);
-
-        $maker = null;
-        $state = null;
-
-        return $html;
-
-    }
-
     private function generateHtml($entity)
     {
         $entity_design_id = '';
         $entity_type = '';
+        $document_type = 'product';
+
+        $settings = $entity->client ? $entity->client->getMergedSettings() : $entity->vendor->getMergedSettings();
 
         if ($entity instanceof Invoice) {
             $entity_type = 'invoice';
             $entity_design_id = 'invoice_design_id';
+            $entity->load('client.company', 'invitations');
+            $document_type = 'product';
         } elseif ($entity instanceof RecurringInvoice) {
             $entity_type = 'recurring_invoice';
             $entity_design_id = 'invoice_design_id';
+
+            $entity->load('client.company', 'invitations');
+            $document_type = 'product';
         } elseif ($entity instanceof Quote) {
             $entity_type = 'quote';
             $entity_design_id = 'quote_design_id';
+
+            $entity->load('client.company', 'invitations');
+            $document_type = 'product';
         } elseif ($entity instanceof Credit) {
-            $entity_type = 'credit';
+            $entity_type = 'product';
+
+            $entity->load('client.company', 'invitations');
             $entity_design_id = 'credit_design_id';
+            $document_type = 'credit';
+        } elseif ($entity instanceof PurchaseOrder) {
+            $entity_type = 'purchase_order';
+            $entity_design_id = 'purchase_order_design_id';
+            $document_type = 'purchase_order';
+            $entity->load('vendor.company', 'invitations');
         }
 
-        $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($entity->client->getSetting($entity_design_id));
+        $entity_design_id = $entity->design_id ? $entity->design_id : $this->decodePrimaryKey($settings->{$entity_design_id});
 
         $design = Design::withTrashed()->find($entity_design_id);
 
@@ -210,45 +177,13 @@ class ActivityRepository extends BaseRepository
             return '';
         }
 
-        $entity->load('client.company', 'invitations');
+        $ps = new PdfService($entity->invitations()->first(), $document_type, [
+            'client' => $entity->client ?? false,
+            'vendor' => $entity->vendor ?? false,
+            "{$entity_type}s" => [$entity],
+        ]);
 
-        $html = new HtmlEngine($entity->invitations->first()->load($entity_type, 'contact'));
+        return $ps->boot()->getHtml();
 
-        if ($design->is_custom) {
-            $options = [
-                'custom_partials' => json_decode(json_encode($design->design), true),
-            ];
-            $template = new PdfMakerDesign(PdfDesignModel::CUSTOM, $options);
-        } else {
-            $template = new PdfMakerDesign(strtolower($design->name));
-        }
-
-        $state = [
-            'template' => $template->elements([
-                'client' => $entity->client,
-                'entity' => $entity,
-                'pdf_variables' => (array) $entity->company->settings->pdf_variables,
-                '$product' => $design->design->product,
-            ]),
-            'variables' => $html->generateLabelsAndValues(),
-            'options' => [
-                'all_pages_header' => $entity->client->getSetting('all_pages_header'),
-                'all_pages_footer' => $entity->client->getSetting('all_pages_footer'),
-                'client' => $entity->client,
-                'entity' => $entity,
-            ],
-            'process_markdown' => $entity->client->company->markdown_enabled,
-        ];
-
-        $maker = new PdfMakerService($state);
-
-        $html = $maker->design($template)
-                     ->build()
-                     ->getCompiledHTML(true);
-
-        $maker = null;
-        $state = null;
-
-        return $html;
     }
 }

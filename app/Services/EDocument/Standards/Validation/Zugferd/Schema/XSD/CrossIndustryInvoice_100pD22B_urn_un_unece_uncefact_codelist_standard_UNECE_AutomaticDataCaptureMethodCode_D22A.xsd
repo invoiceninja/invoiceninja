@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm67233AutomaticDataCaptureMethodCode="urn:un:unece:uncefact:codelist:standard:UNECE:AutomaticDataCaptureMethodCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:AutomaticDataCaptureMethodCode:D22A"
+    elementFormDefault="qualified"
+    version="3.3">
+  <xsd:simpleType name="AutomaticDataCaptureMethodCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="50"/>
+      <xsd:enumeration value="51"/>
+      <xsd:enumeration value="52"/>
+      <xsd:enumeration value="64"/>
+      <xsd:enumeration value="65"/>
+      <xsd:enumeration value="67"/>
+      <xsd:enumeration value="78"/>
+      <xsd:enumeration value="79"/>
+      <xsd:enumeration value="81"/>
+      <xsd:enumeration value="82"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

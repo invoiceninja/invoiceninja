@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm69303="urn:un:unece:uncefact:codelist:standard:UNECE:SealingPartyRoleCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:SealingPartyRoleCode:D22A"
+    elementFormDefault="qualified"
+    version="3.1">
+  <xsd:simpleType name="SealingPartyRoleCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="AA"/>
+      <xsd:enumeration value="AB"/>
+      <xsd:enumeration value="AC"/>
+      <xsd:enumeration value="CA"/>
+      <xsd:enumeration value="CU"/>
+      <xsd:enumeration value="SH"/>
+      <xsd:enumeration value="TO"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -233,12 +234,16 @@ class User extends Authenticatable implements MustVerifyEmail
             return $truth->getCompanyToken();
         }
 
-        // if (request()->header('X-API-TOKEN')) {
         if (request()->header('X-API-TOKEN')) {
-            return CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
+            
+            $token = CompanyToken::with(['cu'])->where('token', request()->header('X-API-TOKEN'))->first();
+            if ($token) {
+                return $token;
+            }
+
         }
 
-        return $this->tokens()->first();
+        return $this->tokens()->with(['cu'])->first();
     }
 
     /**
@@ -528,7 +533,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function hasExactPermission(string $permission = '___'): bool
     {
-        return  (stripos($this->token()->cu->permissions, $permission) !== false);
+        return  (stripos($this->token()->cu->permissions ?? '', $permission) !== false);
     }
 
 
@@ -730,7 +735,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function updateReferral(ReferralEarning $entity)
     {
-        
+
         $earnings = collect($this->referral_earnings);
 
         $updated_earnings = $earnings->map(function ($earning) use ($entity) {

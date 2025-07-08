@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm63035ChargePaying="urn:un:unece:uncefact:codelist:standard:UNECE:PartyRoleCode_ChargePaying:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:PartyRoleCode_ChargePaying:D22A"
+    elementFormDefault="qualified"
+    version="3.5">
+  <xsd:simpleType name="PartyRoleCodeChargePayingContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="AB"/>
+      <xsd:enumeration value="AE"/>
+      <xsd:enumeration value="AF"/>
+      <xsd:enumeration value="AH"/>
+      <xsd:enumeration value="AQ"/>
+      <xsd:enumeration value="AR"/>
+      <xsd:enumeration value="AT"/>
+      <xsd:enumeration value="AU"/>
+      <xsd:enumeration value="CA"/>
+      <xsd:enumeration value="CG"/>
+      <xsd:enumeration value="CN"/>
+      <xsd:enumeration value="CPD"/>
+      <xsd:enumeration value="CX"/>
+      <xsd:enumeration value="CZ"/>
+      <xsd:enumeration value="DGB"/>
+      <xsd:enumeration value="EX"/>
+      <xsd:enumeration value="FW"/>
+      <xsd:enumeration value="GS"/>
+      <xsd:enumeration value="IM"/>
+      <xsd:enumeration value="IV"/>
+      <xsd:enumeration value="PE"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

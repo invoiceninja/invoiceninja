@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,6 +23,9 @@ use horstoeko\zugferd\codelists\ZugferdDutyTaxFeeCategories;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
 use horstoeko\zugferd\ZugferdProfiles;
 
+/**
+ * @deprecated 2025-02-04
+ */
 class ZugferdEDokument extends AbstractService
 {
     public ZugferdDocumentBuilder $xdocument;
@@ -122,7 +126,7 @@ class ZugferdEDokument extends AbstractService
         if (isset($client->shipping_address1) && $client->shipping_country) {
             $this->xdocument->setDocumentShipToAddress($client->shipping_address1, $client->shipping_address2, "", $client->shipping_postal_code, $client->shipping_city, $client->shipping_country->iso_3166_2, $client->shipping_state);
         }
-       
+
         $this->injectPaymentMeans($company);
 
         if (str_contains($company->getSetting('vat_number'), "/")) {
@@ -259,19 +263,19 @@ class ZugferdEDokument extends AbstractService
         return $this;
 
     }
-    
+
     /**
-     * 
+     *
      * Expanded functionality to allow injecting UBL Payment Means
      * into the document
-     * 
+     *
      * @return self
      */
     private function injectPaymentMeans(Company $company): self
     {
 
         /**Check if the e_invoice object is populated */
-        if(isset($company->e_invoice->Invoice->PaymentMeans) && ($pm = $company->e_invoice->Invoice->PaymentMeans[0] ?? false)){
+        if (isset($company->e_invoice->Invoice->PaymentMeans) && ($pm = $company->e_invoice->Invoice->PaymentMeans[0] ?? false)) {
 
             switch ($pm->PaymentMeansCode->value ?? false) {
                 case '30':
@@ -284,7 +288,7 @@ class ZugferdEDokument extends AbstractService
                     $this->xdocument->addDocumentPaymentMean(typeCode: $typecode, payeeIban: $iban, payeeAccountName: $name, payeeBic: $bic);
 
                     return $this;
-                
+
                 default:
                     # code...
                     break;
@@ -326,7 +330,7 @@ class ZugferdEDokument extends AbstractService
                 $tax_type = ZugferdDutyTaxFeeCategories::STANDARD_RATE;
                 break;
             case Product::PRODUCT_TYPE_EXEMPT:
-                $tax_type = ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
+                $tax_type =  ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX;
                 break;
             case Product::PRODUCT_TYPE_ZERO_RATED:
                 $tax_type = ZugferdDutyTaxFeeCategories::ZERO_RATED_GOODS;

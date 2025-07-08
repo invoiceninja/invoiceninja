@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,6 +57,9 @@ class UpdateExpenseRequest extends Request
         $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,'.$user->company()->id;
         $rules['documents'] = 'bail|sometimes|array';
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
+        
+        $rules['file'] = 'bail|sometimes|array';
+        $rules['file.*'] = $this->fileValidation();
 
         return $this->globalRules($rules);
     }
@@ -70,7 +74,11 @@ class UpdateExpenseRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        if (array_key_exists('documents', $input)) {
+        if ($this->file('file') instanceof \Illuminate\Http\UploadedFile) {
+            $this->files->set('file', [$this->file('file')]);
+        }
+
+        if (isset($input['documents'])) {
             unset($input['documents']);
         }
 

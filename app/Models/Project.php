@@ -151,10 +151,10 @@ class Project extends BaseModel
     }
 
     /**
-     * Service entry points.
-     *
-     * @return ProjectService
-     */
+    * Service entry points.
+    *
+    * @return ProjectService
+    */
     public function service(): ProjectService
     {
         return new ProjectService($this);

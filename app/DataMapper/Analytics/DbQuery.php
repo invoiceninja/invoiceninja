@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -73,7 +74,7 @@ class DbQuery extends GenericMixedMetric
         $this->string_metric6 = $string_metric6;
         $this->double_metric2 = $double_metric2;
         $this->string_metric7 = $string_metric7;
-        $this->string_metric8 = mb_convert_encoding($string_metric8, "UTF-8");
-        $this->string_metric9 = mb_convert_encoding($string_metric9, "UTF-8");
+        $this->string_metric8 = mb_convert_encoding($string_metric8 ?? '', "UTF-8");
+        $this->string_metric9 = mb_convert_encoding($string_metric9 ?? '', "UTF-8");
     }
 }

@@ -8,7 +8,9 @@ export default defineConfig({
             'resources/js/app.js',
             'resources/sass/app.scss',
             'resources/js/clients/payment_methods/authorize-authorize-card.js',
+            'resources/js/clients/payment_methods/authorize-authorize-ach.js',
             'resources/js/clients/payments/authorize-credit-card-payment.js',
+            'resources/js/clients/payments/authorize-ach-payment.js',
             'resources/js/clients/payments/forte-credit-card-payment.js',
             'resources/js/clients/payments/forte-ach-payment.js',
             'resources/js/clients/payments/stripe-ach.js',
@@ -58,20 +60,7 @@ export default defineConfig({
             'resources/js/clients/payments/blockonomics.js',
         ]),
         viteStaticCopy({
-            targets: [
-                {
-                    src: 'node_modules/card-js/card-js.min.js',
-                    dest: 'public/js/card-js.min.js',
-                },
-                {
-                    src: 'node_modules/card-js/card-js.min.css',
-                    dest: 'public/css/card-js.min.css',
-                },
-                {
-                    src: 'node_modules/clipboard/dist/clipboard.min.js',
-                    dest: 'public/vendor/clipboard.min.js',
-                },
-            ],
+            targets: [],
         }),
     ],
 });

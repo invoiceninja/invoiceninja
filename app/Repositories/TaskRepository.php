@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,7 +50,7 @@ class TaskRepository extends BaseRepository
         if (!is_numeric($task->rate) && !isset($data['rate'])) {
             $data['rate'] = 0;
         }
-
+        
         $task->fill($data);
         $task->saveQuietly();
 
@@ -109,7 +110,9 @@ class TaskRepository extends BaseRepository
             $data['time_log'] = json_encode($timeLog);
         }
 
-        if (isset($data['time_log'])) {
+        if (isset($data['time_log']) && is_array($data['time_log'])) {
+            $time_log = $data['time_log'];
+        } elseif (isset($data['time_log'])) {
             $time_log = json_decode($data['time_log']);
         } elseif ($task->time_log) {
             $time_log = json_decode($task->time_log);
@@ -241,7 +244,7 @@ class TaskRepository extends BaseRepository
     {
         //do no allow an task to be restarted if it has been invoiced
         if ($task->invoice_id) {
-            return;
+            return $task;
         }
 
         if (strlen($task->time_log) < 5) {

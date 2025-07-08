@@ -64,6 +64,7 @@
             Optionally, instead of the country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the country_code property.
           type: number
           format: integer
+          $ref: '#/components/schemas/CountryType'
           example: '1'
         custom_value1:
           description: 'A custom field for storing additional information'

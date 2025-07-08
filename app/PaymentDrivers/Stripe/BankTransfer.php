@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,7 +39,6 @@ class BankTransfer implements LivewireMethodInterface
 
     public function paymentView(array $data)
     {
-        $data = $this->paymentData($data);
         $data = $this->paymentData($data);
 
         return render('gateways.stripe.bank_transfer.pay', $data);

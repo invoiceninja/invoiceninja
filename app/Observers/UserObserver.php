@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,6 +45,17 @@ class UserObserver
                 \Modules\Admin\Jobs\Account\UpdateOwnerUser::dispatch($user->account->key, $user, $user->getOriginal('email'));
             }
         }
+
+        if (Ninja::isHosted() && $user->isDirty('first_name') || $user->isDirty('last_name')) {
+
+            try {
+                (new \Modules\Admin\Jobs\Account\FieldQuality())->checkUserName($user, $user->account->companies->first());
+            } catch (\Throwable $e) {
+                nlog(['user_name_check', $e->getMessage()]);
+            }
+
+        }
+
     }
 
     /**

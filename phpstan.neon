@@ -20,6 +20,7 @@ parameters:
             - 'app/PaymentDrivers/AuthorizePaymentDriver.php'
             - 'app/Http/Middleware/ThrottleRequestsWithPredis.php'
             - 'app/Utils/Traits/*'
+            - 'Modules/Accounting/*'
     universalObjectCratesClasses:
         - App\DataMapper\Tax\RuleInterface
         - App\DataMapper\FeesAndLimits

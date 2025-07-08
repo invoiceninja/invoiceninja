@@ -1,24 +1,26 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Controllers\ClientPortal;
 
+use Illuminate\View\View;
+use App\Models\ClientContact;
+use App\Jobs\Util\UploadAvatar;
+use Illuminate\Routing\Redirector;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\Factory;
 use App\Http\Requests\ClientPortal\UpdateClientRequest;
 use App\Http\Requests\ClientPortal\UpdateContactRequest;
-use App\Jobs\Util\UploadAvatar;
-use App\Models\ClientContact;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
@@ -26,10 +28,14 @@ class ProfileController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param ClientContact $client_contact
-     * @return Factory|View
+     * @return Factory|View|RedirectResponse|Redirector
      */
     public function edit(ClientContact $client_contact)
     {
+        if (auth()->guard('contact')->user()->client->getSetting('enable_client_profile_update') === false) {
+            return redirect()->route('client.dashboard');
+        }
+
         return $this->render('profile.index');
     }
 

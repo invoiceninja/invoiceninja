@@ -50,6 +50,7 @@ class Invoice
     #[SerializedPath('[cac:LegalMonetaryTotal][cbc:TaxInclusiveAmount][#]')]
     public $amount_including_vat;
 
+    #[SerializedPath('[cac:AdditionalDocumentReference]')]
     /** @var Attachments[] */
     public ?array $attachments;
 

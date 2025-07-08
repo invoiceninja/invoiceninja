@@ -1,24 +1,27 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
 
+use App\Utils\Ninja;
 use App\Utils\Number;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Carbon;
 use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Facades\App;
 use App\Helpers\Invoice\InvoiceSumInclusive;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Services\PurchaseOrder\PurchaseOrderService;
+use App\Events\PurchaseOrder\PurchaseOrderWasEmailed;
 
 /**
  * App\Models\PurchaseOrder
@@ -120,7 +123,7 @@ class PurchaseOrder extends BaseModel
     use Filterable;
     use SoftDeletes;
     use Searchable;
-    
+
     protected $hidden = [
         'id',
         'private_notes',
@@ -181,6 +184,7 @@ class PurchaseOrder extends BaseModel
         'vendor_id',
         'last_viewed',
         'currency_id',
+        'location_id',
     ];
 
     protected $casts = [
@@ -206,7 +210,7 @@ class PurchaseOrder extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $this->vendor->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -226,9 +230,10 @@ class PurchaseOrder extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
-    
+
+
     public static function stringStatus(int $status)
     {
         switch ($status) {
@@ -303,6 +308,11 @@ class PurchaseOrder extends BaseModel
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
+    }
+
+    public function location(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Location::class)->withTrashed();
     }
 
     public function client(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -421,4 +431,18 @@ class PurchaseOrder extends BaseModel
         return $tax_type;
     }
 
+
+    public function entityEmailEvent($invitation, $reminder_template, $template = '')
+    {
+
+        switch ($reminder_template) {
+            case 'purchase_order':
+                event(new PurchaseOrderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
+                break;
+
+            default:
+                event(new PurchaseOrderWasEmailed($invitation, $invitation->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), $reminder_template));
+                break;
+        }
+    }
 }

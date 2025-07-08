@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -123,9 +124,9 @@ class PurchaseOrderEmailEngine extends BaseEmailEngine
 
             $pdf = (new CreateRawPdf($this->invitation))->handle();
 
-            if ($this->vendor->getSetting('embed_documents') && ($this->purchase_order->documents()->where('is_public', true)->count() > 0 || $this->purchase_order->company->documents()->where('is_public', true)->count() > 0)) {
-                $pdf = $this->purchase_order->documentMerge($pdf);
-            }
+            // if ($this->vendor->getSetting('embed_documents') && ($this->purchase_order->documents()->where('is_public', true)->count() > 0 || $this->purchase_order->company->documents()->where('is_public', true)->count() > 0)) {
+            //     $pdf = $this->purchase_order->documentMerge($pdf);
+            // }
 
             $this->setAttachments([['file' => base64_encode($pdf), 'name' => $this->purchase_order->numberFormatter().'.pdf']]);
         }

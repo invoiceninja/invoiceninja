@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -416,6 +417,18 @@ class ClientGatewayTokenController extends BaseController
     public function destroy(DestroyClientGatewayTokenRequest $request, ClientGatewayToken $client_gateway_token)
     {
         $this->client_gateway_token_repo->delete($client_gateway_token);
+
+        if ($client_gateway_token->is_default) {
+            $cgt = ClientGatewayToken::where('client_id', $client_gateway_token->client_id)
+                                    ->where('company_gateway_id', $client_gateway_token->company_gateway_id)
+                                    ->first();
+
+            if ($cgt) {
+                $cgt->is_default = true;
+                $cgt->save();
+            }
+
+        }
 
         return $this->itemResponse($client_gateway_token->fresh());
     }

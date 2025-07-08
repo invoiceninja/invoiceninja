@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -44,7 +44,6 @@ trait PdfMaker
             '--no-pdf-header-footer',
 
             // Security settings
-            '--disable-web-security=false',
             '--block-insecure-private-network-requests',
             '--block-port=22,25,465,587',
             '--disable-usb',
@@ -55,11 +54,10 @@ trait PdfMaker
 
             // Performance & resource settings
             '--disable-dev-shm-usage',
-            '--disable-software-rasterizer',
             '--run-all-compositor-stages-before-draw',
             '--disable-renderer-backgrounding',
             '--disable-background-timer-throttling',
-            '--disable-background-networking',
+            // '--disable-background-networking',
             '--disable-domain-reliability',
             '--disable-ipc-flooding-protection',
 
@@ -73,28 +71,27 @@ trait PdfMaker
             '--disable-device-discovery-notifications',
             '--disable-reading-from-canvas',
             '--safebrowsing-disable-auto-update',
-            '--disable-features=SharedArrayBuffer,OutOfBlinkCors,NetworkService,NetworkServiceInProcess',
+            '--disable-features=SharedArrayBuffer,OutOfBlinkCors',
 
-            '--virtual-time-budget=2000',
+            // '--wait-for-network-idle',
             '--font-render-hinting=medium',
             '--enable-font-antialiasing',
-            
-            // Debug/Output
-            '--dump-dom',
+            // important for background-images
+            '--virtual-time-budget=10000',
         ];
 
         // if (config('ninja.snappdf_chromium_arguments')) {
-            $pdf->clearChromiumArguments();
-            // $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
-            $pdf->addChromiumArguments(implode(' ', $chrome_flags));
+        // $pdf->clearChromiumArguments();
+        // $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
+        $pdf->addChromiumArguments(implode(' ', $chrome_flags));
         // }
 
         if (config('ninja.snappdf_chromium_path')) {
             $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
         }
 
-        $html = str_ireplace(['file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost'], '', $html);
-        
+        $html = str_ireplace(['file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost', '<?xml encoding="UTF-8">', '/etc/'], '', $html);
+        // nlog($html);
         $generated = $pdf
                         ->setHtml($html)
                         ->generate();

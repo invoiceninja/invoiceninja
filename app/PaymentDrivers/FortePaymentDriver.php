@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://opensource.org/licenses/AAL
  */
@@ -112,7 +113,7 @@ class FortePaymentDriver extends BaseDriver
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => '{
-                     "action":"reverse", 
+                     "action":"reverse",
                      "authorization_amount":'.$amount.',
                      "original_transaction_id":"'.$payment->transaction_reference.'",
                      "authorization_code": "9ZQ754"
@@ -193,7 +194,7 @@ class FortePaymentDriver extends BaseDriver
     ////////////////////////////////////////////
     // DB
     ///////////////////////////////////////////
-    public function auth(): bool
+    public function auth(): string
     {
 
         $forte_base_uri = "https://sandbox.forte.net/api/v3/";
@@ -210,7 +211,9 @@ class FortePaymentDriver extends BaseDriver
                     ->withHeaders(['X-Forte-Auth-Organization-Id' => $forte_organization_id])
                     ->get("{$forte_base_uri}/organizations/{$forte_organization_id}/locations/{$forte_location_id}/customers/");
 
-        return $response->successful();
+        $error = $response->json()['response']['response_desc'] ?? 'error';
+
+        return $response->successful() ? 'ok' : $error;
 
     }
 
@@ -275,12 +278,18 @@ class FortePaymentDriver extends BaseDriver
             ],
         ];
 
+        if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
+            $data["echeck"] = [
+                "sec_code" => "WEB",
+            ];
+        }
+
         if ($fee_total > 0) {
             $data["service_fee_amount"] = $fee_total;
         }
 
         $response = $this->stubRequest()
-        ->post("{$this->baseUri()}/organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}/transactions", $data);
+                        ->post("{$this->baseUri()}/organizations/{$this->getOrganisationId()}/locations/{$this->getLocationId()}/transactions", $data);
 
         $forte_response = $response->object();
 

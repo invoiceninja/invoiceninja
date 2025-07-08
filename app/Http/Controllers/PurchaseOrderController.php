@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -25,7 +26,6 @@ use App\Http\Requests\PurchaseOrder\StorePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UpdatePurchaseOrderRequest;
 use App\Http\Requests\PurchaseOrder\UploadPurchaseOrderRequest;
 use App\Jobs\Entity\CreateRawPdf;
-use App\Jobs\PurchaseOrder\PurchaseOrderEmail;
 use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use App\Models\Account;
 use App\Models\Client;
@@ -493,6 +493,14 @@ class PurchaseOrderController extends BaseController
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
+        if (Ninja::isHosted()  && $user->account->emailQuotaExceeded()) {
+            return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
+        }
+
+        if ($user->hasExactPermission('disable_emails') && (stripos($action, 'email') !== false)) {
+            return response(['message' => ctrans('texts.disable_emails_error')], 400);
+        }
+
         $purchase_orders = PurchaseOrder::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if ($purchase_orders->count() == 0) {
@@ -515,15 +523,38 @@ class PurchaseOrderController extends BaseController
         }
 
         if ($action == 'bulk_print' && $user->can('view', $purchase_orders->first())) {
-            $paths = $purchase_orders->map(function ($purchase_order) {
-                return (new CreateRawPdf($purchase_order->invitations->first()))->handle();
-            });
 
-            $merge = (new PdfMerge($paths->toArray()))->run();
+            $start = microtime(true);
 
-            return response()->streamDownload(function () use ($merge) {
-                echo($merge);
-            }, 'print.pdf', ['Content-Type' => 'application/pdf']);
+            $batch_id = (new \App\Jobs\Invoice\PrintEntityBatch(PurchaseOrder::class, $purchase_orders->pluck('id')->toArray(), $user->company()->db))->handle();
+            $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
+            $batch_key = $batch->name;
+
+            $finished = false;
+
+            do {
+                usleep(500000);
+                $batch = \Illuminate\Support\Facades\Bus::findBatch($batch_id);
+                $finished = $batch->finished();
+            } while (!$finished);
+
+            $paths = $purchase_orders->map(function ($purchase_order) use ($batch_key) {
+                return \Illuminate\Support\Facades\Cache::pull("{$batch_key}-{$purchase_order->id}");
+            })->filter(function ($value) {
+                return !is_null($value);
+            })->toArray();
+
+            $mergedPdf = (new PdfMerge($paths))->run();
+
+            return response()->streamDownload(function () use ($mergedPdf) {
+                echo $mergedPdf;
+            }, 'print.pdf', [
+                'Content-Type' => 'application/pdf',
+                'Cache-Control:' => 'no-cache',
+                'Server-Timing' => (string)(microtime(true) - $start)
+            ]);
+
+
         }
 
         if ($action == 'template' && $user->can('view', $purchase_orders->first())) {
@@ -670,17 +701,10 @@ class PurchaseOrderController extends BaseController
                 break;
 
             case 'email':
-                //check query parameter for email_type and set the template else use calculateTemplate
-                PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
-
-                if (! $bulk) {
-                    return response()->json(['message' => 'email sent'], 200);
-                }
-                break;
-
             case 'send_email':
                 //check query parameter for email_type and set the template else use calculateTemplate
-                PurchaseOrderEmail::dispatch($purchase_order, $purchase_order->company);
+
+                $purchase_order->service()->sendEmail();
 
                 if (! $bulk) {
                     return response()->json(['message' => 'email sent'], 200);

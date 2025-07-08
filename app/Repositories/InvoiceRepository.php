@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,15 +65,19 @@ class InvoiceRepository extends BaseRepository
      */
     public function delete($invoice): Invoice
     {
-        $invoice = $invoice->fresh();
 
-        if ($invoice->is_deleted) {
+        $invoice = \DB::transaction(function () use ($invoice) {
+            return \App\Models\Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
+        });
+
+        if (!$invoice || $invoice->is_deleted) {
             return $invoice;
         }
 
-        $invoice = $invoice->service()->markDeleted()->save();
+        $invoice->is_deleted = true;
+        $invoice->saveQuietly();
 
-        parent::delete($invoice);
+        $invoice = $invoice->service()->markDeleted()->save();
 
         return $invoice;
     }

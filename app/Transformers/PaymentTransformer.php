@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,9 +14,10 @@ namespace App\Transformers;
 
 use App\Models\Client;
 use App\Models\Credit;
-use App\Models\Document;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Activity;
+use App\Models\Document;
 use App\Models\Paymentable;
 use App\Models\PaymentType;
 use App\Utils\Traits\MakesHash;
@@ -36,6 +38,7 @@ class PaymentTransformer extends EntityTransformer
         'invoices',
         'type',
         'credits',
+        'activities',
     ];
 
     public function __construct($serializer = null)
@@ -43,6 +46,18 @@ class PaymentTransformer extends EntityTransformer
         parent::__construct();
 
         $this->serializer = $serializer;
+    }
+
+    /**
+     * @param Payment $payment
+     *
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    public function includeActivities(Payment $payment)
+    {
+        $transformer = new ActivityTransformer($this->serializer);
+
+        return $this->includeCollection($payment->activities, $transformer, Activity::class);
     }
 
     public function includeInvoices(Payment $payment)

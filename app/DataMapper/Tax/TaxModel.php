@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,7 +18,7 @@ class TaxModel
     public string $seller_subregion = 'CA';
 
     /** @var string $version */
-    public string $version = 'gamma';
+    public string $version = 'delta';
 
     /** @var object $regions */
     public object $regions;
@@ -49,7 +50,7 @@ class TaxModel
 
             foreach ($modelArray as $key => $value) {
 
-                if($key == 'seller_subregion' && $value == null) {
+                if ($key == 'seller_subregion' && $value == null) {
                     $value = '';
                 }
 
@@ -101,7 +102,7 @@ class TaxModel
         }
 
         //@pending Flutter AP upgrade - deploying this breaks the AP.
-        if($this->version == 'gamma') {
+        if ($this->version == 'gamma') {
 
             $this->regions->EU->subregions->IS = new \stdClass();
             $this->regions->EU->subregions->IS->tax_rate = 24;
@@ -131,6 +132,18 @@ class TaxModel
 
         }
 
+        if ($this->version == 'delta') {
+
+            $this->regions->EU->subregions->BG = new \stdClass();
+            $this->regions->EU->subregions->BG->tax_rate = 20;
+            $this->regions->EU->subregions->BG->tax_name = 'ДДС';
+            $this->regions->EU->subregions->BG->reduced_tax_rate = 5;
+            $this->regions->EU->subregions->BG->apply_tax = false;
+            $this->regions->EU->subregions->BG->vat_number = '';
+
+            $this->version = 'epsilon';
+        }
+
         return $this;
     }
 
@@ -147,7 +160,9 @@ class TaxModel
 
         $this->usRegion()
              ->euRegion()
-             ->auRegion();
+             ->auRegion()
+             ->ukRegion()
+             ->stubVatNumbersOnSubregions();
 
 
         return $this->regions;
@@ -193,7 +208,7 @@ class TaxModel
 
     public function stubVatNumbersOnSubregions(): self
     {
-                
+
         // US Subregions
         $this->regions->US->subregions->AL->vat_number = '';
         $this->regions->US->subregions->AK->vat_number = '';
@@ -591,7 +606,7 @@ class TaxModel
 
         $this->regions->EU->subregions->BG = new \stdClass();
         $this->regions->EU->subregions->BG->tax_rate = 20;
-        $this->regions->EU->subregions->BG->tax_name = 'НДС';
+        $this->regions->EU->subregions->BG->tax_name = 'ДДС';
         $this->regions->EU->subregions->BG->reduced_tax_rate = 9;
         $this->regions->EU->subregions->BG->apply_tax = false;
 

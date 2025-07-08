@@ -8,7 +8,7 @@
 
     html {
         width: 210mm;
-        height: 200mm;     
+        height: 200mm;
     }
 
     body {
@@ -20,16 +20,19 @@
         margin: 0;
     }
 
-    table tr td, table tr, th {
+    table tr td,
+    table tr,
+    th {
         font-size: $font_size !important;
     }
-    
+
     @page {
         margin: 0;
         size: $page_size $page_layout;
     }
 
     @media print {
+
         .header-wrapper,
         .body-wrapper {
             margin: $global_margin;
@@ -85,7 +88,8 @@
     .hero-section {
         margin-top: 5px;
         min-width: 100% !important;
-        background: url('$tech_hero_image'); /** If you want to replace the image, this is the place to do it. */
+        background: url('$tech_hero_image');
+        /** If you want to replace the image, this is the place to do it. */
         -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;
@@ -163,7 +167,7 @@
         margin-top: 3rem;
     }
 
-    [data-ref="table"] > thead > tr > th {
+    [data-ref="table"]>thead>tr>th {
         text-transform: uppercase;
         font-weight: normal;
         padding: 1rem;
@@ -172,20 +176,20 @@
         font-size: 1.1rem;
     }
 
-    [data-ref="table"] > thead > tr > th:last-child {
+    [data-ref="table"]>thead>tr>th:last-child {
         text-align: right;
     }
 
-    [data-ref="table"] > tbody > tr > td {
+    [data-ref="table"]>tbody>tr>td {
         border-bottom: 1px solid #e6e6e6;
         padding: 1rem;
     }
 
-    [data-ref="table"] > tbody > tr > td:first-child {
+    [data-ref="table"]>tbody>tr>td:first-child {
         color: var(--primary-color);
     }
 
-    [data-ref="table"]  > tbody > tr > td:last-child {
+    [data-ref="table"]>tbody>tr>td:last-child {
         text-align: right;
     }
 
@@ -207,7 +211,7 @@
         margin-right: .5rem;
     }
 
-    #table-totals .totals-table-right-side > * {
+    #table-totals .totals-table-right-side>* {
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
@@ -217,21 +221,17 @@
         padding: 7px;
     }
 
-    #table-totals > .totals-table-right-side > * > :nth-child(2) {
+    #table-totals>.totals-table-right-side>*> :nth-child(2) {
         text-align: right;
         padding: 7px;
     }
 
-    #table-totals
-    > *
-    [data-element='total-table-balance-due-label'],
-    #table-totals
-    > *
-    [data-element='total-table-balance-due'] {
+    #table-totals>* [data-element='total-table-balance-due-label'],
+    #table-totals>* [data-element='total-table-balance-due'] {
         font-weight: bold;
     }
 
-    #table-totals > * > :last-child {
+    #table-totals>*> :last-child {
         text-align: right;
         padding-right: 1rem;
     }
@@ -267,81 +267,31 @@
     .repeating-footer-space {
         height: 10px;
     }
+
     .repeating-header {
         position: fixed;
         top: 0;
     }
+
     .repeating-footer {
         position: fixed;
         bottom: 0;
     }
 
 
-    [data-ref='product_table-product.description-td']{
-        min-width: 100px !important;
+    [data-ref='product_table-product.description-td'],
+    [data-ref='task_table-task.description-td'] {
+        min-width: 150px !important;
         overflow-wrap: break-word;
     }
 
-    [data-ref='product_table-product.item-th']{
+    [data-ref='product_table-product.item-th'],
+    [data-ref='task_table-task.service-th'] {
         width: 10%;
     }
-
-    [data-ref='product_table-product.unit_cost-th']{
-        width: 13%;
-    }
-
-    [data-ref='product_table-product.quantity-th'],
-    [data-ref='product_table-product.product1-th'],
-    [data-ref='product_table-product.product2-th'],
-    [data-ref='product_table-product.product3-th'],
-    [data-ref='product_table-product.product4-th'] {
-        width: 8%;
-    }
-
-    [data-ref='product_table-product.tax1-th'] {
-        width: 6%;
-    }
-
-    [data-ref='product_table-product.line_total-th'],
-    [data-ref='product_table-product.line_total-td'] {
-        width: 13%;
-        text-align: right;
-    }
-
-    [data-ref='task_table-task.description-th'] {
-        overflow-wrap: break-word;
-        min-width: 100px !important;
-    }
-
-
-    [data-ref='task_table-task.hours-th'],
-    [data-ref='task_table-task.discount-th'],
-    [data-ref='task_table-task.cost-th'],
-    [data-ref='task_table-task.quantity-th'],
-    [data-ref='task_table-task.task1-th'],
-    [data-ref='task_table-task.task2-th'],
-    [data-ref='task_table-task.task3-th'],
-    [data-ref='task_table-task.task4-th'] {
-        width: 8%;
-    }
-
-    [data-ref='task_table-task.service-th']{
-        width: 10%;
-    }
-    
-    [data-ref='task_table-task.tax1-th'] {
-        width: 10%;
-    }
-
-    [data-ref='task_table-task.line_total-th'],
-    [data-ref='task_table-task.line_total-td'] {
-        width: 13%;
-        text-align: right !important;
-    }
-
 
     .stamp {
-      transform: rotate(12deg);
+        transform: rotate(12deg);
         color: #555;
         font-size: 3rem;
         font-weight: 700;
@@ -352,25 +302,25 @@
         border-radius: 1rem;
         font-family: 'Courier';
         mix-blend-mode: multiply;
-        z-index:200 !important;
-        position:  fixed;
+        z-index: 200 !important;
+        position: fixed;
         text-align: center;
     }
 
     .is-paid {
-        color:  #D23;
-        border: 1rem double  #D23;
+        color: #D23;
+        border: 1rem double #D23;
         transform: rotate(-5deg);
         font-size: 6rem;
         font-family: "Open sans", Helvetica, Arial, sans-serif;
         border-radius: 0;
         padding: 0.5rem;
         opacity: 0.2;
-        z-index:200 !important;
-        position:  fixed;
+        z-index: 200 !important;
+        position: fixed;
         display: $show_paid_stamp;
 
-    } 
+    }
 
     .project-header {
         font-size: 1.2em;
@@ -381,16 +331,14 @@
         margin-right: 0;
         font-weight: bold;
         color: #505050;
-    } 
-
-    .pqrcode {
-        
     }
 
-        #qr-bill{
-        width:100%;
+    .pqrcode {}
+
+    #qr-bill {
+        width: 100% !important;
     }
-    
+
     /** Useful snippets, uncomment to enable. **/
 
     /** Hide company logo **/
@@ -422,88 +370,88 @@
 </style>
 
 <table style="min-width: 100%">
-   <thead>
-      <tr>
-         <td>
-            <div class="repeating-header-space">&nbsp;</div>
-         </td>
-      </tr>
-   </thead>
-   <tbody>
-      <tr>
-         <td>
-            <div id="body">
-                <div class="header-wrapper">
-                    <div class="logo-and-partial-entity-info">
-                        <div class="company-logo-wrapper">
-                            <img class="company-logo" src="$company.logo" alt="$company.name logo">
+    <thead>
+        <tr>
+            <td>
+                <div class="repeating-header-space">&nbsp;</div>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div id="body">
+                    <div class="header-wrapper">
+                        <div class="logo-and-partial-entity-info">
+                            <div class="company-logo-wrapper">
+                                <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                            </div>
+                        </div>
+                        <div class="spacer"></div>
+                        <div class="top-right-side-section">
+                            <table style="white-space: nowrap;" cellspacing="10">
+                                <tr>
+                                    <td>$entity_number_label:</td>
+                                    <td class="header-invoice-number">$entity_number</td>
+                                </tr>
+                                <tr>
+                                    <td>$date_label </td>
+                                    <td>$date</td>
+                                </tr>
+                                <tr class="header-payment-due-label">
+                                    <td>$payment_due_label </td>
+                                    <td>$due_date</td>
+                                </tr>
+                                <tr>
+                                    <td class="header-amount-due-label">$amount_due_label</td>
+                                    <td class="header-amount-due-value">$balance_due</td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
-                    <div class="spacer"></div>
-                    <div class="top-right-side-section">
-                        <table style="white-space: nowrap;" cellspacing="10">
-                            <tr>
-                                <td>$entity_number_label:</td>
-                                <td class="header-invoice-number">$entity_number</td>
-                            </tr>
-                            <tr>
-                                <td>$date_label:</td>
-                                <td>$date</td>
-                            </tr>
-                            <tr class="header-payment-due-label">
-                                <td>$payment_due_label:</td>
-                                <td>$due_date</td>
-                            </tr>
-                            <tr>
-                                <td class="header-amount-due-label">$amount_due_label:</td>
-                                <td class="header-amount-due-value">$balance_due</td>
-                            </tr>
-                        </table>
-                    </div>
-               </div>
-               <div class="hero-section">
-                  <div class="hero-contact-section">
-                     <div class="client-details">
-                        <span class="client-details-to-label">$to_label:</span>
-                        <div id="client-details"></div>
-                        <div id="vendor-details"></div>
-                        <span class="shipping-to-label">$shipping_label:</span>
-                        <div id="shipping-details"></div>
-                     </div>
-                     <div class="company-details">
-                        <span class="client-details-to-label">$from_label:</span>
-                        <div class="company-details-wrapper">
-                           <div id="company-details"></div>
-                           <div id="company-address"></div>
+                    <div class="hero-section">
+                        <div class="hero-contact-section">
+                            <div class="client-details">
+                                <span class="client-details-to-label">$to_label:</span>
+                                <div id="client-details"></div>
+                                <div id="vendor-details"></div>
+                                <span class="shipping-to-label">$shipping_label:</span>
+                                <div id="shipping-details"></div>
+                            </div>
+                            <div class="company-details">
+                                <span class="client-details-to-label">$from_label:</span>
+                                <div class="company-details-wrapper">
+                                    <div id="company-details"></div>
+                                    <div id="company-address"></div>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                  </div>
-               </div>
-               <div class="body-wrapper">
-                  <table id="product-table" cellspacing="0" data-ref="table"></table>
-                  <table id="task-table" cellspacing="0" data-ref="table"></table>
-                  <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
-                  <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
-                  <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-                  <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
-                  <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-                    <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
-                    <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
-                  <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
-                  <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-                  <div id="table-totals" cellspacing="0">$status_logo</div>
-               </div>
-            </div>
-         </td>
-      </tr>
-   </tbody>
-   <tfoot>
-      <tr>
-         <td>
-            <div class="repeating-footer-space">&nbsp;</div>
-         </td>
-      </tr>
-   </tfoot>
+                    </div>
+                    <div class="body-wrapper">
+                        <table id="product-table" cellspacing="0" data-ref="table"></table>
+                        <table id="task-table" cellspacing="0" data-ref="table"></table>
+                        <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+                        <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                        <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+                        <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                        <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                        <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                        <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
+                        <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                        <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                        <div id="table-totals" cellspacing="0">$status_logo</div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <div class="repeating-footer-space">&nbsp;</div>
+            </td>
+        </tr>
+    </tfoot>
 </table>
 
 <div class="repeating-header" id="header"></div>
@@ -511,8 +459,6 @@
 $entity_images
 
 <div class="repeating-footerx" id="footer">
-   <p data-ref="total_table-footer">$entity_footer</p>
+    <p data-ref="total_table-footer">$entity_footer</p>
 
 </div>
-
-

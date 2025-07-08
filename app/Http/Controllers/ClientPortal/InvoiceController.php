@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -106,14 +107,18 @@ class InvoiceController extends Controller
                 break;
             }
 
-            usleep(200000);
+            usleep(300000);
 
         }
 
         $invitation = false;
 
+        if(!isset($data['entity_type'])){
+            nlog(array_merge(["showBlob"], $data));
+        }
+
         match($data['entity_type'] ?? 'invoice') {
-            'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']),
+            'invoice' => $invitation = InvoiceInvitation::withTrashed()->find($data['invitation_id']), //@todo - sometimes this is false!!
             'quote' => $invitation = QuoteInvitation::withTrashed()->find($data['invitation_id']),
             'credit' => $invitation = CreditInvitation::withTrashed()->find($data['invitation_id']),
             'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->find($data['invitation_id']),

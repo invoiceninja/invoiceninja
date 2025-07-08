@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,6 +59,11 @@ class VendorExpenseNotify implements ShouldQueue
 
     private function notify(VendorContact $contact)
     {
+
+        \Illuminate\Support\Facades\App::forgetInstance('translator');
+        $t = app('translator');
+        $t->replace(\App\Utils\Ninja::transformTranslations($this->expense->company->settings));
+        \Illuminate\Support\Facades\App::setLocale($this->expense->vendor->locale());
 
         $mo = new EmailObject();
         $mo->contact = $contact;

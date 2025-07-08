@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,11 +41,41 @@ class MarkPaid extends AbstractService
         }
 
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice = $this->invoice->service()->markSent()->save();
+            // $this->invoice = $this->invoice->service()->markSent()->save();
+
+            /*Set status*/
+            $this->invoice->status_id = Invoice::STATUS_SENT;
+            $this->invoice->balance = $this->invoice->amount;
+
+            /*Update ledger*/
+            $this->invoice
+                ->ledger()
+                ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
+
+            $this->invoice->client->service()->updateBalance($this->invoice->amount);
+            /* Perform additional actions on invoice */
+            $this->invoice
+                ->service()
+                ->applyNumber()
+                ->setDueDate()
+                ->setReminder()
+                ->save();
+
+            $this->invoice->markInvitationsSent();
+
+            event(new \App\Events\Invoice\InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
         }
 
-        \DB::connection(config('database.default'))->transaction(function () {
+        $already_paid = false;
+
+        \DB::connection(config('database.default'))->transaction(function () use (&$already_paid) {
             $this->invoice = Invoice::withTrashed()->where('id', $this->invoice->id)->lockForUpdate()->first();
+
+            if ($this->invoice->status_id == Invoice::STATUS_PAID) {
+                $already_paid = true;
+                return;
+            }
 
             if ($this->invoice) {
                 $this->payable_balance = $this->invoice->balance;
@@ -56,9 +87,14 @@ class MarkPaid extends AbstractService
                     ->updateBalance($this->payable_balance * -1)
                     ->updatePaidToDate($this->payable_balance)
                     ->setStatus(Invoice::STATUS_PAID)
+                    ->unlockDocuments()
                     ->save();
             }
         }, 1);
+
+        if ($already_paid) {
+            return $this->invoice;
+        }
 
         /* Create Payment */
         $payment = PaymentFactory::create($this->invoice->company_id, $this->invoice->user_id);

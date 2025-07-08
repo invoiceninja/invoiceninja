@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -18,9 +18,9 @@ class ReferralEarning
     public string $version = 'alpha';
 
     public string $referral_start_date = ''; // The date this referral was registered.
-    
+
     public string $qualifies_after = ''; // The date the payout qualifies after (5 months / 1 year)
-     
+
     public string $period_ending = ''; // The Date this set relates to. ie 2024-07-31 = July 2024
 
     public string $account_key = '';

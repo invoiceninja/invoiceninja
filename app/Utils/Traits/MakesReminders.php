@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -59,11 +60,11 @@ trait MakesReminders
                 return Carbon::parse($partial_or_due_date)
                             ->addDays((int)$num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() === 
+                            ->toDateString() ===
                                 ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
-                                
+
             case 'after_quote_date':
-            
+
                 return Carbon::parse($this->date)
                             ->addDays((int)$num_days_reminder)
                             ->startOfDay()
@@ -77,7 +78,7 @@ trait MakesReminders
                             ->startOfDay()
                             ->toDateString() ===
                                 ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
-            
+
             case 'before_valid_until_date':
 
                 return Carbon::parse($this->due_date)
@@ -85,7 +86,7 @@ trait MakesReminders
                             ->startOfDay()
                             ->toDateString() ===
                                 ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
-            
+
             default:
                 return null;
         }

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,6 +53,8 @@ class YodleeController extends BaseController
 
         $redirect_url = isset($request->getTokenContent()['is_react']) && $request->getTokenContent()['is_react'] ? config('ninja.react_url') : config('ninja.app_url');
 
+        $provider_id = isset($request->getTokenContent()['provider_id']) ? $request->getTokenContent()['provider_id'] : false;
+
         $data = [
             'access_token' => $yodlee->getAccessToken(),
             'fasttrack_url' => $yodlee->getFastTrackUrl(),
@@ -61,6 +64,7 @@ class YodleeController extends BaseController
             'account' => $company->account,
             'completed' => $request->has('window_closed') ? true : false,
             'redirect_url' => $redirect_url,
+            'provider_id' => $provider_id,
         ];
 
         return view('bank.yodlee.auth', $data);
@@ -83,7 +87,7 @@ class YodleeController extends BaseController
                 $bank_integration->bank_account_name = $account['account_name'];
                 $bank_integration->bank_account_status = $account['account_status'];
                 $bank_integration->bank_account_number = $account['account_number'];
-                $bank_integration->provider_id = $account['provider_id'];
+                $bank_integration->provider_id = $account['provider_account_id'] ?? $account['provider_id'];
                 $bank_integration->provider_name = $account['provider_name'];
                 $bank_integration->nickname = $account['nickname'];
                 $bank_integration->balance = $account['current_balance'];

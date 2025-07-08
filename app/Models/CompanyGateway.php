@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -156,7 +157,7 @@ class CompanyGateway extends BaseModel
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
         'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTCPay
-        '91be24c7b792230bced33e930ac61676' => 325,
+        '91be24c7b792230bced33e930ac61676' => 325, //Rotessa
         'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
         'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
     ];
@@ -202,7 +203,7 @@ class CompanyGateway extends BaseModel
     }
 
     /* This is the public entry point into the payment superclass */
-    public function driver(Client $client = null)
+    public function driver(?Client $client = null)
     {
         // $class = static::driver_class();
         $class = self::driver_class();

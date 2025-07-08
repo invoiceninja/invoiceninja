@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,7 +32,19 @@ class RecurringInvoiceTransformer extends EntityTransformer
     protected array $availableIncludes = [
         'activities',
         'client',
+        'location',
     ];
+
+    public function includeLocation(RecurringInvoice $invoice)
+    {
+        $transformer = new LocationTransformer($this->serializer);
+
+        if (!$invoice->location) {
+            return null;
+        }
+
+        return $this->includeItem($invoice->location, $transformer, \App\Models\Location::class);
+    }
 
     public function includeHistory(RecurringInvoice $invoice)
     {
@@ -133,6 +146,8 @@ class RecurringInvoiceTransformer extends EntityTransformer
             'due_date_days' => (string) $invoice->due_date_days ?: '',
             'paid_to_date' => (float) $invoice->paid_to_date,
             'subscription_id' => (string) $this->encodePrimaryKey($invoice->subscription_id),
+            'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
+            'location_id' => $this->encodePrimaryKey($invoice->location_id),
         ];
 
         if (request()->has('show_dates') && request()->query('show_dates') == 'true') {

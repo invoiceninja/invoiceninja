@@ -38,7 +38,7 @@ class VendorTransformer extends BaseTransformer
             ];
 
         $vendor = [
-            'number' => data_get($data, 'Id.value'),
+            'number' => data_get($data, 'Id'),
             'name' => data_get($data, 'DisplayName'),
             'address1' => data_get($data, 'BillAddr.Line1'),
             'address2' => data_get($data, 'BillAddr.Line2'),
@@ -48,7 +48,7 @@ class VendorTransformer extends BaseTransformer
             'country_id' => $this->resolveCountry(data_get($data, 'BillAddr.CountryCode', data_get($data, 'BillAddr.Country', ''))),
             'website' => data_get($data, 'WebAddr.URI'),
             'vat_number' => data_get($data, 'TaxIdentifier'),
-            'currency_id' => $this->resolveCurrency(data_get($data, 'CurrencyRef.value', '')),
+            'currency_id' => $this->resolveCurrency(data_get($data, 'CurrencyRef', '')),
         ];
 
 

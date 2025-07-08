@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,18 +41,20 @@ class ContactLoginController extends Controller
     private function resolveCompany($request, $company_key)
     {
 
-        if($company_key && MultiDB::findAndSetDbByCompanyKey($company_key))
+        if ($company_key && MultiDB::findAndSetDbByCompanyKey($company_key)) {
             return Company::where('company_key', $company_key)->first();
+        }
 
         $domain_name = $request->getHost();
 
         if (strpos($domain_name, config('ninja.app_domain')) !== false) {
             $subdomain = explode('.', $domain_name)[0];
-            
+
             $query = ['subdomain' => $subdomain];
-            
-            if($company = MultiDB::findAndSetDbByDomain($query))
+
+            if ($company = MultiDB::findAndSetDbByDomain($query)) {
                 return $company;
+            }
         }
 
         $query = [
@@ -63,8 +66,9 @@ class ContactLoginController extends Controller
             return $company;
         }
 
-        if(Ninja::isSelfHost())
+        if (Ninja::isSelfHost()) {
             return Company::first();
+        }
 
         return false;
     }
@@ -74,7 +78,7 @@ class ContactLoginController extends Controller
         $company = false;
         $account = false;
         $intended = $request->query('intended') ?: false;
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -86,8 +90,7 @@ class ContactLoginController extends Controller
 
         if ($company) {
             $account = $company->account;
-        }
-        else {
+        } else {
             abort(404, "We could not find this site, if you think this is an error, please contact the administrator.");
         }
 
@@ -182,6 +185,7 @@ class ContactLoginController extends Controller
     {
         Auth::guard('contact')->logout();
         request()->session()->invalidate();
+        request()->session()->regenerate(true);
         request()->session()->regenerateToken();
 
         return redirect('/client/login');

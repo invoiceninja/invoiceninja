@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -12,7 +13,7 @@
 namespace App\Models;
 
 use App\Utils\Number;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Facades\App;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -99,7 +100,7 @@ class Expense extends BaseModel
     use SoftDeletes;
     use Filterable;
     use Searchable;
-    
+
     protected $fillable = [
         'client_id',
         'assigned_user_id',
@@ -168,11 +169,11 @@ class Expense extends BaseModel
     public function toSearchableArray()
     {
         $locale = $this->company->locale();
-        
+
         App::setLocale($locale);
 
         return [
-            'id' => $this->id,
+            'id' => $this->company->db.":".$this->id,
             'name' => ctrans('texts.expense') . " " . ($this->number ?? '') . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
@@ -189,9 +190,10 @@ class Expense extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->hashed_id;
+        return $this->company->db.":".$this->id;
     }
-    
+
+
     public function getEntityType()
     {
         return self::class;
@@ -302,5 +304,71 @@ class Expense extends BaseModel
 
         return $tax_rate;
 
+    }
+
+    public function getNetAmount()
+    {
+
+        $precision = $this->currency->precision ?? 2;
+
+        if ($this->calculate_tax_by_amount) {
+
+            $total_tax_amount = round($this->tax_amount1 + $this->tax_amount2 + $this->tax_amount3, $precision);
+
+            if ($this->uses_inclusive_taxes) {
+                return round($this->amount, $precision) - $total_tax_amount;
+            } else {
+                return round($this->amount, $precision);
+            }
+
+        } else {
+
+            if ($this->uses_inclusive_taxes) {
+                $total_tax_amount = ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
+                return round(($this->amount - round($total_tax_amount, $precision)), $precision);
+            } else {
+                $total_tax_amount = ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
+                return round(($this->amount + round($total_tax_amount, $precision)), $precision);
+            }
+        }
+
+    }
+
+    /**
+     * getTaxAmount
+     *
+     * @return float
+     */
+    public function getTaxAmount(): float
+    {
+
+        $precision = $this->currency->precision ?? 2;
+
+        if ($this->calculate_tax_by_amount) {
+
+            return round($this->tax_amount1 + $this->tax_amount2 + $this->tax_amount3, $precision);
+
+
+        } else {
+
+            if ($this->uses_inclusive_taxes) {
+                return ($this->calcInclusiveLineTax($this->tax_rate1 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate2 ?? 0, $this->amount, $precision)) + ($this->calcInclusiveLineTax($this->tax_rate3 ?? 0, $this->amount, $precision));
+            } else {
+                return ($this->amount * (($this->tax_rate1 ?? 0) / 100)) + ($this->amount * (($this->tax_rate2 ?? 0) / 100)) + ($this->amount * (($this->tax_rate3 ?? 0) / 100));
+            }
+        }
+    }
+
+    /**
+     * calcInclusiveLineTax
+     *
+     * @param  mixed $tax_rate
+     * @param  mixed $amount
+     * @param  mixed $precision
+     * @return float
+     */
+    private function calcInclusiveLineTax($tax_rate, $amount, $precision): float
+    {
+        return round($amount - ($amount / (1 + ($tax_rate / 100))), $precision);
     }
 }

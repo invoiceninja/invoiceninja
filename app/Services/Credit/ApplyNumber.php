@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -40,8 +41,19 @@ class ApplyNumber extends AbstractService
             return $this->credit;
         }
 
-        $this->trySaving();
-        // $this->credit->number = $this->getNextCreditNumber($this->client, $this->credit);
+        switch ($this->client->getSetting('counter_number_applied')) {
+            case 'when_saved':
+                $this->trySaving();
+                break;
+            case 'when_sent':
+                if ($this->credit->status_id >= Credit::STATUS_SENT) {
+                    $this->trySaving();
+                }
+                break;
+
+            default:
+                break;
+        }
 
         return $this->credit;
     }

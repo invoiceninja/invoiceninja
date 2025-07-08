@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -39,6 +40,8 @@ use Illuminate\Support\Facades\Cache;
 class BaseTransformer
 {
     protected $company;
+
+    public array $error_array = [];
 
     public function __construct($company)
     {
@@ -242,6 +245,18 @@ class BaseTransformer
             }
         }
 
+        $is_free_hosted_client = $this->company->account->isFreeHostedClient();
+        $hosted_client_count = $this->company->account->hosted_client_count;
+
+        if ($is_free_hosted_client && ($this->company->clients()->count() > $hosted_client_count)) {
+            $this->error_array['invoice'][] = [
+                'invoice' => '',
+                'error' => "Error, you are attempting to import more clients than your plan allows ({$hosted_client_count})",
+            ];
+
+            throw new \App\Import\ImportException("Error, you are attempting to import more clients than your plan allows ({$hosted_client_count})");
+        }
+
         $client_repository = app()->make(ClientRepository::class);
         $client_repository->import_mode = true;
 
@@ -380,6 +395,7 @@ class BaseTransformer
 
         // Convert to float and apply negative sign if necessary
         $result = (float) $amount;
+
         return $isNegative ? -$result : $result;
 
 

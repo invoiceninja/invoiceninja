@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -646,8 +647,19 @@ class ExpenseController extends BaseController
     {
         $user = auth()->user();
 
-        foreach ($request->file("documents") as $file) {
-            ImportEDocument::dispatch($file->get(), $file->getClientOriginalName(), $file->getMimeType(), $user->company());
+        //Handle single - or - array of uploaded files
+        $files = $request->file('documents') instanceof \Illuminate\Http\UploadedFile ? [$request->file('documents')] : (array) $request->file('documents');
+
+        foreach ($files as $file) {
+            $extension = $file->getClientOriginalExtension();
+
+            $parsed_filename = sprintf(
+                '%s.%s',
+                \Illuminate\Support\Str::random(32),
+                preg_replace('/[^a-zA-Z0-9]/', '', $extension) // Sanitize extension
+            );
+
+            ImportEDocument::dispatch($file->get(), $parsed_filename, $file->getMimeType(), $user->company());
         }
 
         return response()->json(['message' => 'Processing....'], 200);

@@ -32,6 +32,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\PaymentMeans;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
+use App\Services\EDocument\Standards\Validation\Peppol\InvoiceLevel;
 use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 use InvoiceNinja\EInvoice\Models\Peppol\BranchType\FinancialInstitutionBranch;
 use InvoiceNinja\EInvoice\Models\Peppol\FinancialAccountType\PayeeFinancialAccount;
@@ -160,6 +161,51 @@ class PeppolTest extends TestCase
         $invoice = $invoice->calc()->getInvoice();
 
         return compact('company', 'client', 'invoice');
+    }
+
+    public function testInvoicePeriodValidation()
+    {
+                
+        $scenario = [
+            'company_vat' => 'DE923356489',
+            'company_country' => 'DE',
+            'client_country' => 'DE',
+            'client_vat' => 'DE923256489',
+            'client_id_number' => '123456789',
+            'classification' => 'business',
+            'has_valid_vat' => true,
+            'over_threshold' => true,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+
+        $entity_data = $this->setupTestData($scenario);
+
+        $invoice = $entity_data['invoice'];
+
+        $data = $invoice->toArray();
+
+        $data['e_invoice'] = [
+            'Invoice' => [
+             'InvoicePeriod' => [
+                [
+                    'StartDate' => '-01',
+                    'EndDate' => 'boop',
+                    'Description' => 'Mustafa',
+                    'HelterSkelter' => 'sif'
+                ]    
+             ]
+            ]
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/invoices/'.$invoice->hashed_id, $data);
+        
+        $response->assertStatus(422);
+
     }
 
     public function testInvoiceValidationWithSmallDiscount()    
@@ -452,6 +498,19 @@ class PeppolTest extends TestCase
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
+
+        $invoice->e_invoice = [
+            'Invoice' => [
+                'InvoicePeriod' => [
+                    [
+                    'cbc:StartDate' => $invoice->date,
+                    'cbc:EndDate' => $invoice->due_date ?? $invoice->date,
+                    ]
+                ]
+            ]
+        ];
+        $invoice->save();
+
         $company = $entity_data['company'];
         $settings = $company->settings;
 
@@ -569,6 +628,19 @@ class PeppolTest extends TestCase
             $invoice = $data['invoice'];
             $invoice = $invoice->calc()->getInvoice();
 
+            $invoice->e_invoice = [
+                'Invoice' => [
+                    'InvoicePeriod' => [
+                        [
+                            'cbc:StartDate' => $invoice->date,
+                            'cbc:EndDate' => $invoice->due_date ?? $invoice->date,
+                        ]
+                    ]
+                ]
+            ];
+
+            $invoice->save();
+
             $storecove = new Storecove();
             $p = new Peppol($invoice);
             $p->run();
@@ -598,6 +670,19 @@ class PeppolTest extends TestCase
 
             $invoice = $data['invoice'];
             $invoice = $invoice->calc()->getInvoice();
+
+            $invoice->e_invoice = [
+                'Invoice' => [
+                    'InvoicePeriod' => [
+                        [
+                            'cbc:StartDate' => $invoice->date,
+                            'cbc:EndDate' => $invoice->due_date ?? $invoice->date,
+                        ]
+                    ]
+                ]
+            ];
+
+            $invoice->save();
 
             $storecove = new Storecove();
             $p = new Peppol($invoice);
@@ -830,10 +915,18 @@ class PeppolTest extends TestCase
         $stub = new \stdClass();
         $stub->Invoice = $einvoice;
 
+        $tax_data = new TaxModel();
+        $tax_data->regions->EU->has_sales_above_threshold = true;
+        $tax_data->regions->EU->tax_all_subregions = true;
+        $tax_data->seller_subregion = 'DE';
+
         $company = Company::factory()->create([
             'account_id' => $this->account->id,
             'settings' => $settings,
             'e_invoice' => $stub,
+            'calculate_taxes' => true,
+            'tax_data' => $tax_data,
+            'legal_entity_id' => 290868,
         ]);
 
         $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
@@ -844,7 +937,8 @@ class PeppolTest extends TestCase
 
         $client_settings = ClientSettings::defaults();
         $client_settings->currency_id = '3';
-
+        $client_settings->enable_e_invoice = true;
+        
         $client = Client::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
@@ -857,6 +951,7 @@ class PeppolTest extends TestCase
             'country_id' => 276,
             'routing_id' => 'ABC1234',
             'settings' => $client_settings,
+            'is_tax_exempt' => false,
         ]);
 
 
@@ -869,6 +964,7 @@ class PeppolTest extends TestCase
         $item->is_amount_discount = false;
         $item->tax_rate1 = 19;
         $item->tax_name1 = 'mwst';
+        $item->tax_id = '1';
 
         $invoice = Invoice::factory()->create([
             'company_id' => $company->id,
@@ -880,18 +976,22 @@ class PeppolTest extends TestCase
             'tax_rate1' => 0,
             'tax_name1' => '',
             'tax_rate2' => 0,
-            'tax_rate3' => 0,
             'tax_name2' => '',
+            'tax_rate3' => 0,
             'tax_name3' => '',
             'line_items' => [$item],
             'number' => 'DE-'.rand(1000, 100000),
             'date' => now()->format('Y-m-d'),
             'is_amount_discount' => false,
+            'custom_surcharge1' => 10,
         ]);
 
-        $invoice->custom_surcharge1 = 10;
         $invoice = $invoice->calc()->getInvoice();
+        
         $invoice->service()->markSent()->save();
+
+
+        nlog($invoice->toArray());
 
         $this->assertEquals(130.90, $invoice->amount);
 

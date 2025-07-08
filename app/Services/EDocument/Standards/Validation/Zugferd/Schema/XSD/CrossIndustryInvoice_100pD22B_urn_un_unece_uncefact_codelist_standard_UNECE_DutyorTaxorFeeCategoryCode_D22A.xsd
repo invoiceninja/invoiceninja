@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm65305="urn:un:unece:uncefact:codelist:standard:UNECE:DutyorTaxorFeeCategoryCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:DutyorTaxorFeeCategoryCode:D22A"
+    elementFormDefault="qualified"
+    version="3.7">
+  <xsd:simpleType name="DutyorTaxorFeeCategoryCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="A"/>
+      <xsd:enumeration value="AA"/>
+      <xsd:enumeration value="AB"/>
+      <xsd:enumeration value="AC"/>
+      <xsd:enumeration value="AD"/>
+      <xsd:enumeration value="AE"/>
+      <xsd:enumeration value="B"/>
+      <xsd:enumeration value="C"/>
+      <xsd:enumeration value="D"/>
+      <xsd:enumeration value="E"/>
+      <xsd:enumeration value="F"/>
+      <xsd:enumeration value="G"/>
+      <xsd:enumeration value="H"/>
+      <xsd:enumeration value="I"/>
+      <xsd:enumeration value="J"/>
+      <xsd:enumeration value="K"/>
+      <xsd:enumeration value="L"/>
+      <xsd:enumeration value="M"/>
+      <xsd:enumeration value="N"/>
+      <xsd:enumeration value="O"/>
+      <xsd:enumeration value="S"/>
+      <xsd:enumeration value="Z"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

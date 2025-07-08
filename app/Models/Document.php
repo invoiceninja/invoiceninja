@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -205,7 +206,7 @@ class Document extends BaseModel
 
     public function getFile()
     {
-        return Storage::get($this->url);
+        return Storage::disk($this->disk)->get($this->url);
     }
 
     public function translate_entity()
@@ -247,12 +248,14 @@ class Document extends BaseModel
         }
 
         try {
-            $file = base64_encode($image);
+            // $file = base64_encode($image);
+            $file = $image;
 
             $img = new \Imagick(); //@phpstan-ignore-line
             $img->readImageBlob($file);
             $img->setImageCompression(true); //@phpstan-ignore-line
             $img->setImageCompressionQuality(40);
+            $img->stripImage();
 
             return $img->getImageBlob();
 
@@ -263,6 +266,7 @@ class Document extends BaseModel
         }
 
     }
+
 
     /**
      * Returns boolean based on checks for image.

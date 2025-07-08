@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -55,7 +56,7 @@ class EmailReport
     public function run()
     {
 
-        $start_end_dates = $this->calculateStartAndEndDates($this->scheduler->parameters);
+        $start_end_dates = $this->calculateStartAndEndDates($this->scheduler->parameters, $this->scheduler->company);
         $data = $this->scheduler->parameters;
 
         $data['start_date'] = $start_end_dates[0];

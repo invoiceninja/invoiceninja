@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,7 +36,9 @@ class VerifyUserObject
         /* Set customized translations _NOW_ */
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->user->confirmation_code = $this->createDbHash($this->company->db);
+        //@phpstan-ignore-next-line
+        $this->user->confirmation_code = $this->createDbHash($this->user->companies()->first()->db);
+        // $this->user->confirmation_code = $this->createDbHash($this->company->db);
         $this->user->save();
 
         $react_redirect = '';

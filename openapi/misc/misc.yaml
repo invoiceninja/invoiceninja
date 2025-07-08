@@ -37,6 +37,12 @@ tags:
       - Keep contact information up to date
       - Set appropriate client-specific currency and tax settings
 
+  - name: locations
+    x-displayName: Locations
+    description: |
+      The Locations API provides endpoints for managing location records within your company. A location represents a physical 
+      address where you provide services or products to a client OR vendor.
+
   - name: products
     x-displayName: Products
     description: |
@@ -127,6 +133,7 @@ tags:
 
 externalDocs:
   description: "Client Libraries"
+  url: 'https://invoiceninja.github.io'
   x-libraries:
     - name: PHP SDK
       description: Official PHP client library
@@ -139,3 +146,4 @@ externalDocs:
 
 security:
   - ApiKeyAuth: []
+    

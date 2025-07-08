@@ -1,42 +1,45 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Console;
 
+use App\Utils\Ninja;
+use App\Models\Account;
+use App\Jobs\Ninja\QueueSize;
+use App\Jobs\Util\DiskCleanup;
+use App\Jobs\Util\ReminderJob;
 use App\Jobs\Cron\AutoBillCron;
+use App\Jobs\Util\VersionCheck;
+use App\Jobs\Ninja\TaskScheduler;
+use App\Jobs\Util\SchedulerCheck;
+use App\Jobs\Ninja\CheckACHStatus;
+use App\Jobs\Cron\SubscriptionCron;
+use App\Jobs\Ninja\MailWebhookSync;
+use App\Jobs\Util\QuoteReminderJob;
+use App\Jobs\Ninja\AdjustEmailQuota;
+use App\Jobs\Ninja\CompanySizeCheck;
+use App\Jobs\Ninja\SystemMaintenance;
+use App\Jobs\Quote\QuoteCheckExpired;
+use App\Jobs\Util\UpdateExchangeRates;
+use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
-use App\Jobs\Cron\SubscriptionCron;
 use App\Jobs\EDocument\EInvoicePullDocs;
-use App\Jobs\Invoice\InvoiceCheckLateWebhook;
-use App\Jobs\Ninja\AdjustEmailQuota;
-use App\Jobs\Ninja\BankTransactionSync;
-use App\Jobs\Ninja\CheckACHStatus;
-use App\Jobs\Ninja\CompanySizeCheck;
-use App\Jobs\Ninja\QueueSize;
-use App\Jobs\Ninja\SystemMaintenance;
-use App\Jobs\Ninja\TaskScheduler;
-use App\Jobs\Quote\QuoteCheckExpired;
-use App\Jobs\Subscription\CleanStaleInvoiceOrder;
-use App\Jobs\Util\DiskCleanup;
-use App\Jobs\Util\QuoteReminderJob;
-use App\Jobs\Util\ReminderJob;
-use App\Jobs\Util\SchedulerCheck;
-use App\Jobs\Util\UpdateExchangeRates;
-use App\Jobs\Util\VersionCheck;
-use App\Models\Account;
-use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
-use App\Utils\Ninja;
 use Illuminate\Console\Scheduling\Schedule;
+use App\Jobs\Invoice\InvoiceCheckLateWebhook;
+use App\Jobs\Subscription\CleanStaleInvoiceOrder;
+use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\CreateElasticIndex;
 
 class Kernel extends ConsoleKernel
 {
@@ -50,6 +53,9 @@ class Kernel extends ConsoleKernel
     {
         /* Check for the latest version of Invoice Ninja */
         $schedule->job(new VersionCheck())->daily();
+
+        /* Clear the batch job failed table daily */
+        $schedule->command('queue:prune-batches')->daily()->name('queue-prune-batched')->onOneServer();
 
         /* Returns the number of jobs in the queue */
         $schedule->job(new QueueSize())->everyFiveMinutes()->withoutOverlapping()->name('queue-size-job')->onOneServer();
@@ -121,9 +127,13 @@ class Kernel extends ConsoleKernel
             /* Checks ACH verification status and updates state to authorize when verified */
             $schedule->job(new CheckACHStatus())->everySixHours()->withoutOverlapping()->name('ach-status-job')->onOneServer();
 
+            $schedule->job(new MailWebhookSync())->everyFourHours(rand(20, 45))->withoutOverlapping()->name('mail-webhook-sync-job')->onOneServer();
+
             $schedule->command('ninja:check-data --database=db-ninja-01')->dailyAt('02:10')->withoutOverlapping()->name('check-data-db-1-job')->onOneServer();
 
             $schedule->command('ninja:check-data --database=db-ninja-02')->dailyAt('02:20')->withoutOverlapping()->name('check-data-db-2-job')->onOneServer();
+
+            $schedule->command('ninja:check-data --database=db-ninja-03')->dailyAt('02:30')->withoutOverlapping()->name('check-data-db-2-job')->onOneServer();
 
             $schedule->command('ninja:s3-cleanup')->dailyAt('23:15')->withoutOverlapping()->name('s3-cleanup-job')->onOneServer();
         }
@@ -146,4 +156,5 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
 }

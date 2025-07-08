@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -84,11 +85,15 @@ class BankTransformer extends BaseTransformer
             return 'DEBIT';
         }
 
+        if (array_key_exists('transaction.base_type', $transaction) && in_array(strtolower($transaction['transaction.base_type']), ['income', 'credit'])) {
+            return 'CREDIT';
+        }
+
         if (array_key_exists('transaction.category_id', $transaction)) {
             return 'DEBIT';
         }
 
-        if (array_key_exists('transaction.category_type', $transaction) && $transaction['transaction.category_type'] == 'Income') {
+        if (array_key_exists('transaction.category_type', $transaction) && in_array(strtolower($transaction['transaction.category_type']), ['income', 'credit'])) {
             return 'CREDIT';
         }
 

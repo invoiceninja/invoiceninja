@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -288,7 +289,7 @@ class Email implements ShouldQueue
 
             $this->incrementEmailCounter();
 
-            LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject))
+            LightLogs::create(new EmailSuccess($this->company->company_key, $this->mailable->subject, $this->mailable->viewData['text_body'] ?? ''))
                 ->send();
 
         } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
@@ -299,6 +300,23 @@ class Email implements ShouldQueue
                 $settings->email_sending_method = 'default';
                 $this->company->settings = $settings;
                 $this->company->save();
+            }
+
+            if (stripos($e->getMessage(), 'code 406') !== false) {
+
+                $address_object = reset($this->email_object->to);
+
+                $email = $address_object->address ?? '';
+
+                $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
+
+                $this->fail();
+                $this->logMailError($message, $this->company->clients()->first());
+                $this->cleanUpMailers();
+
+                $this->entityEmailFailed($message);
+
+                return;
             }
 
             $this->fail();
@@ -328,7 +346,18 @@ class Email implements ShouldQueue
                 $message = null;
             }
 
-        } catch (\Exception | \RuntimeException $e) {
+        } catch(\ErrorException $e){ //@todo - remove after symfony/mailer is updated with bug fix
+
+            $message = "Attachment size is too large.";
+            $this->fail();
+            $this->logMailError($message, $this->company->clients()->first());
+            $this->cleanUpMailers();
+
+            $this->entityEmailFailed($message);
+
+            return;
+        } 
+        catch (\Exception | \RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -353,23 +382,6 @@ class Email implements ShouldQueue
 
             }
 
-            if (stripos($e->getMessage(), 'code 406') !== false) {
-
-                $address_object = reset($this->email_object->to);
-
-                $email = $address_object->address ?? '';
-
-                $message = "Recipient {$email} has been suppressed and cannot receive emails from you.";
-
-                $this->fail();
-                $this->logMailError($message, $this->company->clients()->first());
-                $this->cleanUpMailers();
-
-                $this->entityEmailFailed($message);
-
-                return;
-            }
-
             /**
              * Post mark buries the proper message in a guzzle response
              * this merges a text string with a json object
@@ -377,8 +389,19 @@ class Email implements ShouldQueue
              */
             if ($e instanceof PostmarkException) { //postmark specific failure
 
+                // Try to decode the JSON response if present
+                try {
+                    $response = json_decode($e->getMessage(), true);
+                    if (is_array($response) && isset($response['Message'])) {
+                        $message = $response['Message'];
+                    }
+                } catch (\Exception $jsonError) {
+                    // If JSON decode fails, use the original message
+                    $message = "Unknown issue sending via Postmark, please try again later.";
+                }
+
                 $this->fail();
-                $this->entityEmailFailed($e->getMessage());
+                $this->entityEmailFailed($message);
                 $this->cleanUpMailers();
 
                 return;
@@ -603,14 +626,14 @@ class Email implements ShouldQueue
                 $this->mailer = 'smtp';
                 $this->configureSmtpMailer();
                 return $this;
-            default:                
+            default:
                 $this->mailer = config('mail.default');
                 break;
 
         }
-        
+
         $this->mailer = config('mail.default');
-        
+
         return $this;
 
     }
@@ -621,7 +644,7 @@ class Email implements ShouldQueue
         $company = $this->company;
 
         $smtp_host = $company->smtp_host ?? '';
-        $smtp_port = $company->smtp_port ?? 0;
+        $smtp_port = (int)$company->smtp_port ?? 0; //@phpstan-ignore-line
         $smtp_username = $company->smtp_username ?? '';
         $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
@@ -691,7 +714,7 @@ class Email implements ShouldQueue
     private function checkValidSendingUser($user)
     {
         /* Always ensure the user is set on the correct account */
-        if ($user->account_id != $this->company->account_id) {
+        if (!$user || ($user->account_id != $this->company->account_id)) {
             $this->email_object->settings->email_sending_method = 'default';
 
             return $this->setMailDriver();
@@ -712,7 +735,7 @@ class Email implements ShouldQueue
         if ($sending_user == "0") {
             $user = $this->company->owner();
         } else {
-            $user = User::find($this->decodePrimaryKey($sending_user));
+            $user = User::withTrashed()->find($this->decodePrimaryKey($sending_user));
         }
 
         return $user;
@@ -901,6 +924,15 @@ class Email implements ShouldQueue
             ->send();
 
         $job_failure = null;
+
+        try {
+            if ($this->email_object->invitation) {
+                $this->email_object->invitation->email_error = substr($errors, 0, 150);
+                $this->email_object->invitation->save();
+            }
+        } catch (\Throwable $e) {
+            nlog("Problem saving email error: {$e->getMessage()}");
+        }
     }
 
     /**
@@ -955,7 +987,7 @@ class Email implements ShouldQueue
      */
     private function entityEmailFailed(string $message = ''): void
     {
-        $class = get_class($this->email_object->entity);
+        $class = $this->email_object->entity ? get_class($this->email_object->entity) : false;
 
         switch ($class) {
             case Invoice::class:

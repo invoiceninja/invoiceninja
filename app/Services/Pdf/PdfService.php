@@ -90,7 +90,10 @@ class PdfService
     public function getPdf()
     {
         try {
-            $pdf = $this->resolvePdfEngine($this->getHtml());
+
+            $html = $this->getHtml();
+            // nlog($html); 
+            $pdf = $this->resolvePdfEngine($html);
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);
 
@@ -140,10 +143,9 @@ class PdfService
 
         $this->config = (new PdfConfiguration($this))->init();
 
-
-        $this->html_variables = $this->config->client ?
-                                    (new HtmlEngine($this->invitation))->generateLabelsAndValues() :
-                                    (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues();
+        $this->html_variables = ($this->invitation instanceof \App\Models\PurchaseOrderInvitation) ?
+                                    (new VendorHtmlEngine($this->invitation))->generateLabelsAndValues() :
+                                    (new HtmlEngine($this->invitation))->generateLabelsAndValues();
 
         $this->designer = (new PdfDesigner($this))->build();
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -15,6 +15,9 @@ namespace App\Services\PdfMaker;
 use App\Services\Template\TemplateService;
 use League\CommonMark\CommonMarkConverter;
 
+/**
+ * @deprecated 2025-02-04
+ */
 class PdfMaker
 {
     use PdfMakerUtilities;
@@ -75,7 +78,7 @@ class PdfMaker
 
             $ts = new TemplateService();
 
-            if (isset($this->options['client'])) {
+            if (isset($this->options['client']) && !empty($this->options['client'])) {
                 $client = $this->options['client'];
                 try {
                     $ts->setCompany($client->company);
@@ -85,7 +88,7 @@ class PdfMaker
                 }
             }
 
-            if (isset($this->options['vendor'])) {
+            if (isset($this->options['vendor']) && !empty($this->options['vendor'])) {
                 $vendor = $this->options['vendor'];
                 try {
                     $ts->setCompany($vendor->company);
@@ -139,40 +142,48 @@ class PdfMaker
 
         }
 
-        // $xpath = new \DOMXPath($this->document);
-        // $elements = $xpath->query('//*[@data-state="encoded-html"]');
+        $xpath = new \DOMXPath($this->document);
+        $elements = $xpath->query('//*[@data-state="encoded-html"]');
 
-        // foreach ($elements as $element) {
-
-
-        //     // Decode the HTML content
-        //     $html = htmlspecialchars_decode($element->textContent, ENT_QUOTES | ENT_HTML5);
-        //     $html = str_ireplace(['<br>'], '<br/>', $html);
-
-        //     // Create a temporary document to properly parse the HTML
-        //     $temp = new \DOMDocument();
-
-        //     // Add UTF-8 wrapper and div container
-        //     $wrappedHtml = '<?xml encoding="UTF-8"><div>' . $html . '</div>';
-
-        //     // Load the HTML, suppressing any parsing warnings
-        //     @$temp->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-
-        //     // Import the div's contents
-        //     $imported = $this->document->importNode($temp->getElementsByTagName('div')->item(0), true);
-
-        //     // Clear existing content of the element
-        //     while ($element->firstChild) {
-        //         $element->removeChild($element->firstChild);
-        //     }
-
-        //     // Append the new content to the element
-        //     $element->appendChild($imported);
-
-        // }
+        foreach ($elements as $element) {
 
 
+            // Decode the HTML content
+            $html = htmlspecialchars_decode($element->textContent, ENT_QUOTES | ENT_HTML5);
+            $html = str_ireplace(['<br>','<?xml encoding="UTF-8">'], ['<br/>',''], $html);
 
+            // Create a temporary document to properly parse the HTML
+            $temp = new \DOMDocument();
+
+            // Add UTF-8 wrapper and div container
+            $wrappedHtml = '<?xml encoding="UTF-8"><div>' . $html . '</div>';
+
+            // Load the HTML, suppressing any parsing warnings
+            @$temp->loadHTML($wrappedHtml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+            // Import the div's contents
+            $imported = $this->document->importNode($temp->getElementsByTagName('div')->item(0), true);
+
+            // Clear existing content - more efficient
+            $element->textContent = '';
+            // Get the first div's content
+            $divContent = $temp->getElementsByTagName('div')->item(0);
+
+            if ($divContent) {
+                // Import all nodes from the temporary div
+                foreach ($divContent->childNodes as $child) {
+                    $imported = $this->document->importNode($child, true);
+                    $element->appendChild($imported);
+                }
+            } else {
+                // Fallback - import the entire content if no div found
+                $imported = $this->document->importNode($temp->documentElement, true);
+                $element->appendChild($imported);
+
+            }
+
+
+        }
 
         return $this;
     }

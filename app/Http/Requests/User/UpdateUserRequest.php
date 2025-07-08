@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,7 +39,7 @@ class UpdateUserRequest extends Request
             'password' => 'nullable|string|min:6',
         ];
 
-        $rules['email'] = ['email', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
+        $rules['email'] = ['email', 'bail', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
 
         if (Ninja::isHosted() && $this->phone_has_changed && $this->phone && isset($this->phone)) {
             $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];

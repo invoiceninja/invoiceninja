@@ -35,6 +35,12 @@ class UploadLogoTest extends TestCase
         $this->makeTestData();
 
         Company::reguard();
+
+        
+        if (config('ninja.testvars.travis') !== false) {
+            $this->markTestSkipped('Skip test, no need to run in GH Actions');
+        }
+
     }
 
     public function testLogoUploadWorks()

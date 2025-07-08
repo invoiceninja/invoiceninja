@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +14,8 @@ namespace App\Filters;
 
 use App\Models\Quote;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * QuoteFilters.
@@ -156,11 +159,19 @@ class QuoteFilters extends QueryFilters
 
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
-        if ($sort_col[0] == 'client_id') {
+        // Handle relationship-based sorting
+        if ($sort_col[0] == 'documents') {
+            return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
+        }
 
+        // Validate column exists in database schema
+        if (!in_array($sort_col[0], Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        if ($sort_col[0] == 'client_id') {
             return $this->builder->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'quotes.client_id'), $dir);
-
         }
 
         if ($sort_col[0] == 'number') {

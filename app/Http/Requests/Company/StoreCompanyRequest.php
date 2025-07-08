@@ -1,25 +1,27 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Http\Requests\Company;
 
-use App\Http\Requests\Request;
-use App\Http\ValidationRules\Company\ValidCompanyQuantity;
-use App\Http\ValidationRules\Company\ValidExpenseMailbox;
-use App\Http\ValidationRules\Company\ValidSubdomain;
-use App\Http\ValidationRules\ValidSettingsRule;
-use App\Models\Company;
 use App\Utils\Ninja;
+use App\Models\Company;
 use App\Libraries\MultiDB;
+use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
+use App\Http\ValidationRules\ValidSettingsRule;
+use Illuminate\Auth\Access\AuthorizationException;
+use App\Http\ValidationRules\Company\ValidSubdomain;
+use App\Http\ValidationRules\Company\ValidExpenseMailbox;
+use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 
 class StoreCompanyRequest extends Request
 {
@@ -34,7 +36,8 @@ class StoreCompanyRequest extends Request
     {
         /** @var \App\Models\User auth()->user */
         $user = auth()->user();
-        return $user->can('create', Company::class);
+        // return $user->can('create', Company::class);
+        return $user->isOwner();
     }
 
     public function rules()
@@ -112,5 +115,12 @@ class StoreCompanyRequest extends Request
         }
 
         $this->replace($input);
+    }
+
+    protected function failedAuthorization(): void
+    {
+        throw new AuthorizationException(
+            message: ctrans('texts.create_company_error_unauthorized'),
+        );
     }
 }

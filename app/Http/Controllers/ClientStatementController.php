@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,6 +38,8 @@ class ClientStatementController extends BaseController
      */
     public function statement(CreateStatementRequest $request)
     {
+        set_time_limit(300);
+
         $send_email = false;
 
         if ($request->has('send_email') && $request->send_email == 'true') {

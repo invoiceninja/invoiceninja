@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:clm65375="urn:un:unece:uncefact:codelist:standard:UNECE:PriceTypeCode:D22A"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:un:unece:uncefact:codelist:standard:UNECE:PriceTypeCode:D22A"
+    elementFormDefault="qualified"
+    version="3.2">
+  <xsd:simpleType name="PriceTypeCodeContentType">
+    <xsd:restriction base="xsd:token">
+      <xsd:enumeration value="AA"/>
+      <xsd:enumeration value="AB"/>
+      <xsd:enumeration value="AC"/>
+      <xsd:enumeration value="AD"/>
+      <xsd:enumeration value="AE"/>
+      <xsd:enumeration value="AF"/>
+      <xsd:enumeration value="AG"/>
+      <xsd:enumeration value="AH"/>
+      <xsd:enumeration value="AI"/>
+      <xsd:enumeration value="AJ"/>
+      <xsd:enumeration value="AK"/>
+      <xsd:enumeration value="AL"/>
+      <xsd:enumeration value="AM"/>
+      <xsd:enumeration value="AN"/>
+      <xsd:enumeration value="AO"/>
+      <xsd:enumeration value="AP"/>
+      <xsd:enumeration value="AQ"/>
+      <xsd:enumeration value="AR"/>
+      <xsd:enumeration value="CA"/>
+      <xsd:enumeration value="CT"/>
+      <xsd:enumeration value="CU"/>
+      <xsd:enumeration value="DI"/>
+      <xsd:enumeration value="EC"/>
+      <xsd:enumeration value="NW"/>
+      <xsd:enumeration value="PC"/>
+      <xsd:enumeration value="PE"/>
+      <xsd:enumeration value="PK"/>
+      <xsd:enumeration value="PL"/>
+      <xsd:enumeration value="PT"/>
+      <xsd:enumeration value="PU"/>
+      <xsd:enumeration value="PV"/>
+      <xsd:enumeration value="PW"/>
+      <xsd:enumeration value="QT"/>
+      <xsd:enumeration value="SR"/>
+      <xsd:enumeration value="TB"/>
+      <xsd:enumeration value="TU"/>
+      <xsd:enumeration value="TW"/>
+      <xsd:enumeration value="WH"/>
+      <xsd:enumeration value="WI"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>

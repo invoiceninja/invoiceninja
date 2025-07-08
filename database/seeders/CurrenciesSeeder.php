@@ -33,7 +33,7 @@ class CurrenciesSeeder extends Seeder
             ['id' => 8, 'name' => 'Kenyan Shilling', 'code' => 'KES', 'symbol' => 'KSh ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 9, 'name' => 'Canadian Dollar', 'code' => 'CAD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 10, 'name' => 'Philippine Peso', 'code' => 'PHP', 'symbol' => 'P ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-            ['id' => 11, 'name' => 'Indian Rupee', 'code' => 'INR', 'symbol' => 'Rs. ', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 11, 'name' => 'Indian Rupee', 'code' => 'INR', 'symbol' => '₹', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 12, 'name' => 'Australian Dollar', 'code' => 'AUD', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 13, 'name' => 'Singapore Dollar', 'code' => 'SGD', 'symbol' => '', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 14, 'name' => 'Norske Kroner', 'code' => 'NOK', 'symbol' => 'kr', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ',', 'swap_currency_symbol' => true],
@@ -164,7 +164,8 @@ class CurrenciesSeeder extends Seeder
             ['id' => 139, 'name' => 'Tajikistani Somoni', 'code' => 'TJS', 'symbol' => 'ЅM', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 140, 'name' => 'Turkmenistani Manat', 'code' => 'TMT', 'symbol' => 'T', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
             ['id' => 141, 'name' => 'Uzbekistani Som', 'code' => 'UZS', 'symbol' => 'so\'m', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
-
+            ['id' => 142, 'name' => 'Samoan Tala', 'code' => 'WST', 'symbol' => '$', 'precision' => '2', 'thousand_separator' => ',', 'decimal_separator' => '.'],
+            ['id' => 143, 'name' => 'Caribbean guilder', 'code' => 'XCG', 'symbol' => 'Cg', 'precision' => '2', 'thousand_separator' => '.', 'decimal_separator' => ','],
         ];
 
         foreach ($currencies as $currency) {

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -345,7 +345,7 @@ class SubscriptionController extends BaseController
      *       ),
      *     )
      */
-    public function update(UpdateSubscriptionRequest $request, Subscription $subscription): \Illuminate\Http\Response
+    public function update(UpdateSubscriptionRequest $request, Subscription $subscription)
     {
         if ($request->entityIsDeleted($subscription)) {
             return $request->disallowUpdate();

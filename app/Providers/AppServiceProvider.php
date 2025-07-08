@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -82,10 +83,9 @@ class AppServiceProvider extends ServiceProvider
 
         /* Ensure we don't have stale state in jobs */
         Queue::before(function (JobProcessing $event) {
-            App::forgetInstance('truthsource');
+            App::forgetInstance(TruthSource::class);
         });
 
-        /* Always init a new instance everytime the container boots */
         app()->instance(TruthSource::class, new TruthSource());
 
         /* Extension for custom mailers */
@@ -145,9 +145,15 @@ class AppServiceProvider extends ServiceProvider
             return $this;
         });
 
+
+        //Prevents destructive commands from being run in hosted environments
+        \DB::prohibitDestructiveCommands(Ninja::isHosted());
+
+
     }
 
     public function register(): void
     {
+        
     }
 }

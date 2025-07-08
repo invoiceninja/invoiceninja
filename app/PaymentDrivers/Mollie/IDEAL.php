@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -194,7 +194,7 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
             'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
             'payment_type' => PaymentType::IDEAL,
             'transaction_reference' => $payment->id,
-            'idempotency_key' => substr("{$payment->id}{$this->mollie->payment_hash}", 0, 64)
+            'idempotency_key' => substr("{$payment->id}{$this->mollie->payment_hash->hash}", 0, 64)
         ];
 
         $payment_record = $this->mollie->createPayment(

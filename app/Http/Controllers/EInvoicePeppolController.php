@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,6 +51,7 @@ class EInvoicePeppolController extends BaseController
      */
     public function setup(StoreEntityRequest $request, Storecove $storecove): Response|JsonResponse
     {
+        
         /**
          * @var \App\Models\Company
          */
@@ -59,6 +61,8 @@ class EInvoicePeppolController extends BaseController
             ->proxy
             ->setCompany($company)
             ->setup($request->validated());
+
+        nlog($response);
 
         if (data_get($response, 'status') === 'error') {
             return response()->json(data_get($response, 'message'), status: $response['code']);
@@ -87,7 +91,7 @@ class EInvoicePeppolController extends BaseController
         $settings->tax_rate2 = 0;
         $settings->tax_name3 = '';
         $settings->tax_rate3 = 0;
-        
+
         $settings->e_invoice_type = 'PEPPOL';
         // $settings->vat_number = $request->vat_number ?? $company->settings->vat_number;
         $settings->id_number = $request->id_number ?? $company->settings->id_number;
@@ -262,7 +266,7 @@ class EInvoicePeppolController extends BaseController
 
     public function retrySend(RetrySendRequest $request)
     {
-        
+
         SendEDocument::dispatch($request->entity, $request->entity_id, auth()->user()->company()->db);
 
         return response()->json(['message' => 'trying....'], 200);

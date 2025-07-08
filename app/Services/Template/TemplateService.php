@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,6 +38,7 @@ use App\Utils\PaymentHtmlEngine;
 use App\Utils\Traits\MakesDates;
 use App\Utils\HostedPDF\NinjaPdf;
 use App\Utils\Traits\Pdf\PdfMaker;
+use Illuminate\Support\Facades\App;
 use Twig\Extra\Intl\IntlExtension;
 use League\CommonMark\CommonMarkConverter;
 use Twig\Extra\Markdown\MarkdownExtension;
@@ -68,7 +70,7 @@ class TemplateService
 
     private ?Vendor $vendor = null;
 
-    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | Task | Project $entity;
+    private Invoice | Quote | Credit | PurchaseOrder | RecurringInvoice | Task | Project | Payment | Client $entity;
 
     private Payment $payment;
 
@@ -89,7 +91,6 @@ class TemplateService
      */
     private function init(): self
     {
-
         $this->commonmark = new CommonMarkConverter([
             'allow_unsafe_links' => false,
         ]);
@@ -108,7 +109,6 @@ class TemplateService
         $this->twig->addExtension(new \Twig\Extension\DebugExtension());
         $this->twig->addExtension(new MarkdownExtension());
 
-        
         $this->twig->addRuntimeLoader(new class () implements RuntimeLoaderInterface {
             public function load($class)
             {
@@ -119,11 +119,14 @@ class TemplateService
         });
 
         $function = new \Twig\TwigFunction('img', \Closure::fromCallable(function (string $image_src, string $image_style = '') {
+
             $html = '<img src="' . $image_src . '" style="' . $image_style . '"></img>';
 
-            return new \Twig\Markup($html, 'UTF-8');
+            return $html;
+            // return new \Twig\Markup($html, 'UTF-8');
 
         }));
+
         $this->twig->addFunction($function);
 
         $function = new \Twig\TwigFunction('t', \Closure::fromCallable(function (string $text_key) {
@@ -140,8 +143,14 @@ class TemplateService
         }));
         $this->twig->addFilter($filter);
 
+        $filter = new \Twig\TwigFilter('json_decode', \Closure::fromCallable(function (?string $json_string) {
+            return json_decode($json_string ?? '', true, 512);
+        }));
+        $this->twig->addFilter($filter);
+
+
         $allowedTags = ['if', 'for', 'set', 'filter'];
-        $allowedFilters = ['split','replace', 'escape', 'e', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br','striptags','markdown_to_html'];
+        $allowedFilters = ['capitalize', 'abs', 'date_modify', 'keys', 'join', 'reduce', 'format_date','json_decode','date_modify','trim','round','format_spellout_number','split', 'reduce','replace', 'escape', 'e', 'reverse', 'shuffle', 'slice', 'batch', 'title', 'sort', 'split', 'upper', 'lower', 'capitalize', 'filter', 'length', 'merge','format_currency', 'format_number','format_percent_number','map', 'join', 'first', 'date', 'sum', 'number_format','nl2br','striptags','markdown_to_html'];
         $allowedFunctions = ['range', 'cycle', 'constant', 'date','img','t'];
         $allowedProperties = ['type_id'];
         // $allowedMethods = ['img','t'];
@@ -184,7 +193,6 @@ class TemplateService
     private function processVariables($data): self
     {
         $this->variables = $this->resolveHtmlEngine($data);
-
         return $this;
     }
 
@@ -272,7 +280,7 @@ class TemplateService
      */
     public function getPdf(): string
     {
-
+        
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
         } else {
@@ -315,9 +323,14 @@ class TemplateService
     {
         $replacements = [];
 
-        $contents = $this->document->getElementsByTagName('ninja');
+        $contents = [];
+        $nodeList = $this->document->getElementsByTagName('ninja');
+        for ($i = 0; $i < $nodeList->length; $i++) {
+            $contents[] = $nodeList->item($i);
+        }
 
         foreach ($contents as $content) {
+
 
             $template = $content->ownerDocument->saveHTML($content);
 
@@ -340,13 +353,13 @@ class TemplateService
                 throw ($e);
             }
 
+            // nlog($template->getSourceContext()->getCode()); //this is a nice way to access the twig template
             $template = $template->render($this->data);
 
             $f = $this->document->createDocumentFragment();
 
-            $template = htmlspecialchars($template, ENT_XML1, 'UTF-8');
-
-            $f->appendXML(html_entity_decode($template));
+            $decoded_template = str_ireplace("<br>", "<br/>", html_entity_decode($template));
+            $f->appendXML('<![CDATA[' . $decoded_template . ']]>');
 
             $replacements[] = $f;
 
@@ -392,7 +405,7 @@ class TemplateService
             }
         }
 
-                
+
         $html = htmlspecialchars_decode($html, ENT_QUOTES | ENT_HTML5);
         $html = str_ireplace(['<br>'], '<br/>', $html);
 
@@ -495,7 +508,7 @@ class TemplateService
                 'payments' => $processed = (new PaymentHtmlEngine($value->first(), $value->first()->client->contacts()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [], //@phpstan-ignore-line
                 'tasks' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'projects' => $processed = (new HtmlEngine($value->first()->client->invoices()->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
-                'purchase_orders' => (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
+                'purchase_orders' => $processed = (new VendorHtmlEngine($value->first()->invitations()->first()))->setSettings($this->getSettings())->generateLabelsAndValues() ?? [],
                 'aging' => $processed = [],
                 default => $processed = [],
             };
@@ -555,8 +568,8 @@ class TemplateService
                     $this->entity = $invoice;
 
                     if ($invoice->payments ?? false) {
-                        $payments = $invoice->payments->map(function ($payment) {
-                            return $this->transformPayment($payment);
+                        $payments = $invoice->payments->map(function ($payment) use ($invoice) {
+                            return $this->transformPayment($payment, $invoice);
                         })->toArray();
                     }
 
@@ -613,7 +626,8 @@ class TemplateService
                         'client' => $this->getClient($invoice),
                         'payments' => $payments,
                         'total_tax_map' => $invoice->calc()->getTotalTaxMap(),
-                        'line_tax_map' => $invoice->calc()->getTaxMap(),
+                        'line_tax_map' => $invoice->calc()->getTaxMap()->toArray(),
+                        'project' => $invoice->project ? $this->transformProject($invoice->project, true) : [],
                     ];
 
                 });
@@ -634,11 +648,15 @@ class TemplateService
         return collect($items)->map(function ($item) use ($client_or_vendor) {
 
             $item->cost_raw = $item->cost ?? 0;
+
             $item->discount_raw = $item->discount ?? 0;
             $item->line_total_raw = $item->line_total ?? 0;
             $item->gross_line_total_raw = $item->gross_line_total ?? 0;
             $item->tax_amount_raw = $item->tax_amount ?? 0;
             $item->product_cost_raw = $item->product_cost ?? 0;
+
+            $item->net_cost_raw = $item->net_cost ?? 0;
+            $item->net_cost = Number::formatMoney($item->net_cost_raw, $client_or_vendor);
 
             $item->cost = Number::formatMoney($item->cost_raw, $client_or_vendor);
 
@@ -663,12 +681,16 @@ class TemplateService
      * @param  Payment $payment
      * @return array
      */
-    private function transformPayment(Payment $payment): array
+    private function transformPayment(Payment $payment, $entity = null): array
     {
 
         $this->payment = $payment;
 
-        $credits = $payment->credits->map(function ($credit) use ($payment) {
+        $credits = $payment->credits
+        ->when($entity instanceof Credit, function ($collection) use ($entity) {
+            return $collection->where('number', $entity->number);
+        })
+        ->map(function ($credit) use ($payment) {
             return [
                 'credit' => $credit->number,
                 'amount_raw' => $credit->pivot->amount,
@@ -685,7 +707,11 @@ class TemplateService
             ];
         });
 
-        $pivot = $payment->invoices->map(function ($invoice) use ($payment) {
+        $pivot = $payment->invoices
+        ->when($entity instanceof Invoice, function ($collection) use ($entity) {
+            return $collection->where('number', $entity->number);
+        })
+        ->map(function ($invoice) use ($payment) {
             return [
                 'invoice' => $invoice->number,
                 'amount_raw' => $invoice->pivot->amount,
@@ -842,7 +868,7 @@ class TemplateService
                 'paid_to_date' => Number::formatMoney($quote->paid_to_date, $quote->client),
                 'client' => $this->getClient($quote),
                 'total_tax_map' => $quote->calc()->getTotalTaxMap(),
-                'line_tax_map' => $quote->calc()->getTaxMap(),
+                'line_tax_map' => $quote->calc()->getTaxMap()->toArray(),
             ];
         })->toArray();
 
@@ -865,8 +891,8 @@ class TemplateService
                     $this->entity = $credit;
 
                     if ($credit->payments ?? false) {
-                        $payments = $credit->payments->map(function ($payment) {
-                            return $this->transformPayment($payment);
+                        $payments = $credit->payments->map(function ($payment) use ($credit) {
+                            return $this->transformPayment($payment, $credit);
                         })->toArray();
                     }
 
@@ -924,7 +950,7 @@ class TemplateService
                         'client' => $this->getClient($credit),
                         'payments' => $payments,
                         'total_tax_map' => $credit->calc()->getTotalTaxMap(),
-                        'line_tax_map' => $credit->calc()->getTaxMap(),
+                        'line_tax_map' => $credit->calc()->getTaxMap()->toArray(),
                     ];
 
                 });
@@ -972,6 +998,27 @@ class TemplateService
             ] : [];
     }
 
+    private function getVendor($entity): array
+    {
+
+        return $entity->vendor ? [
+            'name' => $entity->vendor->present()->name(),
+            'phone' => $entity->vendor->present()->phone(),
+            'website' => $entity->vendor->website ?? '',
+            'number' => $entity->vendor->number ?? '',
+            'id_number' => $entity->vendor->id_number ?? '',
+            'vat_number' => $entity->vendor->vat_number ?? '',
+            'currency' => $entity->vendor->currency()->code ?? 'USD',
+            'custom_value1' => $entity->vendor->custom_value1 ?? '',
+            'custom_value2' => $entity->vendor->custom_value2 ?? '',
+            'custom_value3' => $entity->vendor->custom_value3 ?? '',
+            'custom_value4' => $entity->vendor->custom_value4 ?? '',
+            'address' => $entity->vendor->present()->address(),
+            'shipping_address' => $entity->vendor->present()->shipping_address(),
+            'locale' => substr($entity->vendor->locale(), 0, 2),
+            ] : [];
+    }
+
     private function processInvoiceTask(string $task_id): array
     {
         $task = Task::where('company_id', $this->company->id)
@@ -1000,6 +1047,47 @@ class TemplateService
         ] : [];
     }
 
+    /**
+     *
+     * @param  array | \Illuminate\Support\Collection $expenses
+     * @return array
+     */
+    public function processExpenses($expenses, bool $nested = false): array
+    {
+        return collect($expenses)->map(function ($expense) use ($nested) {
+            /** @var \App\Models\Expense $expense */
+            return [
+                'category' => $expense->category ? $expense->category->name : '',
+                'amount' => Number::formatMoney($expense->amount, $expense->client ?? $expense->company),
+                'amount_raw' => $expense->amount,
+                'date' => $expense->date ? $this->translateDate($expense->date, $expense->client->date_format(), $expense->client->locale()) : '',
+                'private_notes' => (string) $expense->private_notes ?: '',
+                'public_notes' => (string) $expense->public_notes ?: '',
+                'exchange_rate' => (float) $expense->exchange_rate,
+                'tax_name1' => $expense->tax_name1 ?: '',
+                'tax_rate1' => (float) $expense->tax_rate1,
+                'tax_name2' => $expense->tax_name2 ?: '',
+                'tax_rate2' => (float) $expense->tax_rate2,
+                'tax_name3' => $expense->tax_name3 ?: '',
+                'tax_rate3' => (float) $expense->tax_rate3,
+                'tax_amount1' => (float) $expense->tax_amount1,
+                'tax_amount2' => (float) $expense->tax_amount2,
+                'tax_amount3' => (float) $expense->tax_amount3,
+                'payment_date' => $expense->payment_date ? $this->translateDate($expense->payment_date, $expense->client->date_format(), $expense->client->locale()) : '',
+                'transaction_reference' => $expense->transaction_reference ?: '',
+                'custom_value1' => $expense->custom_value1 ?: '',
+                'custom_value2' => $expense->custom_value2 ?: '',
+                'custom_value3' => $expense->custom_value3 ?: '',
+                'custom_value4' => $expense->custom_value4 ?: '',
+                'number' => $expense->number ?: '',
+                'calculate_tax_by_amount' => (bool) $expense->calculate_tax_by_amount,
+                'uses_inclusive_taxes' => (bool) $expense->uses_inclusive_taxes,
+                'client' => $this->getClient($expense),
+                'vendor' => $this->getVendor($expense),
+                'project' => ($expense->project && !$nested) ? $this->transformProject($expense->project, true) : [],
+            ];
+        })->toArray();
+    }
 
     /**
      * @todo refactor
@@ -1070,6 +1158,7 @@ class TemplateService
     {
 
         return [
+            'id' => $project->hashed_id,
             'name' => $project->name ?: '',
             'number' => $project->number ?: '',
             'created_at' => $this->translateDate($project->created_at, $project->client->date_format(), $project->client->locale()),
@@ -1090,7 +1179,8 @@ class TemplateService
             'client' => $this->getClient($project),
             'user' => $this->userInfo($project->user),
             'assigned_user' => $project->assigned_user ? $this->userInfo($project->assigned_user) : [],
-            'invoices' => $this->processInvoices($project->invoices)
+            'invoices' => !$nested ? $this->processInvoices($project->invoices) : [],
+            'expenses' => ($project->expenses && !$nested) ? $this->processExpenses($project->expenses, true) : [],
         ];
 
     }
@@ -1111,8 +1201,10 @@ class TemplateService
                     'vat_number' => $purchase_order->vendor->vat_number ?? '',
                     'currency' => $purchase_order->vendor->currency()->code ?? 'USD',
                 ] : [],
-                'amount' => (float)$purchase_order->amount,
-                'balance' => (float)$purchase_order->balance,
+                'amount' => Number::formatMoney($purchase_order->amount, $purchase_order->vendor),
+                'balance' => Number::formatMoney($purchase_order->balance, $purchase_order->vendor),
+                'amount_raw' => (float)$purchase_order->amount ,
+                'balance_raw' => (float)$purchase_order->balance,
                 'client' => $this->getClient($purchase_order),
                 'status_id' => (string)($purchase_order->status_id ?: 1),
                 'status' => PurchaseOrder::stringStatus($purchase_order->status_id ?? 1),
@@ -1138,7 +1230,8 @@ class TemplateService
                 'tax_rate2' => (float)$purchase_order->tax_rate2,
                 'tax_name3' => $purchase_order->tax_name3 ? $purchase_order->tax_name3 : '',
                 'tax_rate3' => (float)$purchase_order->tax_rate3,
-                'total_taxes' => (float)$purchase_order->total_taxes,
+                'total_taxes_raw' => (float)$purchase_order->total_taxes,
+                'total_taxes' => Number::formatMoney($purchase_order->total_taxes, $purchase_order->vendor),
                 'is_amount_discount' => (bool)($purchase_order->is_amount_discount ?: false),
                 'footer' => $purchase_order->footer ?: '',
                 'partial' => (float)($purchase_order->partial ?: 0.0),
@@ -1160,6 +1253,8 @@ class TemplateService
                 'line_items' => $purchase_order->line_items ? $this->padLineItems($purchase_order->line_items, $purchase_order->vendor) : (array)[],
                 'exchange_rate' => (float)$purchase_order->exchange_rate,
                 'currency_id' => $purchase_order->currency_id ? (string) $purchase_order->currency_id : '',
+                'total_tax_map' => $purchase_order->calc()->getTotalTaxMap(),
+                'line_tax_map' => $purchase_order->calc()->getTaxMap()->toArray(),
             ];
 
         })->toArray();
@@ -1575,22 +1670,13 @@ class TemplateService
 
         foreach ($children as $child) {
             $contains_html = false;
+            $child['content'] = $child['content'] ?? '';
 
-            //06-11-2023 for some reason this parses content as HTML
-            // if ($child['element'] !== 'script') {
-            //     if ($this->company->markdown_enabled && array_key_exists('content', $child)) {
-            //         $child['content'] = str_replace('<br>', "\r", $child['content']);
-            //         $child['content'] = $this->commonmark->convert($child['content'] ?? '');
-            //     }
-            // }
-
-            if (isset($child['content'])) {
-                if (isset($child['is_empty']) && $child['is_empty'] === true) {
-                    continue;
-                }
-
-                $contains_html = preg_match('#(?<=<)\w+(?=[^<]*?>)#', $child['content'], $m) != 0;
+            if (isset($child['is_empty']) && $child['is_empty'] === true) {
+                continue;
             }
+
+            $contains_html = str_contains($child['content'], '<') && str_contains($child['content'], '>');
 
             if ($contains_html) {
                 // If the element contains the HTML, we gonna display it as is. Backend is going to
@@ -1605,7 +1691,7 @@ class TemplateService
             } else {
                 // .. in case string doesn't contain any HTML, we'll just return
                 // raw $content.
-                $_child = $this->document->createElement($child['element'], isset($child['content']) ? $child['content'] : '');
+                $_child = $this->document->createElement($child['element'], $child['content']);
             }
 
             $element->appendChild($_child);

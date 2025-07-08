@@ -12,7 +12,7 @@
     "file": "assets/wait-8f4ae121.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-c1a2ea5d.js",
+    "file": "assets/app-aa93be80.js",
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"
@@ -37,6 +37,11 @@
     ],
     "isEntry": true,
     "src": "resources/js/clients/linkify-urls.js"
+  },
+  "resources/js/clients/payment_methods/authorize-authorize-ach.js": {
+    "file": "assets/authorize-authorize-ach-4ab153a6.js",
+    "isEntry": true,
+    "src": "resources/js/clients/payment_methods/authorize-authorize-ach.js"
   },
   "resources/js/clients/payment_methods/authorize-authorize-card.js": {
     "file": "assets/authorize-authorize-card-39be6d93.js",
@@ -77,6 +82,14 @@
     "isEntry": true,
     "src": "resources/js/clients/payment_methods/wepay-bank-account.js"
   },
+  "resources/js/clients/payments/authorize-ach-payment.js": {
+    "file": "assets/authorize-ach-payment-2e0c5d83.js",
+    "imports": [
+      "_wait-8f4ae121.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/clients/payments/authorize-ach-payment.js"
+  },
   "resources/js/clients/payments/authorize-credit-card-payment.js": {
     "file": "assets/authorize-credit-card-payment-4a21c1d6.js",
     "imports": [
@@ -86,7 +99,7 @@
     "src": "resources/js/clients/payments/authorize-credit-card-payment.js"
   },
   "resources/js/clients/payments/blockonomics.js": {
-    "file": "assets/blockonomics-b9e5b3c6.js",
+    "file": "assets/blockonomics-c3966bec.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -126,7 +139,7 @@
     "src": "resources/js/clients/payments/eway-credit-card.js"
   },
   "resources/js/clients/payments/forte-ach-payment.js": {
-    "file": "assets/forte-ach-payment-546428ee.js",
+    "file": "assets/forte-ach-payment-864ff883.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -251,7 +264,7 @@
     "src": "resources/js/clients/payments/stripe-browserpay.js"
   },
   "resources/js/clients/payments/stripe-credit-card.js": {
-    "file": "assets/stripe-credit-card-f8033e95.js",
+    "file": "assets/stripe-credit-card-d1cb9745.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -283,7 +296,7 @@
     "src": "resources/js/clients/payments/stripe-giropay.js"
   },
   "resources/js/clients/payments/stripe-ideal.js": {
-    "file": "assets/stripe-ideal-2110e54f.js",
+    "file": "assets/stripe-ideal-aee1d791.js",
     "imports": [
       "_wait-8f4ae121.js"
     ],
@@ -343,7 +356,7 @@
     "src": "resources/js/clients/quotes/action-selectors.js"
   },
   "resources/js/clients/quotes/approve.js": {
-    "file": "assets/approve-b1ac0053.js",
+    "file": "assets/approve-200c2aa4.js",
     "isEntry": true,
     "src": "resources/js/clients/quotes/approve.js"
   },

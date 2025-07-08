@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,6 +55,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                     ->cursor()
                     ->each(function ($invoice) use ($repo) {
                         $invoice->is_proforma = false;
+                        $invoice->save();
                         $repo->delete($invoice);
                     });
 
@@ -162,6 +164,7 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                 ->cursor()
                 ->each(function ($invoice) use ($repo) {
                     $invoice->is_proforma = false;
+                    $invoice->save();
                     $repo->delete($invoice);
                 });
 

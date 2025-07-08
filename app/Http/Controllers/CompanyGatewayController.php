@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,6 +31,7 @@ use App\Http\Requests\CompanyGateway\BulkCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\CloneCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
@@ -238,6 +240,24 @@ class CompanyGatewayController extends BaseController
                 break;
 
             case $this->forte_key:
+
+                $config = $company_gateway->getConfig();
+
+                $config->authOrganizationId = !str_starts_with($config->authOrganizationId, 'org_')
+                    ? 'org_' . $config->authOrganizationId
+                    : $config->authOrganizationId;
+
+                $config->organizationId = !str_starts_with($config->organizationId, 'org_')
+                    ? 'org_' . $config->organizationId
+                    : $config->organizationId;
+
+                $config->locationId = !str_starts_with($config->locationId, 'loc_')
+                    ? 'loc_' . $config->locationId
+                    : $config->locationId;
+
+                $company_gateway->setConfig($config);
+                $company_gateway->save();
+
                 dispatch(function () use ($company_gateway) {
                     MultiDB::setDb($company_gateway->company->db);
                     $company_gateway->driver()->updateFees();
@@ -246,6 +266,7 @@ class CompanyGatewayController extends BaseController
                 break;
 
             case $this->cbapowerboard_key:
+
                 dispatch(function () use ($company_gateway) {
                     MultiDB::setDb($company_gateway->company->db);
                     $company_gateway->driver()->init()->settings()->updateSettings();
@@ -443,14 +464,42 @@ class CompanyGatewayController extends BaseController
         $company_gateway->fees_and_limits = $fees_and_limits;
         $company_gateway->save();
 
-        if ($company_gateway->gateway_key == $this->checkout_key) {
-            CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->fresh()->id);
-        } elseif ($company_gateway->gateway_key == $this->forte_key) {
+        switch ($company_gateway->gateway_key) {
 
-            dispatch(function () use ($company_gateway) {
-                MultiDB::setDb($company_gateway->company->db);
-                $company_gateway->driver()->updateFees();
-            })->afterResponse();
+            case $this->checkout_key:
+                CheckoutSetupWebhook::dispatch($company_gateway->company->company_key, $company_gateway->id);
+                break;
+
+            case $this->forte_key:
+
+                $config = $company_gateway->getConfig();
+
+                $config->authOrganizationId = !str_starts_with($config->authOrganizationId, 'org_')
+                    ? 'org_' . $config->authOrganizationId
+                    : $config->authOrganizationId;
+
+                $config->organizationId = !str_starts_with($config->organizationId, 'org_')
+                    ? 'org_' . $config->organizationId
+                    : $config->organizationId;
+
+                $config->locationId = !str_starts_with($config->locationId, 'loc_')
+                    ? 'loc_' . $config->locationId
+                    : $config->locationId;
+
+                $company_gateway->setConfig($config);
+                $company_gateway->save();
+
+
+                dispatch(function () use ($company_gateway) {
+                    MultiDB::setDb($company_gateway->company->db);
+                    $company_gateway->driver()->updateFees();
+                })->afterResponse();
+
+                break;
+
+            default:
+                # code...
+                break;
 
         }
 
@@ -581,10 +630,18 @@ class CompanyGatewayController extends BaseController
         return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
     }
 
+    public function clone(CloneCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    {
+        $new_company_gateway = $company_gateway->replicate();
+        $new_company_gateway->label .= ' ('.ctrans('texts.clone').') ' . now()->format('Y-m-d H:i:s');
+        $new_company_gateway->save();
+        return $this->itemResponse($new_company_gateway);
+    }
+
     public function test(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)
     {
-
-        return response()->json(['message' => $company_gateway->driver()->auth() ? 'true' : 'false'], 200);
+        $message = $company_gateway->driver()->auth();
+        return response()->json(['message' => $message], 200);
 
     }
 

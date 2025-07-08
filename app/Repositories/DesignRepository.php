@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,7 +63,11 @@ class DesignRepository extends BaseRepository
     public function restore($design)
     {
 
-        $design->name = str_ireplace("_deleted_", "_restored_", $design->name);
+        // $design->name = str_ireplace("_deleted_", "_restored_", $design->name);
+
+        $clean_name = preg_replace('/_deleted_[a-zA-Z0-9]+$/', '', $design->name);
+
+        $design->name = $clean_name;
 
         parent::restore($design);
 

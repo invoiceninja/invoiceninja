@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -107,7 +107,7 @@ class Gateway extends StaticModel
             $link = 'https://docs.btcpayserver.org/InvoiceNinja/';
         } elseif ($this->id == 63) {
             $link = 'https://rotessa.com';
-        } elseif ($this->id == 64) {
+        } elseif ($this->id == 65) {
             $link = 'https://help.blockonomics.co/a/solutions/articles/33000291849';
         }
 
@@ -123,18 +123,21 @@ class Gateway extends StaticModel
     {
         switch ($this->id) {
             case 1:
-                return [GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true]]; //Authorize.net
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['net.authorize.payment.void.created']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['net.authorize.payment.void.created']],
+                ]; //Authorize.net
             case 3:
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]]; //eWay
             case 11:
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]]; //Payfast
             case 7:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']], // Mollie
-                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true, 'webhooks' => [' ']],
-                    GatewayType::KBC => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']],
-                    GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']],
-                    GatewayType::IDEAL => ['refund' => false, 'token_billing' => false, 'webhooks' => [' ']],
+                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true, 'webhooks' => ['all']], // Mollie
+                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::KBC => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
+                    GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
+                    GatewayType::IDEAL => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
                 ];
             case 15:
                 return [

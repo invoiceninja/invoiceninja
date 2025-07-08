@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -55,6 +56,13 @@ class BaseDriver extends AbstractPaymentDriver
 
     /* The Invitation */
     public $invitation;
+
+    /**
+     * Indicates if returning responses should be headless or classic redirect.
+     *
+     * @var bool
+     */
+    public bool $headless = false;
 
     /**
      * The Client
@@ -171,6 +179,14 @@ class BaseDriver extends AbstractPaymentDriver
         }
 
         return $fields;
+    }
+
+
+    public function setHeadless(bool $headless): self
+    {
+        $this->headless = $headless;
+
+        return $this;
     }
 
     /**
@@ -404,15 +420,20 @@ class BaseDriver extends AbstractPaymentDriver
 
         $invoice = $this->payment_hash->fee_invoice;
 
-        $fee_count = collect($invoice->line_items)
-                        ->map(function ($item) {
-                            $item->gross_line_total = round($item->gross_line_total, 2);
-                            return $item;
-                        })
-                        ->whereIn('type_id', ['3','4'])
+        if (!$invoice) {
+            return;
+        }
+
+        if (collect($invoice->line_items)->contains('unit_code', $this->payment_hash->hash)) {
+            $invoice->service()->toggleFeesPaid($this->payment_hash->hash)->save();
+            return;
+        }
+
+        $unconfirmed_fee_count = collect($invoice->line_items)
+                        ->where('type_id', '3')
                         ->count();
 
-        if ($invoice && $fee_count == 0) {
+        if ($unconfirmed_fee_count == 0) {
 
             nlog("apparently no fee, so injecting here!");
 
@@ -466,7 +487,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         } else {
 
-            $invoice->service()->toggleFeesPaid()->save();
+            $invoice->service()->toggleFeesPaid($this->payment_hash->hash)->save();
 
         }
 
@@ -523,7 +544,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $cgt->save();
 
-        if ($this->client->gateway_tokens->count() > 1) {
+        if ($this->client->gateway_tokens->count() >= 1) {
             $this->client->gateway_tokens()->update(['is_default' => 0]);
         }
 
@@ -594,7 +615,7 @@ class BaseDriver extends AbstractPaymentDriver
             $invoices = Invoice::query()->whereIn('id', $this->transformKeys(array_column($this->payment_hash->invoices(), 'invoice_id')))->withTrashed()->get();
 
             $invoices->first()->invitations->each(function ($invitation) use ($nmo) {
-                if ((bool) $invitation->contact->send_email !== false && $invitation->contact->email) {
+                if ((bool) $invitation->contact->send_email !== false && $invitation->contact->email && !$invitation->contact->is_locked) {
                     $nmo->to_user = $invitation->contact;
                     NinjaMailerJob::dispatch($nmo);
                 }
@@ -869,6 +890,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         return ctrans('texts.gateway_payment_text', [
             'invoices' => $invoices_string,
+            'invoice' => $invoices_string,
             'amount' => $amount,
             'client' => $this->client->present()->name(),
         ]);
@@ -889,11 +911,11 @@ class BaseDriver extends AbstractPaymentDriver
     /**
      * Stub for checking authentication.
      *
-     * @return bool
+     * @return string
      */
-    public function auth(): bool
+    public function auth(): string
     {
-        return true;
+        return 'ok';
     }
 
     public function importCustomers()

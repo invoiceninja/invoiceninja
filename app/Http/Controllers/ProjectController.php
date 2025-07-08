@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -506,11 +507,11 @@ class ProjectController extends BaseController
 
         $projects = Project::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
-        if($action == 'invoice' && $user->can('edit', $projects->first())) {
-           $invoice = $this->project_repo->invoice($projects);
-           $this->entity_transformer = InvoiceTransformer::class;
-           $this->entity_type = Invoice::class;
-           return $this->itemResponse($invoice);
+        if ($action == 'invoice' && $user->can('edit', $projects->first())) {
+            $invoice = $this->project_repo->invoice($projects);
+            $this->entity_transformer = InvoiceTransformer::class;
+            $this->entity_type = Invoice::class;
+            return $this->itemResponse($invoice);
         }
 
         if ($action == 'template' && $user->can('view', $projects->first())) {

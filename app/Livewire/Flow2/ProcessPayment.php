@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,12 +37,14 @@ class ProcessPayment extends Component
 
         $invitation = InvoiceInvitation::find($this->getContext()['invitation_id']);
 
+        $_context = $this->getContext();
+
         $data = [
-            'company_gateway_id' => $this->getContext()['company_gateway_id'],
-            'payment_method_id' => $this->getContext()['gateway_type_id'],
-            'payable_invoices' => $this->getContext()['payable_invoices'],
-            'signature' => isset($this->getContext()['signature']) ? $this->getContext()['signature'] : false,
-            'signature_ip' => isset($this->getContext()['signature_ip']) ? $this->getContext()['signature_ip'] : false,
+            'company_gateway_id' => $_context['company_gateway_id'],
+            'payment_method_id' => $_context['gateway_type_id'],
+            'payable_invoices' => $_context['payable_invoices'],
+            'signature' => isset($_context['signature']) ? $_context['signature'] : false,
+            'signature_ip' => isset($_context['signature_ip']) ? $_context['signature_ip'] : false,
             'pre_payment' => false,
             'frequency_id' => false,
             'remaining_cycles' => false,
@@ -52,7 +54,7 @@ class ProcessPayment extends Component
 
         $responder_data = (new LivewireInstantPayment($data))->run();
 
-        $company_gateway = CompanyGateway::find($this->getContext()['company_gateway_id']);
+        $company_gateway = CompanyGateway::find($_context['company_gateway_id']);
 
         if (!$responder_data['success']) {
             throw new PaymentFailed($responder_data['error'], 400);
@@ -63,8 +65,10 @@ class ProcessPayment extends Component
             $gateway_fee = data_get($responder_data, 'payload.total.fee_total', false);
             $amount = data_get($responder_data, 'payload.total.amount_with_fee', 0);
 
-            $this->setContext('amount', $amount);
-            $this->setContext('gateway_fee', $gateway_fee);
+            $this->bulkSetContext([
+                'amount' => $amount,
+                'gateway_fee' => $gateway_fee,
+            ]);
 
             $this->dispatch('payment-view-rendered');
         }

@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -141,7 +142,8 @@ class FatturaPA extends AbstractService
             Indirizzo: $this->invoice->company->settings->address1,
             CAP: (int)$this->invoice->company->settings->postal_code,
             Comune: $this->invoice->company->settings->city,
-            Provincia: $this->invoice->company->settings->state
+            Provincia: $this->invoice->company->settings->state,
+            Nazione: $this->invoice->company->country()->iso_3166_2
         );
 
         $cedentePrestatore->setSede($sede);
@@ -150,18 +152,18 @@ class FatturaPA extends AbstractService
         //client details
         $datiAnagrafici = new DatiAnagrafici();
 
-        //for some reason the validation does not like codice fiscale for the client?
-        //perhaps it may need IdFiscaleIVA?
-        // $datiAnagrafici->setCodiceFiscale("09876543210");
-
         $anagrafica = new Anagrafica(Denominazione: $this->invoice->client->present()->name());
         $datiAnagrafici->setAnagrafica($anagrafica);
+        $idFiscaleIVA = new IdFiscaleIVA(IdPaese: $this->invoice->client->country->iso_3166_2, IdCodice: $this->invoice->client->vat_number);
+        $datiAnagrafici->setIdFiscaleIVA($idFiscaleIVA);
+        $datiAnagrafici->setCodiceFiscale($this->invoice->client->id_number);
 
         $sede = new Sede(
             Indirizzo: $this->invoice->client->address1,
             CAP: (int)$this->invoice->client->postal_code,
             Comune: $this->invoice->client->city,
-            Provincia: $this->invoice->client->state
+            Provincia: $this->invoice->client->state,
+            Nazione: $this->invoice->client->country->iso_3166_2
         );
 
         $cessionarioCommittente = new CessionarioCommittente($datiAnagrafici, $sede);

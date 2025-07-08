@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -298,11 +299,6 @@ class BaseRepository
             if ($model->status_id != Invoice::STATUS_DRAFT) {
                 $model->service()->updateStatus()->save();
                 $model->client->service()->calculateBalance($model);
-
-                // $diff = $state['finished_amount'] - $state['starting_amount'];
-                // nlog("{$diff} - {$state['finished_amount']} - {$state['starting_amount']}");
-                // if(floatval($state['finished_amount']) != floatval($state['starting_amount']))
-                //     $model->ledger()->updateInvoiceBalance(($state['finished_amount'] - $state['starting_amount']), "Update adjustment for invoice {$model->number}");
             }
 
             if (!$model->design_id) {

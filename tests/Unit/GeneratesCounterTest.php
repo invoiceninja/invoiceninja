@@ -25,7 +25,9 @@ use App\Factory\VendorFactory;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
 use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
 use App\Utils\Traits\GeneratesCounter;
+use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -52,6 +54,136 @@ class GeneratesCounterTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testResetCounterFromClientCounter()
+    {
+
+        $settings = CompanySettings::defaults();
+
+        $settings->reset_counter_date = "2026-01-01";
+        $settings->reset_counter_frequency_id = "10";
+        $settings->invoice_number_pattern = '{$client_id_number}/{$year}-{$client_counter}';
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+        ]);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'id_number' => 'IDNUMBER',
+            'settings' => $settings,
+        ]);
+
+        $this->assertEquals("10", $client->getSetting('reset_counter_frequency_id'));
+        $this->assertEquals("2026-01-01", $client->getSetting('reset_counter_date'));
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $this->travelTo('2025-02-01');
+
+        $invoice->number = null;
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+        $invoice->save();
+        $invoice->calc()->getInvoice();
+
+            $this->travelTo('2025-02-01');
+
+            $invoice->number = null;
+            $invoice->status_id = Invoice::STATUS_DRAFT;
+            $invoice->save();
+
+            $invoice = $invoice->service()->markSent()->save();
+
+            $this->assertNotNull($invoice->number);
+
+            $this->assertEquals("IDNUMBER/2025-0001", $invoice->number);
+
+            $this->travelTo('2026-02-01');
+
+            $invoice = Invoice::factory()->create([
+                        'client_id' => $client->id,
+                        'company_id' => $company->id,
+                        'user_id' => $this->user->id,
+                    ]);
+
+            $invoice->number = null;
+            $invoice->status_id = Invoice::STATUS_DRAFT;
+            $invoice->save();
+
+            $invoice->calc()->getInvoice();
+
+            $invoice = $invoice->service()->markSent()->save();
+
+        $this->assertEquals("IDNUMBER/2026-0001", $invoice->number);
+
+
+    }
+
+    public function testAnnualCounterResetLogic()
+    {
+        $settings = CompanySettings::defaults();
+        
+        $settings->reset_counter_date = "2026-01-01";
+        $settings->reset_counter_frequency_id = "10";
+        $settings->invoice_number_pattern = '{$year}-{$counter}';
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+        ]);
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $this->assertEquals("10", $client->getSetting('reset_counter_frequency_id'));
+        $this->assertEquals("2026-01-01", $client->getSetting('reset_counter_date'));
+
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+        ]);
+
+        $this->travelTo('2025-02-01');
+
+        $invoice->number = null;
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+        $invoice->save();
+
+        $invoice->calc()->getInvoice();
+
+        $invoice = $invoice->service()->markSent()->save();
+        
+        $this->assertNotNull($invoice->number);
+
+        $this->assertEquals("2025-0001", $invoice->number);
+
+        $this->travelTo('2026-02-01');
+
+        $invoice = Invoice::factory()->create([
+                    'client_id' => $client->id,
+                    'company_id' => $company->id,
+                    'user_id' => $this->user->id,
+                ]);
+
+        $invoice->number = null;
+        $invoice->status_id = Invoice::STATUS_DRAFT;
+        $invoice->save();
+
+        $invoice->calc()->getInvoice();
+
+        $invoice = $invoice->service()->markSent()->save();
+
+        $this->assertEquals("2026-0001", $invoice->number);
+
     }
 
     public function testResetCounterGroup()

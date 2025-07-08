@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,9 +34,15 @@ class QuotesTable extends Component
 
     public string $db;
 
+    public string $sort_field = 'date';
+
     public function mount()
     {
         MultiDB::setDb($this->db);
+
+        $this->sort_asc = false;
+
+        $this->sort_field = 'date';
     }
 
 
@@ -54,11 +60,11 @@ class QuotesTable extends Component
         $query = Quote::query()
             ->with('client.contacts', 'company')
             // ->orderBy($this->sort, $this->sort_asc ? 'asc' : 'desc');
-            ->when($this->sort == 'number', function ($q){
-                $q->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . ($this->sort_asc ? 'desc' : 'asc'));
+            ->when($this->sort == 'number', function ($q) {
+                $q->orderByRaw("REGEXP_REPLACE(number,'[^0-9]+','')+0 " . ($this->sort_asc ? 'asc' : 'desc'));
             })
-            ->when($this->sort != 'number', function ($q){
-                $q->orderBy($this->sort, ($this->sort_asc ? 'desc' : 'asc'));
+            ->when($this->sort != 'number', function ($q) {
+                $q->orderBy($this->sort, ($this->sort_asc ? 'asc' : 'desc'));
             });
 
 

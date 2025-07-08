@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2024. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -125,9 +126,9 @@ trait MakesDates
         //override for financial years
         if ($data['date_range'] == 'this_year') {
             $first_month_of_year = $company ? $company?->first_month_of_year : 1;
-            $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+            $fin_year_start = now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->createFromDate(now()->year, $first_month_of_year, 1);
 
-            if (now()->lt($fin_year_start)) {
+            if (now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->lt($fin_year_start)) {
                 $fin_year_start->subYearNoOverflow();
             }
 
@@ -147,17 +148,17 @@ trait MakesDates
         }
 
         return match ($data['date_range']) {
-            EmailStatement::LAST7 => [now()->startOfDay()->subDays(7)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
-            EmailStatement::LAST30 => [now()->startOfDay()->subDays(30)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
-            EmailStatement::LAST365 => [now()->startOfDay()->subDays(365)->format('Y-m-d'), now()->startOfDay()->format('Y-m-d')],
-            EmailStatement::THIS_MONTH => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
-            EmailStatement::LAST_MONTH => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
-            EmailStatement::THIS_QUARTER => [now()->startOfDay()->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->endOfQuarter()->format('Y-m-d')],
-            EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->endOfQuarter()->format('Y-m-d')],
+            EmailStatement::LAST7 => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(7)->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->format('Y-m-d')],
+            EmailStatement::LAST30 => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(30)->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->format('Y-m-d')],
+            EmailStatement::LAST365 => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(365)->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->format('Y-m-d')],
+            EmailStatement::THIS_MONTH => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::LAST_MONTH => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::THIS_QUARTER => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->endOfQuarter()->format('Y-m-d')],
+            EmailStatement::LAST_QUARTER => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subQuarterNoOverflow()->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->endOfQuarter()->format('Y-m-d')],
             EmailStatement::THIS_YEAR => [$fin_year_start->format('Y-m-d'), $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [$fin_year_start->format('Y-m-d'), $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d')],
             EmailStatement::CUSTOM_RANGE => [$data['start_date'], $data['end_date']],
-            default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            default => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
     }
 
@@ -168,28 +169,28 @@ trait MakesDates
         if ($data['date_range'] == 'this_year') {
 
             $first_month_of_year = $company ? $company?->first_month_of_year : 1;
-            $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+            $fin_year_start = now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->createFromDate(now()->year, $first_month_of_year, 1);
 
             $fin_year_start->subYearNoOverflow();
 
-            if (now()->subYear()->lt($fin_year_start)) {
+            if (now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->subYear()->lt($fin_year_start)) {
                 $fin_year_start->subYearNoOverflow();
             }
 
         }
 
         return match ($data['date_range']) {
-            EmailStatement::LAST7 => [now()->startOfDay()->subDays(14)->format('Y-m-d'), now()->subDays(7)->startOfDay()->format('Y-m-d')],
-            EmailStatement::LAST30 => [now()->startOfDay()->subDays(60)->format('Y-m-d'), now()->subDays(30)->startOfDay()->format('Y-m-d')],
-            EmailStatement::LAST365 => [now()->startOfDay()->subDays(739)->format('Y-m-d'), now()->subDays(365)->startOfDay()->format('Y-m-d')],
-            EmailStatement::THIS_MONTH => [now()->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
-            EmailStatement::LAST_MONTH => [now()->startOfDay()->subMonthsNoOverflow(2)->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
-            EmailStatement::THIS_QUARTER => [now()->startOfDay()->subQuarterNoOverflow()->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuarterNoOverflow()->endOfQuarter()->format('Y-m-d')],
-            EmailStatement::LAST_QUARTER => [now()->startOfDay()->subQuartersNoOverflow(2)->startOfQuarter()->format('Y-m-d'), now()->startOfDay()->subQuartersNoOverflow(2)->endOfQuarter()->format('Y-m-d')],
+            EmailStatement::LAST7 => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(14)->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(7)->format('Y-m-d')],
+            EmailStatement::LAST30 => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(60)->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(30)->format('Y-m-d')],
+            EmailStatement::LAST365 => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(739)->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subDays(365)->format('Y-m-d')],
+            EmailStatement::THIS_MONTH => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subMonthNoOverflow()->firstOfMonth()->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::LAST_MONTH => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subMonthsNoOverflow(2)->firstOfMonth()->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subMonthNoOverflow()->lastOfMonth()->format('Y-m-d')],
+            EmailStatement::THIS_QUARTER => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subQuarterNoOverflow()->startOfQuarter()->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subQuarterNoOverflow()->endOfQuarter()->format('Y-m-d')],
+            EmailStatement::LAST_QUARTER => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subQuartersNoOverflow(2)->startOfQuarter()->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->subQuartersNoOverflow(2)->endOfQuarter()->format('Y-m-d')],
             EmailStatement::THIS_YEAR => [$fin_year_start->subYear()->format('Y-m-d'), $fin_year_start->copy()->subDay()->format('Y-m-d')],
             EmailStatement::LAST_YEAR => [$fin_year_start->subYear(2)->format('Y-m-d'), $fin_year_start->copy()->subYear()->subDay()->format('Y-m-d')],
             EmailStatement::CUSTOM_RANGE => [$data['start_date'], $data['end_date']],
-            default => [now()->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->startOfDay()->lastOfMonth()->format('Y-m-d')],
+            default => [now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->firstOfMonth()->format('Y-m-d'), now()->setTimezone($company->timezone()->name ?? 'Pacific/Midway')->startOfDay()->lastOfMonth()->format('Y-m-d')],
         };
 
     }
