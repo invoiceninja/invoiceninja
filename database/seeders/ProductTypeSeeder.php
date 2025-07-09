@@ -35,9 +35,22 @@ class ProductTypeSeeder extends Seeder
         ];
 
         foreach ($productTypes as $productType) {
-            $d = ProductType::find($productType['id']);
+            $record = ProductType::find($productType['id']);
 
-            if (!$d) {
+            if ($record) {
+                $record->id = $productType['id'];
+                $record->name = $productType['name'];
+                $record->user_id = $productType['user_id'];
+                $record->company_id = $productType['company_id'];
+                $record->is_custom = $productType['is_custom'];
+                $record->unit_of_measure = $productType['unit_of_measure'];
+                $record->allocation_aggregation_interval = $productType['allocation_aggregation_interval'];
+                $record->allocation_max_quantity = $productType['allocation_max_quantity'];
+                $record->serial_number_required = $productType['serial_number_required'];
+                $record->is_active = $productType['is_active'];
+
+                $record->save();
+            } else {
                 ProductType::create($productType);
             }
         }

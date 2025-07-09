@@ -41,6 +41,7 @@ class InvoiceItemFactory
         $item->custom_value2 = '';
         $item->custom_value3 = '';
         $item->custom_value4 = '';
+        $item->product_allocation_ids = [];
         $item->type_id = '1';
         $item->tax_id = '1';
 
@@ -65,7 +66,7 @@ class InvoiceItemFactory
             $item->line_total = $item->quantity * $item->cost;
             $item->is_amount_discount = true;
             $item->discount = rand(1, 10);
-            $item->notes = str_replace(['"',"'"], ['',""], $faker->realText(20));
+            $item->notes = str_replace(['"', "'"], ['', ""], $faker->realText(20));
             $item->product_key = $faker->word();
             // $item->custom_value1 = $faker->realText(10);
             // $item->custom_value2 = $faker->realText(10);
@@ -86,7 +87,7 @@ class InvoiceItemFactory
         $item->line_total = $item->quantity * $item->cost;
         $item->is_amount_discount = true;
         $item->discount = rand(1, 10);
-        $item->notes = str_replace(['"',"'"], ['',""], $faker->realText(20));
+        $item->notes = str_replace(['"', "'"], ['', ""], $faker->realText(20));
         $item->product_key = $faker->word();
         // $item->custom_value1 = $faker->realText(10);
         // $item->custom_value2 = $faker->realText(10);

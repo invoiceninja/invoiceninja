@@ -53,9 +53,16 @@ return new class extends Migration {
             $table->foreign('product_type')->references('id')->on('product_types')->onDelete('cascade')->onUpdate('cascade');
         });
 
+        // seed in migration to allow default value in product table for existing products
+        DB::table('product_types')->insert(['id' => 1]);
+
         Schema::table('products', function (Blueprint $table) {
-            $table->unsignedInteger('product_type')->index();
+            $table->unsignedInteger('product_type')->default(1)->index(); // seed existing product with id 1
             $table->foreign('product_type')->references('id')->on('product_types')->onDelete('cascade')->onUpdate('cascade');
+        });
+
+        Schema::table('products', function (Blueprint $table) {
+            $table->unsignedInteger('product_type')->default(null)->change(); // remove the default value as its no longer needed
         });
 
         Schema::create('product_allocations', function (Blueprint $table) {
