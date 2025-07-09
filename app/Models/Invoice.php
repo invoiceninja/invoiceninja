@@ -257,8 +257,8 @@ class Invoice extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => (string) $this->company->db.":".$this->id,
-            'name' => ctrans('texts.invoice') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'id' => (string) $this->company->db . ":" . $this->id,
+            'name' => ctrans('texts.invoice') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => $this->number,
             'is_deleted' => $this->is_deleted,
@@ -278,7 +278,7 @@ class Invoice extends BaseModel
 
     public function getScoutKey()
     {
-        return (string)$this->company->db.":".$this->id;
+        return (string) $this->company->db . ":" . $this->id;
     }
 
     public function getEntityType()
@@ -469,7 +469,7 @@ class Invoice extends BaseModel
 
     public function getStatusAttribute()
     {
-        
+
         $due_date = $this->due_date ? Carbon::parse($this->due_date) : false;
         $partial_due_date = $this->partial_due_date ? Carbon::parse($this->partial_due_date) : false;
 

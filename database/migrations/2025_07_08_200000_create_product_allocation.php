@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('product_types', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('company_id')->nullable()->index();
-            $table->unsignedInteger('user_id')->index();
+            $table->unsignedInteger('user_id')->nullable()->index();
             $table->unsignedInteger('assigned_user_id')->nullable();
             $table->string('name');
             $table->boolean('is_custom')->default(true);
@@ -40,9 +40,9 @@ return new class extends Migration {
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
         });
 
-        Schema::create('product_allocation_status', function (Blueprint $table) {
+        Schema::create('product_types_status', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('product_type')->index();
+            $table->unsignedInteger('product_type')->index();
             $table->string('name');
             $table->unsignedInteger('priority');
             // TODO: constraints to use next status like: auto_check (for check if next status can be set automaticly, when product_allocation/invoice gets updated), serial_number_required, client_required, invoice_required, payment_required
@@ -50,12 +50,12 @@ return new class extends Migration {
             // TODO: visibility in client portal => asset management for clients
 
             $table->unique(['product_type', 'name']);
-            $table->foreign('product_type')->references('id')->on('product_type')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('product_type')->references('id')->on('product_types')->onDelete('cascade')->onUpdate('cascade');
         });
 
         Schema::table('products', function (Blueprint $table) {
-            $table->string('product_type')->index();
-            $table->foreign('product_type')->references('id')->on('product_type')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedInteger('product_type')->index();
+            $table->foreign('product_type')->references('id')->on('product_types')->onDelete('cascade')->onUpdate('cascade');
         });
 
         Schema::create('product_allocations', function (Blueprint $table) {
@@ -99,8 +99,8 @@ return new class extends Migration {
             $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('product_type')->references('id')->on('product_typess')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign(['product_type', 'status'])->references(['product_type', 'id'])->on('product_types')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('product_type')->references('id')->on('product_types')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign(['product_type', 'status'])->references(['product_type', 'id'])->on('product_types_status')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade')->onUpdate('cascade');

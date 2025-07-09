@@ -42,6 +42,7 @@ use App\Http\Controllers\MailgunController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductAllocationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaxRateController;
 use App\Http\Controllers\WebCronController;
@@ -140,7 +141,7 @@ Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
-Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
 
     Route::post('password_timeout', PasswordTimeoutController::class)->name('password_timeout');
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');

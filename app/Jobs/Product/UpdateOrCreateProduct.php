@@ -14,7 +14,6 @@ namespace App\Jobs\Product;
 
 use App\Libraries\MultiDB;
 use App\Models\Product;
-use App\Models\ProductAllocation;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -71,9 +70,6 @@ class UpdateOrCreateProduct implements ShouldQueue
          * we do NOT update the product details this short block we
          * check for the presence of a task_id and/or expense_id
          */
-        // $expense_count = count(array_column((array) $this->line_items, 'expense_id'));
-        // $task_count = count(array_column((array) $this->line_items, 'task_id'));
-
         $task_count = implode("", array_column((array) $this->line_items, 'task_id'));
         $expense_count = implode("", array_column((array) $this->line_items, 'expense_id'));
 

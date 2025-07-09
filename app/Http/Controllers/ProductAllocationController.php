@@ -498,7 +498,7 @@ class ProductAllocationController extends BaseController
      *      path="/api/v1/product_allocations/{productAllocation}/upload",
      *      operationId="uploadProductAllocation",
      *      tags={"product_allocation"},
-     *      summary="Uploads a document to a product",
+     *      summary="Uploads a document to a product_allocation",
      *      description="Handles the uploading of a document to a product",
      *      @OA\Parameter(ref="#/components/parameters/X-API-TOKEN"),
      *      @OA\Parameter(ref="#/components/parameters/X-Requested-With"),

@@ -12,7 +12,6 @@
 
 namespace App\Jobs\RecurringInvoice;
 
-use App\Models\ProductAllocation;
 use Carbon\Carbon;
 use App\Utils\Ninja;
 use App\Models\Invoice;
@@ -173,7 +172,7 @@ class SendRecurring implements ShouldQueue
         }
 
         $invoice->invitations->each(function ($invitation) use ($invoice) {
-            if ($invitation->contact && ! $invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice') && !$invitation->contact->is_locked) {
+            if ($invitation->contact && !$invitation->contact->trashed() && strlen($invitation->contact->email) >= 1 && $invoice->client->getSetting('auto_email_invoice') && !$invitation->contact->is_locked) {
                 try {
                     EmailEntity::dispatch($invitation->withoutRelations(), $invoice->company->db, 'invoice')->delay(rand(1, 2));
                 } catch (\Exception $e) {
