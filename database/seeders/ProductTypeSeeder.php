@@ -4,15 +4,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2021. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace Database\Seeders;
 
-use App\Models\Design;
-use App\Services\PdfMaker\Design as PdfMakerDesign;
+use App\Models\ProductType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
@@ -22,10 +21,10 @@ class ProductTypeSeeder extends Seeder
     {
         Model::unguard();
 
-        $this->createDesigns();
+        $this->createProductTypes();
     }
 
-    private function createDesigns()
+    private function createProductTypes()
     {
         $productTypes = [
             ['id' => 1, 'name' => 'Physical', 'user_id' => null, 'company_id' => null, 'is_custom' => false, 'unit_of_measure' => 'EA', 'allocation_aggregation_interval' => null, 'allocation_max_quantity' => 1, 'serial_number' => true, 'is_active' => true],
@@ -36,27 +35,11 @@ class ProductTypeSeeder extends Seeder
         ];
 
         foreach ($productTypes as $productType) {
-            $d = Design::find($productType['id']);
+            $d = ProductType::find($productType['id']);
 
             if (!$d) {
-                Design::create($productType);
+                ProductType::create($productType);
             }
-        }
-
-        foreach (Design::all() as $productType) {
-            $template = new PdfMakerDesign(strtolower($productType->name));
-            $template->document();
-
-            $productType_object = new \stdClass;
-            $productType_object->includes = $template->getSectionHTML('style');
-            $productType_object->header = $template->getSectionHTML('header');
-            $productType_object->body = $template->getSectionHTML('body');
-            $productType_object->product = '';
-            $productType_object->task = '';
-            $productType_object->footer = $template->getSectionHTML('footer');
-
-            $productType->productType = $productType_object;
-            $productType->save();
         }
     }
 }
