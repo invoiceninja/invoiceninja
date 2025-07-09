@@ -4,7 +4,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2022. ProductAllocation Ninja LLC (https://paymentninja.com)
+ * @copyright Copyright (c) 2025. ProductAllocation Ninja LLC (https://paymentninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
