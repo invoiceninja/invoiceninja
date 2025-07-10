@@ -75,6 +75,9 @@ class ProductAllocationRepository extends BaseRepository
         if ($data['from'] !== null && $data['until'] !== null && $data['from']->gt($data['until']))
             throw new \Exception('Invalid from/until.');
 
+        if ($product->allocation_type === Product::ALLOCATION_TYPE_TIME_BASED && !isset($data['from']))
+            throw new \Exception('Invalid from/until. From required for time based allocations.');
+
         // subscription/recurring/project validation
         if (isset($data['subscription_id'])) {
             $subscription = Subscription::where('id', $data['subscription_id'])->first();

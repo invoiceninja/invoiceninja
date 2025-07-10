@@ -80,8 +80,8 @@ class Product extends BaseModel
     public const PRODUCT_TYPE_ZERO_RATED = 8;
     public const PRODUCT_TYPE_REVERSE_TAX = 9;
     public const PRODUCT_INTRA_COMMUNITY = 10;
-    public const ALLOCATION_TYPE_QUANTITY_BASED = 1;
-    public const ALLOCATION_TYPE_TIME_BASED = 2;
+    public const PRODUCT_ALLOCATION_TYPE_QUANTITY_BASED = 1;
+    public const PRODUCT_ALLOCATION_TYPE_TIME_BASED = 2;
 
     protected $fillable = [
         'custom_value1',
