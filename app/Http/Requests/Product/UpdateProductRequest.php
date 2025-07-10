@@ -46,6 +46,12 @@ class UpdateProductRequest extends Request
         $rules['stock_notification_threshold'] = 'sometimes|numeric';
         $rules['stock_notification'] = 'sometimes|bool';
 
+        $rules['unit_of_measure'] = 'sometimes|string';
+        $rules['serial_number_required'] = 'sometimes|bool';
+        $rules['allocation_type'] = 'sometimes|numeric';
+        $rules['allocation_aggregation_interval'] = 'sometimes|numeric';
+        $rules['allocation_max_quantity'] = 'sometimes|numeric';
+
         return $rules;
     }
 
@@ -57,7 +63,7 @@ class UpdateProductRequest extends Request
             $this->files->set('file', [$this->file('file')]);
         }
 
-        if (! isset($input['quantity'])) {
+        if (!isset($input['quantity'])) {
             $input['quantity'] = 1;
         }
 

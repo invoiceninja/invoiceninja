@@ -43,7 +43,6 @@ class DatabaseSeeder extends Seeder
             CountriesSeeder::class,
             IndustrySeeder::class,
             PaymentTypesSeeder::class,
-            ProductTypeSeeder::class,
             GatewayTypesSeeder::class,
             DateFormatsSeeder::class,
             DesignSeeder::class,

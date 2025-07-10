@@ -80,6 +80,8 @@ class Product extends BaseModel
     public const PRODUCT_TYPE_ZERO_RATED = 8;
     public const PRODUCT_TYPE_REVERSE_TAX = 9;
     public const PRODUCT_INTRA_COMMUNITY = 10;
+    public const ALLOCATION_TYPE_QUANTITY_BASED = 1;
+    public const ALLOCATION_TYPE_TIME_BASED = 2;
 
     protected $fillable = [
         'custom_value1',
@@ -103,7 +105,12 @@ class Product extends BaseModel
         'max_quantity',
         'product_image',
         'tax_id',
-        'product_type',
+        'unit_of_measure',
+        'allocation_type',
+        'serial_number_required',
+        'allocation_type',
+        'allocation_aggregation_interval',
+        'allocation_max_quantity',
     ];
 
     protected $casts = [
@@ -118,13 +125,13 @@ class Product extends BaseModel
         self::PRODUCT_TYPE_EXEMPT => 'E', // EXEMPT_FROM_TAX =
         self::PRODUCT_TYPE_PHYSICAL => 'S', // STANDARD_RATE =
         self::PRODUCT_TYPE_ZERO_RATED => 'Z', // ZERO_RATED_GOODS =
-        //  self::PRODUCT_TYPE_ZERO_RATED => 'G', // FREE_EXPORT_ITEM =
-        //  self::PRODUCT_TYPE_ZERO_RATED => 'O', // OUTSIDE_TAX_SCOPE =
-        //  self::PRODUCT_TYPE_EXEMPT => 'K', // EEA_GOODS_AND_SERVICES =
-        //  self::PRODUCT_TYPE_PHYSICAL => 'L', // CANARY_ISLANDS_INDIRECT_TAX =
-        //  self::PRODUCT_TYPE_PHYSICAL => 'M', // CEUTA_AND_MELILLA =
-        //  self::PRODUCT_TYPE_PHYSICAL => 'B', // TRANSFERRED_VAT_ITALY =
-        //  self::PRODUCT_TYPE_PHYSICAL => 'A', // MIXED_TAX_RATE =
+            //  self::PRODUCT_TYPE_ZERO_RATED => 'G', // FREE_EXPORT_ITEM =
+            //  self::PRODUCT_TYPE_ZERO_RATED => 'O', // OUTSIDE_TAX_SCOPE =
+            //  self::PRODUCT_TYPE_EXEMPT => 'K', // EEA_GOODS_AND_SERVICES =
+            //  self::PRODUCT_TYPE_PHYSICAL => 'L', // CANARY_ISLANDS_INDIRECT_TAX =
+            //  self::PRODUCT_TYPE_PHYSICAL => 'M', // CEUTA_AND_MELILLA =
+            //  self::PRODUCT_TYPE_PHYSICAL => 'B', // TRANSFERRED_VAT_ITALY =
+            //  self::PRODUCT_TYPE_PHYSICAL => 'A', // MIXED_TAX_RATE =
         self::PRODUCT_TYPE_REDUCED_TAX => 'AA', // LOWER_RATE =
         //  self::PRODUCT_TYPE_PHYSICAL => 'AB', // EXEMPT_FOR_RESALE =
         //  self::PRODUCT_TYPE_PHYSICAL => 'AC', // VAT_NOT_NOW_DUE =
@@ -201,11 +208,6 @@ class Product extends BaseModel
     public function product_allocations()
     {
         return $this->hasMany(ProductAllocation::class)->withTrashed();
-    }
-
-    public function product_type()
-    {
-        return $this->hasMany(ProductType::class)->withTrashed();
     }
 
     public function documents()

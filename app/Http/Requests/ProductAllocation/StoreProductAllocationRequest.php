@@ -49,7 +49,9 @@ class StoreProductAllocationRequest extends Request
         $rules['should_be_invoiced'] = 'sometimes|bool';
         $rules['serial_number'] = 'sometimes|string';
         $rules['invoice_aggregation_key'] = 'sometimes|string';
-        $rules['aggregation_intervall'] = 'sometimes|string';
+
+        $rules['from'] = 'sometimes|date';
+        $rules['until'] = 'sometimes|date';
 
         return $rules;
     }

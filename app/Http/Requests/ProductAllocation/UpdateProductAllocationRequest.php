@@ -60,10 +60,6 @@ class UpdateProductAllocationRequest extends Request
     {
         $input = $this->all();
 
-        if (!isset($input['quantity'])) {
-            $input['quantity'] = 1;
-        }
-
         if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
