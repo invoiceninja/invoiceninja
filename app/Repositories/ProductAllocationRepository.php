@@ -43,7 +43,7 @@ class ProductAllocationRepository extends BaseRepository
         $data['invoice_id'] ??= null;
         $data['recurring_id'] ??= null;
         $data['subscription_id'] ??= null;
-        $data['quantity'] ??= 1;
+        $data['quantity'] ??= null;
         $data['from'] = array_key_exists('from', $data) ? Carbon::parse($data['from']) : null;
         $data['until'] = array_key_exists('until', $data) ? Carbon::parse($data['until']) : null;
         $data['invoice_aggregation_key'] ??= null;
@@ -66,7 +66,9 @@ class ProductAllocationRepository extends BaseRepository
             throw new \Exception('Invalid quantity. serial_number requires quantity to be 1.');
 
         // quantity validity
-        if ($data['quantity'] <= 0)
+        if ($product->allocation_type === Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED && isset($data['quantity']))
+            throw new \Exception('Invalid quantity. Quantity is computed automaticly.');
+        if (isset($data['quantity']) && $data['quantity'] <= 0)
             throw new \Exception('Invalid quantity. 0 not allowed.');
         if (isset($product->allocation_max_quantity) && $data['quantity'] <= $product->allocation_max_quantity)
             throw new \Exception('Invalid quantity. allocation_max_quantity exceeded.');
@@ -74,9 +76,18 @@ class ProductAllocationRepository extends BaseRepository
         // from/until validity
         if ($data['from'] !== null && $data['until'] !== null && $data['from']->gt($data['until']))
             throw new \Exception('Invalid from/until.');
-
-        if ($product->allocation_type === Product::ALLOCATION_TYPE_TIME_BASED && !isset($data['from']))
+        if ($product->allocation_type === Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED && !isset($data['from']))
             throw new \Exception('Invalid from/until. From required for time based allocations.');
+
+        // PRODUCT_ALLOCATION_TYPE_TIME_BASED => validate/calculate quantity
+        if ($product->allocation_type === Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED && isset($data['from']) && isset($data['until'])) {
+            if ($product->unit_of_measure === 'M')
+                $data['quantity'] = $data['from']->diffInMinutes($data['until']);
+            else if ($product->unit_of_measure === 'H')
+                $data['quantity'] = $data['from']->diffInHours($data['until']);
+            else if ($product->unit_of_measure === 'D')
+                $data['quantity'] = $data['from']->diffInDays($data['until']);
+        }
 
         // subscription/recurring/project validation
         if (isset($data['subscription_id'])) {
@@ -143,7 +154,7 @@ class ProductAllocationRepository extends BaseRepository
                     ->where('until', '>=', $data['from']);
             } elseif ($data['from'] !== null && $data['until'] === null) {
                 // Open-ended range, match anything that starts before or at $data['from'] and has no end or ends after
-                $existingQuery->where(function ($q) use ($data['from']) {
+                $existingQuery->where(function ($q) use ($data) {
                     $q->where('until', '>=', $data['from'])->orWhereNull('until');
                 });
             } elseif ($data['from'] === null && $data['until'] !== null) {

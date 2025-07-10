@@ -33,8 +33,8 @@ return new class extends Migration {
             $table->unsignedInteger('recurring_id')->nullable();
             $table->unsignedInteger('subscription_id')->nullable();
 
-            $table->unsignedInteger('quantity')->default(1);
-            $table->dateTime('from');
+            $table->unsignedInteger('quantity');
+            $table->dateTime('from')->nullable();
             $table->dateTime('until')->nullable();
             $table->boolean('should_be_invoiced')->default(false);
             $table->string('invoice_aggregation_key')->nullable();
