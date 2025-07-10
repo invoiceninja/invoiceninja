@@ -29,6 +29,8 @@ use League\CommonMark\CommonMarkConverter;
  * @property int|null $recurring_id
  * @property int|null $subscription_id
  * @property float $quantity
+ * @property \Date|null $from
+ * @property \Date|null $until
  * @property bool $should_be_invoiced
  * @property string|null $invoice_aggregation_key
  * @property string|null $serial_number
@@ -65,6 +67,8 @@ class ProductAllocation extends BaseModel
         'recurring_id',
         'subscription_id',
         'quantity',
+        'from',
+        'until',
         'should_be_invoiced',
         'invoice_aggregation_key',
         'serial_number',

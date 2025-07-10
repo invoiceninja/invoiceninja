@@ -63,10 +63,6 @@ class UpdateProductRequest extends Request
             $this->files->set('file', [$this->file('file')]);
         }
 
-        if (!isset($input['quantity'])) {
-            $input['quantity'] = 1;
-        }
-
         if (isset($input['documents'])) {
             unset($input['documents']);
         }

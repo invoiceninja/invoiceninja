@@ -134,6 +134,8 @@ class ProductAllocationTransformer extends EntityTransformer
             'project_id' => $productAllocation->project_id ?: '',
             'subscription_id' => $productAllocation->subscription_id ?: '',
             'quantity' => is_numeric($productAllocation->quantity) ? (float) $productAllocation->quantity : (float) 1.0, //@phpstan-ignore-line
+            'from' => $productAllocation->from ?: null,
+            'until' => $productAllocation->until ?: null,
             'invoice_aggregation_key' => $productAllocation->invoice_aggregation_key ?: '',
             'serial_number' => $productAllocation->serial_number ?: '',
             'created_at' => (int) $productAllocation->created_at,
