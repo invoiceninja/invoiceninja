@@ -14,6 +14,7 @@ namespace App\Repositories;
 
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
+use App\Helpers\Invoice\AggregateProductAllocationToInvoiceItems;
 use App\Models\Product;
 
 /**
@@ -89,31 +90,27 @@ class ProjectRepository extends BaseRepository
                     $lines[] = $item;
                 });
 
-            // TODO: does not handle grouping of product_allocations as expected
+        }
+
+        $invoice->line_items = $lines;
+
+        foreach ($projects as $project) {
+
             $project->product_allocations()
                 ->withTrashed()
                 ->whereNull('invoice_id')
                 ->where('should_be_invoiced', true)
                 ->where('is_deleted', 0)
-                ->cursor()
-                ->each(function ($productAllocation) use (&$lines) {
+                ->get()
+                ->each(function ($product_allocations) use (&$invoice) {
 
-                    $item = new InvoiceItem();
-                    $item->quantity = $productAllocation->quantity;
-                    $item->cost = $productAllocation->product()->cost;
-                    $item->product_key = $productAllocation->product()->product_key;
-                    $item->notes = $productAllocation->public_notes ?? '';
-                    $item->line_total = round($item->cost * $item->quantity, 2);
-                    $item->product_allocation_ids = [$productAllocation->id];
-                    $item->type_id = '1';
+                    $invoice = (new AggregateProductAllocationToInvoiceItems($invoice, $product_allocations))->aggregate();
 
-                    $lines[] = $item;
                 });
 
         }
 
         $invoice->uses_inclusive_taxes = $project->company->settings->inclusive_taxes ?? false;
-        $invoice->line_items = $lines;
 
         return $invoice;
 
