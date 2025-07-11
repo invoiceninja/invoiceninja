@@ -30,7 +30,7 @@ class AggregateProductAllocationToInvoiceItems
     public function aggregate()
     {
         /*Don't double pay*/
-        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) { // TODO: @turbo124 how to check for the draft status depending on the user/company config
+        if ($this->invoice->status_id != Invoice::STATUS_DRAFT) {
             throw new \Exception('Invoice is not in draft status.');
         }
 

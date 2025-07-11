@@ -65,19 +65,57 @@ class UpdateOrCreateProductAllocation implements ShouldQueue
             return;
         }
 
-        //only update / create products + allocations - not tasks or gateway fees
+        // only update / create products + allocations - not tasks or gateway fees
         $updateable_products = collect($this->line_items)->filter(function ($item) {
             return $item->type_id == 1;
         });
 
-        $product_ids = [];
+        $used_product_allocation_ids = [];
 
+        // CONNECT EXTERNAL ENTRIES => ensure marking productAllocations, when they are connected already
+        // aggregates used product_allocation_ids
+        $used_product_allocation_ids = collect($this->line_items)
+            ->filter(function ($item) {
+                return $item->type_id == 1;
+            })
+            ->pluck('product_allocation_ids')
+            ->flatten()
+            ->unique()
+            ->values();
+        // assigns invoice to connected product_allocations
+        ProductAllocation::withTrashed()
+            ->whereIn('id', $used_product_allocation_ids)
+            ->where('company_id', $this->invoice->company->id)
+            ->whereNot('invoice_id', $this->invoice->id)
+            ->whereNot('invoice_aggregation_key', 'invoice-product-mapper')
+            ->update([
+                'invoice_id' => $this->invoice->id,
+            ]);
+        // unconnect all invalid connected product_allocations
+        ProductAllocation::withTrashed()
+            ->whereNotIn('id', $used_product_allocation_ids)
+            ->where('company_id', $this->invoice->company->id)
+            ->where('invoice_id', $this->invoice->id)
+            ->whereNot('invoice_aggregation_key', 'invoice-product-mapper')
+            ->update([
+                'invoice_id' => null,
+            ]);
+
+        // CUSTOM MAPPER => create custom data in external table with data of products
+        // remove all existing mappers
+        ProductAllocation::withTrashed()
+            ->where('company_id', $this->invoice->company->id)
+            ->where('invoice_id', $this->invoice->id)
+            ->where('invoice_aggregation_key', 'invoice-product-mapper')
+            ->delete();
         /** @var \App\DataMapper\InvoiceItem $item */
         foreach ($updateable_products as $item) {
             if (empty($item->product_key) || (isset($item->product_allocation_ids) && count($item->product_allocation_ids) > 0)) {
                 continue;
             }
 
+
+            // create virtual mapper, when no product_allocation_ids are used
             $product = Product::withTrashed()->firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
 
             $productAllocation = ProductAllocation::withTrashed()->firstOrNew([
@@ -100,22 +138,11 @@ class UpdateOrCreateProductAllocation implements ShouldQueue
                 continue;
             }
 
-            // add to array of valid product_ids of mappers for this invoice
-            $product_ids[] = $product->id;
-
             // save
             $product->saveQuietly();
             $productAllocation->saveQuietly();
 
         }
-
-        // remove all invalid mappers
-        $productAllocation = ProductAllocation::withTrashed()
-            ->whereNotIn('product_id', $product_ids)
-            ->where('company_id', $this->invoice->company->id)
-            ->where('invoice_id', $this->invoice->id)
-            ->where('invoice_aggregation_key', 'invoice-product-mapper')
-            ->delete();
     }
 
     public function failed($exception = null)
