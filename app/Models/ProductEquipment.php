@@ -15,24 +15,16 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\ProductAllocation
+ * App\Models\ProductEquipment
  *
  * @property int $id
  * @property int $company_id
  * @property int $user_id
  * @property int $product_id
  * @property int|null $assigned_user_id
+ * @property int|null $product_id
+ * @property int|string $serial_number
  * @property int|null $client_id
- * @property int|null $project_id
- * @property int|null $equipment_id
- * @property int|null $invoice_id
- * @property int|null $recurring_id
- * @property int|null $subscription_id
- * @property float $quantity
- * @property \Date|null $from
- * @property \Date|null $until
- * @property bool $should_be_invoiced
- * @property string|null $invoice_aggregation_key
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3
@@ -48,31 +40,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\Product $product
  * @property-read \App\Models\Client|null $client
- * @property-read \App\Models\Project|null $project
- * @property-read \App\Models\ProductEquipment|null $product_equipment
- * @property-read \App\Models\Invoice|null $invoice
- * @property-read \App\Models\RecurringInvoice|null $recurring_invoice
- * @property-read \App\Models\Subscription|null $subscription
+ * @property-read \App\Models\ProductAllocation|null $product_allocations
  * @mixin \Eloquent
  */
-class ProductAllocation extends BaseModel
+class ProductEquipment extends BaseModel
 {
     use MakesHash;
     use SoftDeletes;
     use Filterable;
 
     protected $fillable = [
+        'product_id',
+        'serial_number',
         'client_id',
-        'project_id',
-        'equipment_id',
-        'invoice_id',
-        'recurring_id',
-        'subscription_id',
-        'quantity',
-        'from',
-        'until',
-        'should_be_invoiced',
-        'invoice_aggregation_key',
         'custom_value1',
         'custom_value2',
         'custom_value3',
@@ -117,33 +97,8 @@ class ProductAllocation extends BaseModel
         return $this->belongsTo(Client::class)->withTrashed();
     }
 
-    public function project()
+    public function product_allocations()
     {
-        return $this->belongsTo(Project::class)->withTrashed();
-    }
-
-    public function product_equipment()
-    {
-        return $this->belongsTo(ProductEquipment::class)->withTrashed();
-    }
-
-    public function invoice()
-    {
-        return $this->belongsTo(Invoice::class)->withTrashed();
-    }
-
-    public function recurring_invoice()
-    {
-        return $this->belongsTo(RecurringInvoice::class)->withTrashed();
-    }
-
-    public function subscription()
-    {
-        return $this->belongsTo(Subscription::class)->withTrashed();
-    }
-
-    public function documents()
-    {
-        return $this->morphMany(Document::class, 'documentable');
+        return $this->hasMany(ProductAllocation::class)->withTrashed();
     }
 }

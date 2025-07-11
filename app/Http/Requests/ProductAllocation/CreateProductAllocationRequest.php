@@ -38,6 +38,8 @@ class CreateProductAllocationRequest extends Request
     {
         $input = $this->all();
 
+        $input = $this->decodePrimaryKeys($input);
+
         if (array_key_exists('product_key', $input) && is_string($input['product_key'])) {
             $input['product_id'] = Product::where('product_key', $input['product_key'])->first()->id;
         }

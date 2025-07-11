@@ -14,9 +14,9 @@ namespace App\Filters;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * ProductAllocationFilters.
+ * ProductEquipmentFilters.
  */
-class ProductAllocationFilters extends QueryFilters
+class ProductEquipmentFilters extends QueryFilters
 {
     protected $with_property = 'product_key';
 
@@ -33,7 +33,7 @@ class ProductAllocationFilters extends QueryFilters
         }
 
         return $this->builder->where(function ($query) use ($filter) {
-            $query->where('invoice_aggregation_key', 'like', '%' . $filter . '%')
+            $query->where('serial_number', 'like', '%' . $filter . '%')
                 ->orWhere('private_notes', 'like', '%' . $filter . '%')
                 ->orWhere('public_notes', 'like', '%' . $filter . '%')
                 ->orWhere('custom_value1', 'like', '%' . $filter . '%')
@@ -51,18 +51,18 @@ class ProductAllocationFilters extends QueryFilters
     }
 
     /**
-     * Filter based on invoice aggregation keys
+     * Filter based on serial_number
      * @param string $filter
      * @return Builder
      */
-    public function invoice_aggregation_keys(string $filter = ''): Builder
+    public function serial_number(string $filter = ''): Builder
     {
 
         if (strlen($filter) == 0) {
             return $this->builder;
         }
 
-        return $this->builder->whereIn('invoice_aggregation_key', explode(",", $filter));
+        return $this->builder->whereIn('serial_number', explode(",", $filter));
 
     }
 
@@ -128,72 +128,6 @@ class ProductAllocationFilters extends QueryFilters
         }
 
         return $this->builder->whereIn('project_id', explode(",", $filter));
-
-    }
-
-    /**
-     * Filter based on invoice id
-     * @param string $filter
-     * @return Builder
-     */
-    public function invoices(string $filter = ''): Builder
-    {
-
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        return $this->builder->whereIn('invoice_id', explode(",", $filter));
-
-    }
-
-    /**
-     * Filter based on invoice status
-     * @param string $filter
-     * @return Builder
-     */
-    public function invoice_status(string $filter = ''): Builder
-    {
-
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        return $this->builder->whereHas('invoice', function ($query) use ($filter) {
-            $query->whereIn('status_id', explode(",", $filter));
-        });
-
-    }
-
-    /**
-     * Filter based on recurring invoice id
-     * @param string $filter
-     * @return Builder
-     */
-    public function recurring_invoices(string $filter = ''): Builder
-    {
-
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        return $this->builder->whereIn('recurring_id', explode(",", $filter));
-
-    }
-
-    /**
-     * Filter based on subscription id
-     * @param string $filter
-     * @return Builder
-     */
-    public function subscriptions(string $filter = ''): Builder
-    {
-
-        if (strlen($filter) == 0) {
-            return $this->builder;
-        }
-
-        return $this->builder->whereIn('subscriptions', explode(",", $filter));
 
     }
 

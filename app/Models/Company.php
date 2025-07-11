@@ -186,6 +186,8 @@ use Laracasts\Presenter\PresentableTrait;
  * @property-read int|null $payments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Product> $products
  * @property-read int|null $products_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductEquipment> $product_equipments
+ * @property-read int|null $product_equipments_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductAllocation> $product_allocations
  * @property-read int|null $product_allocations_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Project> $projects
@@ -653,6 +655,14 @@ class Company extends BaseModel
     public function products()
     {
         return $this->hasMany(Product::class)->withTrashed();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function product_equipments()
+    {
+        return $this->hasMany(ProductEquipment::class)->withTrashed();
     }
 
     /**

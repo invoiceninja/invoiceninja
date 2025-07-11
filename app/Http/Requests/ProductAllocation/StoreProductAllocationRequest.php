@@ -12,6 +12,7 @@
 namespace App\Http\Requests\ProductAllocation;
 
 use App\Http\Requests\Request;
+use App\Models\Product;
 use App\Models\ProductAllocation;
 
 class StoreProductAllocationRequest extends Request
@@ -45,6 +46,14 @@ class StoreProductAllocationRequest extends Request
             $rules['file'] = $this->fileValidation();
         }
 
+        $rules['company_id'] = 'required|numeric';
+        $rules['product_id'] = 'required|numeric';
+        $rules['client_id'] = 'sometimes|numeric';
+        $rules['recurring_id'] = 'sometimes|numeric';
+        $rules['project_id'] = 'sometimes|numeric';
+        $rules['subscription_id'] = 'sometimes|numeric';
+        $rules['invoice_id'] = 'sometimes|numeric';
+
         $rules['quantity'] = 'sometimes|numeric';
         $rules['should_be_invoiced'] = 'sometimes|bool';
         $rules['serial_number'] = 'sometimes|string';
@@ -60,12 +69,22 @@ class StoreProductAllocationRequest extends Request
     {
         $input = $this->all();
 
-        if (!isset($input['quantity'])) {
-            $input['quantity'] = 1;
+        $input = $this->decodePrimaryKeys($input);
+
+        if (array_key_exists('product_key', $input) && is_string($input['product_key'])) {
+            $input['product_id'] = Product::where('product_key', $input['product_key'])->first()->id;
         }
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        if (array_key_exists('company_id', $input) && is_string($input['company_id'])) {
+            $input['company_id'] = $this->decodePrimaryKey($input['company_id']);
+        }
+
+        if (array_key_exists('recurring_id', $input) && is_string($input['recurring_id'])) {
+            $input['recurring_id'] = $this->decodePrimaryKey($input['recurring_id']);
+        }
+
+        if (array_key_exists('product_id', $input) && is_string($input['product_id'])) {
+            $input['product_id'] = $this->decodePrimaryKey($input['product_id']);
         }
 
         $this->replace($input);

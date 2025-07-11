@@ -10,6 +10,7 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+use App\Http\Controllers\ProductEquipmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BaseController;
 use App\Http\Controllers\PingController;
@@ -313,6 +314,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json', 'loca
     Route::resource('products', ProductController::class); // name = (products. index / create / show / update / destroy / edit
     Route::post('products/bulk', [ProductController::class, 'bulk'])->name('products.bulk');
     Route::put('products/{product}/upload', [ProductController::class, 'upload']);
+
+    Route::resource('product_equipments', ProductEquipmentController::class); // name = (productEquipments. index / create / show / update / destroy / edit
+    Route::post('product_equipments/bulk', [ProductEquipmentController::class, 'bulk'])->name('product_equipments.bulk');
+    Route::put('product_equipments/{productEquipment}/upload', [ProductEquipmentController::class, 'upload']);
 
     Route::resource('product_allocations', ProductAllocationController::class); // name = (productAllocations. index / create / show / update / destroy / edit
     Route::post('product_allocations/bulk', [ProductAllocationController::class, 'bulk'])->name('product_allocations.bulk');

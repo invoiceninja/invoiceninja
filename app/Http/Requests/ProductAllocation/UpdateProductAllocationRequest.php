@@ -12,6 +12,7 @@
 namespace App\Http\Requests\ProductAllocation;
 
 use App\Http\Requests\Request;
+use App\Models\Product;
 use App\Utils\Traits\ChecksEntityStatus;
 
 class UpdateProductAllocationRequest extends Request
@@ -60,8 +61,10 @@ class UpdateProductAllocationRequest extends Request
     {
         $input = $this->all();
 
-        if (array_key_exists('assigned_user_id', $input) && is_string($input['assigned_user_id'])) {
-            $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
+        $input = $this->decodePrimaryKeys($input);
+
+        if (array_key_exists('product_key', $input) && is_string($input['product_key'])) {
+            $input['product_id'] = Product::where('product_key', $input['product_key'])->first()->id;
         }
 
         $this->replace($input);

@@ -59,6 +59,7 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
  * @property int|null $tax_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductEquipment> $product_equipments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductAllocation> $product_allocations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereTaxId($value)
@@ -203,6 +204,11 @@ class Product extends BaseModel
     public function assigned_user()
     {
         return $this->belongsTo(User::class, 'assigned_user_id', 'id')->withTrashed();
+    }
+
+    public function product_equipments()
+    {
+        return $this->hasMany(ProductEquipment::class)->withTrashed();
     }
 
     public function product_allocations()

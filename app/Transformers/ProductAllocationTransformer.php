@@ -31,9 +31,11 @@ class ProductAllocationTransformer extends EntityTransformer
     protected array $availableIncludes = [
         'company',
         'user',
+        'product',
+        'client',
+        'project',
         'invoice',
         'recurring_invoice',
-        'project',
         'subscription',
     ];
 
@@ -66,6 +68,42 @@ class ProductAllocationTransformer extends EntityTransformer
      *
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
+    public function includeProduct(ProductAllocation $productAllocation)
+    {
+        $transformer = new InvoiceTransformer($this->serializer);
+
+        return $this->includeItem($productAllocation->product, $transformer, Invoice::class);
+    }
+
+    /**
+     * @param ProductAllocation $productAllocation
+     *
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    public function includeClient(ProductAllocation $productAllocation)
+    {
+        $transformer = new ProjectTransformer($this->serializer);
+
+        return $this->includeItem($productAllocation->client, $transformer, Project::class);
+    }
+
+    /**
+     * @param ProductAllocation $productAllocation
+     *
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
+    public function includeProject(ProductAllocation $productAllocation)
+    {
+        $transformer = new ProjectTransformer($this->serializer);
+
+        return $this->includeItem($productAllocation->project, $transformer, Project::class);
+    }
+
+    /**
+     * @param ProductAllocation $productAllocation
+     *
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     */
     public function includeInvoice(ProductAllocation $productAllocation)
     {
         $transformer = new InvoiceTransformer($this->serializer);
@@ -83,18 +121,6 @@ class ProductAllocationTransformer extends EntityTransformer
         $transformer = new RecurringInvoiceTransformer($this->serializer);
 
         return $this->includeItem($productAllocation->recurring_invoice, $transformer, RecurringInvoice::class);
-    }
-
-    /**
-     * @param ProductAllocation $productAllocation
-     *
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
-     */
-    public function includeProject(ProductAllocation $productAllocation)
-    {
-        $transformer = new ProjectTransformer($this->serializer);
-
-        return $this->includeItem($productAllocation->project, $transformer, Project::class);
     }
 
     /**

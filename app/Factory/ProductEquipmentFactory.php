@@ -11,13 +11,13 @@
 
 namespace App\Factory;
 
-use App\Models\ProductAllocation;
+use App\Models\ProductEquipment;
 
-class ProductAllocationFactory
+class ProductEquipmentFactory
 {
-    public static function create(int $company_id, int $user_id, int $product_id): ProductAllocation
+    public static function create(int $company_id, int $user_id, int $product_id): ProductEquipment
     {
-        $productAllocation = new ProductAllocation();
+        $productAllocation = new ProductEquipment();
 
         $productAllocation->company_id = $company_id;
         $productAllocation->user_id = $user_id;
