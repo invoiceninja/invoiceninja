@@ -49,10 +49,18 @@ class UpdateProductAllocationRequest extends Request
             $rules['file'] = $this->fileValidation();
         }
 
+        $rules['client_id'] = 'sometimes|numeric';
+        $rules['recurring_id'] = 'sometimes|numeric';
+        $rules['project_id'] = 'sometimes|numeric';
+        $rules['subscription_id'] = 'sometimes|numeric';
+        $rules['invoice_id'] = 'sometimes|numeric';
+
         $rules['quantity'] = 'sometimes|numeric';
         $rules['should_be_invoiced'] = 'sometimes|bool';
-        $rules['serial_number'] = 'sometimes|string';
         $rules['invoice_aggregation_key'] = 'sometimes|string';
+
+        $rules['from'] = 'sometimes|date';
+        $rules['until'] = 'sometimes|date';
 
         return $rules;
     }
@@ -63,8 +71,29 @@ class UpdateProductAllocationRequest extends Request
 
         $input = $this->decodePrimaryKeys($input);
 
-        if (array_key_exists('product_key', $input) && is_string($input['product_key'])) {
-            $input['product_id'] = Product::where('product_key', $input['product_key'])->first()->id;
+
+        if (array_key_exists('company_id', $input)) {
+            unset($input['company_id']);
+        }
+
+        if (array_key_exists('product_id', $input)) {
+            unset($input['product_id']);
+        }
+
+        if (array_key_exists('equipment_id', $input)) {
+            unset($input['equipment_id']);
+        }
+
+        if (array_key_exists('recurring_id', $input) && is_string($input['recurring_id'])) {
+            $input['recurring_id'] = $this->decodePrimaryKey($input['recurring_id']);
+        }
+
+        if (array_key_exists('product_id', $input) && is_string($input['product_id'])) {
+            $input['product_id'] = $this->decodePrimaryKey($input['product_id']);
+        }
+
+        if (array_key_exists('equipment_id', $input) && is_string($input['equipment_id'])) {
+            $input['equipment_id'] = $this->decodePrimaryKey($input['equipment_id']);
         }
 
         $this->replace($input);

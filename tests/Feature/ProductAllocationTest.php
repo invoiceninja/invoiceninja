@@ -76,7 +76,7 @@ class ProductAllocationTest extends TestCase
             ->assertStatus(400)
             ->assertJson(["message" => "Allocation not allowed by product configuration."]);
     }
-    public function testMissingSerialNumberWhenRequired()
+    public function testMissingEquipmentWhenRequired()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
@@ -96,7 +96,7 @@ class ProductAllocationTest extends TestCase
         ])
             ->postJson('/api/v1/product_allocations', $data)
             ->assertStatus(400)
-            ->assertJson(["message" => "Missing serial_number."]);
+            ->assertJson(["message" => "Missing equipment_id."]);
     }
     public function testInvalidFromAfterUntil()
     {
@@ -146,7 +146,7 @@ class ProductAllocationTest extends TestCase
             ->assertStatus(400)
             ->assertJson(["message" => "Invalid quantity. 0 not allowed."]);
     }
-    public function testValidQuantityBasedAllocationSucceedsAndTestGrouping()
+    public function testValidQuantityBasedAllocationWithGrouping()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
@@ -202,37 +202,93 @@ class ProductAllocationTest extends TestCase
             ->assertStatus(400)
             ->assertJson(["message" => "Invalid from/until. From required for time based allocations."]);
     }
-    public function testInvalidTimeBasedAllocationDuplicateSerialNumberCheck()
+    public function testInvalidTimeBasedAllocationInvalidQuantity()
     {
         $product = Product::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
             'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED,
-            'allocation_equipment_required' => true,
+            'unit_of_measure' => 'H',
         ]);
 
-        // First allocation
         $data = [
             'company_id' => $this->company->hashed_id,
             'product_id' => $this->encodePrimaryKey($product->id),
             'quantity' => 1,
-            'serial_number' => 'ABC123',
-            'from' => now()->toISOString(),
-            'until' => now()->addHours(2)->toISOString(),
         ];
 
-        $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])->postJson('/api/v1/product_allocations', $data)->assertStatus(200);
-
-        // Duplicate serial allocation
         $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
             ->assertStatus(400)
-            ->assertJson(["message" => "Duplicate detected."]);
+            ->assertJson(["message" => "Invalid quantity. Quantity is computed automaticly."]);
+    }
+    public function testValidTimeBasedAllocationWithLifeCycle()
+    {
+        $product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED,
+            'unit_of_measure' => 'H',
+        ]);
+
+        // Create Entry with only from (incomplete)
+        $data = [
+            'company_id' => $this->company->hashed_id,
+            'product_id' => $this->encodePrimaryKey($product->id),
+            'from' => now()->toISOString(),
+        ];
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/product_allocations', $data)
+            ->assertJsonPath('data.from', $data['from'])
+            ->assertJsonPath('data.until', null)
+            ->assertJsonPath('data.quantity', 0);
+
+
+        // Now add the until (complete entry)
+        $data['until'] = now()->addHours(2)->toISOString();
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])
+            ->putJson('/api/v1/product_allocations/' . $response->json('data.id'), [
+                'until' => $data['until'],
+            ])
+            ->assertStatus(200)
+            ->assertJsonPath('data.id', $response->json('data.id'))
+            ->assertJsonPath('data.from', $data['from'])
+            ->assertJsonPath('data.until', $data['until'])
+            ->assertJsonPath('data.quantity', function ($value) {
+                return $value !== 0;
+            });
+    }
+    public function testValidTimeBasedAllocationCompleted()
+    {
+        $product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED,
+            'unit_of_measure' => 'H',
+        ]);
+
+        // Create already completed
+        $data = [
+            'company_id' => $this->company->hashed_id,
+            'product_id' => $this->encodePrimaryKey($product->id),
+            'from' => now()->toISOString(),
+            'until' => now()->addHours(2)->toISOString(),
+        ];
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/product_allocations', $data)
+            ->assertStatus(200)
+            ->assertJsonPath('data.quantity', function ($value) {
+                return $value !== 0;
+            });
     }
 }

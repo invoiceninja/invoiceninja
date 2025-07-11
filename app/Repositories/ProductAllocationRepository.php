@@ -32,11 +32,13 @@ class ProductAllocationRepository extends BaseRepository
      * @param ProductAllocation $productAllocation
      * @return ProductAllocation|null
      */
-    public function save(string $company_id, string $user_id, array $data): ?ProductAllocation
+    public function create(string $company_id, string $user_id, array $data): ?ProductAllocation
     {
         // VALIDATE INPUT => the system will check if the provided data is valid based on the product configuration
         /** @var Product $product */
         $product;
+        /** @var Invoice $invoice */
+        $invoice;
 
         $data['client_id'] ??= null;
         $data['project_id'] ??= null;
@@ -209,7 +211,6 @@ class ProductAllocationRepository extends BaseRepository
 
         // checks and modifications to input data
         if (isset($productAllocation)) {
-            nlog($productAllocation);
             // ignore when merging would result in an invalid entry
             if (isset($product->allocation_max_quantity) && $data['quantity'] + $productAllocation->quantity > $product->allocation_max_quantity)
                 $productAllocation = null;
@@ -229,7 +230,29 @@ class ProductAllocationRepository extends BaseRepository
             $this->saveDocuments($data['documents'], $productAllocation);
         }
 
-        // TODO: dispatch job for reloading invoice, when invoice is provided
+        // apply productAllocation to invoice if specified
+        if (isset($invoice)) {
+            $invoice = $invoice->service()->applyProductAllocations([$productAllocation]);
+            $invoice->save();
+        }
+
+        return $productAllocation;
+    }
+
+    /**
+     * @param array $data
+     * @param ProductAllocation $productAllocation
+     * @return ProductAllocation|null
+     */
+    public function save(array $data, ProductAllocation $productAllocation): ?ProductAllocation
+    {
+
+        $productAllocation->fill($data);
+        $productAllocation->save();
+
+        if (array_key_exists('documents', $data)) {
+            $this->saveDocuments($data['documents'], $productAllocation);
+        }
 
         return $productAllocation;
     }

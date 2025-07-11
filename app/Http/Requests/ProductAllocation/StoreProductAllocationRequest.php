@@ -51,12 +51,12 @@ class StoreProductAllocationRequest extends Request
         $rules['client_id'] = 'sometimes|numeric';
         $rules['recurring_id'] = 'sometimes|numeric';
         $rules['project_id'] = 'sometimes|numeric';
+        $rules['equipment_id'] = 'sometimes|string';
         $rules['subscription_id'] = 'sometimes|numeric';
         $rules['invoice_id'] = 'sometimes|numeric';
 
         $rules['quantity'] = 'sometimes|numeric';
         $rules['should_be_invoiced'] = 'sometimes|bool';
-        $rules['serial_number'] = 'sometimes|string';
         $rules['invoice_aggregation_key'] = 'sometimes|string';
 
         $rules['from'] = 'sometimes|date';
@@ -85,6 +85,10 @@ class StoreProductAllocationRequest extends Request
 
         if (array_key_exists('product_id', $input) && is_string($input['product_id'])) {
             $input['product_id'] = $this->decodePrimaryKey($input['product_id']);
+        }
+
+        if (array_key_exists('equipment_id', $input) && is_string($input['equipment_id'])) {
+            $input['equipment_id'] = $this->decodePrimaryKey($input['equipment_id']);
         }
 
         $this->replace($input);
