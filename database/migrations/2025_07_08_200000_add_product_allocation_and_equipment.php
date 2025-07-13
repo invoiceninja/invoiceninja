@@ -13,11 +13,9 @@ return new class extends Migration {
 
         Schema::table('products', function (Blueprint $table) {
             $table->string('unit_of_measure')->nullable();
-            $table->boolean('is_equipment');
             $table->string('allocation_type')->nullable();
             $table->boolean('allocation_equipment_required')->nullable();
             $table->string('allocation_aggregation_interval')->nullable();
-            $table->unsignedInteger('allocation_max_quantity')->nullable();
         });
 
         Schema::create('product_equipments', function (Blueprint $table) {

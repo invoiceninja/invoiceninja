@@ -56,8 +56,9 @@ class ProductAllocationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(422);
-        // ->assertJson(["message" => "Missing product_id."]); // overwritten by request required
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['product_id'])
+            ->assertJsonPath('errors.product_id.0', 'The product id field is required.');
     }
     public function testNoProductAllocation()
     {
@@ -73,8 +74,9 @@ class ProductAllocationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(400)
-            ->assertJson(["message" => "Allocation not allowed by product configuration."]);
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['product_id'])
+            ->assertJsonPath('errors.product_id.0', 'The selected product id is invalid.');
     }
     public function testMissingEquipmentWhenRequired()
     {
@@ -95,8 +97,9 @@ class ProductAllocationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(400)
-            ->assertJson(["message" => "Missing equipment_id."]);
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['equipment_id'])
+            ->assertJsonPath('errors.equipment_id.0', 'Required by product configuration.');
     }
     public function testInvalidFromAfterUntil()
     {
@@ -119,8 +122,33 @@ class ProductAllocationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(400)
-            ->assertJson(["message" => "Invalid from/until."]);
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['until'])
+            ->assertJsonPath('errors.until.0', 'Has to be after from.');
+    }
+    public function testInvalidInvoiceAggregationKey()
+    {
+        $product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_QUANTITY_BASED,
+        ]);
+
+        $data = [
+            'company_id' => $this->company->hashed_id,
+            'product_id' => $this->encodePrimaryKey($product->id),
+            'quantity' => 1,
+            'invoice_aggregation_key' => 'invoice-product-mapper'
+        ];
+
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])
+            ->postJson('/api/v1/product_allocations', $data)
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['invoice_aggregation_key'])
+            ->assertJsonPath('errors.invoice_aggregation_key.0', 'The selected invoice aggregation key is invalid.');
     }
 
     // QUANTITY BASED ALLOCATION
@@ -143,8 +171,9 @@ class ProductAllocationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(400)
-            ->assertJson(["message" => "Invalid quantity. 0 not allowed."]);
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['quantity'])
+            ->assertJsonPath('errors.quantity.0', '0 not allowed in quantity based allocation.');
     }
     public function testValidQuantityBasedAllocationWithGrouping()
     {
@@ -199,31 +228,9 @@ class ProductAllocationTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])
             ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(400)
-            ->assertJson(["message" => "Invalid from/until. From required for time based allocations."]);
-    }
-    public function testInvalidTimeBasedAllocationInvalidQuantity()
-    {
-        $product = Product::factory()->create([
-            'company_id' => $this->company->id,
-            'user_id' => $this->user->id,
-            'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_TIME_BASED,
-            'unit_of_measure' => 'H',
-        ]);
-
-        $data = [
-            'company_id' => $this->company->hashed_id,
-            'product_id' => $this->encodePrimaryKey($product->id),
-            'quantity' => 1,
-        ];
-
-        $this->withHeaders([
-            'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
-        ])
-            ->postJson('/api/v1/product_allocations', $data)
-            ->assertStatus(400)
-            ->assertJson(["message" => "Invalid quantity. Quantity is computed automaticly."]);
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['from'])
+            ->assertJsonPath('errors.from.0', 'Required for time based allocations.');
     }
     public function testValidTimeBasedAllocationWithLifeCycle()
     {
@@ -247,7 +254,6 @@ class ProductAllocationTest extends TestCase
             ->assertJsonPath('data.from', $data['from'])
             ->assertJsonPath('data.until', null)
             ->assertJsonPath('data.quantity', 0);
-
 
         // Now add the until (complete entry)
         $data['until'] = now()->addHours(2)->toISOString();

@@ -99,6 +99,7 @@ class ProjectRepository extends BaseRepository
             $project->product_allocations()
                 ->withTrashed()
                 ->whereNull('invoice_id')
+                ->where('quantity', '<>', 0)
                 ->where('should_be_invoiced', true)
                 ->where('is_deleted', 0)
                 ->get()

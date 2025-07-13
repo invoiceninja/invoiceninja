@@ -59,6 +59,10 @@ use League\CommonMark\CommonMarkConverter;
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
  * @property int|null $tax_id
+ * @property string|null $unit_of_measure
+ * @property string|null $allocation_type
+ * @property bool|null $allocation_equipment_required
+ * @property string|null $allocation_aggregation_interval
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductEquipment> $product_equipments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ProductAllocation> $product_allocations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
@@ -108,10 +112,8 @@ class Product extends BaseModel
         'tax_id',
         'unit_of_measure',
         'allocation_type',
-        'serial_number_required',
-        'allocation_type',
+        'allocation_equipment_required',
         'allocation_aggregation_interval',
-        'allocation_max_quantity',
     ];
 
     protected $casts = [

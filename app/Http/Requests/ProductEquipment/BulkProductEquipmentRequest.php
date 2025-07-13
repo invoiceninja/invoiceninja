@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -9,13 +10,13 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Http\Requests\ProductAllocation;
+namespace App\Http\Requests\ProductEquipment;
 
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 
-class BulkProductAllocationRequest extends Request
+class BulkProductEquipmentRequest extends Request
 {
     use MakesHash;
 
@@ -32,7 +33,7 @@ class BulkProductAllocationRequest extends Request
     public function rules()
     {
         return [
-            'ids' => ['required', 'bail', 'array', Rule::exists('product_allocations', 'id')->where('company_id', auth()->user()->company()->id)],
+            'ids' => ['required', 'bail', 'array', Rule::exists('product_equipments', 'id')->where('company_id', auth()->user()->company()->id)],
             'action' => 'in:archive,restore,delete',
         ];
     }

@@ -186,7 +186,7 @@ class ProductAllocationController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        $productAllocation = $this->product_allocation_repo->create($user->company()->id, $user->id, $request->all());
+        $productAllocation = $this->product_allocation_repo->store($user->company()->id, $user->id, $request->all());
 
         return $this->itemResponse($productAllocation);
     }
@@ -353,7 +353,7 @@ class ProductAllocationController extends BaseController
             return $request->disallowUpdate();
         }
 
-        $productAllocation = $this->product_allocation_repo->save($request->all(), $productAllocation);
+        $productAllocation = $this->product_allocation_repo->update($request->all(), $productAllocation);
 
         return $this->itemResponse($productAllocation);
     }

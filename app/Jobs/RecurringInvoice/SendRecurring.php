@@ -66,6 +66,7 @@ class SendRecurring implements ShouldQueue
         // populate with outstanding, not already invoiced product allocations
         $product_allocations = $this->recurring_invoice->product_allocations()->withTrashed()
             ->whereNull('invoice_id')
+            ->where('quantity', '<>', 0)
             ->where('should_be_invoiced')
             ->where('is_deleted', 0)
             ->all()->toArray();
