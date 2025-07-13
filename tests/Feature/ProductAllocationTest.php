@@ -11,6 +11,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Invoice;
 use App\Models\Product;
 use Tests\TestCase;
 use Tests\MockAccountData;
@@ -296,5 +297,54 @@ class ProductAllocationTest extends TestCase
             ->assertJsonPath('data.quantity', function ($value) {
                 return $value !== 0;
             });
+    }
+
+    // INVOICE INTEGRATION
+    public function testValidCreationAssignedToInvoice()
+    {
+        $invoice = Invoice::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $this->client->id,
+            'status_id' => Invoice::STATUS_DRAFT,
+            'line_items' => [],
+        ]);
+        $product = Product::factory()->create([
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_QUANTITY_BASED,
+        ]);
+        $data = [
+            'company_id' => $this->company->hashed_id,
+            'product_id' => $this->encodePrimaryKey($product->id),
+            'invoice_id' => $invoice->hashed_id,
+            'quantity' => 2,
+        ];
+        $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/product_allocations', $data)
+            ->assertStatus(200)
+            ->assertJsonPath('data.quantity', function ($value) {
+                return $value !== 0;
+            });
+
+        $invoice = Invoice::find($invoice->id);
+        nlog($invoice);
+    }
+    public function testValidInvoiceCreationWithAutomaticProductAllocationMapperEntry()
+    {
+    }
+    // RECURRING INTEGRATION
+    public function testValidAutoBillOfRecurringWithOutstandingProductAllocations()
+    {
+    }
+    // SUBSCRIPTION INTEGRATION
+    public function testValidAutoBillOfSubscriptionWithOutstandingProductAllocations()
+    {
+    }
+    // PROJECT INTEGRATION
+    public function testValidProjectInvoiceGenerationWithOutstandingProductAllocations()
+    {
     }
 }

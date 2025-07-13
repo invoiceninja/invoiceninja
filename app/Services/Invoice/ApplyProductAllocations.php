@@ -11,8 +11,7 @@
 
 namespace App\Services\Invoice;
 
-use App\DataMapper\InvoiceItem;
-use App\Helpers\Invoice\AggregateProductAllocationToInvoiceItems;
+use App\Helpers\ProductAllocation\AggregateProductAllocationToInvoiceItems;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;

@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\Helpers\Invoice;
+namespace App\Helpers\ProductAllocation;
 
 use App\DataMapper\InvoiceItem;
 use App\Models\Invoice;
@@ -39,7 +39,7 @@ class AggregateProductAllocationToInvoiceItems
         $items = array_filter($this->product_allocations, function ($product_allocation) use ($invoice) {
             // Loop through $items and check if the 'id' exists in any item's 'product_allocation_ids'
             foreach ($invoice->line_items as $item) {
-                if (in_array($product_allocation['id'], explode(',', $item['product_allocation_ids']))) {
+                if (in_array($product_allocation['id'], $item->product_allocation_ids)) {
                     return false; // Filter out this property
                 }
             }
@@ -53,7 +53,7 @@ class AggregateProductAllocationToInvoiceItems
         $aggregatedItems = [];
         foreach ($items as $item) {
             // Create a unique key based on the properties you want to group by
-            $key = $item->product()->product_key . '|' . $item->invoice_aggregation_key;
+            $key = $item->product->product_key . '|' . $item->invoice_aggregation_key;
 
             if (isset($aggregatedItems[$key])) {
                 $aggregatedItems[$key]['quantity'] += $item->quantity;
@@ -62,28 +62,40 @@ class AggregateProductAllocationToInvoiceItems
                     array_merge($aggregatedItems[$key]['public_notes'], [$item['public_notes']])
                 );
             } else {
-                $aggregatedItems[$key] = $item;
+                $aggregatedItems[$key] = [
+                    'quantity' => $item->quantity,
+                    'product' => $item->product,
+                    'invoice_aggregation_key' => $item->invoice_aggregation_key,
+                    'custom_value1' => $item->custom_value1,
+                    'custom_value2' => $item->custom_value2,
+                    'custom_value3' => $item->custom_value3,
+                    'custom_value4' => $item->custom_value4,
+                    'product_allocation_ids' => [$item->id],
+                    'public_notes' => [$item['public_notes']],
+                ];
             }
         }
         $aggregatedItems = array_values($aggregatedItems);
 
         // apply to line_items
+        $lineItems = $invoice->line_items;
         foreach ($aggregatedItems as $aggregatedItem) {
             $item = new InvoiceItem();
             $item->quantity = $aggregatedItem['quantity'];
-            $item->cost = $aggregatedItem->product()->cost;
-            $item->product_key = $aggregatedItem->product()->product_key;
+            $item->cost = $aggregatedItem['product']->cost;
+            $item->product_key = $aggregatedItem['product']->product_key;
             $item->line_total = round($item->cost * $item->quantity, 2);
-            $item->notes = $aggregatedItem['public_notes'];
-            $item->custom_value1 = $aggregatedItem->custom_value1;
-            $item->custom_value2 = $aggregatedItem->custom_value2;
-            $item->custom_value3 = $aggregatedItem->custom_value3;
-            $item->custom_value4 = $aggregatedItem->custom_value4;
+            $item->notes = implode("\n", $aggregatedItem['public_notes']); // collapse notes into string
+            $item->custom_value1 = $aggregatedItem['custom_value1'];
+            $item->custom_value2 = $aggregatedItem['custom_value2'];
+            $item->custom_value3 = $aggregatedItem['custom_value3'];
+            $item->custom_value4 = $aggregatedItem['custom_value4'];
             $item->product_allocation_ids = $aggregatedItem['product_allocation_ids'];
             $item->type_id = '1';
 
-            $this->invoice->line_items[] = $item;
+            $lineItems[] = $item;
         }
+        $invoice->line_items = $lineItems;
 
         return $this->invoice;
     }

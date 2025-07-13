@@ -31,7 +31,7 @@ class UpdateProductEquipmentRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        return $user->can('edit', $this->productEquipment);
+        return $user->can('edit', $this->product_equipment);
     }
 
     public function rules()
