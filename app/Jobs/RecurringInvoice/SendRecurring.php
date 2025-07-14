@@ -63,18 +63,6 @@ class SendRecurring implements ShouldQueue
         // Generate Standard Invoice
         $invoice = RecurringInvoiceToInvoiceFactory::create($this->recurring_invoice, $this->recurring_invoice->client);
 
-        // populate with outstanding, not already invoiced product allocations
-        $product_allocations = $this->recurring_invoice->product_allocations()->withTrashed()
-            ->whereNull('invoice_id')
-            ->where('quantity', '<>', 0)
-            ->where('should_be_invoiced')
-            ->where('is_deleted', 0)
-            ->all()->toArray();
-        if (count($product_allocations) > 0) {
-            $invoice = $invoice->service()
-                ->applyProductAllocations($product_allocations);
-        }
-
         // $date = now()->addSeconds($this->recurring_invoice->client->timezone_offset())->format('Y-m-d'); Rev 1
         // $date = date('Y-m-d'); //@todo this will always pull UTC date.  Rev 2.
         // 2025-01-23 - We need to know the current date in the users timezone, as we send recurring invoices around the
@@ -88,6 +76,17 @@ class SendRecurring implements ShouldQueue
         $invoice->due_date = $this->recurring_invoice->calculateDueDate($date);
         $invoice->recurring_id = $this->recurring_invoice->id;
         $invoice->saveQuietly();
+
+        // populate with outstanding, not already invoiced product allocations
+        $product_allocations = $this->recurring_invoice->product_allocations()
+            ->whereNull('invoice_id')
+            ->where('quantity', '<>', 0)
+            ->where('should_be_invoiced', true)
+            ->where('is_deleted', 0)
+            ->get()->all();
+        if (count($product_allocations) > 0) {
+            $invoice = $invoice->service()->applyProductAllocations($product_allocations)->save();
+        }
 
         if ($invoice->client->getSetting('auto_email_invoice')) {
             $invoice = $invoice->service()

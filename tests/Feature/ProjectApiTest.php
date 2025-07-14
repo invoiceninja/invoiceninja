@@ -11,6 +11,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
+use App\Models\ProductAllocation;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 use App\Models\Task;
 use App\Models\Quote;
@@ -26,7 +29,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\ProjectController
  */
 class ProjectApiTest extends TestCase
@@ -52,6 +55,14 @@ class ProjectApiTest extends TestCase
 
     public function testInvoiceProject()
     {
+
+        $product = Product::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'allocation_type' => Product::PRODUCT_ALLOCATION_TYPE_QUANTITY_BASED,
+            'product_key' => Str::random(6),
+            'cost' => 100,
+        ]);
 
         $p = Project::factory()->create([
             'user_id' => $this->user->id,
@@ -79,6 +90,16 @@ class ProjectApiTest extends TestCase
             'should_be_invoiced' => true,
         ]);
 
+        $pa = ProductAllocation::factory()->create([
+            'user_id' => $this->user->id,
+            'company_id' => $this->company->id,
+            'product_id' => $product->id,
+            'project_id' => $p->id,
+            'client_id' => $this->client->id,
+            'quantity' => 5,
+            'should_be_invoiced' => true,
+        ]);
+
         $data = [
             'action' => 'invoice',
             'ids' => [$p->hashed_id],
@@ -97,7 +118,7 @@ class ProjectApiTest extends TestCase
 
     public function testBulkProjectInvoiceValidation()
     {
-        
+
         $p1 = Project::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -133,7 +154,7 @@ class ProjectApiTest extends TestCase
 
     public function testBulkProjectInvoiceValidationPasses()
     {
-        
+
         $p1 = Project::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -457,7 +478,7 @@ class ProjectApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/projects/'.$this->encodePrimaryKey($this->project->id));
+        ])->get('/api/v1/projects/' . $this->encodePrimaryKey($this->project->id));
 
         $response->assertStatus(200);
     }
@@ -482,7 +503,7 @@ class ProjectApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/projects/'.$arr['data']['id'], $data)->assertStatus(200);
+        ])->put('/api/v1/projects/' . $arr['data']['id'], $data)->assertStatus(200);
 
         try {
             $response = $this->withHeaders([
@@ -528,7 +549,7 @@ class ProjectApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->put('/api/v1/projects/'.$this->encodePrimaryKey($this->project->id), $data);
+        ])->put('/api/v1/projects/' . $this->encodePrimaryKey($this->project->id), $data);
 
         $response->assertStatus(200);
     }
@@ -538,7 +559,7 @@ class ProjectApiTest extends TestCase
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
-        ])->get('/api/v1/projects/'.$this->encodePrimaryKey($this->project->id));
+        ])->get('/api/v1/projects/' . $this->encodePrimaryKey($this->project->id));
 
         $arr = $response->json();
 

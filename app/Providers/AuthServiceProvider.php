@@ -24,6 +24,8 @@ use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\ProductAllocation;
+use App\Models\ProductEquipment;
 use App\Models\Project;
 use App\Models\TaxRate;
 use App\Models\Webhook;
@@ -54,6 +56,8 @@ use App\Policies\ExpensePolicy;
 use App\Policies\InvoicePolicy;
 use App\Policies\PaymentPolicy;
 use App\Policies\ProductPolicy;
+use App\Policies\ProductAllocationPolicy;
+use App\Policies\ProductEquipmentPolicy;
 use App\Policies\ProjectPolicy;
 use App\Policies\TaxRatePolicy;
 use App\Policies\WebhookPolicy;
@@ -108,6 +112,8 @@ class AuthServiceProvider extends ServiceProvider
         Payment::class => PaymentPolicy::class,
         PaymentTerm::class => PaymentTermPolicy::class,
         Product::class => ProductPolicy::class,
+        ProductAllocation::class => ProductAllocationPolicy::class,
+        ProductEquipment::class => ProductEquipmentPolicy::class,
         Project::class => ProjectPolicy::class,
         PurchaseOrder::class => PurchaseOrderPolicy::class,
         Quote::class => QuotePolicy::class,
@@ -136,7 +142,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('view-list', function ($user, $entity) {
             $entity = strtolower(class_basename($entity));
 
-            return $user->hasPermission('view_'.$entity) || $user->isAdmin();
+            return $user->hasPermission('view_' . $entity) || $user->isAdmin();
         });
     }
 }

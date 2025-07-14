@@ -61,10 +61,6 @@ class UpdateOrCreateProductAllocation implements ShouldQueue
     {
         MultiDB::setDB($this->company->db);
 
-        if (strval($this->invoice->client->getSetting('currency_id')) != strval($this->company->settings->currency_id)) {
-            return;
-        }
-
         // only update / create products + allocations - not tasks or gateway fees
         $updateable_products = collect($this->line_items)->filter(function ($item) {
             return $item->type_id == 1;
@@ -81,49 +77,60 @@ class UpdateOrCreateProductAllocation implements ShouldQueue
             ->pluck('product_allocation_ids')
             ->flatten()
             ->unique()
+            ->map(function ($id) {
+                return $this->invoice->decodePrimaryKey($id);
+            })
             ->values();
+
         // assigns invoice to connected product_allocations
-        ProductAllocation::withTrashed()
-            ->whereIn('id', $used_product_allocation_ids)
+        ProductAllocation::whereIn('id', $used_product_allocation_ids)
             ->where('company_id', $this->invoice->company->id)
-            ->whereNot('invoice_id', $this->invoice->id)
-            ->whereNot('invoice_aggregation_key', 'invoice-product-mapper')
+            ->whereNull('invoice_id')
+            ->where(function ($query) {
+                $query->whereNull('invoice_aggregation_key')
+                    ->orWhere('invoice_aggregation_key', '!=', 'invoice-product-mapper');
+            })
             ->update([
                 'invoice_id' => $this->invoice->id,
             ]);
         // unconnect all invalid connected product_allocations
-        ProductAllocation::withTrashed()
-            ->whereNotIn('id', $used_product_allocation_ids)
+        ProductAllocation::whereNotIn('id', $used_product_allocation_ids)
             ->where('company_id', $this->invoice->company->id)
             ->where('invoice_id', $this->invoice->id)
-            ->whereNot('invoice_aggregation_key', 'invoice-product-mapper')
+            ->where(function ($query) {
+                $query->whereNull('invoice_aggregation_key')
+                    ->orWhere('invoice_aggregation_key', '!=', 'invoice-product-mapper');
+            })
             ->update([
                 'invoice_id' => null,
             ]);
 
         // CUSTOM MAPPER => create custom data in external table with data of products
         // remove all existing mappers
-        ProductAllocation::withTrashed()
-            ->where('company_id', $this->invoice->company->id)
+        ProductAllocation::where('company_id', $this->invoice->company->id)
             ->where('invoice_id', $this->invoice->id)
             ->where('invoice_aggregation_key', 'invoice-product-mapper')
             ->delete();
+
+        $already_updated = [];
         /** @var \App\DataMapper\InvoiceItem $item */
         foreach ($updateable_products as $item) {
-            if (empty($item->product_key) || (isset($item->product_allocation_ids) && count($item->product_allocation_ids) > 0)) {
+
+            if (empty($item->product_key) || (isset($item->product_allocation_ids) && count($item->product_allocation_ids) > 0) || in_array($item->product_key, $already_updated)) {
                 continue;
             }
 
-
             // create virtual mapper, when no product_allocation_ids are used
             $product = Product::withTrashed()->firstOrNew(['product_key' => $item->product_key, 'company_id' => $this->invoice->company->id]);
+            $already_updated[] = $item->product_key;
 
-            $productAllocation = ProductAllocation::withTrashed()->firstOrNew([
-                'product_id' => $product->id,
-                'company_id' => $this->invoice->company->id,
-                'invoice_id' => $this->invoice->id,
-                'invoice_aggregation_key' => 'invoice-product-mapper',
-            ]);
+            $productAllocation = new ProductAllocation();
+            $productAllocation->company_id = $this->invoice->company->id;
+            $productAllocation->user_id = $this->invoice->user_id;
+            $productAllocation->product_id = $product->id;
+            $productAllocation->invoice_id = $this->invoice->id;
+            $productAllocation->client_id = $this->invoice->client_id;
+            $productAllocation->invoice_aggregation_key = 'invoice-product-mapper';
             $productAllocation->recurring_id = $this->invoice->recurring_id ?? null;
             $productAllocation->project_id = $this->invoice->project_id ?? null;
             $productAllocation->subscription_id = $this->invoice->subscription_id ?? null;
@@ -139,8 +146,7 @@ class UpdateOrCreateProductAllocation implements ShouldQueue
             }
 
             // save
-            $product->saveQuietly();
-            $productAllocation->saveQuietly();
+            $productAllocation->save();
 
         }
     }

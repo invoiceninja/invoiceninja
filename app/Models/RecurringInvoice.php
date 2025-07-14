@@ -383,7 +383,7 @@ class RecurringInvoice extends BaseModel
 
     public function product_allocations()
     {
-        return $this->hasMany(ProductAllocation::class)->withTrashed();
+        return $this->hasMany(ProductAllocation::class, 'recurring_id', 'id')->withTrashed();
     }
 
     public function invitations(): \Illuminate\Database\Eloquent\Relations\HasMany

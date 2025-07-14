@@ -12,6 +12,7 @@
 namespace App\Services\Invoice;
 
 use App\Helpers\ProductAllocation\AggregateProductAllocationToInvoiceItems;
+use App\Jobs\ProductAllocation\UpdateOrCreateProductAllocation;
 use App\Models\Invoice;
 use App\Services\AbstractService;
 use App\Utils\Traits\GeneratesCounter;
@@ -34,8 +35,11 @@ class ApplyProductAllocations extends AbstractService
 
         $this->invoice = (new AggregateProductAllocationToInvoiceItems($this->invoice, $this->product_allocations))->aggregate();
 
+        UpdateOrCreateProductAllocation::dispatch($this->invoice->line_items, $this->invoice, $this->invoice->company);
+
         $this->invoice->saveQuietly();
 
         return $this->invoice;
+
     }
 }

@@ -14,7 +14,7 @@ namespace App\Repositories;
 
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
-use App\Helpers\Invoice\AggregateProductAllocationToInvoiceItems;
+use App\Helpers\ProductAllocation\AggregateProductAllocationToInvoiceItems;
 use App\Models\Product;
 
 /**
@@ -96,18 +96,16 @@ class ProjectRepository extends BaseRepository
 
         foreach ($projects as $project) {
 
-            $project->product_allocations()
-                ->withTrashed()
+            $product_allocations = $project->product_allocations()
                 ->whereNull('invoice_id')
                 ->where('quantity', '<>', 0)
                 ->where('should_be_invoiced', true)
                 ->where('is_deleted', 0)
                 ->get()
-                ->each(function ($product_allocations) use (&$invoice) {
-
-                    $invoice = (new AggregateProductAllocationToInvoiceItems($invoice, $product_allocations))->aggregate();
-
-                });
+                ->all();
+            if (count($product_allocations) > 0) {
+                $invoice = (new AggregateProductAllocationToInvoiceItems($invoice, $product_allocations))->aggregate();
+            }
 
         }
 
