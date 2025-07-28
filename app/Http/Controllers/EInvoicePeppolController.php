@@ -51,6 +51,7 @@ class EInvoicePeppolController extends BaseController
      */
     public function setup(StoreEntityRequest $request, Storecove $storecove): Response|JsonResponse
     {
+        
         /**
          * @var \App\Models\Company
          */

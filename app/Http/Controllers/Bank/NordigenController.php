@@ -78,10 +78,11 @@ class NordigenController extends BaseController
         }))[0];
 
         try {
-            $txDays = $data['tx_days'] ?? 0; //@phpstan-ignore-line
-
+            $txDays = $data['tx_days'] ?? $institution['transaction_total_days'] ?? 90; //@phpstan-ignore-line
             
-            $agreement = $nordigen->createAgreement($institution, $data['access_days'] ?? 9999, $txDays); 
+            $agreement = $nordigen->createAgreement($institution, $institution['max_access_valid_for_days'], $txDays);//@2025-07-01: this is the correct way to get the access days
+
+            // $agreement = $nordigen->createAgreement($institution, $data['access_days'] ?? 9999, $txDays); 
 
             //this does not work in a multi tenant environment, it simply grabs the first agreement, without differentiating between companies. we may need to store the current requistion...
             // $agreement = $nordigen->firstValidAgreement($institution['id'], $data['access_days'] ?? 0, $txDays)

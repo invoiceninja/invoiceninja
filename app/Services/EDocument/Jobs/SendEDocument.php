@@ -70,6 +70,8 @@ class SendEDocument implements ShouldQueue
             return; //Bad Actor present.
         }
 
+        $model = $model->service()->markSent()->save();
+        
         /** Concrete implementation current linked to Storecove only */
         $p = new Peppol($model);
         $p->run();

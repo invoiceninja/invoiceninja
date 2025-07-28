@@ -112,6 +112,13 @@ class ClientController extends BaseController
      */
     public function show(ShowClientRequest $request, Client $client)
     {
+        
+        if(auth()->user()->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)){
+            foreach($this->client_exclusion_fields as $field){
+                $client->{$field} = null;
+            }
+        }
+
         return $this->itemResponse($client);
     }
 
@@ -125,6 +132,14 @@ class ClientController extends BaseController
      */
     public function edit(EditClientRequest $request, Client $client)
     {
+                
+        if (auth()->user()->hasExcludedPermissions($this->client_excludable_permissions, $this->client_excludable_overrides)) {
+            foreach ($this->client_exclusion_fields as $field) {
+                $client->{$field} = null;
+            }
+        }
+
+
         return $this->itemResponse($client);
     }
 
@@ -475,5 +490,10 @@ class ClientController extends BaseController
 
         return $this->listResponse($documents);
 
+    }
+
+    public function showSettings(ShowClientRequest $request, Client $client)
+    {
+        return response()->json($client->service()->showSettingsMap(), 200); 
     }
 }

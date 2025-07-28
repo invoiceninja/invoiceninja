@@ -97,6 +97,7 @@ class AccountTransformer extends EntityTransformer
             'upload_extensions' => (string) "png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,".config('ninja.upload_extensions'),
             'e_invoice_quota' => (int) $account->e_invoice_quota,
             'can_trial' => (bool) $account->canTrial(),
+            'docuninja_num_users' => (int) $account->docuninja_num_users,
         ];
     }
 

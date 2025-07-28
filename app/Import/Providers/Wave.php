@@ -210,7 +210,7 @@ class Wave extends BaseImport implements ImportInterface
         $key = 'Transaction ID';
 
         foreach ($csvData as $expense) {
-            if ($expense['Account Group'] == 'Expense') {
+            if (isset($expense['Account Group']) &&$expense['Account Group'] == 'Expense') {
                 $grouped[$expense[$key]][] = $expense;
             }
         }

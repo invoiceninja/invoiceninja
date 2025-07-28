@@ -650,13 +650,13 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 'amount' => $this->convertToStripeAmount($amount, $this->client->currency()->precision, $this->client->currency()),
             ], $meta);
 
-            if (in_array($response->status, [$response::STATUS_SUCCEEDED, 'pending'])) {
+            if (in_array($response->status, ['succeeded', 'pending'])) {
                 SystemLogger::dispatch(['server_response' => $response, 'data' => request()->all()], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_SUCCESS, SystemLog::TYPE_STRIPE, $this->client, $this->client->company);
 
                 return [
                     'transaction_reference' => $response->charge,
                     'transaction_response' => json_encode($response),
-                    'success' => $response->status == $response::STATUS_SUCCEEDED ? true : false,
+                    'success' => in_array($response->status, ['succeeded', 'pending']) ? true : false,
                     'description' => $response->metadata,
                     'code' => $response,
                 ];

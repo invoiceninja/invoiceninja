@@ -148,6 +148,7 @@ class InvoiceInvitation extends BaseModel
     public function markViewed(): void
     {
         $this->viewed_date = Carbon::now();
+        $this->invoice->last_viewed = Carbon::now();
         $this->save();
     }
 

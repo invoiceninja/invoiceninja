@@ -62,10 +62,34 @@ class SendToAdmin implements ShouldQueue
     {
         MultiDB::setDb($this->company->db);
         $export = new $this->report_class($this->company, $this->request);
-        $csv = base64_encode($export->run());
+        $csv_file = $export->run();
+        $csv = base64_encode($csv_file);
+        $mime = 'text/csv';
+
+        $file_name = $this->file_name;
+
+        $size_mb = round(strlen($csv) / (1024 * 1024), 2); // Size in MB
+        nlog("Report Size: MB " . $size_mb);
+
+        // If the file is greater than 5MB, we need to zip it to ensure it does not break attachment size limits
+        if($size_mb > 5){
+
+            $zipFile = new \PhpZip\ZipFile();
+            $file_name = basename($file_name).'.zip';
+
+            try {
+                $zipFile->addFromString($this->file_name, $csv_file);
+            } catch (\Exception $e) {
+                nlog($e->getMessage());
+            }
+
+            $csv = base64_encode($zipFile->outputAsString());
+            $mime = 'application/zip';
+
+        }
 
         $files = [];
-        $files[] = ['file' => $csv, 'file_name' => "{$this->file_name}", 'mime' => 'text/csv'];
+        $files[] = ['file' => $csv, 'file_name' => "{$file_name}", 'mime' => $mime];
 
         if (in_array(get_class($export), [ARDetailReport::class, ARSummaryReport::class, ClientBalanceReport::class, ClientSalesReport::class, TaxSummaryReport::class])) {
             $pdf = base64_encode($export->getPdf());

@@ -84,7 +84,7 @@ class BaseImport
             )
             : null;
 
-        auth()->login($this->company->owner(), true);
+        auth()->login($this->company->owner(), false);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -108,7 +108,7 @@ class BaseImport
         nlog("found {$entity_type}");
 
         $csv = base64_decode($base64_encoded_csv);
-        $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
+        // $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 
         $csv = Reader::createFromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
@@ -197,8 +197,14 @@ class BaseImport
 
     public function groupClients($csvData, $key)
     {
-        if (!$key || !isset($csvData[0][$key])) {
-            return $csvData;
+        if (!($key && isset($csvData[0][$key]))) {
+            // Transform the flat array to match the expected grouped structure
+            // Each row becomes its own group to maintain consistency
+            $grouped = [];
+            foreach ($csvData as $index => $item) {
+                $grouped[$index] = [$item];
+            }
+            return $grouped;
         }
 
         $grouped = [];
@@ -218,7 +224,6 @@ class BaseImport
         }
 
         return $grouped;
-
 
     }
 

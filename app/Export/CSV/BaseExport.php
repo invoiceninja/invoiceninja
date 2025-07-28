@@ -864,7 +864,11 @@ class BaseExport
 
         if (isset($this->input['product_key'])) {
 
-            $products = explode(",", $this->input['product_key']);
+$products = str_getcsv($this->input['product_key'], ',', "'");
+
+            $products = array_map(function ($product) {
+                return trim($product, "'");
+            }, $products);
 
             $query->where(function ($q) use ($products) {
                 foreach ($products as $product) {
@@ -1316,7 +1320,7 @@ class BaseExport
                 return $query->whereBetween($this->date_key, [now()->subDays(365), now()])->orderBy($this->date_key, 'ASC');
             case 'this_year':
 
-                $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
+                $first_month_of_year = $this->company->first_month_of_year ?? 1;
                 $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
                 if (now()->lt($fin_year_start)) {
@@ -1328,7 +1332,7 @@ class BaseExport
                 return $query->whereBetween($this->date_key, [$this->start_date, $this->end_date])->orderBy($this->date_key, 'ASC');
             case 'last_year':
 
-                $first_month_of_year = $this->company->getSetting('first_month_of_year') ?? 1;
+                $first_month_of_year = $this->company->first_month_of_year ?? 1;
                 $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
                 $fin_year_start->subYearNoOverflow();
 
@@ -1462,19 +1466,26 @@ class BaseExport
             $key = str_replace('product.', '', $key);
             $key = str_replace('task.', '', $key);
 
+
+            // if (stripos($value, 'client.') !== false && stripos($value, 'custom_value') === false) {
+            //     $value = Str::after($value, 'client.');
+            //     $header[] = $value;
+            // }
+
             if (stripos($value, 'tax.') !== false) {
                 $value = Str::after($value, 'tax.');
                 $header[] = $value;
             } elseif (stripos($value, 'custom_value') !== false) {
+                
                 $parts = explode(".", $value);
 
-                if (count($parts) == 2 && in_array($parts[0], ['credit','quote','invoice','purchase_order','recurring_invoice'])) {
-                    $entity = "invoice".substr($parts[1], -1);
+                if (count($parts) == 2 && in_array($parts[0], ['contact', 'client','credit','quote','invoice','purchase_order','recurring_invoice'])) {
+                    $entity = $parts[0].substr($parts[1], -1);
                     $prefix = ctrans("texts.".$parts[0]);
                     $fallback = "custom_value".substr($parts[1], -1);
-                    $custom_field_label = $helper->makeCustomField($this->company->custom_fields, $entity);
+                    $custom_field_label = (string)$helper->makeCustomField($this->company->custom_fields, $entity);
 
-                    if (strlen($custom_field_label) > 1) {
+                    if (strlen($custom_field_label) >= 1) {
                         $header[] = $custom_field_label;
                     } else {
                         $header[] = $prefix . " ". ctrans("texts.{$fallback}");
@@ -1506,7 +1517,7 @@ class BaseExport
 
     public function processMetaData(array $row, $resource): array
     {
-        nlog($row);
+        // nlog($row);
         $class = get_class($resource);
 
         $entity = '';

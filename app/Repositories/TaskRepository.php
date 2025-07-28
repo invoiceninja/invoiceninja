@@ -50,7 +50,7 @@ class TaskRepository extends BaseRepository
         if (!is_numeric($task->rate) && !isset($data['rate'])) {
             $data['rate'] = 0;
         }
-
+        
         $task->fill($data);
         $task->saveQuietly();
 

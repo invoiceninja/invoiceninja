@@ -429,10 +429,6 @@ class BaseDriver extends AbstractPaymentDriver
             return;
         }
 
-        // $confirmed_fee_count = collect($invoice->line_items)
-        //                 ->where('type_id', '4')
-        //                 ->count();
-
         $unconfirmed_fee_count = collect($invoice->line_items)
                         ->where('type_id', '3')
                         ->count();
@@ -548,7 +544,7 @@ class BaseDriver extends AbstractPaymentDriver
 
         $cgt->save();
 
-        if ($this->client->gateway_tokens->count() > 1) {
+        if ($this->client->gateway_tokens->count() >= 1) {
             $this->client->gateway_tokens()->update(['is_default' => 0]);
         }
 

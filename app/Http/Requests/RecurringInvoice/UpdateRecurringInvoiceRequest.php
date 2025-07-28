@@ -64,7 +64,7 @@ class UpdateRecurringInvoiceRequest extends Request
         $rules['tax_name2'] = 'bail|sometimes|string|nullable';
         $rules['tax_name3'] = 'bail|sometimes|string|nullable';
         $rules['exchange_rate'] = 'bail|sometimes|numeric';
-        $rules['next_send_date'] = 'bail|required|date|after:yesterday';
+        $rules['next_send_date'] = 'bail|required|date|after_or_equal:yesterday';
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
 
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
@@ -103,6 +103,12 @@ class UpdateRecurringInvoiceRequest extends Request
         if (isset($input['client_id'])) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
+
+        
+        if (array_key_exists('location_id', $input) && is_string($input['location_id'])) {
+            $input['location_id'] = $this->decodePrimaryKey($input['location_id']);
+        }
+
 
         if (isset($input['vendor_id'])) {
             $input['vendor_id'] = $this->decodePrimaryKey($input['vendor_id']);

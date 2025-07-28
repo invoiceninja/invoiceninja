@@ -280,7 +280,7 @@ class TemplateService
      */
     public function getPdf(): string
     {
-
+        
         if (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($this->compiled_html);
         } else {
@@ -323,9 +323,14 @@ class TemplateService
     {
         $replacements = [];
 
-        $contents = $this->document->getElementsByTagName('ninja');
+        $contents = [];
+        $nodeList = $this->document->getElementsByTagName('ninja');
+        for ($i = 0; $i < $nodeList->length; $i++) {
+            $contents[] = $nodeList->item($i);
+        }
 
         foreach ($contents as $content) {
+
 
             $template = $content->ownerDocument->saveHTML($content);
 
@@ -353,8 +358,8 @@ class TemplateService
 
             $f = $this->document->createDocumentFragment();
 
-            // $template = htmlspecialchars($template, ENT_XML1, 'UTF-8'); //2025-02-07 double encoding the entities = bad
-            $f->appendXML(str_ireplace("<br>", "<br/>", html_entity_decode($template)));
+            $decoded_template = str_ireplace("<br>", "<br/>", html_entity_decode($template));
+            $f->appendXML('<![CDATA[' . $decoded_template . ']]>');
 
             $replacements[] = $f;
 

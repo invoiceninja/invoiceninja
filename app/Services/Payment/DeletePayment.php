@@ -141,9 +141,9 @@ class DeletePayment
                          ->updateBalanceAndPaidToDate($net_deletable, ($net_deletable * -1) > 0 ? 0 : ($net_deletable * -1)) // if negative, set to 0, the paid to date will be reduced further down.
                          ->save();
 
-                    if ($paymentable_invoice->balance == $paymentable_invoice->amount) {
+                    if (abs(floatval($paymentable_invoice->balance) - floatval($paymentable_invoice->amount)) < 0.005) {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_SENT)->save();
-                    } elseif ($paymentable_invoice->balance == 0) {
+                    } elseif (floatval($paymentable_invoice->balance) == 0) {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PAID)->save();
                     } else {
                         $paymentable_invoice->service()->setStatus(Invoice::STATUS_PARTIAL)->save();

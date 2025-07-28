@@ -58,6 +58,7 @@ use App\Observers\ProposalObserver;
 use App\Events\Quote\QuoteWasViewed;
 use App\Events\Task\TaskWasArchived;
 use App\Events\Task\TaskWasRestored;
+use App\Events\User\UserLoginFailed;
 use App\Events\User\UserWasArchived;
 use App\Events\User\UserWasRestored;
 use App\Events\Quote\QuoteWasCreated;
@@ -71,6 +72,7 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Events\Quote\QuoteWasApproved;
 use App\Events\Quote\QuoteWasArchived;
 use App\Events\Quote\QuoteWasRestored;
+use Illuminate\Queue\Events\JobFailed;
 use App\Events\Client\ClientWasCreated;
 use App\Events\Client\ClientWasDeleted;
 use App\Events\Client\ClientWasUpdated;
@@ -148,6 +150,7 @@ use App\Events\Statement\StatementWasEmailed;
 use App\Listeners\Credit\CreditEmailActivity;
 use App\Listeners\Quote\QuoteApprovedWebhook;
 use App\Listeners\Quote\QuoteDeletedActivity;
+use App\Listeners\User\UpdateUserLoginFailed;
 use App\Events\Invoice\InvoiceAutoBillSuccess;
 use App\Listeners\Credit\CreditViewedActivity;
 use App\Listeners\Invoice\InvoicePaidActivity;
@@ -326,6 +329,9 @@ class EventServiceProvider extends ServiceProvider
         UserLoggedIn::class => [
             UpdateUserLastLogin::class,
         ],
+        UserLoginFailed::class => [
+            UpdateUserLoginFailed::class,
+        ],
         UserWasUpdated::class => [
             UpdatedUserActivity::class,
         ],
@@ -495,6 +501,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         InvitationWasViewed::class => [
             InvitationViewedListener::class,
+        ],
+        JobFailed::class => [
         ],
         PaymentWasEmailed::class => [
             PaymentEmailedActivity::class,

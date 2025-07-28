@@ -122,7 +122,7 @@ class ContactResetPasswordController extends Controller
 
         event(new PasswordReset($user));
 
-        auth()->login($user, true);
+        auth()->login($user, false);
 
         $response = Password::PASSWORD_RESET;
 

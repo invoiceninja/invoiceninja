@@ -790,7 +790,7 @@ class Peppol extends AbstractService
             // $item->gross_line_total = round($item->gross_line_total, 2);
 
             $_item = new Item();
-            $_item->Name = $item->product_key;
+            $_item->Name = strlen($item->product_key ?? '') >= 1 ? $item->product_key : ctrans('texts.item');
             $_item->Description = $item->notes;
 
 

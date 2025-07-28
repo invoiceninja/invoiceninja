@@ -119,7 +119,7 @@ class ActivityRepository extends BaseRepository
 
     public function getTokenId(array $event_vars)
     {
-        if ($event_vars['token']) {
+        if (isset($event_vars['token']) &&$event_vars['token']) {
             /** @var \App\Models\CompanyToken $company_token **/
             $company_token = CompanyToken::query()->where('token', $event_vars['token'])->first();
 

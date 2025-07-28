@@ -31,6 +31,7 @@ use App\Http\Requests\CompanyGateway\BulkCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\EditCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\ShowCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\TestCompanyGatewayRequest;
+use App\Http\Requests\CompanyGateway\CloneCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\StoreCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\CreateCompanyGatewayRequest;
 use App\Http\Requests\CompanyGateway\UpdateCompanyGatewayRequest;
@@ -627,6 +628,14 @@ class CompanyGatewayController extends BaseController
                                           });
 
         return $this->listResponse(CompanyGateway::withTrashed()->company()->whereIn('id', $request->ids));
+    }
+
+    public function clone(CloneCompanyGatewayRequest $request, CompanyGateway $company_gateway)
+    {
+        $new_company_gateway = $company_gateway->replicate();
+        $new_company_gateway->label .= ' ('.ctrans('texts.clone').') ' . now()->format('Y-m-d H:i:s');
+        $new_company_gateway->save();
+        return $this->itemResponse($new_company_gateway);
     }
 
     public function test(TestCompanyGatewayRequest $request, CompanyGateway $company_gateway)

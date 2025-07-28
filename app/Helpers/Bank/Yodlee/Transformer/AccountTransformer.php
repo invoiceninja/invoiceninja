@@ -149,7 +149,8 @@ class AccountTransformer implements AccountTransformerInterface
             'nickname' => property_exists($account, 'nickname') ? $account->nickname : '',
             'current_balance' => $current_balance,
             'account_currency' => $account_currency,
-            'disabled_upstream' => $update_eligible == 'ALLOW_UPDATE' ? false : true,
+            'disabled_upstream' => ($account->accountStatus == 'ACTIVE') ? false : true,
+            // 'disabled_upstream' => $update_eligible == 'ALLOW_UPDATE' ? false : true,
         ];
     }
 }

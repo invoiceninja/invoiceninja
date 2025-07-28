@@ -58,13 +58,14 @@ class UpdateUserLastLogin implements ShouldQueue
 
         $user = $event->user;
         $user->last_login = now();
+        $user->failed_logins = 0;
         $user->save();
 
         $event_vars = $event->event_vars;
         $ip = array_key_exists('ip', $event->event_vars) ? $event->event_vars['ip'] : 'IP address not resolved';
         $key = "user_logged_in_{$user->id}{$event->company->db}";
 
-        if ($user->ip != $ip && is_null(Cache::get($key)) && $user->user_logged_in_notification) {
+        if ($user->ip != $ip && is_null(Cache::get($key)) && $user->user_logged_in_notification && strlen($user->oauth_provider_id ?? '') == 0) {
             $nmo = new NinjaMailerObject();
             $nmo->mailable = new UserLoggedIn($user, $user->account->companies->first(), $ip);
             $nmo->company = $user->account->companies->first();

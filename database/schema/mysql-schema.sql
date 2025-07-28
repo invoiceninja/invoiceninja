@@ -2286,7 +2286,7 @@ CREATE TABLE `users` (
   `failed_logins` smallint(6) DEFAULT NULL,
   `referral_code` varchar(191) DEFAULT NULL,
   `oauth_user_id` varchar(100) DEFAULT NULL,
-  `oauth_user_token` varchar(191) DEFAULT NULL,
+  `oauth_user_token` TEXT DEFAULT NULL,
   `oauth_provider_id` varchar(191) DEFAULT NULL,
   `google_2fa_secret` text DEFAULT NULL,
   `accepted_terms_version` varchar(191) DEFAULT NULL,

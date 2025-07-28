@@ -29,6 +29,7 @@ use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 class Blockonomics implements LivewireMethodInterface
 {
     use MakesHash;
+    private string $test_txid = 'WarningThisIsAGeneratedTestPaymentAndNotARealBitcoinTransaction';
 
     public function __construct(public BlockonomicsPaymentDriver $blockonomics)
     {
@@ -124,6 +125,7 @@ class Blockonomics implements LivewireMethodInterface
         return render('gateways.blockonomics.pay', $data);
     }
 
+
     public function paymentResponse(PaymentResponseRequest $request)
     {
         $request->validate([
@@ -132,20 +134,50 @@ class Blockonomics implements LivewireMethodInterface
             'currency' => ['required'],
             'txid' => ['required'],
             'payment_method_id' => ['required'],
+            'btc_address' => ['required'],
+            'btc_amount' => ['required'],
+            'btc_price' => ['required'],
+            // Setting status to required will break the payment process
+            // because sometimes the status is returned as 0 which is falsy
+            // and the validation will fail.
+            // 'status' => ['required'],
         ]);
 
         try {
             $data = [];
-            $fiat_amount = round(($request->btc_price * $request->btc_amount), 2);
+            $fiat_amount = round(($request->btc_price * $request->btc_amount / 100000000), 2);
             $data['amount'] = $fiat_amount;
-            $data['currency'] = $request->currency;
             $data['payment_method_id'] = $request->payment_method_id;
             $data['payment_type'] = PaymentType::CRYPTO;
             $data['gateway_type_id'] = GatewayType::CRYPTO;
-            $data['transaction_reference'] = $request->txid;
 
-            $statusId = Payment::STATUS_PENDING;
+            // Append a random value to the transaction reference for test payments
+            // to prevent duplicate entries in the database.
+            // This ensures the payment hashed_id remains unique.
+            $testTxid = $this->test_txid;
+            $data['transaction_reference'] = ($request->txid === $testTxid)
+                ? $request->txid . bin2hex(random_bytes(16))
+                : $request->txid;
+
+            $statusId;
+
+            switch ($request->status) {
+                case 0:
+                    $statusId = Payment::STATUS_PENDING;
+                    break;
+                case 1:
+                    $statusId = Payment::STATUS_PENDING;
+                    break;
+                case 2:
+                    $statusId = Payment::STATUS_COMPLETED;
+                    break;
+                default:
+                    $statusId = Payment::STATUS_PENDING;
+            }
+
             $payment = $this->blockonomics->createPayment($data, $statusId);
+            $payment->private_notes = "{$request->btc_address} - {$request->btc_amount}";
+            $payment->save();
 
             SystemLogger::dispatch(
                 ['response' => $payment, 'data' => $data],

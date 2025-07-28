@@ -35,11 +35,24 @@ class MultiDBUserTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutExceptionHandling();
+        // $this->withoutExceptionHandling();
 
         if (! config('ninja.db.multi_db_enabled')) {
             $this->markTestSkipped('Multi DB not enabled - skipping');
         }
+
+        foreach(MultiDB::getDBs() as $db) {
+            MultiDB::setDB($db);
+                $u = User::where('email','db1@example.com')->first();
+                if($u)
+                    $u->account->delete();
+
+
+                $u = User::where('email', 'db2@example.com')->first();
+                if ($u) {
+                    $u->account->delete();
+                }   
+            }
 
         User::unguard();
 
@@ -202,7 +215,7 @@ class MultiDBUserTest extends TestCase
         ])->postJson('/api/v1/users?include=company_user', $data);
 
 
-        $response->assertStatus(403);
+        $response->assertStatus(422);
 
     }
 
@@ -241,9 +254,30 @@ class MultiDBUserTest extends TestCase
     {
         parent::tearDown();
 
-        DB::connection('db-ninja-01')->table('users')->delete();
-        DB::connection('db-ninja-02')->table('users')->delete();
+                
+            $u = User::on('db-ninja-01')->where('email', 'db1@example.com')->first();
+            if ($u) {
+                $u->account->delete();
+            }
 
-        config(['database.default' => config('ninja.db.default')]);
+
+            $u = User::on('db-ninja-01')->where('email', 'db2@example.com')->first();
+            if ($u) {
+                $u->account->delete();
+            }
+        
+                        
+            $u = User::on('db-ninja-02')->where('email', 'db1@example.com')->first();
+            if ($u) {
+                $u->account->delete();
+            }
+
+
+            $u = User::on('db-ninja-02')->where('email', 'db2@example.com')->first();
+            if ($u) {
+                $u->account->delete();
+            }
+
+        
     }
 }

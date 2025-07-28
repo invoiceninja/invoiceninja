@@ -80,6 +80,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
         if ($request->has('store_card') && $request->input('store_card') === true) {
 
             $authorise_payment_method = new AuthorizePaymentMethod($this->authorize);
+            $authorise_payment_method->setPaymentMethodId(\App\Models\GatewayType::CREDIT_CARD);
 
             $payment_profile = $authorise_payment_method->addPaymentMethodToClient($gateway_customer_reference, $data);
             $payment_profile_id = $payment_profile->getPaymentProfile()->getCustomerPaymentProfileId();
@@ -137,7 +138,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     {
         $client_gateway_token = ClientGatewayToken::query()
             ->where('id', $this->decodePrimaryKey($request->token))
-            ->where('company_id', auth()->guard('contact')->user()->client->company->id)
+            ->where('company_id', auth()->guard('contact')->user()->client->company_id)
             ->first();
 
         if (! $client_gateway_token) {
@@ -233,7 +234,7 @@ class AuthorizeCreditCard implements LivewireMethodInterface
     private function processSuccessfulResponse($data, $request)
     {
         $payment_hash = PaymentHash::where('hash', $request->input('payment_hash'))->firstOrFail();
-        $payment = $this->storePayment($payment_hash, $data);
+        $payment = $this->storePayment($payment_hash, $data, \App\Models\GatewayType::CREDIT_CARD);
 
         $vars = [
             'invoices' => $payment_hash->invoices(),

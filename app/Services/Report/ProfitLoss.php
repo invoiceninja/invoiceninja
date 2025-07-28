@@ -83,11 +83,7 @@ class ProfitLoss
 
      */
 
-    protected array $payload;
-
-    protected Company $company;
-
-    public function __construct(Company $company, array $payload)
+    public function __construct(protected Company $company, protected array $payload)
     {
         $this->currency_api = new CurrencyApi();
 
@@ -631,13 +627,32 @@ class ProfitLoss
                 break;
 
             case 'last_year':
-                $this->start_date = (new \Carbon\Carbon('-1 year'))->startOfYear();
-                $this->end_date = (new \Carbon\Carbon('-1 year'))->endOfYear();
+                            
+                $first_month_of_year = $this->company->first_month_of_year ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+                $fin_year_start->subYearNoOverflow();
+
+                if (now()->subYear()->lt($fin_year_start)) {
+                    $fin_year_start->subYearNoOverflow();
+                }
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
+
                 break;
 
             case 'this_year':
-                $this->start_date = now()->startOfYear();
-                $this->end_date = now();
+                            
+                $first_month_of_year = $this->company->first_month_of_year ?? 1;
+                $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
+
+                if (now()->lt($fin_year_start)) {
+                    $fin_year_start->subYearNoOverflow();
+                }
+
+                $this->start_date = $fin_year_start->format('Y-m-d');
+                $this->end_date = $fin_year_start->copy()->addYear()->subDay()->format('Y-m-d');
+
                 break;
 
             case 'custom':

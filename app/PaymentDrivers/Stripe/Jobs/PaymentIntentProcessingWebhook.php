@@ -151,6 +151,11 @@ class PaymentIntentProcessingWebhook implements ShouldQueue
             return;
         }
 
+        if($payment_hash->payment){
+            nlog("payment found");
+            return;
+        }
+
         $stripe_driver->client = $payment_hash->fee_invoice->client;
 
         $meta = [

@@ -107,7 +107,7 @@ class ImportJsonController extends BaseController
         return response()->json(array_merge(['message' => 'Processing','success' => true], $metadata), 200);
     }
 
-    private function handleChunkedUpload(ImportJsonRequest $request)
+    private function handleChunkedUploadX(ImportJsonRequest $request)
     {
         $metadata = json_decode($request->metadata, true);
         
@@ -250,5 +250,147 @@ class ImportJsonController extends BaseController
         }
 
         rmdir($dir);
+    }
+
+    private function handleChunkedUpload(ImportJsonRequest $request)
+    {
+        $metadata = json_decode($request->metadata, true);
+        
+        // Validate metadata structure
+        if (!isset($metadata['fileHash'], $metadata['fileName'], $metadata['totalChunks'], $metadata['currentChunk'])) {
+            throw new \InvalidArgumentException('Invalid metadata structure');
+        }
+
+        // Sanitize and validate file hash (should be alphanumeric)
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $metadata['fileHash'])) {
+            throw new \InvalidArgumentException('Invalid file hash format');
+        }
+
+        // Sanitize and validate filename
+        $safeFileName = basename($metadata['fileName']);
+        if ($safeFileName !== $metadata['fileName']) {
+            throw new \InvalidArgumentException('Invalid filename');
+        }
+
+        // Validate chunk number format
+        if (!is_numeric($metadata['currentChunk']) || $metadata['currentChunk'] < 0) {
+            throw new \InvalidArgumentException('Invalid chunk number');
+        }
+
+        // Validate total chunks
+        if (!is_numeric($metadata['totalChunks']) || $metadata['totalChunks'] <= 0 || $metadata['totalChunks'] > 1000) {
+            throw new \InvalidArgumentException('Invalid total chunks');
+        }
+
+        // Validate file type
+        $chunk = $request->file('file');
+        if (!$chunk || !$chunk->isValid()) {
+            throw new \InvalidArgumentException('Invalid file chunk');
+        }
+
+        // Validate file size before saving
+        $maxChunkSize = 5 * 1024 * 1024; // 5MB
+        if ($chunk->getSize() > $maxChunkSize) {
+            throw new \InvalidArgumentException('Chunk size exceeds limit');
+        }
+
+        $disk = Ninja::isHosted() ? 'backup' : config('filesystems.default');
+        
+        // Store chunk in S3 with unique path
+        $chunkKey = "tmp/chunks/{$metadata['fileHash']}/chunk-{$metadata['currentChunk']}";
+        
+        Storage::disk($disk)->put(
+            $chunkKey,
+            file_get_contents($chunk->getRealPath()),
+            ['visibility' => 'private']
+        );
+
+        // Check if all chunks are uploaded by listing S3 objects
+        $chunkPrefix = "tmp/chunks/{$metadata['fileHash']}/";
+        $uploadedChunks = collect(Storage::disk($disk)->files($chunkPrefix))
+            ->filter(function($file) {
+                return str_contains(basename($file), 'chunk-');
+            })
+            ->count();
+
+        if ($uploadedChunks >= $metadata['totalChunks']) {
+            try {
+                // Combine chunks from S3
+                $finalPath = "migrations/{$safeFileName}";
+                $this->combineChunksFromS3($disk, $metadata['fileHash'], $metadata['totalChunks'], $finalPath);
+                
+                // Clean up
+                $this->cleanupS3Chunks($disk, $metadata['fileHash']);
+                
+                $metadata['uploaded_filepath'] = $finalPath;
+                return $metadata;
+
+            } catch (\Exception $e) {
+                // Clean up on error
+                $this->cleanupS3Chunks($disk, $metadata['fileHash']);
+                throw $e;
+            }
+        }
+
+        return $metadata;
+    }
+
+    private function combineChunksFromS3(string $disk, string $fileHash, int $totalChunks, string $finalPath): void
+    {
+        // Create a temporary local file to combine chunks
+        $tempFile = tempnam(sys_get_temp_dir(), 'chunk_combine_');
+        
+        try {
+            $handle = fopen($tempFile, 'wb');
+            if ($handle === false) {
+                throw new \RuntimeException('Failed to create temporary file');
+            }
+
+            // Download and combine chunks in order
+            for ($i = 0; $i < $totalChunks; $i++) {
+                $chunkKey = "tmp/chunks/{$fileHash}/chunk-{$i}";
+                
+                if (!Storage::disk($disk)->exists($chunkKey)) {
+                    throw new \RuntimeException("Missing chunk: {$i}");
+                }
+                
+                $chunkContent = Storage::disk($disk)->get($chunkKey);
+                if ($chunkContent === null) {
+                    throw new \RuntimeException("Failed to read chunk: {$i}");
+                }
+                
+                if (fwrite($handle, $chunkContent) === false) {
+                    throw new \RuntimeException("Failed to write chunk: {$i}");
+                }
+            }
+
+            fclose($handle);
+
+            // Upload combined file to final location
+            Storage::disk($disk)->put(
+                $finalPath,
+                file_get_contents($tempFile),
+                ['visibility' => 'private']
+            );
+
+        } finally {
+            // Clean up temporary file
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
+    }
+
+    private function cleanupS3Chunks(string $disk, string $fileHash): void
+    {
+        $chunkPrefix = "tmp/chunks/{$fileHash}/";
+        
+        // Get all chunk files for this upload
+        $chunkFiles = Storage::disk($disk)->files($chunkPrefix);
+        
+        // Delete all chunk files
+        if (!empty($chunkFiles)) {
+            Storage::disk($disk)->delete($chunkFiles);
+        }
     }
 }

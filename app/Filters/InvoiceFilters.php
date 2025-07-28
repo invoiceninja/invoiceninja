@@ -296,6 +296,20 @@ class InvoiceFilters extends QueryFilters
             return $this->builder->orderByRaw("REGEXP_REPLACE(invoices.number,'[^0-9]+','')+0 " . $dir);
         }
 
+        if ($sort_col[0] == 'status_id') {
+            // Special handling for status_id==2 (STATUS_SENT) with sub-statuses
+            return $this->builder->orderByRaw("
+                CASE 
+                    WHEN status_id != 2 THEN status_id
+                    WHEN status_id = 2 AND  (due_date IS NOT NULL AND (due_date < NOW() OR partial_due_date < NOW())) THEN 2.9
+                    WHEN status_id = 2 AND last_viewed IS NOT NULL THEN 2.5
+                    WHEN status_id = 2 THEN 2.2
+                    ELSE status_id
+                END " . $dir);
+
+        }
+
+        
         return $this->builder->orderBy("{$this->builder->getQuery()->from}.".$sort_col[0], $dir);
     }
 

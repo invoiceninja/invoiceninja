@@ -202,7 +202,15 @@ class PdfBuilder
     {
 
         $replacements = [];
-        $contents = $this->document->getElementsByTagName('ninja');
+        // $contents = $this->document->getElementsByTagName('ninja');
+
+
+$contents = [];
+$nodeList = $this->document->getElementsByTagName('ninja');
+for ($i = 0; $i < $nodeList->length; $i++) {
+    $contents[] = $nodeList->item($i);
+}
+
 
         $template_service = new TemplateService();
         $template_service->setCompany($this->service->company);
@@ -219,9 +227,13 @@ class PdfBuilder
 
             $f = $this->document->createDocumentFragment();
 
-            $template = str_ireplace(['<br>', '<br />'], "<br/>", $template);
-            $f->appendXML($template);
+            // $template = str_ireplace(['<br>', '<br />'], "<br/>", $template);
+            // $f->appendXML($template);
 
+$decoded_template = str_ireplace("<br>", "<br/>", html_entity_decode($template));
+$f->appendXML('<![CDATA[' . $decoded_template . ']]>');
+
+            
             $replacements[] = $f;
 
         }

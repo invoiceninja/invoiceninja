@@ -38,7 +38,7 @@ class ZipInvoices implements ShouldQueue
 
     public $tries = 1;
 
-    public $timeout = 3600;
+    public $timeout = 10800;
 
     /**
      * @param $invoices

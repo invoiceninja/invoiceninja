@@ -78,6 +78,10 @@ class OneTimeTokenController extends BaseController
             $data['institution_id'] = $request->institution_id;
         }
 
+        if($request->provider_id) {
+            $data['provider_id'] = $request->provider_id;
+        }
+
         Cache::put($hash, $data, 3600);
 
         return response()->json(['hash' => $hash], 200);

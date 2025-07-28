@@ -153,6 +153,7 @@ class CreditInvitation extends BaseModel
     public function markViewed()
     {
         $this->viewed_date = Carbon::now();
+        $this->credit->last_viewed = Carbon::now();
         $this->save();
     }
 

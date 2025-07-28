@@ -22,6 +22,7 @@ use App\Services\Email\Email;
 use App\Utils\Traits\MakesDates;
 use Illuminate\Support\Facades\DB;
 use App\Services\Email\EmailObject;
+use App\Services\Client\MapSettings;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Database\QueryException;
@@ -291,6 +292,12 @@ class ClientService
         ];
 
         return $email_object;
+    }
+
+
+    public function showSettingsMap(): array
+    {
+        return (new MapSettings($this->client))->run();
     }
 
     /**

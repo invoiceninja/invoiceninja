@@ -50,7 +50,7 @@ class InvoiceTransformer extends BaseTransformer
         if (strtolower($data['Status']) === 'paid') {
             $transformed['payments'] = [
                 [
-                    'date'   => date('Y-m-d'),
+                    'date'   => isset($data['Date']) ? $this->parseDate($data['Date']) : date('Y-m-d'),
                     'amount' => $amount,
                 ],
             ];

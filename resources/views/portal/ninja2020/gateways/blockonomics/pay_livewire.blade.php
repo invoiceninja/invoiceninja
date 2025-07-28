@@ -1,5 +1,4 @@
 <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden py-5 bg-white sm:gap-4" id="blockonomics-payment">
-   
 <meta name="amount" content="{{ $amount }}" />
 <meta name="btc_amount" content="{{ $btc_amount }}" />
 <meta name="btc_address" content="{{ $btc_address }}" />
@@ -58,12 +57,14 @@
         <input type="hidden" name="amount" value="{{ $amount }}">
         <input type="hidden" name="btc_price" value="{{ $btc_price }}">
         <input type="hidden" name="btc_amount" value="{{ $btc_amount }}">
+        <input type="hidden" name="btc_address" value="{{ $btc_address }}">
+        <input type="hidden" name="status" value="">
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="txid" value="">
     </form>
 
-    
+
     <style type="text/css">
         .sections-wrapper {
             display: flex;
@@ -103,19 +104,19 @@
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-        }    
+        }
         .invoice-number {
             width: 50%;
             float: left;
             text-align: left;
-        }    
+        }
         .invoice-amount {
             width: 50%;
             float: right;
             text-align: right;
             text-transform: uppercase;
             margin-bottom: 20px;
-        }    
+        }
         .blockonomics-payment-wrapper {
             display: flex;
             justify-content: center;

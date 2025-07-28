@@ -161,12 +161,13 @@ class InvoicePay extends Component
     private function checkRequiredFields(CompanyGateway $company_gateway)
     {
 
-        $fields = $company_gateway->driver()->getClientRequiredFields();
+        /** @var \App\Models\ClientContact $contact */
+        $contact = $this->getContext()['contact'];
+
+        $fields = $company_gateway->driver($contact->client)->getClientRequiredFields();
 
         $this->setContext('fields', $fields); // $this->context['fields'] = $fields;
 
-        /** @var \App\Models\ClientContact $contact */
-        $contact = $this->getContext()['contact'];
 
         foreach ($fields as $index => $field) {
             $_field = $this->mappings[$field['name']];

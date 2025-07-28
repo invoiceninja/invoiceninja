@@ -104,7 +104,7 @@ class AccountController extends BaseController
         $cu = CompanyUser::query()->where('user_id', $account->users()->first()->id);
 
         $company_user = $cu->first();
-
+        
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($company_user);
         $truth->setUser($company_user->user);

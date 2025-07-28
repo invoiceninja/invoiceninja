@@ -15,7 +15,7 @@ namespace App\Models;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use App\DataMapper\QuoteSync;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
 use App\Helpers\Invoice\InvoiceSum;

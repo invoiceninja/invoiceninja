@@ -14,7 +14,7 @@ namespace App\Models;
 
 use App\Utils\Ninja;
 use App\Utils\Number;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Support\Carbon;
 use App\Helpers\Invoice\InvoiceSum;
 use Illuminate\Support\Facades\App;

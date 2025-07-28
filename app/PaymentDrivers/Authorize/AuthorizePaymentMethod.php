@@ -39,6 +39,12 @@ class AuthorizePaymentMethod
 
     private $payment_method_id;
 
+    public function setPaymentMethodId($payment_method_id)
+    {
+        $this->payment_method_id = $payment_method_id;
+        return $this;
+    }
+
     public function __construct(AuthorizePaymentDriver $authorize)
     {
         $this->authorize = $authorize;

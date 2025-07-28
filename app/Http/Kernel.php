@@ -12,51 +12,52 @@
 
 namespace App\Http;
 
-use App\Http\Middleware\ApiSecretCheck;
+use App\Http\Middleware\Cors;
+use App\Http\Middleware\SetDb;
+use App\Http\Middleware\Locale;
+use App\Http\Middleware\SetWebDb;
+use App\Http\Middleware\UrlSetDb;
+use App\Http\Middleware\TokenAuth;
+use App\Http\Middleware\SetEmailDb;
+use App\Http\Middleware\VerifyHash;
+use App\Http\Middleware\SetInviteDb;
+use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\Authenticate;
-use App\Http\Middleware\CheckClientExistence;
-use App\Http\Middleware\CheckForMaintenanceMode;
-use App\Http\Middleware\ClientPortalEnabled;
+use App\Http\Middleware\ContactSetDb;
+use App\Http\Middleware\QueryLogging;
+use App\Http\Middleware\TrustProxies;
+use App\Http\Middleware\UserVerified;
+use App\Http\Middleware\VendorLocale;
+use App\Http\Middleware\PhantomSecret;
+use App\Http\Middleware\SetDocumentDb;
+use App\Http\Middleware\ApiSecretCheck;
 use App\Http\Middleware\ContactAccount;
+use App\Http\Middleware\EncryptCookies;
+use App\Http\Middleware\SessionDomains;
 use App\Http\Middleware\ContactKeyLogin;
 use App\Http\Middleware\ContactRegister;
-use App\Http\Middleware\ContactSetDb;
-use App\Http\Middleware\ContactTokenAuth;
-use App\Http\Middleware\Cors;
-use App\Http\Middleware\EncryptCookies;
-use App\Http\Middleware\Locale;
-use App\Http\Middleware\PasswordProtection;
-use App\Http\Middleware\PhantomSecret;
-use App\Http\Middleware\QueryLogging;
-use App\Http\Middleware\RedirectIfAuthenticated;
-use App\Http\Middleware\SessionDomains;
-use App\Http\Middleware\SetDbByCompanyKey;
-use App\Http\Middleware\SetDocumentDb;
 use App\Http\Middleware\SetDomainNameDb;
-use App\Http\Middleware\SetEmailDb;
-use App\Http\Middleware\SetInviteDb;
-use App\Http\Middleware\SetWebDb;
-use App\Http\Middleware\TokenAuth;
-use App\Http\Middleware\TrimStrings;
-use App\Http\Middleware\TrustProxies;
-use App\Http\Middleware\UrlSetDb;
-use App\Http\Middleware\UserVerified;
-use App\Http\Middleware\ValidateSignature;
-use App\Http\Middleware\VendorContactKeyLogin;
-use App\Http\Middleware\VendorLocale;
 use App\Http\Middleware\VerifyCsrfToken;
-use App\Http\Middleware\VerifyHash;
-use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use App\Http\Middleware\ContactTokenAuth;
 use Illuminate\Auth\Middleware\Authorize;
-use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Illuminate\Foundation\Http\Kernel as HttpKernel;
-use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
-use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use App\Http\Middleware\SetDbByCompanyKey;
+use App\Http\Middleware\ValidateSignature;
+use App\Http\Middleware\PasswordProtection;
+use App\Http\Middleware\ClientPortalEnabled;
+use App\Http\Middleware\CheckClientExistence;
+use App\Http\Middleware\VendorContactKeyLogin;
 use Illuminate\Http\Middleware\SetCacheHeaders;
-use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use App\Http\Middleware\CheckForMaintenanceMode;
+use App\Http\Middleware\RedirectIfAuthenticated;
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
+use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 
 class Kernel extends HttpKernel
 {
@@ -150,6 +151,7 @@ class Kernel extends HttpKernel
         'portal_enabled' => ClientPortalEnabled::class,
         'url_db' =>  UrlSetDb::class,
         'web_db' => SetWebDb::class,
+        'api_db' => SetDb::class,
         'company_key_db' => SetDbByCompanyKey::class,
         'locale' => Locale::class,
         'vendor_locale' => VendorLocale::class,
@@ -172,6 +174,7 @@ class Kernel extends HttpKernel
         SessionDomains::class,
         Cors::class,
         SetDomainNameDb::class,
+        SetDb::class,
         SetWebDb::class,
         UrlSetDb::class,
         ContactSetDb::class,

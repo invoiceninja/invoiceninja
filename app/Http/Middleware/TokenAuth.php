@@ -32,17 +32,20 @@ class TokenAuth
      */
     public function handle($request, Closure $next)
     {
+
         if (config('ninja.db.multi_db_enabled') &&
-        $request->header('X-API-TOKEN') &&
-        ($company_token = MultiDB::getCompanyToken($request->header('X-API-TOKEN')))) {
+            $request->header('X-API-TOKEN') &&
+             ($company_token = MultiDB::getCompanyToken($request->header('X-API-TOKEN')))) {
         } elseif ($request->header('X-API-TOKEN') && ($company_token = CompanyToken::with([
             'user.account',
             'company',
             'account',
+            'cu'
             ])->where('token', $request->header('X-API-TOKEN'))->first())) {
         } else {
             return response()->json(['message' => 'Invalid token'], 403);
         }
+
         $user = $company_token->user;
 
         $error = [
@@ -83,7 +86,6 @@ class TokenAuth
          */
         app('queue')->createPayloadUsing(function () use ($company_token) {
             return ['db' => $company_token->company->db];
-            // return ['db' => $company_token->company->db, 'is_premium' => $company_token->account->isPremium()];
         });
 
         //user who once existed, but has been soft deleted

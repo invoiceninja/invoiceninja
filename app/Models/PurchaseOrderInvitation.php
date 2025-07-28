@@ -139,6 +139,7 @@ class PurchaseOrderInvitation extends BaseModel
     public function markViewed(): void
     {
         $this->viewed_date = Carbon::now();
+        $this->purchase_order->last_viewed = Carbon::now();
         $this->save();
     }
 

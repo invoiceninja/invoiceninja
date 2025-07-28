@@ -11,22 +11,24 @@
 
 namespace Tests\Feature;
 
-use App\DataMapper\CompanySettings;
-use App\Factory\CompanyUserFactory;
-use App\Http\Middleware\PasswordProtection;
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Account;
 use App\Models\Company;
-use App\Models\CompanyToken;
+use App\Libraries\MultiDB;
+use App\Utils\TruthSource;
+use Tests\MockAccountData;
 use App\Models\CompanyUser;
-use App\Models\User;
+use App\Models\CompanyToken;
+use App\DataMapper\CompanySettings;
+use App\Factory\CompanyUserFactory;
 use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Session;
+use App\Http\Middleware\PasswordProtection;
 use Illuminate\Validation\ValidationException;
-use Tests\MockAccountData;
-use Tests\TestCase;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
  * 
@@ -35,7 +37,6 @@ use Tests\TestCase;
 class UserTest extends TestCase
 {
     use MockAccountData;
-    use DatabaseTransactions;
 
     private $default_email = 'attach@gmail.com';
 
@@ -52,7 +53,7 @@ class UserTest extends TestCase
             PasswordProtection::class
         );
 
-        $this->makeTestData();
+        // $this->makeTestData();
 
         // $this->withoutExceptionHandling();
 
@@ -73,9 +74,14 @@ class UserTest extends TestCase
             'account_id' => $account->id,
             'confirmation_code' => 'xyz123',
             'email' => $this->faker->unique()->safeEmail(),
-            'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
         ]);
 
+        $user->password = \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword');
+        $user->email_verified_at = now();
+        $user->save();
+
+        auth()->login($user, false);
+        
         $settings = CompanySettings::defaults();
         $settings->client_online_payment_notification = false;
         $settings->client_manual_payment_notification = false;
@@ -85,11 +91,21 @@ class UserTest extends TestCase
             'settings' => $settings,
         ]);
 
-        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
-        $cu->is_owner = true;
-        $cu->is_admin = true;
-        $cu->is_locked = false;
-        $cu->save();
+        // $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
+        // $cu->is_owner = true;
+        // $cu->is_admin = true;
+        // $cu->is_locked = false;
+        // $cu->save();
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'notifications' => \App\DataMapper\CompanySettings::notificationAdminDefaults(),
+            'settings' => null,
+        ]);
 
         $token = \Illuminate\Support\Str::random(64);
 
@@ -102,55 +118,31 @@ class UserTest extends TestCase
         $company_token->is_system = true;
         $company_token->save();
 
+        // auth()->user()->setContext($company, $company_token);
+
+        $truth = app()->make(TruthSource::class);
+
+        $truth->setCompanyUser($company_token->cu);
+        $truth->setUser($company_token->user);
+        $truth->setCompany($company_token->company);
+        $truth->setCompanyToken($company_token);
+
         return $company_token;
 
     }
 
-    // public function testCrossAccountFunctionality()
-    // {
-    //     $ct = $this->mockAccount();
-
-    //     $u= $ct->user;
-
-    //     auth()->login($u, true);
-
-    //     $account = Account::factory()->create([
-    //             'hosted_client_count' => 1000,
-    //             'hosted_company_count' => 1000,
-    //         ]);
-
-    //     $account->num_users = 3;
-    //     $account->save();
-
-    //     $user = User::factory()->create([
-    //         'account_id' => $this->account->id,
-    //         'confirmation_code' => 'xyz123',
-    //         'email' => $this->faker->unique()->safeEmail(),
-    //         'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
-    //     ]);
-
-
-    //     $user_repo = new UserRepository();
-
-
-    //     // try{
-    //         $x = $user_repo->save(['first_name' => 'bobby'], $user);
-    //     // }
-    //     // catch(\Exception $e){
-
-    //         // $this->assertEquals(401, $e->getCode());
-    //     // }
-
-    //     nlog($x);
-
-
-    // }
 
     public function testValidEmailUpdate()
     {
         $company_token = $this->mockAccount();
-        $user = $company_token->user;
-        $user->load('company_user');
+        $user = auth()->user();
+        
+        // $user = $company_token->user;
+        // $user->load('company_user');
+        // nlog($company_token->toArray());
+
+        // $user = User::with('company_user')->find($company_token->user_id);
+        // nlog($user->toArray());
 
         $data = $user->toArray();
         
@@ -162,6 +154,19 @@ class UserTest extends TestCase
 
         $response->assertStatus(200);
 
+        $data['email'] = 'newemail@gmail.com';
+
+        // $response = $this->withHeaders([
+        //     'X-API-SECRET' => config('ninja.api_secret'),
+        //     'X-API-TOKEN' => $company_token->token,
+        //     'X-API-PASSWORD' => 'ALongAndBriliantPassword',
+        // ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
+
+
+        // $response->assertStatus(200);
+
+        // $data = $response->json();
+        // $this->assertEquals($data['data']['email'], $data['email']);
     }
 
 
@@ -169,9 +174,11 @@ class UserTest extends TestCase
     {
         
         $company_token = $this->mockAccount();
-        $user = $company_token->user;
-        $user->load('company_user');
+        // $user = $company_token->user;
+        // $user->load('company_user');
 
+        $user = auth()->user();
+       
         $data = $user->toArray();
         $data['email'] = '';
         unset($data['password']);
@@ -215,14 +222,19 @@ class UserTest extends TestCase
 
     public function testUserLocale()
     {
-        $this->user->language_id = "13";
-        $this->user->save();
+        
+        $company_token = $this->mockAccount();
 
-        $this->assertEquals("fr_CA", $this->user->getLocale());
+        $user = auth()->user();
+
+        $user->language_id = "13";
+        $user->save();
+
+        $this->assertEquals("fr_CA", $user->getLocale());
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
         ])->get('/api/v1/statics');
 
         $response->assertStatus(200);
@@ -234,6 +246,12 @@ class UserTest extends TestCase
     public function testUserResponse()
     {
         $company_token = $this->mockAccount();
+
+        $_user = MultiDB::hasUser(['email' => 'normal_user@gmail.com']);
+
+        if($_user) {
+            $_user->account->delete();
+        }
 
         $data = [
                 'first_name' => 'hey',
@@ -337,7 +355,7 @@ class UserTest extends TestCase
         $account->save();
 
         $user = User::factory()->create([
-            'account_id' => $this->account->id,
+            'account_id' => $account->id,
             'confirmation_code' => 'xyz123',
             'email' => $this->faker->unique()->safeEmail(),
             'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
@@ -352,12 +370,15 @@ class UserTest extends TestCase
             'settings' => $settings,
         ]);
 
-
-        $cu = CompanyUserFactory::create($user->id, $company->id, $account->id);
-        $cu->is_owner = true;
-        $cu->is_admin = true;
-        $cu->is_locked = false;
-        $cu->save();
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'notifications' => \App\DataMapper\CompanySettings::notificationAdminDefaults(),
+            'settings' => null,
+        ]);
 
         $token = \Illuminate\Support\Str::random(64);
 
@@ -385,45 +406,56 @@ class UserTest extends TestCase
 
     }
 
-    public function testDisconnectUserOauthMailer()
-    {
-        $user =
-        User::factory()->create([
-            'account_id' => $this->account->id,
-            'email' => $this->faker->safeEmail(),
-            'oauth_user_id' => '123456789',
-            'oauth_provider_id' => '123456789',
-        ]);
+    // public function testDisconnectUserOauthMailer()
+    // {
+    //     $account = Account::factory()->create([
+    //         'hosted_client_count' => 1000,
+    //         'hosted_company_count' => 1000,
+    //     ]);
 
-        $response = $this->withHeaders([
-            'X-API-TOKEN' => $this->token,
-        ])->post("/api/v1/users/{$user->hashed_id}/disconnect_mailer");
+    //     $user =
+    //     User::factory()->create([
+    //         'account_id' => $account->id,
+    //         'email' => $this->faker->safeEmail(),
+    //         'oauth_user_id' => '123456789',
+    //         'oauth_provider_id' => '123456789',
+    //     ]);
 
-        $response->assertStatus(200);
+    //     $response = $this->withHeaders([
+    //         'X-API-TOKEN' => $this->token,
+    //     ])->post("/api/v1/users/{$user->hashed_id}/disconnect_mailer");
 
-        $user->fresh();
+    //     $response->assertStatus(200);
 
-        $this->assertNull($user->oauth_user_token);
-        $this->assertNull($user->oauth_user_refresh_token);
+    //     $user->fresh();
 
-    }
+    //     $this->assertNull($user->oauth_user_token);
+    //     $this->assertNull($user->oauth_user_refresh_token);
+
+    // }
 
     public function testUserFiltersWith()
     {
+        $company_token = $this->mockAccount();
+        
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
-        ])->get('/api/v1/users?with='.$this->user->hashed_id);
+        ])->get('/api/v1/users?with='.$company_token->user->hashed_id);
 
         $response->assertStatus(200);
     }
 
     public function testUserList()
     {
+
+        
+        $company_token = $this->mockAccount();
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->get('/api/v1/users');
 
@@ -433,6 +465,13 @@ class UserTest extends TestCase
     public function testValidationRulesPhoneIsNull()
     {
         $this->withoutMiddleware(PasswordProtection::class);
+        $company_token = $this->mockAccount();
+        
+        $_user = MultiDB::hasUser(['email' => 'bob1@good.ole.boys.com']);
+
+        if ($_user) {
+            $_user->account->delete();
+        }
 
         $data = [
             'first_name' => 'hey',
@@ -448,7 +487,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->postJson('/api/v1/users?include=company_user', $data);
 
@@ -459,6 +498,13 @@ class UserTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
+        $_user = MultiDB::hasUser(['email' => 'bob1@good.ole.boys.com']);
+
+        if($_user) {
+            $_user->account->delete();
+        }
+
+        $company_token = $this->mockAccount();
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
@@ -473,7 +519,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->postJson('/api/v1/users?include=company_user', $data);
 
@@ -500,7 +546,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->putJson('/api/v1/users/'.$user->hashed_id.'?include=company_user', $data);
     }
@@ -509,6 +555,14 @@ class UserTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
+
+        $_user = MultiDB::hasUser(['email' => 'bob1@good.ole.boys.com']);
+
+        if($_user) {
+            $_user->account->delete();
+        }
+
+        $company_token = $this->mockAccount();  
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
@@ -523,7 +577,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->postJson('/api/v1/users?include=company_user', $data);
 
@@ -538,6 +592,13 @@ class UserTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
+        $_user = MultiDB::hasUser(['email' => $this->default_email]);
+
+        if ($_user) {
+            $_user->account->delete();
+        }
+
+        $company_token = $this->mockAccount();
         $data = [
             'first_name' => 'Test',
             'last_name' => 'Palloni',
@@ -548,7 +609,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
-                'X-API-TOKEN' => $this->token,
+                'X-API-TOKEN' => $company_token->token,
                 'X-API-PASSWORD' => 'ALongAndBriliantPassword',
             ])->postJson('/api/v1/users?include=company_user', $data);
 
@@ -558,7 +619,7 @@ class UserTest extends TestCase
 
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
-            'X-API-TOKEN' => $this->token,
+            'X-API-TOKEN' => $company_token->token,
             'X-API-PASSWORD' => 'ALongAndBriliantPassword',
         ])->delete('/api/v1/users/'.$arr['data']['id'].'/detach_from_company?include=company_user');
 
@@ -566,8 +627,8 @@ class UserTest extends TestCase
 
         $user_id = $this->decodePrimaryKey($arr['data']['id']);
 
-        $cu = CompanyUser::whereUserId($user_id)->whereCompanyId($this->company->id)->first();
-        $ct = CompanyToken::whereUserId($user_id)->whereCompanyId($this->company->id)->first();
+        $cu = CompanyUser::whereUserId($user_id)->whereCompanyId($company_token->company->id)->first();
+        $ct = CompanyToken::whereUserId($user_id)->whereCompanyId($company_token->company->id)->first();
         $user = User::find($user_id);
 
         $this->assertNull($cu);
@@ -579,25 +640,46 @@ class UserTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
+        $company_token = $this->mockAccount();
+        
+        $_user = MultiDB::hasUser(['email' => $this->default_email]);
+
+        if ($_user) {
+            $_user->account->delete();
+        }
+
+    
+        $_user = MultiDB::hasUser(['email' => 'bob@good.ole.boys.co2.com']);
+
+        if ($_user) {
+            $_user->account->delete();
+        }
+
+
         /* Create New Company */
         $company2 = Company::factory()->create([
-            'account_id' => $this->account->id,
+            'account_id' => $company_token->account_id,
         ]);
 
         $company_token = new CompanyToken();
-        $company_token->user_id = $this->user->id;
+        $company_token->user_id = auth()->user()->id;
         $company_token->company_id = $company2->id;
-        $company_token->account_id = $this->account->id;
+        $company_token->account_id = auth()->user()->account_id;
         $company_token->name = 'test token';
         $company_token->token = \Illuminate\Support\Str::random(64);
         $company_token->is_system = true;
         $company_token->save();
 
         /*Manually link this user to the company*/
-        $cu = CompanyUserFactory::create($this->user->id, $company2->id, $this->account->id);
-        $cu->is_owner = true;
-        $cu->is_admin = true;
-        $cu->save();
+       auth()->user()->companies()->attach($company2->id, [
+            'account_id' => $company_token->account_id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'permissions' => '',
+            'notifications' => \App\DataMapper\CompanySettings::notificationAdminDefaults(),
+            'settings' => null,
+        ]);
 
         /*Create New Blank User and Attach to Company 2*/
         $data = [

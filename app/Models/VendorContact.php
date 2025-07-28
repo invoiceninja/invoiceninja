@@ -12,7 +12,7 @@
 
 namespace App\Models;
 
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;

@@ -14,7 +14,7 @@ namespace App\Models;
 
 use App\Utils\Ninja;
 use Illuminate\Support\Str;
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\Jobs\Mail\NinjaMailer;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;

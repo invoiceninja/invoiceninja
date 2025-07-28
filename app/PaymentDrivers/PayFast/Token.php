@@ -12,10 +12,15 @@
 
 namespace App\PaymentDrivers\PayFast;
 
-use App\Models\ClientGatewayToken;
+use App\Models\Payment;
+use App\Models\SystemLog;
+use App\Models\GatewayType;
 use App\Models\PaymentHash;
+use App\Models\PaymentType;
+use App\Jobs\Util\SystemLogger;
+use App\Exceptions\PaymentFailed;
+use App\Models\ClientGatewayToken;
 use App\PaymentDrivers\PayFastPaymentDriver;
-use GuzzleHttp\RequestOptions;
 
 class Token
 {
@@ -29,98 +34,93 @@ class Token
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
-        $amount = round(($amount * pow(10, $this->payfast->client->currency()->precision)), 0);
-
-        $header = [
-            'merchant-id' => $this->payfast->company_gateway->getConfigField('merchantId'),
-            'version' => 'v1',
-            'timestamp' => now()->format('c'),
-        ];
-
-        $body = [
-            'amount' => $amount,
-            'item_name' => 'purchase',
-            'item_description' => ctrans('texts.invoices').': '.collect($payment_hash->invoices())->pluck('invoice_number'),
-            'm_payment_id' => $payment_hash->hash,
-        ];
-
-        $header['signature'] = $this->payfast->generateTokenSignature(array_merge($body, $header));
-
-        // nlog($header['signature']);
-
-        $result = $this->send($header, $body, $cgt->token);
-    }
-
-    protected function generate_parameter_string($api_data, $sort_data_before_merge = true, $skip_empty_values = true)
-    {
-        // if sorting is required the passphrase should be added in before sort.
-        if (! empty($this->payfast->company_gateway->getConfigField('passphrase')) && $sort_data_before_merge) {
-            $api_data['passphrase'] = $this->payfast->company_gateway->getConfigField('passphrase');
-        }
-
-        if ($sort_data_before_merge) {
-            ksort($api_data);
-        }
-
-        // concatenate the array key value pairs.
-        $parameter_string = '';
-        foreach ($api_data as $key => $val) {
-            if ($skip_empty_values && empty($val)) {
-                continue;
-            }
-
-            if ('signature' !== $key) {
-                $val = urlencode($val);
-                $parameter_string .= "$key=$val&";
-            }
-        }
-        // when not sorting passphrase should be added to the end before md5
-        if ($sort_data_before_merge) {
-            $parameter_string = rtrim($parameter_string, '&');
-        } elseif (! empty($this->pass_phrase)) {
-            $parameter_string .= 'passphrase='.urlencode($this->payfast->company_gateway->getConfigField('passphrase'));
-        } else {
-            $parameter_string = rtrim($parameter_string, '&');
-        }
-
-        // nlog($parameter_string);
-
-        return $parameter_string;
-    }
-
-    private function genSig($data)
-    {
-        $fields = [];
-
-        ksort($data);
-
-        foreach ($data as $key => $value) {
-            if (! empty($data[$key])) {
-                $fields[$key] = $data[$key];
-            }
-        }
-
-        nlog(http_build_query($fields));
-
-        return md5(http_build_query($fields));
-    }
-
-    private function send($headers, $body, $token)
-    {
-        $client = new \GuzzleHttp\Client(
-            [
-                'headers' => $headers,
-            ]
-        );
+        $amount = (int)round(($amount * pow(10, $this->payfast->client->currency()->precision)), 0);
 
         try {
-            $response = $client->post("https://api.payfast.co.za/subscriptions/{$token}/adhoc?testing=true", [
-                RequestOptions::JSON => ['body' => $body], RequestOptions::ALLOW_REDIRECTS => false,
-            ]);
+            $payfast = new \PayFast\PayFastApi(
+                [
+                    'merchantId' => (string)$this->payfast->company_gateway->getConfigField('merchantId'),
+                    'merchantKey' => $this->payfast->company_gateway->getConfigField('merchantKey'),
+                    'passPhrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
+                    'testMode' => $this->payfast->company_gateway->getConfigField('testMode')
+                ]
+            );
 
-            return json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
-            nlog($e->getMessage());
+            $data = [
+                'amount' => $amount,
+                'item_name' => ctrans('texts.invoices').': '.collect($payment_hash->invoices())->pluck('invoice_number'),
+                'm_payment_id' => $payment_hash->hash,
+            ];
+
+            $response = $payfast->subscriptions->adhoc($cgt->token, $data);
+
+            nlog("TokenBilling");
+            nlog($response);
+            nlog(now()->format('Y-m-d H:i:s'));
+
+            if($response['code'] == 200 && $response['status'] == 'success') {
+                return $this->processSuccessfulPayment($response);
+            }
+
+            return $this->processUnsuccessfulPayment($response, $payment_hash);
+
+        } catch (Exception $e) {
+            echo 'There was an exception: '.$e->getMessage();
+            return $this->processUnsuccessfulPayment($e->getMessage());
         }
+
     }
+
+// Array
+// (
+//     [code] => 200
+//     [status] => success
+//     [data] => Array
+//         (
+//             [response] => true
+//             [message] => Transaction was successful (00)
+//             [pf_payment_id] => 2577761
+//         )
+
+// )
+
+    private function processSuccessfulPayment(array $response)
+    {
+        
+        $payment_record = [];
+        $payment_record['amount'] =  array_sum(array_column($this->payfast->payment_hash->invoices(), 'amount')) + $this->payfast->payment_hash->fee_total;
+        $payment_record['payment_type'] = PaymentType::CREDIT_CARD_OTHER;
+        $payment_record['gateway_type_id'] = GatewayType::CREDIT_CARD;
+        $payment_record['transaction_reference'] = $response['data']['pf_payment_id'];
+        $payment_record['idempotency_key'] = $response['data']['pf_payment_id'].$this->payfast->payment_hash->hash;
+        $payment = $this->payfast->createPayment($payment_record, Payment::STATUS_COMPLETED);
+
+        return $payment;
+    }
+
+    private function processUnsuccessfulPayment($response)
+    {
+        $error_message = $response['data']['message'];
+        $error_code = $response['code'];
+
+        $this->payfast->sendFailureMail($error_message);
+
+        $message = [
+            'server_response' => $response,
+            'data' => $this->payfast->payment_hash->data,
+        ];
+
+        SystemLogger::dispatch(
+            $message,
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_PAYFAST,
+            $this->payfast->client,
+            $this->payfast->client->company,
+        );
+
+        throw new PaymentFailed('Failed to process the payment.', 500);
+
+    }
+
 }

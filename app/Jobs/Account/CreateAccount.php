@@ -51,13 +51,13 @@ class CreateAccount
 
     public function handle()
     {
-        if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
-            return $this->create();
-        } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
-            return response()->json(['message' => Ninja::selfHostedMessage()], 400);
-        } elseif (! Ninja::boot()) {
-            return response()->json(['message' => Ninja::parse()], 401);
-        }
+        // if (config('ninja.environment') == 'selfhost' && Account::count() == 0) {
+        //     return $this->create();
+        // } elseif (config('ninja.environment') == 'selfhost' && Account::count() > 1) {
+        //     return response()->json(['message' => Ninja::selfHostedMessage()], 400);
+        // } elseif (! Ninja::boot()) {
+        //     return response()->json(['message' => Ninja::parse()], 401);
+        // }
 
         return $this->create();
     }
@@ -114,6 +114,7 @@ class CreateAccount
         if ($spaa9f78) {
             event(new AccountCreated($spaa9f78, $sp035a66, Ninja::eventVars()));
         }
+
 
         $spaa9f78->fresh();
 

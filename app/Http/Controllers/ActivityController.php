@@ -247,19 +247,20 @@ class ActivityController extends BaseController
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
                 // no break
+                break;
             case Task::class:
                 $activity->task_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 $activity->vendor_id = $entity->vendor_id;
                 // no break
+                break;
             case Payment::class:
                 $activity->payment_id = $entity->id;
-                $activity->expense_id = $entity->id;
                 $activity->client_id = $entity->client_id;
                 $activity->project_id = $entity->project_id;
                 // no break
+                break;
             default:
                 # code...
                 break;

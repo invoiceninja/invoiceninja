@@ -88,9 +88,9 @@ class BaseController extends Controller
 
     /* Grouped permissions when we want to hide columns for particular permission groups*/
 
-    private array $client_exclusion_fields = ['balance', 'paid_to_date', 'credit_balance', 'client_hash'];
-    private array $client_excludable_permissions = ['view_client'];
-    private array $client_excludable_overrides = ['edit_client', 'edit_all', 'view_invoice', 'view_all', 'edit_invoice'];
+    protected array $client_exclusion_fields = ['balance', 'paid_to_date', 'credit_balance', 'client_hash'];
+    protected array $client_excludable_permissions = ['view_client'];
+    protected array $client_excludable_overrides = ['edit_client', 'edit_all', 'view_invoice', 'view_all', 'edit_invoice'];
 
     /* Grouped permissions when we want to hide columns for particular permission groups*/
 

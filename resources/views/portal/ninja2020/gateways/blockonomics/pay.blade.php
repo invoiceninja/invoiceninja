@@ -60,6 +60,7 @@
         <input type="hidden" name="currency" value="{{ $currency }}">
         <input type="hidden" name="payment_hash" value="{{ $payment_hash }}">
         <input type="hidden" name="txid" value="">
+        <input type="hidden" name="btc_address" value="{{ $btc_address }}" />
     </form>
 
 
@@ -102,19 +103,19 @@
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
-        }    
+        }
         .invoice-number {
             width: 50%;
             float: left;
             text-align: left;
-        }    
+        }
         .invoice-amount {
             width: 50%;
             float: right;
             text-align: right;
             text-transform: uppercase;
             margin-bottom: 20px;
-        }    
+        }
         .blockonomics-payment-wrapper {
             display: flex;
             justify-content: center;

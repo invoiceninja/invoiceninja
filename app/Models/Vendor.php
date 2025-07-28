@@ -12,7 +12,7 @@
 
 namespace App\Models;
 
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\Utils\Traits\AppSetup;
 use App\DataMapper\CompanySettings;
 use Illuminate\Support\Facades\App;

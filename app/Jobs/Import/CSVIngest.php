@@ -53,6 +53,8 @@ class CSVIngest implements ShouldQueue
 
     public $tries = 1;
 
+    public $timeout = 10800;
+
     public function __construct(array $request, Company $company)
     {
         $this->company = $company;

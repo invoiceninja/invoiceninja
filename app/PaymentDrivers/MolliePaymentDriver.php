@@ -357,7 +357,14 @@ class MolliePaymentDriver extends BaseDriver
 
             if ($record) {
                 if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
-                    $record->service()->deletePayment(false); //sometimes mollie does not return but we still decrement the paid to date, this is incorrect.
+                    
+                    if(property_exists($payment->metadata, 'hash') && $payment->metadata->hash){
+                        $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
+                        $this->handlePendingGatewayFeeRemoval($payment_hash);
+                    }
+
+                    $record->service()->deletePayment(false); 
+
                 }
 
                 $record->status_id = $codes[$payment->status];
@@ -377,6 +384,27 @@ class MolliePaymentDriver extends BaseDriver
             return response()->json([], 200);
         } catch (ApiException $e) {
             return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
+        }
+    }
+
+    private function handlePendingGatewayFeeRemoval(PaymentHash $payment_hash)
+    {
+        $invoice = $payment_hash->fee_invoice;
+
+        if($invoice){
+            $line_items = $invoice->line_items;
+
+            $line_items = collect($line_items)->filter(function($line_item, $key) use ($line_items) {
+                if ($key === array_key_last($line_items)) {
+                    return $line_item->type_id != '4';
+                }
+                return true;
+            })->toArray();
+
+            $invoice->line_items = array_values($line_items);
+
+            $invoice = $invoice->calc()->getInvoice();
+
         }
     }
 

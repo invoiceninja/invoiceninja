@@ -12,7 +12,7 @@
 
 namespace App\Models;
 
-use Laravel\Scout\Searchable;
+use Elastic\ScoutDriverPlus\Searchable;
 use App\DataMapper\ClientSync;
 use App\Utils\Traits\AppSetup;
 use App\Utils\Traits\MakesHash;
@@ -665,7 +665,7 @@ class Client extends BaseModel implements HasLocalePreference
 
 
     //todo refactor this  - it is only searching for existing tokens
-    public function getBankTransferGateway(): ?CompanyGateway
+    public function getBankTransferGateway($is_add_payment_method = false): ?CompanyGateway
     {
         $pms = $this->service()->getPaymentMethods(-1);
 
@@ -719,7 +719,8 @@ class Client extends BaseModel implements HasLocalePreference
                 if ($pm['gateway_type_id'] == GatewayType::ACSS) {
                     $cg = CompanyGateway::query()->find($pm['company_gateway_id']);
 
-                    if ($cg && $cg->gateway_key != '91be24c7b792230bced33e930ac61676' && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
+                    //supports a weird edge case where we need to allow rotessa to be used when adding a payment method.
+                    if ($cg && ($is_add_payment_method || $cg->gateway_key != '91be24c7b792230bced33e930ac61676') && $cg->fees_and_limits->{GatewayType::ACSS}->is_enabled) {
                         return $cg;
                     }
                 }
@@ -826,29 +827,6 @@ class Client extends BaseModel implements HasLocalePreference
 
         return null;
 
-
-
-
-        // if ($this->currency()->code == 'USD') {
-        //     return GatewayType::BANK_TRANSFER;
-        // }
-
-        // if ($this->currency()->code == 'EUR') {
-        //     return GatewayType::SEPA;
-        // }
-
-        // //Special handler for GoCardless
-        // if($this->currency()->code == 'CAD' && ($this->getBankTransferGateway()->gateway_key == 'b9886f9257f0c6ee7c302f1c74475f6c') ?? false) {
-        //     return GatewayType::DIRECT_DEBIT;
-        // }
-
-        // if (in_array($this->currency()->code, ['EUR', 'GBP','DKK','SEK','AUD','NZD','USD'])) {
-        //     return GatewayType::DIRECT_DEBIT;
-        // }
-
-        // if(in_array($this->currency()->code, ['CAD'])) {
-        //     return GatewayType::ACSS;
-        // }
     }
 
     public function getCurrencyCode(): string

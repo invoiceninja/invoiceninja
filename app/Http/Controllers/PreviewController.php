@@ -96,14 +96,25 @@ class PreviewController extends BaseController
         }
 
         /** Return PDF */
-        return response()->streamDownload(function () use ($pdf) {
+        
+        return response()->stream(function () use ($pdf) {
             echo $pdf;
-        }, 'preview.pdf', [
-            'Content-Disposition' => 'inline',
+        }, 200, [
             'Content-Type' => 'application/pdf',
-            'Cache-Control:' => 'no-cache',
-            'Server-Timing' => (string)(microtime(true) - $start)
+            'Content-Disposition' => 'inline; filename="preview.pdf"',
+            'Cache-Control' => 'no-cache',
+            'Server-Timing' => (string)(microtime(true) - $start),
         ]);
+
+        //@2025-06-25 - streamDownload forces attachment, which is not what we want. ->stream() is better.
+        // return response()->streamDownload(function () use ($pdf) {
+        //     echo $pdf;
+        // }, 'preview.pdf', [
+        //     'Content-Disposition' => 'inline',
+        //     'Content-Type' => 'application/pdf',
+        //     'Cache-Control:' => 'no-cache',
+        //     'Server-Timing' => (string)(microtime(true) - $start)
+        // ]);
 
     }
 

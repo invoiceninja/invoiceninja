@@ -161,14 +161,18 @@ class Blockonomics {
 
             ws.onmessage = function (event) {
                 const data = JSON.parse(event.data);
-                console.log('Payment status:', data.status);
-                const isPaymentUnconfirmed = data.status === 0;
-                const isPaymentPartiallyConfirmed = data.status === 1;
-                const isPaymentConfirmed = data.status === 2;
+                const { status, txid, value } = data || {};
+                console.log('Payment status:', status);
+                const isPaymentUnconfirmed = status === 0;
+                const isPaymentPartiallyConfirmed = status === 1;
+                const isPaymentConfirmed = status === 2;
                 // Confirmation status: 0 = unconfirmed, 1 = partially confirmed, 2 = confirmed
                 // If any of the statuses are true, submit the form and redirect
                 if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed || isPaymentConfirmed) {
-                    document.querySelector('input[name="txid"]').value = data.txid || '';
+                    document.querySelector('input[name="txid"]').value = txid || '';
+                    document.querySelector('input[name="status"]').value = status || '';
+                    document.querySelector('input[name="btc_amount"]').value = value || '';
+                    document.querySelector('input[name="btc_address"]').value = btcAddress || '';
                     document.getElementById('server-response').submit();
                 }
             }

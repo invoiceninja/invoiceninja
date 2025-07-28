@@ -127,6 +127,7 @@ use App\Http\Controllers\Reports\ClientContactReportController;
 use App\Http\Controllers\Reports\PurchaseOrderReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceReportController;
 use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
+use App\Http\Controllers\Reports\RecurringInvoiceItemReportController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
@@ -183,6 +184,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('clients/{client}/{mergeable_client}/merge', [ClientController::class, 'merge'])->name('clients.merge')->middleware('password_protected');
     Route::post('clients/bulk', [ClientController::class, 'bulk'])->name('clients.bulk');
     Route::post('clients/{client}/documents', [ClientController::class, 'documents'])->name('clients.documents');
+    Route::post('clients/{client}/show_settings', [ClientController::class, 'showSettings'])->name('clients.show_settings');
 
     Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
 
@@ -212,6 +214,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('company_gateways/bulk', [CompanyGatewayController::class, 'bulk'])->name('company_gateways.bulk');
     Route::post('company_gateways/{company_gateway}/test', [CompanyGatewayController::class, 'test'])->name('company_gateways.test');
+    Route::post('company_gateways/{company_gateway}/clone', [CompanyGatewayController::class, 'clone'])->name('company_gateways.clone');
     Route::post('company_gateways/{company_gateway}/import_customers', [CompanyGatewayController::class, 'importCustomers'])->name('company_gateways.import_customers');
 
     Route::put('company_users/{user}', [CompanyUserController::class, 'update']);
@@ -354,6 +357,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('reports/quotes', QuoteReportController::class)->middleware('throttle:20,1');
     Route::post('reports/quote_items', QuoteItemReportController::class)->middleware('throttle:20,1');
     Route::post('reports/recurring_invoices', RecurringInvoiceReportController::class)->middleware('throttle:20,1');
+    Route::post('reports/recurring_invoice_items', RecurringInvoiceItemReportController::class)->middleware('throttle:20,1');
     Route::post('reports/payments', PaymentReportController::class)->middleware('throttle:20,1');
     Route::post('reports/products', ProductReportController::class)->middleware('throttle:20,1');
     Route::post('reports/product_sales', ProductSalesReportController::class)->middleware('throttle:20,1');

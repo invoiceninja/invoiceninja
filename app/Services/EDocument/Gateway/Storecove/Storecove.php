@@ -299,6 +299,10 @@ class Storecove
             return $add_identifier_response;
         }
 
+        if($data['country'] == "DK"){
+           $add_identifier_response = $this->addIdentifier($legal_entity_response['id'], str_replace(" ", "", $data['vat_number']), "DK:DIGST");
+        }
+
         return [
             'legal_entity_id' => $legal_entity_response['id'],
             'tax_data' => [

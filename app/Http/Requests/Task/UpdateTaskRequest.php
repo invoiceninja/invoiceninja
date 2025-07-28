@@ -78,6 +78,14 @@ class UpdateTaskRequest extends Request
                 if (!is_int($k[0]) || !is_int($k[1])) {
                     return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. Unix timestamps only.');
                 }
+
+                if(count($k) > 4) {
+                    return $fail('The timelog can only have up to 4 elements.');
+                }
+
+                if(isset($k[3]) && !is_bool($k[3])) {
+                    return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. The 4th element must be a boolean.');
+                }
             }
 
             if (!$this->checkTimeLog($values)) {

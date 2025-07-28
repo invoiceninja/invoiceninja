@@ -79,12 +79,12 @@ class LocationData extends AbstractService
 
     private function getLocationName(): string
     {
-        return $this->businessLocation ? $this->businessLocation->name : '';
+        return $this->businessLocation ? ($this->businessLocation->name ?? '') : '';
     }
 
     private function getShippingLocationName(): string
     {
-        return $this->shippingLocation ? $this->shippingLocation->name : '';
+        return $this->shippingLocation ? ($this->shippingLocation->name ?? '') : '';
     }
 
     private function getBusinessCountry(): ?Country

@@ -205,7 +205,7 @@ class InvoiceService
         return (new CreateRawPdf($invitation))->handle();
     }
 
-    public function getInvoiceDeliveryNote(Invoice $invoice, \App\Models\ClientContact $contact = null)
+    public function getInvoiceDeliveryNote(Invoice $invoice, ?\App\Models\ClientContact $contact = null)
     {
         return (new GenerateDeliveryNote($invoice, $contact))->run();
     }

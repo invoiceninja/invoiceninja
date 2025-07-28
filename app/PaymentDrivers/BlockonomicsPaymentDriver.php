@@ -50,6 +50,7 @@ class BlockonomicsPaymentDriver extends BaseDriver
     public $NEW_ADDRESS_URL = 'https://www.blockonomics.co/api/new_address';
     public $PRICE_URL = 'https://www.blockonomics.co/api/price';
     public $STORES_URL = 'https://www.blockonomics.co/api/v2/stores';
+    private string $test_txid = 'WarningThisIsAGeneratedTestPaymentAndNotARealBitcoinTransaction';
 
     public function init()
     {
@@ -106,17 +107,22 @@ class BlockonomicsPaymentDriver extends BaseDriver
         $status = $request->status;
         $addr = $request->addr;
 
-        $payment = Payment::query()
-                            ->where('company_id', $company->id)
-                            ->where('transaction_reference', $txid)
-                            ->firstOrFail();
-
-        if (!$payment) {
-            return response()->json([], 200);
-            // TODO: Implement logic to create new payment in case user sends payment to the address after closing the payment page
+        if ($txid === $this->test_txid) {
+            $payment = Payment::query()
+                ->where('company_id', $company->id)
+                ->where('private_notes', "$addr - $value")
+                ->firstOrFail();
+        } else {
+            $payment = Payment::query()
+                ->where('company_id', $company->id)
+                ->where('transaction_reference', $txid)
+                ->firstOrFail();
         }
 
-        $statusId = Payment::STATUS_PENDING;
+        // Already completed payment, no need to update status
+        if ($payment->status_id == Payment::STATUS_COMPLETED) {
+            return response()->json([], 200);
+        }
 
         switch ($status) {
             case 0:
@@ -128,16 +134,16 @@ class BlockonomicsPaymentDriver extends BaseDriver
             case 2:
                 $statusId = Payment::STATUS_COMPLETED;
                 break;
+            default:
+                $statusId = Payment::STATUS_PENDING;
         }
 
-        if ($payment->status_id == $statusId) {
-            return response()->json([], 200);
-        } else {
+        if ($payment->status_id !== $statusId) {
             $payment->status_id = $statusId;
             $payment->save();
-
-            return response()->json([], 200);
         }
+        return response()->json([], 200);
+
     }
 
 

@@ -57,8 +57,9 @@ class S3Cleanup extends Command
 
         $c1 = Company::on('db-ninja-01')->pluck('company_key');
         $c2 = Company::on('db-ninja-02')->pluck('company_key');
+        $c3 = Company::on('db-ninja-03')->pluck('company_key');
 
-        $merged = $c1->merge($c2)->toArray();
+        $merged = $c1->merge($c2)->merge($c3)->toArray();
 
         $directories = Storage::disk(config('filesystems.default'))->directories();
 

@@ -41,7 +41,30 @@ class MarkPaid extends AbstractService
         }
 
         if ($this->invoice->status_id == Invoice::STATUS_DRAFT) {
-            $this->invoice = $this->invoice->service()->markSent()->save();
+            // $this->invoice = $this->invoice->service()->markSent()->save();
+
+            /*Set status*/
+            $this->invoice->status_id = Invoice::STATUS_SENT;
+            $this->invoice->balance = $this->invoice->amount;
+
+            /*Update ledger*/
+            $this->invoice
+                ->ledger()
+                ->updateInvoiceBalance($this->invoice->amount, "Invoice {$this->invoice->number} marked as sent.");
+
+            $this->invoice->client->service()->updateBalance($this->invoice->amount);
+            /* Perform additional actions on invoice */
+            $this->invoice
+                ->service()
+                ->applyNumber()
+                ->setDueDate()
+                ->setReminder()
+                ->save();
+
+            $this->invoice->markInvitationsSent();
+
+            event(new \App\Events\Invoice\InvoiceWasUpdated($this->invoice, $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
+
         }
 
         $already_paid = false;

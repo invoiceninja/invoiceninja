@@ -156,11 +156,11 @@ class CompanyGateway extends BaseModel
         'b9886f9257f0c6ee7c302f1c74475f6c' => 321, //GoCardless
         'hxd6gwg3ekb9tb3v9lptgx1mqyg69zu9' => 322,
         '80af24a6a691230bbec33e930ab40666' => 323,
-        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTPay
-        '91be24c7b792230bced33e930ac61676' => 325,
+        'vpyfbmdrkqcicpkjqdusgjfluebftuva' => 324, //BTCPay
+        '91be24c7b792230bced33e930ac61676' => 325, //Rotessa
         'wbhf02us6owgo7p4nfjd0ymssdshks4d' => 326, //Blockonomics
         'b67581d804dbad1743b61c57285142ad' => 327, //Powerboard
-        'xhefemukzlsvfk4kwlqaat3urosgt1r7' => 327, //GiftUP
+        'xhefemukzlsvfk4kwlqaat3urosgt1r7' => 328, //GiftUP
     ];
 
     protected $touches = [];
@@ -204,7 +204,7 @@ class CompanyGateway extends BaseModel
     }
 
     /* This is the public entry point into the payment superclass */
-    public function driver(Client $client = null)
+    public function driver(?Client $client = null)
     {
         // $class = static::driver_class();
         $class = self::driver_class();

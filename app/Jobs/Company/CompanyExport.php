@@ -714,7 +714,7 @@ class CompanyExport implements ShouldQueue
                 try {
                     $content = $backup->getFile();
 
-                    if ($content === false) {
+                    if ($content === false || is_null($content)) {
                         continue;
                     }
 

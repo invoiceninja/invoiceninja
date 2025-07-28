@@ -87,7 +87,7 @@ class CheckData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=} {--line_items=} {--payment_balance=}';
+    protected $signature = 'ninja:check-data {--database=} {--fix=} {--portal_url=} {--client_id=} {--vendor_id=} {--paid_to_date=} {--client_balance=} {--ledger_balance=} {--balance_status=} {--bank_transaction=} {--line_items=} {--payment_balance=} {--tasks=}';
 
     /**
      * @var string
@@ -118,6 +118,7 @@ class CheckData extends Command
             config(['database.default' => $database]);
         }
 
+        $this->checkTaskTimeLogs();
         $this->checkInvoiceBalances();
         $this->checkClientBalanceEdgeCases();
         $this->checkPaidToDatesNew();
@@ -178,6 +179,37 @@ class CheckData extends Command
         $str = date('Y-m-d h:i:s').' '.$str;
         $this->info($str);
         $this->log .= $str."\n";
+    }
+
+    private function checkTaskTimeLogs()
+    {
+        \App\Models\Task::query()->cursor()->each(function ($task) {
+            $time_log = json_decode($task->time_log, true);
+
+            foreach($time_log as &$log){
+                if(count($log) > 4){
+
+                    $this->logMessage("Task #{$task->id} has a time log with more than 4 elements");
+
+                    if($this->option('tasks') == 'true'){
+                        $log = [(int)$log[0], (int)$log[1], (string)$log[2], (bool)$log[3]];
+                    }
+                }
+                elseif(count($log) == 4){
+                 
+                    if($this->option('tasks') == 'true'){
+                        $log = [(int)$log[0], (int)$log[1], (string)$log[2], (bool)$log[3]];
+                    }
+                }
+            }
+            unset($log); // Unset the reference variable
+
+            if($this->option('tasks') == 'true'){   
+                $task->time_log = json_encode($time_log);
+                $task->saveQuietly();
+            }
+
+        });
     }
 
     private function checkCompanyTokens()
