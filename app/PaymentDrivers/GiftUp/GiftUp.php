@@ -18,6 +18,9 @@ use App\Models\PaymentHash;
 use App\Models\PaymentType;
 use App\Models\GatewayType;
 use App\Models\Invoice;
+use App\Models\SystemLog;
+use App\Jobs\Util\SystemLogger;
+use Illuminate\Support\Facades\Http;
 
 class GiftUp implements MethodInterface, LivewireMethodInterface
 {
@@ -193,66 +196,82 @@ class GiftUp implements MethodInterface, LivewireMethodInterface
         $url = "https://api.giftup.app/gift-cards/" . urlencode($code);
 
         $headers = [
-            "Authorization: Bearer {$apiKey}",
-            "Accept: application/json"
+            "Authorization" => "Bearer {$apiKey}",
+            "Accept" => "application/json"
         ];
         
         if ($testMode) {
-            $headers[] = "x-giftup-testmode: true";
+            $headers["x-giftup-testmode"] = "true";
         }
     
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    
-        $response = curl_exec($ch);
-
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    
-        if (curl_errno($ch)) {
-            throw new PaymentFailed("cURL Error: " . curl_error($ch));
-        }
-    
-        curl_close($ch);
-        if ($httpCode == 404) {
-          
-             return [
-                'valid' => false,
-                'reason' => 'Giftcard with that code does not exist.'
-            ];
-        }
-        if ($httpCode !== 200) {
-            throw new PaymentFailed("API returned status code {$httpCode}. Response: {$response}");
-        }
-    
-        $data = json_decode($response, true);
-    
-        // Basic validation logic
-        if (!$data['canBeRedeemed'] || $data['hasExpired'] || $data['notYetValid'] || $data['isVoided']) {
-            return [
-                'valid' => false,
-                'reason' => 'Gift card cannot be redeemed.Might be expired or not valid yet or has already been redeemed or voided'
-            ];
-        }
-     
+        try {
+            $response = Http::withHeaders($headers)->get($url);
+            
+            $httpCode = $response->status();
+            $responseBody = $response->body();
+            
+            // Log the response
+            SystemLogger::dispatch(
+                ['response' => $responseBody, 'status_code' => $httpCode, 'request_url' => $url],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                $httpCode === 200 ? SystemLog::EVENT_GATEWAY_SUCCESS : SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
+            
+            if ($httpCode == 404) {
+                return [
+                    'valid' => false,
+                    'reason' => 'Giftcard with that code does not exist.'
+                ];
+            }
+            
+            if ($httpCode !== 200) {
+                throw new PaymentFailed("API returned status code {$httpCode}. Response: {$responseBody}");
+            }
         
-        if ($data['remainingValue'] <= 0) {
-            return [
-                'valid' => false,
-                'reason' => 'Gift card has no remaining balance.',
-                'balance' => 0
-            ];
-        }
-
+            $data = $response->json();
+        
+            // Basic validation logic
+            if (!$data['canBeRedeemed'] || $data['hasExpired'] || $data['notYetValid'] || $data['isVoided']) {
+                return [
+                    'valid' => false,
+                    'reason' => 'Gift card cannot be redeemed.Might be expired or not valid yet or has already been redeemed or voided'
+                ];
+            }
+         
+            
+            if ($data['remainingValue'] <= 0) {
+                return [
+                    'valid' => false,
+                    'reason' => 'Gift card has no remaining balance.',
+                    'balance' => 0
+                ];
+            }
     
-        return [
-            'valid' => true,
-            'code' => $data['code'],
-            'balance' => $data['remainingValue'],
-            'message' => $data['message'] ?? null,
-            'title' => $data['title'] ?? null,
-            'expiresOn' => $data['expiresOn'] ?? null
-        ];
+        
+            return [
+                'valid' => true,
+                'code' => $data['code'],
+                'balance' => $data['remainingValue'],
+                'message' => $data['message'] ?? null,
+                'title' => $data['title'] ?? null,
+                'expiresOn' => $data['expiresOn'] ?? null
+            ];
+            
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
+                ['error' => $e->getMessage(), 'request_url' => $url],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
+            
+            throw new PaymentFailed("HTTP Error: " . $e->getMessage());
+        }
     }
     
     
@@ -262,14 +281,14 @@ class GiftUp implements MethodInterface, LivewireMethodInterface
         $url = "https://api.giftup.app/gift-cards/" . urlencode($code) . "/redeem";
     
         $headers = [
-            "Authorization: Bearer {$apiKey}",
-            "Accept: application/json",
-            "Content-Type: application/json"
+            "Authorization" => "Bearer {$apiKey}",
+            "Accept" => "application/json",
+            "Content-Type" => "application/json"
         ];
     
         // Add test mode header if enabled
         if ($testMode) {
-            $headers[] = "x-giftup-testmode: true";
+            $headers["x-giftup-testmode"] = "true";
         }
     
         $body = [
@@ -282,85 +301,126 @@ class GiftUp implements MethodInterface, LivewireMethodInterface
             ]
         ];
     
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-        curl_setopt($ch, CURLOPT_POST, true);
+        try {
+            $response = Http::withHeaders($headers)
+                ->post($url, $body);
+             
+            $httpCode = $response->status();
+            $responseBody = $response->body();
+            
+            // Log the response
+            SystemLogger::dispatch(
+                ['response' => $responseBody, 'status_code' => $httpCode, 'request_url' => $url, 'request_body' => $body],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                $httpCode === 200 ? SystemLog::EVENT_GATEWAY_SUCCESS : SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
     
-        $response = curl_exec($ch);
-         
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($httpCode !== 200) {
+                throw new PaymentFailed("API Error ({$httpCode}): " . $responseBody);
+            }
     
-        if (curl_errno($ch)) {
-            throw new PaymentFailed("cURL Error: " . curl_error($ch));
+            return $response->json();
+            
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
+                ['error' => $e->getMessage(), 'request_url' => $url, 'request_body' => $body],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
+            
+            throw new PaymentFailed("HTTP Error: " . $e->getMessage());
         }
-    
-        curl_close($ch);
-    
-        if ($httpCode !== 200) {
-            throw new PaymentFailed("API Error ({$httpCode}): " . $response);
-        }
-    
-        return json_decode($response, true);
     }
     
     public function registerGiftupWebhook(string $apiKey, string $eventType, string $targetUrl, bool $isTestMode = false): array
     {
         $headers = [
-            'Authorization: Bearer ' . $apiKey,
-            'Accept: application/json',
-            'Content-Type: application/json'
+            'Authorization' => 'Bearer ' . $apiKey,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
         ];
     
-        // Step 1: Get existing webhooks
-        $ch = curl_init('https://api.giftup.app/hooks');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
- 
-        curl_close($ch);
+        try {
+            // Step 1: Get existing webhooks
+            $response = Http::withHeaders($headers)->get('https://api.giftup.app/hooks');
+            $responseBody = $response->body();
+            $httpCode = $response->status();
+            
+            // Log the response
+            SystemLogger::dispatch(
+                ['response' => $responseBody, 'status_code' => $httpCode, 'request_url' => 'https://api.giftup.app/hooks'],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                $httpCode === 200 ? SystemLog::EVENT_GATEWAY_SUCCESS : SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
     
-        if (!$response) {
-            return ['success' => false, 'message' => 'Failed to retrieve existing webhooks.'];
-        }
-    
-        $existingWebhooks = json_decode($response, true);
-    
-        // Step 2: Check if webhook with same URL, eventType, and testMode exists
-        foreach ($existingWebhooks as $webhook) {
-            if (
-                $webhook['url'] === $targetUrl &&
-                strtolower($webhook['eventType']) === strtolower($eventType) &&
-                $webhook['isTestMode'] == $isTestMode
-            ) {
-                return ['success' => true, 'message' => 'Webhook already exists.', 'id' => $webhook['id']];
+            if (!$response->successful()) {
+                return ['success' => false, 'message' => 'Failed to retrieve existing webhooks.'];
             }
-        }
     
-        // Step 3: Create webhook if not found
-        $payload = json_encode([
-            'targetUrl' => $targetUrl, 
-            'isTestMode' => $isTestMode
-        ]);
+            $existingWebhooks = $response->json();
     
-        $subscribeUrl = "https://api.giftup.app/hooks/{$eventType}/subscribe";
+            // Step 2: Check if webhook with same URL, eventType, and testMode exists
+            foreach ($existingWebhooks as $webhook) {
+                if (
+                    $webhook['url'] === $targetUrl &&
+                    strtolower($webhook['eventType']) === strtolower($eventType) &&
+                    $webhook['isTestMode'] == $isTestMode
+                ) {
+                    return ['success' => true, 'message' => 'Webhook already exists.', 'id' => $webhook['id']];
+                }
+            }
     
-        $ch = curl_init($subscribeUrl);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-         
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+            // Step 3: Create webhook if not found
+            $payload = [
+                'targetUrl' => $targetUrl, 
+                'isTestMode' => $isTestMode
+            ];
     
-        if ($statusCode === 201) {
-            $result = json_decode($response, true);
-            return ['success' => true, 'message' => 'Webhook created.', 'id' => $result['id'] ?? null];
-        } else {
-            return ['success' => false, 'message' => 'Failed to create webhook.', 'response' => $response];
+            $subscribeUrl = "https://api.giftup.app/hooks/{$eventType}/subscribe";
+    
+            $createResponse = Http::withHeaders($headers)
+                ->post($subscribeUrl, $payload);
+             
+            $statusCode = $createResponse->status();
+            $createResponseBody = $createResponse->body();
+            
+            // Log the webhook creation response
+            SystemLogger::dispatch(
+                ['response' => $createResponseBody, 'status_code' => $statusCode, 'request_url' => $subscribeUrl, 'request_body' => $payload],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                $statusCode === 201 ? SystemLog::EVENT_GATEWAY_SUCCESS : SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
+    
+            if ($statusCode === 201) {
+                $result = $createResponse->json();
+                return ['success' => true, 'message' => 'Webhook created.', 'id' => $result['id'] ?? null];
+            } else {
+                return ['success' => false, 'message' => 'Failed to create webhook.', 'response' => $createResponseBody];
+            }
+            
+        } catch (\Exception $e) {
+            SystemLogger::dispatch(
+                ['error' => $e->getMessage(), 'request_url' => 'https://api.giftup.app/hooks'],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_GIFTUP,
+                $this->driver_class->client,
+                $this->driver_class->client->company ?? $this->driver_class->company_gateway->company,
+            );
+            
+            return ['success' => false, 'message' => 'Exception occurred: ' . $e->getMessage()];
         }
     }
 
