@@ -161,6 +161,8 @@ class SystemLog extends Model
 
     public const TYPE_POWERBOARD = 327;
 
+    public const TYPE_GIFTUP = 328;
+
     public const TYPE_QUOTA_EXCEEDED = 400;
 
     public const TYPE_UPSTREAM_FAILURE = 401;
@@ -319,6 +321,8 @@ class SystemLog extends Model
                 return "Payfast";
             case self::TYPE_FORTE:
                 return "Forte";
+            case self::TYPE_GIFTUP:
+                return "GiftUp";
             default:
                 return 'undefined';
         }
