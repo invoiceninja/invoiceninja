@@ -29,6 +29,7 @@ use App\PaymentDrivers\Mollie\BankTransfer;
 use App\PaymentDrivers\Mollie\CreditCard;
 use App\PaymentDrivers\Mollie\IDEAL;
 use App\PaymentDrivers\Mollie\KBC;
+use App\PaymentDrivers\Mollie\Aio;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Facades\Validator;
 use Mollie\Api\Exceptions\ApiException;
@@ -72,6 +73,7 @@ class MolliePaymentDriver extends BaseDriver
         GatewayType::BANK_TRANSFER => BankTransfer::class,
         GatewayType::KBC => KBC::class,
         GatewayType::IDEAL => IDEAL::class,
+        GatewayType::HOSTED_PAGE => Aio::class,
     ];
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
@@ -96,6 +98,7 @@ class MolliePaymentDriver extends BaseDriver
         $types[] = GatewayType::BANK_TRANSFER;
         $types[] = GatewayType::KBC;
         $types[] = GatewayType::IDEAL;
+        $types[] = GatewayType::HOSTED_PAGE;
 
         return $types;
     }
@@ -357,13 +360,13 @@ class MolliePaymentDriver extends BaseDriver
 
             if ($record) {
                 if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
-                    
+
                     if(property_exists($payment->metadata, 'hash') && $payment->metadata->hash){
                         $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
                         $this->handlePendingGatewayFeeRemoval($payment_hash);
                     }
 
-                    $record->service()->deletePayment(false); 
+                    $record->service()->deletePayment(false);
 
                 }
 

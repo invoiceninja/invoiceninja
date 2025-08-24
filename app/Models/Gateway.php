@@ -138,6 +138,7 @@ class Gateway extends StaticModel
                     GatewayType::KBC => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
                     GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
                     GatewayType::IDEAL => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
+                    GatewayType::HOSTED_PAGE => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
                 ];
             case 15:
                 return [
