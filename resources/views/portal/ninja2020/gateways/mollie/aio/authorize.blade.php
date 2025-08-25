@@ -1,5 +1,5 @@
-@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'KBC/CBC', 'card_title' =>
-'KBC/CBC'])
+@extends('portal.ninja2020.layout.payments', ['gateway_title' => 'All-in-one checkout', 'card_title' =>
+'All-in-one checkout'])
 
 @section('gateway_content')
     @component('portal.ninja2020.components.general.card-element-single')
