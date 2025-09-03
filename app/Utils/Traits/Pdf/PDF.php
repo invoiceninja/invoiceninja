@@ -21,8 +21,16 @@ class PDF extends FPDI
 
     public function Footer()
     {
-        $this->SetFont('Arial', 'I', 9);
-        $this->SetTextColor(135, 135, 135);
+        $this->SetFont(
+            config('ninja.pdf_page_numbering_font_name'), 
+            config('ninja.pdf_page_numbering_font_style'), 
+            config('ninja.pdf_page_numbering_font_size')
+        );
+        $this->SetTextColor(
+            config('ninja.pdf_page_numbering_font_color_red'), 
+            config('ninja.pdf_page_numbering_font_color_green'), 
+            config('ninja.pdf_page_numbering_font_color_blue')
+        );
 
         $trans = ctrans('texts.pdf_page_info', ['current' => $this->PageNo(), 'total' => '{nb}']);
 
