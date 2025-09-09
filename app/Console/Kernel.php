@@ -30,6 +30,7 @@ use App\Jobs\Ninja\CompanySizeCheck;
 use App\Jobs\Ninja\SystemMaintenance;
 use App\Jobs\Quote\QuoteCheckExpired;
 use App\Jobs\Util\UpdateExchangeRates;
+use App\Jobs\Util\UpdateCNBExchangeRates;
 use App\Jobs\Ninja\BankTransactionSync;
 use App\Jobs\Cron\RecurringExpensesCron;
 use App\Jobs\Cron\RecurringInvoicesCron;
@@ -107,6 +108,9 @@ class Kernel extends ConsoleKernel
 
         /* Pulls in the latest exchange rates */
         $schedule->job(new UpdateExchangeRates())->dailyAt('23:30')->withoutOverlapping()->name('exchange-rate-job')->onOneServer();
+
+        /* Pulls in the latest exchange rates from CNB, gets updated at 14:30 CE(S)T daily - since we use UTC time, 14:00 works best */
+        $schedule->job(new UpdateCNBExchangeRates())->dailyAt('14:00')->withoutOverlapping()->name('cnb-exchange-rate-job')->onOneServer();
 
         /* Runs cleanup code for subscriptions */
         $schedule->job(new SubscriptionCron())->hourlyAt(1)->withoutOverlapping()->name('subscription-job')->onOneServer();
