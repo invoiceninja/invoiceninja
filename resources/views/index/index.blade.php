@@ -8,7 +8,6 @@
   <meta name="google-signin-client_id" content="{{ config('services.google.client_id') }}">
   <link rel="manifest" href="manifest.json?v={{ config('ninja.app_version') }}">
   <script src="{{ asset('js/pdf.min.js') }}"></script>
-  @if(\App\Utils\Ninja::isHosted())
 
   <!-- Apple OAuth Library -->
   <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
@@ -20,6 +19,7 @@
     crossorigin="anonymous">
   </script>
 
+  @if(\App\Utils\Ninja::isHosted())
   <!-- G Tag Manager -->
   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
