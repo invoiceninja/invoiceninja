@@ -1,0 +1,143 @@
+name: Secure CI (InvoiceNinja)
+
+on:
+  push: { branches: ["main", "devsecops/**"] }
+  pull_request: { branches: ["main"] }
+
+concurrency:
+  group: cininja-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+  FAIL_ON_SEVERITY: HIGH,CRITICAL
+  COMPOSER_MEMORY_LIMIT: -1
+
+jobs:
+  build-secure:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Setup PHP 8.2 + Composer v2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.2
+          tools: composer:v2
+          extensions: mbstring, intl, pdo_mysql, zip, bcmath, gd
+
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            vendor
+            ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
+
+      # تثبيت بدون سكربتات ثم نُشغل ما نحتاجه يدويًا (تحكم كامل)
+      - name: Composer install (no scripts)
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Prepare Laravel (.env, key, discover, storage link)
+        run: |
+          cp .env.example .env || true
+          php artisan key:generate --force
+          php artisan package:discover --ansi
+          php artisan storage:link || true
+
+      # قاعدة بيانات خفيفة للاختبارات (اختياري)
+      - name: SQLite for tests (optional)
+        run: |
+          mkdir -p database && touch database/database.sqlite
+          {
+            echo "DB_CONNECTION=sqlite"
+            echo "DB_DATABASE=$PWD/database/database.sqlite"
+          } >> .env
+          php artisan migrate --force || true
+
+      # اختبارات (إن وُجدت)
+      - name: PHPUnit (if exists)
+        run: |
+          if [ -f vendor/bin/phpunit ]; then vendor/bin/phpunit --testdox || true; else echo "no phpunit"; fi
+
+      # Hadolint لفحص Dockerfile
+      - name: Install hadolint
+        run: |
+          wget -qO /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+          chmod +x /usr/local/bin/hadolint
+
+      - name: Detect Dockerfile path
+        id: detect_df
+        shell: bash
+        run: |
+          set -e
+          for f in ./Dockerfile ./docker/Dockerfile ./docker/app.dockerfile ./docker/php-fpm/Dockerfile; do
+            if [ -f "$f" ]; then echo "DOCKERFILE=$f" >> $GITHUB_ENV; echo "found=$f" >> $GITHUB_OUTPUT; exit 0; fi
+          done
+          echo "DOCKERFILE=" >> $GITHUB_ENV
+          echo "found=" >> $GITHUB_OUTPUT
+
+      - name: Hadolint (run if Dockerfile found)
+        if: ${{ steps.detect_df.outputs.found != '' }}
+        run: hadolint "${{ env.DOCKERFILE }}" || true
+
+      # Buildx + بناء الصورة (مع load: true كي تعمل Syft/Trivy)
+      - name: Setup Buildx
+        if: ${{ steps.detect_df.outputs.found != '' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        if: ${{ steps.detect_df.outputs.found != '' }}
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          tags: ${{ env.IMAGE_NAME }}
+          push: false
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      # SBOM (CycloneDX)
+      - name: SBOM (Syft)
+        if: ${{ steps.detect_df.outputs.found != '' }}
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+
+      - name: Upload SBOM
+        if: ${{ steps.detect_df.outputs.found != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          retention-days: 7
+
+      # فحص الثغرات ويفشل على HIGH/CRITICAL
+      - name: Trivy scan
+        if: ${{ steps.detect_df.outputs.found != '' }}
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.IMAGE_NAME }}
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: ${{ env.FAIL_ON_SEVERITY }}
+
+      - name: Done
+        run: echo "✅ Secure CI finished"
