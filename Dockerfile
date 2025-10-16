@@ -1,5 +1,5 @@
 # ====== 1) استخدمي الصورة الرسمية كأساس ======
-FROM invoiceninja/invoiceninja:5.12.27
+FROM invoiceninja/invoiceninja:5.12.28
 
 # ====== 2) بيانات وصفية (اختياري لكنها احترافية) ======
 LABEL org.opencontainers.image.title="InvoiceNinja (hardened wrapper)"
