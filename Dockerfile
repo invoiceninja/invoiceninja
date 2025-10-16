@@ -1,6 +1,14 @@
 # ====== 1) استخدمي الصورة الرسمية كأساس ======
 FROM invoiceninja/invoiceninja:5.12.28
 
+# ====== 1.1) ترقيع الحِزم المعرضة للثغرات ======
+RUN set -eux; \
+  if command -v apk >/dev/null 2>&1; then \
+    apk --no-cache add --upgrade libxml2 sqlite-libs || apk --no-cache upgrade; \
+  else \
+    echo "Base image is not Alpine; skipping apk upgrade step"; \
+  fi
+
 # ====== 2) بيانات وصفية (اختياري لكنها احترافية) ======
 LABEL org.opencontainers.image.title="InvoiceNinja (hardened wrapper)"
 LABEL org.opencontainers.image.description="Security-focused wrapper around the official Invoice Ninja image to enable CI build/SBOM/scan and safer runtime defaults"
