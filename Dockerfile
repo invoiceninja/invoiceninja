@@ -6,10 +6,17 @@ LABEL org.opencontainers.image.title="InvoiceNinja (hardened wrapper)"
 LABEL org.opencontainers.image.description="Security-focused wrapper around the official Invoice Ninja image to enable CI build/SBOM/scan and safer runtime defaults"
 LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
 
-# ====== 3) أنشئي مستخدم غير root للتشغيل الآمن ======
-# ملاحظة: لو كانت الصورة الرسمية أصلاً تستخدم non-root يمكن تخطي هذا، لكن لن يضر
-RUN addgroup -g 10001 -S app \
- && adduser  -u 10001 -S -D -H -G app app
+# ====== 3) إنشاء مستخدم/مجموعة app بشكل متوافق مع Alpine/Debian ======
+RUN set -eux; \
+  if command -v addgroup >/dev/null 2>&1; then \
+    # Alpine
+    addgroup -g 10001 -S app || true; \
+    adduser  -u 10001 -S -D -H -G app app || true; \
+  else \
+    # Debian/Ubuntu
+    groupadd -g 10001 app || true; \
+    useradd  -u 10001 -g app -s /usr/sbin/nologin -M app || true; \
+  fi
 
 # ====== 4) تأكدي من ملكية مجلدات Laravel القابلة للكتابة ======
 # في لارفيل عادة storage/ و bootstrap/cache يحتاجان صلاحية كتابة.
