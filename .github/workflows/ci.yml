@@ -32,13 +32,15 @@ jobs:
         with:
           args: detect --source . --no-banner --redact --exit-code 1
 
-      # SAST
-      - name: Semgrep scan
+      # SAST (Semgrep) — يولّد SARIF ويرفعه لـ Security tab
+      - name: Semgrep (SAST)
         uses: returntocorp/semgrep-action@v1
         with:
+          entryPoint: semgrep
           args: >
+            ci
             --config p/ci
-            --sarif --output semgrep.sarif
+            --sarif --output=semgrep.sarif
 
       - name: Upload Semgrep SARIF
         uses: github/codeql-action/upload-sarif@v3
