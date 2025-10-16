@@ -26,6 +26,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with: { fetch-depth: 0 }
+      # Secret scanning 
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --no-banner --redact --exit-code 1
+
+      # SAST
+      - name: Semgrep (SAST)
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/ci
+          generateSarif: true
+        continue-on-error: true
+
+      - name: Upload Semgrep SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: semgrep.sarif
 
       - name: Setup PHP 8.2 + Composer v2
         uses: shivammathur/setup-php@v2
@@ -138,6 +157,41 @@ jobs:
           ignore-unfixed: true
           vuln-type: os,library
           severity: ${{ env.FAIL_ON_SEVERITY }}
+
+      # ===== Push image to GHCR (only on main branch) =====
+      - name: Login to GHCR
+        if: github.ref == 'refs/heads/main' && steps.detect_df.outputs.found != ''
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push (main only)
+        if: github.ref == 'refs/heads/main' && steps.detect_df.outputs.found != ''
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.DOCKERFILE }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+            ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      # ===== Cosign (keyless signing) =====
+      - name: Install Cosign
+        if: github.ref == 'refs/heads/main' && steps.detect_df.outputs.found != ''
+        uses: sigstore/cosign-installer@v3
+
+      - name: Cosign sign image (keyless)
+        if: github.ref == 'refs/heads/main' && steps.detect_df.outputs.found != ''
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        run: |
+          cosign sign ghcr.io/${{ github.repository }}:sha-${{ github.sha }} --yes
 
       - name: Done
         run: echo "✅ Secure CI finished"
