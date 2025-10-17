@@ -1,8 +1,10 @@
 name: Secure CI (InvoiceNinja)
 
 on:
-  push: { branches: ["main","v5-stable", "devsecops/**"] }
-  pull_request: { branches: ["main","v5-stable"] }
+  push:
+    branches: ["main", "v5-stable", "devsecops/**"]
+  pull_request:
+    branches: ["main", "v5-stable"]
 
 concurrency:
   group: cininja-${{ github.ref }}
@@ -21,18 +23,24 @@ jobs:
       contents: read
       security-events: write
       packages: write
+      id-token: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      # Secret scanning 
+        with:
+          fetch-depth: 0
+
+      # Secret scanning
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           args: detect --source . --no-banner --redact --exit-code 1
 
-      # SAST (Semgrep) — يولّد SARIF ويرفعه لـ Security tab
+
+      # SAST (Semgrep)
       - name: Semgrep (SAST)
         uses: returntocorp/semgrep-action@v1
         with:
@@ -64,7 +72,6 @@ jobs:
           restore-keys: |
             composer-${{ runner.os }}-
 
-      # تثبيت بدون سكربتات ثم نُشغل ما نحتاجه يدويًا (تحكم كامل)
       - name: Composer install (no scripts)
         run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
 
@@ -75,7 +82,6 @@ jobs:
           php artisan package:discover --ansi
           php artisan storage:link || true
 
-      # قاعدة بيانات خفيفة للاختبارات (اختياري)
       - name: SQLite for tests (optional)
         run: |
           mkdir -p database && touch database/database.sqlite
@@ -85,12 +91,10 @@ jobs:
           } >> .env
           php artisan migrate --force || true
 
-      # اختبارات (إن وُجدت)
       - name: PHPUnit (if exists)
         run: |
           if [ -f vendor/bin/phpunit ]; then vendor/bin/phpunit --testdox || true; else echo "no phpunit"; fi
 
-      # Hadolint لفحص Dockerfile
       - name: Install hadolint
         run: |
           wget -qO /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
@@ -111,7 +115,6 @@ jobs:
         if: ${{ steps.detect_df.outputs.found != '' }}
         run: hadolint "${{ env.DOCKERFILE }}" || true
 
-      # Buildx + بناء الصورة (مع load: true كي تعمل Syft/Trivy)
       - name: Setup Buildx
         if: ${{ steps.detect_df.outputs.found != '' }}
         uses: docker/setup-buildx-action@v3
@@ -129,7 +132,6 @@ jobs:
           cache-to: type=gha,mode=max
           provenance: false
 
-      # SBOM (CycloneDX)
       - name: SBOM (Syft)
         if: ${{ steps.detect_df.outputs.found != '' }}
         uses: anchore/sbom-action@v0
@@ -146,7 +148,6 @@ jobs:
           path: sbom.cdx.json
           retention-days: 7
 
-      # فحص الثغرات ويفشل على HIGH/CRITICAL
       - name: Trivy scan
         if: ${{ steps.detect_df.outputs.found != '' }}
         uses: aquasecurity/trivy-action@0.24.0
@@ -159,21 +160,17 @@ jobs:
           vuln-type: os,library
           severity: ${{ env.FAIL_ON_SEVERITY }}
 
-      # ===== Push image to GHCR (only on main branch) =====
-      # ===== Push to GHCR (main & v5-stable) =====
-
-      # تسجيل الدخول إلى GHCR على main أو v5-stable فقط وإذا وُجد Dockerfile
+      # ===== Push image to GHCR (main + v5-stable) =====
       - name: Login to GHCR
-        if: (github.ref_name == 'main' || github.ref_name == 'v5-stable') && steps.detect_df.outputs.found != ''
+        if: (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/v5-stable')) && steps.detect_df.outputs.found != ''
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      # بناء + دفع على فرع main: نوسم بالـ SHA و latest
-      - name: Build and Push (main)
-        if: github.ref_name == 'main' && steps.detect_df.outputs.found != ''
+
+      - name: Build and Push (main + v5-stable)
+        if: (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/v5-stable')) && steps.detect_df.outputs.found != ''
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -185,29 +182,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false
-      
-      # بناء + دفع على فرع v5-stable: نوسم بالـ SHA واسم الفرع
-      - name: Build and Push (v5-stable)
-        if: github.ref_name == 'v5-stable' && steps.detect_df.outputs.found != ''
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ${{ env.DOCKERFILE }}
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
-            ghcr.io/${{ github.repository }}:v5-stable
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          provenance: false
-      
-      # ===== Cosign (keyless) على الفرعين: نوقّع وسم الـ SHA =====
+
+      # ===== Cosign (keyless signing) =====
       - name: Install Cosign
-        if: (github.ref_name == 'main' || github.ref_name == 'v5-stable') && steps.detect_df.outputs.found != ''
+        if: (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/v5-stable')) && steps.detect_df.outputs.found != ''
         uses: sigstore/cosign-installer@v3
-      
+
       - name: Cosign sign image (keyless)
-        if: (github.ref_name == 'main' || github.ref_name == 'v5-stable') && steps.detect_df.outputs.found != ''
+        if: (startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/heads/v5-stable')) && steps.detect_df.outputs.found != ''
         env:
           COSIGN_EXPERIMENTAL: "1"
         run: |
@@ -215,3 +197,4 @@ jobs:
 
       - name: Done
         run: echo "✅ Secure CI finished"
+
