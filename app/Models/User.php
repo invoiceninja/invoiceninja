@@ -391,7 +391,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasOauthToken(): bool
     {
-        return $this->where('id', $this->id)->whereNotNull('oauth_user_token')->where('oauth_user_token', '!=', '')->exists();
+        return $this->getRawOriginal('oauth_user_token') ? true : false;
     }
 
     public function hasOwnerFlag(): bool
