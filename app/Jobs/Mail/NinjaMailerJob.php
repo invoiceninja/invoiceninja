@@ -716,7 +716,7 @@ class NinjaMailerJob implements ShouldQueue
             ->mailable
             ->from($user->email, $user->name())
             ->withSymfonyMessage(function ($message) use ($token) {
-                $message->getHeaders()->addTextHeader('gmailtoken', $token);
+                $message->getHeaders()->addTextHeader('gmailtoken', $token->access_token);
             });
     }
 
@@ -919,11 +919,11 @@ class NinjaMailerJob implements ShouldQueue
 
             if ($token) {
                 $user->oauth_user_refresh_token = property_exists($token, 'refresh_token') ? $token->refresh_token : $user->oauth_user_refresh_token;
-                $user->oauth_user_token = $token->access_token;
+                $user->oauth_user_token = $token;
                 $user->oauth_user_token_expiry = now()->addSeconds($token->expires_in);
                 $user->save();
 
-                return $token->access_token;
+                return $token;
             }
 
             return false;

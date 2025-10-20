@@ -735,9 +735,9 @@ class LoginController extends BaseController
     {
         $socialite_user = Socialite::driver($provider)->user();
 
-        $oauth_user_token = $socialite_user->accessTokenResponseBody['access_token'];
+        $oauth_user_token = $socialite_user->accessTokenResponseBody;
 
-        $oauth_expiry = now()->addSeconds($socialite_user->accessTokenResponseBody['expires_in']) ?: now()->addSeconds(300);
+        $oauth_expiry = now()->addSeconds($oauth_user_token['expires_in']) ?: now()->addSeconds(300);
 
         if ($user = OAuth::handleAuth($socialite_user, $provider)) {
             nlog('found user and updating their user record');
@@ -753,7 +753,7 @@ class LoginController extends BaseController
             ];
 
             $user->update($update_user);
-            $user->oauth_user_refresh_token = $socialite_user->accessTokenResponseBody['refresh_token'];
+            $user->oauth_user_refresh_token = $oauth_user_token['refresh_token'];
             $user->oauth_user_token = $oauth_user_token;
             $user->save();
 
