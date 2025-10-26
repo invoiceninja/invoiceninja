@@ -57,6 +57,8 @@ Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class
 Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');
 Route::get('gocardless/oauth/connect/{token}', [GoCardlessOAuthController::class, 'connect']);
 
+Route::post('payment_webhook/infinitepay', 'App\Http\Controllers\PaymentWebhookController@infinitepay')->name('payment_webhook.infinitepay');
+
 Route::redirect('buy_now', 'https://invoiceninja.invoicing.co/client/subscriptions/O5xe7Rwd7r/purchase', 301);
 
 \Illuminate\Support\Facades\Broadcast::routes(['middleware' => ['token_auth']]);
