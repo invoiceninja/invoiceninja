@@ -14,6 +14,11 @@ namespace App\Services\EDocument\Standards;
 
 use App\Models\Invoice;
 use App\Services\AbstractService;
+use App\Services\EDocument\Standards\FatturaPA\Enums\ModalitaPagamento;
+use InvoiceNinja\EInvoice\EInvoice;
+use InvoiceNinja\EInvoice\Models\FatturaPA\AltriDatiGestionaliType\AltriDatiGestionali;
+use InvoiceNinja\EInvoice\Models\FatturaPA\Contatti;
+use InvoiceNinja\EInvoice\Models\FatturaPA\DatiBolloType\DatiBollo;
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
 use InvoiceNinja\EInvoice\Models\FatturaPA\IndirizzoType\Sede;
 use InvoiceNinja\EInvoice\Models\FatturaPA\AnagraficaType\Anagrafica;
@@ -35,6 +40,8 @@ use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaE
 
 class FatturaPANew extends AbstractService
 {
+    const IMPORTO_BOLLO = 2.00;
+
     private FatturaElettronica $FatturaElettronica;
     private FatturaElettronicaBody $FatturaElettronicaBody;
     private FatturaElettronicaHeader $FatturaElettronicaHeader;
@@ -69,6 +76,28 @@ class FatturaPANew extends AbstractService
              ->setLineItems()
              ->setDettaglioPagamento()
              ->setFatturaElettronica();
+
+        return $this;
+    }
+
+    public function toXml(): string
+    {
+        $e = new EInvoice();
+        $xml = $e->encode($this->getFatturaElettronica(), 'xml');
+
+        $prefix = '<?xml version="1.0" encoding="UTF-8"?>
+<p:FatturaElettronica xmlns:ds="http://www.w3.org/2000/09/xmldsig#" 
+xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" versione="FPR12" 
+xsi:schemaLocation="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2 
+http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_file_xml_FatturaPA_versione_1.2.xsd">';
+
+        $suffix = '</p:FatturaElettronica>';
+
+        $xml = str_ireplace(['\n', '<?xml version="1.0"?>'], ['', $prefix], $xml);
+        $xml .= $suffix;
+        return $xml;
+
     }
 
     public function getFatturaElettronica(): FatturaElettronica
@@ -85,6 +114,10 @@ class FatturaPANew extends AbstractService
 
         $this->DatiTrasmissione->IdTrasmittente = $this->IdTrasmittente;
 
+        $contatti = new Contatti();
+        $contatti->Email = $this->invoice->company->settings->email;
+        $this->DatiTrasmissione->ContattiTrasmittente = $contatti;
+
         $this->FatturaElettronicaHeader->DatiTrasmissione = $this->DatiTrasmissione;
 
         return $this;
@@ -94,7 +127,7 @@ class FatturaPANew extends AbstractService
     private function setIdTrasmittente(): self
     {
         $this->IdTrasmittente->IdPaese = $this->invoice->company->country()->iso_3166_2;
-        $this->IdTrasmittente->IdCodice = $this->invoice->company->settings->vat_number;
+        $this->IdTrasmittente->IdCodice = ltrim($this->invoice->company->settings->vat_number, 'IT');
 
         return $this;
     }
@@ -111,6 +144,10 @@ class FatturaPANew extends AbstractService
         $sede->Nazione = $this->invoice->company->country()->iso_3166_2;
         $this->CedentePrestatore->Sede = $sede;
 
+        $contatti = new Contatti();
+        $contatti->Email = $this->invoice->company->settings->email;
+        $this->CedentePrestatore->Contatti = $contatti;
+
         $this->FatturaElettronicaHeader->CedentePrestatore = $this->CedentePrestatore;
 
         return $this;
@@ -121,6 +158,7 @@ class FatturaPANew extends AbstractService
         $this->DatiAnagrafici->RegimeFiscale = "RF01";
         $this->DatiAnagrafici->Anagrafica = $this->Anagrafica;
         $this->DatiAnagrafici->IdFiscaleIVA = $this->IdFiscaleIVA;
+        $this->DatiAnagrafici->CodiceFiscale = $this->invoice->company->settings->id_number;
 
         return $this;
     }
@@ -134,7 +172,7 @@ class FatturaPANew extends AbstractService
         $datiAnagrafici->Anagrafica = $anagrafica;
 
         $idFiscale = new IdFiscaleIVA();
-        $idFiscale->IdCodice = $this->invoice->client->vat_number;
+        $idFiscale->IdCodice = ltrim($this->invoice->client->vat_number, 'IT');
         $idFiscale->IdPaese = $this->invoice->client->country->iso_3166_2;
 
         $datiAnagrafici->IdFiscaleIVA = $idFiscale;
@@ -155,11 +193,16 @@ class FatturaPANew extends AbstractService
         return $this;
     }
 
+    private function clientNeedsInvCont()
+    {
+        return $this->invoice->client->country->iso_3166_2 != 'IT';
+    }
+
     private function setIdFiscaleIVA(): self
     {
 
         $this->IdFiscaleIVA->IdPaese = $this->invoice->company->country()->iso_3166_2;
-        $this->IdFiscaleIVA->IdCodice = $this->invoice->company->settings->vat_number;
+        $this->IdFiscaleIVA->IdCodice = ltrim($this->invoice->company->settings->vat_number, 'IT');
 
         return $this;
     }
@@ -174,12 +217,22 @@ class FatturaPANew extends AbstractService
 
     private function setDatiGeneraliDocumento(): self
     {
+        $total = $this->invoice->total;
+
+        if ($this->clientNeedsInvCont()) {
+            $total += self::IMPORTO_BOLLO;
+            $datiBollo = new DatiBollo();
+            $datiBollo->BolloVirtuale = "SI";
+            $datiBollo->ImportoBollo = sprintf('%0.2f', self::IMPORTO_BOLLO);
+            $this->DatiGeneraliDocumento->DatiBollo = $datiBollo;
+        }
 
         $this->DatiGeneraliDocumento->TipoDocumento = "TD01";
         $this->DatiGeneraliDocumento->Divisa = $this->invoice->client->currency()->code;
         $this->DatiGeneraliDocumento->Data = new \DateTime($this->invoice->date);
         $this->DatiGeneraliDocumento->Numero = $this->invoice->number;
-        $this->DatiGeneraliDocumento->Causale[] = substr($this->invoice->public_notes ?? ' ', 0, 200); //unsure..
+        $this->DatiGeneraliDocumento->Causale[] = substr($this->invoice->terms ?? '', 0, 200); //unsure..
+        $this->DatiGeneraliDocumento->ImportoTotaleDocumento = sprintf('%0.2f', $total);
 
         return $this;
     }
@@ -195,10 +248,15 @@ class FatturaPANew extends AbstractService
 
     private function setDettaglioPagamento(): self
     {
+        $total = $this->invoice->balance + ($this->clientNeedsInvCont() ? self::IMPORTO_BOLLO : 0);
+        $paymentTypeId = (int)$this->invoice->company->settings->payment_type_id;
+        $modalitaPagamento = ModalitaPagamento::getByPaymentType($paymentTypeId) ?? ModalitaPagamento::MP01_CASH;
 
-        $this->DettaglioPagamento->ModalitaPagamento =  "MP01"; //String
+        $this->DettaglioPagamento->ModalitaPagamento =  $modalitaPagamento->value;
         $this->DettaglioPagamento->DataScadenzaPagamento =  new \DateTime($this->invoice->due_date ?? $this->invoice->date);
-        $this->DettaglioPagamento->ImportoPagamento =  (string) sprintf('%0.2f', $this->invoice->balance);
+        $this->DettaglioPagamento->ImportoPagamento =  (string) sprintf('%0.2f', $total);
+
+        $this->setPaymentMeans();
 
         $DatiPagamento = new DatiPagamento();
         $DatiPagamento->CondizioniPagamento = "TP02";
@@ -209,15 +267,51 @@ class FatturaPANew extends AbstractService
         return $this;
     }
 
+    private function setPaymentMeans(): self
+    {
+        $paymentMean = false;
+
+        /**Check if the e_invoice object is populated */
+        if (isset($this->invoice->company->e_invoice->Invoice->PaymentMeans)) {
+            $paymentMean = $this->invoice->company->e_invoice->Invoice->PaymentMeans[0] ?? false;
+        }
+
+        switch ($paymentMean?->PaymentMeansCode?->value) {
+            case '31':
+                $this->DettaglioPagamento->IBAN = $paymentMean->PayeeFinancialAccount->ID->value;
+                $this->DettaglioPagamento->BIC = $paymentMean->PayeeFinancialAccount->FinancialInstitutionBranch->FinancialInstitution->ID->value ?? '';
+                break;
+
+            default:
+                # code...
+                break;
+        }
+        return $this;
+    }
+
     private function setLineItems(): self
     {
 
         $calc = $this->invoice->calc();
+        $isInvCont = $this->clientNeedsInvCont();
+        $lineItems = $this->invoice->line_items;
 
-        $datiBeniServizi  = new DatiBeniServizi();
-        $tax_rate_level = 0;
+        if ($isInvCont) {
+            $lineItems[] = (object)[
+                'notes' => 'Imposta di bollo assolta in modo virtuale (art. 13 Tariffa DPR 642/72)',
+                'quantity' => 1,
+                'cost' => self::IMPORTO_BOLLO,
+                'line_total' => self::IMPORTO_BOLLO,
+                'tax_rate1' => 0,
+                'natura' => 'N1',
+            ];
+        }
+
+        $datiBeniServizi = new DatiBeniServizi();
+        $tax_rate_level = sprintf('%0.2f', 0);
+
         //line items
-        foreach ($this->invoice->line_items as $key => $item) {
+        foreach ($lineItems as $key => $item) {
 
             $numero = $key + 1;
             $dettaglioLinee = new DettaglioLinee();
@@ -228,6 +322,17 @@ class FatturaPANew extends AbstractService
             $dettaglioLinee->PrezzoTotale =  sprintf('%0.2f', $item->line_total);
             $dettaglioLinee->AliquotaIVA =  sprintf('%0.2f', $item->tax_rate1);
 
+            if ($isInvCont) {
+                $dettaglioLinee->Natura = $item->natura ?? "N2.1"; // Non soggette ad IVA ai sensi degli art. da 7 a 7-septies del DPR 633/72
+
+                $altriDatiGestionali = new AltriDatiGestionali();
+                // Operazioni Comunitarie
+                // Per informare il cliente comunitario che dovrà provvedere all'Inversione contabile,
+                // secondo l’articolo 21 comma 6 bis lettera a) del d.P.R. n. 633/72.
+                $altriDatiGestionali->TipoDato = "INVCONT";
+
+                $dettaglioLinee->AltriDatiGestionali = $altriDatiGestionali;
+            }
 
             $datiBeniServizi->DettaglioLinee[] = $dettaglioLinee;
 
@@ -249,9 +354,26 @@ class FatturaPANew extends AbstractService
         $datiRiepilogo->AliquotaIVA = "{$tax_rate_level}";
         $datiRiepilogo->ImponibileImporto = "{$subtotal}";
         $datiRiepilogo->Imposta = "{$taxes}";
-        $datiRiepilogo->EsigibilitaIVA = "I";
+
+        if ($isInvCont) {
+            $datiRiepilogo->Natura = "N2.1"; // Non soggette ad IVA ai sensi degli art. da 7 a 7-septies del DPR 633/72
+            $datiRiepilogo->RiferimentoNormativo = '"inversione contabile" art. 7-ter DPR 633/72';
+        } else {
+            $datiRiepilogo->EsigibilitaIVA = "I";
+        }
 
         $datiBeniServizi->DatiRiepilogo[] = $datiRiepilogo;
+
+        if ($isInvCont) {
+            $datiRiepilogo = new DatiRiepilogo();
+            $datiRiepilogo->AliquotaIVA = sprintf('%0.2f', 0);
+            $datiRiepilogo->Imposta = sprintf('%0.2f', 0);
+            $datiRiepilogo->ImponibileImporto = sprintf('%0.2f', self::IMPORTO_BOLLO);
+            $datiRiepilogo->Natura = "N1"; // Non soggette ad IVA ai sensi degli art. da 7 a 7-septies del DPR 633/72
+            $datiRiepilogo->RiferimentoNormativo = 'Operazione esclusa ex art. 15 DPR 633/72 - Imposta di bollo assolta in modo virtuale';
+
+            $datiBeniServizi->DatiRiepilogo[] = $datiRiepilogo;
+        }
 
         $this->FatturaElettronicaBody->DatiBeniServizi = $datiBeniServizi;
 

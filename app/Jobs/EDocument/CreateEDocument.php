@@ -25,7 +25,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\EDocument\Standards\Peppol;
 use horstoeko\zugferd\ZugferdDocumentBuilder;
-use App\Services\EDocument\Standards\FatturaPA;
+use App\Services\EDocument\Standards\FatturaPANew;
 use App\Services\EDocument\Standards\RoEInvoice;
 use App\Services\EDocument\Standards\OrderXDocument;
 use App\Services\EDocument\Standards\FacturaEInvoice;
@@ -76,7 +76,7 @@ class CreateEDocument implements ShouldQueue
                 case "FACT1":
                     return (new RoEInvoice($this->document))->generateXml();
                 case "FatturaPA":
-                    return (new FatturaPA($this->document))->run();
+                    return (new FatturaPANew($this->document))->run()->toXml();
                 case "EN16931":
                 case "XInvoice_3_0":
                 case "XInvoice_2_3":
