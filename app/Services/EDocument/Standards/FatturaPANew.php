@@ -331,7 +331,7 @@ http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_fi
                 // secondo l’articolo 21 comma 6 bis lettera a) del d.P.R. n. 633/72.
                 $altriDatiGestionali->TipoDato = "INVCONT";
 
-                $dettaglioLinee->AltriDatiGestionali = $altriDatiGestionali;
+                $dettaglioLinee->AltriDatiGestionali[] = $altriDatiGestionali;
             }
 
             $datiBeniServizi->DettaglioLinee[] = $dettaglioLinee;
