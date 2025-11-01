@@ -40,7 +40,7 @@
         "resolve-url-loader": "^4.0.0",
         "sass": "^1.43.4",
         "sass-loader": "^12.3.0",
-        "signature_pad": "^5.0.2"
+        "signature_pad": "^5.1.1"
     },
     "type": "module"
 }
