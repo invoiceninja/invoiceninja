@@ -312,15 +312,17 @@ http://www.fatturapa.gov.it/export/fatturazione/sdi/fatturapa/v1.2/Schema_del_fi
 
         //line items
         foreach ($lineItems as $key => $item) {
-
             $numero = $key + 1;
+            // determine tax rate and fall back to invoice level if item level disabled
+            $taxRate = $this->invoice->company->enabled_item_tax_rates > 0 ? $item->tax_rate1 : $this->invoice->tax_rate1;
+
             $dettaglioLinee = new DettaglioLinee();
             $dettaglioLinee->NumeroLinea =  "{$numero}";
             $dettaglioLinee->Descrizione =  $item->notes ?? 'Descrizione';
             $dettaglioLinee->Quantita =  sprintf('%0.2f', $item->quantity);
             $dettaglioLinee->PrezzoUnitario =  sprintf('%0.2f', $item->cost);
             $dettaglioLinee->PrezzoTotale =  sprintf('%0.2f', $item->line_total);
-            $dettaglioLinee->AliquotaIVA =  sprintf('%0.2f', $item->tax_rate1);
+            $dettaglioLinee->AliquotaIVA =  sprintf('%0.2f', $taxRate);
 
             if ($isInvCont) {
                 $dettaglioLinee->Natura = $item->natura ?? "N2.1"; // Non soggette ad IVA ai sensi degli art. da 7 a 7-septies del DPR 633/72
