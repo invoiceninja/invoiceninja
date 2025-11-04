@@ -17,7 +17,7 @@ use App\Services\AbstractService;
 use App\Services\EDocument\Standards\FatturaPA\Enums\ModalitaPagamento;
 use InvoiceNinja\EInvoice\EInvoice;
 use InvoiceNinja\EInvoice\Models\FatturaPA\AltriDatiGestionaliType\AltriDatiGestionali;
-use InvoiceNinja\EInvoice\Models\FatturaPA\Contatti;
+use InvoiceNinja\EInvoice\Models\FatturaPA\ContattiType\Contatti;
 use InvoiceNinja\EInvoice\Models\FatturaPA\DatiBolloType\DatiBollo;
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronica;
 use InvoiceNinja\EInvoice\Models\FatturaPA\IndirizzoType\Sede;
