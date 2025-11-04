@@ -15,6 +15,7 @@ use App\Http\Controllers\Gateways\GoCardlessOAuthWebhookController;
 use App\Http\Controllers\Gateways\Mollie3dsController;
 use App\Http\Controllers\SetupController;
 use App\Http\Controllers\StripeConnectController;
+use App\Http\Controllers\InfinitePayController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -56,6 +57,8 @@ Route::get('.well-known/apple-developer-merchantid-domain-association', [ApplePa
 Route::get('gocardless/oauth/connect/confirm', [GoCardlessOAuthController::class, 'confirm'])->name('gocardless.oauth.confirm');
 Route::post('gocardless/oauth/connect/webhook', GoCardlessOAuthWebhookController::class)->name('gocardless.oauth.webhook');
 Route::get('gocardless/oauth/connect/{token}', [GoCardlessOAuthController::class, 'connect']);
+
+Route::get('/retorno-infinitepay/{invoice}', [InfinitePayController::class, 'handleRedirect'])->name('infinitepay.redirect');
 
 Route::redirect('buy_now', 'https://invoiceninja.invoicing.co/client/subscriptions/O5xe7Rwd7r/purchase', 301);
 

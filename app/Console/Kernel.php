@@ -135,6 +135,9 @@ class Kernel extends ConsoleKernel
         /* Pulls in bank transactions from third party services */
         $schedule->job(new BankTransactionSync())->twiceDaily(1, 13)->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();
 
+        /* Verifies payments from InfinitePay payment driver */
+        $schedule->command('infinitepay:verify-payments')->everyFiveMinutes();
+
         if (Ninja::isSelfHost()) {
             $schedule->call(function () {
                 Account::query()->whereNotNull('id')->update(['is_scheduler_running' => true]);
