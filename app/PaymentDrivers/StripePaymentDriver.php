@@ -85,6 +85,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public $stripe_connect_auth = [];
 
+    public $webhook_secret = "";
+    
     public static $methods = [
         GatewayType::CREDIT_CARD => CreditCard::class,
         GatewayType::BANK_TRANSFER => ACH::class,
@@ -122,6 +124,8 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
+            $this->webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+            
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
@@ -700,6 +704,35 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
+                // Initialize to load webhook_secret and other config
+        try {
+            $this->init();
+        } catch (\Exception $e) {
+            nlog("Stripe webhook init failed: " . $e->getMessage());
+            // Continue without webhook secret verification if init fails
+        }
+        
+           // Validate webhook signature if webhook_secret is configured
+        if ($this->webhook_secret) {
+            $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
+
+            if (!$sig_header) {
+                nlog("Stripe webhook signature verification failed: No signature header");
+                return response()->json(['error' => 'No signature header'], 403);
+            }
+
+            try {
+                \Stripe\Webhook::constructEvent(
+                    $request->getContent(),
+                    $sig_header,
+                    $this->webhook_secret
+                );
+            } catch (\Stripe\Exception\SignatureVerificationException $e) {
+                nlog("Stripe webhook signature verification failed: " . $e->getMessage());
+                return response()->json(['error' => 'Invalid signature'], 403);
+            }
+        }
+        
         nlog($request->all());
 
         if ($request->type === 'customer.source.updated') {
