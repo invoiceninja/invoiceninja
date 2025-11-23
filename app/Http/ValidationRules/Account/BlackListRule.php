@@ -4146,6 +4146,9 @@ class BlackListRule implements ValidationRule
         if (is_array($parts) && in_array($parts[1], $this->blacklist)) {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
         }
+        elseif(is_array($parts) && substr($parts[1], -4) === ".sbs") {
+            $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
+        }
     }
 
 }
