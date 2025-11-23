@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,7 +29,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Services\Report\ProfitLoss
  */
 class ProfitAndLossReportTest extends TestCase
@@ -88,7 +89,7 @@ class ProfitAndLossReportTest extends TestCase
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
             'confirmation_code' => 'xyz123',
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => \Illuminate\Support\Str::random(32)."@example.com",
         ]);
 
         $settings = CompanySettings::defaults();
@@ -106,6 +107,7 @@ class ProfitAndLossReportTest extends TestCase
             'date_range' => 'custom',
             'is_income_billed' => true,
             'include_tax' => false,
+            'user_id' => $this->user->id,
         ];
     }
 
@@ -354,6 +356,7 @@ class ProfitAndLossReportTest extends TestCase
             'date_range' => 'custom',
             'is_income_billed' => false,
             'include_tax' => false,
+            'user_id' => $this->user->id,
         ];
 
         $settings = ClientSettings::defaults();

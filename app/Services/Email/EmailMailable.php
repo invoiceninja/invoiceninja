@@ -102,7 +102,13 @@ class EmailMailable extends Mailable
         $attachments  = [];
 
         $attachments = collect($this->email_object->attachments)->map(function ($file) {
-            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
+
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime  = finfo_buffer($finfo, base64_decode($file['file']));
+            $mime = $mime ?: 'application/octet-stream';
+            finfo_close($finfo);
+
+            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name'])->withMime($mime);
         });
 
         $documents = Document::query()->whereIn('id', $this->email_object->documents)
@@ -110,7 +116,15 @@ class EmailMailable extends Mailable
                 ->where('is_public', 1)
                 ->cursor()
                 ->map(function ($document) {
-                    return Attachment::fromData(fn () => $document->getFile(), $document->name);
+
+                    $file = $document->getFile();
+
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                    $mime  = finfo_buffer($finfo, $file);
+                    $mime = $mime ?: 'application/octet-stream';
+                    finfo_close($finfo);
+
+                    return Attachment::fromData(fn () => $file, $document->name)->withMime($mime);
                 });
 
         return $attachments->merge($documents)->toArray();

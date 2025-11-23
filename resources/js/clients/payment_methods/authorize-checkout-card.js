@@ -45,6 +45,11 @@ class CheckoutCreditCardAuthorization {
                 this.button.disabled = true;
 
                 event.preventDefault();
+
+                Frames.cardholder = {
+                    name: document.querySelector('meta[name="cardholder_name"]').content ?? '',
+                };
+                
                 Frames.submitCard();
             });
     }

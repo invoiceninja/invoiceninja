@@ -1,0 +1,108 @@
+    PurchaseOrderRequest:
+      required:
+        - vendor_id
+        - date
+        - due_date
+      properties:
+        vendor_id:
+          description: 'The hashed ID of the vendor'
+          type: string
+          example: 'D2J234DFA'
+        date:
+          description: 'Purchase order date'
+          type: string
+          format: date
+          example: '2024-01-01'
+        due_date:
+          description: 'Due date for the purchase order'
+          type: string
+          format: date
+          example: '2024-01-31'
+        private_notes:
+          description: 'Private notes for the purchase order'
+          type: string
+          example: 'Internal notes about this purchase order'
+        public_notes:
+          description: 'Public notes for the purchase order'
+          type: string
+          example: 'Please deliver to our warehouse'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          example: 'Custom value 4'
+        line_items:
+          type: array
+          description: 'Array of line items for the purchase order'
+          items:
+            type: object
+            properties:
+              quantity:
+                type: number
+                example: 10
+              cost:
+                type: number
+                example: 25.00
+              product_key:
+                type: string
+                example: 'PROD_001'
+              notes:
+                type: string
+                example: 'Office supplies'
+              discount:
+                type: number
+                example: 0
+              is_amount_discount:
+                type: boolean
+                example: true
+              tax_name1:
+                type: string
+                example: 'Sales Tax'
+              tax_rate1:
+                type: number
+                example: 8.5
+              tax_name2:
+                type: string
+                example: ''
+              tax_rate2:
+                type: number
+                example: 0
+              tax_name3:
+                type: string
+                example: ''
+              tax_rate3:
+                type: number
+                example: 0
+              sort_id:
+                type: string
+                example: '0'
+              custom_value1:
+                type: string
+                example: 'Department: IT'
+              custom_value2:
+                type: string
+                example: 'Priority: High'
+              custom_value3:
+                type: string
+                example: 'Approved by Manager'
+              custom_value4:
+                type: string
+                example: 'Budget Code: IT-2024'
+              type_id:
+                type: string
+                example: '1'
+              tax_id:
+                type: string
+                example: '1'
+      type: object

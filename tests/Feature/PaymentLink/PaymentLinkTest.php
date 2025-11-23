@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use App\Factory\InvoiceItemFactory;
 use App\Helpers\Subscription\SubscriptionCalculator;
 
 /**
- * 
+ *
  */
 class PaymentLinkTest extends TestCase
 {

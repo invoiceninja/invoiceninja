@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -24,13 +25,13 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 class StorecoveRouterTest extends TestCase
 {
     use DatabaseTransactions;
-    
+
     protected $faker;
 
     protected function setUp(): void
     {
         parent::setUp();
-               
+
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -41,7 +42,7 @@ class StorecoveRouterTest extends TestCase
 
     private function buildData()
     {
-                
+
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
@@ -50,7 +51,7 @@ class StorecoveRouterTest extends TestCase
         $user = User::factory()->create([
             'account_id' => $account->id,
             'confirmation_code' => 'xyz123',
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => \Illuminate\Support\Str::random(32)."@example.com",
             'password' => \Illuminate\Support\Facades\Hash::make('ALongAndBriliantPassword'),
         ]);
 
@@ -87,7 +88,7 @@ class StorecoveRouterTest extends TestCase
         $this->assertEquals("IS:VAT", $storecove->router->resolveTaxScheme('IS', 'business'));
 
     }
-    
+
     // Luxembourg Tests
     public function testLuBusinessClientRoutingIdentifier()
     {
@@ -828,5 +829,5 @@ class StorecoveRouterTest extends TestCase
 
     }
 
-    
+
 }

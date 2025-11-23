@@ -29,7 +29,7 @@ class ValidRefundableRequest implements Rule
      * @param mixed $value
      * @return bool
      */
-    private $error_msg;
+    private $error_msg = '';
 
     private $input;
 
@@ -64,7 +64,7 @@ class ValidRefundableRequest implements Rule
             $this->checkInvoiceIsPaymentable($request_invoice, $payment);
         }
 
-        if (strlen($this->error_msg) > 0) {
+        if (strlen($this->error_msg) > 1) {
             return false;
         }
 
@@ -86,12 +86,12 @@ class ValidRefundableRequest implements Rule
             $paymentable_invoice = $payment->invoices->where('id', $invoice->id)->first();
 
             if (! $paymentable_invoice) {
-                $this->error_msg = ctrans('texts.invoice_not_related_to_payment', ['invoice' => $invoice->hashed_id]);
+                $this->error_msg = ctrans('texts.invoice_not_related_to_payment', ['invoice' => $invoice->number]);
 
                 return false;
             }
         } else {
-            $this->error_msg = ctrans('texts.invoice_not_related_to_payment', ['invoice' => $invoice->hashed_id]);
+            $this->error_msg = ctrans('texts.invoice_not_related_to_payment', ['invoice' => $invoice->number]);
 
             return false;
         }

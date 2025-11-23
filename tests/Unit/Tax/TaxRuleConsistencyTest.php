@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -44,7 +45,7 @@ class TaxRuleConsistencyTest extends TestCase
         $this->withoutExceptionHandling();
 
         $this->makeTestData();
-        
+
         $this->faker = \Faker\Factory::create();
 
     }
@@ -52,7 +53,7 @@ class TaxRuleConsistencyTest extends TestCase
     private function setupTestData(array $params = []): array
     {
         \Illuminate\Support\Once::flush();
-        
+
         $company_iso = isset($params['company_country']) ? $params['company_country'] : 'DE';
 
         $settings = CompanySettings::defaults();
@@ -81,7 +82,7 @@ class TaxRuleConsistencyTest extends TestCase
 
         $contact = ClientContact::factory()->create([
             'client_id' => $client->id,
-            'company_id' =>$client->company_id,
+            'company_id' => $client->company_id,
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
@@ -92,7 +93,7 @@ class TaxRuleConsistencyTest extends TestCase
             'client_id' => $client->id,
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
-            'discount' => rand(1,10),
+            'discount' => rand(1, 10),
         ]);
 
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
@@ -184,7 +185,8 @@ class TaxRuleConsistencyTest extends TestCase
 
             $this->assertEquals(
                 $scenario['expected_rate'],
-                $baseRule->tax_rate1, "{$name} {$scenario['expected_nexus']}"
+                $baseRule->tax_rate1,
+                "{$name} {$scenario['expected_nexus']}"
             );
 
             $this->assertEquals(

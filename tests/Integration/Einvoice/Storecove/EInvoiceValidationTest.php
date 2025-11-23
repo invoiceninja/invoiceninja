@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -42,7 +43,7 @@ class EInvoiceValidationTest extends TestCase
 
     public function testInvalidCompanySettings()
     {
-        
+
         $account = Account::factory()->create();
         $company = Company::factory()->create([
             'account_id' => $account->id,
@@ -60,7 +61,7 @@ class EInvoiceValidationTest extends TestCase
 
     public function testValidBusinessCompanySettings()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->address1 = '10 Wallaby Way';
         $settings->city = 'Sydney';
@@ -90,7 +91,7 @@ class EInvoiceValidationTest extends TestCase
 
     public function testInValidBusinessCompanySettingsNoVat()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->address1 = '10 Wallaby Way';
         $settings->city = 'Sydney';
@@ -119,7 +120,7 @@ class EInvoiceValidationTest extends TestCase
 
     public function testValidIndividualCompanySettingsNoVat()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->address1 = '10 Wallaby Way';
         $settings->city = 'Sydney';
@@ -127,7 +128,7 @@ class EInvoiceValidationTest extends TestCase
         $settings->postal_code = '2113';
         $settings->country_id = '1';
         $settings->vat_number = '';
-        $settings->id_number ='adfadf';
+        $settings->id_number = 'adfadf';
         $settings->classification = 'individual';
 
         $account = Account::factory()->create();
@@ -149,7 +150,7 @@ class EInvoiceValidationTest extends TestCase
 
     public function testInValidBusinessCompanySettingsNoLegalEntity()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->address1 = '10 Wallaby Way';
         $settings->city = 'Sydney';
@@ -383,8 +384,9 @@ class EInvoiceValidationTest extends TestCase
         $el = new EntityLevel();
         $validation = $el->checkClient($client);
 
-        if(!$validation['passes'])
+        if (!$validation['passes']) {
             nlog($validation);
+        }
 
         $this->assertTrue($validation['passes']);
 
@@ -410,7 +412,7 @@ class EInvoiceValidationTest extends TestCase
             'postal_code' => '2113',
         ]);
 
-        
+
         $cc = ClientContact::factory()->create([
             'client_id' => $client->id,
             'user_id' => $this->user->id,
@@ -448,7 +450,7 @@ class EInvoiceValidationTest extends TestCase
             'postal_code' => '2113',
         ]);
 
-        
+
         $cc = ClientContact::factory()->create([
             'client_id' => $client->id,
             'user_id' => $this->user->id,

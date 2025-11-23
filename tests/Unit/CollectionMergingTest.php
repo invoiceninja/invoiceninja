@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,7 +17,7 @@ use App\Factory\InvoiceItemFactory;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class CollectionMergingTest extends TestCase
 {

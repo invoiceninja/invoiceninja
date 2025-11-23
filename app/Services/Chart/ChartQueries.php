@@ -27,24 +27,30 @@ trait ChartQueries
         $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
 
         return DB::select("
-            SELECT 
-            SUM(CASE 
-                WHEN expenses.uses_inclusive_taxes = 0 THEN 
-                    expenses.amount + 
+            SELECT
+            SUM(CASE
+                WHEN expenses.uses_inclusive_taxes = 0 THEN
+                    expenses.amount +
                     (COALESCE(expenses.tax_amount1, 0) + COALESCE(expenses.tax_amount2, 0) + COALESCE(expenses.tax_amount3, 0)) +
                     (
                         (expenses.amount * COALESCE(expenses.tax_rate1, 0)/100) +
                         (expenses.amount * COALESCE(expenses.tax_rate2, 0)/100) +
                         (expenses.amount * COALESCE(expenses.tax_rate3, 0)/100)
                     )
-                ELSE expenses.amount 
+                ELSE expenses.amount
             END) as amount,
             IFNULL(expenses.currency_id, :company_currency) as currency_id
             FROM expenses
+            LEFT JOIN clients
+            ON clients.id = expenses.client_id
+            LEFT JOIN vendors
+            ON vendors.id = expenses.vendor_id
             WHERE expenses.is_deleted = 0
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             {$user_filter}
+            AND (clients.id IS NULL OR clients.is_deleted = 0)
+            AND (vendors.id IS NULL OR vendors.is_deleted = 0)
             GROUP BY currency_id
         ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
@@ -54,40 +60,46 @@ trait ChartQueries
         $user_filter = $this->is_admin ? '' : 'AND expenses.user_id = '.$this->user->id;
 
         return DB::select("
-            SELECT 
+            SELECT
             SUM(
-                CASE 
-                    WHEN expenses.currency_id = :company_currency THEN 
-                        CASE 
-                            WHEN expenses.uses_inclusive_taxes = 0 THEN 
-                             expenses.amount + 
+                CASE
+                    WHEN expenses.currency_id = :company_currency THEN
+                        CASE
+                            WHEN expenses.uses_inclusive_taxes = 0 THEN
+                             expenses.amount +
                                 (COALESCE(expenses.tax_amount1, 0) + COALESCE(expenses.tax_amount2, 0) + COALESCE(expenses.tax_amount3, 0)) +
                                 (
                                     (expenses.amount * COALESCE(expenses.tax_rate1, 0)/100) +
                                     (expenses.amount * COALESCE(expenses.tax_rate2, 0)/100) +
                                     (expenses.amount * COALESCE(expenses.tax_rate3, 0)/100)
-                                )   
-                            ELSE expenses.amount 
+                                )
+                            ELSE expenses.amount
                         END
-                    ELSE 
-                        (CASE 
-                            WHEN expenses.uses_inclusive_taxes = 0 THEN 
-                                expenses.amount + 
+                    ELSE
+                        (CASE
+                            WHEN expenses.uses_inclusive_taxes = 0 THEN
+                                expenses.amount +
                                 (COALESCE(expenses.tax_amount1, 0) + COALESCE(expenses.tax_amount2, 0) + COALESCE(expenses.tax_amount3, 0)) +
                                 (
                                     (expenses.amount * COALESCE(expenses.tax_rate1, 0)/100) +
                                     (expenses.amount * COALESCE(expenses.tax_rate2, 0)/100) +
                                     (expenses.amount * COALESCE(expenses.tax_rate3, 0)/100)
-                                )   
-                            ELSE expenses.amount 
+                                )
+                            ELSE expenses.amount
                         END) * COALESCE(NULLIF(expenses.exchange_rate, 0), 1)
                 END
             ) AS amount
             FROM expenses
+            LEFT JOIN clients
+            ON clients.id = expenses.client_id
+            LEFT JOIN vendors
+            ON vendors.id = expenses.vendor_id
             WHERE expenses.is_deleted = 0
             AND expenses.company_id = :company_id
             AND (expenses.date BETWEEN :start_date AND :end_date)
             {$user_filter}
+            AND (clients.id IS NULL OR clients.is_deleted = 0)
+            AND (vendors.id IS NULL OR vendors.is_deleted = 0)
         ", ['company_currency' => $this->company->settings->currency_id, 'company_id' => $this->company->id, 'start_date' => $start_date, 'end_date' => $end_date]);
     }
 
@@ -128,10 +140,16 @@ trait ChartQueries
             ) AS total,
             expenses.date
             FROM expenses
+            LEFT JOIN clients
+            ON clients.id = expenses.client_id
+            LEFT JOIN vendors
+            ON vendors.id = expenses.vendor_id
             WHERE (expenses.date BETWEEN :start_date AND :end_date)
             AND expenses.company_id = :company_id
             AND expenses.is_deleted = 0
             {$user_filter}
+            AND (clients.id IS NULL OR clients.is_deleted = 0)
+            AND (vendors.id IS NULL OR vendors.is_deleted = 0)
             GROUP BY expenses.date
         ", [
             'company_currency' => $this->company->settings->currency_id,
@@ -164,10 +182,16 @@ trait ChartQueries
                     ) as total,
                     expenses.date
                     FROM expenses
+                    LEFT JOIN clients
+                    ON clients.id = expenses.client_id
+                    LEFT JOIN vendors
+                    ON vendors.id = expenses.vendor_id
                     WHERE (expenses.date BETWEEN :start_date AND :end_date)
                     AND expenses.company_id = :company_id
                     AND expenses.is_deleted = 0
                     {$user_filter}
+                    AND (clients.id IS NULL OR clients.is_deleted = 0)
+                    AND (vendors.id IS NULL OR vendors.is_deleted = 0)
                     AND IFNULL(expenses.currency_id, :company_currency) = :currency_id
                     GROUP BY expenses.date
                 ", [

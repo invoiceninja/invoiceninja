@@ -360,7 +360,7 @@ class ProfitLoss
         nlog($this->income_taxes);
         nlog(array_sum(array_column($this->expense_break_down, 'total')));
 
-        $csv = Writer::createFromString();
+        $csv = Writer::fromString();
 
         $csv->insertOne([ctrans('texts.profit_and_loss')]);
         $csv->insertOne([ctrans('texts.company_name'), $this->company->present()->name()]);
@@ -627,7 +627,7 @@ class ProfitLoss
                 break;
 
             case 'last_year':
-                            
+
                 $first_month_of_year = $this->company->first_month_of_year ?? 1;
                 $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
                 $fin_year_start->subYearNoOverflow();
@@ -642,7 +642,7 @@ class ProfitLoss
                 break;
 
             case 'this_year':
-                            
+
                 $first_month_of_year = $this->company->first_month_of_year ?? 1;
                 $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 

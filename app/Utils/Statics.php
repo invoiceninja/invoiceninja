@@ -127,6 +127,7 @@ class Statics
             'client' => \App\Models\Client::$bulk_update_columns,
             'expense' => \App\Models\Expense::$bulk_update_columns,
             'recurring_invoice' => \App\Models\RecurringInvoice::$bulk_update_columns,
+            'task' => \App\Models\Task::$bulk_update_columns,
         ];
 
         return $data;

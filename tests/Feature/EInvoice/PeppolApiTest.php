@@ -18,7 +18,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class PeppolApiTest extends TestCase
 {
@@ -30,7 +30,7 @@ class PeppolApiTest extends TestCase
         parent::setUp();
 
         // if (!config('ninja.storecove_api_key')) {
-            $this->markTestSkipped('Storecove API key not set');
+        $this->markTestSkipped('Storecove API key not set');
         // }
 
         $this->makeTestData();

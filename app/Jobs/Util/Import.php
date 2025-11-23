@@ -190,7 +190,7 @@ class Import implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping($this->company->company_key))];
+        return [(new WithoutOverlapping($this->company->company_key))->dontRelease()];
     }
 
     /**
@@ -1557,8 +1557,6 @@ class Import implements ShouldQueue
                     0,
                     false
                 );
-
-                // $this->saveDocument($uploaded_file, $entity, $is_public = true);
 
                 $document = (new \App\Jobs\Util\UploadFile(
                     $uploaded_file,

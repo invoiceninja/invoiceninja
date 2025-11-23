@@ -5,10 +5,28 @@
       summary: "List credits"
       description: "Lists credits, search and filters allow fine grained lists to be generated.\n     *\n     *      Query parameters can be added to performed more fine grained filtering of the credits, these are handled by the CreditFilters class which defines the methods available"
       operationId: getCredits
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $credits = $ninja->credits->all([
+              'per_page' => 10,
+              'page' => 1
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/credits \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of credits"
@@ -53,6 +71,12 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreditRequest"
       responses:
         200:
           description: "Returns the saved credit object"
@@ -88,6 +112,18 @@
       summary: "Show credit"
       description: "Displays an credit by id"
       operationId: showCredit
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $credit = $ninja->credits->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/credits/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -178,6 +214,18 @@
       summary: "Delete credit"
       description: "Handles the deletion of an credit by id"
       operationId: deleteCredit
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->credits->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X DELETE https://demo.invoiceninja.com/api/v1/credits/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"

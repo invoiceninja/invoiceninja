@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,13 +26,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Import\Providers\Csv
  */
 class CsvImportTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
+
+    public $faker;
 
     protected function setUp(): void
     {
@@ -120,7 +123,7 @@ class CsvImportTest extends TestCase
         Cache::put($hash.'-recurring_invoice', base64_encode($csv), 360);
 
         // $this->user->setContext($this->company, $this->token);
-        
+
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($this->cu);
         $truth->setUser($this->user);
@@ -131,6 +134,11 @@ class CsvImportTest extends TestCase
         $csv_importer->import('recurring_invoice');
 
         $this->assertTrue($base_transformer->hasRecurringInvoice('54'));
+
+        $this->assertTrue($base_transformer->hasRecurringInvoice('781'));
+
+        $r = \App\Models\RecurringInvoice::where('number', '781')->first();
+        $this->assertEquals(\App\Models\RecurringInvoice::FREQUENCY_ANNUALLY, $r->frequency_id);
 
     }
 
@@ -358,7 +366,7 @@ class CsvImportTest extends TestCase
         Cache::put($hash.'-invoice', base64_encode($csv), 360);
 
         // $this->user->setContext($this->company, $this->token);
-        
+
         // $truth = app()->make(TruthSource::class);
         // $truth->setCompanyUser($this->cu);
         // $truth->setUser($this->user);

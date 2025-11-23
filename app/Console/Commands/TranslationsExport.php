@@ -36,6 +36,7 @@ class TranslationsExport extends Command
     protected $log = '';
 
     private array $langs = [
+        'af_ZA',
         'ar',
         'bg',
         'ca',
@@ -56,6 +57,7 @@ class TranslationsExport extends Command
         'he',
         'hr',
         'hu',
+        'id_ID',
         'it',
         'ja',
         'km_KH',

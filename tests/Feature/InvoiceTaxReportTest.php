@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -85,11 +86,10 @@ class InvoiceTaxReportTest extends TestCase
         $this->assertNotNull($i);
 
         //test tax data object to see if we are using automated taxes.
-        if(isset($i->tax_data->geoState)){
+        if (isset($i->tax_data->geoState)) {
             $nexus = $i->tax_data->geoState;
             $country_nexus = 'USA';
-        }
-        else {
+        } else {
             $nexus = strlen($i->client->state ?? '') > 0 ? $i->client->state : $i->company->settings->state;
             $country_nexus = strlen($i->client->state ?? '') > 0 ? $i->client->country->iso_3166_2 : $i->company->country()->iso_3166_2;
         }

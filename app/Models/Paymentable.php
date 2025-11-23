@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $paymentable_type
  * @property int|null $created_at
  * @property int|null $updated_at
- * @property int|null $deleted_at
+ * @property null $deleted_at
  * @property-read \App\Models\Payment $payment
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $paymentable
  * @method static \Illuminate\Database\Eloquent\Builder|Paymentable newModelQuery()

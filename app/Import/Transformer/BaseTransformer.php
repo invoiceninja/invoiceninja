@@ -140,6 +140,10 @@ class BaseTransformer
     public function getFrequency($frequency = RecurringInvoice::FREQUENCY_MONTHLY): int
     {
 
+        // if(is_string($frequency)){
+        //     $frequency = strtolower(trim($frequency));
+        // }
+        
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
             case 'daily':
@@ -362,7 +366,7 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-
+        
         if (array_key_exists($field, $data)) {
 
             if ($this->company->use_comma_as_decimal_place) {

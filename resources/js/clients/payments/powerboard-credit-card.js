@@ -163,6 +163,11 @@ function pay() {
 
     if (tokens.length > 0) {
         tokens[0].click();
+    } else {
+        // If no tokens exist, show the credit card form
+        document.getElementById('powerboard-payment-container')?.classList.remove('hidden');
+        document.getElementById('widget')?.classList.remove('hidden');
+        document.getElementById('save-card--container').style.display = 'grid';
     }
 
     if (focusCreditCard) {

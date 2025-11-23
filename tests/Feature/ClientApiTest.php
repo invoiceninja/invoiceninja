@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -41,6 +42,8 @@ class ClientApiTest extends TestCase
     use ClientGroupSettingsSaver;
 
     public $faker;
+
+    public $settings;
 
     protected function setUp(): void
     {
@@ -1198,6 +1201,7 @@ class ClientApiTest extends TestCase
 
         $arr = $response->json();
 
+        nlog($arr);
         $this->assertEquals('3', $arr['data']['settings']['language_id']);
     }
 

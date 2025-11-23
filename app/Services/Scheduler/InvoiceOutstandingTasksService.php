@@ -50,16 +50,16 @@ class InvoiceOutstandingTasksService
         $query = Client::query()
             ->where('company_id', $this->scheduler->company_id)
             ->where('is_deleted', 0);
-            
+
         if (count($this->scheduler->parameters['clients']) >= 1) {
             $query->whereIn('id', $this->transformKeys($this->scheduler->parameters['clients']));
         }
 
-        $query->whereHas('tasks', function ($sub_query){
+        $query->whereHas('tasks', function ($sub_query) {
             $sub_query->whereNull('invoice_id')
                     ->where('is_deleted', 0)
                     ->whereBetween('calculated_start_date', $this->calculateStartAndEndDates())
-                    ->when(!$this->scheduler->parameters['include_project_tasks'], function ($sub_query_two){
+                    ->when(!$this->scheduler->parameters['include_project_tasks'], function ($sub_query_two) {
                         $sub_query_two->whereNull('project_id');
                     });
         });
@@ -72,15 +72,15 @@ class InvoiceOutstandingTasksService
                     $line_items = $client->tasks()->whereNull('invoice_id')
                         ->where('is_deleted', 0)
                         ->whereBetween('calculated_start_date', $this->calculateStartAndEndDates())
-                        ->when(!$this->scheduler->parameters['include_project_tasks'], function ($sub_query_two){
+                        ->when(!$this->scheduler->parameters['include_project_tasks'], function ($sub_query_two) {
                             return $sub_query_two->whereNull('project_id');
                         })
                         ->get()
-                        ->filter(function (Task $task){
+                        ->filter(function (Task $task) {
                             return $task->calcDuration(true) > 0 && !$task->isRunning();
                         })
-                        ->map(function (Task $task, $key){
-                                                                   
+                        ->map(function (Task $task, $key) {
+
                             if ($key == 0 && $task->company->invoice_task_project) {
                                 $body = '<div class="project-header">'.$task->project->name.'</div>' .$task->project?->public_notes ?? ''; //@phpstan-ignore-line
                                 $body .= '<div class="task-time-details">'.$task->description().'</div>';
@@ -100,26 +100,26 @@ class InvoiceOutstandingTasksService
                             $item->type_id = '2';
 
                             return $item;
-                        
+
                         })
                         ->toArray();
 
-                        if(count(array_values($line_items)) > 0){
+                    if (count(array_values($line_items)) > 0) {
 
-                            $data = [
-                                'client_id' => $client->id,
-                                'date' => now()->addSeconds($client->company->utc_offset())->format('Y-m-d'),
-                                'line_items' => array_values($line_items),
-                                'uses_inclusive_taxes' => $client->company->settings->inclusive_taxes ?? false,
-                            ];
+                        $data = [
+                            'client_id' => $client->id,
+                            'date' => now()->addSeconds($client->company->utc_offset())->format('Y-m-d'),
+                            'line_items' => array_values($line_items),
+                            'uses_inclusive_taxes' => $client->company->settings->inclusive_taxes ?? false,
+                        ];
 
-                            $invoice = $invoice_repo->save($data, InvoiceFactory::create($client->company_id, $client->user_id));
+                        $invoice = $invoice_repo->save($data, InvoiceFactory::create($client->company_id, $client->user_id));
 
-                            if($this->scheduler->parameters['auto_send']){
-                                nlog('sending email');
-                                $invoice->service()->sendEmail();
-                            }
+                        if ($this->scheduler->parameters['auto_send']) {
+                            nlog('sending email');
+                            $invoice->service()->sendEmail();
                         }
+                    }
                 });
 
         $this->scheduler->calculateNextRun();

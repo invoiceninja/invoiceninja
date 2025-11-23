@@ -37,25 +37,13 @@ class SendToAdmin implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    protected Company $company;
-
-    protected array $request;
-
-    protected string $report_class;
-
-    protected string $file_name;
-
     public $tries = 1;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Company $company, array $request, $report_class, $file_name)
+    public function __construct(protected Company $company, protected array $request, protected string $report_class, protected string $file_name)
     {
-        $this->company = $company;
-        $this->request = $request;
-        $this->report_class = $report_class;
-        $this->file_name = $file_name;
     }
 
     public function handle()
@@ -69,8 +57,7 @@ class SendToAdmin implements ShouldQueue
         $file_name = $this->file_name;
 
         $size_mb = round(strlen($csv) / (1024 * 1024), 2); // Size in MB
-        nlog("Report Size: MB " . $size_mb);
-
+        
         // If the file is greater than 5MB, we need to zip it to ensure it does not break attachment size limits
         if($size_mb > 5){
 
@@ -116,12 +103,7 @@ class SendToAdmin implements ShouldQueue
 
     }
 
-    // public function middleware()
-    // {
-    //     return [(new WithoutOverlapping("report-{$this->company->company_key}-{$this->report_class}"))->expireAfter(60)];
-    // }
-
-    public function failed(\Throwable $exception = null)
+    public function failed(?\Throwable $exception = null)
     {
         if($exception) {
             nlog("EXCEPTION:: SendToAdmin:: could not email report for" . $exception->getMessage());

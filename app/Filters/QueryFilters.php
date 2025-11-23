@@ -147,12 +147,12 @@ abstract class QueryFilters
 
         return $this->builder->where(function ($query) use ($filters) {
             if (in_array(self::STATUS_ACTIVE, $filters)) {
-                $query = $query->orWhereNull('deleted_at');
+                $query = $query->orWhereNull($this->builder->getModel()->getTable() . '.deleted_at');
             }
 
             if (in_array(self::STATUS_ARCHIVED, $filters)) {
                 $query = $query->orWhere(function ($q) {
-                    $q->whereNotNull('deleted_at')->where('is_deleted', 0);
+                    $q->whereNotNull($this->builder->getModel()->getTable() . '.deleted_at')->where('is_deleted', 0);
                 });
             }
 

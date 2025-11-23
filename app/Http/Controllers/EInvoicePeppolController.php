@@ -12,17 +12,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
+use Illuminate\Http\JsonResponse;
+use App\Services\EDocument\Jobs\SendEDocument;
+use App\Http\Requests\EInvoice\Peppol\RetrySendRequest;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Http\Requests\EInvoice\Peppol\DisconnectRequest;
+use App\Http\Requests\EInvoice\Peppol\ShowEntityRequest;
+use App\Http\Requests\EInvoice\Peppol\StoreEntityRequest;
+use App\Http\Requests\EInvoice\Peppol\UpdateEntityRequest;
+use App\Services\EDocument\Standards\Verifactu\SendToAeat;
 use App\Http\Requests\EInvoice\Peppol\AddTaxIdentifierRequest;
 use App\Http\Requests\EInvoice\Peppol\RemoveTaxIdentifierRequest;
-use App\Http\Requests\EInvoice\Peppol\RetrySendRequest;
-use App\Http\Requests\EInvoice\Peppol\ShowEntityRequest;
-use App\Http\Requests\EInvoice\Peppol\UpdateEntityRequest;
-use App\Services\EDocument\Jobs\SendEDocument;
 
 class EInvoicePeppolController extends BaseController
 {
@@ -266,8 +267,12 @@ class EInvoicePeppolController extends BaseController
 
     public function retrySend(RetrySendRequest $request)
     {
-
-        SendEDocument::dispatch($request->entity, $request->entity_id, auth()->user()->company()->db);
+        if(auth()->user()->company()->verifactuEnabled()) {
+            SendToAeat::dispatch($request->entity_id, auth()->user()->company(), 'create');
+        }
+        else {
+            SendEDocument::dispatch($request->entity, $request->entity_id, auth()->user()->company()->db);
+        }
 
         return response()->json(['message' => 'trying....'], 200);
     }

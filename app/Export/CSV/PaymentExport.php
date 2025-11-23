@@ -40,7 +40,7 @@ class PaymentExport extends BaseExport
         $this->decorator = new Decorator();
     }
 
-    private function init(): Builder
+    public function init(): Builder
     {
 
         MultiDB::setDb($this->company->db);
@@ -72,6 +72,7 @@ class PaymentExport extends BaseExport
         }
 
         $query = $this->addPaymentStatusFilters($query, $this->input['status'] ?? '');
+        $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -107,7 +108,7 @@ class PaymentExport extends BaseExport
     {
         $query =  $this->init();
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header

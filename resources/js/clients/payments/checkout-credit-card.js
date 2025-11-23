@@ -75,6 +75,11 @@ class CheckoutCreditCard {
 
         form.addEventListener('submit', function (event) {
             event.preventDefault();
+            
+            Frames.cardholder = {
+                name: document.querySelector('meta[name="cardholder_name"]').content ?? '',
+            };
+
             payButton.disabled = true;
             Frames.submitCard();
         });

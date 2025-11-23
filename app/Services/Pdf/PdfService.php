@@ -92,7 +92,7 @@ class PdfService
         try {
 
             $html = $this->getHtml();
-            // nlog($html); 
+            // nlog($html);
             $pdf = $this->resolvePdfEngine($html);
 
             $numbered_pdf = $this->pageNumbering($pdf, $this->company);

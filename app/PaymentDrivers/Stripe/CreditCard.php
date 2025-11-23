@@ -123,7 +123,7 @@ class CreditCard implements LivewireMethodInterface
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, $state);
         $this->stripe->payment_hash->save();
 
-        $server_response = $this->stripe->payment_hash->data->server_response;
+        $server_response = $this->stripe->payment_hash->data->server_response; //@phpstan-ignore-line
 
         if ($server_response->status == 'succeeded') {
             $this->stripe->logSuccessfulGatewayResponse(['response' => json_decode($request->gateway_response), 'data' => $this->stripe->payment_hash->data], SystemLog::TYPE_STRIPE);
@@ -151,21 +151,21 @@ class CreditCard implements LivewireMethodInterface
         $this->stripe->payment_hash->data = array_merge((array) $this->stripe->payment_hash->data, ['amount' => $data['amount']]);
         $this->stripe->payment_hash->save();
 
-        if ($this->stripe->payment_hash->data->store_card) {
+        if ($this->stripe->payment_hash->data->store_card) {//@phpstan-ignore-line
             $customer = new \stdClass();
-            $customer->id = $this->stripe->payment_hash->data->customer;
+            $customer->id = $this->stripe->payment_hash->data->customer;//@phpstan-ignore-line
 
-            $this->stripe->attach($this->stripe->payment_hash->data->server_response->payment_method, $customer);
+            $this->stripe->attach($this->stripe->payment_hash->data->server_response->payment_method, $customer);//@phpstan-ignore-line
 
-            $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);
+            $stripe_method = $this->stripe->getStripePaymentMethod($this->stripe->payment_hash->data->server_response->payment_method);//@phpstan-ignore-line
 
-            $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);
+            $this->storePaymentMethod($stripe_method, $this->stripe->payment_hash->data->payment_method_id, $customer);//@phpstan-ignore-line
         }
 
         $payment = $this->stripe->createPayment($data, Payment::STATUS_COMPLETED);
 
         SystemLogger::dispatch(
-            ['response' => $this->stripe->payment_hash->data->server_response, 'data' => $data],
+            ['response' => $this->stripe->payment_hash->data->server_response, 'data' => $data],//@phpstan-ignore-line
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_STRIPE,

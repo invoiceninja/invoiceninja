@@ -302,8 +302,6 @@ class SNSController extends BaseController
                 OPENSSL_ALGO_SHA1
             );
 
-            openssl_free_key($publicKey);
-
             if ($verificationResult === 1) {
                 nlog('SNS: Signature verification successful');
                 return true;
@@ -401,13 +399,19 @@ class SNSController extends BaseController
      */
     private function handleSubscriptionConfirmation(array $snsData)
     {
-        $subscribeUrl = $snsData['SubscribeURL'] ?? null;
+        // Verify the subscription confirmation payload
+        $verificationResult = $this->verifySubscriptionConfirmationPayload($snsData);
         
-        if (!$subscribeUrl) {
-            nlog('SNS Subscription confirmation: Missing SubscribeURL');
-            return response()->json(['error' => 'Missing SubscribeURL'], 400);
+        if (!$verificationResult['valid']) {
+            nlog('SNS Subscription confirmation: Payload verification failed', [
+                'errors' => $verificationResult['errors'],
+                'payload' => $snsData
+            ]);
+            return response()->json(['error' => 'Invalid subscription confirmation payload', 'details' => $verificationResult['errors']], 400);
         }
 
+        $subscribeUrl = $snsData['SubscribeURL'];
+        
         nlog('SNS Subscription confirmation received', [
             'topic_arn' => $snsData['TopicArn'] ?? 'unknown',
             'subscribe_url' => $subscribeUrl
@@ -416,13 +420,140 @@ class SNSController extends BaseController
         // You can optionally make an HTTP request to confirm the subscription
         // This is required by AWS to complete the SNS subscription setup
         try {
-            $response = file_get_contents($subscribeUrl);
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($subscribeUrl);
             nlog('SNS Subscription confirmed', ['response' => $response]);
         } catch (\Exception $e) {
             nlog('SNS Subscription confirmation failed', ['error' => $e->getMessage()]);
         }
 
         return response()->json(['status' => 'subscription_confirmed']);
+    }
+
+
+    /**
+     * Verify SNS subscription confirmation payload structure and content
+     * 
+     * @param array $snsData
+     * @return array ['valid' => bool, 'errors' => array]
+     */
+    private function verifySubscriptionConfirmationPayload(array $snsData): array
+    {
+        $errors = [];
+        
+        // Required fields for subscription confirmation
+        $requiredFields = [
+            'Type' => 'SubscriptionConfirmation',
+            'MessageId' => 'string',
+            'TopicArn' => 'string',
+            'SubscribeURL' => 'string',
+            'Timestamp' => 'string',
+            'Token' => 'string'
+        ];
+        
+        // Validate required fields exist and have correct types
+        foreach ($requiredFields as $field => $expectedType) {
+            if (!isset($snsData[$field])) {
+                $errors[] = "Missing required field: {$field}";
+                continue;
+            }
+            
+            $value = $snsData[$field];
+            
+            // Type-specific validation
+            if ($expectedType === 'string' && !is_string($value)) {
+                $errors[] = "Field '{$field}' must be a string";
+            } elseif ($expectedType === 'SubscriptionConfirmation' && $value !== 'SubscriptionConfirmation') {
+                $errors[] = "Field '{$field}' must be 'SubscriptionConfirmation'";
+            }
+        }
+        
+        // Validate specific field formats
+        if (isset($snsData['MessageId']) && !$this->isValidMessageId($snsData['MessageId'])) {
+            $errors[] = 'Invalid MessageId format';
+        }
+        
+        if (isset($snsData['TopicArn']) && !$this->isValidTopicArn($snsData['TopicArn'])) {
+            $errors[] = 'Invalid TopicArn format';
+        }
+        
+        if (isset($snsData['SubscribeURL']) && !$this->isValidSubscribeUrl($snsData['SubscribeURL'])) {
+            $errors[] = 'Invalid SubscribeURL format or domain';
+        }
+        
+        if (isset($snsData['Timestamp']) && !$this->isValidISOTimestamp($snsData['Timestamp'])) {
+            $errors[] = 'Invalid Timestamp format (must be ISO 8601)';
+        }
+        
+        if (isset($snsData['Token']) && !$this->isValidSubscriptionToken($snsData['Token'])) {
+            $errors[] = 'Invalid Token format';
+        }
+        
+        // Validate TopicArn matches expected if configured
+        if (isset($snsData['TopicArn']) && !empty($this->expectedTopicArn)) {
+            if ($snsData['TopicArn'] !== $this->expectedTopicArn) {
+                $errors[] = 'TopicArn does not match expected value';
+            }
+        }
+        
+        // Check for replay attacks (messages older than 15 minutes)
+        if (isset($snsData['Timestamp'])) {
+            $messageTimestamp = strtotime($snsData['Timestamp']);
+            $currentTimestamp = time();
+            if (($currentTimestamp - $messageTimestamp) > 900) { // 15 minutes
+                $errors[] = 'Message timestamp is too old (potential replay attack)';
+            }
+        }
+        
+        // Check for suspicious content patterns
+        if ($this->containsSuspiciousContent($snsData)) {
+            $errors[] = 'Payload contains suspicious content patterns';
+        }
+        
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+
+    /**
+     * Validate MessageId format (should be a UUID-like string)
+     * 
+     * @param string $messageId
+     * @return bool
+     */
+    private function isValidMessageId(string $messageId): bool
+    {
+        // AWS SNS MessageId is typically a UUID format
+        return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $messageId) === 1;
+    }
+
+    /**
+     * Validate TopicArn format
+     * 
+     * @param string $topicArn
+     * @return bool
+     */
+    private function isValidTopicArn(string $topicArn): bool
+    {
+        // AWS SNS Topic ARN format: arn:aws:sns:region:account-id:topic-name
+        return preg_match('/^arn:aws:sns:[a-z0-9-]+:[0-9]{12}:[a-zA-Z0-9_-]+$/', $topicArn) === 1;
+    }
+
+    /**
+     * Validate subscription token format
+     * 
+     * @param string $token
+     * @return bool
+     */
+    private function isValidSubscriptionToken(string $token): bool
+    {
+        // AWS SNS subscription tokens are typically long alphanumeric strings
+        if (strlen($token) < 20 || strlen($token) > 200) {
+            return false;
+        }
+        
+        // Should contain only alphanumeric characters and common symbols
+        return preg_match('/^[a-zA-Z0-9+\/=\-_]+$/', $token) === 1;
     }
 
     /**

@@ -64,7 +64,7 @@ class LocationApiTest extends TestCase
             'city' => 'Location City',
             'state' => 'Location State',
             'postal_code' => 'Location Postal Code',
-            'country_id' => '4', 
+            'country_id' => '4',
             'is_shipping_location' => false,
         ]);
 
@@ -74,7 +74,7 @@ class LocationApiTest extends TestCase
             'client_id' => $client->id,
             'location_id' => $location->id,
         ]);
-        
+
         $invoice->service()->createInvitations()->markSent()->save();
 
         $invitation = $invoice->invitations()->first();
@@ -89,7 +89,7 @@ class LocationApiTest extends TestCase
         $this->assertEquals('Location State', $data['$client.state']);
         $this->assertEquals('Location Postal Code', $data['$client.postal_code']);
         $this->assertEquals('Afghanistan', $data['$client.country']);
-        
+
         $this->assertEquals('Shipping Address 1', $data['$client.shipping_address1']);
         $this->assertEquals('Shipping Address 2', $data['$client.shipping_address2']);
         $this->assertEquals('Shipping City', $data['$client.shipping_city']);
@@ -131,7 +131,7 @@ class LocationApiTest extends TestCase
             'city' => 'Location City',
             'state' => 'Location State',
             'postal_code' => 'Location Postal Code',
-            'country_id' => '4', 
+            'country_id' => '4',
             'is_shipping_location' => true,
         ]);
 
@@ -141,7 +141,7 @@ class LocationApiTest extends TestCase
             'client_id' => $client->id,
             'location_id' => $location->id,
         ]);
-        
+
         $invoice->service()->createInvitations()->markSent()->save();
 
         $invitation = $invoice->invitations()->first();
@@ -156,7 +156,7 @@ class LocationApiTest extends TestCase
         $this->assertEquals('TS', $data['$client.state']);
         $this->assertEquals('12345', $data['$client.postal_code']);
         $this->assertEquals('United States', $data['$client.country']);
-        
+
         $this->assertEquals('Location Address 1', $data['$client.shipping_address1']);
         $this->assertEquals('Location Address 2', $data['$client.shipping_address2']);
         $this->assertEquals('Location City', $data['$client.shipping_city']);
@@ -199,7 +199,7 @@ class LocationApiTest extends TestCase
             'city' => 'Location City',
             'state' => 'Location State',
             'postal_code' => 'Location Postal Code',
-            'country_id' => '4', 
+            'country_id' => '4',
             'is_shipping_location' => true,
         ]);
 
@@ -209,7 +209,7 @@ class LocationApiTest extends TestCase
             'client_id' => $client->id,
             'location_id' => $location->id,
         ]);
-        
+
         $invoice->service()->createInvitations()->markSent()->save();
 
         $invitation = $invoice->invitations()->first();
@@ -224,7 +224,7 @@ class LocationApiTest extends TestCase
         $this->assertEquals('Location State', $data['$client.shipping_state']);
         $this->assertEquals('Location Postal Code', $data['$client.shipping_postal_code']);
         $this->assertEquals('Afghanistan', $data['$client.shipping_country']);
-        
+
     }
 
     public function testResolvingBusinessLocationData()
@@ -259,7 +259,7 @@ class LocationApiTest extends TestCase
             'city' => 'Location City',
             'state' => 'Location State',
             'postal_code' => 'Location Postal Code',
-            'country_id' => '4', 
+            'country_id' => '4',
         ]);
 
         $invoice = Invoice::factory()->create([
@@ -268,7 +268,7 @@ class LocationApiTest extends TestCase
             'client_id' => $client->id,
             'location_id' => $location->id,
         ]);
-        
+
         $invoice->service()->createInvitations()->markSent()->save();
 
         $invitation = $invoice->invitations()->first();
@@ -283,7 +283,7 @@ class LocationApiTest extends TestCase
         $this->assertEquals('Location State', $data['$client.state']);
         $this->assertEquals('Location Postal Code', $data['$client.postal_code']);
         $this->assertEquals('Afghanistan', $data['$client.country']);
-        
+
     }
 
     public function testLocationPost()
@@ -304,15 +304,15 @@ class LocationApiTest extends TestCase
 
         $response->assertStatus(422);
 
-         $data = [
-            'name' => 'Test Location',
-            'address1' => '123 Test St',
-            'address2' => 'Suite 100',
-            'city' => 'Test City',
-            'state' => 'TS',
-            'postal_code' => '12345',
-            'country_id' => '840', // USA
-            'client_id' => $this->client->id,
+        $data = [
+           'name' => 'Test Location',
+           'address1' => '123 Test St',
+           'address2' => 'Suite 100',
+           'city' => 'Test City',
+           'state' => 'TS',
+           'postal_code' => '12345',
+           'country_id' => '840', // USA
+           'client_id' => $this->client->id,
         ];
 
         $response = $this->withHeaders([

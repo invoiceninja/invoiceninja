@@ -169,6 +169,11 @@ class ClientContact extends Authenticatable implements HasLocalePreference
         'email',
     ];
 
+    public function searchableAs(): string
+    {
+        return 'client_contacts_v2';
+    }
+
     public function toSearchableArray()
     {
         return [

@@ -45,6 +45,7 @@ class VendorContactRepository extends BaseRepository
         /* Set first record to primary - always */
         $contacts = $contacts->sortByDesc('is_primary')->map(function ($contact) {
             $contact['is_primary'] = $this->is_primary;
+            $contact['send_email'] = true;
             $this->is_primary = false;
 
             return $contact;
@@ -95,6 +96,7 @@ class VendorContactRepository extends BaseRepository
             $new_contact->user_id = $vendor->user_id;
             $new_contact->contact_key = Str::random(40);
             $new_contact->is_primary = true;
+            $new_contact->send_email = true;
             $new_contact->saveQuietly();
         }
     }

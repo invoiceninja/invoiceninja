@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,7 +28,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class CreditPaymentTest extends TestCase
 {

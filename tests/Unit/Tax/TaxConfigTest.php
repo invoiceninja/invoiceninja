@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,6 +28,8 @@ class TaxConfigTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
 
+    public $faker;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,7 +42,7 @@ class TaxConfigTest extends TestCase
 
         $this->makeTestData();
 
-        if(!config('services.tax.zip_tax.key')) {
+        if (!config('services.tax.zip_tax.key')) {
             $this->markTestSkipped('No API keys to test with.');
         }
     }

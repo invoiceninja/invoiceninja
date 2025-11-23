@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -32,6 +33,8 @@ class EuTaxTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+
+    public $faker;
 
     protected function setUp(): void
     {
@@ -76,7 +79,7 @@ class EuTaxTest extends TestCase
             'shipping_country_id' => 840,
             'has_valid_vat_number' => false,
             'is_tax_exempt' => false,
-           
+
         ]);
 
         $invoice = Invoice::factory()->create([

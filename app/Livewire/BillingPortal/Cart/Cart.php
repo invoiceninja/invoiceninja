@@ -57,6 +57,11 @@ class Cart extends Component
         return count($optional) > 0;
     }
 
+    public function payableAmount()
+    {
+        return isset($this->context['products']) && collect($this->context['products'])->sum('total_raw') > 0;
+    }
+
     public function render()
     {
         return view('billing-portal.v3.cart.cart');

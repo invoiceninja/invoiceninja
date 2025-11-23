@@ -1,4 +1,13 @@
 <?php
+/**
+ * Invoice Ninja (https://invoiceninja.com).
+ *
+ * @link https://github.com/invoiceninja/invoiceninja source repository
+ *
+ * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ *
+ * @license https://www.elastic.co/licensing/elastic-license
+ */
 
 namespace App\Models;
 
@@ -57,9 +66,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder|Project withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Task> $tasks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Quote> $quotes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expense> $expenses
  * @mixin \Eloquent
  */
 class Project extends BaseModel
@@ -68,6 +77,16 @@ class Project extends BaseModel
     use PresentableTrait;
     use Filterable;
     use Searchable;
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'projects_v2';
+    }
 
     protected $fillable = [
         'name',
@@ -106,8 +125,8 @@ class Project extends BaseModel
             'id' => (string)$this->company->db.":".$this->id,
             'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name .  " | " . $this->client->present()->name(),
             'hashed_id' => $this->hashed_id,
-            'number' => $this->number,
-            'is_deleted' => $this->is_deleted,
+            'number' => (string)$this->number,
+            'is_deleted' => (bool)$this->is_deleted,
             'task_rate' => (float) $this->task_rate,
             'budgeted_hours' => (float) $this->budgeted_hours,
             'due_date' => $this->due_date,
@@ -167,17 +186,17 @@ class Project extends BaseModel
         return $this->hasMany(Task::class);
     }
 
-    public function expenses(): HasMany
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Expense::class);
     }
 
-    public function invoices(): HasMany
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Invoice::class)->withTrashed();
     }
 
-    public function quotes(): HasMany
+    public function quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Quote::class);
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\TaskStatusController
  */
 class TaskStatusApiTest extends TestCase
@@ -64,12 +65,12 @@ class TaskStatusApiTest extends TestCase
         ])->put('/api/v1/tasks/'.$t->hashed_id, $update);
 
         $response->assertStatus(200);
-        
+
     }
 
     public function testSorting()
     {
-        TaskStatus::query()->where('company_id', $this->company->id)->cursor()->each(function ($ts){
+        TaskStatus::query()->where('company_id', $this->company->id)->cursor()->each(function ($ts) {
             $ts->forceDelete();
         });
 

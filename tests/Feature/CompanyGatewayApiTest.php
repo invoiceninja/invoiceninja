@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -24,7 +25,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Models\CompanyGateway
  */
 class CompanyGatewayApiTest extends TestCase
@@ -32,6 +33,8 @@ class CompanyGatewayApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
     use CompanyGatewayFeesAndLimitsSaver;
 
     protected function setUp(): void

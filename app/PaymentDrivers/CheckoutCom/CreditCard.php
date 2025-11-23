@@ -59,7 +59,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
     public function authorizeView($data)
     {
         $data['gateway'] = $this->checkout;
-
+        $data['cardholder_name'] = auth()->guard('contact')->user()->present()->name() ?? '';
         return render('gateways.checkout.credit_card.authorize', $data);
     }
 
@@ -150,7 +150,8 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
         $data['value'] = $this->checkout->convertToCheckoutAmount($data['total']['amount_with_fee'], $this->checkout->client->getCurrencyCode());
         $data['raw_value'] = $data['total']['amount_with_fee'];
         $data['customer_email'] = $this->checkout->client->present()->email();
-
+        $data['cardholder_name'] = auth()->guard('contact')->user()->present()->name() ?? '';
+        
         return $data;
     }
 

@@ -97,7 +97,7 @@ class UpdateOrCreateProduct implements ShouldQueue
             $string_hit = false;
 
             foreach ([':MONTH',':YEAR',':QUARTER',':WEEK'] as $string) {
-                if (stripos($product->notes, $string) !== false) {
+                if (stripos($product->notes ?? '', $string) !== false) {
                     $string_hit = true;
                 }
             }

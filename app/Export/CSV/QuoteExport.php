@@ -40,7 +40,7 @@ class QuoteExport extends BaseExport
         $this->decorator = new Decorator();
     }
 
-    private function init(): Builder
+    public function init(): Builder
     {
 
         MultiDB::setDb($this->company->db);
@@ -77,6 +77,8 @@ class QuoteExport extends BaseExport
         }
 
         $query = $this->addQuoteStatusFilter($query, $this->input['status'] ?? '');
+
+        $query = $this->filterByUserPermissions($query);
 
         if ($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
@@ -116,7 +118,7 @@ class QuoteExport extends BaseExport
     public function run()
     {
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $query = $this->init();

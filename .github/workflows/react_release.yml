@@ -24,7 +24,7 @@ jobs:
       - name: Install composer dependencies
         run: |
           composer config -g github-oauth.github.com ${{ secrets.GITHUB_TOKEN }}
-          composer install --no-dev
+          composer install --no-dev -o
 
       - name: Set current date to variable
         id: set_date

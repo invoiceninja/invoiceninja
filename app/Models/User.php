@@ -471,10 +471,10 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return  $this->isSuperUser() ||
-                (stripos($this->token()->cu->permissions, $permission) !== false) ||
-                (stripos($this->token()->cu->permissions, $all_permission) !== false) ||
-                (stripos($this->token()->cu->permissions, $edit_all) !== false) ||
-                (stripos($this->token()->cu->permissions, $edit_entity) !== false);
+                (stripos($this->token()->cu->permissions ?? '', $permission) !== false) ||
+                (stripos($this->token()->cu->permissions ?? '', $all_permission) !== false) ||
+                (stripos($this->token()->cu->permissions ?? '', $edit_all) !== false) ||
+                (stripos($this->token()->cu->permissions ?? '', $edit_entity) !== false);
     }
 
     /**
@@ -575,8 +575,8 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * Note, returning FALSE here means the user does NOT have the permission we want to exclude
      *
-     * @param  array $matched_permission
-     * @param  array $excluded_permissions
+     * @param  array $matched_permission = []
+     * @param  array $excluded_permissions = []
      * @return bool
      */
     public function hasExcludedPermissions(array $matched_permission = [], array $excluded_permissions = []): bool

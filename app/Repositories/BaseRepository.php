@@ -301,7 +301,7 @@ class BaseRepository
             }
 
             if (!$model->design_id) {
-                $model->design_id = intval($this->decodePrimaryKey($client->getSetting('invoice_design_id')));
+                $model->design_id = intval($this->decodePrimaryKey($model->client->getSetting('invoice_design_id')));
             }
 
             //links tasks and expenses back to the invoice, but only if we are not in the middle of a transaction.
@@ -328,6 +328,11 @@ class BaseRepository
                     nlog("EXCEPTION:: BASEREPOSITORY:: Error generating e_invoice for model {$model->id}");
                     nlog($e->getMessage());
                 }
+            }
+
+            /** Verifactu modified invoice check */
+            if($model->company->verifactuEnabled()) {
+                $model->service()->modifyVerifactuWorkflow($data, $this->new_model)->save();
             }
         }
 

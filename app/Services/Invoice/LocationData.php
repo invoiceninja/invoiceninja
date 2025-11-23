@@ -47,9 +47,9 @@ class LocationData extends AbstractService
         return $this;
     }
 
-    public function run(): array
+    public function run(bool $setCountries = true): array
     {
-        return [
+        $location = [
             // Business Address (from business location or client default)
             'location_name' => $this->getLocationName(),
             'address' => $this->getBusinessAddress(),
@@ -75,6 +75,13 @@ class LocationData extends AbstractService
             'shipping_country_code' => $this->getShippingCountryCode(),
             'shipping_exists' => strlen($this->getShippingAddress1()) > 0,
         ];
+
+        if (!$setCountries) {
+            unset($location['country']);
+            unset($location['shipping_country']);
+        }
+
+        return $location;
     }
 
     private function getLocationName(): string

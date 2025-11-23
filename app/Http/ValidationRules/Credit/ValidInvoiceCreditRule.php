@@ -62,6 +62,14 @@ class ValidInvoiceCreditRule implements Rule
 
             return false;
         }
+        else if($invoice->status_id == Invoice::STATUS_REVERSED) {
+            $this->error_message = 'Cannot reverse an invoice that has already been reversed.';
+            return false;
+        }
+        else if($invoice->is_deleted) {
+            $this->error_message = 'Cannot reverse an invoice that has already been deleted.';
+            return false;
+        }
 
         $existing_credit_amounts = $invoice->credits()->sum('amount');
 

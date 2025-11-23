@@ -85,7 +85,7 @@ class ClientContactRepository extends BaseRepository
 
             $update_contact->fill($contact);
 
-            if (array_key_exists('password', $contact) && strlen($contact['password']) > 1 && strlen($update_contact->email) > 3) { //updating on a blank contact email will cause large table scanning
+            if (array_key_exists('password', $contact) && strlen($contact['password'] ?? '') > 1 && strlen($update_contact->email ?? '') > 3) { //updating on a blank contact email will cause large table scanning
                 $update_contact->password = Hash::make($contact['password']);
 
                 ClientContact::withTrashed()

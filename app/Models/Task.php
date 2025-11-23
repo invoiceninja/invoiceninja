@@ -16,6 +16,8 @@ use Carbon\CarbonInterval;
 use App\Models\CompanyUser;
 use Illuminate\Support\Carbon;
 use App\Utils\Traits\MakesHash;
+use Illuminate\Support\Facades\App;
+use Elastic\ScoutDriverPlus\Searchable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Libraries\Currency\Conversion\CurrencyApi;
 
@@ -69,32 +71,6 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  * @method static \Illuminate\Database\Eloquent\Builder|Task onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Task query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDuration($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereInvoiceDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsDateBased($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsRunning($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatusOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatusSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereTimeLog($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
@@ -105,6 +81,15 @@ class Task extends BaseModel
     use MakesHash;
     use SoftDeletes;
     use Filterable;
+    use Searchable;
+
+
+    public static array $bulk_update_columns = [
+        'status_id',
+        'client_id',
+        'project_id',
+        'assigned_user_id',
+    ];
 
     protected $fillable = [
         'client_id',
@@ -136,15 +121,96 @@ class Task extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
-    protected $with = [
-        // 'project',
-    ];
+    protected $with = [];
 
     protected $touches = ['project'];
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'tasks_v2';
+    }
 
     public function getEntityType()
     {
         return self::class;
+    }
+
+    public function toSearchableArray()
+    {
+        $locale = $this->company->locale();
+
+        App::setLocale($locale);
+
+        $project = $this->project ? " | [ {$this->project->name} ]" : ' ';
+        $client = $this->client ? " | {$this->client->present()->name()} ]" : ' ';
+
+        // Get basic data
+        $data = [
+            'id' => $this->company->db.":".$this->id,
+            'name' => ctrans('texts.task') . " " . ($this->number ?? '') . $project . $client,
+            'hashed_id' => $this->hashed_id,
+            'number' => (string)$this->number,
+            'description' => (string)$this->description,
+            'task_rate' => (float) $this->rate,
+            'is_deleted' => (bool) $this->is_deleted,
+            'custom_value1' => (string) $this->custom_value1,
+            'custom_value2' => (string) $this->custom_value2,
+            'custom_value3' => (string) $this->custom_value3,
+            'custom_value4' => (string) $this->custom_value4,
+            'company_key' => $this->company->company_key,
+            'time_log' => $this->normalizeTimeLog($this->time_log),
+            'calculated_start_date' => (string) $this->calculated_start_date,
+        ];
+
+        return $data;
+    }
+
+    /**
+     * Normalize time_log for Elasticsearch indexing
+     * Handles polymorphic structure: [start, end?, description?, billable?]
+     */
+    private function normalizeTimeLog($time_log): array
+    {
+        // Handle null/empty cases
+        if (empty($time_log)) {
+            return [];
+        }
+
+        $logs = json_decode($time_log, true);
+
+        // Validate decoded data
+        if (!is_array($logs) || empty($logs)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($logs as $log) {
+            // Skip invalid entries
+            if (!is_array($log) || !isset($log[0])) {
+                continue;
+            }
+
+            $normalized[] = [
+                'start_time' => (int) $log[0],
+                'end_time' => isset($log[1]) && $log[1] !== 0 ? (int) $log[1] : 0,
+                'description' => isset($log[2]) ? trim((string) $log[2]) : '',
+                'billable' => isset($log[3]) ? (bool) $log[3] : false,
+                'is_running' => isset($log[1]) && $log[1] === 0,
+            ];
+        }
+
+        return $normalized;
+    }
+
+    public function getScoutKey()
+    {
+        return $this->company->db.":".$this->id;
     }
 
     /**

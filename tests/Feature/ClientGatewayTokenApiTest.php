@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,7 +20,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-
 
 class ClientGatewayTokenApiTest extends TestCase
 {
@@ -100,7 +100,7 @@ class ClientGatewayTokenApiTest extends TestCase
 
     public function testCompanyGatewaySettableOnToken()
     {
-                
+
         $data = [
             'client_id' => $this->client->hashed_id,
             'company_gateway_id' => $this->cg->hashed_id,
@@ -198,14 +198,12 @@ class ClientGatewayTokenApiTest extends TestCase
 
         $arr = $response->json();
 
-        $this->assertCount(2,$arr['data']['gateway_tokens']);
-        
-        foreach($arr['data']['gateway_tokens'] as $token)
-        {
-            if($token['id'] == $t1){
+        $this->assertCount(2, $arr['data']['gateway_tokens']);
+
+        foreach ($arr['data']['gateway_tokens'] as $token) {
+            if ($token['id'] == $t1) {
                 $this->assertTrue($token['is_default']);
-            }
-            else {
+            } else {
                 $this->assertFalse($token['is_default']);
             }
         }

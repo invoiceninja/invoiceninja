@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\Models\Client;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class EvaluateStringTest extends TestCase
 {

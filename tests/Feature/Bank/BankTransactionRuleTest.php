@@ -30,6 +30,8 @@ class BankTransactionRuleTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
+    public $faker;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,7 +47,7 @@ class BankTransactionRuleTest extends TestCase
         $this->markTestSkipped('ignore');
     }
 
-    public function testNewCreditMatchingRulesInvoiceStartsWith() 
+    public function testNewCreditMatchingRulesInvoiceStartsWith()
     {
 
         $bi = BankIntegration::factory()->create([
@@ -55,7 +57,7 @@ class BankTransactionRuleTest extends TestCase
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -115,7 +117,7 @@ class BankTransactionRuleTest extends TestCase
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -175,7 +177,7 @@ class BankTransactionRuleTest extends TestCase
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -236,7 +238,7 @@ class BankTransactionRuleTest extends TestCase
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -295,7 +297,7 @@ class BankTransactionRuleTest extends TestCase
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -352,7 +354,7 @@ class BankTransactionRuleTest extends TestCase
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -392,7 +394,7 @@ class BankTransactionRuleTest extends TestCase
         (new ProcessBankRules($bt))->run();
 
 
-$bt = $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -410,7 +412,7 @@ $bt = $bt->fresh();
             ]);
 
         $hash = md5(time());
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -450,7 +452,7 @@ $bt = $bt->fresh();
         (new ProcessBankRules($bt))->run();
 
 
-$bt = $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -468,7 +470,7 @@ $bt = $bt->fresh();
             ]);
 
         $hash = md5(time());
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -508,7 +510,7 @@ $bt = $bt->fresh();
         (new ProcessBankRules($bt))->run();
 
 
-$bt = $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);
@@ -526,7 +528,7 @@ $bt = $bt->fresh();
             ]);
 
         $hash = Str::random(32);
-        $rand_amount = rand(1000,10000000);
+        $rand_amount = rand(1000, 10000000);
 
         $bt = BankTransaction::factory()->create([
             'bank_integration_id' => $bi->id,
@@ -566,7 +568,7 @@ $bt = $bt->fresh();
         (new ProcessBankRules($bt))->run();
 
 
-$bt = $bt->fresh();
+        $bt = $bt->fresh();
 
         $this->assertEquals(BankTransaction::STATUS_MATCHED, $bt->status_id);
         $this->assertNotNull($p->id);

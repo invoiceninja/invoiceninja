@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- editado con XMLSpy v2019 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administracion Tributaria ((AEAT))) -->
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:sfLRC="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/ConsultaLR.xsd" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/ConsultaLR.xsd" elementFormDefault="qualified">
+	<import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+	<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+	<element name="ConsultaFactuSistemaFacturacion" type="sfLRC:ConsultaFactuSistemaFacturacionType">
+		<annotation>
+			<documentation>Servicio de consulta Registros Facturacion</documentation>
+		</annotation>
+	</element>
+	<complexType name="ConsultaFactuSistemaFacturacionType">
+		<sequence>
+			<element name="Cabecera" type="sf:CabeceraConsultaSf"/>
+			<element name="FiltroConsulta" type="sfLRC:LRFiltroRegFacturacionType"/>
+		</sequence>
+	</complexType>
+	<complexType name="LRFiltroRegFacturacionType">
+		<sequence>
+			<!-- <element name="PeriodoImputacion" type="sf:PeriodoImputacionType"/> -->
+			<element name="NumSerieFactura" type="sf:TextoIDFacturaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor.</documentation>
+				</annotation>
+			</element>
+			<element name="Contraparte" type="sf:ContraparteConsultaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es">Contraparte del NIF de la cabecera que realiza la consulta. 
+														 Obligado si la cosulta la realiza el Destinatario de los registros de facturacion.
+														 Destinatario si la cosulta la realiza el Obligado dde los registros de facturacion.</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFactura" type="sf:FechaExpedicionConsultaType" minOccurs="0"/>
+			<element name="SistemaInformatico" type="sf:SistemaInformaticoType" minOccurs="0"/>
+			<element name="ClavePaginacion" type="sf:IDFacturaExpedidaBCType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+</schema>

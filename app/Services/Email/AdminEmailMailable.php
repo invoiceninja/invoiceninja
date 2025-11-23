@@ -56,13 +56,12 @@ class AdminEmailMailable extends Mailable
      */
     public function content()
     {
-
         return new Content(
             view: 'email.admin.generic',
             text: 'email.admin.generic_text',
             with: [
                 'title' => $this->email_object->subject,
-                'message' => $this->email_object->body,
+                'content' => $this->email_object->body,
                 'url' => $this->email_object->url ?? null,
                 'button' => $this->email_object->button ?? null,
                 'signature' => $this->email_object->company->owner()->signature,
@@ -84,7 +83,13 @@ class AdminEmailMailable extends Mailable
         $attachments  = [];
 
         $attachments = collect($this->email_object->attachments)->map(function ($file) {
-            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name']);
+
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime  = finfo_buffer($finfo, base64_decode($file['file']));
+            $mime = $mime ?: 'application/octet-stream';
+            finfo_close($finfo);
+
+            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name'])->withMime($mime);
         });
 
         return $attachments->toArray();

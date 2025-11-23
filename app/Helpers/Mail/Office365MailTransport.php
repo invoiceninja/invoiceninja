@@ -28,12 +28,12 @@ class Office365MailTransport extends AbstractTransport
     {
         $symfony_message = MessageConverter::toEmail($message->getOriginalMessage()); //@phpstan-ignore-line
 
-
         $graph = new Graph();
 
         /** @phpstan-ignore-next-line **/
         $token = $symfony_message->getHeaders()->get('gmailtoken')->getValue();
-        $symfony_message->getHeaders()->remove('gmailtoken');
+        // $symfony_message->getHeaders()->remove('gmailtoken');
+        $message->getOriginalMessage()->getHeaders()->remove('gmailtoken');
 
         $graph->setAccessToken($token);
 

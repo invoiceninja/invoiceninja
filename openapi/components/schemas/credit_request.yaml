@@ -1,0 +1,167 @@
+    CreditRequest:
+      required:
+        - client_id        
+      properties:
+        user_id:
+          description: 'The user hashed id'
+          type: string
+          example: 'AxP7K9nY5z'
+        assigned_user_id:
+          description: 'The assigned user hashed id'
+          type: string
+          example: 'Bw2M8vR4qL'
+        client_id:
+          description: 'The client hashed id'
+          type: string
+          example: 'Ht5N9cX3jK'
+        number:
+          description: 'The credit number - is a unique alpha numeric number per credit per company'
+          type: string
+          example: 'INV-2024-0001'
+        po_number:
+          description: 'The purchase order associated with this credit'
+          type: string
+          example: 'PO-2024-0123'
+        terms:
+          description: 'The credit terms'
+          type: string
+          example: 'Net 30 - Payment is due within 30 days of credit date'
+        public_notes:
+          description: 'The public notes of the credit'
+          type: string
+          example: 'Thank you for your business. Please include credit number with payment.'
+        private_notes:
+          description: 'The private notes of the credit'
+          type: string
+          example: 'Client requested expedited delivery - premium rates apply'
+        footer:
+          description: 'The credit footer notes'
+          type: string
+          example: 'Payment accepted via bank transfer or credit card'
+        custom_value1:
+          description: 'A custom field value'
+          type: string
+          example: 'Department: Sales'
+        custom_value2:
+          description: 'A custom field value'
+          type: string
+          example: 'Region: North America'
+        custom_value3:
+          description: 'A custom field value'
+          type: string
+          example: 'Contract: C-2024-156'
+        custom_value4:
+          description: 'A custom field value'
+          type: string
+          example: 'Priority: High'
+        tax_name1:
+          description: 'The tax name'
+          type: string
+          example: 'VAT'
+        tax_name2:
+          description: 'The tax name'
+          type: string
+          example: 'GST'
+        tax_rate1:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: 20.00
+        tax_rate2:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: 5.00
+        tax_name3:
+          description: 'The tax name'
+          type: string
+          example: 'State Tax'
+        tax_rate3:
+          description: 'The tax rate'
+          type: number
+          format: float
+          example: 8.50
+        line_items:
+          type: array
+          description: 'An array of objects which define the line items of the credit'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        invitations:
+          type: array
+          description: 'An array of objects which define the invitations of the credit'
+          items:
+            $ref: '#/components/schemas/CreditInvitationRequest'
+        discount:
+          description: 'The credit discount, can be an amount or a percentage'
+          type: number
+          format: float
+          example: 15.00
+        partial:
+          description: 'The deposit/partial amount'
+          type: number
+          format: float
+          example: 250.00
+        is_amount_discount:
+          description: 'Flag determining if the discount is an amount or a percentage'
+          type: boolean
+          example: true
+        uses_inclusive_taxes:
+          description: 'Defines the type of taxes used as either inclusive or exclusive'
+          type: boolean
+          example: true
+        date:
+          description: 'The credit Date'
+          type: string
+          format: date
+          example: '2024-03-15'
+        partial_due_date:
+          description: 'The due date for the deposit/partial amount'
+          type: string
+          format: date
+          example: '2024-03-29'
+        due_date:
+          description: 'The due date of the credit'
+          type: string
+          format: date
+          example: '2024-04-14'
+        custom_surcharge1:
+          description: 'First Custom Surcharge'
+          type: number
+          format: float
+          example: 25.00
+        custom_surcharge2:
+          description: 'Second Custom Surcharge'
+          type: number
+          format: float
+          example: 35.00
+        custom_surcharge3:
+          description: 'Third Custom Surcharge'
+          type: number
+          format: float
+          example: 45.00
+        custom_surcharge4:
+          description: 'Fourth Custom Surcharge'
+          type: number
+          format: float
+          example: 55.00
+        custom_surcharge_tax1:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax2:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax3:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        custom_surcharge_tax4:
+          description: 'Toggles charging taxes on custom surcharge amounts'
+          type: boolean
+          example: true
+        project_id:
+          description: 'The project associated with this credit'
+          type: string
+          example: Opnel5aKBz
+      type: object

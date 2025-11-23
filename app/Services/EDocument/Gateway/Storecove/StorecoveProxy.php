@@ -234,7 +234,7 @@ class StorecoveProxy
             ->withHeaders($this->getHeaders())
             ->post($uri, $payload);
 
-            if ($response->successful()) {
+        if ($response->successful()) {
             if ($response->hasHeader('X-EINVOICE-QUOTA')) {
                 // @dave is there any case this will run when user is not logged in? (async)
 

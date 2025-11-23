@@ -164,4 +164,56 @@
           type: number
           format: integer
           example: '1434342123'
+        calculate_tax_by_amount:
+          description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
+          type: boolean
+          example: true
+        category_id:
+          description: 'The unique identifier of the expense category'
+          type: string
+          example: Opnel5aKBz
+        currency_id:
+          description: 'The unique identifier of the currency'
+          type: string
+          example: '1'
+        next_send_date_client:
+          description: 'The next scheduled send date for the client'
+          type: string
+          format: date
+          example: '2024-12-31'
+        number:
+          description: 'The unique number assigned to this recurring expense'
+          type: string
+          example: 'RE-0001'
+        project_id:
+          description: 'The unique identifier of the project associated with this recurring expense'
+          type: string
+          example: Opnel5aKBz
+        tax_amount1:
+          description: 'The amount of the first tax'
+          type: number
+          format: float
+          example: 10.00
+        tax_amount2:
+          description: 'The amount of the second tax'
+          type: number
+          format: float
+          example: 5.00
+        tax_amount3:
+          description: 'The amount of the third tax'
+          type: number
+          format: float
+          example: 2.50
+        transaction_id:
+          description: 'The unique identifier of the transaction'
+          type: string
+          example: 'txn_1234567890'
+        uses_inclusive_taxes:
+          description: 'Flag indicating whether taxes are included in the price'
+          type: boolean
+          example: true
+        vendor_id:
+          description: 'The unique identifier of the vendor associated with this recurring expense'
+          type: string
+          example: Opnel5aKBz
       type: object

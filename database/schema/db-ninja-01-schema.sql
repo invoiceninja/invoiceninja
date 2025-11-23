@@ -91,7 +91,7 @@ CREATE TABLE `activities` (
   PRIMARY KEY (`id`),
   KEY `activities_vendor_id_company_id_index` (`vendor_id`,`company_id`),
   KEY `activities_project_id_company_id_index` (`project_id`,`company_id`),
-  KEY `activities_user_id_company_id_index` (`user_id`,`company_id`),
+  KEY `activities_user_id_company_id_index` (`company_id`,`user_id`,`id`),
   KEY `activities_client_id_company_id_index` (`client_id`,`company_id`),
   KEY `activities_payment_id_company_id_index` (`payment_id`,`company_id`),
   KEY `activities_invoice_id_company_id_index` (`invoice_id`,`company_id`),

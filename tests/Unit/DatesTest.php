@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,7 +17,6 @@ use Tests\TestCase;
 
 class DatesTest extends TestCase
 {
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -55,7 +55,7 @@ class DatesTest extends TestCase
 
         $fin_year_start->subYearNoOverflow();
 
-        if(now()->subYear()->lt($fin_year_start)) {
+        if (now()->subYear()->lt($fin_year_start)) {
             $fin_year_start->subYearNoOverflow();
         }
 
@@ -76,7 +76,7 @@ class DatesTest extends TestCase
 
         $fin_year_start->subYearNoOverflow();
 
-        if(now()->subYear()->lt($fin_year_start)) {
+        if (now()->subYear()->lt($fin_year_start)) {
             $fin_year_start->subYearNoOverflow();
         }
 
@@ -97,7 +97,7 @@ class DatesTest extends TestCase
 
         $fin_year_start->subYearNoOverflow();
 
-        if(now()->subYear()->lt($fin_year_start)) {
+        if (now()->subYear()->lt($fin_year_start)) {
             $fin_year_start->subYearNoOverflow();
         }
 
@@ -116,7 +116,7 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start)) {
+        if (now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
         }
 
@@ -137,7 +137,7 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start)) {
+        if (now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
         }
 
@@ -158,7 +158,7 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start)) {
+        if (now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
         }
 
@@ -180,7 +180,7 @@ class DatesTest extends TestCase
 
         $fin_year_start = now()->createFromDate(now()->year, $first_month_of_year, 1);
 
-        if(now()->lt($fin_year_start)) {
+        if (now()->lt($fin_year_start)) {
             $fin_year_start->subYear();
         }
 

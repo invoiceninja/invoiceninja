@@ -45,7 +45,7 @@ class ContactExport extends BaseExport
         $this->decorator = new Decorator();
     }
 
-    private function init(): Builder
+    public function init(): Builder
     {
 
         MultiDB::setDb($this->company->db);
@@ -65,6 +65,7 @@ class ContactExport extends BaseExport
                         });
 
         $query = $this->addDateRange($query, 'client_contacts');
+        $query = $this->filterByUserPermissions($query);
 
         return $query;
 
@@ -76,7 +77,7 @@ class ContactExport extends BaseExport
         $query = $this->init();
 
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header

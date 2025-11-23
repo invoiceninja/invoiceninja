@@ -137,11 +137,23 @@ class InvoiceTaxSummary implements ShouldQueue
         $todayStart = now()->subHours(15)->timestamp;
         $todayEnd = now()->endOfDay()->timestamp;
         
+        // Convert company timezone dates to UTC for database query
+        // $startDate and $endDate are in Y-m-d format (e.g., "2024-01-01")
+        $timezone = $company->timezone()->name ?? 'UTC';
+        $startDateUtc = Carbon::createFromFormat('Y-m-d', $startDate, $timezone)
+            ->startOfDay()
+            ->setTimezone('UTC')
+            ->format('Y-m-d H:i:s');
+        $endDateUtc = Carbon::createFromFormat('Y-m-d', $endDate, $timezone)
+            ->endOfDay()
+            ->setTimezone('UTC')
+            ->format('Y-m-d H:i:s');
+        
         Invoice::withTrashed()
-                ->with('payments')
+                ->with('payments',)
                 ->where('company_id', $company->id)
                 ->whereIn('status_id', [2,3,4,5])
-                ->where('is_deleted', 0)
+                // ->where('is_deleted', 0) I still need to assess deleted invoices, and ensure if there is an entry present, we reverse it!!!
                 ->whereHas('client', function ($query) {
                     $query->where('is_deleted', false);
                 })
@@ -151,15 +163,16 @@ class InvoiceTaxSummary implements ShouldQueue
                         $q->where('is_flagged', false);
                     });
                 })
-                ->whereBetween('date', [$startDate, $endDate])
-                ->whereDoesntHave('transaction_events', function ($query) use ($todayStart, $todayEnd) {
-                    $query->where('timestamp', '>=', $todayStart)
-                          ->where('timestamp', '<=', $todayEnd)
-                          ->where('event_id', TransactionEvent::INVOICE_UPDATED);
-                })
+                // ->whereBetween('date', [$startDate, $endDate])
+                // ->whereDoesntHave('transaction_events', function ($query) use ($todayStart, $todayEnd) {
+                //         $query->where('timestamp', '>=', $todayStart)
+                //             ->where('timestamp', '<=', $todayEnd) 
+                //             ->where('event_id', TransactionEvent::INVOICE_UPDATED);
+                // })
+                ->whereBetween('updated_at', [$startDateUtc, $endDateUtc])
                 ->cursor()
-                ->each(function (Invoice $invoice) {
-                    (new InvoiceTransactionEventEntry())->run($invoice);
+                ->each(function (Invoice $invoice) use ($endDate) {
+                    (new InvoiceTransactionEventEntry())->run($invoice, $endDate);
                 });
 
         Invoice::withTrashed()
@@ -177,10 +190,10 @@ class InvoiceTaxSummary implements ShouldQueue
                         $q->where('is_flagged', false);
                     });
                 })
-                ->whereHas('payments', function ($query) use ($startDate, $endDate) {
-                    $query->whereHas('paymentables', function ($subQuery) use ($startDate, $endDate) {
+                ->whereHas('payments', function ($query) use ($startDateUtc, $endDateUtc) {
+                    $query->whereHas('paymentables', function ($subQuery) use ($startDateUtc, $endDateUtc) {
                         $subQuery->where('paymentable_type', Invoice::class)
-                                ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+                                ->whereBetween('created_at', [$startDateUtc, $endDateUtc]);
                     });
                 })
                 ->whereDoesntHave('transaction_events', function ($q) use ($todayStart, $todayEnd) {

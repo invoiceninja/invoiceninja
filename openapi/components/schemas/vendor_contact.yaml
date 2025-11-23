@@ -89,4 +89,8 @@
           format: integer
           example: '134341234234'
           readOnly: true
+        send_email:
+          description: 'Flag indicating whether to send emails to this contact'
+          type: boolean
+          example: true
       type: object

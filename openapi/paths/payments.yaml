@@ -5,10 +5,28 @@
       summary: "List payments"
       description: "Lists payments, search and filters allow fine grained lists to be generated.\n\n        Query parameters can be added to performed more fine grained filtering of the payments, these are handled by the PaymentFilters class which defines the methods available"
       operationId: getPayments
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $payments = $ninja->payments->all([
+              'per_page' => 10,
+              'page' => 1
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/payments \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
         - $ref: "#/components/parameters/status"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
@@ -156,6 +174,18 @@
       summary: "Show payment"
       description: "Displays an Payment by id"
       operationId: showPayment
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $payment = $ninja->payments->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/payments/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -244,6 +274,18 @@
       summary: "Delete payment"
       description: "Handles the deletion of an Payment by id"
       operationId: deletePayment
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->payments->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X DELETE https://demo.invoiceninja.com/api/v1/payments/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"

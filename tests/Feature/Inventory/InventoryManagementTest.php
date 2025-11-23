@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +22,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class InventoryManagementTest extends TestCase
 {
@@ -45,6 +46,9 @@ class InventoryManagementTest extends TestCase
 
     public function testInventoryMovements()
     {
+
+        config(['queue.default' => 'sync']);
+
         $product = Product::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,

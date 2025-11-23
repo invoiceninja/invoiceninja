@@ -29,6 +29,9 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
         - $ref: "#/components/parameters/client_id"
         - $ref: "#/components/parameters/created_at"
         - $ref: "#/components/parameters/updated_at"
@@ -145,6 +148,13 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Recurring invoice object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringInvoiceRequest'
       x-codeSamples:
       - lang: php
         label: php
@@ -222,12 +232,6 @@
                 }
               ]
             }'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RecurringInvoiceRequest"
       responses:
         200:
           description: "Returns the saved RecurringInvoice object"
@@ -262,6 +266,18 @@
       summary: "Show recurring invoice"
       description: "Displays an RecurringInvoice by id"
       operationId: showRecurringInvoice
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $recurringInvoice = $ninja->recurringInvoices->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/recurring_invoices/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"

@@ -25,7 +25,8 @@ class StoreDesignRequest extends Request
         'credit',
         'purchase_order',
         'project',
-        'task'
+        'task',
+        'expense'
     ];
 
     /**
@@ -89,7 +90,7 @@ class StoreDesignRequest extends Request
             $input['design']['body'] = '';
         }
 
-        if (array_key_exists('entities', $input)) {
+        if (array_key_exists('entities', $input) && is_string($input['entities'])) {
             $user_entities = explode(",", $input['entities']);
 
             $e = [];

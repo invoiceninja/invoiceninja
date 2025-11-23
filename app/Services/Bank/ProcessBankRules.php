@@ -51,12 +51,17 @@ class ProcessBankRules extends AbstractService
         if ($this->bank_transaction->base_type == 'DEBIT') {
             $this->matchDebit();
         } else {
-            $this->matchCredit();
+
+            if ($this->bank_transaction->description) {
+                $this->matchCredit();
+            }
+
         }
     }
 
     private function matchCredit()
     {
+
         $this->invoices = Invoice::query()->where('company_id', $this->bank_transaction->company_id)
                                 ->whereIn('status_id', [1,2,3])
                                 ->where('is_deleted', 0)

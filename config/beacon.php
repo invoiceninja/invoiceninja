@@ -10,8 +10,7 @@ return [
     /*
      * The API endpoint for logs
      */
-    'endpoint'  => 'https://app.lightlogs.com/api',
-
+    'endpoint' => env('BEACON_API_URL', 'https://app.lightlogs.com/api'), // ,
     /*
      * Your API key
      */

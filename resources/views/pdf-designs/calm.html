@@ -390,64 +390,70 @@
     /** To find out selectors on your own: https://invoiceninja.github.io/docs/custom-fields/#snippets **/
 </style>
 
-<div id="body">
-    <table style="min-width: 100%">
-        <thead>
-            <tr>
-                <td>
-                    <div class="repeating-header-space">&nbsp;</div>
-                </td>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    <div id="">
-                        <div class="header-wrapper">
-                            <div class="logo-container">
-                                <img class="company-logo" src="$company.logo" alt="$company.name logo">
-                            </div>
-                            <div id="company-details"></div>
-                            <div id="company-address"></div>
-                        </div>
-                        <div class="header-wrapper2">
-                            <div id="client-details"></div>
-                            <div id="vendor-details"></div>
-                            <div id="shipping-details"></div>
-                            <div class="entity-container">
-                                <p class="entity-label"
-                                    style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
-                                <table id="entity-details" cellspacing="0" cellpadding="0" dir="ltr"></table>
-                            </div>
-                        </div>
-
-                        <table id="product-table" cellspacing="0" data-ref="table"></table>
-                        <table id="task-table" cellspacing="0" data-ref="table"></table>
-                        <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
-                        <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
-                        <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
-                        <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
-                        <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
-                        <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
-                        <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
-                        <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
-                        <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
-                        <div id="table-totals" cellspacing="0">$status_logo</div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>
-                    <div class="repeating-footer-space">&nbsp;</div>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
-
 <div class="repeating-header" id="header"></div>
+
+<div id="body">
+<table style="min-width: 100%">
+    <thead>
+        <tr>
+            <td>
+                <div class="repeating-header-space">&nbsp;</div>
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <div id="">
+                    <div class="header-wrapper">
+                        <div class="logo-container">
+                            <img class="company-logo" src="$company.logo" alt="$company.name logo">
+                        </div>
+                        <div id="company-details"></div>
+                        <div id="company-address"></div>
+                    </div>
+                    <div class="header-wrapper2">
+                        <div id="client-details"></div>
+                        <div id="vendor-details"></div>
+                        <div id="shipping-details"></div>
+                        <div class="entity-container">
+                            <p class="entity-label"
+                                style="font-size:32px; font-weight: bold; color:$primary_color;">$entity_label</p>
+                            <table id="entity-details" cellspacing="0" cellpadding="0" dir="ltr"></table>
+                        </div>
+                    </div>
+
+                    <table id="product-table" cellspacing="0" data-ref="table"></table>
+                    <table id="task-table" cellspacing="0" data-ref="table"></table>
+                    <table id="delivery-note-table" cellspacing="0" data-ref="table"></table>
+                    <table id="statement-invoice-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-invoice-table-totals" data-ref="statement-totals"></div>
+                    <table id="statement-payment-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-payment-table-totals" data-ref="statement-totals"></div>
+                    <table id="statement-credit-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-credit-table-totals" data-ref="statement-totals"></div>
+                    <table id="statement-aging-table" cellspacing="0" data-ref="table"></table>
+                    <div id="statement-aging-table-totals" data-ref="statement-totals"></div>
+                    <div id="table-totals" cellspacing="0">$status_logo</div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                $entity_images
+            </td>
+        </tr>
+        $verifactu_qr_code
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <div class="repeating-footer-space">&nbsp;</div>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+</div>
 
 <div id="footer" style="">
     <div style="width: 100%;">

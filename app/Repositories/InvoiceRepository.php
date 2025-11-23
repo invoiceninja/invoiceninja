@@ -63,9 +63,12 @@ class InvoiceRepository extends BaseRepository
      * @param Invoice $invoice
      * @return Invoice $invoice
      */
-    public function delete($invoice): Invoice
+    public function delete($invoice): ?Invoice
     {
 
+        if(!$invoice)
+            return null;
+        
         $invoice = \DB::transaction(function () use ($invoice) {
             return \App\Models\Invoice::withTrashed()->lockForUpdate()->find($invoice->id);
         });

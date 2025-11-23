@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -29,7 +30,7 @@ use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaBodyType\FatturaEle
 use InvoiceNinja\EInvoice\Models\FatturaPA\FatturaElettronicaHeaderType\FatturaElettronicaHeader;
 
 /**
- * 
+ *
  */
 class FatturaPATest extends TestCase
 {
@@ -129,9 +130,9 @@ class FatturaPATest extends TestCase
         $e = new EInvoice();
         $errors = $e->validate($fe);
 
-        
 
-        if(count($errors) > 0) {
+
+        if (count($errors) > 0) {
             nlog($errors);
         }
 

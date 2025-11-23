@@ -49,7 +49,7 @@ instant() ? boot() : wait('#stripe-applepay-payment').then(() => boot());
  */
 function applePay(options) {
     let $options = {
-        apiVersion: '2018-05-21',
+        apiVersion: '2024-06-20',
     };
 
     if (options.account_id) {

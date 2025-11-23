@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,12 +22,12 @@ use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  */
 class LicenseTest extends TestCase
 {
-   use DatabaseTransactions;
-   
+    use DatabaseTransactions;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -36,8 +37,7 @@ class LicenseTest extends TestCase
     {
         $entities = [];
 
-        foreach($tes as $te)
-        {
+        foreach ($tes as $te) {
             $te = new TaxEntity([
                 'legal_entity_id' => $te['legal_entity_id'] ?? 1,
                 'company_key' => $te['company_key'] ?? '',
@@ -144,7 +144,7 @@ class LicenseTest extends TestCase
 
         $entity->legal_entity_id = 555;
 
-        $l->updateEntity($entity,'company_key');
+        $l->updateEntity($entity, 'company_key');
         $l->refresh();
 
         $entity = $l->findEntity('company_key', 'qqqq');
@@ -153,7 +153,7 @@ class LicenseTest extends TestCase
 
         $this->assertEquals('qqqq', $entity->company_key);
         $this->assertEquals(555, $entity->legal_entity_id);
-        
+
     }
 
 
@@ -162,7 +162,7 @@ class LicenseTest extends TestCase
     {
         $l = new License();
 
-        $l->license_key = Str::random(32);  
+        $l->license_key = Str::random(32);
         $l->email = 'test@gmail.com';
         $l->transaction_reference = Str::random(10);
         $l->e_invoice_quota = 0;
@@ -210,7 +210,7 @@ class LicenseTest extends TestCase
         ];
 
         $processed_docs = [
-            '8f47aa3c-9c51-4f4a-b45d-c275945d6284', 
+            '8f47aa3c-9c51-4f4a-b45d-c275945d6284',
             '2e6d7168-43b9-4f92-9c3a-b8d6f3e9c5a1',
             'f9c12d4b-6e8a-4d7f-b3c5-a2e9f8d1b7c4',
             '7a3b5c9d-2e4f-4a6b-8c1d-9e7f5a3b2d4c',
@@ -260,8 +260,8 @@ class LicenseTest extends TestCase
         $this->assertCount(1, $tax_entity->received_documents);
 
         $this->assertEquals('6c5d4e3f-2b1a-9d8c-7e6f-5d4c3b2a1e9d', $tax_entity->received_documents[0]);
-    
+
     }
-   
+
 
 }

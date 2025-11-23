@@ -84,6 +84,24 @@ class ResetPasswordController extends Controller
      */
     public function reset(Request $request)
     {
+         // Safely decode URL-encoded token and email before validation
+         if ($request->has('token')) {
+            $token = $request->input('token');
+            // Only decode if it contains URL encoding characters
+            if (strpos($token, '%') !== false) {
+                $request->merge(['token' => urldecode($token)]);
+            }
+        }
+        
+        if ($request->has('email')) {
+            $email = $request->input('email');
+            // Only decode if it contains URL encoding characters
+            if (strpos($email, '%') !== false) {
+                $request->merge(['email' => urldecode($email)]);
+            }
+
+        }
+        
         $request->validate($this->rules(), $this->validationErrorMessages());
 
         // Here we will attempt to reset the user's password. If it is successful we
