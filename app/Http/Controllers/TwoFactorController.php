@@ -40,13 +40,17 @@ class TwoFactorController extends BaseController
         }
 
         $google2fa = new Google2FA();
-        $secret = $google2fa->generateSecretKey();
+        $google2fa->setAlgorithm(\PragmaRX\Google2FA\Support\Constants::SHA512);
+        $secret = $google2fa->generateSecretKey(32);
 
         $qr_code = $google2fa->getQRCodeUrl(
             config('ninja.app_name'),
             $user->email,
             $secret
         );
+        
+       // Append algorithm parameter for SHA512
+        $qr_code .= '&algorithm=SHA512';
 
         $data = [
             'secret' => $secret,
@@ -58,7 +62,6 @@ class TwoFactorController extends BaseController
 
     public function enableTwoFactor(EnableTwoFactorRequest $request)
     {
-        $google2fa = new Google2FA();
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
@@ -66,8 +69,21 @@ class TwoFactorController extends BaseController
         $secret = $request->input('secret');
         $oneTimePassword = $request->input('one_time_password');
 
-        if ($google2fa->verifyKey($secret, $oneTimePassword) && $user->phone && $user->email_verified_at) {
+        
+       // Try SHA512 first (new algorithm)
+        $google2fa = new Google2FA();
+        $google2fa->setAlgorithm(\PragmaRX\Google2FA\Support\Constants::SHA512);
+        $timestamp = $google2fa->verifyKeyNewer($secret, $oneTimePassword, 0);
+
+        // Fall back to SHA1 for manual entry (authenticator apps default to SHA1)
+        if ($timestamp === false) {
+            $google2fa = new Google2FA();
+            $timestamp = $google2fa->verifyKeyNewer($secret, $oneTimePassword, 0);
+        }
+        
+        if ($timestamp !== false && $user->phone && $user->email_verified_at) {
             $user->google_2fa_secret = encrypt($secret);
+            $user->google_2fa_ts = $timestamp;
             $user->save();
 
             return response()->json(['message' => ctrans('texts.enabled_two_factor')], 200);
@@ -94,6 +110,7 @@ class TwoFactorController extends BaseController
         $user = auth()->user();
 
         $user->google_2fa_secret = null;
+        $user->google_2fa_ts = null;
         $user->save();
 
         return $this->itemResponse($user);
