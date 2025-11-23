@@ -175,6 +175,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
         'google_2fa_secret',
         'google_2fa_phone',
+        'google_2fa_ts',
         'remember_2fa_token',
         'slack_webhook_url',
         'referral_earnings',
