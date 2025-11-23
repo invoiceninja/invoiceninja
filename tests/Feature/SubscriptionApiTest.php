@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\SubscriptionController
  */
 class SubscriptionApiTest extends TestCase
@@ -164,7 +165,7 @@ class SubscriptionApiTest extends TestCase
 
         $i = false;
         //Capture companies within the window of 00:00 and 00:30
-        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+        if ($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
                     ->where('company_id', $company->id)
@@ -177,15 +178,15 @@ class SubscriptionApiTest extends TestCase
                     ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
                     ->get();
 
-                    // nlog($i->count());
-                    // nlog($i->toArray());
+            // nlog($i->count());
+            // nlog($i->toArray());
         }
 
         $this->assertFalse($i);
 
         $this->travelTo($timezone_now->copy()->startOfDay());
 
-        if(now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+        if (now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
                     ->where('company_id', $company->id)
@@ -205,7 +206,7 @@ class SubscriptionApiTest extends TestCase
 
         $this->travelTo($timezone_now->copy()->startOfDay()->addHours(2));
 
-        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+        if ($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
                     ->where('company_id', $company->id)
@@ -240,7 +241,7 @@ class SubscriptionApiTest extends TestCase
         $i = false;
 
         //Capture companies within the window of 00:00 and 00:30
-        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+        if ($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
                     ->where('company_id', $company->id)
@@ -259,7 +260,7 @@ class SubscriptionApiTest extends TestCase
 
         $this->travelTo($timezone_now->copy()->startOfDay());
 
-        if(now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+        if (now()->gte($timezone_now->copy()->startOfDay()) && now()->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
                     ->where('company_id', $company->id)
@@ -279,7 +280,7 @@ class SubscriptionApiTest extends TestCase
 
         $this->travelTo($timezone_now->copy()->startOfDay()->addHours(2));
 
-        if($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
+        if ($timezone_now->gte($timezone_now->copy()->startOfDay()) && $timezone_now->lt($timezone_now->copy()->startOfDay()->addMinutes(30))) {
 
             $i = Invoice::query()
                     ->where('company_id', $company->id)

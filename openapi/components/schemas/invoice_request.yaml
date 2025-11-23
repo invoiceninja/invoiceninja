@@ -14,6 +14,10 @@
           description: 'The client hashed id'
           type: string
           example: 'Ht5N9cX3jK'
+        location_id:
+          description: 'The location id of the client this request related to'
+          type: string
+          example: Opnel5aKBz
         number:
           description: 'The invoice number - is a unique alpha numeric number per invoice per company'
           type: string

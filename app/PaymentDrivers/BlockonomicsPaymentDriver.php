@@ -91,7 +91,6 @@ class BlockonomicsPaymentDriver extends BaseDriver
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-
         $company = $request->getCompany();
 
         // Re-introduce secret in a later stage if needed.
@@ -102,76 +101,52 @@ class BlockonomicsPaymentDriver extends BaseDriver
         //     throw new PaymentFailed('Secret does not match');
         // }
 
-        $txid = $request->txid;
-        $value = $request->value;
+        $txid   = $request->txid;
+        $value  = $request->value;
         $status = $request->status;
-        $addr = $request->addr;
+        $addr   = $request->addr;
 
-        if ($txid === $this->test_txid) {
-            $payment = Payment::query()
+        $payment = ($txid === $this->test_txid)
+            ? Payment::query()
                 ->where('company_id', $company->id)
                 ->where('private_notes', "$addr - $value")
-                ->firstOrFail();
-        } else {
-            $payment = Payment::query()
+                ->first()
+            : Payment::query()
                 ->where('company_id', $company->id)
                 ->where('transaction_reference', $txid)
-                ->firstOrFail();
+                ->first();
+
+        // If payment doesn't exist yet, let paymentResponse handle creation
+        if (!$payment) {
+            return response()->json(['message' => 'Payment not found'], 200);
         }
 
-        // Already completed payment, no need to update status
+        // // If payment is already completed, no need to process again
         if ($payment->status_id == Payment::STATUS_COMPLETED) {
-            return response()->json([], 200);
+            return response()->json(['message' => 'Payment already completed'], 200);
         }
 
-        switch ($status) {
-            case 0:
-                $statusId = Payment::STATUS_PENDING;
-                break;
-            case 1:
-                $statusId = Payment::STATUS_PENDING;
-                break;
-            case 2:
-                $statusId = Payment::STATUS_COMPLETED;
-                break;
-            default:
-                $statusId = Payment::STATUS_PENDING;
+        // Only process confirmed payments (status 2)
+        if ((int) $status !== 2) {
+            return response()->json(['message' => 'Only confirmed payments processed'], 200);
         }
 
-        if ($payment->status_id !== $statusId) {
-            $payment->status_id = $statusId;
-            $payment->save();
-        }
-        return response()->json([], 200);
+        // Update payment to completed
+        $payment->status_id = Payment::STATUS_COMPLETED;
+        $payment->save();
 
+        $this->payment_hash = PaymentHash::where('payment_id', $payment->id)->firstOrFail();
+
+        return response()->json([
+            'message' => 'Payment confirmed successfully',
+        ], 200);
     }
-
 
     public function refund(Payment $payment, $amount, $return_client_response = false)
     {
         $this->setPaymentMethod(GatewayType::CRYPTO);
         return $this->payment_method->refund($payment, $amount); //this is your custom implementation from here
     }
-
-    //dead code? //2025-04-23
-    // public function testNewAddressGen($crypto = 'btc', $response): string
-    // {
-    //     $api_key = $this->company_gateway->getConfigField('apiKey');
-    //     $new_address_reset_url = $this->NEW_ADDRESS_URL . '?reset=1';
-    //     $new_address_response = Http::withToken($api_key)
-    //         ->post($new_address_reset_url, []);
-    //     if ($new_address_response->response_code != 200) {
-    //         return isset($new_address_response->response_message) && $new_address_response->response_message
-    //             ? $new_address_response->response_message
-    //             : 'Could not generate new address';
-    //     }
-
-    //     if (empty($new_address_response->address)) {
-    //         return 'No address returned from Blockonomics API';
-    //     }
-
-    //     return 'ok';
-    // }
 
     public function checkStores($stores): string
     {

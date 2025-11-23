@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -20,7 +21,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class UploadLogoTest extends TestCase
 {
@@ -36,7 +37,7 @@ class UploadLogoTest extends TestCase
 
         Company::reguard();
 
-        
+
         if (config('ninja.testvars.travis') !== false) {
             $this->markTestSkipped('Skip test, no need to run in GH Actions');
         }

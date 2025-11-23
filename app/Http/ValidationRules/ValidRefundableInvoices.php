@@ -63,7 +63,7 @@ class ValidRefundableInvoices implements Rule
         } else {
             return true;
         }
-
+        
         foreach ($invoices as $invoice) {
             if (! $invoice->isRefundable()) {
                 $this->error_msg = ctrans('texts.invoice_cannot_be_refunded', ['invoice' => $invoice->hashed_id]);
@@ -75,7 +75,7 @@ class ValidRefundableInvoices implements Rule
                 if ($val['invoice_id'] == $invoice->id) {
                     $pivot_record = $payment->paymentables->where('paymentable_id', $invoice->id)->first();
 
-                    if ($val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
+                    if ($pivot_record && $val['amount'] > ($pivot_record->amount - $pivot_record->refunded)) {
                         $this->error_msg = ctrans('texts.attempted_refund_failed', ['amount' => $val['amount'], 'refundable_amount' => ($pivot_record->amount - $pivot_record->refunded)]);
 
                         return false;

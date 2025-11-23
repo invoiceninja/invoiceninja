@@ -4,6 +4,7 @@
     <meta name="value" content="{{ $value }}">
     <meta name="currency" content="{{ $currency }}">
     <meta name="reference" content="{{ $payment_hash }}">
+    <meta name="cardholder_name" content="{{ $cardholder_name }}">
 
     @include('portal.ninja2020.gateways.checkout.credit_card.includes.styles')
 

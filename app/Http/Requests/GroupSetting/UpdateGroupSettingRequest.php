@@ -41,6 +41,22 @@ class UpdateGroupSettingRequest extends Request
 
     }
 
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            
+            $user = auth()->user();
+            $company = $user->company();
+
+            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+                $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
+            }
+            
+        });
+    }
+    
+    
     public function prepareForValidation()
     {
         $input = $this->all();

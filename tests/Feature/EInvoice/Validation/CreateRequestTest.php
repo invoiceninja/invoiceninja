@@ -30,7 +30,7 @@ class CreateRequestTest extends TestCase
             'tenant_id' => 'testcompanykey',
             'classification' => 'individual',
             'id_number' => 'xx',
-            
+
         ];
 
         $this->request->initialize($data);

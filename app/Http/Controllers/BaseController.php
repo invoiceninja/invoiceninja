@@ -653,10 +653,7 @@ class BaseController extends Controller
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
-        //  else {
-        //     $resource = new Collection($query, $transformer, $this->entity_type);
-        // }
-
+        
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
@@ -671,7 +668,17 @@ class BaseController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if ($user->getCompany()->is_large) {
+        /** React does not require bloated login response. */
+        if(request()->hasHeader('X-React')){
+            $this->manager->parseIncludes(
+            [
+                'account',
+                'user.company_user',
+                'token',
+                'company',
+            ]);
+        } 
+        elseif ($user->getCompany()->is_large) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);
@@ -1089,7 +1096,7 @@ class BaseController extends Controller
                 $data = $this->first_load;
             }
         } else {
-            $included = request()->input('include', '');
+            $included = request()->input('include') ?? '';
             $included = explode(',', $included);
 
             foreach ($included as $include) {

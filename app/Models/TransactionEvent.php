@@ -22,27 +22,27 @@ use App\DataMapper\TransactionEventMetadata;
  * @property int $invoice_id
  * @property int $payment_id
  * @property int $credit_id
- * @property string $client_balance
- * @property string $client_paid_to_date
- * @property string $client_credit_balance
- * @property string $invoice_balance
- * @property string $invoice_amount
- * @property string $invoice_partial
- * @property string $invoice_paid_to_date
+ * @property float $client_balance
+ * @property float $client_paid_to_date
+ * @property float $client_credit_balance
+ * @property float $invoice_balance
+ * @property float $invoice_amount
+ * @property float $invoice_partial
+ * @property float $invoice_paid_to_date
  * @property int|null $invoice_status
- * @property string $payment_amount
- * @property string $payment_applied
- * @property string $payment_refunded
+ * @property float $payment_amount
+ * @property float $payment_applied
+ * @property float $payment_refunded
  * @property int|null $payment_status
  * @property array|null $paymentables
  * @property int $event_id
  * @property int $timestamp
  * @property array|null $payment_request
  * @property TransactionEventMetadata|null $metadata
- * @property string $credit_balance
- * @property string $credit_amount
+ * @property float $credit_balance
+ * @property float $credit_amount
  * @property int|null $credit_status
- * @property Carbon|null $period
+ * @property \Carbon\Carbon|null $period
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel company()
  * @method static \Illuminate\Database\Eloquent\Builder|StaticModel exclude($columns)
  * @mixin \Eloquent
@@ -67,4 +67,5 @@ class TransactionEvent extends StaticModel
     public const PAYMENT_DELETED = 3;
 
     public const PAYMENT_CASH = 4;
+
 }

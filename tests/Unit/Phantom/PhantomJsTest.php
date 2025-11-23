@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -14,7 +15,7 @@ namespace Tests\Unit\Phantom;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Utils\PhantomJS\Phantom
  */
 class PhantomJsTest extends TestCase

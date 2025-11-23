@@ -25,7 +25,7 @@ class QuickBooksServiceTest extends TestCase
         $count = count($data);
         $sdkMock = Mockery::mock(\stdClass::class);
         $sdkMock->shouldReceive('Query')->andReturnUsing(function ($val) use ($count, $data) {
-            if(stristr($val, 'count')) {
+            if (stristr($val, 'count')) {
                 return $count;
             }
 

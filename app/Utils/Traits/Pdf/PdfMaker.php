@@ -71,7 +71,7 @@ trait PdfMaker
             '--disable-device-discovery-notifications',
             '--disable-reading-from-canvas',
             '--safebrowsing-disable-auto-update',
-            '--disable-features=SharedArrayBuffer,OutOfBlinkCors',
+            '--disable-features=SharedArrayBuffer,OutOfBlinkCors,PerformanceManager,InterestCohort',
 
             // '--wait-for-network-idle',
             '--font-render-hinting=medium',

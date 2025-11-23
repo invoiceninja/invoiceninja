@@ -42,10 +42,10 @@ class EInvoiceController extends BaseController
      */
     public function validateEntity(ValidateEInvoiceRequest $request)
     {
-        $el = new EntityLevel();
+        $el = $request->getValidatorClass();
 
         $data = [];
-
+        
         match ($request->entity) {
             'invoices' => $data = $el->checkInvoice($request->getEntity()),
             'clients' => $data = $el->checkClient($request->getEntity()),
@@ -132,9 +132,8 @@ class EInvoiceController extends BaseController
     public function quota(ShowQuotaRequest $request): JsonResponse
     {
         nlog(["quota" => $request->all()]);
-        /**
-         * @var \App\Models\Company
-         */
+        
+        /** @var \App\Models\Company $company */
         $company = auth()->user()->company();
 
         $response = \Illuminate\Support\Facades\Http::baseUrl(config('ninja.hosted_ninja_url'))

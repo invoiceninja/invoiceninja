@@ -1802,7 +1802,10 @@ class CompanyImport implements ShouldQueue
             /* Transform old keys to new keys */
             foreach ($transforms as $transform) {
                 foreach ($transform as $key => $value) {
-                    $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+
+                    if(property_exists($obj, $value)) {
+                        $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                    }
                 }
             }
 

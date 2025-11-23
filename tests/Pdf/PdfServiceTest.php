@@ -30,7 +30,7 @@ use App\Services\Template\TemplateService;
 use Str;
 
 /**
- * 
+ *
  *   App\Services\Pdf\PdfService
  */
 class PdfServiceTest extends TestCase
@@ -38,7 +38,7 @@ class PdfServiceTest extends TestCase
     use MockAccountData;
 
     private string $max_pdf_variables = '{"client_details":["$client.name","$contact.full_name","$client.address1","$client.city_state_postal","$client.number","$client.vat_number","$client.postal_city_state","$client.website","$client.country","$client.custom3","$client.id_number","$client.phone","$client.address2","$client.custom1","$contact.custom1"],"vendor_details":["$vendor.name","$vendor.number","$vendor.vat_number","$vendor.address1","$vendor.address2","$vendor.city_state_postal","$vendor.country","$vendor.phone","$contact.email","$vendor.id_number","$vendor.website","$vendor.custom2","$vendor.custom1","$vendor.custom4","$vendor.custom3","$contact.phone","$contact.full_name","$contact.custom2","$contact.custom1"],"purchase_order_details":["$purchase_order.number","$purchase_order.date","$purchase_order.total","$purchase_order.balance_due","$purchase_order.due_date","$purchase_order.po_number","$purchase_order.custom1","$purchase_order.custom2","$purchase_order.custom3"],"company_details":["$company.name","$company.email","$company.phone","$company.id_number","$company.vat_number","$company.website","$company.address2","$company.address1","$company.city_state_postal","$company.postal_city_state","$company.custom1","$company.custom3"],"company_address":["$company.address1","$company.city_state_postal","$company.country","$company.id_number","$company.vat_number","$company.website","$company.email","$company.name","$company.custom1"],"invoice_details":["$invoice.number","$invoice.date","$invoice.balance","$invoice.custom1","$invoice.due_date","$invoice.project","$invoice.balance_due","$invoice.custom3","$invoice.po_number","$invoice.custom2","$invoice.amount","$invoice.custom4"],"quote_details":["$quote.number","$quote.custom1","$quote.po_number","$quote.date","$quote.valid_until","$quote.total","$quote.custom2","$quote.custom3","$quote.custom4"],"credit_details":["$credit.number","$credit.balance","$credit.po_number","$credit.date","$credit.valid_until","$credit.total","$credit.custom1","$credit.custom2","$credit.custom3"],"product_columns":["$product.item","$product.product1","$product.description","$product.product2","$product.tax","$product.line_total","$product.quantity","$product.unit_cost","$product.discount","$product.product3","$product.product4","$product.gross_line_total"],"product_quote_columns":["$product.item","$product.description","$product.unit_cost","$product.quantity","$product.discount","$product.tax","$product.line_total"],"task_columns":["$task.service","$task.description","$task.rate","$task.hours","$task.discount","$task.line_total","$task.tax","$task.tax_amount","$task.task2","$task.task1","$task.task3"],"total_columns":["$total","$line_taxes","$total_taxes","$discount","$custom_surcharge1","$outstanding","$net_subtotal","$custom_surcharge2","$custom_surcharge3","$subtotal","$paid_to_date"],"statement_invoice_columns":["$invoice.number","$invoice.date","$due_date","$total","$balance"],"statement_payment_columns":["$invoice.number","$payment.date","$method","$statement_amount"],"statement_credit_columns":["$credit.number","$credit.date","$total","$credit.balance"],"statement_details":["$statement_date","$balance"],"delivery_note_columns":["$product.item","$product.description","$product.quantity"],"statement_unapplied_columns":["$payment.number","$payment.date","$payment.amount","$payment.payment_balance"]}';
-    
+
     private string $min_pdf_variables = '{"client_details":["$client.name","$client.vat_number","$client.address1","$client.city_state_postal","$client.country"],"vendor_details":["$vendor.name","$vendor.vat_number","$vendor.address1","$vendor.city_state_postal","$vendor.country"],"purchase_order_details":["$purchase_order.number","$purchase_order.date","$purchase_order.total"],"company_details":["$company.name","$company.address1","$company.city_state_postal"],"company_address":["$company.name","$company.website"],"invoice_details":["$invoice.number","$invoice.date","$invoice.due_date","$invoice.balance"],"quote_details":["$quote.number","$quote.date","$quote.valid_until"],"credit_details":["$credit.date","$credit.number","$credit.balance"],"product_columns":["$product.item","$product.description","$product.line_total"],"product_quote_columns":["$product.item","$product.description","$product.unit_cost","$product.quantity","$product.discount","$product.tax","$product.line_total"],"task_columns":["$task.description","$task.rate","$task.line_total"],"total_columns":["$total","$total_taxes","$outstanding"],"statement_invoice_columns":["$invoice.number","$invoice.date","$due_date","$total","$balance"],"statement_payment_columns":["$invoice.number","$payment.date","$method","$statement_amount"],"statement_credit_columns":["$credit.number","$credit.date","$total","$credit.balance"],"statement_details":["$statement_date","$balance"],"delivery_note_columns":["$product.item","$product.description","$product.quantity"],"statement_unapplied_columns":["$payment.number","$payment.date","$payment.amount","$payment.payment_balance"]}';
 
     private string $fake_email;
@@ -79,14 +79,14 @@ class PdfServiceTest extends TestCase
         if (config('ninja.testvars.travis')) {
             $this->markTestSkipped();
         }
-        
+
         $this->fake_email = $this->faker->email();
 
     }
 
     private function stubInvoice($settings, array $company_props = [])
     {
-                
+
         $company = Company::factory()->create(array_merge([
             'account_id' => $this->account->id,
             'settings' => $settings
@@ -167,11 +167,11 @@ class PdfServiceTest extends TestCase
     public function testTemplateClientStatementGeneration()
     {
 
-        
+
         foreach ($this->template_designs['statements'] as $template) {
 
             $invoice = $this->stubInvoice(CompanySettings::defaults());
-    
+
             $design = \App\Factory\DesignFactory::create($invoice->company_id, $invoice->user_id);
             $design->name = Str::random(16);
             $dd = $design->design;
@@ -216,7 +216,7 @@ class PdfServiceTest extends TestCase
             $design->forceDelete();
             $company->forceDelete();
         }
-        
+
     }
 
     public function testTemplatePaymentGeneration()
@@ -226,7 +226,7 @@ class PdfServiceTest extends TestCase
         $invoice->service()->markPaid()->save();
 
         $payment = $invoice->fresh()->payments()->first();
-        $payment->load('invoices');        
+        $payment->load('invoices');
 
         $ts = new TemplateService();
 
@@ -245,7 +245,7 @@ class PdfServiceTest extends TestCase
             \Illuminate\Support\Facades\Storage::put('/pdf/template_payments_' . basename($template). '.pdf', $pdf);
 
         }
-        
+
     }
 
     public function testTemplateDeliveryNoteGeneration()
@@ -277,7 +277,7 @@ class PdfServiceTest extends TestCase
 
     public function testPurchaseOrderGeneration()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->pdf_variables = json_decode($this->max_pdf_variables);
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -318,12 +318,12 @@ class PdfServiceTest extends TestCase
 
         $po->line_items = $items;
         $po->calc()->getPurchaseOrder();
-        
+
 
         $this->assertGreaterThan(0, $po->invitations()->count());
 
-        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use($po) {
-            
+        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use ($po) {
+
             $po->design_id = $design->id;
             $po->save();
             $po = $po->fresh();
@@ -341,7 +341,7 @@ class PdfServiceTest extends TestCase
 
     public function testMarkdownEnabled()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->pdf_variables = json_decode($this->max_pdf_variables);
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -382,12 +382,12 @@ class PdfServiceTest extends TestCase
 
         $invoice->line_items = $items;
         $invoice->calc()->getInvoice();
-        
+
 
         $this->assertGreaterThan(0, $invoice->invitations()->count());
 
-        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use($invoice) {
-            
+        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use ($invoice) {
+
             $invoice->design_id = $design->id;
             $invoice->save();
             $invoice = $invoice->fresh();
@@ -407,7 +407,7 @@ class PdfServiceTest extends TestCase
 
     public function testLargeDescriptionField()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->pdf_variables = json_decode($this->max_pdf_variables);
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -439,8 +439,8 @@ class PdfServiceTest extends TestCase
 
         $this->assertGreaterThan(0, $invoice->invitations()->count());
 
-        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use($invoice) {
-            
+        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use ($invoice) {
+
             $invoice->design_id = $design->id;
             $invoice->save();
             $invoice = $invoice->fresh();
@@ -460,7 +460,7 @@ class PdfServiceTest extends TestCase
 
     public function testMaxInvoiceFields()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->pdf_variables = json_decode($this->max_pdf_variables);
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -485,8 +485,8 @@ class PdfServiceTest extends TestCase
 
         $this->assertGreaterThan(0, $invoice->invitations()->count());
 
-        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use($invoice) {
-            
+        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) use ($invoice) {
+
             $invoice->design_id = $design->id;
             $invoice->save();
             $invoice = $invoice->fresh();
@@ -504,7 +504,7 @@ class PdfServiceTest extends TestCase
 
     public function testMinInvoiceFields()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->pdf_variables = json_decode($this->min_pdf_variables);
         $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
@@ -554,9 +554,9 @@ class PdfServiceTest extends TestCase
             'end_date' => '2023-01-01',
             'show_aging_table' => true,
             'show_payments_table' => true,
-            'status' => 'all'    
+            'status' => 'all'
         ]);
-    
+
 
         $this->assertNotNull($pdf);
 
@@ -572,7 +572,7 @@ class PdfServiceTest extends TestCase
             $this->markTestSkipped();
         }
 
-        \App\Models\Design::where('is_custom',false)->cursor()->each(function ($design){
+        \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) {
 
             $this->invoice->design_id = $design->id;
             $this->invoice->save();
@@ -586,9 +586,9 @@ class PdfServiceTest extends TestCase
             $this->assertNotNull($pdf);
 
             \Illuminate\Support\Facades\Storage::put('/pdf/' . $design->name.'.pdf', $pdf);
-            
+
         });
-    
+
         \App\Models\Design::where('is_custom', false)->cursor()->each(function ($design) {
 
 
@@ -612,7 +612,7 @@ class PdfServiceTest extends TestCase
     public function testPdfGeneration()
     {
 
-        if(config('ninja.testvars.travis')) {
+        if (config('ninja.testvars.travis')) {
             $this->markTestSkipped();
         }
 

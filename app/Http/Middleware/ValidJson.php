@@ -38,6 +38,10 @@ class ValidJson
             is_null(json_decode($request->getContent())) &&
             json_last_error() !== JSON_ERROR_NONE
         ) {
+
+            // nlog("Malformed JSON payload.");
+            // nlog($request->all());
+
             return response()->json([
                 'message' => 'Malformed JSON payload.',
                 'error' => 'Invalid JSON data provided',

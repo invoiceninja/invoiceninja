@@ -184,7 +184,7 @@ class CheckData extends Command
     private function checkTaskTimeLogs()
     {
         \App\Models\Task::query()->cursor()->each(function ($task) {
-            $time_log = json_decode($task->time_log, true);
+            $time_log = json_decode($task->time_log, true) ?? [];
 
             foreach($time_log as &$log){
                 if(count($log) > 4){

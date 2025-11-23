@@ -95,15 +95,30 @@ class PreviewInvoiceRequest extends Request
             return $this->stubInvitation();
         }
 
+        $contact_id = false;
+
+        if(isset($this->invitations[0]['client_contact_id'])){
+            $contact_id = $this->invitations[0]['client_contact_id'];
+        }
+        
         match($this->entity) {
-            'invoice' => $invitation = InvoiceInvitation::withTrashed()->where('invoice_id', $this->entity_id)->first(),
-            'quote' => $invitation = QuoteInvitation::withTrashed()->where('quote_id', $this->entity_id)->first(),
-            'credit' => $invitation = CreditInvitation::withTrashed()->where('credit_id', $this->entity_id)->first(),
-            'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->where('recurring_invoice_id', $this->entity_id)->first(),
+            'invoice' => $invitation = InvoiceInvitation::withTrashed()->where('invoice_id', $this->entity_id)->when($contact_id, function ($query) use ($contact_id) {
+                $query->where('client_contact_id', $contact_id);
+            })->first(),
+            'quote' => $invitation = QuoteInvitation::withTrashed()->where('quote_id', $this->entity_id)->when($contact_id, function ($query) use ($contact_id) {
+                $query->where('client_contact_id', $contact_id);
+            })->first(),
+            'credit' => $invitation = CreditInvitation::withTrashed()->where('credit_id', $this->entity_id)->when($contact_id, function ($query) use ($contact_id) {
+                $query->where('client_contact_id', $contact_id);
+            })->first(),
+            'recurring_invoice' => $invitation = RecurringInvoiceInvitation::withTrashed()->where('recurring_invoice_id', $this->entity_id)->when($contact_id, function ($query) use ($contact_id) {
+                $query->where('client_contact_id', $contact_id);
+            })->first(),
             default => $invitation = false,
         };
 
         if ($invitation) {
+            nlog($invitation->toArray());
             return $invitation;
         }
 

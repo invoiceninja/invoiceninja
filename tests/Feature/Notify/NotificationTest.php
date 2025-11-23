@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,7 +26,7 @@ use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
- * 
+ *
  *  App\Utils\Traits\Notifications\UserNotifies
  */
 class NotificationTest extends TestCase

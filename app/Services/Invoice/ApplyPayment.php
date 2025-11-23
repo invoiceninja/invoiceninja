@@ -88,7 +88,7 @@ class ApplyPayment extends AbstractService
              ->workFlow()
              ->unlockDocuments()
              ->save();
-        
+
         return $this->invoice;
     }
 }

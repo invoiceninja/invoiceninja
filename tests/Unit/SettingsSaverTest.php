@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\Utils\Traits\SettingsSaver;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class SettingsSaverTest extends TestCase
 {

@@ -241,6 +241,8 @@ class InvoiceController extends BaseController
 
         event(new InvoiceWasCreated($invoice, $invoice->company, Ninja::eventVars($user ? $user->id : null)));
 
+        \Illuminate\Support\Facades\Cache::forget($request->lock_key);
+        
         return $this->itemResponse($invoice);
     }
 
@@ -495,24 +497,29 @@ class InvoiceController extends BaseController
         $ids = $request->input('ids');
 
         if (Ninja::isHosted() && (stripos($action, 'email') !== false) && !$user->company()->account->account_sms_verified) {
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
             return response(['message' => 'Please verify your account to send emails.'], 400);
         }
 
         if (Ninja::isHosted() && $user->account->emailQuotaExceeded()) {
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
             return response(['message' => ctrans('texts.email_quota_exceeded_subject')], 400);
         }
 
         if ($user->hasExactPermission('disable_emails') && (stripos($action, 'email') !== false)) {
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
             return response(['message' => ctrans('texts.disable_emails_error')], 400);
         }
 
         if (in_array($request->action, ['auto_bill', 'mark_paid']) && $user->cannot('create', \App\Models\Payment::class)) {
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
             return response(['message' => ctrans('texts.not_authorized'), 'errors' => ['ids' => [ctrans('texts.not_authorized')]]], 422);
         }
 
         $invoices = Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
 
         if ($invoices->count() == 0) {
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
             return response()->json(['message' => 'No Invoices Found']);
         }
 
@@ -521,13 +528,15 @@ class InvoiceController extends BaseController
          */
 
         if ($action == 'bulk_download' && $invoices->count() > 1) {
-            $invoices->each(function ($invoice) use ($user) {
+            $invoices->each(function ($invoice) use ($user, $request) {
                 if ($user->cannot('view', $invoice)) {
+                    \Illuminate\Support\Facades\Cache::forget($request->lock_key);
                     return response()->json(['message' => ctrans('text.access_denied')]);
                 }
             });
 
             ZipInvoices::dispatch($invoices->pluck('id'), $invoices->first()->company, auth()->user());
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
 
             return response()->json(['message' => ctrans('texts.sent_message')], 200);
         }
@@ -535,6 +544,8 @@ class InvoiceController extends BaseController
         if ($action == 'download' && $invoices->count() >= 1 && $user->can('view', $invoices->first())) {
 
             $filename = $invoices->first()->getFileName();
+
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
 
             return response()->streamDownload(function () use ($invoices) {
                 echo $invoices->first()->service()->getInvoicePdf();
@@ -563,6 +574,7 @@ class InvoiceController extends BaseController
             })->toArray();
 
             $mergedPdf = (new PdfMerge($paths))->run();
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
 
             return response()->streamDownload(function () use ($mergedPdf) {
                 echo $mergedPdf;
@@ -588,6 +600,8 @@ class InvoiceController extends BaseController
                 $request->boolean('send_email')
             );
 
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
+
             return response()->json(['message' => $hash_or_response], 200);
         }
 
@@ -599,18 +613,20 @@ class InvoiceController extends BaseController
                 }
             });
 
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
+
             return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
         }
 
         if (in_array($action, ['email','send_email'])) {
 
-            $invoice = $invoices->first();
-
             $invoices->filter(function ($invoice) use ($user) {
                 return $user->can('edit', $invoice);
             })->each(function ($invoice) use ($user, $request) {
-                $invoice->service()->sendEmail(email_type: $request->input('email_type', $invoice->calculateTemplate('invoice')));
+                $invoice->service()->markSent()->sendEmail(email_type: $request->input('email_type', $invoice->calculateTemplate('invoice')));
             });
+
+            \Illuminate\Support\Facades\Cache::forget($request->lock_key);
 
             return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
 
@@ -625,6 +641,7 @@ class InvoiceController extends BaseController
         });
 
         /* Need to understand which permission are required for the given bulk action ie. view / edit */
+        \Illuminate\Support\Facades\Cache::forget($request->lock_key);
 
         return $this->listResponse(Invoice::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
     }
@@ -779,7 +796,7 @@ class InvoiceController extends BaseController
                 }
                 break;
             case 'cancel':
-                $invoice = $invoice->service()->handleCancellation()->save();
+                $invoice = $invoice->service()->handleCancellation(request()->input('reason'))->save();
                 if (! $bulk) {
                     $this->itemResponse($invoice);
                 }

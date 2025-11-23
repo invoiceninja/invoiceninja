@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +22,7 @@ use App\Utils\Traits\AppSetup;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class RecurringExpenseCloneTest extends TestCase
 {
@@ -33,7 +34,7 @@ class RecurringExpenseCloneTest extends TestCase
     {
         parent::setUp();
         $this->faker = \Faker\Factory::create();
-        
+
         if (\App\Models\Country::count() == 0) {
             \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         }

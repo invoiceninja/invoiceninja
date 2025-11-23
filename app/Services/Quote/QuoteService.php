@@ -162,11 +162,18 @@ class QuoteService
         return $this;
     }
 
+    /**
+     * convertToInvoice
+     *
+     * @NOTE - this method will force the quote to include all invitations for the
+     * client where ADD TO INVOICE = true
+     *
+     */
     public function convertToInvoice()
     {
         $this->convert();
 
-        $this->invoice->service()->createInvitations();
+        // $this->invoice->service()->createInvitations();
 
         return $this->invoice;
     }

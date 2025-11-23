@@ -214,6 +214,8 @@ class PaymentController extends BaseController
 
         event('eloquent.created: App\Models\Payment', $payment);
 
+        \Illuminate\Support\Facades\Cache::forget($request->lock_key);
+        
         return $this->itemResponse($payment);
     }
 

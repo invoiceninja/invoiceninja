@@ -129,7 +129,7 @@ return [
         InitialBuy::class => class_exists(\Modules\Admin\Listeners\Subscription\AppleInitialBuy::class) ? [\Modules\Admin\Listeners\Subscription\AppleInitialBuy::class] : [],
         InteractiveRenewal::class => class_exists(\Modules\Admin\Listeners\Subscription\AppleInteractiveRenewal::class) ? [\Modules\Admin\Listeners\Subscription\AppleInteractiveRenewal::class] : [],
         \Imdhemy\Purchases\Events\AppStore\DidChangeRenewalStatus::class => class_exists(\Modules\Admin\Listeners\Subscription\AppleSubscribed::class) ? [\Modules\Admin\Listeners\Subscription\AppleSubscribed::class] : [],
-
+        \Imdhemy\Purchases\Events\AppStore\DidChangeRenewalPref::class => class_exists(\Modules\Admin\Listeners\Subscription\ApplePlanChange::class) ? [\Modules\Admin\Listeners\Subscription\ApplePlanChange::class] : [],
     ],
 
     /*

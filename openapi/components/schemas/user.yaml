@@ -203,4 +203,20 @@
           type: string
           example: '123456'
           readOnly: true
+        oauth_user_refresh_token:
+          description: 'OAuth refresh token for the user'
+          type: string
+          example: 'refresh_token_abc123'
+        oauth_user_token:
+          description: 'OAuth access token data for the user'
+          type: object
+          additionalProperties: true
+        shopify_user_id:
+          description: 'The unique identifier of the Shopify user'
+          type: string
+          example: '123456789'
+        user_logged_in_notification:
+          description: 'Flag indicating whether to send login notifications'
+          type: boolean
+          example: true
       type: object

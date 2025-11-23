@@ -173,7 +173,8 @@ class QuoteFilters extends QueryFilters
         }
 
         if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderBy(\App\Models\Client::select('name')
+            return $this->builder->orderByRaw('ISNULL(client_id), client_id '. $dir)
+                    ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'quotes.client_id'), $dir);
         }
 

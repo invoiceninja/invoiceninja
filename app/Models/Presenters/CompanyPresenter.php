@@ -228,10 +228,14 @@ class CompanyPresenter extends EntityPresenter
             return $website;
         }
 
-        if (Str::contains($website, ['http', 'https'])) {
+        if (Str::contains($website, ['https'])) {
             return $website;
         }
 
-        return \sprintf('http://%s', $website);
+        if (Str::contains($website, ['http://'])) {
+            return str_replace('http://', 'https://', $website);
+        }
+
+        return \sprintf('https://%s', $website);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -86,7 +87,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class EventTest extends TestCase
 {
@@ -707,7 +708,7 @@ class EventTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
 
-        $u = \App\Models\User::where('email','bob1@good.ole.boys.com')->cursor()->each(function($user) {
+        $u = \App\Models\User::where('email', 'bob1@good.ole.boys.com')->cursor()->each(function ($user) {
             $user->account->forceDelete();
         });
 

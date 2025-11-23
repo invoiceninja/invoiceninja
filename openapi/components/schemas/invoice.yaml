@@ -238,4 +238,21 @@
           description: 'The client location id that this invoice relates to'
           type: string
           example: Opnel5aKBz
+        design_id:
+          description: 'The unique identifier of the design template used for this invoice'
+          type: string
+          example: Opnel5aKBz
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        exchange_rate:
+          description: 'The exchange rate used for currency conversion'
+          type: number
+          format: float
+          example: 1.0
+        vendor_id:
+          description: 'The unique identifier of the vendor associated with this invoice'
+          type: string
+          example: Opnel5aKBz
       type: object

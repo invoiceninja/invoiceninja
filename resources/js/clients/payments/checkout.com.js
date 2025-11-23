@@ -86,5 +86,10 @@ Frames.addEventHandler(Frames.Events.CARD_TOKENIZED, function(event) {
 
 form.addEventListener('submit', function(event) {
     event.preventDefault();
+
+    Frames.cardholder = {
+        name: document.querySelector('meta[name="cardholder_name"]').content ?? '',
+    };
+    
     Frames.submitCard();
 });

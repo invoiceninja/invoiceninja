@@ -181,10 +181,11 @@
                                 <div>
                                     <ul style="list-style-type: none;">  
                                     @if(count($links) > 0)
-                                        <li>{{ ctrans('texts.download_files')}}</li>
+                                        <li><b>{{ ctrans('texts.download_files')}}</b></li>
+                                        <li><b>{{ ctrans('texts.download_files_too_large')}}</b></li>
                                     @endif
                                     @foreach($links as $link)
-                                        <li>{!! $link ?? '' !!} <img height="15px" src="{{ asset('images/svg/dark/file.svg') }}" class="file_icon"></li>
+                                        <li>{!! $link ?? '' !!}</li>
                                     @endforeach
                                     </ul>
                                 </div>

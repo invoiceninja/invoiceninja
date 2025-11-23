@@ -209,16 +209,22 @@ class ACH implements LivewireMethodInterface
 
         return render('gateways.stripe.ach.pay', $data);
     }
-
+    
+    /**
+     * tokenBilling
+     *
+     * @todo - clean up after confirmation that this is no longer necessary.
+     */
     public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
 
         $description = $this->stripe->getDescription(false);
 
-        if (substr($cgt->token, 0, 2) === 'pm') {
+        //@2025-11-21: Charges API is deprecated for ACH, we can pass the ba_ token with mandate data now.
+        // if (substr($cgt->token, 0, 2) === 'pm') {
             return $this->paymentIntentTokenBilling($amount, $description, $cgt, false);
-        }
+        // }
 
         $this->stripe->init();
 
@@ -280,10 +286,20 @@ class ACH implements LivewireMethodInterface
                     'gateway_type_id' => $cgt->gateway_type_id,
                 ],
                 'statement_descriptor' => $this->stripe->getStatementDescriptor(),
+               
             ];
 
             if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
                 $data['payment_method_types'] = ['us_bank_account'];
+            }
+
+            if(str_starts_with($cgt->token, 'ba_')) {
+            
+                $data["mandate_data"] = [
+                    "customer_acceptance" => [
+                        "type" => "offline"
+                    ]
+                ];
             }
 
             $response = $this->stripe->createPaymentIntent($data);
@@ -474,9 +490,9 @@ class ACH implements LivewireMethodInterface
 
         $description = $this->stripe->getDescription(false);
 
-        if (substr($source->token, 0, 2) === 'pm') {
+        // if (substr($source->token, 0, 2) === 'pm') {
             return $this->paymentIntentTokenBilling($amount, $description, $source);
-        }
+        // }
 
         try {
             $state['charge'] = \Stripe\Charge::create([

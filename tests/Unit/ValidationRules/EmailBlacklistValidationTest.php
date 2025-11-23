@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\Http\ValidationRules\Account\EmailBlackListRule;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\ValidationRules\Account\EmailBlackListRule
  */
 class EmailBlacklistValidationTest extends TestCase

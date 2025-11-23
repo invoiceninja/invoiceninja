@@ -5,11 +5,28 @@
       summary: "List vendors"
       description: "Lists vendors, search and filters allow fine grained lists to be generated.\n\n    Query parameters can be added to performed more fine grained filtering of the vendors, these are handled by the VendorFilters class which defines the methods available"
       operationId: getVendors
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $vendors = $ninja->vendors->all([
+              'per_page' => 10,
+              'page' => 1
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/vendors \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of vendors"
@@ -54,9 +71,71 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Vendor object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          
+          $vendor = $ninja->vendors->create([
+              'name' => 'ABC Supply Company',
+              'address1' => '123 Main Street',
+              'address2' => 'Suite 100',
+              'city' => 'New York',
+              'state' => 'NY',
+              'postal_code' => '10001',
+              'country_id' => '1',
+              'phone' => '+1-555-123-4567',
+              'email' => 'contact@abcsupply.com',
+              'website' => 'https://www.abcsupply.com',
+              'contacts' => [
+                  [
+                      'first_name' => 'John',
+                      'last_name' => 'Doe',
+                      'email' => 'john.doe@abcsupply.com',
+                      'phone' => '+1-555-123-4567',
+                      'send_email' => true
+                  ]
+              ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X POST https://demo.invoiceninja.com/api/v1/vendors \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "name": "ABC Supply Company",
+              "address1": "123 Main Street",
+              "address2": "Suite 100",
+              "city": "New York",
+              "state": "NY",
+              "postal_code": "10001",
+              "country_id": "1",
+              "phone": "+1-555-123-4567",
+              "email": "contact@abcsupply.com",
+              "website": "https://www.abcsupply.com",
+              "contacts": [
+                {
+                  "first_name": "John",
+                  "last_name": "Doe",
+                  "email": "john.doe@abcsupply.com",
+                  "phone": "+1-555-123-4567",
+                  "send_email": true
+                }
+              ]
+            }'
       responses:
         200:
-          description: "Returns the saved clivendorent object"
+          description: "Returns the saved vendor object"
           headers:
             X-MINIMUM-CLIENT-VERSION:
               $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
@@ -87,6 +166,18 @@
       summary: "Show vendor"
       description: "Displays a vendor by id"
       operationId: showVendor
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $vendor = $ninja->vendors->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/vendors/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -143,6 +234,39 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Vendor object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $vendor = $ninja->vendors->update("D2J234DFA", [
+              'name' => 'Updated Vendor Name',
+              'address1' => '456 New Street',
+              'city' => 'Los Angeles',
+              'state' => 'CA',
+              'postal_code' => '90210'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X PUT https://demo.invoiceninja.com/api/v1/vendors/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "name": "Updated Vendor Name",
+              "address1": "456 New Street",
+              "city": "Los Angeles",
+              "state": "CA",
+              "postal_code": "90210"
+            }'
       responses:
         200:
           description: "Returns the vendor object"
@@ -175,6 +299,18 @@
       summary: "Delete vendor"
       description: "Handles the deletion of a vendor by id"
       operationId: deleteVendor
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->vendors->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X DELETE https://demo.invoiceninja.com/api/v1/vendors/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -216,6 +352,18 @@
       summary: "Edit vendor"
       description: "Displays a vendor by id"
       operationId: editVendor
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $vendor = $ninja->vendors->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/vendors/D2J234DFA/edit \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -261,6 +409,18 @@
       summary: "Blank vendor"
       description: "Returns a blank vendor with default values"
       operationId: getVendorsCreate
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $vendor = $ninja->vendors->model();
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/vendors/create \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"

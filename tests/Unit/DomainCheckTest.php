@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\DataProviders\Domains;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class DomainCheckTest extends TestCase
 {

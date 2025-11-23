@@ -75,6 +75,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Currency|null $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \App\Models\PaymentType|null $payment_type
+ * @property-read \App\Models\Currency|null $invoice_currency
  * @property-read \App\Models\Project|null $project
  * @property-read \App\Models\PurchaseOrder|null $purchase_order
  * @property-read \App\Models\User $user

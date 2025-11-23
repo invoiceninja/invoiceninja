@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -64,9 +65,10 @@ class InvoiceMarkPaidTest extends TestCase
 
     private function buildData()
     {
-        if($this->account)
+        if ($this->account) {
             $this->account->forceDelete();
-        
+        }
+
         /** @var \App\Models\Account $account */
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
@@ -173,7 +175,7 @@ class InvoiceMarkPaidTest extends TestCase
         $this->assertEquals(10, $i->paid_to_date);
         $this->assertEquals(4, $i->status_id);
 
-$this->account->delete();
+        $this->account->delete();
 
     }
 
@@ -182,7 +184,7 @@ $this->account->delete();
     {
 
         $this->buildData();
-        
+
         $c = \App\Models\Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -250,4 +252,3 @@ $this->account->delete();
     }
 
 }
-    

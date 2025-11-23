@@ -103,6 +103,7 @@ class TemplateAction implements ShouldQueue
             Expense::class => $resource->with('client'),
             Payment::class => $resource->with('invoices', 'client'),
             Client::class => $resource,
+            Expense::class => $resource->with('client', 'project', 'vendor', 'invoice'),
             default => $resource,
         };
 
@@ -229,7 +230,7 @@ class TemplateAction implements ShouldQueue
 
     public function middleware()
     {
-        return [(new WithoutOverlapping('template-' . $this->company->company_key . $this->entity))->releaseAfter(60)];
+        return [(new WithoutOverlapping('template-' . $this->company->company_key . $this->entity))->dontRelease()];
     }
 
 }

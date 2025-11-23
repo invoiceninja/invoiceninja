@@ -72,6 +72,13 @@ class EmailController extends BaseController
         $user = auth()->user();
         $company = $entity_obj->company;
 
+        /** Force AEAT Submission */
+        if($company->verifactuEnabled() && ($entity_obj instanceof Invoice) && $entity_obj->backup->guid == "") {
+            $entity_obj->invitations()->update(['email_error' => 'primed']); // Flag the invitations as primed for AEAT submission
+            $entity_obj->service()->markSent()->sendVerifactu();
+            return $this->itemResponse($entity_obj->fresh());
+        }
+
         if ($request->cc_email && (Ninja::isSelfHost() || $user->account->isPremium())) {
 
             foreach ($request->cc_email as $email) {
@@ -80,19 +87,27 @@ class EmailController extends BaseController
 
         }
 
-        $entity_obj->invitations->each(function ($invitation) use ($entity_obj, $mo, $template) {
-            if (! $invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked) {
+        $entity_obj->invitations()
+            ->whereHas('contact', function($query) {
+                $query->where(function ($sq){
+                    $sq->whereNotNull('email')
+                    ->orWhere('email', '!=', '');
+                })->where('is_locked', false)
+                ->withoutTrashed();
+            })
+            ->each(function ($invitation) use ($entity_obj, $mo, $template) {
+
                 $entity_obj->service()->markSent()->save();
 
-                $mo->invitation_id = $invitation->id;
-                $mo->client_id = $invitation->contact->client_id ?? null;
-                $mo->vendor_id = $invitation->contact->vendor_id ?? null;
+                    $mo->invitation_id = $invitation->id;
+                    $mo->client_id = $invitation->contact->client_id ?? null;
+                    $mo->vendor_id = $invitation->contact->vendor_id ?? null;
 
-                Email::dispatch($mo, $invitation->company);
-                $entity_obj->entityEmailEvent($invitation, $template, $template);
+                    Email::dispatch($mo, $invitation->company);
+                    
+                    $entity_obj->entityEmailEvent($invitation, $template, $template);
 
-            }
-        });
+            });
 
         $entity_obj = $entity_obj->fresh();
         $entity_obj->last_sent_date = now();

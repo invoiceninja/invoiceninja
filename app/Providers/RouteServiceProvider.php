@@ -58,7 +58,7 @@ class RouteServiceProvider extends ServiceProvider
             if (Ninja::isSelfHost()) {
                 return Limit::none();
             } else {
-                return Limit::perMinute(10)->by($request->ip());
+                return Limit::perMinute(4)->by($request->ip());
             }
         });
 
@@ -83,6 +83,14 @@ class RouteServiceProvider extends ServiceProvider
                 return Limit::none();
             } else {
                 return Limit::perMinute(10)->by($request->ip());
+            }
+        });
+
+        RateLimiter::for('daily-verify', function (Request $request) {
+            if (Ninja::isSelfHost()) {
+                return Limit::none();
+            } else {
+                return Limit::perDay(3)->by($request->user()?->email ?? $request->ip());
             }
         });
 

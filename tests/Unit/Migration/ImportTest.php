@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,6 +20,8 @@ class ImportTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+
+    public $faker;
 
     public $migration_array;
 

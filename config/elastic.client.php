@@ -5,7 +5,9 @@ return [
     'connections' => [
         'default' => [
             'hosts' => [
-                env('ELASTIC_HOST', 'https://localhost:9200'),
+                env('ELASTIC_HOST', 'http://localhost:9200'),
+                env('ELASTIC_HOST_2', 'http://localhost:9200'),
+                env('ELASTIC_HOST_3', 'http://localhost:9200'),
             ],
             // configure basic authentication
             'basicAuthentication' => [

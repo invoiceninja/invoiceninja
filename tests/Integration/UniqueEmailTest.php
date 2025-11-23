@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Http\ValidationRules\NewUniqueUserRule
  */
 class UniqueEmailTest extends TestCase
@@ -106,7 +107,7 @@ class UniqueEmailTest extends TestCase
 
     protected function tearDown(): void
     {
-       
+
 
         DB::connection('db-ninja-01')->table('users')->delete();
         DB::connection('db-ninja-02')->table('users')->delete();

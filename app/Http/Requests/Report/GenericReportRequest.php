@@ -12,12 +12,13 @@
 
 namespace App\Http\Requests\Report;
 
-use App\Utils\Ninja;
+use App\Models\Design;
 use App\Http\Requests\Request;
-use Illuminate\Auth\Access\AuthorizationException;
+use App\Utils\Traits\MakesHash;
 
 class GenericReportRequest extends Request
 {
+    use MakesHash;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -40,8 +41,22 @@ class GenericReportRequest extends Request
             'pdf_email_attachment' => 'sometimes|bool',
             'include_deleted' => 'required|bool',
             'product_key' => 'sometimes|string|nullable',
+            'template_id' => 'sometimes|string|nullable',
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
+    }
+
+    public function withValidator(\Illuminate\Validation\Validator $validator)
+    {
+        
+        $validator->after(function ($validator) {
+
+            if(!empty($this->template_id) && Design::where('id', $this->decodePrimaryKey($this->template_id))->where('is_template',true)->company()->doesntExist()) {
+                $validator->errors()->add('template_id', 'Invalid Template ID Selected');
+            }
+
+        });
+
     }
 
     public function prepareForValidation()

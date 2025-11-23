@@ -1,0 +1,93 @@
+    VendorRequest:
+      required:
+        - name
+      properties:
+        name:
+          description: 'Vendor name'
+          type: string
+          example: 'ABC Supply Company'
+        address1:
+          description: 'Primary address line'
+          type: string
+          example: '123 Main Street'
+        address2:
+          description: 'Secondary address line'
+          type: string
+          example: 'Suite 100'
+        city:
+          description: 'City'
+          type: string
+          example: 'New York'
+        state:
+          description: 'State or province'
+          type: string
+          example: 'NY'
+        postal_code:
+          description: 'Postal code'
+          type: string
+          example: '10001'
+        country_id:
+          description: 'Country ID'
+          type: string
+          example: '1'
+        phone:
+          description: 'Phone number'
+          type: string
+          example: '+1-555-123-4567'
+        email:
+          description: 'Email address'
+          type: string
+          format: email
+          example: 'contact@abcsupply.com'
+        website:
+          description: 'Website URL'
+          type: string
+          format: uri
+          example: 'https://www.abcsupply.com'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          example: 'Custom value 4'
+        is_deleted:
+          description: 'Whether the vendor is deleted'
+          type: boolean
+          example: false
+        archived_at:
+          description: 'Timestamp when vendor was archived'
+          type: integer
+          example: 1640995200
+        contacts:
+          type: array
+          description: 'Array of vendor contacts'
+          items:
+            type: object
+            properties:
+              first_name:
+                type: string
+                example: 'John'
+              last_name:
+                type: string
+                example: 'Doe'
+              email:
+                type: string
+                format: email
+                example: 'john.doe@abcsupply.com'
+              phone:
+                type: string
+                example: '+1-555-123-4567'
+              send_email:
+                type: boolean
+                example: true
+      type: object

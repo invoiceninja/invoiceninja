@@ -142,4 +142,16 @@
           type: string
           example: 'Bob the vendor'
           readOnly: true
+        is_tax_exempt:
+          description: 'Flag indicating whether the vendor is exempt from taxes'
+          type: boolean
+          example: false
+        public_notes:
+          description: 'Notes that are visible to the vendor'
+          type: string
+          example: 'These are public notes visible to vendors'
+        routing_id:
+          description: 'The routing identifier for e-invoicing'
+          type: string
+          example: '0088:12345678901'
       type: object

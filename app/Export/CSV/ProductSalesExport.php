@@ -107,7 +107,7 @@ class ProductSalesExport extends BaseExport
         $this->products = Product::query()->where('company_id', $this->company->id)->withTrashed()->get();
 
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         if (count($this->input['report_keys']) == 0) {
@@ -127,6 +127,8 @@ class ProductSalesExport extends BaseExport
         $query = $this->addDateRange($query, 'invoices');
 
         $query = $this->filterByClients($query);
+
+        $query = $this->filterByUserPermissions($query);
 
         $query = $this->filterByProducts($query);
 

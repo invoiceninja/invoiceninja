@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -53,7 +54,7 @@ use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class ImportCompanyTest extends TestCase
 {

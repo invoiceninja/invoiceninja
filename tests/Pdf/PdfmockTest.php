@@ -26,7 +26,7 @@ use App\Services\Pdf\PdfService;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Services\Pdf\PdfService
  */
 class PdfmockTest extends TestCase

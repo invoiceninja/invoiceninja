@@ -38,11 +38,14 @@ class BulkExpenseRequest extends Request
         $user = auth()->user();
 
         return [
-            'action' => 'required|string|in:archive,restore,delete,bulk_update,bulk_categorize',
+            'action' => 'required|string|in:archive,restore,delete,bulk_update,bulk_categorize,template',
             'ids' => ['required','bail','array', Rule::exists('expenses', 'id')->where('company_id', $user->company()->id)],
             'category_id' => ['sometimes', 'bail', Rule::exists('expense_categories', 'id')->where('company_id', $user->company()->id)],
             'column' => ['required_if:action,bulk_update', 'string', Rule::in(\App\Models\Expense::$bulk_update_columns)],
             'new_value' => ['required_if:action,bulk_update|string'],
+            'template' => 'sometimes|string',
+            'template_id' => 'sometimes|string|required_if:action,template',
+            'send_email' => 'sometimes|bool',
         ];
 
     }

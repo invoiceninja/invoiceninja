@@ -59,6 +59,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $steps
  * @property string|null $optional_product_ids
  * @property string|null $optional_recurring_product_ids
+ * @property string|null $steps
  * @property-read \App\Models\Company $company
  * @property-read mixed $hashed_id
  * @property-read \App\Models\GroupSetting|null $group_settings

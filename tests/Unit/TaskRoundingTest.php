@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  */
 class TaskRoundingTest extends TestCase
 {
@@ -221,17 +222,17 @@ class TaskRoundingTest extends TestCase
 
     public function roundTimeLog(int $start_time, int $end_time): int
     {
-        if($this->task_round_to_nearest == 1 || $end_time == 0) {
+        if ($this->task_round_to_nearest == 1 || $end_time == 0) {
             return $end_time;
         }
 
         $interval = $end_time - $start_time;
 
-        if($this->task_round_up) {
+        if ($this->task_round_up) {
             return $start_time + (int)ceil($interval / $this->task_round_to_nearest) * $this->task_round_to_nearest;
         }
 
-        if($interval <= $this->task_round_to_nearest) {
+        if ($interval <= $this->task_round_to_nearest) {
             return $start_time;
         }
 

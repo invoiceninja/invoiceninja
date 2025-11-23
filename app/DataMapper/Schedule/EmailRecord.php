@@ -34,4 +34,5 @@ class EmailRecord
      * @var string
      */
     public string $entity_id = '';
+
 }

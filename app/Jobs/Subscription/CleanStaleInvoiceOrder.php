@@ -70,84 +70,31 @@ class CleanStaleInvoiceOrder implements ShouldQueue
                        $invoice->service()->removeUnpaidGatewayFees();
                    });
 
-
             Invoice::query()
                    ->withTrashed()
-                   ->where('status_id', Invoice::STATUS_PARTIAL)
-                   ->where('balance', '>', 0)
+                   ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                   ->where('updated_at', '<', now()->subHour())
                    ->whereJsonContains('line_items', ['type_id' => '3'])
                    ->cursor()
                    ->each(function ($invoice) {
-
-                       $type_3_count = 0;
-                       $type_4_count = 0;
-
-                       foreach ($invoice->line_items as $line_item) {
-                           if ($line_item->type_id == '3') {
-                               $type_3_count++;
-                           } elseif ($line_item->type_id == '4') {
-                               $type_4_count++;
-                           }
-                       }
-
-                       if ($type_4_count == 1) {
-                           $invoice->service()->removeUnpaidGatewayFees();
-                       } elseif ($type_3_count == 1) {
-
-                           $items = $invoice->line_items;
-
-                           foreach ($items as $key => $value) {
-
-                               if ($value->type_id == "3") {
-                                   $items[$key]->type_id = "4";
+   
+                       $items = $invoice->line_items;
+   
+                       foreach ($items as $key => $value) {
+   
+                           if($value->type_id == "3" && isset($value->unit_code) && $ph = \App\Models\PaymentHash::where('hash', $value->unit_code)->first()) {
+                           
+                               if($ph->payment_id && in_array($ph->payment->status_id, [\App\Models\Payment::STATUS_COMPLETED, \App\Models\Payment::STATUS_PENDING])){
+                                   $items[$key]->type_id = "4";    
                                }
-
-                           }
-
-                           $invoice->line_items = array_values($items);
-                           $invoice->calc()->getInvoice();
-
+                           }                            
+   
                        }
-
+   
+                       $invoice->line_items = array_values($items);
+                       $invoice = $invoice->calc()->getInvoice();
+                       $invoice->service()->removeUnpaidGatewayFees();
                    });
-
-
-            Invoice::query()
-                    ->withTrashed()
-                    ->where('status_id', Invoice::STATUS_PAID)
-                    ->whereJsonContains('line_items', ['type_id' => '3'])
-                    ->cursor()
-                    ->each(function ($invoice) {
-
-                        $type_3_count = 0;
-                        $type_4_count = 0;
-
-                        foreach ($invoice->line_items as $line_item) {
-                            if ($line_item->type_id == '3') {
-                                $type_3_count++;
-                            } elseif ($line_item->type_id == '4') {
-                                $type_4_count++;
-                            }
-                        }
-
-                        if ($type_4_count == 0 && $type_3_count == 1) {
-
-                            $items = $invoice->line_items;
-
-                            foreach ($items as $key => $value) {
-
-                                if ($value->type_id == "3") {
-                                    $items[$key]->type_id = "4";
-                                }
-
-                            }
-
-                            $invoice->line_items = array_values($items);
-                            $invoice->saveQuietly();
-
-                        }
-
-                    });
 
             return;
         }
@@ -181,82 +128,29 @@ class CleanStaleInvoiceOrder implements ShouldQueue
 
             Invoice::query()
                 ->withTrashed()
-                ->where('status_id', Invoice::STATUS_PARTIAL)
+                ->whereIn('status_id', [Invoice::STATUS_PARTIAL, Invoice::STATUS_PAID])
+                ->where('updated_at', '<', now()->subHour())
                 ->whereJsonContains('line_items', ['type_id' => '3'])
                 ->cursor()
                 ->each(function ($invoice) {
 
-                    $type_3_count = 0;
-                    $type_4_count = 0;
+                    $items = $invoice->line_items;
 
-                    foreach ($invoice->line_items as $line_item) {
-                        if ($line_item->type_id == '3') {
-                            $type_3_count++;
-                        } elseif ($line_item->type_id == '4') {
-                            $type_4_count++;
-                        }
-                    }
+                    foreach ($items as $key => $value) {
 
-                    if ($type_4_count == 1) {
-                        $invoice->service()->removeUnpaidGatewayFees();
-                    } elseif ($type_3_count == 1) {
-
-                        $items = $invoice->line_items;
-
-                        foreach ($items as $key => $value) {
-
-                            if ($value->type_id == "3") {
-                                $items[$key]->type_id = "4";
+                        if($value->type_id == "3" && isset($value->unit_code) && $ph = \App\Models\PaymentHash::where('hash', $value->unit_code)->first()) {
+                        
+                            if($ph->payment_id && in_array($ph->payment->status_id, [\App\Models\Payment::STATUS_COMPLETED, \App\Models\Payment::STATUS_PENDING])){
+                                $items[$key]->type_id = "4";    
                             }
-
-                        }
-
-                        $invoice->line_items = array_values($items);
-                        $invoice->calc()->getInvoice();
+                        }                            
 
                     }
 
+                    $invoice->line_items = array_values($items);
+                    $invoice = $invoice->calc()->getInvoice();
+                    $invoice->service()->removeUnpaidGatewayFees();
                 });
-
-
-            Invoice::query()
-                    ->withTrashed()
-                    ->where('status_id', Invoice::STATUS_PAID)
-                    ->whereJsonContains('line_items', ['type_id' => '3'])
-                    ->cursor()
-                    ->each(function ($invoice) {
-
-                        $type_3_count = 0;
-                        $type_4_count = 0;
-
-
-                        foreach ($invoice->line_items as $line_item) {
-                            if ($line_item->type_id == '3') {
-                                $type_3_count++;
-                            } elseif ($line_item->type_id == '4') {
-                                $type_4_count++;
-                            }
-                        }
-
-                        if ($type_4_count == 0 && $type_3_count == 1) {
-
-                            $items = $invoice->line_items;
-
-                            foreach ($items as $key => $value) {
-
-                                if ($value->type_id == "3") {
-                                    $items[$key]->type_id = "4";
-                                }
-
-                            }
-
-                            $invoice->line_items = array_values($items);
-                            $invoice->saveQuietly();
-
-                        }
-
-                    });
-
 
             \DB::connection($db)->table('password_resets')->where('created_at', '<', now()->subHours(12))->delete();
 

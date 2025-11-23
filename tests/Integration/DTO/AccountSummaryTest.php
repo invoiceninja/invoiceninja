@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https=>//invoiceninja.com).
  *
@@ -14,7 +15,7 @@ namespace Tests\Integration\DTO;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class AccountSummaryTest extends TestCase
 {

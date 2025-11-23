@@ -767,8 +767,9 @@
           example: "Bob Smith"
         show_all_tasks_client_portal:
           description: "Determines if all tasks are shown on the client portal"
-          type: boolean
-          example: false
+          type: string
+          enum: [all, uninvoiced, invoiced]
+          example: "all"
         entity_send_time:
           description: "The time that emails are sent. The time is localized to the clients locale, integer values from 1 - 24"
           type: integer

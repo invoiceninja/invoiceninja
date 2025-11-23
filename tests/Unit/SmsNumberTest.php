@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\DataProviders\SMSNumbers;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class SmsNumberTest extends TestCase
 {

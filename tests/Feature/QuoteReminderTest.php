@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Jobs\Util\QuoteReminderJob
  */
 class QuoteReminderTest extends TestCase
@@ -90,7 +91,7 @@ class QuoteReminderTest extends TestCase
             'email' => \Illuminate\Support\Str::random(32)."@example.com",
         ]);
 
-        if(!$settings) {
+        if (!$settings) {
             $settings = CompanySettings::defaults();
             $settings->client_online_payment_notification = false;
             $settings->client_manual_payment_notification = false;

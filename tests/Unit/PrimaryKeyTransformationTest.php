@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\Utils\Traits\MakesHash;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Utils\Traits\MakesHash
  */
 class PrimaryKeyTransformationTest extends TestCase

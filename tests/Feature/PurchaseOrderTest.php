@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -86,7 +87,7 @@ class PurchaseOrderTest extends TestCase
 
         $activities = $arr['data']['activities'];
 
-        foreach($activities as $activity) {
+        foreach ($activities as $activity) {
             $this->assertTrue(count($activity['history']) >= 1);
         }
 
@@ -127,7 +128,7 @@ class PurchaseOrderTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson("/api/v1/purchase_orders/bulk", $data);
-        
+
         $response->assertStatus(200);
 
         $data = [

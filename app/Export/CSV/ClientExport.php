@@ -136,6 +136,8 @@ class ClientExport extends BaseExport
 
         $query = $this->addDateRange($query, ' clients');
 
+        $query = $this->filterByUserPermissions($query);
+
         if ($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }
@@ -149,7 +151,7 @@ class ClientExport extends BaseExport
         $query = $this->init();
 
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
@@ -227,7 +229,7 @@ class ClientExport extends BaseExport
         }
 
         if (in_array('client.assigned_user', $this->input['report_keys'])) {
-            $entity['client.assigned_user'] = $client->assigned_user ? $client->user->present()->name() : '';
+            $entity['client.assigned_user'] = $client->assigned_user ? $client->assigned_user->present()->name() : '';
         }
 
         if (in_array('client.classification', $this->input['report_keys']) && isset($client->classification)) {

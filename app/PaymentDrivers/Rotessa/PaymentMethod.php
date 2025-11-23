@@ -24,12 +24,10 @@ use App\Models\PaymentType;
 use Illuminate\Http\Request;
 use App\Jobs\Util\SystemLogger;
 use App\Exceptions\PaymentFailed;
-use App\DataProviders\Frequencies;
 use App\Models\ClientGatewayToken;
 use Illuminate\Http\RedirectResponse;
 use App\PaymentDrivers\RotessaPaymentDriver;
 use App\PaymentDrivers\Common\MethodInterface;
-use Omnipay\Common\Exception\InvalidResponseException;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 
 class PaymentMethod implements MethodInterface, LivewireMethodInterface
@@ -59,12 +57,14 @@ class PaymentMethod implements MethodInterface, LivewireMethodInterface
             'name' => $data['client']->name,
             'id' => null
         ])->all();
+
         $data['gateway'] = $this->rotessa;
-        $data['gateway_type_id'] =   GatewayType::ACSS ;
+        $data['gateway_type_id'] = GatewayType::ACSS;
         $data['account'] = [
             'routing_number' => $data['client']->routing_id,
             'country' => $data['client']->country->iso_3166_2
         ];
+        
         $data['address'] = collect($data['client']->toArray())->merge(['country' => $data['client']->country->iso_3166_2 ])->all();
 
         return render('gateways.rotessa.bank_transfer.authorize', $data);

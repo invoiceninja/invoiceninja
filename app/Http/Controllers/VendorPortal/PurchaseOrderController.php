@@ -124,7 +124,8 @@ class PurchaseOrderController extends Controller
 
         $file = $invitation->purchase_order->service()->getPurchaseOrderPdf();
 
-        $headers = ['Content-Type' => 'application/pdf'];
+        // $headers = ['Content-Type' => 'application/pdf'];
+        $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
 
         return response()->make($file, 200, $headers);
 

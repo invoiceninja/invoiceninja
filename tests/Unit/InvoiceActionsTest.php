@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -18,13 +19,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Utils\Traits\Invoice\ActionsInvoice
  */
 class InvoiceActionsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+
+    public $faker;
     use ActionsInvoice;
 
     protected function setUp(): void
@@ -36,7 +39,8 @@ class InvoiceActionsTest extends TestCase
 
     public function testInvoiceIsDeletable()
     {
-        $this->assertFalse($this->invoiceDeletable($this->invoice));
+
+        $this->assertTrue($this->invoiceDeletable($this->invoice));
         $this->assertTrue($this->invoiceReversable($this->invoice));
         $this->assertTrue($this->invoiceCancellable($this->invoice));
     }
@@ -46,7 +50,7 @@ class InvoiceActionsTest extends TestCase
 
         $this->invoice = $this->invoice->service()->markPaid()->save();
 
-        $this->assertFalse($this->invoiceDeletable($this->invoice));
+        $this->assertTrue($this->invoiceDeletable($this->invoice));
         $this->assertTrue($this->invoiceReversable($this->invoice));
         $this->assertFalse($this->invoiceCancellable($this->invoice));
     }
@@ -64,7 +68,7 @@ class InvoiceActionsTest extends TestCase
 
         $this->invoice->service()->applyPayment($payment, 5)->save();
 
-        $this->assertFalse($this->invoiceDeletable($this->invoice));
+        $this->assertTrue($this->invoiceDeletable($this->invoice));
         $this->assertTrue($this->invoiceReversable($this->invoice));
         $this->assertTrue($this->invoiceCancellable($this->invoice));
     }
@@ -74,7 +78,7 @@ class InvoiceActionsTest extends TestCase
 
         $this->invoice->delete();
 
-        $this->assertFalse($this->invoiceDeletable($this->invoice));
+        $this->assertTrue($this->invoiceDeletable($this->invoice));
         $this->assertFalse($this->invoiceReversable($this->invoice));
         $this->assertFalse($this->invoiceCancellable($this->invoice));
     }

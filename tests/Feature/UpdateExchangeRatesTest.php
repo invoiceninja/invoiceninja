@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,18 +22,18 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Jobs\Util\UpdateExchangeRates
  */
 class UpdateExchangeRatesTest extends TestCase
 {
     use MakesHash;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        if(empty(config('ninja.currency_converter_api_key'))) {
+        if (empty(config('ninja.currency_converter_api_key'))) {
             $this->markTestSkipped("no currency key set");
         }
 

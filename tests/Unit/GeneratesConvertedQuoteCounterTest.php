@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,7 +28,7 @@ use App\Utils\Traits\GeneratesConvertedQuoteCounter;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *   App\Utils\Traits\GeneratesConvertedQuoteCounter
  */
 class GeneratesConvertedQuoteCounterTest extends TestCase

@@ -50,6 +50,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EInvoiceController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PostMarkController;
 use App\Http\Controllers\TemplateController;
@@ -190,6 +191,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('reactivate_email/{bounce_id}', [ClientController::class, 'reactivateEmail'])->name('clients.reactivate_email');
 
+    Route::post('feedback', FeedbackController::class)->name('feedback');
     Route::post('filters/{entity}', [FilterController::class, 'index'])->name('filters');
 
     Route::resource('client_gateway_tokens', ClientGatewayTokenController::class);
@@ -239,7 +241,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::post('einvoice/validateEntity', [EInvoiceController::class, 'validateEntity'])->name('einvoice.validateEntity');
     Route::post('einvoice/configurations', [EInvoiceController::class, 'configurations'])->name('einvoice.configurations');
-    
+
     Route::post('einvoice/peppol/legal_entity', [EInvoicePeppolController::class, 'show'])->name('einvoice.peppol.legal_entity');
     Route::post('einvoice/peppol/setup', [EInvoicePeppolController::class, 'setup'])->name('einvoice.peppol.setup');
     Route::post('einvoice/peppol/disconnect', [EInvoicePeppolController::class, 'disconnect'])->name('einvoice.peppol.disconnect');
@@ -272,7 +274,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('import', [ImportController::class, 'import'])->name('import.import');
     Route::post('import_json', [ImportJsonController::class, 'import'])->name('import.import_json');
     Route::post('preimport', [ImportController::class, 'preimport'])->name('import.preimport');
-    
+
     Route::resource('invoices', InvoiceController::class); // name = (invoices. index / create / show / update / destroy / edit
     Route::get('invoices/{invoice}/delivery_note', [InvoiceController::class, 'deliveryNote'])->name('invoices.delivery_note');
     Route::get('invoices/{invoice}/{action}', [InvoiceController::class, 'action'])->name('invoices.action');
@@ -319,7 +321,7 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::resource('projects', ProjectController::class); // name = (projects. index / create / show / update / destroy / edit
     Route::post('projects/bulk', [ProjectController::class, 'bulk'])->name('projects.bulk');
     Route::put('projects/{project}/upload', [ProjectController::class, 'upload'])->name('projects.upload');
-    
+
     Route::resource('purchase_orders', PurchaseOrderController::class);
     Route::post('purchase_orders/bulk', [PurchaseOrderController::class, 'bulk'])->name('purchase_orders.bulk');
     Route::put('purchase_orders/{purchase_order}/upload', [PurchaseOrderController::class, 'upload']);
@@ -413,8 +415,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('settings/enable_two_factor', [TwoFactorController::class, 'enableTwoFactor']);
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
 
-    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:1,1');
-    Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm')->middleware('throttle:2,1');
+    Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:daily-verify');
+    Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm')->middleware('throttle:daily-verify');
 
     Route::resource('vendors', VendorController::class); // name = (vendors. index / create / show / update / destroy / edit
     Route::post('vendors/bulk', [VendorController::class, 'bulk'])->name('vendors.bulk');
@@ -466,8 +468,8 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
 });
 
-Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:1,3');
-Route::post('api/v1/sms_reset/confirm', [TwilioController::class, 'confirm2faResetCode'])->name('sms_reset.confirm')->middleware('throttle:1,3');
+Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:daily-verify');
+Route::post('api/v1/sms_reset/confirm', [TwilioController::class, 'confirm2faResetCode'])->name('sms_reset.confirm')->middleware('throttle:daily-verify');
 
 Route::match(['get', 'post'], 'payment_webhook/{company_key}/{company_gateway_id}', PaymentWebhookController::class)
     ->middleware('throttle:1000,1')

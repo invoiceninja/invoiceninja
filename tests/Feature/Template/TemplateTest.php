@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -30,8 +31,8 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
- * 
+ *
+ *
  */
 class TemplateTest extends TestCase
 {
@@ -303,7 +304,7 @@ class TemplateTest extends TestCase
         ]);
 
         $data['projects'][] = $p;
-        
+
         $ts = new TemplateService();
         $ts->processData($data);
 
