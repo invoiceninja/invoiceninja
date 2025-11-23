@@ -47,7 +47,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['id' => 17, 'name' => 'Pin', 'provider' => 'Pin', 'key' => '0749cb92a6b36c88bd9ff8aabd2efcab', 'fields' => '{"secretKey":"","testMode":false}'],
             ['id' => 18, 'name' => 'SagePay Direct', 'provider' => 'SagePay_Direct', 'key' => '4c8f4e5d0f353a122045eb9a60cc0f2d', 'fields' => '{"vendor":"","testMode":false,"referrerId":""}'],
             ['id' => 19, 'name' => 'SecurePay DirectPost', 'provider' => 'SecurePay_DirectPost', 'key' => '8036a5aadb2bdaafb23502da8790b6a2', 'fields' => '{"merchantId":"","transactionPassword":"","testMode":false,"enable_ach":"","enable_sofort":"","enable_apple_pay":"","enable_alipay":""}'],
-            ['id' => 20, 'name' => 'Stripe', 'provider' => 'Stripe', 'sort_order' => 1, 'key' => 'd14dd26a37cecc30fdd65700bfb55b23', 'fields' => '{"publishableKey":"","apiKey":"","appleDomainVerification":""}'],
+            ['id' => 20, 'name' => 'Stripe', 'provider' => 'Stripe', 'sort_order' => 1, 'key' => 'd14dd26a37cecc30fdd65700bfb55b23', 'fields' => '{"publishableKey":"","apiKey":"","webhookSecret":"","appleDomainVerification":""}'],
             ['id' => 21, 'name' => 'TargetPay Direct eBanking', 'provider' => 'TargetPay_Directebanking', 'key' => 'd14dd26a37cdcc30fdd65700bfb55b23', 'fields' => '{"subAccountId":""}'],
             ['id' => 22, 'name' => 'TargetPay Ideal', 'provider' => 'TargetPay_Ideal', 'key' => 'ea3b328bd72d381387281c3bd83bd97c', 'fields' => '{"subAccountId":""}'],
             ['id' => 23, 'name' => 'TargetPay Mr Cash', 'provider' => 'TargetPay_Mrcash', 'key' => 'a0035fc0d87c4950fb82c73e2fcb825a', 'fields' => '{"subAccountId":""}'],
