@@ -85,7 +85,7 @@ class Project extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'projects_v2';
+        return 'projects';
     }
 
     protected $fillable = [

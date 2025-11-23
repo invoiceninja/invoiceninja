@@ -253,14 +253,9 @@ class Invoice extends BaseModel
 
     public const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
 
-    // public function searchableAs()
-    // {
-    //     return 'invoices_index';  // for when we need to rename
-    // }
-
     public function searchableAs(): string
     {
-        return 'invoices_v2';
+        return 'invoices';
     }
 
     public function toSearchableArray()

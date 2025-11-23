@@ -155,7 +155,7 @@ class Credit extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'credits_v2';
+        return 'credits';
     }
 
     protected $presenter = CreditPresenter::class;

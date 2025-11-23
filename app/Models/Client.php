@@ -143,7 +143,7 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function searchableAs(): string
     {
-        return 'clients_v2';
+        return 'clients';
     }
 
     protected $presenter = ClientPresenter::class;

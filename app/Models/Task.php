@@ -132,7 +132,7 @@ class Task extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'tasks_v2';
+        return 'tasks';
     }
 
     public function getEntityType()

@@ -5664,6 +5664,8 @@ $lang = array(
     'invoice_period_help' => 'Defines the time period for which the services were provided.',
     'paused_recurring_invoice_helper' => 'Caution! When restarting a recurring invoice, ensure the next send date is in the future.',
     'thank_you_for_feedback' => 'Thank you for your feedback!',
+    'use_legacy_editor' => 'Use Legacy Wysiwyg Editor',
+    'use_legacy_editor_help' => 'Use the TinyMCE editor.',
 );
 
 return $lang;

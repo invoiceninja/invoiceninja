@@ -280,7 +280,7 @@ class RecurringInvoice extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'recurring_invoices_v2';
+        return 'recurring_invoices';
     }
     
     public function toSearchableArray()

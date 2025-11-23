@@ -142,7 +142,7 @@ class Quote extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'quotes_v2';
+        return 'quotes';
     }
 
     protected $presenter = QuotePresenter::class;

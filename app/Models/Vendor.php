@@ -111,7 +111,7 @@ class Vendor extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'vendors_v2';
+        return 'vendors';
     }
 
     protected $fillable = [

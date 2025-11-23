@@ -128,7 +128,7 @@ class VendorContact extends Authenticatable implements HasLocalePreference
 
     public function searchableAs(): string
     {
-        return 'vendor_contacts_v2';
+        return 'vendor_contacts';
     }
 
     public function toSearchableArray()

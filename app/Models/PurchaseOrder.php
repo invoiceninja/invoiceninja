@@ -141,7 +141,7 @@ class PurchaseOrder extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'purchase_orders_v2';
+        return 'purchase_orders';
     }
 
     protected $hidden = [
