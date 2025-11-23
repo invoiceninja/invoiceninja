@@ -704,7 +704,15 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-               // Validate webhook signature if webhook_secret is configured
+                // Initialize to load webhook_secret and other config
+        try {
+            $this->init();
+        } catch (\Exception $e) {
+            nlog("Stripe webhook init failed: " . $e->getMessage());
+            // Continue without webhook secret verification if init fails
+        }
+        
+           // Validate webhook signature if webhook_secret is configured
         if ($this->webhook_secret) {
             $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
 
