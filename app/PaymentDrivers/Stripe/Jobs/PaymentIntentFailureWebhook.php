@@ -80,6 +80,16 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                         $query->where('transaction_reference', $transaction['id']);
                     }
 
+                    // Also check for latest_charge - ACH payments store charge ID as transaction_reference
+                    if (isset($transaction['latest_charge'])) {
+                        $query->orWhere('transaction_reference', $transaction['latest_charge']);
+                    }
+
+                    // Check for charges array (older Stripe API versions)
+                    if (isset($transaction['charges']['data'][0]['id'])) {
+                        $query->orWhere('transaction_reference', $transaction['charges']['data'][0]['id']);
+                    }
+                    
                 })
                 ->first();
 
@@ -90,6 +100,8 @@ class PaymentIntentFailureWebhook implements ShouldQueue
                     $payment->service()->deletePayment();
                 }
 
+                // Re-fetch the payment (including soft-deleted) to get the current state after deletion
+                $payment = Payment::withTrashed()->find($payment->id);
                 $payment->status_id = Payment::STATUS_FAILED;
                 $payment->save();
 
