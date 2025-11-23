@@ -126,7 +126,7 @@ class Project extends BaseModel
             'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name .  " | " . $this->client->present()->name(),
             'hashed_id' => $this->hashed_id,
             'number' => (string)$this->number,
-            'is_deleted' => (bool)$this->is_deleted,
+            'is_deleted' => $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
             'budgeted_hours' => (float) $this->budgeted_hours,
             'due_date' => $this->due_date,
