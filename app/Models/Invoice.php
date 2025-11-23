@@ -278,8 +278,8 @@ class Invoice extends BaseModel
             'custom_value3' => (string)$this->custom_value3,
             'custom_value4' => (string)$this->custom_value4,
             'company_key' => $this->company->company_key,
-            'po_number' => (string)$this->po_number,
-            'line_items' => (array)$this->line_items,
+            'po_number' => (string) $this->po_number,
+            'line_items' => (array) $this->line_items,
         ];
     }
 

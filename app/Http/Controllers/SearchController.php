@@ -139,7 +139,7 @@ class SearchController extends Controller
 
         $results = $elastic->search($params);
 
-        nlog($results['hits']);
+        // nlog($results['hits']);
 
         $this->mapResults($results['hits']['hits'] ?? []);
 
