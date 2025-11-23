@@ -677,6 +677,11 @@ class BaseController extends Controller
                 'token',
                 'company',
             ]);
+
+            // Set created_at to current time to filter out all existing related records
+            // (designs, documents, groups, etc.) for a minimal response payload
+            request()->merge(['created_at' => time()]);
+            return $this->miniLoadResponse($query);
         } 
         elseif ($user->getCompany()->is_large) {
             $this->manager->parseIncludes($this->mini_load);
