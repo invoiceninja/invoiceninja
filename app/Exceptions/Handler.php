@@ -81,6 +81,7 @@ class Handler extends ExceptionHandler
         ModelNotFoundException::class,
         NotFoundHttpException::class,
         RelationNotFoundException::class,
+        StripeConnectFailure::class,
     ];
 
     /**

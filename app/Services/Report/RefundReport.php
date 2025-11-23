@@ -58,7 +58,7 @@ class RefundReport extends BaseExport
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->company->settings));
 
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         $this->csv->insertOne([]);
@@ -86,14 +86,14 @@ class RefundReport extends BaseExport
 
         foreach ($refundActivities as $activity) {
             /** @var Activity $activity */
-            
+
             // Extract refund amount from notes using regex
             preg_match('/Refunded : (\d+) -/', $activity->notes, $matches);
             $refundAmount = $matches[1] ?? 0;
 
             // Get payment details
             $payment = $activity->payment;
-            
+
             // Get gateway refund status from refund_meta
             $gatewayRefund = false;
             if ($payment && $payment->refund_meta) {

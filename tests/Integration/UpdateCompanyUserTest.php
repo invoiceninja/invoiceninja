@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,7 +20,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\CompanyUserController
  */
 class UpdateCompanyUserTest extends TestCase
@@ -56,7 +57,7 @@ class UpdateCompanyUserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
-    
+
 
         $response->assertStatus(200);
 
@@ -78,7 +79,7 @@ class UpdateCompanyUserTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/company_users/'.$this->encodePrimaryKey($this->user->id).'/preferences?include=company_user', $settings);
-    
+
         $response->assertStatus(200);
 
         $arr = $response->json();
@@ -115,7 +116,7 @@ class UpdateCompanyUserTest extends TestCase
     //         'X-API-SECRET' => config('ninja.api_secret'),
     //         'X-API-TOKEN' => $this->token,
     //     ])->putJson("/api/v1/company_users/{$this->user->hashed_id}", $user);
-    
+
     //     $response->assertStatus(200);
 
     //     $arr = $response->json();

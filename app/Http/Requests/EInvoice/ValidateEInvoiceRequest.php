@@ -17,6 +17,7 @@ use App\Models\Client;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Http\Requests\Request;
+use App\Services\EDocument\Standards\Validation\Peppol\EntityLevel;
 use Illuminate\Validation\Rule;
 
 class ValidateEInvoiceRequest extends Request
@@ -76,7 +77,6 @@ class ValidateEInvoiceRequest extends Request
             return false;
         }
 
-
         $class = Invoice::class;
 
         match ($this->entity) {
@@ -91,6 +91,27 @@ class ValidateEInvoiceRequest extends Request
         }
 
         return $class::withTrashed()->find(is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id);
+
+    }
+    
+    /**
+     * getValidatorClass
+     * 
+     * Return the validator class based on the EInvoicing Standard
+     * 
+     * @return \App\Services\EDocument\Standards\Validation\EntityLevelInterface
+     */
+    public function getValidatorClass()
+    {
+        $user = auth()->user();
+
+        if($user->company()->settings->e_invoice_type == 'VERIFACTU') {
+            return new \App\Services\EDocument\Standards\Validation\Verifactu\EntityLevel();
+        }
+
+        // if($user->company()->settings->e_invoice_type == 'PEPPOL') {
+            return new \App\Services\EDocument\Standards\Validation\Peppol\EntityLevel();
+        // }
 
     }
 }

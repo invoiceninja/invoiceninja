@@ -27,7 +27,7 @@ class XsltDocumentValidator
     // private string $peppol_stylesheetx = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/ubl_stylesheet.xslt';
     // private string $peppol_stylesheet = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/ci_to_ubl_stylesheet.xslt';
 
-    private array $errors = [];
+    public array $errors = [];
 
     public function __construct(public string $xml_document)
     {

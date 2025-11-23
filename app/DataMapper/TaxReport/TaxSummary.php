@@ -14,28 +14,37 @@ namespace App\DataMapper\TaxReport;
 
 /**
  * Tax summary with totals for different tax states
+ *
+ * Represents the taxable amount and tax amount for an invoice in a specific period.
+ * The meaning of these values depends on the status:
+ *
+ * - 'updated': Full invoice tax liability (accrual) or paid tax (cash)
+ * - 'delta': Differential tax change from invoice updates
+ * - 'adjustment': Tax change from payment refunds/deletions
+ * - 'cancelled': Proportional tax on refunded/cancelled amount
+ * - 'deleted': Full tax reversal
+ * - 'reversed': Full tax reversal of credit note
  */
 class TaxSummary
 {
-    public float $total_taxes; // Tax collected and confirmed (ie. Invoice Paid)
-    public float $total_paid; // Tax pending collection (Outstanding tax of balance owing)
+    public float $taxable_amount;
+    public float $tax_amount;
     public string $status;
-    public float $adjustment;
+
     public function __construct(array $attributes = [])
     {
-        $this->total_taxes = $attributes['total_taxes'] ?? 0.0;
-        $this->total_paid = $attributes['total_paid'] ?? 0.0;
+        $this->taxable_amount = $attributes['taxable_amount'] ?? 0.0;
+        // Support both old and new property names for backwards compatibility during migration
+        $this->tax_amount = $attributes['tax_amount'] ?? $attributes['tax_adjustment'] ?? $attributes['total_taxes'] ?? 0.0;
         $this->status = $attributes['status'] ?? 'updated';
-        $this->adjustment = $attributes['adjustment'] ?? 0.0;
     }
 
     public function toArray(): array
     {
         return [
-            'total_taxes' => $this->total_taxes,
-            'total_paid' => $this->total_paid,
+            'taxable_amount' => $this->taxable_amount,
+            'tax_amount' => $this->tax_amount,
             'status' => $this->status,
-            'adjustment' => $this->adjustment,
         ];
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -18,13 +19,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Helpers\Invoice\InvoiceItemSumInclusive
  */
 class InvoiceItemInclusiveTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+
+    public $faker;
 
     protected function setUp(): void
     {

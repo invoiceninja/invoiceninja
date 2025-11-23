@@ -1,0 +1,823 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- editado con XMLSpy v2019 sp1 (x64) (http://www.altova.com) por AEAT (Agencia Estatal de Administracion Tributaria ((AEAT))) -->
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/EventosSIF.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/EventosSIF.xsd" elementFormDefault="qualified">
+	<import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"/>
+	<element name="RegistroEvento">
+		<complexType>
+			<sequence>
+				<element name="IDVersion" type="sf:VersionType"/>
+				<element name="Evento" type="sf:EventoType"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="EventoType">
+		<sequence>
+			<element name="SistemaInformatico" type="sf:SistemaInformaticoType"/>
+			<element name="ObligadoEmision" type="sf:PersonaFisicaJuridicaESType">
+				<annotation>
+					<documentation xml:lang="es"> Obligado a expedir la factura. </documentation>
+				</annotation>
+			</element>
+			<element name="EmitidaPorTerceroODestinatario" type="sf:TercerosODestinatarioType" minOccurs="0"/>
+			<element name="TerceroODestinatario" type="sf:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="FechaHoraHusoGenEvento" type="dateTime">
+			<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="TipoEvento" type="sf:TipoEventoType"/>
+			<element name="DatosPropiosEvento" type="sf:DatosPropiosEventoType" minOccurs="0"/>
+			<element name="OtrosDatosEvento" type="sf:TextMax100Type" minOccurs="0"/>
+			<element name="Encadenamiento" type="sf:EncadenamientoType"/>
+			<element name="TipoHuella" type="sf:TipoHuellaType"/>
+			<element name="HuellaEvento" type="sf:TextMax64Type"/>
+			<element ref="ds:Signature"/>
+		</sequence>
+	</complexType>
+	<complexType name="SistemaInformaticoType">
+		<sequence>
+			<sequence>
+				<element name="NombreRazon" type="sf:TextMax120Type"/>
+				<choice>
+					<element name="NIF" type="sf:NIFType"/>
+					<element name="IDOtro" type="sf:IDOtroType"/>
+				</choice>
+			</sequence>
+			<element name="NombreSistemaInformatico" type="sf:TextMax30Type" minOccurs="0"/>
+			<element name="IdSistemaInformatico" type="sf:TextMax2Type"/>
+			<element name="Version" type="sf:TextMax50Type"/>
+			<element name="NumeroInstalacion" type="sf:TextMax100Type"/>
+			<element name="TipoUsoPosibleSoloVerifactu" type="sf:SiNoType" minOccurs="0"/>
+			<element name="TipoUsoPosibleMultiOT" type="sf:SiNoType" minOccurs="0"/>
+			<element name="IndicadorMultiplesOT" type="sf:SiNoType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="DatosPropiosEventoType">
+		<choice>
+			<element name="LanzamientoProcesoDeteccionAnomaliasRegFacturacion" type="sf:LanzamientoProcesoDeteccionAnomaliasRegFacturacionType"/>
+			<element name="DeteccionAnomaliasRegFacturacion" type="sf:DeteccionAnomaliasRegFacturacionType"/>
+			<element name="LanzamientoProcesoDeteccionAnomaliasRegEvento" type="sf:LanzamientoProcesoDeteccionAnomaliasRegEventoType"/>
+			<element name="DeteccionAnomaliasRegEvento" type="sf:DeteccionAnomaliasRegEventoType"/>
+			<element name="ExportacionRegFacturacionPeriodo" type="sf:ExportacionRegFacturacionPeriodoType"/>
+			<element name="ExportacionRegEventoPeriodo" type="sf:ExportacionRegEventoPeriodoType"/>
+			<element name="ResumenEventos" type="sf:ResumenEventosType"/>
+		</choice>
+	</complexType>
+	<complexType name="EncadenamientoType">
+		<choice>
+			<element name="PrimerEvento" type="sf:TextMax1Type"/>
+			<element name="EventoAnterior" type="sf:RegEventoAntType"/>
+		</choice>
+	</complexType>
+	<complexType name="LanzamientoProcesoDeteccionAnomaliasRegFacturacionType">
+		<sequence>
+			<element name="RealizadoProcesoSobreIntegridadHuellasRegFacturacion" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosFacturacionProcesadosSobreIntegridadHuellas" type="sf:DigitosMax7Type" minOccurs="0"/>
+			<element name="RealizadoProcesoSobreIntegridadFirmasRegFacturacion" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosFacturacionProcesadosSobreIntegridadFirmas" type="sf:DigitosMax7Type" minOccurs="0"/>
+			<element name="RealizadoProcesoSobreTrazabilidadCadenaRegFacturacion" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosFacturacionProcesadosSobreTrazabilidadCadena" type="sf:DigitosMax7Type" minOccurs="0"/>
+			<element name="RealizadoProcesoSobreTrazabilidadFechasRegFacturacion" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosFacturacionProcesadosSobreTrazabilidadFechas" type="sf:DigitosMax7Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="DeteccionAnomaliasRegFacturacionType">
+		<sequence>
+			<element name="TipoAnomalia" type="sf:TipoAnomaliaType"/>
+			<element name="OtrosDatosAnomalia" type="sf:TextMax100Type" minOccurs="0"/>
+			<element name="RegistroFacturacionAnomalo" type="sf:IDFacturaExpedidaType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="LanzamientoProcesoDeteccionAnomaliasRegEventoType">
+		<sequence>
+			<element name="RealizadoProcesoSobreIntegridadHuellasRegEvento" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosEventoProcesadosSobreIntegridadHuellas" type="sf:DigitosMax5Type" minOccurs="0"/>
+			<element name="RealizadoProcesoSobreIntegridadFirmasRegEvento" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosEventoProcesadosSobreIntegridadFirmas" type="sf:DigitosMax5Type" minOccurs="0"/>
+			<element name="RealizadoProcesoSobreTrazabilidadCadenaRegEvento" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosEventoProcesadosSobreTrazabilidadCadena" type="sf:DigitosMax5Type" minOccurs="0"/>
+			<element name="RealizadoProcesoSobreTrazabilidadFechasRegEvento" type="sf:SiNoType"/>
+			<element name="NumeroDeRegistrosEventoProcesadosSobreTrazabilidadFechas" type="sf:DigitosMax5Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="DeteccionAnomaliasRegEventoType">
+		<sequence>
+			<element name="TipoAnomalia" type="sf:TipoAnomaliaType"/>
+			<element name="OtrosDatosAnomalia" type="sf:TextMax100Type" minOccurs="0"/>
+			<element name="RegEventoAnomalo" type="sf:RegEventoType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ExportacionRegFacturacionPeriodoType">
+		<sequence>
+			<element name="FechaHoraHusoInicioPeriodoExport" type="dateTime">
+				<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="FechaHoraHusoFinPeriodoExport" type="dateTime">
+			<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroFacturacionInicialPeriodo" type="sf:IDFacturaExpedidaHuellaType"/>
+			<element name="RegistroFacturacionFinalPeriodo" type="sf:IDFacturaExpedidaHuellaType"/>
+			<element name="NumeroDeRegistrosFacturacionAltaExportados" type="sf:DigitosMax9Type"/>
+			<element name="SumaCuotaTotalAlta" type="sf:ImporteSgn12.2Type"/>
+			<element name="SumaImporteTotalAlta" type="sf:ImporteSgn12.2Type"/>
+			<element name="NumeroDeRegistrosFacturacionAnulacionExportados" type="sf:DigitosMax9Type"/>
+			<element name="RegistrosFacturacionExportadosDejanDeConservarse" type="sf:SiNoType"/>
+		</sequence>
+	</complexType>
+	<complexType name="ExportacionRegEventoPeriodoType">
+		<sequence>
+			<element name="FechaHoraHusoInicioPeriodoExport" type="dateTime">
+			<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="FechaHoraHusoFinPeriodoExport" type="dateTime">
+			<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="RegistroEventoInicialPeriodo" type="sf:RegEventoType"/>
+			<element name="RegistroEventoFinalPeriodo" type="sf:RegEventoType"/>
+			<element name="NumeroDeRegEventoExportados" type="sf:DigitosMax7Type"/>
+			<element name="RegEventoExportadosDejanDeConservarse" type="sf:SiNoType"/>
+		</sequence>
+	</complexType>
+	<complexType name="ResumenEventosType">
+		<sequence>
+			<element name="TipoEvento" type="sf:TipoEventoAgrType" maxOccurs="20"/>
+			<element name="RegistroFacturacionInicialPeriodo" type="sf:IDFacturaExpedidaHuellaType" minOccurs="0"/>
+			<element name="RegistroFacturacionFinalPeriodo" type="sf:IDFacturaExpedidaHuellaType" minOccurs="0"/>
+			<element name="NumeroDeRegistrosFacturacionAltaGenerados" type="sf:DigitosMax6Type"/>
+			<element name="SumaCuotaTotalAlta" type="sf:ImporteSgn12.2Type"/>
+			<element name="SumaImporteTotalAlta" type="sf:ImporteSgn12.2Type"/>
+			<element name="NumeroDeRegistrosFacturacionAnulacionGenerados" type="sf:DigitosMax6Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="RegEventoType">
+		<sequence>
+			<element name="TipoEvento" type="sf:TipoEventoType"/>
+			<element name="FechaHoraHusoEvento" type="dateTime">
+			<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="HuellaEvento" type="sf:TextMax64Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="RegEventoAntType">
+		<sequence>
+			<element name="TipoEvento" type="sf:TipoEventoType"/>
+			<element name="FechaHoraHusoGenEvento" type="dateTime">
+			<annotation>
+					<documentation xml:lang="es">Formato: YYYY-MM-DDThh:mm:ssTZD (ej: 2024-01-01T19:20:30+01:00) (ISO 8601)</documentation>
+				</annotation>
+			</element>
+			<element name="HuellaEvento" type="sf:TextMax64Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="TipoEventoAgrType">
+		<sequence>
+			<element name="TipoEvento" type="sf:TipoEventoType"/>
+			<element name="NumeroDeEventos" type="sf:DigitosMax4Type"/>
+		</sequence>
+	</complexType>
+	<!-- Datos de persona Física o jurídica : Denominación, representación, identificación (NIF) -->
+	<complexType name="PersonaFisicaJuridicaESType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española con un NIF asociado</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<element name="NIF" type="sf:NIFType"/>
+		</sequence>
+	</complexType>
+	<simpleType name="NIFType">
+		<annotation>
+			<documentation xml:lang="es">NIF</documentation>
+		</annotation>
+		<restriction base="string">
+			<length value="9"/>
+		</restriction>
+	</simpleType>
+	<!-- Datos de persona Física o jurídica : Denominación, representación, identificación (NIF/Otro) -->
+	<complexType name="PersonaFisicaJuridicaType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española o Extranjera</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<choice>
+				<element name="NIF" type="sf:NIFType"/>
+				<element name="IDOtro" type="sf:IDOtroType"/>
+			</choice>
+		</sequence>
+	</complexType>
+	<!-- Datos de persona Física o jurídica : Denominación, representación, identificación (NIF/Otro) -->
+	<complexType name="IDOtroType">
+		<annotation>
+			<documentation xml:lang="es">Identificador de persona Física o jurídica distinto del NIF 
+        								 (Código pais, Tipo de Identificador, y hasta 15 caractéres)
+        								 No se permite CodigoPais=ES e IDType=01-NIFContraparte
+        								 para ese caso, debe utilizarse NIF en lugar de IDOtro.
+        	</documentation>
+		</annotation>
+		<sequence>
+			<element name="CodigoPais" type="sf:CountryType2" minOccurs="0"/>
+			<element name="IDType" type="sf:PersonaFisicaJuridicaIDTypeType"/>
+			<element name="ID" type="sf:TextMax20Type"/>
+		</sequence>
+	</complexType>
+	<!-- Tercero o Destinatario -->
+	<simpleType name="TercerosODestinatarioType">
+		<restriction base="string">
+			<enumeration value="D">
+				<annotation>
+					<documentation xml:lang="es">Destinatario</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="T">
+				<annotation>
+					<documentation xml:lang="es">Tercero</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="SiNoType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="VersionType">
+		<restriction base="string">
+			<enumeration value="1.0"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 120 caracteres -->
+	<simpleType name="TextMax120Type">
+		<restriction base="string">
+			<maxLength value="120"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 100 caracteres -->
+	<simpleType name="TextMax100Type">
+		<restriction base="string">
+			<maxLength value="100"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 64 caracteres -->
+	<simpleType name="TextMax64Type">
+		<restriction base="string">
+			<maxLength value="64"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 60 caracteres -->
+	<simpleType name="TextMax60Type">
+		<restriction base="string">
+			<maxLength value="60"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 50 caracteres -->
+	<simpleType name="TextMax50Type">
+		<restriction base="string">
+			<maxLength value="50"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 30 caracteres -->
+	<simpleType name="TextMax30Type">
+		<restriction base="string">
+			<maxLength value="30"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 20 caracteres -->
+	<simpleType name="TextMax20Type">
+		<restriction base="string">
+			<maxLength value="20"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 2 caracteres -->
+	<simpleType name="TextMax2Type">
+		<restriction base="string">
+			<maxLength value="2"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 1 caracteres -->
+	<simpleType name="TextMax1Type">
+		<restriction base="string">
+			<maxLength value="1"/>
+		</restriction>
+	</simpleType>
+	<!-- Definición de un tipo simple restringido a 9 dígitos -->
+	<simpleType name="DigitosMax9Type">
+		<restriction base="string">
+			<maxLength value="9"/>
+			<pattern value="\d{1,9}"/>
+		</restriction>
+	</simpleType>
+	<!-- Definición de un tipo simple restringido a 7 dígitos -->
+	<simpleType name="DigitosMax7Type">
+		<restriction base="string">
+			<maxLength value="7"/>
+			<pattern value="\d{1,7}"/>
+		</restriction>
+	</simpleType>
+	<!-- Definición de un tipo simple restringido a 6 dígitos -->
+	<simpleType name="DigitosMax6Type">
+		<restriction base="string">
+			<maxLength value="6"/>
+			<pattern value="\d{1,6}"/>
+		</restriction>
+	</simpleType>
+	<!-- Definición de un tipo simple restringido a 5 dígitos -->
+	<simpleType name="DigitosMax5Type">
+		<restriction base="string">
+			<maxLength value="5"/>
+			<pattern value="\d{1,5}"/>
+		</restriction>
+	</simpleType>
+	<!-- Definición de un tipo simple restringido a 4 dígitos -->
+	<simpleType name="DigitosMax4Type">
+		<restriction base="string">
+			<maxLength value="4"/>
+			<pattern value="\d{1,4}"/>
+		</restriction>
+	</simpleType>
+	<!-- Fecha (dd-mm-yyyy) -->
+	<simpleType name="fecha">
+		<restriction base="string">
+			<length value="10"/>
+			<pattern value="\d{2,2}-\d{2,2}-\d{4,4}"/>
+		</restriction>
+	</simpleType>
+	<!-- Importe de 15 dígitos (12+2) "." como separador decimal -->
+	<simpleType name="ImporteSgn12.2Type">
+		<restriction base="string">
+			<pattern value="(\+|-)?\d{1,12}(\.\d{0,2})?"/>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de identificador fiscal de persona Física o jurídica -->
+	<simpleType name="PersonaFisicaJuridicaIDTypeType">
+		<restriction base="string">
+			<enumeration value="02">
+				<annotation>
+					<documentation xml:lang="es">NIF-IVA</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="03">
+				<annotation>
+					<documentation xml:lang="es">Pasaporte</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="04">
+				<annotation>
+					<documentation xml:lang="es">IDEnPaisResidencia</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="05">
+				<annotation>
+					<documentation xml:lang="es">Certificado Residencia</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="06">
+				<annotation>
+					<documentation xml:lang="es">Otro documento Probatorio</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="07">
+				<annotation>
+					<documentation xml:lang="es">No Censado</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Tipo Hash -->
+	<simpleType name="TipoHuellaType">
+		<restriction base="string">
+			<enumeration value="01">
+				<annotation>
+					<documentation xml:lang="es">SHA-256</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="TipoEventoType">
+		<restriction base="string">
+			<enumeration value="01">
+				<annotation>
+					<documentation xml:lang="es">Inicio del funcionamiento del sistema informático como «NO VERI*FACTU».</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="02">
+				<annotation>
+					<documentation xml:lang="es">Fin del funcionamiento del sistema informático como «NO VERI*FACTU».</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="03">
+				<annotation>
+					<documentation xml:lang="es">Lanzamiento del proceso de detección de anomalías en los registros de facturación.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="04">
+				<annotation>
+					<documentation xml:lang="es">Detección de anomalías en la integridad, inalterabilidad y trazabilidad de registros de facturación.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="05">
+				<annotation>
+					<documentation xml:lang="es">Lanzamiento del proceso de detección de anomalías en los registros de evento.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="06">
+				<annotation>
+					<documentation xml:lang="es">Detección de anomalías en la integridad, inalterabilidad y trazabilidad de registros de evento.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="07">
+				<annotation>
+					<documentation xml:lang="es">Restauración de copia de seguridad, cuando ésta se gestione desde el propio sistema informático de facturación.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="08">
+				<annotation>
+					<documentation xml:lang="es">Exportación de registros de facturación generados en un periodo.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="09">
+				<annotation>
+					<documentation xml:lang="es">Exportación de registros de evento generados en un periodo.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="10">
+				<annotation>
+					<documentation xml:lang="es">Registro resumen de eventos</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="90">
+				<annotation>
+					<documentation xml:lang="es">Otros tipos de eventos a registrar voluntariamente por la persona o entidad productora del sistema informático.
+</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="TipoAnomaliaType">
+		<restriction base="string">
+			<enumeration value="01">
+				<annotation>
+					<documentation xml:lang="es">Integridad-huella</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="02">
+				<annotation>
+					<documentation xml:lang="es">Integridad-firma</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="03">
+				<annotation>
+					<documentation xml:lang="es">Integridad - Otros</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="04">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena-registro - Reg. no primero pero con reg. anterior no anotado o inexistente</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="05">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena-registro - Reg. no último pero con reg. posterior no anotado o inexistente</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="06">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena-registro - Otros</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="07">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena-huella - Huella del reg. no se corresponde con la 'huella del reg. anterior' almacenada en el registro posterior</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="08">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena-huella - Campo 'huella del reg. anterior' no se corresponde con la huella del reg. anterior</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="09">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena-huella - Otros</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="10">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-cadena - Otros</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="11">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-fechas - Fecha-hora anterior a la fecha del reg. anterior</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="12">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-fechas - Fecha-hora posterior a la fecha del reg. posterior</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="13">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-fechas - Reg. con fecha-hora de generación posterior a la fecha-hora actual del sistema</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="14">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad-fechas - Otros</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="15">
+				<annotation>
+					<documentation xml:lang="es">Trazabilidad - Otros</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="90">
+				<annotation>
+					<documentation xml:lang="es">Otros</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<complexType name="IDFacturaExpedidaType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura expedida para operaciones de consulta</documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" type="sf:NIFType"/>
+			<element name="NumSerieFactura" type="sf:TextMax60Type"/>
+			<element name="FechaExpedicionFactura" type="sf:fecha"/>
+		</sequence>
+	</complexType>
+	<complexType name="IDFacturaExpedidaHuellaType">
+		<annotation>
+			<documentation xml:lang="es">Datos de encadenamiento </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" type="sf:NIFType"/>
+			<element name="NumSerieFactura" type="sf:TextMax60Type"/>
+			<element name="FechaExpedicionFactura" type="sf:fecha"/>
+			<element name="Huella" type="sf:TextMax64Type"/>
+		</sequence>
+	</complexType>
+	<!-- ISO 3166-1 alpha-2 codes -->
+	<simpleType name="CountryType2">
+		<restriction base="string">
+			<enumeration value="AF"/>
+			<enumeration value="AL"/>
+			<enumeration value="DE"/>
+			<enumeration value="AD"/>
+			<enumeration value="AO"/>
+			<enumeration value="AI"/>
+			<enumeration value="AQ"/>
+			<enumeration value="AG"/>
+			<enumeration value="SA"/>
+			<enumeration value="DZ"/>
+			<enumeration value="AR"/>
+			<enumeration value="AM"/>
+			<enumeration value="AW"/>
+			<enumeration value="AU"/>
+			<enumeration value="AT"/>
+			<enumeration value="AZ"/>
+			<enumeration value="BS"/>
+			<enumeration value="BH"/>
+			<enumeration value="BD"/>
+			<enumeration value="BB"/>
+			<enumeration value="BE"/>
+			<enumeration value="BZ"/>
+			<enumeration value="BJ"/>
+			<enumeration value="BM"/>
+			<enumeration value="BY"/>
+			<enumeration value="BO"/>
+			<enumeration value="BA"/>
+			<enumeration value="BW"/>
+			<enumeration value="BV"/>
+			<enumeration value="BR"/>
+			<enumeration value="BN"/>
+			<enumeration value="BG"/>
+			<enumeration value="BF"/>
+			<enumeration value="BI"/>
+			<enumeration value="BT"/>
+			<enumeration value="CV"/>
+			<enumeration value="KY"/>
+			<enumeration value="KH"/>
+			<enumeration value="CM"/>
+			<enumeration value="CA"/>
+			<enumeration value="CF"/>
+			<enumeration value="CC"/>
+			<enumeration value="CO"/>
+			<enumeration value="KM"/>
+			<enumeration value="CG"/>
+			<enumeration value="CD"/>
+			<enumeration value="CK"/>
+			<enumeration value="KP"/>
+			<enumeration value="KR"/>
+			<enumeration value="CI"/>
+			<enumeration value="CR"/>
+			<enumeration value="HR"/>
+			<enumeration value="CU"/>
+			<enumeration value="TD"/>
+			<enumeration value="CZ"/>
+			<enumeration value="CL"/>
+			<enumeration value="CN"/>
+			<enumeration value="CY"/>
+			<enumeration value="CW"/>
+			<enumeration value="DK"/>
+			<enumeration value="DM"/>
+			<enumeration value="DO"/>
+			<enumeration value="EC"/>
+			<enumeration value="EG"/>
+			<enumeration value="AE"/>
+			<enumeration value="ER"/>
+			<enumeration value="SK"/>
+			<enumeration value="SI"/>
+			<enumeration value="ES"/>
+			<enumeration value="US"/>
+			<enumeration value="EE"/>
+			<enumeration value="ET"/>
+			<enumeration value="FO"/>
+			<enumeration value="PH"/>
+			<enumeration value="FI"/>
+			<enumeration value="FJ"/>
+			<enumeration value="FR"/>
+			<enumeration value="GA"/>
+			<enumeration value="GM"/>
+			<enumeration value="GE"/>
+			<enumeration value="GS"/>
+			<enumeration value="GH"/>
+			<enumeration value="GI"/>
+			<enumeration value="GD"/>
+			<enumeration value="GR"/>
+			<enumeration value="GL"/>
+			<enumeration value="GU"/>
+			<enumeration value="GT"/>
+			<enumeration value="GG"/>
+			<enumeration value="GN"/>
+			<enumeration value="GQ"/>
+			<enumeration value="GW"/>
+			<enumeration value="GY"/>
+			<enumeration value="HT"/>
+			<enumeration value="HM"/>
+			<enumeration value="HN"/>
+			<enumeration value="HK"/>
+			<enumeration value="HU"/>
+			<enumeration value="IN"/>
+			<enumeration value="ID"/>
+			<enumeration value="IR"/>
+			<enumeration value="IQ"/>
+			<enumeration value="IE"/>
+			<enumeration value="IM"/>
+			<enumeration value="IS"/>
+			<enumeration value="IL"/>
+			<enumeration value="IT"/>
+			<enumeration value="JM"/>
+			<enumeration value="JP"/>
+			<enumeration value="JE"/>
+			<enumeration value="JO"/>
+			<enumeration value="KZ"/>
+			<enumeration value="KE"/>
+			<enumeration value="KG"/>
+			<enumeration value="KI"/>
+			<enumeration value="KW"/>
+			<enumeration value="LA"/>
+			<enumeration value="LS"/>
+			<enumeration value="LV"/>
+			<enumeration value="LB"/>
+			<enumeration value="LR"/>
+			<enumeration value="LY"/>
+			<enumeration value="LI"/>
+			<enumeration value="LT"/>
+			<enumeration value="LU"/>
+			<enumeration value="XG"/>
+			<enumeration value="MO"/>
+			<enumeration value="MK"/>
+			<enumeration value="MG"/>
+			<enumeration value="MY"/>
+			<enumeration value="MW"/>
+			<enumeration value="MV"/>
+			<enumeration value="ML"/>
+			<enumeration value="MT"/>
+			<enumeration value="FK"/>
+			<enumeration value="MP"/>
+			<enumeration value="MA"/>
+			<enumeration value="MH"/>
+			<enumeration value="MU"/>
+			<enumeration value="MR"/>
+			<enumeration value="YT"/>
+			<enumeration value="UM"/>
+			<enumeration value="MX"/>
+			<enumeration value="FM"/>
+			<enumeration value="MD"/>
+			<enumeration value="MC"/>
+			<enumeration value="MN"/>
+			<enumeration value="ME"/>
+			<enumeration value="MS"/>
+			<enumeration value="MZ"/>
+			<enumeration value="MM"/>
+			<enumeration value="NA"/>
+			<enumeration value="NR"/>
+			<enumeration value="CX"/>
+			<enumeration value="NP"/>
+			<enumeration value="NI"/>
+			<enumeration value="NE"/>
+			<enumeration value="NG"/>
+			<enumeration value="NU"/>
+			<enumeration value="NF"/>
+			<enumeration value="NO"/>
+			<enumeration value="NC"/>
+			<enumeration value="NZ"/>
+			<enumeration value="IO"/>
+			<enumeration value="OM"/>
+			<enumeration value="NL"/>
+			<enumeration value="BQ"/>
+			<enumeration value="PK"/>
+			<enumeration value="PW"/>
+			<enumeration value="PA"/>
+			<enumeration value="PG"/>
+			<enumeration value="PY"/>
+			<enumeration value="PE"/>
+			<enumeration value="PN"/>
+			<enumeration value="PF"/>
+			<enumeration value="PL"/>
+			<enumeration value="PT"/>
+			<enumeration value="PR"/>
+			<enumeration value="QA"/>
+			<enumeration value="GB"/>
+			<enumeration value="RW"/>
+			<enumeration value="RO"/>
+			<enumeration value="RU"/>
+			<enumeration value="SB"/>
+			<enumeration value="SV"/>
+			<enumeration value="WS"/>
+			<enumeration value="AS"/>
+			<enumeration value="KN"/>
+			<enumeration value="SM"/>
+			<enumeration value="SX"/>
+			<enumeration value="PM"/>
+			<enumeration value="VC"/>
+			<enumeration value="SH"/>
+			<enumeration value="LC"/>
+			<enumeration value="ST"/>
+			<enumeration value="SN"/>
+			<enumeration value="RS"/>
+			<enumeration value="SC"/>
+			<enumeration value="SL"/>
+			<enumeration value="SG"/>
+			<enumeration value="SY"/>
+			<enumeration value="SO"/>
+			<enumeration value="LK"/>
+			<enumeration value="SZ"/>
+			<enumeration value="ZA"/>
+			<enumeration value="SD"/>
+			<enumeration value="SS"/>
+			<enumeration value="SE"/>
+			<enumeration value="CH"/>
+			<enumeration value="SR"/>
+			<enumeration value="TH"/>
+			<enumeration value="TW"/>
+			<enumeration value="TZ"/>
+			<enumeration value="TJ"/>
+			<enumeration value="PS"/>
+			<enumeration value="TF"/>
+			<enumeration value="TL"/>
+			<enumeration value="TG"/>
+			<enumeration value="TK"/>
+			<enumeration value="TO"/>
+			<enumeration value="TT"/>
+			<enumeration value="TN"/>
+			<enumeration value="TC"/>
+			<enumeration value="TM"/>
+			<enumeration value="TR"/>
+			<enumeration value="TV"/>
+			<enumeration value="UA"/>
+			<enumeration value="UG"/>
+			<enumeration value="UY"/>
+			<enumeration value="UZ"/>
+			<enumeration value="VU"/>
+			<enumeration value="VA"/>
+			<enumeration value="VE"/>
+			<enumeration value="VN"/>
+			<enumeration value="VG"/>
+			<enumeration value="VI"/>
+			<enumeration value="WF"/>
+			<enumeration value="YE"/>
+			<enumeration value="DJ"/>
+			<enumeration value="ZM"/>
+			<enumeration value="ZW"/>
+			<enumeration value="QU"/>
+			<enumeration value="XB"/>
+			<enumeration value="XU"/>
+			<enumeration value="XN"/>
+		</restriction>
+	</simpleType>
+</schema>

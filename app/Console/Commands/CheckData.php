@@ -184,7 +184,7 @@ class CheckData extends Command
     private function checkTaskTimeLogs()
     {
         \App\Models\Task::query()->cursor()->each(function ($task) {
-            $time_log = json_decode($task->time_log, true);
+            $time_log = json_decode($task->time_log, true) ?? [];
 
             foreach($time_log as &$log){
                 if(count($log) > 4){
@@ -970,14 +970,14 @@ class CheckData extends Command
     public function checkClientSettings()
     {
         if ($this->option('fix') == 'true') {
-            Client::query()->whereNull('country_id')->orWhere('country_id', 0)->cursor()->each(function ($client) {
+            Client::query()->withTrashed()->whereNull('country_id')->orWhere('country_id', 0)->cursor()->each(function ($client) {
                 $client->country_id = $client->company->settings->country_id;
                 $client->saveQuietly();
 
                 $this->logMessage("Fixing country for # {$client->id}");
             });
 
-            Client::query()->whereNull("settings->currency_id")->orWhereJsonContains('settings', ['currency_id' => ''])->cursor()->each(function ($client) {
+            Client::query()->withTrashed()->whereNull("settings->currency_id")->orWhereJsonContains('settings', ['currency_id' => ''])->cursor()->each(function ($client) {
                 $settings = $client->settings;
                 $settings->currency_id = (string)$client->company->settings->currency_id;
                 $client->settings = $settings;
@@ -987,7 +987,7 @@ class CheckData extends Command
 
             });
 
-            Payment::withTrashed()->where('exchange_rate', 0)->cursor()->each(function ($payment) {
+            Payment::withTrashed()->withTrashed()->where('exchange_rate', 0)->cursor()->each(function ($payment) {
                 $payment->exchange_rate = 1;
                 $payment->saveQuietly();
 
@@ -1000,11 +1000,11 @@ class CheckData extends Command
             })
             ->cursor()
             ->each(function ($p) {
-                $p->currency_id = $p->client->settings->currency_id;
+                $p->currency_id = $p->client->settings->currency_id ?? $p->company->settings->currency_id;
                 $p->saveQuietly();
 
 
-                $this->logMessage("Fixing currency for # {$p->id}");
+                $this->logMessage("Fixing currency for # {$p->id} with new currency {$p->currency_id}");
 
             });
 
@@ -1015,7 +1015,7 @@ class CheckData extends Command
                 $c->subdomain = MultiDB::randomSubdomainGenerator();
                 $c->save();
 
-                $this->logMessage("Fixing subdomain for # {$c->id}");
+                $this->logMessage("Fixing subdomain for # {$c->id} with new subdomain {$c->subdomain}");
 
             });
 
@@ -1076,7 +1076,7 @@ class CheckData extends Command
     public function checkVendorSettings()
     {
         if ($this->option('fix') == 'true') {
-            Vendor::query()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor) {
+            Vendor::query()->withTrashed()->whereNull('currency_id')->orWhere('currency_id', '')->cursor()->each(function ($vendor) {
                 $vendor->currency_id = $vendor->company->settings->currency_id;
                 $vendor->saveQuietly();
 
@@ -1174,7 +1174,7 @@ class CheckData extends Command
                 $bt->invoice_ids = collect($bt->payment->invoices)->pluck('hashed_id')->implode(',');
                 $bt->save();
 
-                $this->logMessage("Fixing - {$bt->id}");
+                $this->logMessage("Fixing - {$bt->id} with new invoice IDs {$bt->invoice_ids}");
 
             }
 
@@ -1195,7 +1195,7 @@ class CheckData extends Command
                 $c->send_email = false;
                 $c->saveQuietly();
 
-                $this->logMessage("Fixing - {$c->id}");
+                $this->logMessage("Fixing - {$c->id} with new send email {$c->send_email}");
 
             });
         }
@@ -1234,11 +1234,11 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
 
-            $p->cursor()->each(function ($c) {
-                $c->currency_id = $c->client->settings->currency_id ?? $c->company->settings->currency_id;
-                $c->saveQuietly();
+            $p->cursor()->each(function ($payment) {
+                $payment->currency_id = $payment->client->settings->currency_id ?? $payment->company->settings->currency_id;
+                $payment->saveQuietly();
 
-                $this->logMessage("Fixing - {$c->id}");
+                $this->logMessage("Fixing payment ID - {$payment->id} with new currency {$payment->currency_id}");
 
             });
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,12 +28,14 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class RelationExistsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
+
+    public $faker;
 
     private $models = [
         Invoice::class,

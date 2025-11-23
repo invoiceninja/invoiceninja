@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -24,7 +25,7 @@ use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Libraries\MultiDB
  *
  * Proves that we can reliably switch database connections at runtime
@@ -42,18 +43,19 @@ class MultiDBUserTest extends TestCase
             $this->markTestSkipped('Multi DB not enabled - skipping');
         }
 
-        foreach(MultiDB::getDBs() as $db) {
+        foreach (MultiDB::getDBs() as $db) {
             MultiDB::setDB($db);
-                $u = User::where('email','db1@example.com')->first();
-                if($u)
-                    $u->account->delete();
-
-
-                $u = User::where('email', 'db2@example.com')->first();
-                if ($u) {
-                    $u->account->delete();
-                }   
+            $u = User::where('email', 'db1@example.com')->first();
+            if ($u) {
+                $u->account->delete();
             }
+
+
+            $u = User::where('email', 'db2@example.com')->first();
+            if ($u) {
+                $u->account->delete();
+            }
+        }
 
         User::unguard();
 

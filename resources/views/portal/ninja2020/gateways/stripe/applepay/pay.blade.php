@@ -30,12 +30,12 @@
 
     @if($gateway->company_gateway->getConfigField('account_id'))
       var stripe = Stripe('{{ config('ninja.ninja_stripe_publishable_key') }}', {
-        apiVersion: "2018-05-21",
+        apiVersion: "2024-06-20",
         stripeAccount: '{{ $gateway->company_gateway->getConfigField('account_id') }}',
       });
     @else
       var stripe = Stripe('{{ $gateway->getPublishableKey() }}', {
-        apiVersion: "2018-05-21",
+        apiVersion: "2024-06-20",
       });
     @endif
 

@@ -69,6 +69,8 @@ class ProjectReportRequest extends Request
             $input['end_date'] = null;
         }
 
+        $input['user_id'] = auth()->user()->id;
+        
         $this->replace($input);
     }
 

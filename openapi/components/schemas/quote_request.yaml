@@ -1,0 +1,49 @@
+    QuoteRequest:
+      required:
+        - client_id
+        - date
+        - due_date
+      properties:
+        client_id:
+          description: 'The hashed ID of the client'
+          type: string
+          example: 'D2J234DFA'
+        date:
+          description: 'Quote date'
+          type: string
+          format: date
+          example: '2024-01-01'
+        due_date:
+          description: 'Due date for the quote'
+          type: string
+          format: date
+          example: '2024-01-31'
+        private_notes:
+          description: 'Private notes for the quote'
+          type: string
+          example: 'Internal notes about this quote'
+        public_notes:
+          description: 'Public notes for the quote'
+          type: string
+          example: 'Thank you for your business!'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          example: 'Custom value 4'
+        line_items:
+          type: array
+          description: 'An array of objects which define the line items of the quote'
+          items:
+            $ref: '#/components/schemas/InvoiceItem'

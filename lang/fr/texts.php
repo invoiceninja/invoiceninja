@@ -5615,6 +5615,13 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'tax_nexus' => 'Lien fiscal',
     'tax_period_report' => 'Rapport de période fiscale',
     'creator' => 'Créé par',
+    'ses_topic_arn_help' => 'Sujet SES (facultatif, uniquement pour le suivi des webhooks)',
+    'ses_region_help' => 'La région AWS, ex. us-east-1',
+    'ses_secret_key' => 'Clé secrète SES',
+    'ses_access_key' => 'ID de la clé d\'accès SES',
+    'activity_151' => 'Client :notes fusionné avec :client par :user',
+    'activity_152' => 'Le fournisseur :notes a été fusionné avec :vendor par :user',
+    'activity_153' => 'Client :notes purgé par :user',
 );
 
 return $lang;

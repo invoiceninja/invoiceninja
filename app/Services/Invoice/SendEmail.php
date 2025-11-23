@@ -44,26 +44,36 @@ class SendEmail extends AbstractService
 
         $this->invoice->service()->markSent()->save();
 
-        $this->invoice->invitations->filter(function ($invitation) {
-            return (! $invitation->contact->trashed() && $invitation->contact->email && !$invitation->contact->is_locked);
-        })->each(function ($invitation) use ($base_template) {
+        $this->invoice
+            ->invitations()
+            ->whereHas('contact', function ($query) {
+                $query->where(function ($sq) {
+                    $sq->whereNotNull('email')
+                        ->orWhere('email', '!=', '');
+                })->where('is_locked', false)
+                ->withoutTrashed();
+            })
+            ->when($this->contact, function ($query) {
+                $query->where('client_contact_id', $this->contact->id);
+            })
+            ->each(function ($invitation) use ($base_template) {
 
-            $mo = new EmailObject();
-            $mo->entity_id = $invitation->invoice_id;
-            $mo->template = $this->reminder_template;
-            $mo->email_template_body = $this->reminder_template;
-            $mo->email_template_subject = str_replace("template", "subject", $this->reminder_template);
+                $mo = new EmailObject();
+                $mo->entity_id = $invitation->invoice_id;
+                $mo->template = $this->reminder_template;
+                $mo->email_template_body = $this->reminder_template;
+                $mo->email_template_subject = str_replace("template", "subject", $this->reminder_template);
 
-            $mo->entity_class = get_class($invitation->invoice);
-            $mo->invitation_id = $invitation->id;
-            $mo->client_id = $invitation->contact->client_id ?? null;
-            $mo->vendor_id = $invitation->contact->vendor_id ?? null;
+                $mo->entity_class = get_class($invitation->invoice);
+                $mo->invitation_id = $invitation->id;
+                $mo->client_id = $invitation->contact->client_id ?? null;
+                $mo->vendor_id = $invitation->contact->vendor_id ?? null;
 
-            Email::dispatch($mo, $invitation->company);
+                Email::dispatch($mo, $invitation->company);
 
-            $this->invoice->entityEmailEvent($invitation, $base_template, $base_template);
+                $this->invoice->entityEmailEvent($invitation, $base_template, $base_template);
 
-        });
+            });
 
         event(new EntityWasEmailed($this->invoice->invitations->first(), $this->invoice->company, Ninja::eventVars(auth()->user() ? auth()->user()->id : null), 'invoice'));
 
@@ -76,6 +86,7 @@ class SendEmail extends AbstractService
     {
 
         return match ($template) {
+            'invoice' => 'email_template_invoice',
             'reminder1' => 'email_template_reminder1',
             'reminder2' => 'email_template_reminder2',
             'reminder3' => 'email_template_reminder3',
@@ -83,7 +94,7 @@ class SendEmail extends AbstractService
             'custom1' => 'email_template_custom1',
             'custom2' => 'email_template_custom2',
             'custom3' => 'email_template_custom3',
-            default => "email_template_{$template}",
+            default => "email_template_invoice",
         };
 
     }

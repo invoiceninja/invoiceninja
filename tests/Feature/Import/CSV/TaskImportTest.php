@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Import\Providers\Csv
  */
 class TaskImportTest extends TestCase
@@ -95,7 +96,7 @@ class TaskImportTest extends TestCase
 
         $time_log = json_decode($task->time_log);
 
-        foreach($time_log as $log) {
+        foreach ($time_log as $log) {
             $this->assertTrue($log[3]);
         }
 
@@ -105,7 +106,7 @@ class TaskImportTest extends TestCase
 
         $time_log = json_decode($task->time_log);
 
-        foreach($time_log as $log) {
+        foreach ($time_log as $log) {
             $this->assertTrue($log[3]);
         }
 

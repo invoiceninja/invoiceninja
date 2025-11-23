@@ -127,7 +127,9 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             );
 
             Stripe::setApiKey($this->company_gateway->getConfigField('apiKey'));
-            Stripe::setAPiVersion('2023-10-16');
+            // Stripe::setAPiVersion('2023-10-16');
+            // Stripe::setApiVersion('2024-04-10');
+            Stripe::setApiVersion('2025-03-31.basil');
         }
 
         return $this;
@@ -551,7 +553,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         $searchResults = \Stripe\Customer::all([
             'email' => (string)$this->client->present()->email(),
             'limit' => 2,
-            'starting_after' => null,
+            // 'starting_after' => null,
         ], $this->stripe_connect_auth);
 
         if (count($searchResults) == 1) {

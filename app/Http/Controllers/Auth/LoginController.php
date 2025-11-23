@@ -329,8 +329,6 @@ class LoginController extends BaseController
             Auth::login($existing_login_user, false);
             /** @var \App\Models\User $user */
 
-            // $user = auth()->user();
-
             $existing_login_user->update([
                 'oauth_user_id' => $user->id,
                 'oauth_provider_id' => $provider,
@@ -380,8 +378,8 @@ class LoginController extends BaseController
         $account_user = $account->default_company->owner();
         Auth::login($account_user, false);
 
-        $account_user->email_verified_at = now();
-        $account_user->save();
+        // $account_user->email_verified_at = now();
+        // $account_user->save();
 
         /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser($account_user);
@@ -632,8 +630,8 @@ class LoginController extends BaseController
         }
 
         $user = $account->default_company->owner();        
-        $user->email_verified_at = now();
-        $user->save();
+        // $user->email_verified_at = now();
+        // $user->save();
 
         Auth::login($user, false);
 

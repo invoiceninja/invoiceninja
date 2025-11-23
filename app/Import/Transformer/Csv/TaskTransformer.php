@@ -59,7 +59,7 @@ class TaskTransformer extends BaseTransformer
         ];
 
         if (count($task_items_data) == count($task_items_data, COUNT_RECURSIVE)) {
-            $transformed['time_log'] = json_encode([$this->parseLog($task_items_data)]);
+            $transformed['time_log'] = $this->parseLog($task_items_data) ? json_encode([$this->parseLog($task_items_data)]) : json_encode([]);
             return $transformed;
         }
 
@@ -93,15 +93,17 @@ class TaskTransformer extends BaseTransformer
             $start_date = $this->resolveStartDate($item);
             $end_date = $this->resolveEndDate($item);
         } elseif (isset($item['task.duration'])) {
-            $duration =  strtotime($item['task.duration']) - strtotime('TODAY');
+
+            $starttime = strtotime($item['task.duration']) ? strtotime($item['task.duration']) : strtotime('TODAY');
+            $duration =  $starttime - strtotime('TODAY');
             $start_date = $this->stubbed_timestamp;
             $end_date = $this->stubbed_timestamp + $duration;
             $this->stubbed_timestamp;
         } else {
-            return '';
+            return false;
         }
 
-        return [$start_date, $end_date, $notes, $is_billable];
+        return [(int)$start_date, (int)$end_date, (string)$notes, (bool)$is_billable];
     }
 
     private function resolveStartDate($item)
@@ -112,20 +114,32 @@ class TaskTransformer extends BaseTransformer
 
         try {
 
-            $stub_start_date = \Carbon\Carbon::parse($stub_start_date);
+            $stub_start_date = \Carbon\Carbon::parse($stub_start_date, $this->company->timezone()->name);
             $this->stubbed_timestamp = $stub_start_date->timestamp;
 
             return $stub_start_date->timestamp;
         } catch (\Exception $e) {
+
             nlog("fall back failed too" . $e->getMessage());
-            // return $this->stubbed_timestamp;
+            
+        }
+
+
+        
+        try {
+            $stub_start_date = \Carbon\Carbon::parse(str_replace('/', '-', $stub_start_date), $this->company->timezone()->name);
+            $this->stubbed_timestamp = $stub_start_date->timestamp;
+
+            return $stub_start_date->timestamp;
+        } catch (\Exception $e) {
+            nlog("str replace fall back failed too" . $e->getMessage());
         }
 
 
         try {
 
             $stub_start_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_start_date);
-            $this->stubbed_timestamp = $stub_start_date->timestamp;
+            $this->stubbed_timestamp = $stub_start_date->timestamp - $this->company->utc_offset();
         } catch (\Exception $e) {
             nlog($e->getMessage());
             return $this->stubbed_timestamp;
@@ -142,10 +156,10 @@ class TaskTransformer extends BaseTransformer
 
         try {
 
-            $stub_end_date = \Carbon\Carbon::parse($stub_end_date);
+            $stub_end_date = \Carbon\Carbon::parse($stub_end_date, $this->company->timezone()->name);
 
             if ($stub_end_date->timestamp == $this->stubbed_timestamp) {
-                $this->stubbed_timestamp;
+                
                 return $this->stubbed_timestamp;
             }
 
@@ -161,8 +175,27 @@ class TaskTransformer extends BaseTransformer
 
         try {
 
-            $stub_end_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_end_date);
+            $stub_end_date = \Carbon\Carbon::parse(str_replace('/', '-', $stub_end_date), $this->company->timezone()->name);
+
+            if ($stub_end_date->timestamp == $this->stubbed_timestamp) {
+                return $this->stubbed_timestamp;
+            }
+
             $this->stubbed_timestamp = $stub_end_date->timestamp;
+            return $stub_end_date->timestamp;
+        } catch (\Exception $e) {
+            nlog($e->getMessage());
+
+            // return $this->stubbed_timestamp;
+        }
+
+
+
+
+        try {
+
+            $stub_end_date = \Carbon\Carbon::createFromFormat($this->company->date_format(), $stub_end_date);
+            $this->stubbed_timestamp = $stub_end_date->timestamp - $this->company->utc_offset();
         } catch (\Exception $e) {
             nlog("fall back failed too" . $e->getMessage());
             return $this->stubbed_timestamp;

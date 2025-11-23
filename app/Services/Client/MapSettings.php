@@ -21,30 +21,30 @@ class MapSettings extends AbstractService
 {
     use MakesHash;
 
-     private array $default_settings = [
-        "company_gateway_ids" => "company_gateways",
-        "auto_archive_invoice" => "auto_archive_invoice_help",
-        "enable_client_portal_password" => "enable_portal_password",
-        "enable_client_portal" => "enable_client_portal_help",
-        "signature_on_pdf" => "signature_on_pdf_help",
-        "default_task_rate" => "default_task_rate",
-        "payment_terms" => "payment_terms",
-        "send_reminders" => "send_reminders",
-        "auto_email_invoice" => "auto_email_invoice_help",
-        "entity_send_time" => "send_time",
-        "auto_bill_date" => "auto_bill_on",
-        "valid_until" => "quote_valid_until",
-        "show_accept_invoice_terms" => "show_accept_invoice_terms",
-        "show_accept_quote_terms" => "show_accept_quote_terms",
-        "require_invoice_signature" => "require_invoice_signature",
-        "require_quote_signature" => "require_quote_signature",
-        "client_online_payment_notification" => "online_payment_email",
-        "client_manual_payment_notification" => "manual_payment_email",
-        "send_email_on_mark_paid" => "mark_paid_payment_email",
-        "auto_bill_standard_invoices" => "auto_bill_standard_invoices",
-        "client_portal_enable_uploads" => "client_document_upload",
-        "vendor_portal_enable_uploads" => "vendor_document_upload",
-        "accept_client_input_quote_approval" => "accept_purchase_order_number",
+    private array $default_settings = [
+       "company_gateway_ids" => "company_gateways",
+       "auto_archive_invoice" => "auto_archive_invoice_help",
+       "enable_client_portal_password" => "enable_portal_password",
+       "enable_client_portal" => "enable_client_portal_help",
+       "signature_on_pdf" => "signature_on_pdf_help",
+       "default_task_rate" => "default_task_rate",
+       "payment_terms" => "payment_terms",
+       "send_reminders" => "send_reminders",
+       "auto_email_invoice" => "auto_email_invoice_help",
+       "entity_send_time" => "send_time",
+       "auto_bill_date" => "auto_bill_on",
+       "valid_until" => "quote_valid_until",
+       "show_accept_invoice_terms" => "show_accept_invoice_terms",
+       "show_accept_quote_terms" => "show_accept_quote_terms",
+       "require_invoice_signature" => "require_invoice_signature",
+       "require_quote_signature" => "require_quote_signature",
+       "client_online_payment_notification" => "online_payment_email",
+       "client_manual_payment_notification" => "manual_payment_email",
+       "send_email_on_mark_paid" => "mark_paid_payment_email",
+       "auto_bill_standard_invoices" => "auto_bill_standard_invoices",
+       "client_portal_enable_uploads" => "client_document_upload",
+       "vendor_portal_enable_uploads" => "vendor_document_upload",
+       "accept_client_input_quote_approval" => "accept_purchase_order_number",
     ];
 
     public function __construct(private Client $client)
@@ -80,7 +80,7 @@ class MapSettings extends AbstractService
 
     private function mapSettings(array $settings): array
     {
-        
+
         return collect($settings)->mapWithKeys(function ($value, $key) {
 
             if ($key == "company_gateway_ids") {
@@ -96,29 +96,32 @@ class MapSettings extends AbstractService
         })->toArray();
 
     }
-    private function handleLanguage(string $language_id): string
+    private function handleLanguage(?string $language_id): string
     {
         /** @var \App\Models\Language $language */
-        $language = app('languages')->firstWhere('id', $language_id);
+        $language = app('languages')->firstWhere('id', $language_id ?? '1');
         return $language->name;
     }
 
     private function getTranslationFromKey(string $key): string
     {
-        if(isset($this->default_settings[$key])) {
+        if (isset($this->default_settings[$key])) {
             return ctrans("texts.{$this->default_settings[$key]}");
         }
 
         return ctrans("texts.{$key}");
     }
 
-    private function handleCompanyGateways(string $company_gateway_ids): string
+    private function handleCompanyGateways(?string $company_gateway_ids): string
     {
-        nlog($company_gateway_ids);
-        if($company_gateway_ids == "0") {
+        if (!$company_gateway_ids) {
+            return "No Special Configuration.";
+        }
+
+        if ($company_gateway_ids == "0") {
             return "Payment Gateways Disabled!";
         }
-        
+
         if ($company_gateway_ids == "") {
             return "No Special Configuration.";
         }

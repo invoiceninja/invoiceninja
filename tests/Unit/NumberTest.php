@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\Utils\Number;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Utils\Number
  */
 class NumberTest extends TestCase
@@ -64,7 +65,7 @@ class NumberTest extends TestCase
         ];
 
 
-        foreach($floatvals as $key => $value) {
+        foreach ($floatvals as $key => $value) {
 
             $this->assertEquals($key, Number::parseFloat($value));
 
@@ -85,8 +86,7 @@ class NumberTest extends TestCase
             "10100.1" => "10,100.10",
         ];
 
-        foreach($data as $key => $value)
-        {
+        foreach ($data as $key => $value) {
 
             $parts = explode(".", $key);
 
@@ -94,9 +94,10 @@ class NumberTest extends TestCase
 
             $precision = 2;
 
-            if(strlen($precision_part) > 2)
+            if (strlen($precision_part) > 2) {
                 $precision = strlen($precision_part);
-            
+            }
+
             $formatted_value = number_format($key, $precision, ".", ",");
 
             $this->assertEquals($value, $formatted_value);

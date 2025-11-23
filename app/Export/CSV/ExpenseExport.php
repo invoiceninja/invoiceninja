@@ -62,7 +62,7 @@ class ExpenseExport extends BaseExport
         return array_merge(['columns' => $header], $report);
     }
 
-    private function init(): Builder
+    public function init(): Builder
     {
 
         MultiDB::setDb($this->company->db);
@@ -114,6 +114,8 @@ class ExpenseExport extends BaseExport
             $query = $this->addCategoryFilter($query, $this->input['categories']);
         }
 
+        $query = $this->filterByUserPermissions($query);
+
         if ($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }
@@ -127,7 +129,7 @@ class ExpenseExport extends BaseExport
         $query = $this->init();
 
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header
@@ -225,9 +227,9 @@ class ExpenseExport extends BaseExport
 
         if (in_array('expense.vendor_id', $this->input['report_keys'])) {
 
-            // $entity['expense.vendor'] = $expense->vendor ? $expense->vendor->name : '';
+            $entity['expense.vendor_id'] = $expense->vendor ? $expense->vendor->name : '';
 
-            $entity['expense.vendor_id'] = $expense->vendor ? $expense->vendor->id : '';
+            // $entity['expense.vendor_id'] = $expense->vendor ? $expense->vendor->id : '';
         }
 
         if (in_array('expense.payment_type_id', $this->input['report_keys'])) {

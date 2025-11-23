@@ -39,7 +39,7 @@ class BulkClientRequest extends Request
             'action' => 'required|string|in:archive,restore,delete,template,assign_group,bulk_update',
             'ids' => ['required','bail','array',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)],
             'template' => 'sometimes|string',
-            'template_id' => 'sometimes|string',
+            'template_id' => 'sometimes|string|required_if:action,template',
             'group_settings_id' => ['required_if:action,assign_group',Rule::exists('group_settings', 'id')->where('company_id', $user->company()->id)],
             'send_email' => 'sometimes|bool',
             'column' => ['required_if:action,bulk_update', 'string', Rule::in(\App\Models\Client::$bulk_update_columns)],

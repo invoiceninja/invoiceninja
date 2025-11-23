@@ -100,7 +100,6 @@ class StorePaymentRequest extends Request
 
         \Illuminate\Support\Facades\Cache::put($hash, true, 1);
 
-
         $invoices_total = 0;
         $credits_total = 0;
 
@@ -159,6 +158,8 @@ class StorePaymentRequest extends Request
         if (array_key_exists('exchange_rate', $input) && $input['exchange_rate'] === null) {
             unset($input['exchange_rate']);
         }
+
+        $input['lock_key'] = $hash;
 
         $this->replace($input);
     }

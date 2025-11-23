@@ -66,6 +66,8 @@ class NinjaMailerJob implements ShouldQueue
 
     protected $client_brevo_secret = false;
 
+    protected $client_ses_secret = false;
+
     public function __construct(public ?NinjaMailerObject $nmo, public bool $override = false)
     {
     }
@@ -136,6 +138,10 @@ class NinjaMailerJob implements ShouldQueue
 
             if ($this->client_brevo_secret) {
                 $mailer->brevo_config($this->client_brevo_secret);
+            }
+
+            if($this->client_ses_secret) {
+                $mailer->ses_config($this->nmo->settings->ses_access_key, $this->nmo->settings->ses_secret_key, $this->nmo->settings->ses_region, $this->nmo->settings->ses_topic_arn);
             }
 
             $mailable = $this->nmo->mailable;
@@ -212,6 +218,7 @@ class NinjaMailerJob implements ShouldQueue
 
         } catch(\ErrorException $e){ //@todo - remove after symfony/mailer is updated with bug fix
             
+            nlog("Mailer failed with an Error Exception {$e->getMessage()}");
             $message = "Attachment size is too large.";
             $this->fail();
             $this->logMailError($message, $this->company->clients()->first());
@@ -352,10 +359,8 @@ class NinjaMailerJob implements ShouldQueue
             return $this;
         }
 
-
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
             //check if outlook.
-
             try {
                 $email = $this->nmo->to_user->email;
                 $domain = explode("@", $email)[1] ?? "";
@@ -394,6 +399,15 @@ class NinjaMailerJob implements ShouldQueue
                 $this->mailer = 'mailgun';
                 $this->setHostedMailgunMailer();
                 return $this;
+            case 'ses':
+                $this->mailer = 'ses';
+                $this->setHostedSesMailer();
+                return $this;
+            case 'client_ses':
+                $this->mailer = 'ses';
+                $this->client_ses_secret = true;
+                $this->setSesMailer();
+                return $this;
             case 'gmail':
                 $this->mailer = 'gmail';
                 $this->setGmailMailer();
@@ -428,6 +442,22 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         return $this;
+    }
+
+
+    private function setHostedSesMailer()
+    {
+
+        if (property_exists($this->nmo->settings, 'email_from_name') && strlen($this->nmo->settings->email_from_name) > 1) {
+            $email_from_name = $this->nmo->settings->email_from_name;
+        } else {
+            $email_from_name = $this->company->present()->name();
+        }
+
+        $this->nmo
+            ->mailable
+            ->from(config('services.ses.from.address'), $email_from_name);
+
     }
 
     private function configureSmtpMailer()
@@ -520,6 +550,8 @@ class NinjaMailerJob implements ShouldQueue
         $this->client_mailgun_domain = false;
 
         $this->client_brevo_secret = false;
+
+        $this->client_ses_secret = false;
 
         //always dump the drivers to prevent reuse
         app('mail.manager')->forgetMailers();
@@ -620,6 +652,20 @@ class NinjaMailerJob implements ShouldQueue
         $this->nmo
             ->mailable
             ->from($sending_email, $sending_user);
+    }
+
+    private function setSesMailer(): self
+    {
+        $this->mailer = 'ses';
+
+        $user = $this->resolveSendingUser();
+        $sending_user = (isset($this->nmo->settings->email_from_name) && strlen($this->nmo->settings->email_from_name) > 2) ? $this->nmo->settings->email_from_name : $user->name();
+
+        $this->nmo
+            ->mailable
+            ->from($this->nmo->settings->ses_from_address, $sending_user);
+
+            return $this;
     }
 
     /**
@@ -764,7 +810,7 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         /* GMail users are uncapped */
-        if (Ninja::isHosted() && (in_array($this->nmo->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun', 'client_brevo']))) {
+        if (Ninja::isHosted() && (in_array($this->nmo->settings->email_sending_method, ['gmail', 'office365', 'client_postmark', 'client_mailgun', 'client_brevo', 'client_ses']))) {
             return false;
         }
 

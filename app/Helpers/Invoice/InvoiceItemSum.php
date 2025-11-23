@@ -222,6 +222,7 @@ class InvoiceItemSum
 
     private function push(): self
     {
+        
         $this->sub_total += round($this->getLineTotal(), $this->currency->precision);
 
         $this->gross_sub_total += $this->getGrossLineTotal();
@@ -295,6 +296,7 @@ class InvoiceItemSum
      */
     private function calcTaxes()
     {
+
         if ($this->calc_tax) {
             $this->calcTaxesAutomatically();
         }
@@ -368,23 +370,27 @@ class InvoiceItemSum
 
                 $tax_component = 0;
 
+                $amount = 0;
+
                 if ($this->invoice->custom_surcharge1) {
                     $tax_component += round($this->invoice->custom_surcharge1 * ($tax['percentage'] / 100), 2);
+                    $amount += $this->invoice->custom_surcharge1;
                 }
 
                 if ($this->invoice->custom_surcharge2) {
                     $tax_component += round($this->invoice->custom_surcharge2 * ($tax['percentage'] / 100), 2);
+                    $amount += $this->invoice->custom_surcharge2;
                 }
 
                 if ($this->invoice->custom_surcharge3) {
                     $tax_component += round($this->invoice->custom_surcharge3 * ($tax['percentage'] / 100), 2);
+                    $amount += $this->invoice->custom_surcharge3;
                 }
 
                 if ($this->invoice->custom_surcharge4) {
                     $tax_component += round($this->invoice->custom_surcharge4 * ($tax['percentage'] / 100), 2);
+                    $amount += $this->invoice->custom_surcharge4;
                 }
-
-                $amount = $this->invoice->custom_surcharge4 + $this->invoice->custom_surcharge3 + $this->invoice->custom_surcharge2 + $this->invoice->custom_surcharge1;
 
                 if ($tax_component > 0) {
                     $this->groupTax($tax['name'], $tax['percentage'], $tax_component, $amount, $tax['tax_id']);

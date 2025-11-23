@@ -111,7 +111,7 @@ class ConnectedAccountController extends BaseController
             nlog("microsoft");
             nlog($email);
 
-            if (auth()->user()->email != $email && MultiDB::checkUserEmailExists($email)) {
+            if (strtolower(auth()->user()->email) != strtolower($email) && MultiDB::checkUserEmailExists(strtolower($email))) {
                 return response()->json(['message' => ctrans('texts.email_already_register')], 400);
             }
 

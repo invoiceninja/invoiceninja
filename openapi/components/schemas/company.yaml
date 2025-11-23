@@ -436,6 +436,26 @@
           description: "The ID of the legal entity associated with the company"
           type: integer
           example: 1234
+        convert_rate_to_client:
+          description: 'Flag indicating whether to convert rates to the client currency'
+          type: boolean
+          example: true
+        e_invoicing_token:
+          description: 'Authentication token for e-invoicing services'
+          type: string
+          example: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9'
+        enable_shop_api:
+          description: 'Flag indicating whether the shop API is enabled'
+          type: boolean
+          example: true
+        markdown_email_enabled:
+          description: 'Flag indicating whether markdown formatting is enabled in emails'
+          type: boolean
+          example: true
+        use_comma_as_decimal_place:
+          description: 'Flag indicating whether to use comma as decimal separator instead of period'
+          type: boolean
+          example: true
         settings:
           $ref: '#/components/schemas/CompanySettings'
       type: object

@@ -276,12 +276,32 @@ class TaskController extends BaseController
 
         $old_task_status_order = $task->status_order;
 
+        $request_data = $request->all();
+
         //2025-07-31 - if the start or stop query parameter is not present, then we need to save the task
         if (!($request->query('start', false) || $request->query('stop', false))) {
-            $task = $this->task_repo->save($request->all(), $task);
+            $task = $this->task_repo->save($request_data, $task);
         }
+        else {
+            
+            $task = $this->task_repo->triggeredActions($request, $task);
+        
+            /*
+            *
+            *  2025-10-30 - if the start or stop query parameter is present, 
+            * then we need to trigger the actions and save the task
+            * but we need to remove the time_log from the request data
+            * because it will be updated by the triggeredActions method.
+            *
+            * Handles the scenario where the description is updated and then start/stop is pressed
+            */
 
-        $task = $this->task_repo->triggeredActions($request, $task);
+            if(isset($request_data['time_log'])) {
+                unset($request_data['time_log']);
+            }
+
+            $task = $this->task_repo->save($request_data, $task);
+        }
 
         if (is_null($task->status_order) || $task->status_order != $old_task_status_order) {
             $this->task_repo->sortStatuses($task);
@@ -512,7 +532,19 @@ class TaskController extends BaseController
 
         $ids = $request->input('ids');
 
-        $tasks = Task::withTrashed()->whereIn('id', $this->transformKeys($ids))->company()->get();
+        $tasks = Task::withTrashed()->whereIn('id', $this->transformKeys($ids))->company();
+
+        $_tasks = (clone $tasks);
+
+        if ($request->action == 'bulk_update' && $user->can('edit', $_tasks->first())) {
+
+            $this->task_repo->bulkUpdate($tasks, $request->column, $request->new_value);
+
+            return $this->listResponse(Task::withTrashed()->whereIn('id', $this->transformKeys($ids))->company());
+
+        }
+
+        $tasks = $tasks->get();
 
         if ($action == 'template' && $user->can('view', $tasks->first())) {
 

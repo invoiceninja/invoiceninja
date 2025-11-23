@@ -114,6 +114,7 @@ class UpdateCompanyRequest extends Request
         $rules['settings.ses_secret_key'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.ses_access_key'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.ses_region'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
+        $rules['settings.ses_from_address'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.reply_to_email'] = 'sometimes|nullable|email'; // ensures that the reply to email address is a valid email address
         $rules['settings.bcc_email'] = ['sometimes', 'nullable', new \App\Rules\CommaSeparatedEmails]; //ensure that the BCC's are valid comma separated emails
 
@@ -212,6 +213,15 @@ class UpdateCompanyRequest extends Request
                     $settings[$protected_var] = str_replace("script", "", $settings[$protected_var]);
                 }
             }
+
+            if($this->company->getSetting('e_invoice_type') == 'VERIFACTU') {
+                $settings['e_invoice_type'] = 'VERIFACTU';
+            }
+
+        }
+
+        if(isset($settings['e_invoice_type']) && $settings['e_invoice_type'] == 'VERIFACTU' && $this->company->verifactuEnabled()) {
+            $settings['lock_invoices'] = 'when_sent';
         }
 
         if (isset($settings['email_style_custom'])) {

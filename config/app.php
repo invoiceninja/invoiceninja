@@ -200,6 +200,7 @@ return [
         App\Providers\ClientPortalServiceProvider::class,
         App\Providers\NinjaTranslationServiceProvider::class,
         App\Providers\StaticServiceProvider::class,
+        App\Providers\ScoutServiceProvider::class,
     ],
 
     /*

@@ -64,6 +64,7 @@ class CreditCard implements LivewireMethodInterface
                 $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
 
                 $payment = $this->mollie->gateway->payments->create([
+                    'method' => 'creditcard',                                                
                     'amount' => [
                         'currency' => $this->mollie->client->currency()->code,
                         'value' => $amount,
@@ -107,6 +108,7 @@ class CreditCard implements LivewireMethodInterface
 
         try {
             $data = [
+                'method' => 'creditcard',
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
                     'value' => $amount,

@@ -5,11 +5,29 @@
       summary: "List tasks"
       description: "Lists tasks, search and filters allow fine grained lists to be generated.\n     *\n     *   Query parameters can be added to performed more fine grained filtering of the tasks, these are handled by the TaskFilters class which defines the methods available"
       operationId: getTasks
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $tasks = $ninja->tasks->all([
+              'per_page' => 10,
+              'page' => 1,
+              'client_id' => 'D2J234DFA'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/tasks \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
         - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of tasks"
@@ -54,6 +72,44 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Task object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          
+          $task = $ninja->tasks->create([
+              'description' => 'Complete project documentation',
+              'client_id' => 'D2J234DFA',
+              'project_id' => 'P2J234DFA',
+              'time_log' => '2.5',
+              'status_id' => 1,
+              'due_date' => '2024-01-31',
+              'priority' => 1
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X POST https://demo.invoiceninja.com/api/v1/tasks \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "description": "Complete project documentation",
+              "client_id": "D2J234DFA",
+              "project_id": "P2J234DFA",
+              "time_log": "2.5",
+              "status_id": 1,
+              "due_date": "2024-01-31",
+              "priority": 1
+            }'
       responses:
         200:
           description: "Returns the saved task object"
@@ -87,6 +143,18 @@
       summary: "Show task"
       description: "Displays a task by id"
       operationId: showTask
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $task = $ninja->tasks->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/tasks/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -143,6 +211,37 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Task object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $task = $ninja->tasks->update("D2J234DFA", [
+              'description' => 'Updated task description',
+              'time_log' => '3.5',
+              'status_id' => 2,
+              'due_date' => '2024-02-15'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X PUT https://demo.invoiceninja.com/api/v1/tasks/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "description": "Updated task description",
+              "time_log": "3.5",
+              "status_id": 2,
+              "due_date": "2024-02-15"
+            }'
       responses:
         200:
           description: "Returns the task object"
@@ -175,6 +274,18 @@
       summary: "Delete task"
       description: "Handles the deletion of a task by id"
       operationId: deleteTask
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->tasks->delete("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X DELETE https://demo.invoiceninja.com/api/v1/tasks/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -216,6 +327,18 @@
       summary: "Edit task"
       description: "Displays a task by id"
       operationId: editTask
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $task = $ninja->tasks->show("D2J234DFA");
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/tasks/D2J234DFA/edit \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -261,6 +384,18 @@
       summary: "Blank task"
       description: "Returns a blank task with default values"
       operationId: getTasksCreate
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $task = $ninja->tasks->model();
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/tasks/create \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
@@ -412,6 +547,35 @@
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Task sort order data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskSortRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $ninja->tasks->sort([
+              'task_ids' => ['D2J234DFA', 'E3K345EFB', 'F4L456FGC'],
+              'status_id' => 1,
+              'sort_order' => ['F4L456FGC', 'D2J234DFA', 'E3K345EFB']
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X POST https://demo.invoiceninja.com/api/v1/tasks/sort \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "task_ids": ["D2J234DFA", "E3K345EFB", "F4L456FGC"],
+              "status_id": 1,
+              "sort_order": ["F4L456FGC", "D2J234DFA", "E3K345EFB"]
+            }'
       responses:
         200:
           description: "Returns an Ok, 200 HTTP status"

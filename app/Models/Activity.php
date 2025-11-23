@@ -288,6 +288,14 @@ class Activity extends StaticModel
 
     public const PURGE_CLIENT = 153;
 
+
+    public const VERIFACTU_INVOICE_SENT = 150;
+
+    public const VERIFACTU_INVOICE_SENT_FAILURE = 151;
+
+    public const VERIFACTU_CANCELLATION_SENT = 152;
+
+    public const VERIFACTU_CANCELLATION_SENT_FAILURE = 153;
     
     protected $casts = [
         'is_system' => 'boolean',

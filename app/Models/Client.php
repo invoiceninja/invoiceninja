@@ -38,6 +38,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int $id
  * @property int $company_id
  * @property int $user_id
+ * @property int|null $location_id
  * @property int|null $assigned_user_id
  * @property string|null $name
  * @property string|null $website
@@ -82,15 +83,17 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @property int|null $updated_at
  * @property int|null $deleted_at
  * @property string|null $id_number
+ * @property string|null $classification
  * @property-read mixed $hashed_id
  * @property-read \App\Models\User|null $assigned_user
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Company $company
  * @property-read \App\Models\Country|null $country
- * @property-read \App\Models\Industry|null $industry
  * @property-read \App\Models\Country|null $shipping_country
+ * @property-read \App\Models\Industry|null $industry
  * @property-read \App\Models\Size|null $size
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ClientContact> $contacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Credit> $credits
@@ -132,6 +135,16 @@ class Client extends BaseModel implements HasLocalePreference
     use ClientGroupSettingsSaver;
     use Excludable;
     use Searchable;
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'clients_v2';
+    }
 
     protected $presenter = ClientPresenter::class;
 
@@ -257,9 +270,9 @@ class Client extends BaseModel implements HasLocalePreference
         return [
             'id' => $this->company->db.":".$this->id,
             'name' => $name,
-            'is_deleted' => $this->is_deleted,
+            'is_deleted' => (bool)$this->is_deleted,
             'hashed_id' => $this->hashed_id,
-            'number' => $this->number,
+            'number' => (string)$this->number,
             'id_number' => $this->id_number,
             'vat_number' => $this->vat_number,
             'balance' => $this->balance,

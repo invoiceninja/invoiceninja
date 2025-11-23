@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,7 +20,7 @@ use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 use App\Http\ValidationRules\Company\ValidSubdomain;
 
 /**
- * 
+ *
  */
 class ValidSubdomainTest extends TestCase
 {
@@ -33,7 +34,7 @@ class ValidSubdomainTest extends TestCase
     /**  */
     public function testCheckValidSubdomainName()
     {
-        
+
         $data = ['subdomain' => 'invoiceyninjay'];
         $rules = ['subdomain' => ['nullable', 'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/',new ValidSubdomain()]];
 
@@ -45,7 +46,7 @@ class ValidSubdomainTest extends TestCase
 
     public function testCheckEmptyValidSubdomainName()
     {
-        
+
         $data = ['subdomain' => ''];
         $rules = ['subdomain' => ['nullable', 'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/',new ValidSubdomain()]];
 
@@ -57,7 +58,7 @@ class ValidSubdomainTest extends TestCase
 
     public function testCheckEmpty2ValidSubdomainName()
     {
-        
+
         $data = ['subdomain' => ' '];
         $rules = ['subdomain' => ['nullable', 'regex:/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/',new ValidSubdomain()]];
 
@@ -78,7 +79,7 @@ class ValidSubdomainTest extends TestCase
 
         $this->assertFalse($validator->passes());
 
-      
+
     }
 
 }

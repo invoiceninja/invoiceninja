@@ -28,6 +28,7 @@ class CreditFactory extends Factory
             'status_id' => Credit::STATUS_DRAFT,
             'discount' => $this->faker->numberBetween(1, 10),
             'is_amount_discount' => (bool) random_int(0, 1),
+            'number' => \Illuminate\Support\Str::random(54),
             'tax_name1' => 'GST',
             'tax_rate1' => 10,
             'tax_name2' => 'VAT',

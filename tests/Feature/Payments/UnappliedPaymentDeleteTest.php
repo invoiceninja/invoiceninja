@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,7 +24,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class UnappliedPaymentDeleteTest extends TestCase
 {
@@ -189,7 +190,7 @@ class UnappliedPaymentDeleteTest extends TestCase
         $payment_hashed_id = $arr['data']['id'];
         $payment = Payment::find($this->decodePrimaryKey($payment_hashed_id));
 
-        $payment->invoices()->each(function ($i){
+        $payment->invoices()->each(function ($i) {
 
             $this->assertEquals(20, $i->pivot->amount);
             $this->assertEquals(0, $i->pivot->refunded);
@@ -207,7 +208,7 @@ class UnappliedPaymentDeleteTest extends TestCase
 
         $this->assertEquals(20, $invoice->fresh()->balance);
         $this->assertEquals(0, $invoice->fresh()->paid_to_date);
-        
+
         $this->assertEquals(0, $client->fresh()->paid_to_date);
         $this->assertEquals(20, $client->fresh()->balance);
     }

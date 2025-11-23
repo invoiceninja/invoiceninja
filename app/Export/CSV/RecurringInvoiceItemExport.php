@@ -93,6 +93,7 @@ class RecurringInvoiceItemExport extends BaseExport
         if ($this->input['status'] ?? false) {
             $query = $this->addRecurringInvoiceStatusFilter($query, $this->input['status']);
         }
+        $query = $this->filterByUserPermissions($query);
 
         $query = $this->applyProductFilters($query);
 
@@ -138,7 +139,7 @@ class RecurringInvoiceItemExport extends BaseExport
         $query = $this->init();
 
         //load the CSV document from a string
-        $this->csv = Writer::createFromString();
+        $this->csv = Writer::fromString();
         \League\Csv\CharsetConverter::addTo($this->csv, 'UTF-8', 'UTF-8');
 
         //insert the header

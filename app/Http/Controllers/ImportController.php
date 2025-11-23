@@ -443,11 +443,10 @@ class ImportController extends Controller
 
     private function getCsvData($csvfile)
     {
-        if (! ini_get('auto_detect_line_endings')) {
-            ini_set('auto_detect_line_endings', '1');
-        }
 
-        $csv = Reader::createFromString($csvfile);
+        $csv = Reader::fromString($csvfile);
+        
+        // $csv = Reader::createFromString($csvfile);
         $csvdelimiter = self::detectDelimiter($csvfile);
         $csv->setDelimiter($csvdelimiter);
         $stmt = new Statement();

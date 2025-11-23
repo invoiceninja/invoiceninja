@@ -99,7 +99,7 @@ class ImportQuickbooksControllerTest extends TestCase
         $count = count($data);
         $this->mock->shouldReceive('Query')->andReturnUsing(
             function ($val, $s = 1, $max = 1000) use ($count, $data) {
-                if(stristr($val, 'count')) {
+                if (stristr($val, 'count')) {
                     return $count;
                 }
 

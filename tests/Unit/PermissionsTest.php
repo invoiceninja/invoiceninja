@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,7 +24,7 @@ use App\Models\User;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class PermissionsTest extends TestCase
 {
@@ -37,35 +38,37 @@ class PermissionsTest extends TestCase
 
     public $token;
 
+    private Account $account;
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         if (\App\Models\Country::count() == 0) {
             \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         }
 
         $this->faker = \Faker\Factory::create();
 
-        $account = Account::factory()->create([
+        $acc = Account::factory()->create([
             'hosted_client_count' => 1000,
             'hosted_company_count' => 1000,
         ]);
 
-        $account->num_users = 3;
-        $account->save();
+        $acc->num_users = 3;
+        $acc->save();
 
         $this->company = Company::factory()->create([
-            'account_id' => $account->id,
+            'account_id' => $acc->id,
         ]);
 
         $this->user = User::factory()->create([
-            'account_id' => $account->id,
+            'account_id' => $acc->id,
             'confirmation_code' => '123',
             'email' =>  $this->faker->safeEmail(),
         ]);
 
-        $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $account->id);
+        $this->cu = CompanyUserFactory::create($this->user->id, $this->company->id, $acc->id);
         $this->cu->is_owner = false;
         $this->cu->is_admin = false;
         $this->cu->is_locked = false;
@@ -77,21 +80,25 @@ class PermissionsTest extends TestCase
         $company_token = new CompanyToken();
         $company_token->user_id = $this->user->id;
         $company_token->company_id = $this->company->id;
-        $company_token->account_id = $account->id;
+        $company_token->account_id = $acc->id;
         $company_token->name = 'test token';
         $company_token->token = $this->token;
         $company_token->is_system = true;
         $company_token->save();
+
+        $this->account = $acc;
     }
 
     public function testClientOverviewPermissions()
     {
+        /** @var User $u */
         $u = User::factory()->create([
             'account_id' => $this->company->account_id,
             'confirmation_code' => '123',
             'email' =>  $this->faker->safeEmail(),
         ]);
 
+        /** @var Client $c */
         $c = Client::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $u->id,
@@ -131,6 +138,9 @@ class PermissionsTest extends TestCase
 
         $this->assertEquals(2, count($data));
 
+        $u->forceDelete();
+
+        $this->account->forceDelete();
     }
 
 
@@ -147,6 +157,10 @@ class PermissionsTest extends TestCase
         $low_cu->save();
 
         $this->assertTrue($this->user->hasExcludedPermissions(["view_client"]));
+
+
+        $this->account->forceDelete();
+
 
     }
 
@@ -176,6 +190,8 @@ class PermissionsTest extends TestCase
         $low_cu->save();
 
         $this->assertFalse($this->user->hasExcludedPermissions(["view_client"], ['view_invoice']));
+
+        $this->account->forceDelete();
 
     }
 
@@ -209,6 +225,10 @@ class PermissionsTest extends TestCase
         $this->assertFalse($this->user->hasIntersectPermissions(["createbank_transaction"]));
         $this->assertTrue($this->user->hasIntersectPermissions(["create_bank_transaction"]));
         $this->assertTrue($this->user->hasIntersectPermissions(['create_bank_transaction','edit_bank_transaction','view_bank_transaction']));
+
+
+        $this->account->forceDelete();
+
     }
 
     public function testViewClientPermission()
@@ -265,6 +285,9 @@ class PermissionsTest extends TestCase
         $low_cu->save();
 
         $this->assertTrue($this->user->hasPermission('view_recurring_invoice'));
+
+        $this->account->forceDelete();
+
     }
 
     public function testPermissionResolution()
@@ -312,6 +335,8 @@ class PermissionsTest extends TestCase
         $this->assertEquals('invoice', \Illuminate\Support\Str::snake(class_basename(Invoice::class)));
 
         $this->assertEquals('recurring_invoice', \Illuminate\Support\Str::snake(class_basename(RecurringInvoice::class)));
+
+        $this->account->forceDelete();
     }
 
     public function testExactPermissions()
@@ -328,6 +353,9 @@ class PermissionsTest extends TestCase
 
         $this->assertFalse($this->user->hasExactPermissionAndAll("view_client"));
         $this->assertFalse($this->user->hasExactPermissionAndAll("view_all"));
+
+        $this->account->forceDelete();
+
     }
 
     public function testViewAllValidPermissions()
@@ -338,6 +366,9 @@ class PermissionsTest extends TestCase
 
         $this->assertTrue($this->user->hasExactPermissionAndAll("view_client"));
         $this->assertTrue($this->user->hasExactPermissionAndAll("view_all"));
+
+        $this->account->forceDelete();
+
     }
 
     public function testReturnTypesOfStripos()
@@ -368,5 +399,9 @@ class PermissionsTest extends TestCase
         $this->assertTrue(is_int(stripos($all_permission, "view_client")) !== false);
 
         $this->assertTrue(is_int(stripos($all_permission, "view_client")));
+
+
+        $this->account->forceDelete();
+
     }
 }

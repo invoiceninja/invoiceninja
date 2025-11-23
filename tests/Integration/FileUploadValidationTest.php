@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,7 +20,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class FileUploadValidationTest extends TestCase
 {
@@ -63,7 +64,7 @@ class FileUploadValidationTest extends TestCase
             'recurring_expense' => 'recurring_expenses',
         ];
 
-        foreach($entities as $key => $value) {
+        foreach ($entities as $key => $value) {
 
             $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),

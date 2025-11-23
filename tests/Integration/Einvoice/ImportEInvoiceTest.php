@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,19 +18,17 @@ use Tests\MockAccountData;
 use InvoiceNinja\EInvoice\EInvoice;
 use App\Services\EDocument\Imports\UblEDocument;
 
-
 /**
- * 
+ *
  */
 class ImportEInvoiceTest extends TestCase
 {
-    
     use MockAccountData;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->makeTestData();
 
         $this->markTestSkipped("testing skipper");
@@ -38,13 +37,13 @@ class ImportEInvoiceTest extends TestCase
     public function testImportExpenseEinvoice()
     {
         $file = file_get_contents(base_path('tests/Integration/Einvoice/samples/peppol.xml'));
-        
+
         $file = TempFile::UploadedFileFromRaw($file, 'peppol.xml', 'xml');
 
         $expense = (new UblEDocument($file, $this->company))->run();
 
         $this->assertNotNull($expense);
-        
+
     }
 
     public function testParsingDocument()
@@ -53,7 +52,7 @@ class ImportEInvoiceTest extends TestCase
 
         //file present
         $this->assertNotNull($peppol_doc);
-        
+
         $e = new EInvoice();
         $invoice = $e->decode('Peppol', $peppol_doc, 'xml');
 
@@ -62,7 +61,7 @@ class ImportEInvoiceTest extends TestCase
 
         //has prop we expect
         $this->assertObjectHasProperty('UBLVersionID', $invoice);
-        
+
         //has hydrated correctly
         $this->assertInstanceOf(\InvoiceNinja\EInvoice\Models\Peppol\Invoice::class, $invoice);
 

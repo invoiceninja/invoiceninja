@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -45,7 +46,7 @@ trait MockUnitData
 
     public function makeTestData()
     {
-        
+
         if (\App\Models\Country::count() == 0) {
             \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         }
@@ -56,7 +57,7 @@ trait MockUnitData
 
         $this->user = User::factory()->create([
             'account_id' => $this->account->id,
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => \Illuminate\Support\Str::random(32)."@example.com",
         ]);
 
         $this->company = Company::factory()->create([

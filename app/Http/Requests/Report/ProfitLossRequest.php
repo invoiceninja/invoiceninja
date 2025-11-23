@@ -51,6 +51,9 @@ class ProfitLossRequest extends Request
             $input['date_range'] = 'all';
         }
 
+        $input['user_id'] = auth()->user()->id;
+
+        
         $this->replace($input);
     }
 
@@ -66,7 +69,7 @@ class ProfitLossRequest extends Request
             return false;
         }
 
-        return $user->isAdmin() || $user->hasPermission('view_reports');
+        return $user->isAdmin() || ($user->hasPermission('view_all') && $user->hasPermission('view_reports'));
 
     }
 

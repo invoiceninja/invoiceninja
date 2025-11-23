@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,7 +18,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class EInvoiceApiTest extends TestCase
 {
@@ -28,7 +29,7 @@ class EInvoiceApiTest extends TestCase
     {
         parent::setUp();
 
-        if(!config('ninja.storecove_api_key')) {
+        if (!config('ninja.storecove_api_key')) {
             $this->markTestSkipped('Storecove API key not set');
         }
 
@@ -45,7 +46,7 @@ class EInvoiceApiTest extends TestCase
             'entity' => 'invoice',
             'entity_id' => $this->invoice->hashed_id
         ];
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -57,7 +58,7 @@ class EInvoiceApiTest extends TestCase
 
     public function testValidationOnRoutes()
     {
-                
+
         $data = [
             'entity' => 'invoiceBLAH',
             'entity_id' => $this->invoice->hashed_id
@@ -74,7 +75,7 @@ class EInvoiceApiTest extends TestCase
 
     public function testValidationOnRoutes2()
     {
-                
+
         $data = [
             'entity' => 'invoice',
             'entity_id' => 'ddf8hjdfh8'

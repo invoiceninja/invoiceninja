@@ -70,9 +70,11 @@ class ProductSalesReportRequest extends Request
             $input['end_date'] = null;
         }
 
-        if (array_key_exists('client_id', $input) && strlen($input['client_id']) >= 1) {
+        if (array_key_exists('client_id', $input) && strlen($input['client_id'] ?? '') > 1) {
             $input['client_id'] = $this->decodePrimaryKey($input['client_id']);
         }
+        
+        $input['user_id'] = auth()->user()->id;
 
         $this->replace($input);
     }
@@ -89,7 +91,7 @@ class ProductSalesReportRequest extends Request
             return false;
         }
 
-        return $user->isAdmin() || $user->hasPermission('view_reports');
+        return $user->isAdmin() || ($user->hasPermission('view_all') && $user->hasPermission('view_reports'));
 
     }
 

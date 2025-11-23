@@ -86,8 +86,8 @@ class AccountController extends BaseController
 
         }
 
-        if ($request->has('hash') && config('ninja.cloudflare.turnstile.secret')) { //@todo once all platforms are implemented, we disable access to the rest of this route without a success response.
-
+        if ($request->has('hash') && config('ninja.cloudflare.turnstile.secret')) { 
+            
             if (Secure::decrypt($request->input('hash')) !== $request->input('email')) {
                 return response()->json(['message' => 'Invalid Signup Payload'], 400);
             }

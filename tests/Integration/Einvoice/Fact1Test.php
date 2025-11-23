@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -65,7 +66,7 @@ use InvoiceNinja\EInvoice\Models\Peppol\PartyIdentificationType\PartyIdentificat
 use InvoiceNinja\EInvoice\Models\Peppol\TaxCategoryType\TaxCategory;
 
 /**
- * 
+ *
  */
 class Fact1Test extends TestCase
 {
@@ -277,7 +278,7 @@ class Fact1Test extends TestCase
         $lmt->PayableAmount = $pa;
         $invoice->LegalMonetaryTotal = $lmt;
 
-        foreach($_invoice->line_items as $key => $item) {
+        foreach ($_invoice->line_items as $key => $item) {
 
             $invoice_line = new InvoiceLine();
             $invoice_line->ID = $key++;
@@ -338,7 +339,7 @@ class Fact1Test extends TestCase
 
         $errors = $validator->validate($invoice);
 
-        foreach($errors as $error) {
+        foreach ($errors as $error) {
             // echo $error->getPropertyPath() . ': ' . $error->getMessage() . "\n";
         }
 

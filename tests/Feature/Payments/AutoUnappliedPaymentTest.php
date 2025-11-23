@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -28,7 +29,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class AutoUnappliedPaymentTest extends TestCase
 {
@@ -96,7 +97,7 @@ class AutoUnappliedPaymentTest extends TestCase
 
         try {
             $invoice->service()->autoBill()->save();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
 
@@ -156,7 +157,7 @@ class AutoUnappliedPaymentTest extends TestCase
 
         try {
             $invoice->service()->autoBill()->save();
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
 

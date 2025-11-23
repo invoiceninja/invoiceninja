@@ -3782,7 +3782,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'notification_partial_payment_paid' => 'Klient :client dokonał częściowej płatności w wysokości :amount za :invoice',
     'notification_bot' => 'Bot powiadomień',
     'invoice_number_placeholder' => 'Faktura # :invoice',
-    'entity_number_placeholder' => ':entity # :entity _numer',
+    'entity_number_placeholder' => ':entity # :entity_number',
     'email_link_not_working' => 'Jeśli powyższy przycisk nie działa, kliknij link',
     'display_log' => 'Pokaż log',
     'send_fail_logs_to_our_server' => 'Zgłaszaj błędy, aby pomóc w ulepszaniu aplikacji',

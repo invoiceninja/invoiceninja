@@ -71,8 +71,9 @@ class RemoveTaxIdentifierRequestTest extends TestCase
 
         $validator = Validator::make($data, $this->request->rules());
 
-        if(!$validator->passes())
+        if (!$validator->passes()) {
             nlog($validator->errors());
+        }
 
         $this->assertFalse($validator->passes());
     }

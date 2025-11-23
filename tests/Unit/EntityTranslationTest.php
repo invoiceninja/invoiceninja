@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ use App\Models\Vendor;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class EntityTranslationTest extends TestCase
 {

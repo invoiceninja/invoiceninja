@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -14,7 +15,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class UrlTest extends TestCase
 {

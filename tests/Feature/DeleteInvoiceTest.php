@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,12 +24,14 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class DeleteInvoiceTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
+
+    public $faker;
     use MakesHash;
 
     protected function setUp(): void

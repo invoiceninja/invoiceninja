@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- editado con XMLSpy v2019 sp1 (x64) (http://www.altova.com) por Puesto de Trabajo (Agencia Estatal de Administracion Tributaria ((AEAT))) -->
+<!-- edited with XMLSpy v2009 sp1 (http://www.altova.com) by PC Corporativo (AGENCIA TRIBUTARIA) -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:sfLR="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroLR.xsd" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroLR.xsd" elementFormDefault="qualified">
+	<import namespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" schemaLocation="SuministroInformacion.xsd"/>
+	<element name="RegFactuSistemaFacturacion">
+		<complexType>
+			<sequence>
+				<element name="Cabecera" type="sf:CabeceraType"/>
+				<element name="RegistroFactura" type="sfLR:RegistroFacturaType" maxOccurs="1000"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="RegistroFacturaType">
+		<annotation>
+			<documentation xml:lang="es">Datos correspondientes a los registros de facturacion</documentation>
+		</annotation>
+		<sequence>
+			<choice>
+				<element ref="sf:RegistroAlta"/>
+				<element ref="sf:RegistroAnulacion"/>
+			</choice>
+		</sequence>
+	</complexType>
+</schema>

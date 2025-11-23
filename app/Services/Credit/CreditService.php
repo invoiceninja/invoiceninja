@@ -80,9 +80,9 @@ class CreditService
         return $this;
     }
 
-    public function sendEmail($contact = null)
+    public function sendEmail($contact = null, $email_type = null)
     {
-        $send_email = new SendEmail($this->credit, null, $contact);
+        $send_email = new SendEmail($this->credit, $email_type, $contact);
 
         return $send_email->run();
     }
@@ -91,7 +91,7 @@ class CreditService
     {
         if ((int) $this->credit->balance == 0) {
             $this->credit->status_id = Credit::STATUS_APPLIED;
-        } elseif ((string) $this->credit->amount == (string) $this->credit->balance) {
+        } elseif ((string) round($this->credit->amount, 2) == (string) round($this->credit->balance, 2)) {
             $this->credit->status_id = Credit::STATUS_SENT;
         } elseif ($this->credit->balance > 0) {
             $this->credit->status_id = Credit::STATUS_PARTIAL;
@@ -260,18 +260,18 @@ class CreditService
     public function deleteCredit()
     {
         $paid_to_date = $this->credit->invoice_id ? $this->credit->balance : 0;
-
+        /** 2025-09-24 - On invoice reversal => credit => delete - we reassign the payment to the credit - so no need to update the paid to date! */
         $this->credit
             ->client
             ->service()
-            ->updatePaidToDate($paid_to_date)
+            // ->updatePaidToDate($paid_to_date)
             ->adjustCreditBalance($this->credit->balance * -1)
             ->save();
 
         return $this;
     }
 
-
+    /** 2025-09-24 - On invoice reversal => credit => delete - we reassign the payment to the credit - so no need to update the paid to date! */
     public function restoreCredit()
     {
 
@@ -280,7 +280,7 @@ class CreditService
         $this->credit
              ->client
              ->service()
-             ->updatePaidToDate($paid_to_date * -1)
+            //  ->updatePaidToDate($paid_to_date * -1)
              ->adjustCreditBalance($this->credit->balance)
              ->save();
 

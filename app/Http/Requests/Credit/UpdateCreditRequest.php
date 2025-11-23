@@ -84,6 +84,12 @@ class UpdateCreditRequest extends Request
         return $rules;
     }
 
+    public function withValidator($validator)
+    {
+
+
+    }
+
     public function prepareForValidation()
     {
         $input = $this->all();

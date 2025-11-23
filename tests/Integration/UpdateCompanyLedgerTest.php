@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -30,7 +31,7 @@ class UpdateCompanyLedgerTest extends TestCase
     }
 
     /**
-     * 
+     *
      */
     public function testPaymentIsPresentInLedger()
     {
@@ -46,7 +47,7 @@ class UpdateCompanyLedgerTest extends TestCase
     }
 
     /**
-     * 
+     *
      */
     public function testInvoiceIsPresentInLedger()
     {

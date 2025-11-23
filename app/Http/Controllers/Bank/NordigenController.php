@@ -82,15 +82,10 @@ class NordigenController extends BaseController
             
             $agreement = $nordigen->createAgreement($institution, $institution['max_access_valid_for_days'], $txDays);//@2025-07-01: this is the correct way to get the access days
 
-            // $agreement = $nordigen->createAgreement($institution, $data['access_days'] ?? 9999, $txDays); 
-
-            //this does not work in a multi tenant environment, it simply grabs the first agreement, without differentiating between companies. we may need to store the current requistion...
-            // $agreement = $nordigen->firstValidAgreement($institution['id'], $data['access_days'] ?? 0, $txDays)
-            //           ?? $nordigen->createAgreement($institution, $data['max_access_valid_for_days'] ?? 90, $txDays);
         } catch (\Exception $e) {
             $debug = "{$e->getMessage()} ({$e->getCode()})";
 
-            nlog("Nordigen: Could not create an agreement with ${institution['name']}: {$debug}");
+            nlog("Nordigen: Could not create an agreement with {$institution['name']}: {$debug}");
 
             return $this->failed('eua-failure', $context, $company);
         }
@@ -224,7 +219,7 @@ class NordigenController extends BaseController
             ->where('integration_type', BankIntegration::INTEGRATION_TYPE_NORDIGEN)
             ->where('auto_sync', true)
             ->each(function ($bank_integration) {
-                ProcessBankTransactionsNordigen::dispatch($bank_integration);
+                ProcessBankTransactionsNordigen::dispatch($bank_integration)->delay(now()->addHour());
             });
 
         // prevent rerun of this method with same ref
