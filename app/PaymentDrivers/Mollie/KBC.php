@@ -37,33 +37,21 @@ class KBC implements MethodInterface, LivewireMethodInterface
         $this->mollie->init();
     }
 
-    /**
-     * Show the authorization page for KBC.
-     *
-     * @param array $data
-     * @return \Illuminate\View\View
-     */
+    /** @inheritDoc */
     public function authorizeView(array $data): View
     {
         return render('gateways.mollie.kbc.authorize', $data);
     }
 
-    /**
-     * Handle the authorization for KBC.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    /** @inheritDoc */
     public function authorizeResponse(Request $request): RedirectResponse
     {
         return redirect()->route('client.payment_methods.index');
     }
 
     /**
-     * Show the payment page for KBC.
-     *
-     * @param array $data
-     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
+     * @throws \Exception
+     * @inheritDoc
      */
     public function paymentView(array $data)
     {
@@ -93,24 +81,89 @@ class KBC implements MethodInterface, LivewireMethodInterface
                 ],
             ]);
 
-            $this->mollie->payment_hash->withData('payment_id', $payment->id);
+            $this->mollie->payment_hash->withData('transaction_reference', $payment->id);
 
-            return redirect(
-                $payment->getCheckoutUrl()
-            );
-        } catch (\Mollie\Api\Exceptions\ApiException|\Exception $exception) {
+            return redirect($payment->getCheckoutUrl());
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
     }
 
     /**
+     * @throws PaymentFailed When the payment fails
+     * @inheritDoc
+     */
+    public function paymentResponse(PaymentResponseRequest $request): \Illuminate\Http\Response|RedirectResponse
+    {
+        if (! \property_exists($this->mollie->payment_hash->data, 'transaction_reference')) {
+            return $this->processUnsuccessfulPayment(
+                new PaymentFailed('Whoops, something went wrong. Missing required [transaction_reference] parameter. Please contact administrator. Reference hash: '.$this->mollie->payment_hash->hash)
+            );
+        }
+
+        try {
+            $molliePayment = $this->mollie->gateway->payments->get(
+                $this->mollie->payment_hash->data->transaction_reference
+            );
+
+            if ($molliePayment->status === 'paid') {
+                return $this->processSuccessfulPayment($molliePayment);
+            }
+
+            if ($molliePayment->status === 'failed') {
+                return $this->processUnsuccessfulPayment(
+                    new PaymentFailed(ctrans('texts.status_failed'))
+                );
+            }
+
+            return $this->processUnsuccessfulPayment(
+                new PaymentFailed(ctrans('texts.status_voided'))
+            );
+        } catch (\Exception $exception) {
+            return $this->processUnsuccessfulPayment($exception);
+        }
+    }
+
+    /**
+     * Handle the successful payment for KBC.
+     *
+     * @param \Mollie\Api\Resources\Payment $molliePayment The Mollie payment object
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $molliePayment): RedirectResponse
+    {
+        $data = [
+            'gateway_type_id' => GatewayType::KBC,
+            'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
+            'payment_type' => PaymentType::KBC,
+            'transaction_reference' => $molliePayment->id,
+        ];
+
+        $payment_record = $this->mollie->createPayment(
+            $data,
+            $molliePayment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING
+        );
+
+        SystemLogger::dispatch(
+            ['response' => $molliePayment, 'data' => $data],
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_SUCCESS,
+            SystemLog::TYPE_MOLLIE,
+            $this->mollie->client,
+            $this->mollie->client->company,
+        );
+
+        return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
+    }
+
+    /**
      * Handle unsuccessful payment.
      *
-     * @param Exception $exception
-     * @throws PaymentFailed
-     * @return void
+     * @param \Exception $exception The exception that was thrown
+     * @throws PaymentFailed When the payment fails
+     * @return \Illuminate\Http\Response
      */
-    public function processUnsuccessfulPayment(\Exception $exception): void
+    public function processUnsuccessfulPayment(\Exception $exception): \Illuminate\Http\Response
     {
         $this->mollie->sendFailureMail($exception->getMessage());
 
@@ -123,81 +176,17 @@ class KBC implements MethodInterface, LivewireMethodInterface
             $this->mollie->client->company,
         );
 
+        $response = response([
+            'message' => $exception->getMessage(),
+            'code' => $exception->getCode(),
+        ]);
+
         throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+
+        return $response;
     }
 
-    /**
-     * Handle the payments for the KBC.
-     *
-     * @param PaymentResponseRequest $request
-     * @return mixed
-     */
-    public function paymentResponse(PaymentResponseRequest $request)
-    {
-        if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
-            return $this->processUnsuccessfulPayment(
-                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: ' . $this->mollie->payment_hash->hash)
-            );
-        }
-
-        try {
-            $payment = $this->mollie->gateway->payments->get(
-                $this->mollie->payment_hash->data->payment_id
-            );
-
-            if ($payment->status === 'paid') {
-                return $this->processSuccessfulPayment($payment);
-            }
-
-            if ($payment->status === 'failed') {
-                return $this->processUnsuccessfulPayment(
-                    new PaymentFailed(ctrans('texts.status_failed'))
-                );
-            }
-
-            return $this->processUnsuccessfulPayment(
-                new PaymentFailed(ctrans('texts.status_voided'))
-            );
-        } catch (\Mollie\Api\Exceptions\ApiException|\Exception $exception) {
-            return $this->processUnsuccessfulPayment($exception);
-        }
-    }
-
-    /**
-     * Handle the successful payment for KBC.
-     *
-     * @param ResourcesPayment $payment
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
-    {
-        $data = [
-            'gateway_type_id' => GatewayType::KBC,
-            'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
-            'payment_type' => PaymentType::KBC,
-            'transaction_reference' => $payment->id,
-        ];
-
-        $payment_record = $this->mollie->createPayment(
-            $data,
-            $payment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING
-        );
-
-        SystemLogger::dispatch(
-            ['response' => $payment, 'data' => $data],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_SUCCESS,
-            SystemLog::TYPE_MOLLIE,
-            $this->mollie->client,
-            $this->mollie->client->company,
-        );
-
-        return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
-    }
-
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function livewirePaymentView(array $data): string
     {
         // Doesn't support, it's offsite payment method.
@@ -205,9 +194,7 @@ class KBC implements MethodInterface, LivewireMethodInterface
         return '';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function paymentData(array $data): array
     {
         $this->paymentView($data);

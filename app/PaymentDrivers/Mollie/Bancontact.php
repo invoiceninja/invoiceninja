@@ -37,33 +37,22 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
         $this->mollie->init();
     }
 
-    /**
-     * Show the authorization page for Bancontact.
-     *
-     * @param array $data
-     * @return \Illuminate\View\View
-     */
+    /** @inheritDoc */
     public function authorizeView(array $data): View
     {
         return render('gateways.mollie.bancontact.authorize', $data);
     }
 
-    /**
-     * Handle the authorization for Bancontact.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    /** @inheritDoc */
     public function authorizeResponse(Request $request): RedirectResponse
     {
         return redirect()->route('client.payment_methods.index');
     }
 
     /**
-     * Show the payment page for Bancontact.
-     *
-     * @param array $data
-     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
+     * @throws \Exception
+     * @throws PaymentFailed
+     * @inheritDoc
      */
     public function paymentView(array $data)
     {
@@ -93,67 +82,40 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
                 ],
             ]);
 
-            $this->mollie->payment_hash->withData('payment_id', $payment->id);
+            $this->mollie->payment_hash->withData('transaction_reference', $payment->id);
 
-            return redirect(
-                $payment->getCheckoutUrl()
-            );
-        } catch (\Mollie\Api\Exceptions\ApiException|\Exception $exception) {
+            return redirect($payment->getCheckoutUrl());
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
     }
 
     /**
-     * Handle unsuccessful payment.
-     *
-     * @param Exception $exception
-     * @throws PaymentFailed
-     * @return void
+     * @throws PaymentFailed When the payment fails
+     * @inheritDoc
      */
-    public function processUnsuccessfulPayment(\Exception $exception): void
+    public function paymentResponse(PaymentResponseRequest $request): \Illuminate\Http\Response|RedirectResponse
     {
-        $this->mollie->sendFailureMail($exception->getMessage());
-
-        SystemLogger::dispatch(
-            $exception->getMessage(),
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_MOLLIE,
-            $this->mollie->client,
-            $this->mollie->client->company,
-        );
-
-        throw new PaymentFailed($exception->getMessage(), $exception->getCode());
-    }
-
-    /**
-     * Handle the payments for the KBC.
-     *
-     * @param PaymentResponseRequest $request
-     * @return mixed
-     */
-    public function paymentResponse(PaymentResponseRequest $request)
-    {
-        if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
+        if (! \property_exists($this->mollie->payment_hash->data, 'transaction_reference')) {
             return $this->processUnsuccessfulPayment(
-                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: ' . $this->mollie->payment_hash->hash)
+                new PaymentFailed('Whoops, something went wrong. Missing required [transaction_reference] parameter. Please contact administrator. Reference hash: '.$this->mollie->payment_hash->hash)
             );
         }
 
         try {
-            $payment = $this->mollie->gateway->payments->get(
-                $this->mollie->payment_hash->data->payment_id
+            $molliePayment = $this->mollie->gateway->payments->get(
+                $this->mollie->payment_hash->data->transaction_reference
             );
 
-            if ($payment->status === 'paid') {
-                return $this->processSuccessfulPayment($payment);
+            if ($molliePayment->status === 'paid') {
+                return $this->processSuccessfulPayment($molliePayment);
             }
 
-            if ($payment->status === 'open') {
-                return $this->processOpenPayment($payment);
+            if ($molliePayment->status === 'open') {
+                return $this->processOpenPayment($molliePayment);
             }
 
-            if ($payment->status === 'failed') {
+            if ($molliePayment->status === 'failed') {
                 return $this->processUnsuccessfulPayment(
                     new PaymentFailed(ctrans('texts.status_failed'))
                 );
@@ -162,7 +124,7 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
             return $this->processUnsuccessfulPayment(
                 new PaymentFailed(ctrans('texts.status_voided'))
             );
-        } catch (\Mollie\Api\Exceptions\ApiException|\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
     }
@@ -170,17 +132,17 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
     /**
      * Handle the successful payment for Bancontact.
      *
-     * @param string $status
-     * @param ResourcesPayment $payment
+     * @param \Mollie\Api\Resources\Payment $molliePayment The Mollie payment object
+     * @param string $status The payment status (default: 'paid')
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, string $status = 'paid'): RedirectResponse
+    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $molliePayment, string $status = 'paid'): RedirectResponse
     {
         $data = [
             'gateway_type_id' => GatewayType::BANCONTACT,
             'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
             'payment_type' => PaymentType::BANCONTACT,
-            'transaction_reference' => $payment->id,
+            'transaction_reference' => $molliePayment->id,
         ];
 
         $payment_record = $this->mollie->createPayment(
@@ -189,7 +151,7 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
         );
 
         SystemLogger::dispatch(
-            ['response' => $payment, 'data' => $data],
+            ['response' => $molliePayment, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_MOLLIE,
@@ -203,17 +165,45 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
     /**
      * Handle 'open' payment status for Bancontact.
      *
-     * @param ResourcesPayment $payment
+     * @param \Mollie\Api\Resources\Payment $molliePayment The Mollie payment object
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function processOpenPayment(\Mollie\Api\Resources\Payment $payment): RedirectResponse
+    public function processOpenPayment(\Mollie\Api\Resources\Payment $molliePayment): RedirectResponse
     {
-        return $this->processSuccessfulPayment($payment, 'open');
+        return $this->processSuccessfulPayment($molliePayment, 'open');
     }
 
     /**
-     * @inheritDoc
+     * Handle unsuccessful payment.
+     *
+     * @param \Exception $exception The exception that was thrown
+     * @throws PaymentFailed When the payment fails
+     * @return \Illuminate\Http\Response
      */
+    public function processUnsuccessfulPayment(\Exception $exception): \Illuminate\Http\Response
+    {
+        $this->mollie->sendFailureMail($exception->getMessage());
+
+        SystemLogger::dispatch(
+            $exception->getMessage(),
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_MOLLIE,
+            $this->mollie->client,
+            $this->mollie->client->company,
+        );
+
+        $response = response([
+            'message' => $exception->getMessage(),
+            'code' => $exception->getCode(),
+        ]);
+
+        throw new PaymentFailed($exception->getMessage(), $exception->getCode());
+
+        return $response;
+    }
+
+    /** @inheritDoc */
     public function livewirePaymentView(array $data): string
     {
         // Doesn't support, it's offsite payment method.
@@ -221,9 +211,7 @@ class Bancontact implements MethodInterface, LivewireMethodInterface
         return '';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function paymentData(array $data): array
     {
         $this->paymentView($data);

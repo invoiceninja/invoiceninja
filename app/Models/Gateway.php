@@ -134,12 +134,12 @@ class Gateway extends StaticModel
                 return [GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true]]; //Payfast
             case 7:
                 return [
-                    GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => true, 'webhooks' => ['all']], // Mollie
-                    GatewayType::BANK_TRANSFER => ['refund' => false, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['all']],
                     GatewayType::KBC => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
                     GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
-                    GatewayType::IDEAL => ['refund' => false, 'token_billing' => false, 'webhooks' => ['all']],
-                ];
+                    GatewayType::IDEAL => ['refund' => true, 'token_billing' => false, 'webhooks' => ['all']],
+                ]; // Mollie
             case 15:
                 return [
                     GatewayType::PAYPAL => ['refund' => false, 'token_billing' => false],
