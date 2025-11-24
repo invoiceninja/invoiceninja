@@ -278,7 +278,7 @@ class PdfConfiguration
 
         $design_id = $this->entity->design_id ?: $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
 
-        $this->design = Design::withTrashed()->find($design_id ?? 2);
+        $this->design = Design::withTrashed()->find($design_id) ?? Design::find(2);
 
         return $this;
     }
