@@ -25,7 +25,6 @@ use App\PaymentDrivers\MolliePaymentDriver;
 use Exception;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Mollie\Api\Resources\Payment as ResourcesPayment;
 
@@ -40,33 +39,21 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         $this->mollie->init();
     }
 
-    /**
-     * Show the authorization page for bank transfer.
-     *
-     * @param array $data
-     * @return \Illuminate\View\View
-     */
+    /** @inheritDoc */
     public function authorizeView(array $data): View
     {
         return render('gateways.mollie.bank_transfer.authorize', $data);
     }
 
-    /**
-     * Handle the authorization for bank transfer.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    /** @inheritDoc */
     public function authorizeResponse(Request $request): RedirectResponse
     {
         return redirect()->route('client.payment_methods.index');
     }
 
     /**
-     * Show the payment page for bank transfer.
-     *
-     * @param array $data
-     * @return \Illuminate\Http\RedirectResponseor|RedirectResponse
+     * @throws \Exception
+     * @inheritDoc
      */
     public function paymentView(array $data)
     {
@@ -98,44 +85,17 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
 
             $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
-            return redirect(
-                $payment->getCheckoutUrl()
-            );
-        } catch (\Mollie\Api\Exceptions\ApiException | \Exception $exception) {
+            return redirect($payment->getCheckoutUrl());
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
     }
 
     /**
-     * Handle unsuccessful payment.
-     *
-     * @param Exception $e
-     * @throws PaymentFailed
-     * @return void
+     * @throws PaymentFailed When the payment fails
+     * @inheritDoc
      */
-    public function processUnsuccessfulPayment(Exception $e): void
-    {
-        $this->mollie->sendFailureMail($e->getMessage());
-
-        SystemLogger::dispatch(
-            $e->getMessage(),
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_MOLLIE,
-            $this->mollie->client,
-            $this->mollie->client->company,
-        );
-
-        throw new PaymentFailed($e->getMessage(), $e->getCode());
-    }
-
-    /**
-     * Handle the payments for the bank transfer.
-     *
-     * @param PaymentResponseRequest $request
-     * @return mixed
-     */
-    public function paymentResponse(PaymentResponseRequest $request)
+    public function paymentResponse(PaymentResponseRequest $request): \Illuminate\Http\Response|RedirectResponse
     {
         if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
             return $this->processUnsuccessfulPayment(
@@ -144,22 +104,22 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         }
 
         try {
-            $payment = $this->mollie->gateway->payments->get(
+            $molliePayment = $this->mollie->gateway->payments->get(
                 $this->mollie->payment_hash->data->payment_id
             );
 
-            if ($payment->status === 'paid') {
-                return $this->processSuccessfulPayment($payment);
+            if ($molliePayment->status === 'paid') {
+                return $this->processSuccessfulPayment($molliePayment);
             }
 
-            if ($payment->status === 'open') {
-                return $this->processOpenPayment($payment);
+            if ($molliePayment->status === 'open') {
+                return $this->processOpenPayment($molliePayment);
             }
 
             return $this->processUnsuccessfulPayment(
                 new PaymentFailed(ctrans('texts.status_voided'))
             );
-        } catch (\Mollie\Api\Exceptions\ApiException | \Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->processUnsuccessfulPayment($exception);
         }
     }
@@ -167,17 +127,17 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
     /**
      * Handle the successful payment for bank transfer.
      *
-     * @param ResourcesPayment $payment
-     * @param string $status
+     * @param \Mollie\Api\Resources\Payment $molliePayment The Mollie payment object
+     * @param string $status The payment status (default: 'paid')
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function processSuccessfulPayment(ResourcesPayment $payment, $status = 'paid'): RedirectResponse
+    public function processSuccessfulPayment(ResourcesPayment $molliePayment, $status = 'paid'): RedirectResponse
     {
         $data = [
             'gateway_type_id' => GatewayType::BANK_TRANSFER,
             'amount' => array_sum(array_column($this->mollie->payment_hash->invoices(), 'amount')) + $this->mollie->payment_hash->fee_total,
             'payment_type' => PaymentType::MOLLIE_BANK_TRANSFER,
-            'transaction_reference' => $payment->id,
+            'transaction_reference' => $molliePayment->id,
         ];
 
         $payment_record = $this->mollie->createPayment(
@@ -186,7 +146,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         );
 
         SystemLogger::dispatch(
-            ['response' => $payment, 'data' => $data],
+            ['response' => $molliePayment, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_MOLLIE,
@@ -200,17 +160,45 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
     /**
      * Handle 'open' payment status for bank transfer.
      *
-     * @param ResourcesPayment $payment
+     * @param \Mollie\Api\Resources\Payment $molliePayment The Mollie payment object
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function processOpenPayment(ResourcesPayment $payment): RedirectResponse
+    public function processOpenPayment(ResourcesPayment $molliePayment): RedirectResponse
     {
-        return $this->processSuccessfulPayment($payment, 'open');
+        return $this->processSuccessfulPayment($molliePayment, 'open');
     }
 
     /**
-     * @inheritDoc
+     * Handle unsuccessful payment.
+     *
+     * @param \Exception $e The exception that was thrown
+     * @throws PaymentFailed When the payment fails
+     * @return \Illuminate\Http\Response
      */
+    public function processUnsuccessfulPayment(Exception $e): \Illuminate\Http\Response
+    {
+        $this->mollie->sendFailureMail($e->getMessage());
+
+        SystemLogger::dispatch(
+            $e->getMessage(),
+            SystemLog::CATEGORY_GATEWAY_RESPONSE,
+            SystemLog::EVENT_GATEWAY_FAILURE,
+            SystemLog::TYPE_MOLLIE,
+            $this->mollie->client,
+            $this->mollie->client->company,
+        );
+
+        $response = response([
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+        ]);
+
+        throw new PaymentFailed($e->getMessage(), $e->getCode());
+
+        return $response;
+    }
+
+    /** @inheritDoc */
     public function livewirePaymentView(array $data): string
     {
         // Doesn't support, it's offsite payment method.
@@ -218,9 +206,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         return '';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function paymentData(array $data): array
     {
         $this->paymentView($data);

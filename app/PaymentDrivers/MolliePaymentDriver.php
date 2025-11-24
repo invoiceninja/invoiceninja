@@ -12,28 +12,29 @@
 
 namespace App\PaymentDrivers;
 
+use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
+use App\Http\Requests\Payments\PaymentWebhookRequest;
+use App\Jobs\Util\SystemLogger;
 use App\Models\Client;
+use App\Models\ClientGatewayToken;
+use App\Models\GatewayType;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\SystemLog;
-use App\Models\GatewayType;
 use App\Models\PaymentHash;
 use App\Models\PaymentType;
-use App\Jobs\Util\SystemLogger;
-use App\Utils\Traits\MakesHash;
-use Mollie\Api\MollieApiClient;
-use App\Models\ClientGatewayToken;
-use App\PaymentDrivers\BaseDriver;
-use App\PaymentDrivers\Mollie\KBC;
-use App\PaymentDrivers\Mollie\IDEAL;
-use Mollie\Api\Exceptions\ApiException;
+use App\Models\SystemLog;
 use App\PaymentDrivers\Mollie\Bancontact;
-use App\PaymentDrivers\Mollie\CreditCard;
-use Illuminate\Support\Facades\Validator;
 use App\PaymentDrivers\Mollie\BankTransfer;
-use App\Http\Requests\Payments\PaymentWebhookRequest;
-use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
-use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
+use App\PaymentDrivers\Mollie\CreditCard;
+use App\PaymentDrivers\Mollie\IDEAL;
+use App\PaymentDrivers\Mollie\KBC;
+use App\Utils\Traits\MakesHash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
+use Mollie\Api\Exceptions\ApiException;
+use Mollie\Api\MollieApiClient;
 
 class MolliePaymentDriver extends BaseDriver
 {
@@ -77,6 +78,11 @@ class MolliePaymentDriver extends BaseDriver
 
     public const SYSTEM_LOG_TYPE = SystemLog::TYPE_MOLLIE;
 
+    /**
+     * Initialize the Mollie API client with the API key from the company gateway.
+     *
+     * @return self Returns the current instance for method chaining.
+     */
     public function init(): self
     {
         $this->gateway = new MollieApiClient();
@@ -88,6 +94,11 @@ class MolliePaymentDriver extends BaseDriver
         return $this;
     }
 
+    /**
+     * Get the list of supported gateway types for Mollie.
+     *
+     * @return array Array of supported gateway type constants.
+     */
     public function gatewayTypes(): array
     {
         $types = [];
@@ -101,30 +112,60 @@ class MolliePaymentDriver extends BaseDriver
         return $types;
     }
 
+    /**
+     * Set the payment method for the current transaction.
+     *
+     * @param int $payment_method_id The payment method identifier
+     * @return self Returns the current instance for method chaining.
+     */
     public function setPaymentMethod($payment_method_id)
     {
         $class = self::$methods[$payment_method_id];
-
         $this->payment_method = new $class($this);
 
         return $this;
     }
 
+    /**
+     * Show the authorization page for the payment method.
+     *
+     * @param array $data Payment method data
+     * @return mixed The response from the payment method's authorizeView method
+     */
     public function authorizeView(array $data)
     {
         return $this->payment_method->authorizeView($data);
     }
 
+    /**
+     * Handle the authorization response from the payment gateway.
+     *
+     * @param mixed $request The authorization request
+     * @return mixed The response from the payment method's authorizeResponse method
+     */
     public function authorizeResponse($request)
     {
         return $this->payment_method->authorizeResponse($request);
     }
 
+    /**
+     * Show the payment page for the payment method.
+     *
+     * @param array $data Payment data
+     * @return mixed The response from the payment method's paymentView method
+     */
     public function processPaymentView(array $data)
     {
         return $this->payment_method->paymentView($data);
     }
 
+    /**
+     * Handle the payment response from the payment gateway.
+     *
+     * @param mixed $request The payment response request
+     * @return mixed The response from the payment method's paymentResponse method
+     * @throws \Exception When the payment processing fails
+     */
     public function processPaymentResponse($request)
     {
         return $this->payment_method->paymentResponse($request);
@@ -135,33 +176,23 @@ class MolliePaymentDriver extends BaseDriver
         $this->init();
 
         try {
-            $payment = $this->gateway->payments->get($payment->transaction_reference);
+            $molliePayment = $this->gateway->payments->get($payment->transaction_reference);
 
-            $refund = $this->gateway->payments->refund($payment, [
+            $refund = $this->gateway->payments->refund($molliePayment, [
                 'amount' => [
                     'currency' => $this->client->currency()->code,
                     'value' => $this->convertToMollieAmount((float) $amount),
                 ],
             ]);
 
-            if ($refund->status === 'refunded') {
-                SystemLogger::dispatch(
-                    ['server_response' => $refund, 'data' => request()->all()],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                    SystemLog::TYPE_MOLLIE,
-                    $this->client,
-                    $this->client->company
-                );
-
-                return [
-                    'transaction_reference' => $refund->id,
-                    'transaction_response' => json_encode($refund),
-                    'success' => $refund->status === 'refunded' ? true : false, //@phpstan-ignore-line
-                    'description' => $refund->description,
-                    'code' => 200,
-                ];
-            }
+            SystemLogger::dispatch(
+                ['server_response' => $refund, 'data' => request()->all()],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_MOLLIE,
+                $this->client,
+                $this->client->company
+            );
 
             return [
                 'transaction_reference' => $refund->id,
@@ -192,7 +223,15 @@ class MolliePaymentDriver extends BaseDriver
         }
     }
 
-    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash)
+    /**
+     * Process a payment using a stored payment token.
+     *
+     * @param ClientGatewayToken $cgt The client gateway token containing payment method details
+     * @param PaymentHash $payment_hash The payment hash containing payment details
+     * @return Payment|null The created payment or null if payment fails
+     * @throws \Exception When there's an error processing the payment
+     */
+    public function tokenBilling(ClientGatewayToken $cgt, PaymentHash $payment_hash): ?Payment
     {
         $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total;
         $invoice = Invoice::query()->whereIn('id', $this->transformKeys(array_column($payment_hash->invoices(), 'invoice_id')))->withTrashed()->first();
@@ -210,7 +249,7 @@ class MolliePaymentDriver extends BaseDriver
         $this->init();
 
         try {
-            $payment = $this->gateway->payments->create([
+            $molliePayment = $this->gateway->payments->create([
                 'amount' => [
                     'currency' => $this->client->currency()->code,
                     'value' => $this->convertToMollieAmount($amount),
@@ -219,56 +258,8 @@ class MolliePaymentDriver extends BaseDriver
                 'customerId' => $cgt->gateway_customer_reference,
                 'sequenceType' => 'recurring',
                 'description' => $description,
-                'idempotencyKey' => uniqid("st", true),
                 'webhookUrl'  => $this->company_gateway->webhookUrl(),
             ]);
-
-            if ($payment->status === 'paid') {
-
-
-                $data = [
-                    'payment_method' => $cgt->token,
-                    'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-                    'amount' => $amount,
-                    'transaction_reference' => $payment->id,
-                    'gateway_type_id' => GatewayType::CREDIT_CARD,
-                ];
-
-                $this->confirmGatewayFee($data);
-
-                $payment = $this->createPayment($data, Payment::STATUS_COMPLETED);
-
-                SystemLogger::dispatch(
-                    ['response' => $payment, 'data' => $data],
-                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                    SystemLog::EVENT_GATEWAY_SUCCESS,
-                    SystemLog::TYPE_MOLLIE,
-                    $this->client,
-                    $this->client->company
-                );
-
-                return $payment;
-            }
-
-            $this->unWindGatewayFees($payment_hash);
-
-            $this->sendFailureMail($payment->details);
-
-            $message = [
-                'server_response' => $payment,
-                'data' => $payment_hash->data,
-            ];
-
-            SystemLogger::dispatch(
-                $message,
-                SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_FAILURE,
-                SystemLog::TYPE_CHECKOUT,
-                $this->client,
-                $this->client->company
-            );
-
-            return false;
         } catch (ApiException $e) {
             $this->unWindGatewayFees($payment_hash);
 
@@ -281,123 +272,261 @@ class MolliePaymentDriver extends BaseDriver
             ];
 
             SystemLogger::dispatch($data, SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_MOLLIE, $this->client, $this->client->company);
+            return null;
         }
+
+        try {
+            $data = [
+                'payment_method' => $cgt->token,
+                'payment_type' => self::convertFromMolliePaymentType($molliePayment->method),
+                'amount' => $amount,
+                'transaction_reference' => $molliePayment->id,
+                'gateway_type_id' => self::convertFromMollieGatewayType($molliePayment->method),
+            ];
+
+            $payment = $this->createPayment($data, self::convertFromMollieStatus($molliePayment->status));
+
+            SystemLogger::dispatch(
+                ['response' => $payment, 'data' => $data],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::TYPE_MOLLIE,
+                $this->client,
+                $this->client->company
+            );
+            return $payment;
+        } catch (\Exception $e) {
+            $this->unWindGatewayFees($payment_hash);
+
+            $this->sendFailureMail($molliePayment->details);
+
+            $message = [
+                'server_response' => $molliePayment,
+                'data' => $payment_hash->data,
+                'exception' => $e->getMessage()
+            ];
+
+            SystemLogger::dispatch(
+                $message,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_CHECKOUT,
+                $this->client,
+                $this->client->company
+            );
+        }
+        return null;
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request)
+    /**
+     * Process an incoming webhook request from Mollie.
+     *
+     * @param PaymentWebhookRequest $request The webhook request
+     * @return JsonResponse JSON response indicating success or failure
+     * @throws \Exception When there's an error processing the webhook
+     */
+    public function processWebhookRequest(PaymentWebhookRequest $request): JsonResponse
     {
-        // Allow app to catch up with webhook request.
-        // sleep(4);
-        nlog("Mollie:: processWebhookRequest");
-        // nlog($request->all());
-        usleep(rand(1500000, 2000000));
+        // Sometimes the webhook is called before the Client is sent back to InvoiceNinja,
+        // since we first want the client to execute `$this->payment_method->paymentResponse()`
+        // before processing the webhook, we wait a bit here.
+        usleep(rand(1500000, 4000000));
 
         $validator = Validator::make($request->all(), [
-            'id' => ['required', 'starts_with:tr'],
+            'id' => ['required', 'string', 'starts_with:tr', 'max:255'],
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        nlog("Mollie webhook called with id: {$request->id}", $request->toArray());
+
         $this->init();
-
-        $codes = [
-            'open' => Payment::STATUS_PENDING,
-            'canceled' => Payment::STATUS_CANCELLED,
-            'pending' => Payment::STATUS_PENDING,
-            'expired' => Payment::STATUS_CANCELLED,
-            'failed' => Payment::STATUS_FAILED,
-            'paid' => Payment::STATUS_COMPLETED,
-        ];
-
-        nlog($request->id);
-
         try {
-            $payment = $this->gateway->payments->get($request->id);
-            $record = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
+            $molliePayment = $this->gateway->payments->get($request->id);
+            if (!$molliePayment) {
+                throw new \Exception('Mollie payment not found in the webhook request');
+            }
 
-            if ($record) {
-                $client = $record->client;
+            $payment = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
+
+            if (!$payment) {
+                // Sometimes the user is not returned to the site with a response from Mollie
+                // so we may not have a payment record. For these cases we need to re-construct the payment
+                // record from the metadata in the payment hash.
+
+                if (!$molliePayment->metadata?->client_id) {
+                    throw new \Exception('No client_id found in Mollie payment metadata');
+                }
+                $client = Client::withTrashed()->find($this->decodePrimaryKey($molliePayment->metadata->client_id));
                 $this->client = $client;
+
+                if (!$molliePayment->metadata?->hash) {
+                    throw new \Exception('No payment hash found in Mollie payment metadata');
+                }
+                $payment_hash = PaymentHash::where('hash', $molliePayment->metadata->hash)->firstOrFail();
+                // If we are here, then we do not have access to the class payment hash, so lets set it here
+                $this->payment_hash = $payment_hash;
+
+                $data = [
+                    'gateway_type_id' => $molliePayment->metadata->gateway_type_id,
+                    'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
+                    'payment_type' => $molliePayment->metadata->payment_type_id,
+                    'transaction_reference' => $molliePayment->id,
+                    'idempotency_key' => substr("{$molliePayment->id}{$payment_hash->hash}", 0, 64)
+                ];
+
+                // Uses $this->payment_hash
+                $this->confirmGatewayFee($data);
+
+                // Uses $this->payment_hash
+                $payment = $this->createPayment(
+                    $data,
+                    self::convertFromMollieStatus($molliePayment->status)
+                );
             } else {
-                $client = Client::withTrashed()->find($this->decodePrimaryKey($payment->metadata->client_id));
+                $client = $payment->client;
                 $this->client = $client;
-                // sometimes if the user is not returned to the site with a response from Mollie
-                // we may not have a payment record - in these cases we need to re-construct the payment
-                // record from the meta data in the payment hash.
+            }
 
-                if ($payment && property_exists($payment->metadata, 'hash') && $payment->metadata->hash) {
-                    /* Harvest Payment Hash*/
-                    $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
+            $this->createClientGatewayTokenFromMolliePayment($molliePayment);
 
-                    /* If we are here, then we do not have access to the class payment hash, so lets set it here*/
-                    $this->payment_hash = $payment_hash;
+            $status = self::convertFromMollieStatus($molliePayment->status);
+            if (in_array($status, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])) {
+                if ($molliePayment->metadata?->hash) {
+                    $payment_hash = PaymentHash::where('hash', $molliePayment->metadata->hash)->firstOrFail();
+                    $this->handlePendingGatewayFeeRemoval($payment_hash);
+                }
 
-                    $data = [
-                        'gateway_type_id' => $payment->metadata->gateway_type_id,
-                        'amount' => $amount = array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
-                        'payment_type' => $payment->metadata->payment_type_id,
-                        'transaction_reference' => $payment->id,
-                        'idempotency_key' => substr("{$payment->id}{$payment_hash->hash}", 0, 64)
-                    ];
+                // Sets payment status to cancelled synchronously and handles other consequences
+                $payment->service()->deletePayment(false);
+            }
+            $payment->status_id = $status; // Set or overwrite payment status to the mollie status
+            $payment->date = $molliePayment->paidAt ?: null;
 
-                    $this->confirmGatewayFee($data);
+            // Handle refunded amounts
+            if ($molliePayment->amountRefunded?->currency === $payment->currency->code) {
+                $payment->refunded = self::convertFromMollieAmount($molliePayment->amountRefunded->value);
+            }
 
-                    $record = $this->createPayment(
-                        $data,
-                        $codes[$payment->status]
-                    );
+            // Handle remaining amount (applied amount)
+            if ($molliePayment->amountRemaining?->currency === $payment->currency->code) {
+                $payment->applied = self::convertFromMollieAmount($molliePayment->amountRemaining->value);
+            } else {
+                // If no remaining amount, use the full amount as applied for completed payments
+                if ($molliePayment->isPaid() || $molliePayment->isAuthorized()) {
+                    $payment->applied = $payment->amount - ($payment->refunded ?? 0);
                 }
             }
 
-            $message = [
-                'server_response' => $payment,
-                'data' => $request->all(),
-            ];
-
-            $response = SystemLog::EVENT_GATEWAY_FAILURE;
-
-            if ($record) {
-                if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
-                    
-                    if(property_exists($payment->metadata, 'hash') && $payment->metadata->hash){
-                        $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
-                        $this->handlePendingGatewayFeeRemoval($payment_hash);
-                    }
-
-                    $record->service()->deletePayment(false); 
-
-                    $this->sendFailureMail($payment->details->failureMessage ?? "There was a problem processing your payment.");
-                    
-                }
-                else {
-                    $response = SystemLog::EVENT_GATEWAY_SUCCESS;
-                }
-
-                $record->status_id = $codes[$payment->status];
-                $record->save();
-                
+            // Add description to private notes if not already present
+            $private_notes = "description: " . $molliePayment->description;
+            if (!str_contains($payment->private_notes, $private_notes)) {
+                $payment->private_notes .= $private_notes;
             }
 
-            SystemLogger::dispatch(
-                $message,
+            $payment->save();
+
+            SystemLogger::dispatch([
+                    'request' => $request->toArray(),
+                    'mollie_payment' => $molliePayment,
+                    'payment' => $payment
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                $response,
+                SystemLog::EVENT_GATEWAY_SUCCESS,
                 SystemLog::TYPE_MOLLIE,
-                $client,
-                $client->company
+                $this->client,
+                $this->company_gateway->company
             );
 
             return response()->json([], 200);
-        } catch (ApiException $e) {
-            return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
-        } catch(\Throwable $e){
-            nlog("Mollie:: Failure - In payment Response? - {$e->getMessage()}");
-            return response()->json(['message' => $e->getMessage(), 'gatewayStatusCode' => $e->getCode()], 500);
+        } catch (\Exception $e) {
+            $ctx = [
+                'request' => $request->toArray(),
+                'exception' => $e
+            ];
+            nlog("Mollie webhook call failed", $ctx);
+            SystemLogger::dispatch($ctx,
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_MOLLIE,
+                $this->client,
+                $this->company_gateway->company
+            );
         }
+        return response()->json([], 500);
     }
 
+    /**
+     * Stores a Mollie mandateId as ClientGatewayToken based on the mollie customerId attached to a given Mollie Payment.
+     * @param \Mollie\Api\Resources\Payment $payment
+     * @return ClientGatewayToken|null Returns new ClientGatewayToken on success, null on failure or if token already exists
+     * @throws ApiException
+     */
+    public function createClientGatewayTokenFromMolliePayment(\Mollie\Api\Resources\Payment $payment): ?ClientGatewayToken
+    {
+        if (!in_array($payment->status, ['paid'])) {
+            return null;
+        }
+
+        if (!$payment->metadata?->hash) {
+            return null;
+        }
+
+        $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
+
+        if (!$payment_hash || !property_exists($payment_hash->data, 'shouldStoreToken') || !$payment_hash->data->shouldStoreToken) {
+            return null;
+        }
+
+        $mandates = \iterator_to_array($this->gateway->mandates->listForId($payment_hash->data->mollieCustomerId));
+        $mandate = !empty($mandates) ? $mandates[0] : null;
+
+        if (!$mandate) {
+            return null;
+        }
+
+        $token_already_exists = $this->client->gateway_tokens
+            ->where('token', $mandate->id)
+            ->where('company_gateway_id', $this->company_gateway->id)
+            ->first();
+
+        if ($token_already_exists) {
+            return null;
+        }
+
+        $payment_method_id = self::convertFromMollieGatewayType($mandate->method);
+        $payment_meta = new \stdClass();
+        $payment_meta->type = $payment_method_id;
+
+        if ($payment_method_id == GatewayType::CREDIT_CARD) {
+            // Parse the card expiry date (format: YYYY-MM-DD)
+            $dateParts = explode('-', $mandate->details->cardExpiryDate);
+            if (count($dateParts) >= 2) {
+                $payment_meta->exp_year = substr($dateParts[0], -2); // Last 2 digits of YYYY
+                $payment_meta->exp_month = ltrim($dateParts[1], '0'); // MM (remove leading zero)
+            }
+            $payment_meta->brand = $mandate->details->cardLabel;
+            $payment_meta->last4 = $mandate->details->cardNumber;
+        } elseif ($payment_method_id == GatewayType::DIRECT_DEBIT) {
+            $payment_meta->last4 = substr($mandate->details->consumerAccount, -4); // Last 4 characters
+            $payment_meta->brand = "mollie";
+        }
+
+        return $this->storeGatewayToken([
+            'token' => $mandate->id,
+            'payment_method_id' => $payment_method_id,
+            'payment_meta' => $payment_meta,
+        ], ['gateway_customer_reference' => $payment_hash->data->mollieCustomerId]);
+    }
+
+    /**
+     * Remove pending gateway fees from an invoice.
+     *
+     * @param PaymentHash $payment_hash The payment hash containing fee information
+     * @return void
+     */
     private function handlePendingGatewayFeeRemoval(PaymentHash $payment_hash)
     {
         $invoice = $payment_hash->fee_invoice;
@@ -413,27 +542,35 @@ class MolliePaymentDriver extends BaseDriver
             })->toArray();
 
             $invoice->line_items = array_values($line_items);
-
             $invoice = $invoice->calc()->getInvoice();
-
         }
     }
 
+    /**
+     * Process 3D Secure confirmation for a payment.
+     *
+     * @param Mollie3dsRequest $request The 3DS confirmation request
+     * @return mixed The result of the payment processing
+     */
     public function process3dsConfirmation(Mollie3dsRequest $request)
     {
         $this->init();
-
         $this->setPaymentHash($request->getPaymentHash());
 
         try {
             $payment = $this->gateway->payments->get($request->getPaymentId());
-
             return (new CreditCard($this))->processSuccessfulPayment($payment);
         } catch (\Mollie\Api\Exceptions\ApiException $e) {
             return (new CreditCard($this))->processUnsuccessfulPayment($e);
-        } 
+        }
     }
 
+    /**
+     * Detach a payment method by revoking the mandate from Mollie.
+     *
+     * @param ClientGatewayToken $token The client gateway token to detach
+     * @return void
+     */
     public function detach(ClientGatewayToken $token)
     {
         $this->init();
@@ -466,18 +603,141 @@ class MolliePaymentDriver extends BaseDriver
         return \number_format((float) $amount, 2, '.', '');
     }
 
+    /**
+     * Convert a Mollie amount string back to a float.
+     *
+     * @param string $amount The amount string from Mollie (e.g., "123.45")
+     * @return float The converted amount as a float
+     * @throws \InvalidArgumentException If the input is not a valid numeric string
+     */
+    public static function convertFromMollieAmount(string $amount): float
+    {
+        if (!is_numeric($amount)) {
+            throw new \InvalidArgumentException("Invalid amount format. Expected a numeric string, got: " . $amount);
+        }
+
+        return (float) $amount;
+    }
+
+    /**
+     * Convert ISO 4217 currency code to InvoiceNinja currency ID
+     *
+     * @param string $currencyCode ISO 4217 currency code (e.g., 'EUR', 'USD')
+     * @return int Returns the currency ID
+     * @throws ModelNotFoundException When the currency is not found
+     */
+    public static function convertFromMollieCurrency(string $currencyCode): int
+    {
+        $currency = \App\Models\Currency::where('code', strtoupper($currencyCode))->firstOrFail();
+        return $currency->id;
+    }
+
+    /**
+     * Convert Mollie payment method to PaymentType ID
+     *
+     * @param string $type
+     * @return int
+     * @throws \Exception When the payment method is not supported
+     */
+    static public function convertFromMolliePaymentType(string $type): int
+    {
+        $types = [
+            'banktransfer' => PaymentType::BANK_TRANSFER,
+            'creditcard' => PaymentType::CREDIT_CARD_OTHER,
+            'directdebit' => PaymentType::DIRECT_DEBIT,
+            'ideal' => PaymentType::IDEAL,
+            'bancontact' => PaymentType::BANCONTACT,
+            'sofort' => PaymentType::SOFORT,
+            'klarnapaylater' => PaymentType::KLARNA,
+            'klarnasliceit' => PaymentType::KLARNA,
+            'klarnapaynow' => PaymentType::KLARNA,
+            'kbc' => PaymentType::KBC,
+            'eps' => PaymentType::EPS,
+            'giropay' => PaymentType::GIROPAY,
+            'p24' => PaymentType::PRZELEWY24,
+            'applepay' => PaymentType::CREDIT_CARD_OTHER,
+            'paypal' => PaymentType::PAYPAL,
+            'belfius' => PaymentType::BANK_TRANSFER,
+            'inghomepay' => PaymentType::BANK_TRANSFER,
+            'giftcard' => PaymentType::CREDIT,
+            'paysafecard' => PaymentType::CREDIT,
+            'przelewy24' => PaymentType::PRZELEWY24,
+            'mybank' => PaymentType::BANK_TRANSFER,
+            'billet' => PaymentType::BANK_TRANSFER,
+            'tikkiepayment' => PaymentType::BANK_TRANSFER,
+        ];
+
+        if (!array_key_exists($type, $types)) {
+            throw new \Exception("Unsupported Mollie payment method: " . $type);
+        }
+
+        return $types[$type];
+    }
+
+    /**
+     * Convert Mollie payment method to GatewayType ID
+     *
+     * @param string $type
+     * @return int
+     * @throws \Exception When the payment method is not supported
+     */
+    static public function convertFromMollieGatewayType(string $type): int
+    {
+        $types = [
+            'creditcard' => GatewayType::CREDIT_CARD,
+            'directdebit' => GatewayType::DIRECT_DEBIT,
+            'paypal' => GatewayType::PAYPAL,
+            'bancontact' => GatewayType::BANCONTACT,
+            'banktransfer' => GatewayType::BANK_TRANSFER,
+            'kbc' => GatewayType::KBC,
+            'ideal' => GatewayType::IDEAL,
+        ];
+
+        if (!isset($types[strtolower($type)])) {
+            throw new \Exception("Unsupported Mollie payment method: " . $type);
+        }
+
+        return $types[strtolower($type)];
+    }
+
+    /**
+     * Convert Mollie payment status to InvoiceNinja payment status
+     *
+     * @param string $mollieStatus
+     * @return int
+     */
+    private static function convertFromMollieStatus(string $mollieStatus): int
+    {
+        $statusMap = [
+            'paid' => Payment::STATUS_COMPLETED,
+            'authorized' => Payment::STATUS_PENDING,
+            'pending' => Payment::STATUS_PENDING,
+            'failed' => Payment::STATUS_FAILED,
+            'expired' => Payment::STATUS_FAILED,
+            'canceled' => Payment::STATUS_CANCELLED,
+            'refunded' => Payment::STATUS_REFUNDED,
+            'partially_refunded' => Payment::STATUS_PARTIALLY_REFUNDED,
+        ];
+
+        return $statusMap[strtolower($mollieStatus)] ?? Payment::STATUS_FAILED;
+    }
+
+    /**
+     * Test the connection to the Mollie API.
+     *
+     * @return string 'ok' if the connection is successful, 'error' otherwise
+     */
     public function auth(): string
     {
         $this->init();
 
         try {
+            // Attempt to fetch a page of payments to test the connection
             $p = $this->gateway->payments->page();
             return 'ok';
         } catch (\Exception $e) {
-
+            // Log the error or handle it as needed
+            return 'error';
         }
-
-        return 'error';
-
     }
 }

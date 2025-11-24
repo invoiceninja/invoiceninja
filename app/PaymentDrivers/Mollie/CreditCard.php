@@ -11,12 +11,12 @@ use App\Models\Payment;
 use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Common\LivewireMethodInterface;
+use App\PaymentDrivers\Common\MethodInterface;
 use App\PaymentDrivers\MolliePaymentDriver;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class CreditCard implements LivewireMethodInterface
+class CreditCard implements MethodInterface, LivewireMethodInterface
 {
     /**
      * @var MolliePaymentDriver
@@ -30,12 +30,19 @@ class CreditCard implements LivewireMethodInterface
         $this->mollie->init();
     }
 
-    /**
-     * Show the page for credit card payments.
-     *
-     * @param array $data
-     * @return Factory|View
-     */
+    /** @inheritDoc */
+    public function authorizeView(array $data): View
+    {
+        return render('gateways.mollie.credit_card.authorize', $data);
+    }
+
+    /** @inheritDoc */
+    public function authorizeResponse($request): RedirectResponse
+    {
+        return redirect()->route('client.payment_methods.index');
+    }
+
+    /** @inheritDoc */
     public function paymentView(array $data)
     {
         $data = $this->paymentData($data);
@@ -44,14 +51,11 @@ class CreditCard implements LivewireMethodInterface
     }
 
     /**
-     * Create a payment object.
-     *
-     * @param PaymentResponseRequest $request
-     * @return mixed
+     * @throws PaymentFailed When the payment processing fails
+     * @inheritDoc
      */
-    public function paymentResponse(PaymentResponseRequest $request)
+    public function paymentResponse(PaymentResponseRequest $request): \Illuminate\Http\Response|RedirectResponse
     {
-        
         $amount = $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee);
 
         $description = sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->mollie->payment_hash->invoices())->pluck('invoice_number')->toArray()));
@@ -64,8 +68,8 @@ class CreditCard implements LivewireMethodInterface
             try {
                 $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
 
-                $payment = $this->mollie->gateway->payments->create([
-                    'method' => 'creditcard',                                                
+                $molliePayment = $this->mollie->gateway->payments->create([
+                    'method' => 'creditcard',
                     'amount' => [
                         'currency' => $this->mollie->client->currency()->code,
                         'value' => $amount,
@@ -84,22 +88,22 @@ class CreditCard implements LivewireMethodInterface
                     ],
                 ]);
 
-                if ($payment->status === 'paid') {
+                if ($molliePayment->status === 'paid') {
                     $this->mollie->logSuccessfulGatewayResponse(
-                        ['response' => $payment, 'data' => $this->mollie->payment_hash->data],
+                        ['response' => $molliePayment, 'data' => $this->mollie->payment_hash->data],
                         SystemLog::TYPE_MOLLIE
                     );
 
-                    return $this->processSuccessfulPayment($payment);
+                    return $this->processSuccessfulPayment($molliePayment);
                 }
 
-                if ($payment->status === 'open') {
-                    $this->mollie->payment_hash->withData('payment_id', $payment->id);
+                if ($molliePayment->status === 'open') {
+                    $this->mollie->payment_hash->withData('payment_id', $molliePayment->id);
 
-                    if (!$payment->getCheckoutUrl()) {
+                    if (!$molliePayment->getCheckoutUrl()) {
                         return render('gateways.mollie.mollie_placeholder');
                     } else {
-                        return redirect()->away($payment->getCheckoutUrl());
+                        return redirect()->away($molliePayment->getCheckoutUrl());
                     }
                 }
             } catch (\Throwable $e) {
@@ -132,40 +136,48 @@ class CreditCard implements LivewireMethodInterface
             ];
 
             if ($request->shouldStoreToken()) {
-                $customer = $this->mollie->gateway->customers->create([
-                    'name' => $this->mollie->client->name,
-                    'email' => $this->mollie->client->present()->email(),
-                    'metadata' => [
-                        'id' => $this->mollie->client->hashed_id,
-                    ],
-                ]);
+                // Check if a mollie CustomerId already exists for this client, if so, use that
+                $gateway_customer_reference = null;
+                if ($this->mollie->client->gateway_tokens->count() > 0) {
+                    $gateway_customer_reference = $this->mollie->client->gateway_tokens->first()->gateway_customer_reference;
+                }
+                if (!$gateway_customer_reference) {
+                    $customer = $this->mollie->gateway->customers->create([
+                        'name' => $this->mollie->client->name,
+                        'email' => $this->mollie->client->present()->email(),
+                        'metadata' => [
+                            'id' => $this->mollie->client->hashed_id,
+                        ],
+                    ]);
+                    $gateway_customer_reference = $customer->id;
+                }
 
-                $data['customerId'] = $customer->id;
+                $data['customerId'] = $gateway_customer_reference;
                 $data['sequenceType'] = 'first';
 
                 $this->mollie->payment_hash
-                    ->withData('mollieCustomerId', $customer->id)
+                    ->withData('mollieCustomerId', $gateway_customer_reference)
                     ->withData('shouldStoreToken', true);
             }
 
-            $payment = $this->mollie->gateway->payments->create($data);
+            $molliePayment = $this->mollie->gateway->payments->create($data);
 
-            if ($payment->status === 'paid') {
+            if ($molliePayment->status === 'paid') {
                 $this->mollie->logSuccessfulGatewayResponse(
-                    ['response' => $payment, 'data' => $this->mollie->payment_hash->data],
+                    ['response' => $molliePayment, 'data' => $this->mollie->payment_hash->data],
                     SystemLog::TYPE_MOLLIE
                 );
 
-                return $this->processSuccessfulPayment($payment);
+                return $this->processSuccessfulPayment($molliePayment);
             }
 
-            if ($payment->status === 'open') {
-                $this->mollie->payment_hash->withData('payment_id', $payment->id);
+            if ($molliePayment->status === 'open') {
+                $this->mollie->payment_hash->withData('payment_id', $molliePayment->id);
 
-                if (!$payment->getCheckoutUrl()) {
-                    return render('gateways.mollie.mollie_placeholder');
+                if (!$molliePayment->getCheckoutUrl()) {
+                    return response()->render('gateways.mollie.mollie_placeholder');
                 } else {
-                    return redirect()->away($payment->getCheckoutUrl());
+                    return redirect()->away($molliePayment->getCheckoutUrl());
                 }
             }
         } catch (\Exception $e) {
@@ -173,50 +185,32 @@ class CreditCard implements LivewireMethodInterface
 
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
+        return response()->render('gateways.mollie.mollie_placeholder');
     }
 
-    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment)
+    /**
+     * Process a successful credit card payment.
+     *
+     * @param \Mollie\Api\Resources\Payment $molliePayment The Mollie payment object
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $molliePayment): RedirectResponse
     {
         $payment_hash = $this->mollie->payment_hash;
 
-        if (property_exists($payment_hash->data, 'shouldStoreToken') && $payment_hash->data->shouldStoreToken) {
-            try {
-                /** @var \Mollie\Api\Resources\Mandate[] $mandates */
-                $mandates = \iterator_to_array($this->mollie->gateway->mandates->listForId($payment_hash->data->mollieCustomerId));
-
-            } catch (\Mollie\Api\Exceptions\ApiException $e) {
-                return $this->processUnsuccessfulPayment($e);
-            }
-
-            if(empty($mandates)){
-                return render('gateways.mollie.mollie_placeholder');
-            }
-
-            $payment_meta = new \stdClass();
-            $payment_meta->exp_month = (string) $mandates[0]->details->cardExpiryDate;
-            $payment_meta->exp_year = (string) '';
-            $payment_meta->brand = (string) $mandates[0]->details->cardLabel;
-            $payment_meta->last4 = (string) $mandates[0]->details->cardNumber;
-            $payment_meta->type = GatewayType::CREDIT_CARD;
-
-            $this->mollie->storeGatewayToken([
-                'token' => $mandates[0]->id,
-                'payment_method_id' => GatewayType::CREDIT_CARD,
-                'payment_meta' =>  $payment_meta,
-            ], ['gateway_customer_reference' => $payment_hash->data->mollieCustomerId]);
-        }
+        $this->mollie->createClientGatewayTokenFromMolliePayment($molliePayment);
 
         $data = [
             'gateway_type_id' => GatewayType::CREDIT_CARD,
             'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total,
             'payment_type' => PaymentType::CREDIT_CARD_OTHER,
-            'transaction_reference' => $payment->id,
+            'transaction_reference' => $molliePayment->id,
         ];
 
-        $payment_record = $this->mollie->createPayment($data, $payment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
+        $payment_record = $this->mollie->createPayment($data, $molliePayment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(
-            ['response' => $payment, 'data' => $data],
+            ['response' => $molliePayment, 'data' => $data],
             SystemLog::CATEGORY_GATEWAY_RESPONSE,
             SystemLog::EVENT_GATEWAY_SUCCESS,
             SystemLog::TYPE_MOLLIE,
@@ -227,7 +221,14 @@ class CreditCard implements LivewireMethodInterface
         return redirect()->route('client.payments.show', ['payment' => $this->mollie->encodePrimaryKey($payment_record->id)]);
     }
 
-    public function processUnsuccessfulPayment(\Throwable $e)
+    /**
+     * Handle an unsuccessful payment attempt.
+     *
+     * @param \Throwable $e The exception that was thrown
+     * @throws PaymentFailed Always throws a PaymentFailed exception
+     * @return \Illuminate\Http\Response
+     */
+    public function processUnsuccessfulPayment(\Throwable $e): \Illuminate\Http\Response
     {
         $this->mollie->sendFailureMail($e->getMessage());
 
@@ -240,42 +241,23 @@ class CreditCard implements LivewireMethodInterface
             $this->mollie->client->company,
         );
 
+        $response = response([
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+        ]);
+
         throw new PaymentFailed($e->getMessage(), $e->getCode());
+
+        return $response;
     }
 
-    /**
-     * Show authorization page.
-     *
-     * @param array $data
-     * @return Factory|View
-     */
-    public function authorizeView(array $data)
-    {
-        return render('gateways.mollie.credit_card.authorize', $data);
-    }
-
-    /**
-     * Handle authorization response.
-     *
-     * @param mixed $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function authorizeResponse($request): RedirectResponse
-    {
-        return redirect()->route('client.payment_methods.index');
-    }
-
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function livewirePaymentView(array $data): string
     {
         return 'gateways.mollie.credit_card.pay_livewire';
     }
 
-    /**
-     * @inheritDoc
-     */
+    /** @inheritDoc */
     public function paymentData(array $data): array
     {
         $data['gateway'] = $this->mollie;
