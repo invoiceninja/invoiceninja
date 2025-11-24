@@ -135,13 +135,13 @@ class LoginController extends BaseController
 
                 if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
                     return response()
-                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
                         ->header('X-App-Version', config('ninja.app_version'))
                         ->header('X-Api-Version', config('ninja.minimum_client_version'));
                 }
             } elseif (strlen($user->google_2fa_secret ?? '') > 2 && !$request->has('one_time_password')) {
                 return response()
-                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
                     ->header('X-App-Version', config('ninja.app_version'))
                     ->header('X-Api-Version', config('ninja.minimum_client_version'));
             }

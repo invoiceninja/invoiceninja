@@ -168,7 +168,7 @@ class TaxProvider
     private function taxShippingAddress(): bool
     {
 
-        if ($this->client->shipping_country_id == "840" && strlen($this->client->shipping_postal_code) > 3) {
+        if ($this->client->shipping_country_id == "840" && strlen($this->client->shipping_postal_code ?? '') > 3) {
             return true;
         }
 
