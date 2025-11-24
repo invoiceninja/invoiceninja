@@ -131,9 +131,28 @@ class LoginController extends BaseController
 
             //2FA
             if ($user->google_2fa_secret && $request->has('one_time_password')) {
-                $google2fa = new Google2FA();
+                               $otp = $request->input('one_time_password');
+                $secret = decrypt($user->google_2fa_secret);
+                $timestamp = false;
 
-                if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
+                if (strlen($otp) > 0) {
+                    // Try SHA512 first (new algorithm) with timestamp to prevent OTP reuse
+                    $google2fa = new Google2FA();
+                    $google2fa->setAlgorithm(\PragmaRX\Google2FA\Support\Constants::SHA512);
+                    $timestamp = $google2fa->verifyKeyNewer($secret, $otp, $user->google_2fa_ts ?? 0);
+
+                    // Fall back to SHA1 for existing users (backward compatibility)
+                    if ($timestamp === false) {
+                        $google2fa = new Google2FA();
+                        $timestamp = $google2fa->verifyKeyNewer($secret, $otp, $user->google_2fa_ts ?? 0);
+                    }
+                }
+
+   if ($timestamp !== false) {
+                    // Update timestamp to prevent OTP reuse
+                    $user->google_2fa_ts = $timestamp;
+                    $user->save();
+                } else {
                     return response()
                         ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
                         ->header('X-App-Version', config('ninja.app_version'))
