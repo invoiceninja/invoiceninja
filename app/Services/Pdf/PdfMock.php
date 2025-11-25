@@ -957,6 +957,7 @@ class PdfMock
           '$contact.first_name' => 'Geo',
           '$company.vat_number' => 'vat number',
           '$contact.signature' => '',
+          '$verifactu_qr_code' => '',
           '$product.tax_name1' => '',
           '$product.tax_name2' => '',
           '$product.tax_name3' => '',
