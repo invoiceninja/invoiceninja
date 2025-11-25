@@ -76,7 +76,7 @@ use App\Http\Controllers\CompanyLedgerController;
 use App\Http\Controllers\EInvoiceTokenController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\TaskSchedulerController;
-use App\PaymentDrivers\BlockonomicsPaymentDriver;
+use App\Http\Controllers\Gateways\BlockonomicsController;
 use App\Http\Controllers\CompanyGatewayController;
 use App\Http\Controllers\EInvoicePeppolController;
 use App\Http\Controllers\PaymentWebhookController;
