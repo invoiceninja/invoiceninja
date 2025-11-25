@@ -26,9 +26,16 @@ class EmailPreferencesController extends Controller
 {
     public function index(string $entity, string $invitation_key, Request $request): \Illuminate\View\View
     {
+
+        request()->session()->invalidate();
+        request()->session()->regenerate(true);
+        request()->session()->regenerateToken();
+        
         $class = "\\App\\Models\\".ucfirst(Str::camel($entity)).'Invitation';
         $invitation = $class::where('key', $invitation_key)->firstOrFail();
 
+        auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
+        
         $data['receive_emails'] = $invitation->contact->is_locked ? false : true;
         $data['company'] = $invitation->company;
 
@@ -40,20 +47,20 @@ class EmailPreferencesController extends Controller
         $class = "\\App\\Models\\" . ucfirst(Str::camel($entity)) . 'Invitation';
         $invitation = $class::withTrashed()->where('key', $invitation_key)->firstOrFail();
 
-        // $invitation->contact->is_locked = $request->action === 'unsubscribe' ? true : false;
-        // $invitation->contact->push();
+        $invitation->contact->is_locked = $request->action === 'unsubscribe' ? true : false;
+        $invitation->contact->push();
 
-        // if ($invitation->contact->is_locked && !Cache::has("unsubscribe_notification_suppression:{$invitation_key}")) {
-        //     $nmo = new NinjaMailerObject();
-        //     $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, true))->build());
-        //     $nmo->company = $invitation->contact->company;
-        //     $nmo->to_user = $invitation->contact->company->owner();
-        //     $nmo->settings = $invitation->contact->company->settings;
+        if ($invitation->contact->is_locked && !Cache::has("unsubscribe_notification_suppression:{$invitation_key}")) {
+            $nmo = new NinjaMailerObject();
+            $nmo->mailable = new NinjaMailer((new ClientUnsubscribedObject($invitation->contact, $invitation->contact->company, true))->build());
+            $nmo->company = $invitation->contact->company;
+            $nmo->to_user = $invitation->contact->company->owner();
+            $nmo->settings = $invitation->contact->company->settings;
 
-        //     NinjaMailerJob::dispatch($nmo);
+            NinjaMailerJob::dispatch($nmo);
 
-        //     Cache::put("unsubscribe_notification_suppression:{$invitation_key}", true, 3600);
-        // }
+            Cache::put("unsubscribe_notification_suppression:{$invitation_key}", true, 3600);
+        }
 
         return back()->with('message', ctrans('texts.updated_settings'));
     }
