@@ -5622,5 +5622,23 @@
       "GET",
       "HEAD"
     ]
+  },
+  "generated::Xy7ZkLm8NpQ4Rt5V": {
+    "name": "generated::Xy7ZkLm8NpQ4Rt5V",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BlockonomicsController@getBTCPrice",
+    "uri": "api/v1/get-btc-price",
+    "method": [
+      "GET"
+    ]
+  },
+  "generated::Jk2MnOp3QrS6Tu9W": {
+    "name": "generated::Jk2MnOp3QrS6Tu9W",
+    "domain": null,
+    "action": "App\\Http\\Controllers\\BlockonomicsController@getQRCode",
+    "uri": "api/v1/get-blockonomics-qr-code",
+    "method": [
+      "GET"
+    ]
   }
 }
