@@ -76,7 +76,7 @@ use App\Http\Controllers\CompanyLedgerController;
 use App\Http\Controllers\EInvoiceTokenController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\TaskSchedulerController;
-use App\Http\Controllers\Gateways\BlockonomicsController;
+use App\PaymentDrivers\BlockonomicsPaymentDriver;
 use App\Http\Controllers\CompanyGatewayController;
 use App\Http\Controllers\EInvoicePeppolController;
 use App\Http\Controllers\PaymentWebhookController;
@@ -501,8 +501,6 @@ Route::post('api/v1/yodlee/balance', [YodleeController::class, 'balanceWebhook']
 
 Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::class, 'index'])->name('protected_download')->middleware('throttle:300,1');
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
-
-Route::get('api/v1/get-btc-price', [BlockonomicsController::class, 'getBTCPrice'])->middleware('throttle:100,1');
 
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
 Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');

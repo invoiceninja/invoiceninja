@@ -13,15 +13,17 @@ import { wait, instant } from '../wait';
 class Blockonomics {
 
     constructor() {
+        // Bind the method to the instance
         this.copyToClipboard = this.copyToClipboard.bind(this);
         this.refreshBTCPrice = this.refreshBTCPrice.bind(this);
         this.fetchAndDisplayQRCode = this.fetchAndDisplayQRCode.bind(this);
         this.startTimer = this.startTimer.bind(this);
     }
 
-    copyToClipboard(elementId, passedElement, shouldGrabNextElementSibling) {
+     copyToClipboard(elementId, passedElement, shouldGrabNextElementSibling) {
+
         const element = shouldGrabNextElementSibling ? passedElement.nextElementSibling : passedElement;
-        const originalIcon = element.src;
+        const originalIcon = element.src;  // Store the original icon
 
         const tempInput = document.createElement("input");
         const elementWithId = document.getElementById(elementId);
@@ -35,64 +37,51 @@ class Blockonomics {
         document.body.removeChild(tempInput);
 
         element.src = 'data:image/svg+xml;base64,' + btoa(`
-            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4.04706 14C4.04706 8.55609 8.46025 4.1429 13.9042 4.1429C19.3482 4.1429 23.7613 8.55609 23.7613 14C23.7613 19.444 19.3482 23.8572 13.9042 23.8572C8.46025 23.8572 4.04706 19.444 4.04706 14Z" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M9.52325 14L12.809 17.2858L18.2852 11.8096" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        `);
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4.04706 14C4.04706 8.55609 8.46025 4.1429 13.9042 4.1429C19.3482 4.1429 23.7613 8.55609 23.7613 14C23.7613 19.444 19.3482 23.8572 13.9042 23.8572C8.46025 23.8572 4.04706 19.444 4.04706 14Z" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9.52325 14L12.809 17.2858L18.2852 11.8096" stroke="#000" stroke-width="2.19048" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `);
 
+        // Change the icon back to the original after 5 seconds
         setTimeout(() => {
             element.src = originalIcon;
         }, 5000);
     }
 
-    async loadQRCodeScript() {
-        if (window.QRCode) return; // already loaded
 
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-
-    async fetchAndDisplayQRCode(newBtcAmount = null) {
+    async fetchAndDisplayQRCode (newBtcAmount = null) {
         try {
-            await this.loadQRCodeScript();
-
             const btcAddress = document.querySelector('meta[name="btc_address"]').content;
-            const btcAmount = newBtcAmount || document.querySelector('meta[name="btc_amount"]').content;
-            const qrString = `bitcoin:${btcAddress}?amount=${btcAmount}`;
-
-            document.getElementById('qrcode-container').innerHTML = "";
-
-            new QRCode(document.getElementById("qrcode-container"), {
-                text: qrString,
-                width: 150,
-                height: 150,
-                correctLevel: QRCode.CorrectLevel.H
-            });
+            const btcAmount = newBtcAmount || '{{$btc_amount}}';
+            const qrString = encodeURIComponent(`bitcoin:${btcAddress}?amount=${btcAmount}`);
+            const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=${qrString}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const svgText = await response.text();
+            document.getElementById('qrcode-container').innerHTML = svgText;
         } catch (error) {
-            console.error('Error generating QR code:', error);
+            console.error('Error fetching QR code:', error);
             document.getElementById('qrcode-container').textContent = 'Error loading QR code';
         }
-    }
+    };
 
     startTimer = (seconds) => {
         const countDownDate = new Date().getTime() + seconds * 1000;
-        document.getElementById("countdown").innerHTML = "10:00 min";
+        document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
 
         const updateCountdown = () => {
             const now = new Date().getTime();
             const distance = countDownDate - now;
 
             const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
-            if (isRefreshing) return;
+            if (isRefreshing) {
+                return;
+            }
 
             if (distance < 0) {
-                this.refreshBTCPrice();
+                refreshBTCPrice();
                 return;
             }
 
@@ -100,12 +89,13 @@ class Blockonomics {
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             const formattedMinutes = String(minutes).padStart(2, '0');
             const formattedSeconds = String(seconds).padStart(2, '0');
-            document.getElementById("countdown").innerHTML = `${formattedMinutes}:${formattedSeconds} min`;
-        };
+            document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
+        }
 
         clearInterval(window.countdownInterval);
         window.countdownInterval = setInterval(updateCountdown, 1000);
     }
+
 
     async refreshBTCPrice() {
         const refreshIcon = document.querySelector('.icon-refresh');
@@ -116,40 +106,47 @@ class Blockonomics {
             try {
                 const currency = document.querySelector('meta[name="currency"]').content;
                 const response = await fetch(`/api/v1/get-btc-price?currency=${currency}`); // New endpoint to call server-side function
-
-                if (!response.ok) throw new Error('Network response was not ok');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 const data = await response.json();
-                console.log("BTC price data:", data);
                 return data.price;
             } catch (error) {
                 console.error('There was a problem with the BTC price fetch operation:', error);
-                return null;
+                // Handle error appropriately
             }
-        };
+        }
 
         try {
             const newPrice = await getBTCPrice();
             if (newPrice) {
+                // Update the text content of the countdown span to the new bitcoin price
                 const currency = document.querySelector('meta[name="currency"]').content;
-                document.getElementsByClassName("btc-value")[0].innerHTML =
-                    `1 BTC = ${newPrice || "N/A"} ${currency}, updates in <span id='countdown'></span>`;
+                document.getElementsByClassName("btc-value")[0].innerHTML = "1 BTC = " + (newPrice || "N/A") + " " + currency + ", updates in <span id='countdown'></span>";
                 const newBtcAmount = (document.querySelector('meta[name="amount"]').content / newPrice).toFixed(10);
 
+                // set the value of the input field and the text content of the span to the new bitcoin amount
                 document.querySelector('input[name="btc_price"]').value = newPrice;
                 document.querySelector('input[name="btc_amount"]').value = newBtcAmount;
                 document.getElementById('btc-amount').textContent = newBtcAmount;
 
                 const btcAddress = document.querySelector('meta[name="btc_address"]').content;
-                document.getElementById('qr-code-link').href = `bitcoin:${btcAddress}?amount=${newBtcAmount}`;
-                document.getElementById('open-in-wallet-link').href = `bitcoin:${btcAddress}?amount=${newBtcAmount}`;
 
+                // set the href attribute of the link to the new bitcoin amount
+                const qrCodeLink = document.getElementById('qr-code-link');
+                const openInWalletLink = document.getElementById('open-in-wallet-link');
+                qrCodeLink.href = `bitcoin:${btcAddress}?amount=${newBtcAmount}`;
+                openInWalletLink.href = `bitcoin:${btcAddress}?amount=${newBtcAmount}`;
+
+                // fetch and display the new QR code
                 await this.fetchAndDisplayQRCode(newBtcAmount);
-                this.startTimer(600);
+                this.startTimer(600); // Restart timer for 10 minutes (600 seconds)
             }
         } finally {
             refreshIcon.classList.remove('rotating');
         }
     }
+
 
     handle() {
         window.copyToClipboard = this.copyToClipboard;
@@ -166,20 +163,25 @@ class Blockonomics {
                 const data = JSON.parse(event.data);
                 const { status, txid, value } = data || {};
                 console.log('Payment status:', status);
-                if ([0, 1, 2].includes(status)) {
+                const isPaymentUnconfirmed = status === 0;
+                const isPaymentPartiallyConfirmed = status === 1;
+                const isPaymentConfirmed = status === 2;
+                // Confirmation status: 0 = unconfirmed, 1 = partially confirmed, 2 = confirmed
+                // If any of the statuses are true, submit the form and redirect
+                if (isPaymentUnconfirmed || isPaymentPartiallyConfirmed || isPaymentConfirmed) {
                     document.querySelector('input[name="txid"]').value = txid || '';
                     document.querySelector('input[name="status"]').value = status || '';
                     document.querySelector('input[name="btc_amount"]').value = value || '';
                     document.querySelector('input[name="btc_address"]').value = btcAddress || '';
                     document.getElementById('server-response').submit();
                 }
-            };
+            }
         };
-
-        this.startTimer(600);
+        startTimer(600); // Start timer for 10 minutes (600 seconds)
         connectToWebsocket();
-        this.fetchAndDisplayQRCode();
+        fetchAndDisplayQRCode();
     }
+
 }
 
 function boot() {
