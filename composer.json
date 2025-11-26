@@ -220,14 +220,9 @@
             "url": "https://github.com/beganovich/php-ansible"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/turbo124/snappdf"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/invoiceninja/admin-api"
+            "type": "path",
+            "url": "../admin-api"
         }
-
     ],
     "minimum-stability": "dev",
     "prefer-stable": true
