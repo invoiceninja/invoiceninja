@@ -17,6 +17,7 @@ use Illuminate\Support\Str;
 trait WithSecureContext
 {
     public const CONTEXT_UPDATE = 'secureContext.updated';
+    public const CONTEXT_READY = 'flow2.context.ready';
 
     /**
      * @throws \Psr\Container\ContainerExceptionInterface
@@ -24,19 +25,9 @@ trait WithSecureContext
      */
     public function getContext(): mixed
     {
-
-        $context = \Illuminate\Support\Facades\Cache::get(session()->getId()) ?? false;
-
-        if (!$context) {
-
-            usleep(300000); //@monitor - inject delay to catch delays in cache updating
-
-            $context = \Illuminate\Support\Facades\Cache::get(session()->getId()) ?? [];
-
-        }
+        $context = \Illuminate\Support\Facades\Cache::get(session()->getId()) ?? [];
 
         return $context;
-
     }
 
     public function setContext(string $property, $value): array

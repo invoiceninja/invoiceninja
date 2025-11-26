@@ -294,6 +294,8 @@ class InvoicePay extends Component
             'payable_invoices' => $payable_invoices,
         ]);
 
+        $this->dispatch(self::CONTEXT_READY);
+
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View

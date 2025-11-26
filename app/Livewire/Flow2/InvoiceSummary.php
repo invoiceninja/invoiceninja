@@ -28,42 +28,49 @@ class InvoiceSummary extends Component
 
     public $gateway_fee;
 
+    public $isReady = false;
+
+    #[On(self::CONTEXT_READY)]
+    public function onContextReady(): void
+    {
+        $this->isReady = true;
+        $this->loadContextData();
+    }
+
     public function mount()
     {
-
         $_context = $this->getContext();
 
-        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
-        $this->invoices = $_context['payable_invoices'];
-        $this->amount = Number::formatMoney($_context['amount'], $contact->client);
-        $this->gateway_fee = isset($_context['gateway_fee']) ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
+        if (!empty($_context)) {
+            $this->isReady = true;
+            $this->loadContextData();
+        }
+    }
 
+    private function loadContextData(): void
+    {
+        $_context = $this->getContext();
+
+        if (empty($_context)) {
+            return;
+        }
+
+        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
+        $this->invoices = $_context['payable_invoices'] ?? [];
+        $this->amount = isset($_context['amount']) ? Number::formatMoney($_context['amount'], $contact->client) : '';
+        $this->gateway_fee = isset($_context['gateway_fee']) ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
     }
 
     #[On(self::CONTEXT_UPDATE)]
     public function onContextUpdate(): void
     {
-
-        $_context = $this->getContext();
-
-        // refactor logic for updating the price for eg if it changes with under/over pay
-        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
-        $this->invoices = $_context['payable_invoices'];
-        $this->amount = Number::formatMoney($_context['amount'], $contact->client);
-        $this->gateway_fee = isset($_context['gateway_fee']) ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
-
+        $this->loadContextData();
     }
 
     #[On('payment-view-rendered')]
-    public function handlePaymentViewRendered()
+    public function handlePaymentViewRendered(): void
     {
-
-        $_context = $this->getContext();
-
-        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
-        $this->amount = Number::formatMoney($_context['amount'], $contact->client);
-        $this->gateway_fee = isset($_context['gateway_fee']) ? Number::formatMoney($_context['gateway_fee'], $contact->client) : false;
-
+        $this->loadContextData();
     }
 
     public function downloadDocument($invoice_hashed_id)
@@ -91,10 +98,13 @@ class InvoiceSummary extends Component
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
-        $contact = $this->getContext()['contact'] ?? auth()->guard('contact')->user();
+        $_context = $this->getContext();
+
+        $contact = $_context['contact'] ?? auth()->guard('contact')->user();
 
         return render('flow2.invoices-summary', [
-            'client' => $contact->client,
+            'client' => $contact->client ?? null,
+            'isReady' => $this->isReady,
         ]);
 
     }
