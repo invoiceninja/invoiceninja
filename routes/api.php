@@ -503,7 +503,6 @@ Route::get('api/v1/protected_download/{hash}', [ProtectedDownloadController::cla
 Route::post('api/v1/ppcp/webhook', [PayPalPPCPPaymentDriver::class, 'processWebhookRequest'])->middleware('throttle:1000,1');
 
 Route::get('api/v1/get-btc-price', [BlockonomicsController::class, 'getBTCPrice'])->middleware('throttle:100,1');
-Route::get('api/v1/get-blockonomics-qr-code', [BlockonomicsController::class, 'getQRCode'])->middleware('throttle:100,1');
 
 Route::get('quickbooks/authorize/{token}', [ImportQuickbooksController::class, 'authorizeQuickbooks'])->name('quickbooks.authorize');
 Route::get('quickbooks/authorized', [ImportQuickbooksController::class, 'onAuthorized'])->name('quickbooks.authorized');

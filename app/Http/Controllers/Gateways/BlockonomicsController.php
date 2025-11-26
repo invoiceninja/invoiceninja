@@ -13,12 +13,8 @@
 namespace App\Http\Controllers\Gateways;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request; // Import the Request class
-use Illuminate\Support\Facades\Http; // Import the Http facade
-use BaconQrCode\Renderer\Image\SvgImageBackEnd;
-use BaconQrCode\Renderer\ImageRenderer;
-use BaconQrCode\Renderer\RendererStyle\RendererStyle;
-use BaconQrCode\Writer;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class BlockonomicsController extends Controller
 {
@@ -32,27 +28,5 @@ class BlockonomicsController extends Controller
         }
 
         return response()->json(['error' => 'Unable to fetch BTC price'], 500);
-    }
-
-    public function getQRCode(Request $request)
-    {
-        $qr_string = $request->query('qr_string');
-        $svg = $this->getPaymentQrCodeRaw($qr_string);
-        return response($svg)->header('Content-Type', 'image/svg+xml');
-    }
-
-    private function getPaymentQrCodeRaw($qr_string)
-    {
-
-        $renderer = new ImageRenderer(
-            new RendererStyle(150, margin: 0),
-            new SvgImageBackEnd()
-        );
-        $writer = new Writer($renderer);
-
-        $qr = $writer->writeString($qr_string, 'utf-8');
-
-        return $qr;
-
     }
 }
