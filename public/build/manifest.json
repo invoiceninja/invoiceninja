@@ -385,7 +385,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-9454bf28.css",
+    "file": "assets/app-55cdafc9.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }
