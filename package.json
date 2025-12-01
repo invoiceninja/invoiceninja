@@ -18,7 +18,7 @@
         "laravel-mix-purgecss": "^6.0.0",
         "laravel-vite-plugin": "^0.8.0",
         "postcss": "^8.4.35",
-        "tailwindcss": "^3.4.1",
+        "tailwindcss": "^4.1.17",
         "vite": "^4.4.9",
         "vite-plugin-static-copy": "^0.17.0",
         "vue-template-compiler": "^2.6.14"
