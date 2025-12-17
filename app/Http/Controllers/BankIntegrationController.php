@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 
 use App\Factory\BankIntegrationFactory;
 use App\Filters\BankIntegrationFilters;
+use App\Helpers\Bank\EnableBanking\EnableBanking;
 use App\Helpers\Bank\Yodlee\Yodlee;
 use App\Helpers\Bank\Nordigen\Nordigen;
 use App\Http\Requests\BankIntegration\AdminBankIntegrationRequest;
@@ -205,6 +206,8 @@ class BankIntegrationController extends BaseController
 
         $this->refreshAccountsNordigen($user);
 
+        $this->refreshAccountsEnableBanking($user);
+
         if (Cache::get("throttle_polling:{$user_account->key}")) {
             return response()->json(BankIntegration::query()->company(), 200);
         }
@@ -297,6 +300,35 @@ class BankIntegrationController extends BaseController
                 $bank_integration->save();
 
                 $nordigen->disabledAccountEmail($bank_integration);
+                return;
+            }
+
+            $bank_integration->disabled_upstream = false;
+            $bank_integration->bank_account_status = $account['account_status'];
+            $bank_integration->balance = $account['current_balance'];
+            $bank_integration->currency = $account['account_currency'];
+
+            $bank_integration->save();
+        });
+    }
+
+    private function refreshAccountsEnableBanking(User $user)
+    {
+        if (!(config('ninja.enablebanking.key_path') || config('ninja.enablebanking.application_id'))) {
+            return;
+        }
+
+        $enablebanking = new EnableBanking();
+
+        BankIntegration::where("integration_type", BankIntegration::INTEGRATION_TYPE_ENABLEBANKING)
+                       ->where('account_id', $user->account_id)
+                       ->whereNotNull('enablebanking_account_id')
+                       ->each(function (BankIntegration $bank_integration) use ($enablebanking) {
+            $account = $enablebanking->getAccount($bank_integration->enablebanking_account_id);
+
+            if (is_array($account) && isset($account['code']) && $account['code'] == 429) {
+                $bank_integration->bank_account_status = "429 Rate limit reached, check back later....";
+                $bank_integration->save();
                 return;
             }
 
