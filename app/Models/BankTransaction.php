@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $bank_integration_id
  * @property int $transaction_id
  * @property string $nordigen_transaction_id
+ * @property string $enablebanking_transaction_id
  * @property float $amount
  * @property string|null $currency_code
  * @property int|null $currency_id
