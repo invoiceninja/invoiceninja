@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,14 +17,13 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Models\Presenters\ClientPresenter
  */
 class ClientPresenterTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();

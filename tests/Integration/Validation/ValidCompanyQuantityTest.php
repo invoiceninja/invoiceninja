@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\ValidationRules\Company\ValidCompanyQuantity;
 
 /**
- * 
+ *
  */
 class ValidCompanyQuantityTest extends TestCase
 {
@@ -37,7 +38,7 @@ class ValidCompanyQuantityTest extends TestCase
     {
         auth()->login($this->user, true);
 
-        $data =[];
+        $data = [];
         $rules = ['name' => [new ValidCompanyQuantity()]];
 
         $validator = Validator::make($data, $rules);
@@ -49,17 +50,17 @@ class ValidCompanyQuantityTest extends TestCase
     /**  */
     public function testCompanyQuantityValidationFails()
     {
-        
+
         auth()->login($this->user, true);
         auth()->user()->setCompany($this->company);
 
-        $data =['name' => 'bob'];
+        $data = ['name' => 'bob'];
         $rules = ['name' => [new ValidCompanyQuantity()]];
 
         Company::factory()->count(10)->create([
             'account_id' => auth()->user()->account->id,
         ]);
-        
+
         $validator = Validator::make($data, $rules);
 
         $this->assertFalse($validator->passes());

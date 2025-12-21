@@ -5,6 +5,7 @@ use Elastic\Adapter\Indices\Mapping;
 use Elastic\Adapter\Indices\Settings;
 use Elastic\Migrations\Facades\Index;
 use Elastic\Migrations\MigrationInterface;
+use Elastic\Elasticsearch\ClientBuilder;
 
 final class CreateTasksIndex implements MigrationInterface
 {
@@ -13,6 +14,12 @@ final class CreateTasksIndex implements MigrationInterface
      */
     public function up(): void
     {
+        // Check if index already exists (idempotency)
+        $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
+        if ($client->indices()->exists(['index' => 'tasks_v2'])) {
+            return; // Index already exists, skip creation
+        }
+
         $mapping = [
             'properties' => [
                 // Core task fields
@@ -67,5 +74,4 @@ final class CreateTasksIndex implements MigrationInterface
         Index::dropIfExists('tasks_v2');
     }
 }
-
 

@@ -12,9 +12,10 @@
 
 namespace App\Services\Scheduler;
 
+use App\Models\Invoice;
 use App\Models\Scheduler;
-use App\Utils\Traits\MakesHash;
 use Illuminate\Support\Str;
+use App\Utils\Traits\MakesHash;
 
 class EmailRecord
 {
@@ -30,8 +31,14 @@ class EmailRecord
 
         $entity = $class::find($this->decodePrimaryKey($this->scheduler->parameters['entity_id']));
 
-        if ($entity) {
-            $entity->service()->markSent()->sendEmail();
+        if ($entity instanceof Invoice && $entity->company->verifactuEnabled() && !$entity->hasSentAeat()) {
+            $entity->invitations()->update(['email_error' => 'primed']); // Flag the invitations as primed for AEAT submission
+            $entity->service()->sendVerifactu();
+        } elseif ($entity) {
+
+            $template = $this->scheduler->parameters['template'] ?? $this->scheduler->parameters['entity'];
+
+            $entity->service()->markSent()->sendEmail(email_type: $template);
         }
 
         $this->scheduler->forceDelete();

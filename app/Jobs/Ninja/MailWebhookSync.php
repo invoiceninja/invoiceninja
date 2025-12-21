@@ -168,7 +168,7 @@ class MailWebhookSync implements ShouldQueue
 
     public function middleware()
     {
-        return [new WithoutOverlapping('mail-webhook-sync')];
+        return [(new WithoutOverlapping('mail-webhook-sync'))->dontRelease()];
     }
 
     public function failed($exception)

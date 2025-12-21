@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -33,7 +34,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\PaymentController
  */
 class PaymentTest extends TestCase
@@ -41,17 +42,11 @@ class PaymentTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
@@ -65,11 +60,11 @@ class PaymentTest extends TestCase
 
     public function testDeletedCreditPayment()
     {
-                  
+
         $client = Client::factory()->create([
-            'company_id' => $this->company->id, 
-            'user_id' => $this->user->id, 
-            'balance' => 0, 
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'balance' => 0,
             'paid_to_date' => 0,
             'credit_balance' => 0,
             'payment_balance' => 0,
@@ -151,17 +146,17 @@ class PaymentTest extends TestCase
 
         $arr = $response->json();
         $response->assertStatus(422);
-        
+
     }
 
     public function testRefundCreditPayment()
     {
-             
-                
+
+
         $client = Client::factory()->create([
-            'company_id' => $this->company->id, 
-            'user_id' => $this->user->id, 
-            'balance' => 0, 
+            'company_id' => $this->company->id,
+            'user_id' => $this->user->id,
+            'balance' => 0,
             'paid_to_date' => 0,
             'credit_balance' => 0,
             'payment_balance' => 0,
@@ -240,7 +235,7 @@ class PaymentTest extends TestCase
         $this->assertEquals(0, $payment->refunded);
         $this->assertEquals(0, $payment->applied);
 
-        $client = $client->refresh();   
+        $client = $client->refresh();
         $this->assertEquals(0, $client->balance);
         $this->assertEquals(10, $client->paid_to_date);
 
@@ -249,7 +244,7 @@ class PaymentTest extends TestCase
 
         $credit = $credit->refresh();
         $this->assertEquals(0, $credit->balance);
-        
+
         $refund_payload = [
             'id' => $payment->hashed_id,
             'amount' => 10,
@@ -262,12 +257,12 @@ class PaymentTest extends TestCase
                 ],
             ],
         ];
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/payments/refund', $refund_payload);
-        
+
         $response->assertStatus(200);
 
 
@@ -276,7 +271,7 @@ class PaymentTest extends TestCase
 
         $credit = $credit->refresh();
         $this->assertEquals(10, $credit->balance);
-        
+
         $client = $client->refresh();
         $this->assertEquals(10, $client->balance);
         $this->assertEquals(0, $client->paid_to_date);
@@ -284,7 +279,7 @@ class PaymentTest extends TestCase
         $payment = $payment->refresh();
         $this->assertEquals(0, $payment->refunded);
         $this->assertEquals(0, $payment->applied);
-        
+
     }
 
     public function testDeleteInvoiceDeletePaymentRaceCondition()
@@ -345,7 +340,7 @@ class PaymentTest extends TestCase
         $this->assertEquals(true, $invoice->is_deleted);
 
         $dead_payment = $invoice->payments->first();
-        
+
         $this->assertEquals(true, $dead_payment->is_deleted);
 
         $response = $this->withHeaders([
@@ -359,7 +354,7 @@ class PaymentTest extends TestCase
 
     public function testNullExchangeRateHandling()
     {
-            
+
         $data = [
             'amount' => 0,
             'applied' => 0,
@@ -400,7 +395,7 @@ class PaymentTest extends TestCase
             'vendor_id' => null,
         ];
 
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
@@ -415,16 +410,16 @@ class PaymentTest extends TestCase
 
     public function testNegativePaymentPaidToDate()
     {
-        
+
         $c = Client::factory()->create([
            'user_id' => $this->user->id,
            'company_id' => $this->company->id,
        ]);
 
-       $this->assertEquals(0, $c->balance);
-       $this->assertEquals(0, $c->paid_to_date);
-       $this->assertEquals(0, $c->credit_balance);
-       $this->assertEquals(0, $c->payment_balance);
+        $this->assertEquals(0, $c->balance);
+        $this->assertEquals(0, $c->paid_to_date);
+        $this->assertEquals(0, $c->credit_balance);
+        $this->assertEquals(0, $c->payment_balance);
 
         $data = [
             'amount' => -500,
@@ -442,7 +437,7 @@ class PaymentTest extends TestCase
         ])->postJson('/api/v1/payments/', $data);
 
         $response->assertStatus(200);
-        
+
         $p = $response->json()['data'];
 
         $payment = Payment::find($this->decodePrimaryKey($p['id']));
@@ -471,7 +466,7 @@ class PaymentTest extends TestCase
 
     }
 
-    public function testNullPaymentAmounts()    
+    public function testNullPaymentAmounts()
     {
 
         $data = [

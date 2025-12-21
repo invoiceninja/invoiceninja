@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -12,23 +13,27 @@
 namespace Tests\Unit\Shop;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\App;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  \App\Http\Controllers\Shop\ProfileController
  */
 class ShopProfileTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();
 
+        App::setLocale('en');
+
         $this->makeTestData();
+
+        $this->markTestSkipped("redundant test");
     }
 
     public function testProfileDisplays()

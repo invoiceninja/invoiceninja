@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,7 +24,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\VendorController
  */
 class VendorApiTest extends TestCase
@@ -31,17 +32,11 @@ class VendorApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->makeTestData();
-
-        $this->faker = \Faker\Factory::create();
-
     }
 
     public function testVendorContactCreation()

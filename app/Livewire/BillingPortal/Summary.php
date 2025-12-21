@@ -53,38 +53,68 @@ class Summary extends Component
         ];
 
         foreach ($subscription->service()->recurring_products() as $key => $product) {
+
+
+            $default_quantity = $bundle['recurring_products'][$product->hashed_id]['quantity'] ?? 1;
+
+            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+                $default_quantity = 0;
+            }
+
             $bundle['recurring_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => $bundle['recurring_products'][$product->hashed_id]['quantity'] ?? 1,
+                'quantity' => $default_quantity,
                 'notes' => $product->markdownNotes(),
             ];
             $bundle['recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
 
         foreach ($subscription->service()->products() as $key => $product) {
+
+            $default_quantity = $bundle['one_time_products'][$product->hashed_id]['quantity'] ?? 1;
+
+            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+                $default_quantity = 0;
+            }
+
             $bundle['one_time_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => $bundle['one_time_products'][$product->hashed_id]['quantity'] ?? 1,
+                'quantity' =>  $default_quantity,
                 'notes' => $product->markdownNotes(),
             ];
             $bundle['one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
 
         foreach ($subscription->service()->optional_recurring_products() as $key => $product) {
+
+            $default_quantity = $bundle['optional_recurring_products'][$product->hashed_id]['quantity'] ?? 0;
+
+            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+                $default_quantity = 0;
+            }
+
             $bundle['optional_recurring_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => $bundle['optional_recurring_products'][$product->hashed_id]['quantity'] ?? 0,
+                'quantity' => $default_quantity,
                 'notes' => $product->markdownNotes(),
             ];
             $bundle['optional_recurring_products'][$product->hashed_id]['product']['is_recurring'] = true;
         }
 
         foreach ($subscription->service()->optional_products() as $key => $product) {
+
+            $default_quantity = $bundle['optional_one_time_products'][$product->hashed_id]['quantity'] ?? 0;
+
+            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+                $default_quantity = 0;
+            }
+
             $bundle['optional_one_time_products'][$product->hashed_id] = [
                 'product' => $product,
-                'quantity' => $bundle['optional_one_time_products'][$product->hashed_id]['quantity'] ?? 0,
+                'quantity' => $default_quantity,
                 'notes' => $product->markdownNotes(),
             ];
+            
             $bundle['optional_one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
 

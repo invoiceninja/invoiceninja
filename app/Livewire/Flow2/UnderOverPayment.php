@@ -30,10 +30,12 @@ class UnderOverPayment extends Component
 
     public $payableInvoices = [];
 
+    public $_key;
+    
     public function mount()
     {
 
-        $_context = $this->getContext();
+        $_context = $this->getContext($this->_key);
 
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();
 
@@ -45,7 +47,7 @@ class UnderOverPayment extends Component
     public function checkValue(array $payableInvoices)
     {
         $this->errors = '';
-        $_context = $this->getContext();
+        $_context = $this->getContext($this->_key);
         $settings = $_context['settings'];
 
         $contact = $_context['contact'] ?? auth()->guard('contact')->user();
@@ -71,7 +73,7 @@ class UnderOverPayment extends Component
         }
 
         if (!$this->errors) {
-            $this->setContext('payable_invoices', $payableInvoices);
+            $this->setContext($this->_key, 'payable_invoices', $payableInvoices);
             $this->dispatch('payable-amount', payable_amount: $input_amount);
         }
     }

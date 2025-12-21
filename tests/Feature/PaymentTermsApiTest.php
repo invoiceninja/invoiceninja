@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\PaymentTermController
  */
 class PaymentTermsApiTest extends TestCase
@@ -38,9 +39,6 @@ class PaymentTermsApiTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->withoutMiddleware(

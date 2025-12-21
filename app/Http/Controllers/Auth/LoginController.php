@@ -135,13 +135,13 @@ class LoginController extends BaseController
 
                 if (strlen($request->input('one_time_password')) == 0 || !$google2fa->verifyKey(decrypt($user->google_2fa_secret), $request->input('one_time_password'))) {
                     return response()
-                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                        ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
                         ->header('X-App-Version', config('ninja.app_version'))
                         ->header('X-Api-Version', config('ninja.minimum_client_version'));
                 }
             } elseif (strlen($user->google_2fa_secret ?? '') > 2 && !$request->has('one_time_password')) {
                 return response()
-                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 401)
+                    ->json(['message' => ctrans('texts.invalid_one_time_password')], 422)
                     ->header('X-App-Version', config('ninja.app_version'))
                     ->header('X-Api-Version', config('ninja.minimum_client_version'));
             }
@@ -378,8 +378,8 @@ class LoginController extends BaseController
         $account_user = $account->default_company->owner();
         Auth::login($account_user, false);
 
-        $account_user->email_verified_at = now();
-        $account_user->save();
+        // $account_user->email_verified_at = now();
+        // $account_user->save();
 
         /** @var \App\Models\CompanyUser $cu */
         $cu = $this->hydrateCompanyUser($account_user);
@@ -630,8 +630,8 @@ class LoginController extends BaseController
         }
 
         $user = $account->default_company->owner();        
-        $user->email_verified_at = now();
-        $user->save();
+        // $user->email_verified_at = now();
+        // $user->save();
 
         Auth::login($user, false);
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,7 +17,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Services\Invoice\GetInvoicePdf
  */
 class InvoiceUploadTest extends TestCase

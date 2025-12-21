@@ -19,9 +19,10 @@
             <div class="scan-section">
                 <div class="title">Scan</div>
                 <span class="input-wrapper">
-                    <a href="bitcoin:{{$btc_address}}?amount={{$btc_amount}}" id="qr-code-link" target="_blank">
-                        <div id="qrcode-container"></div>
-                    </a>
+                    <livewire:billing-portal.payments.blockonomics-qr-code
+                        :btc_address="$btc_address"
+                        :btc_amount="$btc_amount"
+                    />
                 </span>
                 <a href="bitcoin:{{$btc_address}}?amount={{$btc_amount}}" target="_blank" id="open-in-wallet-link">Open in Wallet</a>
             </div>
@@ -39,10 +40,11 @@
                     </div>
                     <img onclick='copyToClipboard("btc-amount", this)' src="{{ 'data:image/svg+xml;base64,' . base64_encode('<svg width="22" height="24" viewBox="0 0 22 24" fill="none" xmlns="http://www.w3.org/2000/svg" ><path d="M15.5 1H3.5C2.4 1 1.5 1.9 1.5 3V17H3.5V3H15.5V1ZM18.5 5H7.5C6.4 5 5.5 5.9 5.5 7V21C5.5 22.1 6.4 23 7.5 23H18.5C19.6 23 20.5 22.1 20.5 21V7C20.5 5.9 19.6 5 18.5 5ZM18.5 21H7.5V7H18.5V21Z" fill="#000"/></svg>') }}" class="icon" alt="Copy Icon">
                 </span>
-                <div class="btc-value-wrapper">
-                    <div class="btc-value">1 BTC = {{$btc_price}} {{$currency}}, updates in <span id="countdown"></span></div>
-                    <span class="icon-refresh" onclick='refreshBTCPrice()'></span>
-                </div>
+                <livewire:billing-portal.payments.blockonomics-price-display
+                    :currency="$currency"
+                    :btc_price="$btc_price"
+                    :btc_amount="$btc_amount"
+                />
             </div>
         </div>
     </div>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,13 +20,12 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Helpers\Invoice\InvoiceSum
  */
 class InvoiceBalanceTest extends TestCase
 {
     use MockAccountData;
-
     protected function setUp(): void
     {
         parent::setUp();

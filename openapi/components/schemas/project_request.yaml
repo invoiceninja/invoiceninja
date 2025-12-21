@@ -1,0 +1,59 @@
+    ProjectRequest:
+      required:
+        - name
+        - client_id
+      properties:
+        name:
+          description: 'Project name'
+          type: string
+          example: 'Website Redesign Project'
+        client_id:
+          description: 'The hashed ID of the client'
+          type: string
+          example: 'D2J234DFA'
+        description:
+          description: 'Project description'
+          type: string
+          example: 'Complete redesign of company website'
+        budgeted_hours:
+          description: 'Budgeted hours for the project'
+          type: number
+          example: 120.5
+        task_rate:
+          description: 'Hourly rate for tasks in this project'
+          type: number
+          example: 75.00
+        due_date:
+          description: 'Due date for the project'
+          type: string
+          format: date
+          example: '2024-03-31'
+        custom_value1:
+          description: 'Custom field value 1'
+          type: string
+          example: 'Custom value 1'
+        custom_value2:
+          description: 'Custom field value 2'
+          type: string
+          example: 'Custom value 2'
+        custom_value3:
+          description: 'Custom field value 3'
+          type: string
+          example: 'Custom value 3'
+        custom_value4:
+          description: 'Custom field value 4'
+          type: string
+          example: 'Custom value 4'
+        is_deleted:
+          description: 'Whether the project is deleted'
+          type: boolean
+          example: false
+        archived_at:
+          description: 'Timestamp when project was archived'
+          type: integer
+          example: 1640995200
+        color:
+          description: 'Project color for UI display'
+          type: string
+          example: '#FF5733'
+      type: object

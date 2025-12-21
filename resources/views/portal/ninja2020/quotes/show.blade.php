@@ -89,8 +89,8 @@
 
     document.addEventListener('DOMContentLoaded', () => {
 
-        @if($key)
-            window.history.pushState({}, "", "{{ url("client/quote/{$key}") }}");
+        @if($_key)
+            window.history.pushState({}, "", "{{ url("client/quote/{$_key}") }}");
         @endif
 
     });

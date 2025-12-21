@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -24,7 +25,6 @@ class CompanyDocumentsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();

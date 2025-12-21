@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -26,15 +27,12 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class LateFeeTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     public $account;
 
     public $company;
@@ -44,9 +42,6 @@ class LateFeeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -272,11 +267,11 @@ class LateFeeTest extends TestCase
     {
 
         // if(!config('ninja.testvars.stripe')){
-            $this->markTestSkipped('Stripe is not enabled');
+        $this->markTestSkipped('Stripe is not enabled');
         // }
 
         config(['queue.default' => 'sync']);
-        
+
         $data = [];
         $data[1]['min_limit'] = -1;
         $data[1]['max_limit'] = -1;
@@ -379,7 +374,7 @@ class LateFeeTest extends TestCase
         $this->assertEquals(2, count($i->line_items));
 
         // try{
-            $i->service()->autoBill();
+        $i->service()->autoBill();
         // }
         // catch(\Exception $e){
         //     nlog($e->getMessage());
@@ -486,7 +481,7 @@ class LateFeeTest extends TestCase
     {
 
         $this->travelTo(now()->startOfDay()->subDays(10));
-    
+
         $settings = CompanySettings::defaults();
         $settings->client_online_payment_notification = false;
         $settings->client_manual_payment_notification = false;
@@ -539,17 +534,17 @@ class LateFeeTest extends TestCase
         $x = false;
 
         do {
-            
+
             (new ReminderJob())->handle();
             $invoice = $i->fresh();
 
             $x = (bool)$invoice->reminder1_sent;
             $this->travelTo(now()->addHour());
 
-        }while($x === false);
-        
+        } while ($x === false);
+
         $i = $i->fresh();
-        
+
         $this->assertNotNull($i->reminder1_sent);
         $this->assertEquals(20, $i->balance);
 

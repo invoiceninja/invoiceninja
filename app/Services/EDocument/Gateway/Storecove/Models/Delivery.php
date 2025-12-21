@@ -2,11 +2,18 @@
 
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
+use Symfony\Component\Serializer\Attribute\SerializedPath;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Attribute\Context;
+
 class Delivery
 {
     public ?DeliveryLocation $delivery_location;
     public ?string $requested_delivery_period;
+
+    #[SerializedPath('[cbc:ActualDeliveryDate]')]
     public ?string $actual_delivery_date;
+
     public ?float $quantity;
     public ?string $delivery_party_name;
     public ?DeliveryParty $delivery_party;

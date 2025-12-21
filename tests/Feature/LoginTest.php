@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\Auth\LoginController
  */
 class LoginTest extends TestCase

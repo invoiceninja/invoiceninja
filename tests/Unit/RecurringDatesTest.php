@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,7 +28,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  \App\Models\RecurringInvoice
  */
 class RecurringDatesTest extends TestCase
@@ -35,7 +36,6 @@ class RecurringDatesTest extends TestCase
     use MakesHash;
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,24 +45,24 @@ class RecurringDatesTest extends TestCase
 
     public function testDueDateDaysCalculationsTZ2()
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->timezone_id = '15'; // New York
 
         $company = Company::factory()->create([
-            'account_id'=>$this->account->id,
+            'account_id' => $this->account->id,
             'settings' => $settings,
         ]);
 
         $client = Client::factory()->create([
-            'company_id' =>$company->id,
+            'company_id' => $company->id,
             'user_id' => $this->user->id,
         ]);
 
         $this->travelTo(\Carbon\Carbon::create(2024, 12, 1, 17, 0, 0));
 
         $this->assertEquals('2024-12-01', now()->format('Y-m-d'));
-        
+
         $recurring_invoice = RecurringInvoiceFactory::create($company->id, $this->user->id);
         $recurring_invoice->line_items = $this->buildLineItems();
         $recurring_invoice->client_id = $client->id;
@@ -102,7 +102,7 @@ class RecurringDatesTest extends TestCase
         $this->assertEquals('2024-12-01', $invoice->due_date);
 
     }
-    
+
 
     public function testDueDateDaysCalculations()
     {

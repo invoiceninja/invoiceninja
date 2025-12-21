@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -13,6 +14,7 @@ namespace Tests;
 
 use App\Models\Task;
 use App\Models\User;
+use Faker\Generator;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -26,6 +28,7 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\TaxRate;
 use App\Models\Currency;
+use App\Models\Language;
 use App\Models\Scheduler;
 use App\Models\TaskStatus;
 use App\Utils\TruthSource;
@@ -56,6 +59,7 @@ use App\Models\BankTransactionRule;
 use Illuminate\Support\Facades\Hash;
 use App\Factory\PurchaseOrderFactory;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\CreditRepository;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Schema;
 use App\Models\PurchaseOrderInvitation;
@@ -65,9 +69,9 @@ use Illuminate\Support\Facades\Storage;
 use App\Factory\InvoiceInvitationFactory;
 use App\DataMapper\ClientRegistrationFields;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
+
 use App\Repositories\RecurringInvoiceRepository;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
-use App\Repositories\CreditRepository;
 
 /**
  * Class MockAccountData.
@@ -77,124 +81,132 @@ trait MockAccountData
     use MakesHash;
     use GeneratesCounter;
 
+    public mixed $credit_calc = null;
+
+    public $invoice_calc;
+
+    public $quote_calc;
+
+    public $recurring_invoice_calc;
+    
     /**
-     * @var
+     * @var Project|null
      */
     public $project;
 
     /**
-     * @var
+     * @var Account|null
      */
     public $account;
 
     /**
-     * @var
+     * @var Company|null
      */
     public $company;
 
     /**
-     * @var
+     * @var User|null
      */
     public $user;
 
     /**
-     * @var
+     * @var Client|null
      */
     public $client;
 
     /**
-     * @var
+     * @var CompanyToken|string|null
      */
     public $token;
 
     /**
-     * @var
+     * @var RecurringExpense|null
      */
     public $recurring_expense;
 
     /**
-     * @var
+     * @var RecurringQuote|null
      */
     public $recurring_quote;
 
     /**
-     * @var \App\Models\Credit
+     * @var Credit|null
      */
     public $credit;
 
     /**
-     * @var \App\Models\Invoice
+     * @var \App\Models\Invoice|null
      */
     public $invoice;
 
     /**
-     * @var
+     * @var Quote|null
      */
     public $quote;
 
     /**
-     * @var
+     * @var Vendor|null
      */
     public $vendor;
 
     /**
-     * @var
+     * @var Expense|null
      */
     public $expense;
 
     /**
-     * @var
+     * @var Task|null
      */
     public $task;
 
     /**
-     * @var
+     * @var TaskStatus|null
      */
     public $task_status;
 
     /**
-     * @var
+     * @var ExpenseCategory|null
      */
     public $expense_category;
 
     /**
-     * @var
+     * @var \App\Models\CompanyUser|null
      */
     public $cu;
 
     /**
-     * @var
+     * @var BankIntegration|null
      */
     public $bank_integration;
 
     /**
-     * @var
+     * @var BankTransaction|null
      */
     public $bank_transaction;
 
     /**
-     * @var
+     * @var BankTransactionRule|null
      */
     public $bank_transaction_rule;
 
 
     /**
-     * @var
+     * @var Payment|null
      */
     public $payment;
 
     /**
-     * @var
+     * @var TaxRate|null
      */
     public $tax_rate;
 
     /**
-     * @var
+     * @var Scheduler|null
      */
     public $scheduler;
 
     /**
-     * @var
+     * @var \App\Models\PurchaseOrder|null
      */
     public $purchase_order;
 
@@ -204,11 +216,13 @@ trait MockAccountData
 
     public $recurring_invoice;
 
+    public $faker;
+    
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
 
-        if(Country::count() == 0){
+        if (Country::count() == 0) {
             Artisan::call('db:seed', ['--force' => true]);
         }
 
@@ -216,6 +230,14 @@ trait MockAccountData
 
             $resource = Currency::query()->orderBy('name')->get();
             Cache::forever('currencies', $resource);
+            return $resource;
+
+        });
+
+        app()->singleton('languages', function ($app) {
+
+            $resource = Language::query()->orderBy('name')->get();
+            Cache::forever('languages', $resource);
             return $resource;
 
         });
@@ -258,6 +280,7 @@ trait MockAccountData
         $settings->use_credits_payment = 'always';
         $settings->timezone_id = '1';
         $settings->entity_send_time = 0;
+        $settings->e_invoice_type = 'EN16931';
 
         $this->company->track_inventory = true;
         $this->company->settings = $settings;
@@ -308,7 +331,7 @@ trait MockAccountData
         $company_token->save();
 
         // $user->setContext($this->company, $company_token);
-        
+
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($company_token->first());
         $truth->setUser($this->user);
@@ -652,7 +675,7 @@ trait MockAccountData
 
         $this->credit->save();
 
-        
+
         $repo = new CreditRepository();
         $repo->save([], $this->credit);
 
@@ -887,7 +910,7 @@ trait MockAccountData
 
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
-        $item->notes = $this->faker->sentence;
+        $item->notes = $this->faker->sentence();
         $item->cost = 10;
         $item->task_id = $this->encodePrimaryKey($this->task->id);
         $item->expense_id = $this->encodePrimaryKey($this->expense->id);

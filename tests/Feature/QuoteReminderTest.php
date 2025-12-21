@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Jobs\Util\QuoteReminderJob
  */
 class QuoteReminderTest extends TestCase
@@ -39,9 +40,6 @@ class QuoteReminderTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,9 +47,6 @@ class QuoteReminderTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
@@ -90,7 +85,7 @@ class QuoteReminderTest extends TestCase
             'email' => \Illuminate\Support\Str::random(32)."@example.com",
         ]);
 
-        if(!$settings) {
+        if (!$settings) {
             $settings = CompanySettings::defaults();
             $settings->client_online_payment_notification = false;
             $settings->client_manual_payment_notification = false;

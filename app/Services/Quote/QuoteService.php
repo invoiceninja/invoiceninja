@@ -37,9 +37,9 @@ class QuoteService
         $this->quote = $quote;
     }
 
-    public function location(): array
+    public function location(bool $set_countries = true): array
     {
-        return (new LocationData($this->quote))->run();
+        return (new LocationData($this->quote))->run($set_countries);
     }
 
     public function createInvitations()
@@ -162,11 +162,18 @@ class QuoteService
         return $this;
     }
 
+    /**
+     * convertToInvoice
+     *
+     * @NOTE - this method will force the quote to include all invitations for the
+     * client where ADD TO INVOICE = true
+     *
+     */
     public function convertToInvoice()
     {
         $this->convert();
 
-        $this->invoice->service()->createInvitations();
+        // $this->invoice->service()->createInvitations();
 
         return $this->invoice;
     }

@@ -30,6 +30,7 @@ use App\Helpers\Invoice\InvoiceSumInclusive;
 use App\Utils\Traits\Invoice\ActionsInvoice;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\Invoice\InvoiceReminderWasEmailed;
+use App\DataMapper\InvoiceBackup;
 use App\Jobs\Ninja\TaskScheduler;
 use App\Utils\Number;
 
@@ -40,6 +41,7 @@ use App\Utils\Number;
  * @property object|null $e_invoice
  * @property int $client_id
  * @property int $user_id
+ * @property int|null $location_id
  * @property int|null $assigned_user_id
  * @property int $company_id
  * @property int $status_id
@@ -57,7 +59,7 @@ use App\Utils\Number;
  * @property string|null $due_date
  * @property bool $is_deleted
  * @property object|array|string $line_items
- * @property object|null $backup
+ * @property InvoiceBackup $backup
  * @property object|null $sync
  * @property string|null $footer
  * @property string|null $public_notes
@@ -130,6 +132,8 @@ use App\Utils\Number;
  * @property-read \App\Models\User $user
  * @property-read \App\Models\Vendor|null $vendor
  * @property-read \App\Models\Location|null $location
+ * @property-read \App\Models\Quote|null $quote
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VerifactuLog> $verifactu_logs
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TransactionEvent> $transaction_events
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Activity> $activities
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CompanyLedger> $company_ledger
@@ -153,7 +157,6 @@ class Invoice extends BaseModel
     use MakesReminders;
     use ActionsInvoice;
     use Searchable;
-
 
     protected $presenter = EntityPresenter::class;
 
@@ -210,7 +213,7 @@ class Invoice extends BaseModel
 
     protected $casts = [
         'line_items' => 'object',
-        'backup' => 'object',
+        'backup' => InvoiceBackup::class,
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',
@@ -246,18 +249,13 @@ class Invoice extends BaseModel
 
     public const STATUS_REVERSED = 6;
 
-    public const STATUS_OVERDUE = -1; //status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
+    public const STATUS_OVERDUE = -1; // status < 4 || < 3 && !is_deleted && !trashed() && due_date < now()
 
     public const STATUS_UNPAID = -2; //status < 4 || < 3 && !is_deleted && !trashed()
 
-    // public function searchableAs()
-    // {
-    //     return 'invoices_index';  // for when we need to rename
-    // }
-
     public function searchableAs(): string
     {
-        return 'invoices_v2';
+        return 'invoices';
     }
 
     public function toSearchableArray()
@@ -280,8 +278,8 @@ class Invoice extends BaseModel
             'custom_value3' => (string)$this->custom_value3,
             'custom_value4' => (string)$this->custom_value4,
             'company_key' => $this->company->company_key,
-            'po_number' => (string)$this->po_number,
-            'line_items' => (array)$this->line_items,
+            'po_number' => (string) $this->po_number,
+            'line_items' => (array) $this->line_items,
         ];
     }
 
@@ -421,6 +419,11 @@ class Invoice extends BaseModel
     public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Credit::class);
+    }
+
+    public function verifactu_logs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VerifactuLog::class)->orderBy('id', 'desc');
     }
 
     public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -905,5 +908,26 @@ class Invoice extends BaseModel
         $amount = $schedule_array[$index]['is_amount'] ? \App\Utils\Number::formatMoney($schedule_array[$index]['amount'], $this->client) : \App\Utils\Number::formatMoney(($schedule_array[$index]['amount']/100)*$this->amount, $this->client);
 
         return ctrans('texts.payment_schedule_interval', ['index' => $index+1, 'total' => count($schedule_array), 'amount' => $amount]);
+    }
+
+    public function hasSentAeat(): bool
+    {
+        return $this->backup->guid != "";
+    }
+    
+    /**
+     * verifactuEnabled
+     *
+     * Helper to determine whether the invoice / client combination falls under the Verifactu rules.
+     * 
+     * @return bool
+     */
+    public function verifactuEnabled(): bool
+    {
+        return once(function () {
+            $client_is_verifactu = in_array($this->client->country->iso_3166_2, (new \App\DataMapper\Tax\BaseRule())->eu_country_codes) &&
+            (strlen($this->client->vat_number ?? '') > 0 || strlen($this->client->id_number ?? '') > 0);
+            return $this->company->verifactuEnabled() && $client_is_verifactu;
+        });
     }
 }

@@ -72,7 +72,7 @@ class UpdateInvoiceRequest extends Request
             'sometimes',
             'not_in:5',
             function ($attribute, $value, $fail) {
-                if ($this->invoice->status_id == 5) {
+                if (in_array($this->invoice->status_id, [5, 6])) {
                     $fail(ctrans('texts.locked_invoice'));
                 }
             }
@@ -89,7 +89,7 @@ class UpdateInvoiceRequest extends Request
         $rules['date'] = 'bail|sometimes|date:Y-m-d';
 
         $rules['partial_due_date'] = ['bail', 'sometimes', 'nullable', 'exclude_if:partial,0', 'date', 'before:due_date', 'after_or_equal:date'];
-        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', 'after_or_equal:date', Rule::requiredIf(fn () => strlen($this->partial_due_date) > 1), 'date'];
+        $rules['due_date'] = ['bail', 'sometimes', 'nullable', 'after:partial_due_date', 'after_or_equal:date', Rule::requiredIf(fn () => strlen($this->partial_due_date ?? '') > 1), 'date'];
 
         $rules['e_invoice'] = ['sometimes', 'nullable', new ValidInvoiceScheme()];
 
@@ -97,6 +97,21 @@ class UpdateInvoiceRequest extends Request
 
         return $rules;
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            if(request()->input('paid') == 'true'){
+            }
+            elseif($this->invoice->company->verifactuEnabled() && $this->invoice->status_id !== \App\Models\Invoice::STATUS_DRAFT){
+                $validator->errors()->add('status_id', ctrans('texts.locked_invoice'));
+            }
+
+        });
+
+    }
+
 
     public function prepareForValidation()
     {

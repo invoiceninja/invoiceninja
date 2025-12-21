@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +22,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class DeletePaymentTest extends TestCase
 {
@@ -34,9 +35,6 @@ class DeletePaymentTest extends TestCase
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();

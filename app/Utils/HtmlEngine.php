@@ -12,22 +12,23 @@
 
 namespace App\Utils;
 
-use App\Helpers\Epc\EpcQrGenerator;
-use App\Helpers\SwissQr\SwissQrGenerator;
+use Exception;
 use App\Models\Account;
 use App\Models\Country;
-use App\Models\CreditInvitation;
 use App\Models\GatewayType;
-use App\Models\InvoiceInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\DesignCalculator;
-use App\Utils\Traits\MakesDates;
+use App\Models\QuoteInvitation;
 use App\Utils\Traits\MakesHash;
-use Exception;
+use App\Models\CreditInvitation;
+use App\Utils\Traits\MakesDates;
+use App\Models\InvoiceInvitation;
+use App\Helpers\Epc\EpcQrGenerator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\DesignCalculator;
+use App\Helpers\SwissQr\SwissQrGenerator;
+use App\Models\RecurringInvoiceInvitation;
+use App\Services\EDocument\Standards\Verifactu;
 
 class HtmlEngine
 {
@@ -207,8 +208,15 @@ class HtmlEngine
         $data['$location.custom3'] = &$data['$location3'];
         $data['$location.custom4'] = &$data['$location4'];
 
-        if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {        
-            $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
+        if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {    
+            
+            if($this->client->peppolSendingEnabled() && $this->entity->amount < 0) {
+                $data['$entity'] = ['value' => ctrans('texts.credit'), 'label' => ctrans('texts.credit')];
+            }
+            else {
+                $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
+            }
+            
             $data['$number'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$invoice'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number_short')];
@@ -492,7 +500,7 @@ class HtmlEngine
         $data['$country_2'] = ['value' => $locationData['country_code'] , 'label' => ctrans('texts.country')];
         $data['$email'] = ['value' => isset($this->contact) ? $this->contact->email : 'no contact email on record', 'label' => ctrans('texts.email')];
 
-        if (str_contains($data['$email']['value'], 'example.com')) {
+        if (str_contains($data['$email']['value'] ?? '', 'example.com')) {
             $data['$email'] = ['value' => '', 'label' => ctrans('texts.email')];
         }
 
@@ -521,6 +529,9 @@ class HtmlEngine
         $data['$client.country'] = &$data['$country'];
         $data['$client.email'] = &$data['$email'];
         $data['$client.classification'] = ['value' => isset($this->client->classification) ? ctrans("texts.{$this->client->classification}") : ' ', 'label' => ctrans('texts.classification')];
+
+        $data['$client.location_name'] = ['value' => $locationData['location_name'], 'label' => ctrans('texts.location')];
+
         $data['$client.billing_address'] = &$data['$client_address'];
         $data['$client.billing_address1'] = &$data['$client.address1'];
         $data['$client.billing_address2'] = &$data['$client.address2'];
@@ -809,11 +820,60 @@ class HtmlEngine
             $data['$sepa_qr_code_raw'] = ['value' => html_entity_decode($data['$sepa_qr_code']['value']), 'label' => ''];
         }
 
+
+        $data['$verifactu_qr_code'] = ['value' => $this->getVerifactuQrCode(), 'label' => ''];
+
         $arrKeysLength = array_map('strlen', array_keys($data));
         array_multisort($arrKeysLength, SORT_DESC, $data);
 
         return $data;
     }
+
+    private function getVerifactuQrCode()
+    {
+        if(!($this->entity instanceof \App\Models\Invoice) || !$this->company->verifactuEnabled() || strlen($this->entity->backup->guid ?? '') < 2 || $this->entity->backup->guid == 'exempt') {
+            return '';
+        }
+
+        $verifactu_log = $this->entity->verifactu_logs()->orderBy('id','desc')->first();
+
+        if(!$verifactu_log) {
+            return '';
+        }
+
+        $qr_code = (new Verifactu($this->entity))->calculateQrCode($verifactu_log);
+
+        $qr_code = base64_encode($qr_code);
+
+        $f1_text = "Factura F1<br/>
+Factura verificable en la Sede Electrónica de la AEAT - VERI*FACTU<br/>
+Emitida conforme al RD 1007/2023 (Veri*Factu)<br/>
+Código seguro de verificación (CSV): {$verifactu_log->status}";
+
+        $r2_text = "Factura Rectificativa R2<br/>
+Factura verificable en la Sede Electrónica de la AEAT - VERI*FACTU<br/>
+Motivo de la rectificación: Anulación total de la factura original<br/>
+Factura rectificativa de la factura nº {$this->entity->backup->parent_invoice_number}, de fecha {$this->entity->date}<br/>
+Tipo de rectificación: I (Por diferencias)<br/>
+Código seguro de verificación (CSV): {$verifactu_log->status}";
+
+        $r1_text = "Factura Rectificativa R1<br/>
+Factura verificable en la Sede Electrónica de la AEAT - VERI*FACTU<br/>
+Factura rectificativa de la factura nº {$this->entity->backup->parent_invoice_number}, de fecha {$this->entity->date}<br/>
+Motivo de la rectificación: Corrección de base imponible<br/>
+Tipo de rectificación: I (Por diferencias)\n
+Código seguro de verificación (CSV): {$verifactu_log->status}";
+
+        $text = match($this->entity->backup->document_type) {
+            'F1' => $f1_text,
+            'R1' => $r1_text,
+            'R2' => $r2_text,
+            default => '',
+        };
+
+        return "<tr><td>{$text}</td></tr><tr><td><img src=\"data:image/png;base64,{$qr_code}\" alt=\"Verifactu QR Code\"></td></tr>";
+    }
+
 
     private function getPaymentMeta(\App\Models\Payment $payment)
     {

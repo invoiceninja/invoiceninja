@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -72,8 +73,8 @@ class StorecoveIngestTest extends TestCase
         if (config('ninja.testvars.travis') !== false || !config('ninja.storecove_api_key')) {
             $this->markTestSkipped("do not run in CI");
         }
-                
-        
+
+
         try {
             $processor = new \Saxon\SaxonProcessor();
         } catch (\Throwable $e) {
@@ -88,7 +89,7 @@ class StorecoveIngestTest extends TestCase
 
     public function getStorecoveInvoice($x)
     {
-                
+
         $storecove = new Storecove();
 
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
@@ -151,7 +152,7 @@ class StorecoveIngestTest extends TestCase
 
     public function testRenderHtmlDocument()
     {
-                
+
         $doc = json_decode($this->document, true);
 
         $decoded = base64_decode($doc['original']);
@@ -169,7 +170,7 @@ class StorecoveIngestTest extends TestCase
 
     public function testSaveDocument()
     {
-        $doc = json_decode($this->document,true);
+        $doc = json_decode($this->document, true);
 
         $decoded = base64_decode($doc['original']);
         $guid = $doc['guid'];
@@ -184,7 +185,7 @@ class StorecoveIngestTest extends TestCase
         $this->assertEquals(1, $this->expense->documents->count());
 
         $d = $this->expense->documents->first();
-        
+
     }
 
     public function testExpenseCreation()
@@ -231,24 +232,22 @@ class StorecoveIngestTest extends TestCase
 
         $party = $storecove_invoice->getAccountingSupplierParty()->getParty();
         $pis = $storecove_invoice->getAccountingSupplierParty()->getPublicIdentifiers();
-        
+
         $vat_number = '';
         $id_number = '';
 
-        foreach($pis as $pi)
-        {
-            if($ident = $storecove->router->resolveIdentifierTypeByValue($pi->getScheme()))
-            {
-                if($ident == 'vat_number')
+        foreach ($pis as $pi) {
+            if ($ident = $storecove->router->resolveIdentifierTypeByValue($pi->getScheme())) {
+                if ($ident == 'vat_number') {
                     $vat_number = $pi->getId();
-                elseif($ident == 'id_number')
+                } elseif ($ident == 'id_number') {
                     $id_number = $pi->getId();
+                }
             }
         }
 
         $item_descriptions = collect();
-        foreach($storecove_invoice->getInvoiceLines() as $item)
-        {
+        foreach ($storecove_invoice->getInvoiceLines() as $item) {
             $item_descriptions->push($item->getDescription());
         }
 
@@ -276,7 +275,7 @@ class StorecoveIngestTest extends TestCase
 
         $key = 0;
         foreach ($tax_map as $tax) {
-            
+
             switch ($key) {
                 case 0:
                     $tax_name1 = $tax['type'];
@@ -296,8 +295,8 @@ class StorecoveIngestTest extends TestCase
             }
             $key++;
         }
-        
-        $currency = app('currencies')->first(function ($c) use ($storecove_invoice){
+
+        $currency = app('currencies')->first(function ($c) use ($storecove_invoice) {
             return $storecove_invoice->getDocumentCurrencyCode() == $c->iso_3166_3;
         })->id ?? 1;
 

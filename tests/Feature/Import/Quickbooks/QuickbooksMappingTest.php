@@ -38,10 +38,10 @@ class QuickbooksMappingTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();      
-            
+        parent::setUp();
 
-        if (config('ninja.testvars.travis') !== false) {
+
+        if (config('ninja.testvars.travis') !== false || !config('services.quickbooks.client_id')) {
             $this->markTestSkipped('Skip test for GH Actions');
         }
 
@@ -52,7 +52,7 @@ class QuickbooksMappingTest extends TestCase
 
     public function testBackupImport()
     {
-        
+
         $qb = new QuickbooksService($this->company);
 
         $pre_count = Client::where('company_id', $this->company->id)->count();
@@ -60,8 +60,8 @@ class QuickbooksMappingTest extends TestCase
         $post_count = Client::where('company_id', $this->company->id)->count();
 
         $this->assertGreaterThan($pre_count, $post_count);
-        
-        $pre_count = Product::where('company_id', $this->company->id)->count();        
+
+        $pre_count = Product::where('company_id', $this->company->id)->count();
         $qb->product->syncToNinja($this->qb_data['products']);
         $post_count = Product::where('company_id', $this->company->id)->count();
 
@@ -74,7 +74,7 @@ class QuickbooksMappingTest extends TestCase
         Invoice::where('company_id', $this->company->id)->cursor()->each(function ($invoice) {
             $invoice->forceDelete();
         });
-        
+
         $pre_count = Invoice::where('company_id', $this->company->id)->count();
 
         $this->assertGreaterThan(0, count($this->qb_data['invoices']));
@@ -87,12 +87,12 @@ class QuickbooksMappingTest extends TestCase
         $pre_count = Payment::where('company_id', $this->company->id)->count();
 
         $this->assertGreaterThan(0, count($this->qb_data['payments']));
-        
+
         $qb->payment->importToNinja($this->qb_data['payments']);
         $post_count = Payment::where('company_id', $this->company->id)->count();
 
         $this->assertGreaterThan($pre_count, $post_count);
-                
+
 
         //loop and check every single invoice amount/balance
         $qb_invoices = collect($this->qb_data['invoices']);
@@ -102,7 +102,7 @@ class QuickbooksMappingTest extends TestCase
 
             // nlog($qb_invoice);
             // nlog($invoice->toArray());
-            if(!$qb_invoice) {
+            if (!$qb_invoice) {
                 nlog("Borked trying to find invoice {$invoice->sync->qb_id} in qb_invoices");
             }
 
@@ -116,8 +116,8 @@ class QuickbooksMappingTest extends TestCase
             // nlog($total_balance);
             // nlog($invoice->balance);
 
-            $delta_amount = abs(round($total_amount - $invoice->amount,2));
-            $delta_balance = abs(round($total_balance - $invoice->balance,2));
+            $delta_amount = abs(round($total_amount - $invoice->amount, 2));
+            $delta_balance = abs(round($total_balance - $invoice->balance, 2));
 
             $this->assertLessThanOrEqual(0.01, $delta_amount);
             $this->assertLessThanOrEqual(0.01, $delta_balance);
@@ -144,12 +144,12 @@ class QuickbooksMappingTest extends TestCase
     {
         $this->assertTrue(isset($this->qb_data['clients']));
     }
-    
+
     public function testClientTransformation()
     {
 
         $ct = new ClientTransformer($this->company);
-     
+
         $client_array = $ct->transform($this->qb_data['clients'][0]);
 
         $this->assertNotNull($client_array);

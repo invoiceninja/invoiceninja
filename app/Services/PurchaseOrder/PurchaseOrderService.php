@@ -155,9 +155,9 @@ class PurchaseOrderService
         return $expense;
     }
 
-    public function sendEmail($contact = null)
+    public function sendEmail($contact = null, $email_type = 'purchase_order')
     {
-        $send_email = new SendEmail($this->purchase_order, 'purchase_order', $contact);
+        $send_email = new SendEmail($this->purchase_order, $email_type, $contact);
 
         return $send_email->run();
     }

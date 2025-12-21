@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Utils\Traits\CompanySettingsSaver
  */
 class CompanySettingsTest extends TestCase
@@ -30,6 +31,7 @@ class CompanySettingsTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
     // use RefreshDatabase;
 
     public function setUp(): void
@@ -40,7 +42,6 @@ class CompanySettingsTest extends TestCase
 
         Session::start();
 
-        $this->faker = \Faker\Factory::create();
         $this->withoutExceptionHandling();
         Model::reguard();
     }

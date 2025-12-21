@@ -71,32 +71,6 @@ use App\Libraries\Currency\Conversion\CurrencyApi;
  * @method static \Illuminate\Database\Eloquent\Builder|Task onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Task query()
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel scope()
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereAssignedUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereClientId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCompanyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue3($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereCustomValue4($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereDuration($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereInvoiceDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereInvoiceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsDateBased($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsDeleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereIsRunning($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereProjectId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatusId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatusOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereStatusSortOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereTimeLog($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Task whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
@@ -109,15 +83,13 @@ class Task extends BaseModel
     use Filterable;
     use Searchable;
 
-    /**
-     * Get the index name for the model.
-     *
-     * @return string
-     */
-    public function searchableAs(): string
-    {
-        return 'tasks_v2';
-    }
+
+    public static array $bulk_update_columns = [
+        'status_id',
+        'client_id',
+        'project_id',
+        'assigned_user_id',
+    ];
 
     protected $fillable = [
         'client_id',
@@ -149,11 +121,19 @@ class Task extends BaseModel
         'deleted_at' => 'timestamp',
     ];
 
-    protected $with = [
-        // 'project',
-    ];
+    protected $with = [];
 
     protected $touches = ['project'];
+
+    /**
+     * Get the index name for the model.
+     *
+     * @return string
+     */
+    public function searchableAs(): string
+    {
+        return 'tasks';
+    }
 
     public function getEntityType()
     {
@@ -516,7 +496,7 @@ class Task extends BaseModel
     {
 
         return
-        collect(json_decode($this->time_log, true))->map(function ($log) {
+        collect(json_decode($this->time_log ?? '{}', true))->map(function ($log) {
 
             $parent_entity = $this->client ?? $this->company;
             $logged = [];

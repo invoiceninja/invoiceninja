@@ -1,0 +1,1399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:sf="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" targetNamespace="https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/tike/cont/ws/SuministroInformacion.xsd" elementFormDefault="qualified">
+	<import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/xmldsig-core/xmldsig-core-schema.xsd"/>
+	<complexType name="CabeceraType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de cabecera </documentation>
+		</annotation>
+		<sequence>
+			<element name="ObligadoEmision" type="sf:PersonaFisicaJuridicaESType">
+				<annotation>
+					<documentation xml:lang="es"> Obligado a expedir la factura. </documentation>
+				</annotation>
+			</element>
+			<element name="Representante" type="sf:PersonaFisicaJuridicaESType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Representante del obligado tributario. A rellenar solo en caso de que los registros de facturación remitdos hayan sido generados por un representante/asesor del obligado tributario. </documentation>
+				</annotation>
+			</element>
+			<element name="RemisionVoluntaria" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="FechaFinVeriFactu" type="sf:fecha" minOccurs="0"/>
+						<element name="Incidencia" type="sf:IncidenciaType" minOccurs="0"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="RemisionRequerimiento" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="RefRequerimiento" type="sf:TextMax18Type"/>
+						<element name="FinRequerimiento" type="sf:FinRequerimientoType" minOccurs="0"/>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+	<element name="RegistroAlta" type="sf:RegistroFacturacionAltaType"/>
+	<element name="RegistroAnulacion" type="sf:RegistroFacturacionAnulacionType"/>
+	<!-- Datos de presentacion en la respuesta
+-->
+	<complexType name="DatosPresentacionType">
+		<sequence>
+			<element name="NIFPresentador" type="sf:NIFType"/>
+			<element name="TimestampPresentacion" type="dateTime"/>
+		</sequence>
+	</complexType>
+	<complexType name="DatosPresentacion2Type">
+		<sequence>
+			<element name="NIFPresentador" type="sf:NIFType"/>
+			<element name="TimestampPresentacion" type="dateTime"/>
+			<element name="IdPeticion" type="sf:TextMax20Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="RegistroSf">
+		<annotation>
+			<documentation xml:lang="es"> Información básica que contienen los registros del sistema de facturacion </documentation>
+		</annotation>
+		<sequence>
+			<element name="PeriodoImputacion">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es"> Período de la fecha de la operación</documentation>
+					</annotation>
+					<sequence>
+						<element name="Ejercicio" type="sf:YearType"/>
+						<element name="Periodo" type="sf:TipoPeriodoType"/>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="IDFacturaExpedidaBCType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura expedida para operaciones de consulta</documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" type="sf:NIFType"/>
+			<element name="NumSerieFactura" type="sf:TextoIDFacturaType">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor.</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFactura" type="sf:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="IDFacturaExpedidaBajaType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura que se anula para operaciones de baja</documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFacturaAnulada" type="sf:NIFType">
+				<annotation>
+					<documentation xml:lang="es"> NIF del obligado</documentation>
+				</annotation>
+			</element>
+			<element name="NumSerieFacturaAnulada" type="sf:TextoIDFacturaType">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura que se anula.</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFacturaAnulada" type="sf:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura que se anula</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="RegistroFacturacionAltaType">
+		<annotation>
+			<documentation xml:lang="es">Datos correspondientes al registro de facturacion de alta </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDVersion" type="sf:VersionType"/>
+			<element name="IDFactura" type="sf:IDFacturaExpedidaType"/>
+			<element name="RefExterna" type="sf:TextMax70Type" minOccurs="0"/>
+			<element name="NombreRazonEmisor" type="sf:TextMax120Type"/>
+			<element name="Subsanacion" type="sf:SubsanacionType" minOccurs="0"/>
+			<element name="RechazoPrevio" type="sf:RechazoPrevioType" minOccurs="0"/>
+			<element name="TipoFactura" type="sf:ClaveTipoFacturaType">
+				<annotation>
+					<documentation xml:lang="es"> Clave del tipo de factura </documentation>
+				</annotation>
+			</element>
+			<element name="TipoRectificativa" type="sf:ClaveTipoRectificativaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Identifica si el tipo de factura rectificativa es por sustitución o por diferencia </documentation>
+				</annotation>
+			</element>
+			<element name="FacturasRectificadas" minOccurs="0">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es">El ID de las facturas rectificadas, únicamente se rellena en el caso de rectificación de facturas</documentation>
+					</annotation>
+					<sequence>
+						<element name="IDFacturaRectificada" type="sf:IDFacturaARType" maxOccurs="1000"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="FacturasSustituidas" minOccurs="0">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es">El ID de las facturas sustituidas, únicamente se rellena en el caso de facturas sustituidas</documentation>
+					</annotation>
+					<sequence>
+						<element name="IDFacturaSustituida" type="sf:IDFacturaARType" maxOccurs="1000"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="ImporteRectificacion" type="sf:DesgloseRectificacionType" minOccurs="0"/>
+			<element name="FechaOperacion" type="sf:fecha" minOccurs="0"/>
+			<element name="DescripcionOperacion" type="sf:TextMax500Type"/>
+			<element name="FacturaSimplificadaArt7273" type="sf:SimplificadaCualificadaType" minOccurs="0"/>
+			<element name="FacturaSinIdentifDestinatarioArt61d" type="sf:CompletaSinDestinatarioType" minOccurs="0"/>
+			<element name="Macrodato" type="sf:MacrodatoType" minOccurs="0"/>
+			<element name="EmitidaPorTerceroODestinatario" type="sf:TercerosODestinatarioType" minOccurs="0"/>
+			<element name="Tercero" type="sf:PersonaFisicaJuridicaType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Tercero que expida la factura y/o genera el registro de alta. </documentation>
+				</annotation>
+			</element>
+			<element name="Destinatarios" minOccurs="0">
+				<complexType>
+					<annotation>
+						<documentation xml:lang="es">Contraparte de la operación. Cliente</documentation>
+					</annotation>
+					<sequence>
+						<element name="IDDestinatario" type="sf:PersonaFisicaJuridicaType" maxOccurs="1000"/>
+					</sequence>
+				</complexType>
+			</element>
+			<element name="Cupon" type="sf:CuponType" minOccurs="0"/>
+			<element name="Desglose" type="sf:DesgloseType"/>
+			<element name="CuotaTotal" type="sf:ImporteSgn12.2Type"/>
+			<element name="ImporteTotal" type="sf:ImporteSgn12.2Type"/>
+			<element name="Encadenamiento">
+				<complexType>
+					<choice>
+						<element name="PrimerRegistro" type="sf:PrimerRegistroCadenaType"/>
+						<element name="RegistroAnterior" type="sf:EncadenamientoFacturaAnteriorType"/>
+					</choice>
+				</complexType>
+			</element>
+			<element name="SistemaInformatico" type="sf:SistemaInformaticoType"/>
+			<element name="FechaHoraHusoGenRegistro" type="dateTime"/>
+			<element name="NumRegistroAcuerdoFacturacion" type="sf:TextMax15Type" minOccurs="0"/>
+			<element name="IdAcuerdoSistemaInformatico" type="sf:TextMax16Type" minOccurs="0"/>
+			<element name="TipoHuella" type="sf:TipoHuellaType"/>
+			<element name="Huella" type="sf:TextMax64Type"/>
+			<element ref="ds:Signature" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="RegistroFacturacionAnulacionType">
+		<annotation>
+			<documentation xml:lang="es">Datos correspondientes al registro de facturacion de anulacion </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDVersion" type="sf:VersionType"/>
+			<element name="IDFactura" type="sf:IDFacturaExpedidaBajaType"/>
+			<element name="RefExterna" type="sf:TextMax60Type" minOccurs="0"/>
+			<element name="SinRegistroPrevio" type="sf:SinRegistroPrevioType" minOccurs="0"/>
+			<element name="RechazoPrevio" type="sf:RechazoPrevioAnulacionType" minOccurs="0"/>
+			<element name="GeneradoPor" type="sf:GeneradoPorType" minOccurs="0"/>
+			<element name="Generador" type="sf:PersonaFisicaJuridicaType" minOccurs="0"/>
+			<element name="Encadenamiento">
+				<complexType>
+					<choice>
+						<element name="PrimerRegistro" type="sf:PrimerRegistroCadenaType"/>
+						<element name="RegistroAnterior" type="sf:EncadenamientoFacturaAnteriorType"/>
+					</choice>
+				</complexType>
+			</element>
+			<element name="SistemaInformatico" type="sf:SistemaInformaticoType"/>
+			<element name="FechaHoraHusoGenRegistro" type="dateTime"/>
+			<element name="TipoHuella" type="sf:TipoHuellaType"/>
+			<element name="Huella" type="sf:TextMax64Type"/>
+			<element ref="ds:Signature" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="EncadenamientoFacturaAnteriorType">
+		<annotation>
+			<documentation xml:lang="es">Datos de encadenamiento </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" type="sf:NIFType">
+				<annotation>
+					<documentation xml:lang="es"> NIF del obligado a expedir la factura a que se refiere el registro de facturación anterior</documentation>
+				</annotation>
+			</element>
+			<element name="NumSerieFactura" type="sf:TextMax60Type"/>
+			<element name="FechaExpedicionFactura" type="sf:fecha"/>
+			<element name="Huella" type="sf:TextMax64Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="SistemaInformaticoType">
+		<sequence>
+			<sequence>
+				<element name="NombreRazon" type="sf:TextMax120Type"/>
+				<choice>
+					<element name="NIF" type="sf:NIFType"/>
+					<element name="IDOtro" type="sf:IDOtroType"/>
+				</choice>
+			</sequence>
+			<element name="NombreSistemaInformatico" type="sf:TextMax30Type"/>
+			<element name="IdSistemaInformatico" type="sf:TextMax2Type"/>
+			<element name="Version" type="sf:TextMax50Type"/>
+			<element name="NumeroInstalacion" type="sf:TextMax100Type"/>
+			<element name="TipoUsoPosibleSoloVerifactu" type="sf:SiNoType"/>
+			<element name="TipoUsoPosibleMultiOT" type="sf:SiNoType"/>
+			<element name="IndicadorMultiplesOT" type="sf:SiNoType"/>
+		</sequence>
+	</complexType>
+	<complexType name="IDFacturaExpedidaType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" type="sf:NIFType">
+				<annotation>
+					<documentation xml:lang="es"> NIF del obligado</documentation>
+				</annotation>
+			</element>
+			<element name="NumSerieFactura" type="sf:TextoIDFacturaType">
+				<annotation>
+					<documentation xml:lang="es"> Nº Serie+Nº Factura de la Factura del Emisor</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFactura" type="sf:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<!--tipo definido para la identificacion de facturas sustituidas o rectificadas-->
+	<complexType name="IDFacturaARType">
+		<annotation>
+			<documentation xml:lang="es"> Datos de identificación de factura sustituida o rectificada. El NIF se cogerá del NIF indicado en el bloque IDFactura</documentation>
+		</annotation>
+		<sequence>
+			<element name="IDEmisorFactura" type="sf:NIFType">
+				<annotation>
+					<documentation xml:lang="es"> NIF del obligado</documentation>
+				</annotation>
+			</element>
+			<element name="NumSerieFactura" type="sf:TextoIDFacturaType">
+				<annotation>
+					<documentation xml:lang="es">Nº Serie+Nº Factura de la factura</documentation>
+				</annotation>
+			</element>
+			<element name="FechaExpedicionFactura" type="sf:fecha">
+				<annotation>
+					<documentation xml:lang="es"> Fecha de emisión de la factura sustituida o rectificada</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<complexType name="DetalleType">
+		<sequence>
+			<element name="Impuesto" type="sf:ImpuestoType" minOccurs="0"/>
+			<element name="ClaveRegimen" type="sf:IdOperacionesTrascendenciaTributariaType" minOccurs="0"/>
+			<choice>
+				<element name="CalificacionOperacion" type="sf:CalificacionOperacionType"/>
+				<element name="OperacionExenta" type="sf:OperacionExentaType"/>
+			</choice>
+			<element name="TipoImpositivo" type="sf:Tipo2.2Type" minOccurs="0"/>
+			<element name="BaseImponibleOimporteNoSujeto" type="sf:ImporteSgn12.2Type"/>
+			<element name="BaseImponibleACoste" type="sf:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="CuotaRepercutida" type="sf:ImporteSgn12.2Type" minOccurs="0"/>
+			<element name="TipoRecargoEquivalencia" type="sf:Tipo2.2Type" minOccurs="0"/>
+			<element name="CuotaRecargoEquivalencia" type="sf:ImporteSgn12.2Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="DesgloseRectificacionType">
+		<annotation>
+			<documentation xml:lang="es">Desglose de Base y Cuota sustituida en las Facturas Rectificativas sustitutivas</documentation>
+		</annotation>
+		<sequence>
+			<element name="BaseRectificada" type="sf:ImporteSgn12.2Type"/>
+			<element name="CuotaRectificada" type="sf:ImporteSgn12.2Type"/>
+			<element name="CuotaRecargoRectificado" type="sf:ImporteSgn12.2Type" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<!-- Datos de persona Física o jurídica : Denominación, representación, identificación (NIF) -->
+	<complexType name="PersonaFisicaJuridicaESType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española con un NIF asociado</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<element name="NIF" type="sf:NIFType"/>
+		</sequence>
+	</complexType>
+	<!-- Datos de persona Física o jurídica : Denominación, representación, identificación (NIF/Otro) -->
+	<complexType name="PersonaFisicaJuridicaType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española o Extranjera</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<choice>
+				<element name="NIF" type="sf:NIFType"/>
+				<element name="IDOtro" type="sf:IDOtroType"/>
+			</choice>
+		</sequence>
+	</complexType>
+	<!-- Datos de persona Física o jurídica : Denominación, representación, identificación (NIF/Otro) -->
+	<complexType name="IDOtroType">
+		<annotation>
+			<documentation xml:lang="es">Identificador de persona Física o jurídica distinto del NIF 
+        								 (Código pais, Tipo de Identificador, y hasta 15 caractéres)
+        								 No se permite CodigoPais=ES e IDType=01-NIFContraparte
+        								 para ese caso, debe utilizarse NIF en lugar de IDOtro.
+        	</documentation>
+		</annotation>
+		<sequence>
+			<element name="CodigoPais" type="sf:CountryType2" minOccurs="0"/>
+			<element name="IDType" type="sf:PersonaFisicaJuridicaIDTypeType"/>
+			<element name="ID" type="sf:TextMax20Type"/>
+		</sequence>
+	</complexType>
+	<complexType name="RangoFechaExpedicionType">
+		<annotation>
+			<documentation xml:lang="es">Rango de fechas de expedicion</documentation>
+		</annotation>
+		<sequence>
+			<element name="Desde" type="sf:fecha" minOccurs="0"/>
+			<element name="Hasta" type="sf:fecha" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="FechaExpedicionConsultaType">
+		<choice>
+			<element name="FechaExpedicionFactura" type="sf:fecha" minOccurs="0"/>
+			<element name="RangoFechaExpedicion" type="sf:RangoFechaExpedicionType" minOccurs="0"/>
+		</choice>
+	</complexType>
+	<complexType name="RegistroDuplicadoType">
+		<sequence>
+			<element name="IdPeticionRegistroDuplicado" type="sf:TextMax20Type">
+				<annotation>
+					<documentation xml:lang="es"> 
+						IdPeticion asociado a la factura registrada previamente en el sistema. Solo se suministra si la factura enviada es rechazada por estar duplicada
+					</documentation>
+				</annotation>
+			</element>
+			<element name="EstadoRegistroDuplicado" type="sf:EstadoRegistroSFType">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Estado del registro duplicado almacenado en el sistema. Los estados posibles son: Correcta, AceptadaConErrores y Anulada. Solo se suministra si la factura enviada es rechazada por estar duplicada
+											</documentation>
+				</annotation>
+			</element>
+			<element name="CodigoErrorRegistro" type="sf:ErrorDetalleType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Código del error de registro duplicado almacenado en el sistema, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+			<element name="DescripcionErrorRegistro" type="sf:TextMax500Type" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> 
+						Descripción detallada del error de registro duplicado almacenado en el sistema, en su caso.
+					</documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<simpleType name="VersionType">
+		<restriction base="string">
+			<enumeration value="1.0"/>
+		</restriction>
+	</simpleType>
+	<!-- ==== Tipos básicos (Listas de claves y patrones) ============================================= -->
+	<!-- Año en formato YYYY -->
+	<simpleType name="YearType">
+		<annotation>
+			<documentation xml:lang="es"> Año en formato YYYY </documentation>
+		</annotation>
+		<restriction base="string">
+			<length value="4"/>
+			<pattern value="\d{4,4}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="TipoPeriodoType">
+		<annotation>
+			<documentation xml:lang="es"> Período de la factura  </documentation>
+		</annotation>
+		<restriction base="string">
+			<enumeration value="01">
+				<annotation>
+					<documentation xml:lang="es"> Enero </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="02">
+				<annotation>
+					<documentation xml:lang="es"> Febrero </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="03">
+				<annotation>
+					<documentation xml:lang="es"> Marzo </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="04">
+				<annotation>
+					<documentation xml:lang="es"> Abril </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="05">
+				<annotation>
+					<documentation xml:lang="es"> Mayo </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="06">
+				<annotation>
+					<documentation xml:lang="es"> Junio </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="07">
+				<annotation>
+					<documentation xml:lang="es"> Julio </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="08">
+				<annotation>
+					<documentation xml:lang="es"> Agosto </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="09">
+				<annotation>
+					<documentation xml:lang="es"> Septiembre </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="10">
+				<annotation>
+					<documentation xml:lang="es"> Octubre </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="11">
+				<annotation>
+					<documentation xml:lang="es"> Noviembre </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="12">
+				<annotation>
+					<documentation xml:lang="es"> Diciembre </documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Identificador único de facturas -->
+	<simpleType name="TextoIDenvioType">
+		<restriction base="string">
+			<maxLength value="20"/>
+		</restriction>
+	</simpleType>
+	<!-- Identificador único de facturas -->
+	<simpleType name="TextoIDFacturaType">
+		<restriction base="string">
+			<minLength value="1"/>
+			<maxLength value="60"/>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de 10 dígitos -->
+	<simpleType name="Tipo10Type">
+		<restriction base="string">
+			<pattern value="\d{0,10}"/>
+		</restriction>
+	</simpleType>
+	<!-- Importe de 15 dígitos (12+2) "." como separador decimal -->
+	<simpleType name="ImporteSgn12.2Type">
+		<restriction base="string">
+			<pattern value="(\+|-)?\d{1,12}(\.\d{0,2})?"/>
+		</restriction>
+	</simpleType>
+	<!-- Importe de 17 dígitos (14+2) "." como separador decimal -->
+	<simpleType name="ImporteSgn14.2Type">
+		<restriction base="string">
+			<pattern value="(\+|-)?\d{1,14}(\.\d{0,2})?"/>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de 6 dígitos (3+2) "." como separador decimal -->
+	<simpleType name="Tipo2.2Type">
+		<restriction base="string">
+			<pattern value="\d{1,3}(\.\d{0,2})?"/>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de 3 dígitos -->
+	<simpleType name="Tipo3Type">
+		<restriction base="string">
+			<pattern value="\d{0,3}"/>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de 6 dígitos -->
+	<simpleType name="Tipo6Type">
+		<restriction base="string">
+			<pattern value="\d{0,4}"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 1500 caracteres -->
+	<simpleType name="TextMax1500Type">
+		<restriction base="string">
+			<maxLength value="1500"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 500 caracteres -->
+	<simpleType name="TextMax500Type">
+		<restriction base="string">
+			<maxLength value="500"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 250 caracteres -->
+	<simpleType name="TextMax250Type">
+		<restriction base="string">
+			<maxLength value="250"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 150 caracteres -->
+	<simpleType name="TextMax150Type">
+		<restriction base="string">
+			<maxLength value="150"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 120 caracteres -->
+	<simpleType name="TextMax120Type">
+		<restriction base="string">
+			<maxLength value="120"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 100 caracteres -->
+	<simpleType name="TextMax100Type">
+		<restriction base="string">
+			<maxLength value="100"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 70 caracteres -->
+	<simpleType name="TextMax70Type">
+		<restriction base="string">
+			<maxLength value="70"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 65 caracteres -->
+	<simpleType name="TextMax65Type">
+		<restriction base="string">
+			<maxLength value="65"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 60 caracteres -->
+	<simpleType name="TextMax60Type">
+		<restriction base="string">
+			<maxLength value="60"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 64 caracteres -->
+	<simpleType name="TextMax64Type">
+		<restriction base="string">
+			<maxLength value="64"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 40 caracteres -->
+	<simpleType name="TextMax40Type">
+		<restriction base="string">
+			<maxLength value="40"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 34 caracteres -->
+	<simpleType name="TextMax34Type">
+		<restriction base="string">
+			<maxLength value="34"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 20 caracteres -->
+	<simpleType name="TextMax20Type">
+		<restriction base="string">
+			<maxLength value="20"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 18 caracteres -->
+	<simpleType name="TextMax18Type">
+		<restriction base="string">
+			<maxLength value="18"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 15 caracteres -->
+	<simpleType name="TextMax15Type">
+		<restriction base="string">
+			<maxLength value="15"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 16 caracteres -->
+	<simpleType name="TextMax16Type">
+		<restriction base="string">
+			<maxLength value="15"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 25 caracteres -->
+	<simpleType name="TextMax25Type">
+		<restriction base="string">
+			<maxLength value="25"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 30 caracteres -->
+	<simpleType name="TextMax30Type">
+		<restriction base="string">
+			<maxLength value="30"/>
+		</restriction>
+	</simpleType>
+	<!-- Referencia Catastral -->
+	<simpleType name="ReferenciaCatastralType">
+		<restriction base="string">
+			<maxLength value="25"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 2 caracteres -->
+	<simpleType name="TextMax2Type">
+		<restriction base="string">
+			<maxLength value="2"/>
+		</restriction>
+	</simpleType>
+	<!-- Cadena de 50 caracteres -->
+	<simpleType name="TextMax50Type">
+		<restriction base="string">
+			<maxLength value="50"/>
+		</restriction>
+	</simpleType>
+	<!-- NIF -->
+	<simpleType name="NIFType">
+		<annotation>
+			<documentation xml:lang="es">NIF</documentation>
+		</annotation>
+		<restriction base="string">
+			<length value="9"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="fecha">
+		<restriction base="string">
+			<length value="10"/>
+			<pattern value="\d{2,2}-\d{2,2}-\d{4,4}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Timestamp">
+		<restriction base="string">
+			<length value="19"/>
+			<pattern value="\d{2,2}-\d{2,2}-\d{4,4} \d{2,2}:\d{2,2}:\d{2,2}"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="OperacionExentaType">
+		<restriction base="string">
+			<enumeration value="E1">
+				<annotation>
+					<documentation xml:lang="es">EXENTA por Art. 20 </documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="E2">
+				<annotation>
+					<documentation xml:lang="es">EXENTA por Art. 21</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="E3">
+				<annotation>
+					<documentation xml:lang="es">EXENTA por Art. 22</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="E4">
+				<annotation>
+					<documentation xml:lang="es">EXENTA por Art. 24</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="E5">
+				<annotation>
+					<documentation xml:lang="es">EXENTA por Art. 25</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="E6">
+				<annotation>
+					<documentation xml:lang="es">EXENTA otros</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Códigos de Tipo de factura -->
+	<simpleType name="ClaveTipoFacturaType">
+		<restriction base="string">
+			<enumeration value="F1">
+				<annotation>
+					<documentation xml:lang="es">FACTURA (ART. 6, 7.2 Y 7.3 DEL RD 1619/2012)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="F2">
+				<annotation>
+					<documentation xml:lang="es">FACTURA SIMPLIFICADA Y FACTURAS SIN IDENTIFICACIÓN DEL DESTINATARIO ART. 6.1.D) RD 1619/2012</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="R1">
+				<annotation>
+					<documentation xml:lang="es">FACTURA RECTIFICATIVA	(Art 80.1 y 80.2 y error fundado en derecho)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="R2">
+				<annotation>
+					<documentation xml:lang="es">FACTURA RECTIFICATIVA (Art. 80.3)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="R3">
+				<annotation>
+					<documentation xml:lang="es">FACTURA RECTIFICATIVA	(Art. 80.4)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="R4">
+				<annotation>
+					<documentation xml:lang="es">FACTURA RECTIFICATIVA	(Resto)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="R5">
+				<annotation>
+					<documentation xml:lang="es">FACTURA RECTIFICATIVA	EN FACTURAS SIMPLIFICADAS</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="F3">
+				<annotation>
+					<documentation xml:lang="es">FACTURA EMITIDA EN SUSTITUCIÓN DE FACTURAS SIMPLIFICADAS FACTURADAS Y DECLARADAS</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="RechazoPrevioType">
+		<restriction base="string">
+			<enumeration value="N">
+				<annotation>
+					<documentation xml:lang="es">No ha habido rechazo previo por la AEAT.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="S">
+				<annotation>
+					<documentation xml:lang="es">Ha habido rechazo previo por la AEAT.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="X">
+				<annotation>
+					<documentation xml:lang="es">Independientemente de si ha habido o no algún rechazo previo por la AEAT, el registro de facturación no existe en la AEAT (registro existente en ese SIF o en algún SIF del obligado tributario y que no se remitió a la AEAT, por ejemplo, al acogerse a Veri*factu desde no Veri*factu). No deberían existir operaciones de alta (N,X), por lo que no se admiten. </documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="RechazoPrevioAnulacionType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="SinRegistroPrevioType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="PrimerRegistroCadenaType">
+		<restriction base="string">
+			<enumeration value="S"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="SubsanacionType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="ClaveTipoRectificativaType">
+		<restriction base="string">
+			<enumeration value="S">
+				<annotation>
+					<documentation xml:lang="es">SUSTITUTIVA</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="I">
+				<annotation>
+					<documentation xml:lang="es">INCREMENTAL</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Tercero o Destinatario -->
+	<simpleType name="TercerosODestinatarioType">
+		<restriction base="string">
+			<enumeration value="D">
+				<annotation>
+					<documentation xml:lang="es">Destinatario</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="T">
+				<annotation>
+					<documentation xml:lang="es">Tercero</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Factura simplificada Articulo 7,2 Y 7,3 RD 1619/2012, -->
+	<simpleType name="SimplificadaCualificadaType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Factura sin identificación destinatario artículo 6,1,d) RD 1619/2012 -->
+	<simpleType name="CompletaSinDestinatarioType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Permitira identificar aquellas facturas con importe de la factura superior a un umbral -->
+	<simpleType name="MacrodatoType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Identificador que especifica si la generación del registro de facturación se ha realizado durante algún tipo de incidencia -->
+	<simpleType name="IncidenciaType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<!-- Indicador que especifica que se ha finalizado la remisión de registros de facturación tras un requerimiento -->
+	<simpleType name="FinRequerimientoType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="GeneradoPorType">
+		<restriction base="string">
+			<enumeration value="E">
+				<annotation>
+					<documentation xml:lang="es">Expedidor (obligado a Expedir la factura anulada).</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="D">
+				<annotation>
+					<documentation xml:lang="es">Destinatario</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="T">
+				<annotation>
+					<documentation xml:lang="es">Tercero</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Tipo de identificador fiscal de persona Física o jurídica -->
+	<simpleType name="PersonaFisicaJuridicaIDTypeType">
+		<restriction base="string">
+			<enumeration value="02">
+				<annotation>
+					<documentation xml:lang="es">NIF-IVA</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="03">
+				<annotation>
+					<documentation xml:lang="es">Pasaporte</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="04">
+				<annotation>
+					<documentation xml:lang="es">IDEnPaisResidencia</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="05">
+				<annotation>
+					<documentation xml:lang="es">Certificado Residencia</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="06">
+				<annotation>
+					<documentation xml:lang="es">Otro documento Probatorio</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="07">
+				<annotation>
+					<documentation xml:lang="es">No Censado</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Tipo Hash -->
+	<simpleType name="TipoHuellaType">
+		<restriction base="string">
+			<enumeration value="01">
+				<annotation>
+					<documentation xml:lang="es">SHA-256</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- CLAVE QUE IDENTIFICARÁ EL TIPO DE RÉGIMEN DEL IVA/IGIC
+     -->
+	<simpleType name="IdOperacionesTrascendenciaTributariaType">
+		<restriction base="string">
+			<enumeration value="01"/>
+			<enumeration value="02"/>
+			<enumeration value="03"/>
+			<enumeration value="04"/>
+			<enumeration value="05"/>
+			<enumeration value="06"/>
+			<enumeration value="07"/>
+			<enumeration value="08"/>
+			<enumeration value="09"/>
+			<enumeration value="10"/>
+			<enumeration value="11"/>
+			<enumeration value="14"/>
+			<enumeration value="15"/>
+			<enumeration value="17"/>
+			<enumeration value="18"/>
+			<enumeration value="19"/>
+			<enumeration value="20"/>
+		</restriction>
+	</simpleType>
+	<!-- ISO 3166-1 alpha-2 codes -->
+	<simpleType name="CountryType2">
+		<restriction base="string">
+			<enumeration value="AF"/>
+			<enumeration value="AL"/>
+			<enumeration value="DE"/>
+			<enumeration value="AD"/>
+			<enumeration value="AO"/>
+			<enumeration value="AI"/>
+			<enumeration value="AQ"/>
+			<enumeration value="AG"/>
+			<enumeration value="SA"/>
+			<enumeration value="DZ"/>
+			<enumeration value="AR"/>
+			<enumeration value="AM"/>
+			<enumeration value="AW"/>
+			<enumeration value="AU"/>
+			<enumeration value="AT"/>
+			<enumeration value="AZ"/>
+			<enumeration value="BS"/>
+			<enumeration value="BH"/>
+			<enumeration value="BD"/>
+			<enumeration value="BB"/>
+			<enumeration value="BE"/>
+			<enumeration value="BZ"/>
+			<enumeration value="BJ"/>
+			<enumeration value="BM"/>
+			<enumeration value="BY"/>
+			<enumeration value="BO"/>
+			<enumeration value="BA"/>
+			<enumeration value="BW"/>
+			<enumeration value="BV"/>
+			<enumeration value="BR"/>
+			<enumeration value="BN"/>
+			<enumeration value="BG"/>
+			<enumeration value="BF"/>
+			<enumeration value="BI"/>
+			<enumeration value="BT"/>
+			<enumeration value="CV"/>
+			<enumeration value="KY"/>
+			<enumeration value="KH"/>
+			<enumeration value="CM"/>
+			<enumeration value="CA"/>
+			<enumeration value="CF"/>
+			<enumeration value="CC"/>
+			<enumeration value="CO"/>
+			<enumeration value="KM"/>
+			<enumeration value="CG"/>
+			<enumeration value="CD"/>
+			<enumeration value="CK"/>
+			<enumeration value="KP"/>
+			<enumeration value="KR"/>
+			<enumeration value="CI"/>
+			<enumeration value="CR"/>
+			<enumeration value="HR"/>
+			<enumeration value="CU"/>
+			<enumeration value="TD"/>
+			<enumeration value="CZ"/>
+			<enumeration value="CL"/>
+			<enumeration value="CN"/>
+			<enumeration value="CY"/>
+			<enumeration value="CW"/>
+			<enumeration value="DK"/>
+			<enumeration value="DM"/>
+			<enumeration value="DO"/>
+			<enumeration value="EC"/>
+			<enumeration value="EG"/>
+			<enumeration value="AE"/>
+			<enumeration value="ER"/>
+			<enumeration value="SK"/>
+			<enumeration value="SI"/>
+			<enumeration value="ES"/>
+			<enumeration value="US"/>
+			<enumeration value="EE"/>
+			<enumeration value="ET"/>
+			<enumeration value="FO"/>
+			<enumeration value="PH"/>
+			<enumeration value="FI"/>
+			<enumeration value="FJ"/>
+			<enumeration value="FR"/>
+			<enumeration value="GA"/>
+			<enumeration value="GM"/>
+			<enumeration value="GE"/>
+			<enumeration value="GS"/>
+			<enumeration value="GH"/>
+			<enumeration value="GI"/>
+			<enumeration value="GD"/>
+			<enumeration value="GR"/>
+			<enumeration value="GL"/>
+			<enumeration value="GU"/>
+			<enumeration value="GT"/>
+			<enumeration value="GG"/>
+			<enumeration value="GN"/>
+			<enumeration value="GQ"/>
+			<enumeration value="GW"/>
+			<enumeration value="GY"/>
+			<enumeration value="HT"/>
+			<enumeration value="HM"/>
+			<enumeration value="HN"/>
+			<enumeration value="HK"/>
+			<enumeration value="HU"/>
+			<enumeration value="IN"/>
+			<enumeration value="ID"/>
+			<enumeration value="IR"/>
+			<enumeration value="IQ"/>
+			<enumeration value="IE"/>
+			<enumeration value="IM"/>
+			<enumeration value="IS"/>
+			<enumeration value="IL"/>
+			<enumeration value="IT"/>
+			<enumeration value="JM"/>
+			<enumeration value="JP"/>
+			<enumeration value="JE"/>
+			<enumeration value="JO"/>
+			<enumeration value="KZ"/>
+			<enumeration value="KE"/>
+			<enumeration value="KG"/>
+			<enumeration value="KI"/>
+			<enumeration value="KW"/>
+			<enumeration value="LA"/>
+			<enumeration value="LS"/>
+			<enumeration value="LV"/>
+			<enumeration value="LB"/>
+			<enumeration value="LR"/>
+			<enumeration value="LY"/>
+			<enumeration value="LI"/>
+			<enumeration value="LT"/>
+			<enumeration value="LU"/>
+			<enumeration value="XG"/>
+			<enumeration value="MO"/>
+			<enumeration value="MK"/>
+			<enumeration value="MG"/>
+			<enumeration value="MY"/>
+			<enumeration value="MW"/>
+			<enumeration value="MV"/>
+			<enumeration value="ML"/>
+			<enumeration value="MT"/>
+			<enumeration value="FK"/>
+			<enumeration value="MP"/>
+			<enumeration value="MA"/>
+			<enumeration value="MH"/>
+			<enumeration value="MU"/>
+			<enumeration value="MR"/>
+			<enumeration value="YT"/>
+			<enumeration value="UM"/>
+			<enumeration value="MX"/>
+			<enumeration value="FM"/>
+			<enumeration value="MD"/>
+			<enumeration value="MC"/>
+			<enumeration value="MN"/>
+			<enumeration value="ME"/>
+			<enumeration value="MS"/>
+			<enumeration value="MZ"/>
+			<enumeration value="MM"/>
+			<enumeration value="NA"/>
+			<enumeration value="NR"/>
+			<enumeration value="CX"/>
+			<enumeration value="NP"/>
+			<enumeration value="NI"/>
+			<enumeration value="NE"/>
+			<enumeration value="NG"/>
+			<enumeration value="NU"/>
+			<enumeration value="NF"/>
+			<enumeration value="NO"/>
+			<enumeration value="NC"/>
+			<enumeration value="NZ"/>
+			<enumeration value="IO"/>
+			<enumeration value="OM"/>
+			<enumeration value="NL"/>
+			<enumeration value="BQ"/>
+			<enumeration value="PK"/>
+			<enumeration value="PW"/>
+			<enumeration value="PA"/>
+			<enumeration value="PG"/>
+			<enumeration value="PY"/>
+			<enumeration value="PE"/>
+			<enumeration value="PN"/>
+			<enumeration value="PF"/>
+			<enumeration value="PL"/>
+			<enumeration value="PT"/>
+			<enumeration value="PR"/>
+			<enumeration value="QA"/>
+			<enumeration value="GB"/>
+			<enumeration value="RW"/>
+			<enumeration value="RO"/>
+			<enumeration value="RU"/>
+			<enumeration value="SB"/>
+			<enumeration value="SV"/>
+			<enumeration value="WS"/>
+			<enumeration value="AS"/>
+			<enumeration value="KN"/>
+			<enumeration value="SM"/>
+			<enumeration value="SX"/>
+			<enumeration value="PM"/>
+			<enumeration value="VC"/>
+			<enumeration value="SH"/>
+			<enumeration value="LC"/>
+			<enumeration value="ST"/>
+			<enumeration value="SN"/>
+			<enumeration value="RS"/>
+			<enumeration value="SC"/>
+			<enumeration value="SL"/>
+			<enumeration value="SG"/>
+			<enumeration value="SY"/>
+			<enumeration value="SO"/>
+			<enumeration value="LK"/>
+			<enumeration value="SZ"/>
+			<enumeration value="ZA"/>
+			<enumeration value="SD"/>
+			<enumeration value="SS"/>
+			<enumeration value="SE"/>
+			<enumeration value="CH"/>
+			<enumeration value="SR"/>
+			<enumeration value="TH"/>
+			<enumeration value="TW"/>
+			<enumeration value="TZ"/>
+			<enumeration value="TJ"/>
+			<enumeration value="PS"/>
+			<enumeration value="TF"/>
+			<enumeration value="TL"/>
+			<enumeration value="TG"/>
+			<enumeration value="TK"/>
+			<enumeration value="TO"/>
+			<enumeration value="TT"/>
+			<enumeration value="TN"/>
+			<enumeration value="TC"/>
+			<enumeration value="TM"/>
+			<enumeration value="TR"/>
+			<enumeration value="TV"/>
+			<enumeration value="UA"/>
+			<enumeration value="UG"/>
+			<enumeration value="UY"/>
+			<enumeration value="UZ"/>
+			<enumeration value="VU"/>
+			<enumeration value="VA"/>
+			<enumeration value="VE"/>
+			<enumeration value="VN"/>
+			<enumeration value="VG"/>
+			<enumeration value="VI"/>
+			<enumeration value="WF"/>
+			<enumeration value="YE"/>
+			<enumeration value="DJ"/>
+			<enumeration value="ZM"/>
+			<enumeration value="ZW"/>
+			<enumeration value="QU"/>
+			<enumeration value="XB"/>
+			<enumeration value="XU"/>
+			<enumeration value="XN"/>
+		</restriction>
+	</simpleType>
+	<!-- Estado del registro duplicado almacenado en el sistema -->
+	<simpleType name="EstadoRegistroSFType">
+		<restriction base="string">
+			<enumeration value="Correcta">
+				<annotation>
+					<documentation xml:lang="es">El registro se ha almacenado sin errores</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="AceptadaConErrores">
+				<annotation>
+					<documentation xml:lang="es">El registro que se ha almacenado tiene algunos errores. Ver detalle del error</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Anulada">
+				<annotation>
+					<documentation xml:lang="es">El registro almacenado ha sido anulado</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<simpleType name="ErrorDetalleType">
+		<restriction base="integer"/>
+	</simpleType>
+	<simpleType name="CalificacionOperacionType">
+		<restriction base="string">
+			<enumeration value="S1">
+				<annotation>
+					<documentation xml:lang="es"> OPERACIÓN SUJETA Y NO EXENTA - SIN INVERSIÓN DEL SUJETO PASIVO.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="S2">
+				<annotation>
+					<documentation xml:lang="es">OPERACIÓN SUJETA Y NO EXENTA - CON INVERSIÓN DEL SUJETO PASIVO</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="N1">
+				<annotation>
+					<documentation xml:lang="es">OPERACIÓN NO SUJETA ARTÍCULO 7, 14, OTROS.</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="N2">
+				<annotation>
+					<documentation xml:lang="es">OPERACIÓN NO SUJETA POR REGLAS DE LOCALIZACIÓN</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!-- Lineas de detalle del desglose -->
+	<complexType name="DesgloseType">
+		<sequence>
+			<element name="DetalleDesglose" type="sf:DetalleType" maxOccurs="12"/>
+		</sequence>
+	</complexType>
+	<simpleType name="SiNoType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<complexType name="ContraparteConsultaType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española o Extranjera</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<choice>
+				<element name="NIF" type="sf:NIFType"/>
+				<element name="IDOtro" type="sf:IDOtroType"/>
+			</choice>
+		</sequence>
+	</complexType>
+	<complexType name="ConsultaInformacion">
+		<annotation>
+			<documentation xml:lang="es"> Compuesto por datos 
+			                              de contexto y una secuencia de 1 o más registros. </documentation>
+		</annotation>
+		<sequence>
+			<element name="Cabecera" type="sf:CabeceraConsultaSf"/>
+		</sequence>
+	</complexType>
+	<complexType name="CabeceraConsultaSf">
+		<annotation>
+			<documentation xml:lang="es"> Cabecera de la Cobnsulta </documentation>
+		</annotation>
+		<sequence>
+			<element name="IDVersion" type="sf:VersionType"/>
+			<choice>
+				<element name="ObligadoEmision" type="sf:ObligadoEmisionConsultaType" minOccurs="0">
+					<annotation>
+						<documentation xml:lang="es"> Obligado a la emision de los registros de facturacion </documentation>
+					</annotation>
+				</element>
+				<element name="Destinatario" type="sf:PersonaFisicaJuridicaESType" minOccurs="0">
+					<annotation>
+						<documentation xml:lang="es"> Destinatario (a veces también denominado contraparte, es decir, el cliente) de la operación </documentation>
+					</annotation>
+				</element>
+			</choice>
+			<element name="IndicadorRepresentante" type="sf:IndicadorRepresentanteType" minOccurs="0">
+				<annotation>
+					<documentation xml:lang="es"> Flag opcional que tendrá valor S si la consulta la está realizando el representante/asesor del obligado tributario. A rellenar solo en caso de que los registros de facturación remitidos hayan sido generados por un representante/asesor del obligado tributario. Este flag solo se puede cumplimentar cuando esté informado el obligado tributario en la consulta </documentation>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<!-- Obligado a la emision consulta -->
+	<complexType name="ObligadoEmisionConsultaType">
+		<annotation>
+			<documentation xml:lang="es">Datos de una persona física o jurídica Española con un NIF asociado</documentation>
+		</annotation>
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<element name="NIF" type="sf:NIFType"/>
+		</sequence>
+	</complexType>
+	<!-- Obligado a la gerneracion de la anulacion -->
+	<complexType name="ObligadoGeneracionType">
+		<sequence>
+			<element name="NombreRazon" type="sf:TextMax120Type"/>
+			<element name="NIF" type="sf:NIFType"/>
+		</sequence>
+	</complexType>
+	<simpleType name="Numerico4Type">
+		<restriction base="string">
+			<pattern value="\d{1,4}"/>
+		</restriction>
+	</simpleType>
+	<!-- Minoración de la base imponible por la concesión de cupones, bonificaciones o descuentos cuando solo se expide el original de la factura -->
+	<simpleType name="CuponType">
+		<restriction base="string">
+			<enumeration value="S"/>
+			<enumeration value="N"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="IndicadorRepresentanteType">
+		<restriction base="string">
+			<enumeration value="S"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="ImpuestoType">
+		<restriction base="string">
+			<enumeration value="01">
+				<annotation>
+					<documentation xml:lang="es"> Impuesto sobre el Valor Añadido (IVA)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="02">
+				<annotation>
+					<documentation xml:lang="es">Impuesto sobre la Producción, los Servicios y la Importación (IPSI) de Ceuta y Melilla</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="03">
+				<annotation>
+					<documentation xml:lang="es">Impuesto General Indirecto Canario (IGIC)</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="05">
+				<annotation>
+					<documentation xml:lang="es">Otros</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+	<!--Información de la operación realizada que se devuelve como respuesta al envío de un registro de facturación -->
+	<complexType name="OperacionType">
+		<sequence>
+			<element name="TipoOperacion" type="sf:TipoOperacionType"/>
+			<element name="Subsanacion" type="sf:SubsanacionType" minOccurs="0"/>
+			<element name="RechazoPrevio" type="sf:RechazoPrevioType" minOccurs="0"/>
+			<element name="SinRegistroPrevio" type="sf:SinRegistroPrevioType" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<simpleType name="TipoOperacionType">
+		<restriction base="string">
+			<enumeration value="Alta">
+				<annotation>
+					<documentation xml:lang="es">La operación realizada ha sido un alta</documentation>
+				</annotation>
+			</enumeration>
+			<enumeration value="Anulacion">
+				<annotation>
+					<documentation xml:lang="es">La operación realizada ha sido una anulación</documentation>
+				</annotation>
+			</enumeration>
+		</restriction>
+	</simpleType>
+</schema>

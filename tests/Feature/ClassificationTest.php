@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,7 +18,7 @@ use Tests\MockUnitData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class ClassificationTest extends TestCase
 {
@@ -28,9 +29,6 @@ class ClassificationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
 
     }

@@ -109,6 +109,7 @@ class ACH implements MethodInterface, LivewireMethodInterface
 
                 return redirect()->route('client.payment_methods.index')->withMessage(ctrans('texts.payment_method_added'));
             } catch (\Exception $e) {
+                nlog($e->getMessage());
                 return $this->braintree->processInternallyFailedPayment($this->braintree, $e);
             }
         }

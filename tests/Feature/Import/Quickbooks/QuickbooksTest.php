@@ -35,12 +35,10 @@ class QuickbooksTest extends TestCase
     protected $quickbooks;
     protected $data;
     protected QuickbooksService $qb;
-    protected $faker;
-
     protected function setUp(): void
     {
-        parent::setUp();      
-                
+        parent::setUp();
+
         $this->markTestSkipped('Skip test for GH Actions');
 
         // if (config('ninja.testvars.travis') !== false) {
@@ -49,8 +47,6 @@ class QuickbooksTest extends TestCase
         // elseif(Company::whereNotNull('quickbooks')->count() == 0){
         //     $this->markTestSkipped('No need to run this test on Travis');
         // }
-
-        $this->faker = \Faker\Factory::create();
     }
 
     public function createQbProduct()
@@ -216,16 +212,16 @@ class QuickbooksTest extends TestCase
         $this->qb = new QuickbooksService($this->company);
 
         $customer = $this->createQbCustomer();
-        
+
         //create ninja invoice
         $qb_invoice = $this->createQbInvoice($customer);
 
 
-$this->assertNotNull($qb_invoice);
+        $this->assertNotNull($qb_invoice);
 
-// sleep(5);
+        // sleep(5);
 
-// $updatedInvoice = $this->qb->sdk->FindById('invoice', $qb_invoice->Id->value);
+        // $updatedInvoice = $this->qb->sdk->FindById('invoice', $qb_invoice->Id->value);
 
 
 
@@ -236,7 +232,7 @@ $this->assertNotNull($qb_invoice);
     {
         $this->company = Company::whereNotNull('quickbooks')->first();
         $this->qb = new QuickbooksService($this->company);
-    
+
         $resultingCustomerObj = $this->createQbCustomer();
 
         // Check for errors
@@ -250,7 +246,7 @@ $this->assertNotNull($qb_invoice);
         $this->assertNotNull($qb_id);
 
         $c = Client::find($resultingCustomerObj[1]);
-        
+
         $this->assertEquals($qb_id, $c->sync->qb_id);
 
     }
@@ -319,7 +315,7 @@ $this->assertNotNull($qb_invoice);
         // $this->assertEquals(30, $i->balance);
 
         $line_items = [];
-        
+
         // $taxDetail = [
         //     "TotalTax" => 0,
         //     "TaxLine" => []
@@ -327,8 +323,7 @@ $this->assertNotNull($qb_invoice);
 
         $line_num = 1;
 
-        foreach($i->line_items as $line_item)
-        {
+        foreach ($i->line_items as $line_item) {
             $product = Product::where('company_id', $this->company->id)
                                 ->where('product_key', $line_item->product_key)
                                 ->first();
@@ -340,7 +335,7 @@ $this->assertNotNull($qb_invoice);
                 'DetailType' => 'SalesItemLineDetail',
                 'SalesItemLineDetail' => [
                     'ItemRef' => [
-                        'value' => $product->sync->qb_id, 
+                        'value' => $product->sync->qb_id,
                     ],
                     'Qty' => $line_item->quantity,
                     'UnitPrice' => $line_item->cost,
@@ -371,7 +366,7 @@ $this->assertNotNull($qb_invoice);
             //     $taxDetail['TaxLine'][] = $tax_line_detail;
             //     $taxDetail['TotalTax'] += $line_item->tax_amount;
             // }
-                        
+
             // if ($line_item->tax_rate2 > 0) {
             //     $tax_line_detail = [
             //         "Amount" => $line_item->tax_amount,
@@ -442,14 +437,14 @@ $this->assertNotNull($qb_invoice);
             // ]
             // "Note" => $this->invoice->public_notes,
         ];
-        
+
         nlog($invoiceData);
 
-        $invoice = \QuickBooksOnline\API\Facades\Invoice::create($invoiceData);        
+        $invoice = \QuickBooksOnline\API\Facades\Invoice::create($invoiceData);
 
 
         nlog($invoice);
-        
+
         $qb_invoice =  $this->qb->sdk->Add($invoice);
 
         $sync = new InvoiceSync();

@@ -139,10 +139,11 @@ class EInvoiceReportTest extends TestCase
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
-            'report_keys' => []
+            'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
-        $guid = new \stdClass;
+        $guid = new \stdClass();
         $guid->guid = '1234567890';
 
         $i = Invoice::factory()->create([
@@ -179,7 +180,7 @@ class EInvoiceReportTest extends TestCase
 
     public function testExpenseEInvoiceComponent()
     {
-                
+
         $this->buildData();
 
         $this->payload = [
@@ -197,19 +198,19 @@ class EInvoiceReportTest extends TestCase
            'should_be_invoiced' => true,
        ]);
 
-       $a = new Activity();
-       $a->expense_id = $e->id;
-       $a->company_id = $this->company->id;
-       $a->user_id = $this->user->id;
-       $a->activity_type_id = 148;
-       $a->save();
-       
-       $pl = new EInvoiceReport($this->company, $this->payload);
-       $response = $pl->run();
+        $a = new Activity();
+        $a->expense_id = $e->id;
+        $a->company_id = $this->company->id;
+        $a->user_id = $this->user->id;
+        $a->activity_type_id = 148;
+        $a->save();
 
-       $this->assertIsString($response);
+        $pl = new EInvoiceReport($this->company, $this->payload);
+        $response = $pl->run();
 
-       $this->account->delete();
+        $this->assertIsString($response);
+
+        $this->account->delete();
     }
     private function buildLineItems()
     {

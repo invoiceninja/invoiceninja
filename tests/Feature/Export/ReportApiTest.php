@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,21 +18,15 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class ReportApiTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -48,6 +43,7 @@ class ReportApiTest extends TestCase
             'send_email' => false,
             'date_range' => 'all',
             'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -64,6 +60,7 @@ class ReportApiTest extends TestCase
             'send_email' => false,
             'date_range' => 'all',
             'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -81,6 +78,7 @@ class ReportApiTest extends TestCase
             'send_email' => false,
             'date_range' => 'all',
             'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -98,6 +96,7 @@ class ReportApiTest extends TestCase
             'send_email' => false,
             'date_range' => 'all',
             'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -115,6 +114,7 @@ class ReportApiTest extends TestCase
             'send_email' => false,
             'date_range' => 'all',
             'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -149,6 +149,7 @@ class ReportApiTest extends TestCase
             'send_email' => false,
             'date_range' => 'all',
             'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([

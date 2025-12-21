@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,7 +20,6 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-
 class CancelInvoiceTest extends TestCase
 {
     use MakesHash;
@@ -33,9 +33,6 @@ class CancelInvoiceTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();

@@ -100,7 +100,7 @@ class PurchaseOrderController extends Controller
 
         $data = [
             'purchase_order' => $purchase_order,
-            'key' => $invitation ? $invitation->key : false,
+            '_key' => $invitation ? $invitation->key : false,
             'settings' => $purchase_order->company->settings,
             'sidebar' => $this->sidebarMenu(),
             'company' => $purchase_order->company,
@@ -124,7 +124,8 @@ class PurchaseOrderController extends Controller
 
         $file = $invitation->purchase_order->service()->getPurchaseOrderPdf();
 
-        $headers = ['Content-Type' => 'application/pdf'];
+        // $headers = ['Content-Type' => 'application/pdf'];
+        $headers = ['Content-Type' => 'application/pdf', 'Content-Disposition' => 'inline'];
 
         return response()->make($file, 200, $headers);
 

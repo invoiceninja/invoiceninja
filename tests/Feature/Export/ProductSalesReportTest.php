@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -26,7 +27,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Services\Report\ProductSalesExport
  */
 class ProductSalesReportTest extends TestCase
@@ -104,12 +105,39 @@ class ProductSalesReportTest extends TestCase
         $this->company->settings = $settings;
         $this->company->save();
 
+        $this->user->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'notifications' => \App\DataMapper\CompanySettings::notificationDefaults(),
+            'settings' => null,
+        ]);
+
+        $company_token = new \App\Models\CompanyToken();
+        $company_token->user_id = $this->user->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = \Illuminate\Support\Str::random(64);
+        $company_token->is_system = true;
+
+        $company_token->save();
+
+        $truth = app()->make(\App\Utils\TruthSource::class);
+        $truth->setCompanyUser($this->user->company_users()->first());
+        $truth->setCompanyToken($company_token);
+        $truth->setUser($this->user);
+        $truth->setCompany($this->company);
+
+
         $this->payload = [
             'start_date' => '2000-01-01',
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
             'is_income_billed' => true,
             'include_tax' => false,
+            'user_id' => $this->user->id,
         ];
 
         $this->client = Client::factory()->create([
@@ -139,7 +167,8 @@ class ProductSalesReportTest extends TestCase
             'end_date' => '2030-01-11',
             'date_range' => 'custom',
             'client_id' => $this->client->id,
-            'report_keys' => []
+            'report_keys' => [],
+            'user_id' => $this->user->id,
         ];
 
         $i = Invoice::factory()->create([

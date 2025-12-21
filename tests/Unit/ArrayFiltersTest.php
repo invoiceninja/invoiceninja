@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,7 +18,7 @@ use App\Models\User;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class ArrayFiltersTest extends TestCase
 {
@@ -115,8 +116,8 @@ class ArrayFiltersTest extends TestCase
         $index = 0;
         $version_index = 0;
 
-        foreach($this->version_keys as $key => $value) {
-            if($version == $key) {
+        foreach ($this->version_keys as $key => $value) {
+            if ($version == $key) {
                 $version_index = $index;
             }
 
@@ -146,8 +147,8 @@ class ArrayFiltersTest extends TestCase
         $index = 0;
         $version_index = 0;
 
-        foreach($this->version_keys as $key => $value) {
-            if($version == $key) {
+        foreach ($this->version_keys as $key => $value) {
+            if ($version == $key) {
                 $version_index = $index;
             }
 
@@ -161,7 +162,7 @@ class ArrayFiltersTest extends TestCase
 
         $filters = collect($this->version_keys)
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
-            if($version == $key) {
+            if ($version == $key) {
                 $version_index = $index;
             }
 
@@ -188,7 +189,7 @@ class ArrayFiltersTest extends TestCase
 
         $filters = collect($this->version_keys)
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
-            if($version == $key) {
+            if ($version == $key) {
                 $version_index = $index;
             }
 
@@ -211,7 +212,7 @@ class ArrayFiltersTest extends TestCase
 
         $filters = collect($this->version_keys)
         ->map(function ($value, $key) use ($version, &$version_index, &$index) {
-            if($version == $key) {
+            if ($version == $key) {
                 $version_index = $index;
                 // nlog("version = {$version_index}");
             }
@@ -235,7 +236,7 @@ class ArrayFiltersTest extends TestCase
 
         $filters = collect($this->version_keys)
              ->map(function ($value, $key) use (&$version_index, &$index) {
-                 if($this->import_version == $key) {
+                 if ($this->import_version == $key) {
                      $version_index = $index;
                  }
 

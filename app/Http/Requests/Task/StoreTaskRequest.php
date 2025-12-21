@@ -57,7 +57,7 @@ class StoreTaskRequest extends Request
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
 
-        $rules['time_log'] = ['bail',function ($attribute, $values, $fail) {
+        $rules['time_log'] = ['bail', function ($attribute, $values, $fail) {
 
             if (is_string($values)) {
                 $values = json_decode($values, true);
@@ -68,20 +68,42 @@ class StoreTaskRequest extends Request
                 return;
             }
 
-            foreach ($values as $k) {
+            foreach ($values as $key => $k) {
+
+                // Check if this is an array
+                if (!is_array($k)) {
+                    return $fail('Time log entry at position '.$key.' must be an array.');
+                }
+
+                // Check for associative array (has string keys)
+                if (array_keys($k) !== range(0, count($k) - 1)) {
+                    return $fail('Time log entry at position '.$key.' uses invalid format. Expected: [unix_start, unix_end, description, billable]. Received associative array with keys: '.implode(', ', array_keys($k)));
+                }
+
+                // Ensure minimum required elements exist
+                if (!isset($k[0]) || !isset($k[1])) {
+                    return $fail('Time log entry at position '.$key.' must have at least 2 elements: [start_timestamp, end_timestamp].');
+                }
+
+                // Validate types for required elements
                 if (!is_int($k[0]) || !is_int($k[1])) {
-                    return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. Unix timestamps only.');
+                    return $fail('Time log entry at position '.$key.' is invalid. Elements [0] and [1] must be Unix timestamps (integers). Received: '.print_r($k, true));
                 }
 
+                // Validate max elements
                 if(count($k) > 4) {
-                    return $fail('The timelog can only have up to 4 elements.');
-                }
-                
-                if (isset($k[3]) && !is_bool($k[3])) {
-                    return $fail('The '.$attribute.' - '.print_r($k, true).' is invalid. The 4th element must be a boolean.');
+                    return $fail('Time log entry at position '.$key.' can only have up to 4 elements. Received '.count($k).' elements.');
                 }
 
+                // Validate optional element [2] (description)
+                if (isset($k[2]) && !is_string($k[2])) {
+                    return $fail('Time log entry at position '.$key.': element [2] (description) must be a string. Received: '.gettype($k[2]));
+                }
 
+                // Validate optional element [3] (billable)
+                if(isset($k[3]) && !is_bool($k[3])) {
+                    return $fail('Time log entry at position '.$key.': element [3] (billable) must be a boolean. Received: '.gettype($k[3]));
+                }
             }
 
             if (!$this->checkTimeLog($values)) {
@@ -128,8 +150,8 @@ class StoreTaskRequest extends Request
                     continue; //catch if it isn't even a proper time log
                 }
 
-                $time_log[0] = intval($time_log[0]);
-                $time_log[1] = intval($time_log[1]);
+                $time_log[0] = intval($time_log[0] ?? 0);
+                $time_log[1] = intval($time_log[1] ?? 0);
                 $time_log[2] = strval($time_log[2] ?? '');
                 $time_log[3] = boolval($time_log[3] ?? true);
 
@@ -142,7 +164,7 @@ class StoreTaskRequest extends Request
         /* Ensure the project is related */
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
             $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
-            ;
+            
             if ($project) {
                 $input['client_id'] = $project->client_id;
             } else {

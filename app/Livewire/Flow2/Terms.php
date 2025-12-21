@@ -21,16 +21,16 @@ class Terms extends Component
     use WithSecureContext;
 
     public $variables;
-
+    public $_key;
     public function mount()
     {
-        $this->variables = $this->getContext()['variables'];
+        $this->variables = $this->getContext($this->_key)['variables'];
     }
 
     #[Computed()]
     public function invoice()
     {
-        $_context = $this->getContext();
+        $_context = $this->getContext($this->_key);
 
         $invitation_id = $_context['invitation_id'];
 

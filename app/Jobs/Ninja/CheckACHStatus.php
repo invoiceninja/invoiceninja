@@ -96,7 +96,9 @@ class CheckACHStatus implements ShouldQueue
                 $pi = false;
 
                 try {
-                    $pi = $stripe->getPaymentIntent($p->transaction_reference);
+                    if(str_starts_with($p->transaction_reference, 'pi_')){
+                        $pi = $stripe->getPaymentIntent($p->transaction_reference);
+                    }
                 } catch (\Exception $e) {
 
                 }
@@ -104,28 +106,77 @@ class CheckACHStatus implements ShouldQueue
                 if (!$pi) {
 
                     try {
-                        $pi = \Stripe\Charge::retrieve($p->transaction_reference, $stripe->stripe_connect_auth);
+                        $charge = \Stripe\Charge::retrieve($p->transaction_reference, $stripe->stripe_connect_auth);
+
+                        if($charge &&$charge->status == 'failed'){
+                            $p->service()->deletePayment();
+                            $p->status_id = \App\Models\Payment::STATUS_FAILED;
+                            $p->save();
+                            return;
+                        }
+                        elseif($charge && $charge->status == 'succeeded'){
+                            $p->status_id = Payment::STATUS_COMPLETED;
+                            $p->saveQuietly();
+                            return;
+                        }
+
                     } catch (\Exception $e) {
-                        return;
+                       
                     }
 
                 }
+
 
                 if ($pi && $pi->status == 'succeeded') {
                     $p->status_id = Payment::STATUS_COMPLETED;
                     $p->saveQuietly();
-                } else {
-
-                    if ($pi) {
-                        nlog("{$p->id} did not complete {$p->transaction_reference}");
-                    } else {
-                        nlog("did not find a payment intent {$p->transaction_reference}");
-                    }
-
+                    return;
                 }
+                
+                if($pi && $pi->latest_charge){
+
+                    $charge = \Stripe\Charge::retrieve($pi->latest_charge, $stripe->stripe_connect_auth);
+
+                    if($charge &&$charge->status == 'failed'){
+                        $p->service()->deletePayment();
+                        $p->status_id = \App\Models\Payment::STATUS_FAILED;
+                        $p->save();
+                        return;
+                    }
+                    elseif($charge && $charge->status == 'succeeded'){
+                        $p->status_id = \App\Models\Payment::STATUS_COMPLETED;
+                        $p->saveQuietly();
+                        return;
+                    }
+                }
+
+                
+
+                if ($pi) {
+                    nlog("{$p->id} did not complete {$p->transaction_reference}");
+                } else {
+                    nlog("did not find a payment intent {$p->transaction_reference}");
+                }
+
+                
 
             });
 
+            /**
+             * Blockonomics payments that have been pending for over 3 days are deleted
+             */
+            Payment::where('status_id', 1)
+                ->where('created_at', '<', now()->startOfDay()->subDays(3))
+                ->whereHas('company_gateway', function ($q) {
+                    $q->where('gateway_key', 'wbhf02us6owgo7p4nfjd0ymssdshks4d');
+                })
+                ->cursor()
+                ->each(function ($p) {
+                    $p->service()->deletePayment();
+                    $p->status_id = \App\Models\Payment::STATUS_FAILED;
+                    $p->save();
+                });
+            
         }
     }
 }

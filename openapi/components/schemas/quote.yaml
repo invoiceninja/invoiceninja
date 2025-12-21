@@ -216,4 +216,25 @@
           description: 'The client location id that this invoice relates to'
           type: string
           example: Opnel5aKBz
+        design_id:
+          description: 'The unique identifier of the design template used for this quote'
+          type: string
+          example: Opnel5aKBz
+        exchange_rate:
+          description: 'The exchange rate used for currency conversion'
+          type: number
+          format: float
+          example: 1.0
+        project_id:
+          description: 'The unique identifier of the project associated with this quote'
+          type: string
+          example: Opnel5aKBz
+        subscription_id:
+          description: 'The unique identifier of the subscription associated with this quote'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The unique identifier of the vendor associated with this quote'
+          type: string
+          example: Opnel5aKBz
       type: object

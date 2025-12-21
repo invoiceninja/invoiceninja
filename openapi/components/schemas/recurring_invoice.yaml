@@ -223,5 +223,43 @@
           description: 'The client location id that this invoice relates to'
           type: string
           example: Opnel5aKBz
+        auto_bill:
+          description: 'Auto-billing configuration setting'
+          type: string
+          example: 'always'
+        auto_bill_enabled:
+          description: 'Flag indicating whether auto-billing is enabled'
+          type: boolean
+          example: true
+        design_id:
+          description: 'The unique identifier of the design template used for this recurring invoice'
+          type: string
+          example: Opnel5aKBz
+        due_date_days:
+          description: 'Number of days until the due date'
+          type: integer
+          example: 30
+        e_invoice:
+          description: 'E-invoice configuration and data'
+          type: object
+          additionalProperties: true
+        exchange_rate:
+          description: 'The exchange rate used for currency conversion'
+          type: number
+          format: float
+          example: 1.0
+        next_send_date_client:
+          description: 'The next scheduled send date for the client'
+          type: string
+          format: date
+          example: '2024-12-31'
+        project_id:
+          description: 'The unique identifier of the project associated with this recurring invoice'
+          type: string
+          example: Opnel5aKBz
+        vendor_id:
+          description: 'The unique identifier of the vendor associated with this recurring invoice'
+          type: string
+          example: Opnel5aKBz
       type: object
       

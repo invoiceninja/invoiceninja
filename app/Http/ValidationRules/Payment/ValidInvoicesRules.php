@@ -82,6 +82,9 @@ class ValidInvoicesRules implements Rule
 
             if ($inv->status_id == Invoice::STATUS_DRAFT && $invoice['amount'] <= $inv->amount) {
                 //catch here nothing to do - we need this to prevent the last elseif triggering
+            } elseif($invoice['amount'] <= 0 && $inv->amount > 0) {
+                $this->error_msg = 'Amount cannot be less than or equal to zero';
+                return false;
             } elseif ($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)) {
                 $this->error_msg = 'Amount cannot be greater than invoice balance';
                 return false;

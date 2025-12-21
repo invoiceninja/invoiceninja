@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\DocumentController
  */
 class DocumentsApiTest extends TestCase
@@ -29,9 +30,6 @@ class DocumentsApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -39,9 +37,6 @@ class DocumentsApiTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
     }
 

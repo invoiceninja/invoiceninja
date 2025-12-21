@@ -47,6 +47,20 @@ class StoreGroupSettingRequest extends Request
         return $rules;
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            
+            $user = auth()->user();
+            $company = $user->company();
+
+            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+                $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
+            }
+            
+        });
+    }
+    
     public function prepareForValidation()
     {
         $input = $this->all();
@@ -81,6 +95,8 @@ class StoreGroupSettingRequest extends Request
     {
         /** @var \App\Models\User $user */
         $user = auth()->user();
+
+        unset($settings->pdf_variables);
 
         $settings_data = new SettingsData();
         $settings = $settings_data->cast($settings)->toObject();

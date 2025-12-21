@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -35,7 +36,7 @@ use League\Csv\Reader;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class ReportCsvGenerationTest extends TestCase
 {
@@ -192,9 +193,10 @@ class ReportCsvGenerationTest extends TestCase
      */
     private function buildData()
     {
-        if($this->account)
+        if ($this->account) {
             $this->account->forceDelete();
-        
+        }
+
         /** @var \App\Models\Account $account */
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
@@ -322,7 +324,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $this->assertEquals('client.name', $array[2]); //@phpstan-ignore-line
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -345,7 +347,7 @@ $this->account->forceDelete();
 
         $products = explode(",", "clown,joker,batman,bob the builder");
 
-        foreach($products as $product) {
+        foreach ($products as $product) {
             $query->where(function ($q) use ($product) {
                 $q->orWhereJsonContains('line_items', ['product_key' => $product]);
             });
@@ -369,7 +371,7 @@ $this->account->forceDelete();
         );
 
         $query->where(function ($q) use ($products) {
-            foreach($products as $product) {
+            foreach ($products as $product) {
                 $q->orWhereJsonContains('line_items', ['product_key' => $product]);
             }
         });
@@ -399,7 +401,7 @@ $this->account->forceDelete();
         $query = Invoice::query();
 
         $query->where(function ($q) use ($products) {
-            foreach($products as $product) {
+            foreach ($products as $product) {
                 $q->orWhereJsonContains('line_items', ['product_key' => $product]);
             }
         });
@@ -415,7 +417,7 @@ $this->account->forceDelete();
         $this->assertEquals(1, $query->count());
 
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -476,7 +478,7 @@ $this->account->forceDelete();
 
         $this->assertEquals(1, $q->count());
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -540,6 +542,7 @@ $this->account->forceDelete();
             'report_keys' => [],
             'send_email' => false,
             'include_deleted' => false,
+            'user_id' => $this->user->id,
             // 'status' => 'sometimes|string|nullable|in:all,draft,sent,viewed,paid,unpaid,overdue',
         ];
 
@@ -555,9 +558,9 @@ $this->account->forceDelete();
         $this->assertEquals('address1', $this->traverseJson($data, '0.0.value'));
         $this->assertEquals('vendor.address1', $this->traverseJson($data, '0.0.identifier'));
         $this->assertEquals('address1', $this->traverseJson($data, '0.0.display_value'));
-    
-    
-$this->account->forceDelete();
+
+
+        $this->account->forceDelete();
 
     }
 
@@ -591,6 +594,7 @@ $this->account->forceDelete();
             'report_keys' => ["vendor.name", "vendor.city", "vendor.number"],
             'send_email' => false,
             'include_deleted' => false,
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -628,7 +632,7 @@ $this->account->forceDelete();
         $this->assertEquals('Vendor 1', $this->traverseJson($data, '0.0.display_value'));
         $this->assertEquals('number', $this->traverseJson($data, '0.2.id'));
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -668,9 +672,9 @@ $this->account->forceDelete();
             ]);
 
 
-            $repo = new InvoiceRepository();
-            $invoice = $repo->save([], $invoice);
-            
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
+
         $log =  '[[1689547165,1689550765,"sumtin",true]]';
 
         \App\Models\Task::factory()->create([
@@ -703,6 +707,7 @@ $this->account->forceDelete();
             ],
             'send_email' => false,
             'include_deleted' => false,
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -751,6 +756,7 @@ $this->account->forceDelete();
             'date_range' => 'all',
             'report_keys' => $this->all_client_report_keys,
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
 
@@ -781,7 +787,7 @@ $this->account->forceDelete();
 
         $csv = $response->body();
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
 
     }
@@ -837,7 +843,7 @@ $this->account->forceDelete();
         $this->assertEquals('Custom 3', $this->getFirstValueByColumn($csv, 'Task Custom Value 3'));
         $this->assertEquals('Custom 4', $this->getFirstValueByColumn($csv, 'Task Custom Value 4'));
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -862,6 +868,7 @@ $this->account->forceDelete();
             'report_keys' => [],
             'send_email' => false,
             'include_deleted' => false,
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -903,7 +910,7 @@ $this->account->forceDelete();
         $this->assertEquals('custom_value1', $this->traverseJson($data, '0.0.identifier'));
         $this->assertEquals('Custom 1', $this->traverseJson($data, '0.0.display_value'));
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -945,9 +952,9 @@ $this->account->forceDelete();
         $invoice->client->paid_to_date = 0;
         $invoice->push();
 
-        
-$repo = new InvoiceRepository();
-$invoice = $repo->save([], $invoice);
+
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
 
 
         $invoice->service()->markPaid()->save();
@@ -965,6 +972,7 @@ $invoice = $repo->save([], $invoice);
             ],
             'send_email' => false,
             'include_deleted' => false,
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -1017,6 +1025,7 @@ $invoice = $repo->save([], $invoice);
             'date_range' => 'all',
             'report_keys' => $this->all_client_report_keys,
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
 
@@ -1031,6 +1040,7 @@ $invoice = $repo->save([], $invoice);
             'date_range' => 'all',
             'report_keys' => array_merge(["payment.amount","payment.date"], $this->all_invoice_report_keys),
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -1049,7 +1059,7 @@ $invoice = $repo->save([], $invoice);
         $csv = $response->body();
 
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1070,6 +1080,7 @@ $this->account->forceDelete();
             'date_range' => 'all',
             'report_keys' => [],
             'send_email' => false,
+            'user_id' => $this->user->id,
         ];
 
         $response = $this->withHeaders([
@@ -1094,7 +1105,7 @@ $this->account->forceDelete();
         $this->assertEquals('2020-01-01', $this->getFirstValueByColumn($csv, 'Payment Date'));
         $this->assertEquals('1234', $this->getFirstValueByColumn($csv, 'Payment Transaction Reference'));
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1136,7 +1147,7 @@ $this->account->forceDelete();
 
         $this->assertEquals('bob', $res[1]);
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1277,7 +1288,7 @@ $this->account->forceDelete();
         $response = $this->poll($hash);
         $csv = $response->body();
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1313,9 +1324,9 @@ $this->account->forceDelete();
             ]
        ]);
 
-       $repo = new InvoiceRepository();
-            $invoice = $repo->save([], $invoice);
-            
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
+
 
         $data = [
             'date_range' => 'all',
@@ -1361,7 +1372,7 @@ $this->account->forceDelete();
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/reports/invoices', $data)->assertStatus(200);
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1417,7 +1428,7 @@ $this->account->forceDelete();
             'X-API-TOKEN' => $this->token,
         ])->post('/api/v1/reports/recurring_invoices', $data)->assertStatus(200);
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1466,7 +1477,7 @@ $this->account->forceDelete();
         $this->assertEquals('Daily', $this->getFirstValueByColumn($csv, 'Recurring Invoice How Often'));
         $this->assertEquals('Active', $this->getFirstValueByColumn($csv, 'Recurring Invoice Status'));
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1507,8 +1518,8 @@ $this->account->forceDelete();
            ]
        ]);
 
-$repo = new InvoiceRepository();
-$invoice = $repo->save([], $invoice);
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
 
         $data = [
             'date_range' => 'all',
@@ -1579,7 +1590,7 @@ $invoice = $repo->save([], $invoice);
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/reports/invoice_items', $data)->assertStatus(200);
 
-$this->account->forceDelete();
+        $this->account->forceDelete();
 
     }
 
@@ -1725,7 +1736,7 @@ $this->account->forceDelete();
         $this->assertEquals('Public', $this->getFirstValueByColumn($csv, 'Purchase Order Public Notes'));
         $this->assertEquals('Private', $this->getFirstValueByColumn($csv, 'Purchase Order Private Notes'));
         $this->assertEquals('Terms', $this->getFirstValueByColumn($csv, 'Purchase Order Terms'));
-    
+
         $this->account->forceDelete();
 
     }
@@ -1911,10 +1922,10 @@ $this->account->forceDelete();
             ]
        ]);
 
-       $repo = new InvoiceRepository();
-            $invoice = $repo->save([], $invoice);
-            
-            
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
+
+
         $invoice->service()->markPaid()->save();
 
         $data = [

@@ -16,8 +16,11 @@ use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
 use App\Models\PaymentType;
+use App\Models\PaymentHash;
+use App\Models\Invoice;
 use App\Jobs\Util\SystemLogger;
 use App\Utils\Traits\MakesHash;
+use App\Utils\BcMath;
 use App\Exceptions\PaymentFailed;
 use Illuminate\Support\Facades\Http;
 use App\Jobs\Mail\PaymentFailureMailer;
@@ -51,13 +54,13 @@ class Blockonomics implements LivewireMethodInterface
     public function getBTCAddress(): array
     {
         $api_key = $this->blockonomics->company_gateway->getConfigField('apiKey');
+        $company_key = $this->blockonomics->company_gateway->company->company_key;
 
         if (!$api_key) {
             return ['success' => false, 'message' => 'Please enter a valid API key'];
         }
 
-        // $params = config('ninja.environment') == 'development' ? '?reset=1' : '';
-        $url = 'https://www.blockonomics.co/api/new_address';
+        $url = 'https://www.blockonomics.co/api/new_address?match_callback=' . $company_key;
 
         $response = Http::withToken($api_key)
                         ->post($url, []);
@@ -137,43 +140,45 @@ class Blockonomics implements LivewireMethodInterface
             'btc_address' => ['required'],
             'btc_amount' => ['required'],
             'btc_price' => ['required'],
-            // Setting status to required will break the payment process
-            // because sometimes the status is returned as 0 which is falsy
-            // and the validation will fail.
-            // 'status' => ['required'],
         ]);
 
+        $this->blockonomics->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
+
+        // Calculate fiat amount from Bitcoin
+        $amount_received_satoshis = $request->btc_amount;
+        $amount_satoshis_in_one_btc = 100000000;
+        $amount_received_btc = $amount_received_satoshis / $amount_satoshis_in_one_btc;
+        $price_per_btc_in_fiat = $request->btc_price;
+        $fiat_amount = round(($price_per_btc_in_fiat * $amount_received_btc), 2);
+
+        // Get the expected amount from payment hash
+        $payment_hash_data = $this->blockonomics->payment_hash->data;
+        $expected_amount = $payment_hash_data->amount_with_fee;
+
+        // Adjust invoice allocations to match actual received amount if the amounts don't match
+        if (!BcMath::equal($fiat_amount, $expected_amount)) {
+            $this->adjustInvoiceAllocations($fiat_amount);
+        }
+
         try {
-            $data = [];
-            $fiat_amount = round(($request->btc_price * $request->btc_amount / 100000000), 2);
-            $data['amount'] = $fiat_amount;
-            $data['payment_method_id'] = $request->payment_method_id;
-            $data['payment_type'] = PaymentType::CRYPTO;
-            $data['gateway_type_id'] = GatewayType::CRYPTO;
+            $data = [
+                'amount' => $fiat_amount,
+                'payment_method_id' => $request->payment_method_id,
+                'payment_type' => PaymentType::CRYPTO,
+                'gateway_type_id' => GatewayType::CRYPTO,
+            ];
 
             // Append a random value to the transaction reference for test payments
-            // to prevent duplicate entries in the database.
-            // This ensures the payment hashed_id remains unique.
             $testTxid = $this->test_txid;
             $data['transaction_reference'] = ($request->txid === $testTxid)
                 ? $request->txid . bin2hex(random_bytes(16))
                 : $request->txid;
 
-            $statusId = Payment::STATUS_PENDING;
-
-            switch ($request->status) {
-                case 0:
-                    $statusId = Payment::STATUS_PENDING;
-                    break;
-                case 1:
-                    $statusId = Payment::STATUS_PENDING;
-                    break;
-                case 2:
-                    $statusId = Payment::STATUS_COMPLETED;
-                    break;
-                default:
-                    $statusId = Payment::STATUS_PENDING;
-            }
+            // Determine payment status
+            $statusId = match($request->status) {
+                2 => Payment::STATUS_COMPLETED,
+                default => Payment::STATUS_PENDING
+            };
 
             $payment = $this->blockonomics->createPayment($data, $statusId);
             $payment->private_notes = "{$request->btc_address} - {$request->btc_amount}";
@@ -192,11 +197,82 @@ class Blockonomics implements LivewireMethodInterface
 
         } catch (\Throwable $e) {
             $blockonomics = $this->blockonomics;
-            PaymentFailureMailer::dispatch($blockonomics->client, $blockonomics->payment_hash->data, $blockonomics->client->company, $request->amount);
-            throw new PaymentFailed('Error during Blockonomics payment : ' . $e->getMessage());
+            PaymentFailureMailer::dispatch(
+                $blockonomics->client,
+                $blockonomics->client->company,
+                $fiat_amount
+            );
+            throw new PaymentFailed('Error during Blockonomics payment: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Adjust invoice allocations to match the actual amount received
+     * Only modifies the amounts in the PaymentHash, never the actual invoices
+     */
+    private function adjustInvoiceAllocations(float $amount_received): void
+    {
+        $payment_hash_data = $this->blockonomics->payment_hash->data;
+
+        // Get the invoices array from payment hash data
+        $invoices = $payment_hash_data->invoices ?? [];
+
+        if (empty($invoices)) {
+            return;
+        }
+
+        $remaining_amount = $amount_received;
+        $adjusted_invoices = [];
+
+        // Iterate through invoices and allocate up to the amount received
+        foreach ($invoices as $invoice) {
+            if ($remaining_amount <= 0) {
+                // No more funds to allocate, drop remaining invoices
+                break;
+            }
+
+            $invoice_amount = $invoice->amount;
+
+            if (BcMath::greaterThan($remaining_amount, $invoice_amount)) {
+                // Full payment for this invoice - keep all original data
+                $adjusted_invoices[] = (object)[
+                    'invoice_id' => $invoice->invoice_id,
+                    'amount' => $invoice_amount,
+                    'formatted_amount' => number_format($invoice_amount, 2),
+                    'formatted_currency' => '$' . number_format($invoice_amount, 2),
+                    'number' => $invoice->number,
+                    'date' => $invoice->date,
+                    'due_date' => $invoice->due_date ?? '',
+                    'terms' => $invoice->terms ?? '',
+                    'invoice_number' => $invoice->invoice_number,
+                    'additional_info' => $invoice->additional_info ?? '',
+                ];
+                $remaining_amount -= $invoice_amount;
+            } else {
+                // Partial payment for this invoice - adjust the amount
+                $adjusted_invoices[] = (object)[
+                    'invoice_id' => $invoice->invoice_id,
+                    'amount' => round($remaining_amount, 2),
+                    'formatted_amount' => number_format($remaining_amount, 2),
+                    'formatted_currency' => '$' . number_format($remaining_amount, 2),
+                    'number' => $invoice->number,
+                    'date' => $invoice->date,
+                    'due_date' => $invoice->due_date ?? '',
+                    'terms' => $invoice->terms ?? '',
+                    'invoice_number' => $invoice->invoice_number,
+                    'additional_info' => $invoice->additional_info ?? '',
+                ];
+                $remaining_amount = 0;
+            }
+        }
+
+        // Update the payment hash with adjusted invoice allocations
+        $payment_hash_data->invoices = $adjusted_invoices;
+        $payment_hash_data->amount_with_fee = $amount_received; // Critical: Update total amount
+
+        $this->blockonomics->payment_hash->data = $payment_hash_data;
+        $this->blockonomics->payment_hash->save();
+    }
     // Not supported yet
     public function refund(Payment $payment, $amount)
     {

@@ -107,4 +107,24 @@
           format: integer
           example: '1434342123'
           readOnly: true
+        hash:
+          description: 'Unique hash identifier for this task'
+          type: string
+          example: 'a1b2c3d4e5f6'
+        meta:
+          description: 'Metadata associated with this task'
+          type: object
+          additionalProperties: true
+        status_id:
+          description: 'The unique identifier of the task status'
+          type: string
+          example: Opnel5aKBz
+        status_order:
+          description: 'Sort order for status display'
+          type: integer
+          example: 1
+        status_sort_order:
+          description: 'Alternative sort order for status'
+          type: integer
+          example: 1
       type: object

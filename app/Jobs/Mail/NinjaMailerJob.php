@@ -218,6 +218,7 @@ class NinjaMailerJob implements ShouldQueue
 
         } catch(\ErrorException $e){ //@todo - remove after symfony/mailer is updated with bug fix
             
+            nlog("Mailer failed with an Error Exception {$e->getMessage()}");
             $message = "Attachment size is too large.";
             $this->fail();
             $this->logMailError($message, $this->company->clients()->first());
@@ -323,7 +324,7 @@ class NinjaMailerJob implements ShouldQueue
      */
     private function entityEmailFailed($message): void
     {
-        $class = get_class($this->nmo->entity);
+        $class = $this->nmo->entity ? get_class($this->nmo->entity) : false;
 
         switch ($class) {
             case Invoice::class:
@@ -358,10 +359,8 @@ class NinjaMailerJob implements ShouldQueue
             return $this;
         }
 
-
         if (Ninja::isHosted() && $this->company->account->isPaid() && $this->nmo->settings->email_sending_method == 'default') {
             //check if outlook.
-
             try {
                 $email = $this->nmo->to_user->email;
                 $domain = explode("@", $email)[1] ?? "";

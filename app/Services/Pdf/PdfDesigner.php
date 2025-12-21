@@ -83,7 +83,7 @@ class PdfDesigner
         $html .= $partials['footer'];
 
         // Valid HTML is always required.
-        if(strlen($html) == 0){
+        if (strlen($html) == 0) {
             return '<p></p>';
         }
 

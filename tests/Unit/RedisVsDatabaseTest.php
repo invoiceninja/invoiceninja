@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class RedisVsDatabaseTest extends TestCase
 {

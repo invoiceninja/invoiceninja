@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -20,7 +21,7 @@ use App\Http\Requests\Invoice\StoreInvoiceRequest;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
- * 
+ *
  */
 class UniqueInvoiceNumberValidationTest extends TestCase
 {

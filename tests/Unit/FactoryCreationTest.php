@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,7 +26,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class FactoryCreationTest extends TestCase
 {
@@ -38,16 +39,13 @@ class FactoryCreationTest extends TestCase
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
     }
 
     /**
-     * 
+     *
      *       App\Factory\ProductFactory
      */
     public function testProductionCreation()
@@ -61,7 +59,7 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * 
+     *
      *       App\Factory\InvoiceFactory
      */
     public function testInvoiceCreation()
@@ -80,7 +78,7 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * 
+     *
      *  App\Factory\CloneInvoiceFactory
      */
     public function testCloneInvoiceCreation()
@@ -106,7 +104,7 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * 
+     *
      *  App\Factory\ClientFactory
      */
     public function testClientCreate()
@@ -121,7 +119,7 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * 
+     *
      *  App\Factory\ClientContactFactory
      */
     public function testClientContactCreate()
@@ -136,7 +134,7 @@ class FactoryCreationTest extends TestCase
     }
 
     /**
-     * 
+     *
      *  App\Factory\UserFactory
      */
     public function testUserCreate()

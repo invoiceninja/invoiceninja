@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -24,7 +25,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\PaymentController
  */
 class UpdatePaymentTest extends TestCase
@@ -32,17 +33,11 @@ class UpdatePaymentTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
         $this->withoutExceptionHandling();
 

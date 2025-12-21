@@ -351,7 +351,7 @@ class Email implements ShouldQueue
                 $message = null;
             }
 
-        } catch(\ErrorException $e){ //@todo - remove after symfony/mailer is updated with bug fix
+        } catch (\ErrorException $e) { //@todo - remove after symfony/mailer is updated with bug fix
 
             $message = "Attachment size is too large.";
             $this->fail();
@@ -361,8 +361,7 @@ class Email implements ShouldQueue
             $this->entityEmailFailed($message);
 
             return;
-        } 
-        catch (\Exception | \RuntimeException $e) {
+        } catch (\Exception | \RuntimeException $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -539,7 +538,7 @@ class Email implements ShouldQueue
 
     private function setHostedSesMailer()
     {
-                
+
         if (property_exists($this->email_object->settings, 'email_from_name') && strlen($this->email_object->settings->email_from_name) > 1) {
             $email_from_name = $this->email_object->settings->email_from_name;
         } else {
@@ -574,7 +573,7 @@ class Email implements ShouldQueue
     {
 
         /** Force free/trials onto specific mail driver */
-        if ($this->email_object->settings->email_sending_method == 'default' && (!$this->company->account->isPaid() || $this->company->account->isNewHostedAccount())) {
+        if (Ninja::isHosted() && $this->email_object->settings->email_sending_method == 'default' && (!$this->company->account->isPaid() || $this->company->account->isNewHostedAccount())) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
@@ -800,7 +799,7 @@ class Email implements ShouldQueue
         $this->client_ses_secret = 'true';
 
         $user = $this->resolveSendingUser();
-    
+
         $sending_user = (isset($this->email_object->settings->email_from_name) && strlen($this->email_object->settings->email_from_name) > 2) ? $this->email_object->settings->email_from_name : $user->name();
 
         $this->mailable

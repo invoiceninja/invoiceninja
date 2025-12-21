@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,14 +26,13 @@ use App\Repositories\InvoiceRepository;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *   App\Services\Chart\ChartService
  */
 class ChartCurrencyTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();

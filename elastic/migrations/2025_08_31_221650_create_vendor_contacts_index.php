@@ -5,6 +5,7 @@ use Elastic\Adapter\Indices\Mapping;
 use Elastic\Adapter\Indices\Settings;
 use Elastic\Migrations\Facades\Index;
 use Elastic\Migrations\MigrationInterface;
+use Elastic\Elasticsearch\ClientBuilder;
 
 final class CreateVendorContactsIndex implements MigrationInterface
 {
@@ -13,6 +14,12 @@ final class CreateVendorContactsIndex implements MigrationInterface
      */
     public function up(): void
     {
+        // Check if index already exists (idempotency)
+        $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
+        if ($client->indices()->exists(['index' => 'vendor_contacts_v2'])) {
+            return; // Index already exists, skip creation
+        }
+
         $mapping = [
             'properties' => [
                 // Core vendor contact fields

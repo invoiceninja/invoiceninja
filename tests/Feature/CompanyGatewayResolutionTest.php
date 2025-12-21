@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,7 +24,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class CompanyGatewayResolutionTest extends TestCase
 {
@@ -46,9 +47,6 @@ class CompanyGatewayResolutionTest extends TestCase
         if (! config('ninja.testvars.stripe')) {
             $this->markTestSkipped('Skip test no company gateways installed');
         }
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();

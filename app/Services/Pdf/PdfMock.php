@@ -12,24 +12,25 @@
 
 namespace App\Services\Pdf;
 
-use App\DataMapper\ClientSettings;
-use App\DataMapper\CompanySettings;
+use App\Models\Quote;
 use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Design;
+use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Country;
-use App\Models\Credit;
-use App\Models\CreditInvitation;
-use App\Models\Currency;
-use App\Models\Design;
+use App\Models\Expense;
 use App\Models\Invoice;
-use App\Models\InvoiceInvitation;
+use App\Models\Currency;
 use App\Models\PurchaseOrder;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\Quote;
 use App\Models\QuoteInvitation;
-use App\Models\Vendor;
-use App\Utils\Traits\GeneratesCounter;
 use App\Utils\Traits\MakesHash;
+use App\Models\CreditInvitation;
+use App\Models\InvoiceInvitation;
+use App\DataMapper\ClientSettings;
+use App\DataMapper\CompanySettings;
+use App\Utils\Traits\GeneratesCounter;
+use App\Models\PurchaseOrderInvitation;
 
 class PdfMock
 {
@@ -67,15 +68,15 @@ class PdfMock
         $this->settings = $pdf_config->settings;
         $pdf_config->entity_design_id = $pdf_config->settings->{"{$pdf_config->entity_string}_design_id"} ?? 'Wpmbk5ezJn';
         $pdf_config->setPdfVariables();
-        $pdf_config->setCurrency(Currency::find($this->settings->currency_id));
+        $pdf_config->setCurrency(Currency::find($this->settings->currency_id ?? 1));
         $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
         $pdf_config->currency_entity = $this->mock->client ?? $this->mock->vendor;
 
-        if (isset($this->request['design_id']) && $design  = Design::withTrashed()->find($this->request['design_id'])) {
+        if (isset($this->request['design_id']) && $design = Design::withTrashed()->find($this->request['design_id'])) {
             $pdf_config->design = $design;
             $pdf_config->entity_design_id = $design->hashed_id;
         } else {
-            $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id));
+            $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id) ?? 2);
         }
 
         $this->pdf_service->config = $pdf_config;
@@ -168,6 +169,23 @@ class PdfMock
 
                 $entity->invitation->setRelation('company', $this->company);
                 break;
+            case 'expense':
+                /** @var \App\Models\Expense $entity */
+                // $entity = Expense::factory()->make();
+                // $entity->invoice = Invoice::factory()->make(); /** @phpstan-ignore-line */
+                // $entity->invoice->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
+                // $entity->invoice->invitation = InvoiceInvitation::factory()->make(); //@phpstan-ignore-line
+                // $entity->invoice->client->setRelation('company', $this->company);
+                /** @var \App\Models\Invoice $entity */
+                $entity = Invoice::factory()->make();
+                $entity->client = Client::factory()->make(['settings' => $settings]); //@phpstan-ignore-line
+                $entity->client->setRelation('company', $this->company);
+                $entity->invitation = InvoiceInvitation::factory()->make(); //@phpstan-ignore-line
+                $entity->tax_map = collect([]);
+                $entity->total_tax_map = [];
+                $entity->invitation->company = $this->company;
+                return $entity;
+
             default:
                 $entity = false;
                 break;
@@ -255,7 +273,6 @@ class PdfMock
     '$client.classification' => 'Individual',
     '$company.classification' => 'Business',
     '$client.postal_city_state' => '11243 Aufderharchester, North Carolina',
-    '$client.postal_city' => '11243 Aufderharchester, North Carolina',
     '$client.shipping_address1' => '453',
     '$client.shipping_address2' => '66327 Waters Trail',
     '$client.city_state_postal' => 'Aufderharchester, North Carolina 11243',
@@ -266,6 +283,8 @@ class PdfMock
     '$invoiceninja.whitelabel' => config('ninja.app_logo'),
     '$client.billing_address' => '8447<br/>63993 Aiyana View<br/>Aufderharchester, North Carolina 11243<br/>United States<br/>',
     '$client.billing_country' => 'USA',
+    '$client.location_name' => 'Location Name',
+    '$client.postal_city' => '11243 Aufderharchester, North Carolina',
     '$task.gross_line_total' => '100',
     '$contact.portal_button' => '<a class="button" href="http://ninja.test:8000/client/key_login/zJJEjlUtXPiNnnnyO2tcYia64PSwauidy61eDnMU?client_hash=nzikYQITs1kyUK61GScTNW67JwhTRkOBVdvsHzIv">View client portal</a>',
     '$client.shipping_state' => 'Delaware',
@@ -312,6 +331,7 @@ class PdfMock
     '$city_state_postal' => "{$this->settings->city}, {$this->settings->state}, {$this->settings->postal_code}",
     '$contact.full_name' => 'Benedict Eichmann',
     '$contact.last_name' => 'Eichmann',
+    '$verifactu_qr_code' => '',
     '$company.country_2' => 'US',
     '$product.product1' => '',
     '$product.product2' => '',
@@ -596,6 +616,7 @@ class PdfMock
             '$contact.portal_button_label' => ctrans('texts.button'),
             '$client.shipping_state_label' => ctrans('texts.shipping_state'),
             '$show_shipping_address_label' => ctrans('texts.show_shipping_address'),
+            '$client.location_name_label' => ctrans('texts.location'),
             '$invoice.public_notes_label' => ctrans('texts.public_notes'),
             '$client.billing_state_label' => ctrans('texts.billing_state'),
             '$client.shipping_city_label' => ctrans('texts.shipping_city'),
@@ -639,6 +660,7 @@ class PdfMock
             '$custom_surcharge3_label' => ctrans('texts.custom_surcharge3'),
             '$custom_surcharge4_label' => ctrans('texts.custom_surcharge4'),
             '$quote.balance_due_label' => ctrans('texts.balance_due'),
+            '$verifactu_qr_code_label' => '',
             '$product.product1_label' => ctrans('texts.product1'),
             '$product.product2_label' => ctrans('texts.product2'),
             '$product.product3_label' => ctrans('texts.product3'),
@@ -935,6 +957,7 @@ class PdfMock
           '$contact.first_name' => 'Geo',
           '$company.vat_number' => 'vat number',
           '$contact.signature' => '',
+          '$verifactu_qr_code' => '',
           '$product.tax_name1' => '',
           '$product.tax_name2' => '',
           '$product.tax_name3' => '',

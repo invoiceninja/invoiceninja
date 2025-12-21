@@ -177,18 +177,27 @@ class Nordigen
         );
     }
 
-
+    
+    /**
+     * validAgreement
+     * @param string $institution_id
+     * @param array $_accounts
+     * @return array|null
+     * @todo - very expensive!
+     */
     public function validAgreement($institution_id, $_accounts)
     {
 
         $nc = new \App\Helpers\Bank\Nordigen\Http\NordigenClient($this->client->getAccessToken());
         $requisitions = $nc->getAllRequisitions();
 
-        $requisitions->filter(function($requisition) use ($institution_id, $_accounts){
+        $requisition = $requisitions->filter(function($requisition) use ($institution_id, $_accounts){
             if($requisition['institution_id'] == $institution_id && !empty(array_intersect($requisition['accounts'], $_accounts))){
                 return $requisition;
             }
         });
+
+        return $requisition->first()->toArray() ??  null;
         
     }
 
@@ -214,11 +223,11 @@ class Nordigen
             $out->metadata = $this->client->account($account_id)->getAccountMetaData();
             $out->institution = $this->client->institution->getInstitution($out->metadata['institution_id']);
 
-            if($out->metadata['status'] == 'READY'){
-                $out->data = $this->client->account($account_id)->getAccountDetails()['account'];
-                $out->balances = $this->client->account($account_id)->getAccountBalances()['balances'];
-            }
-            else{
+            // if($out->metadata['status'] == 'READY'){
+            //     $out->data = $this->client->account($account_id)->getAccountDetails()['account'];
+            //     $out->balances = $this->client->account($account_id)->getAccountBalances()['balances'];
+            // }
+            // else{
 
                 $out->data = [
                     'iban' => $out->metadata['iban'],
@@ -233,7 +242,7 @@ class Nordigen
                         ],
                     ],
                 ];
-            }
+            // }
 
             $it = new AccountTransformer();
             return $it->transform($out);

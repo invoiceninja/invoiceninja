@@ -84,5 +84,38 @@
           description: 'The payment number - is a unique alpha numeric number per payment per company'
           type: string
           example: PAY_101
+        category_id:
+          description: 'The unique identifier of the payment category'
+          type: string
+          example: Opnel5aKBz
+        custom_value1:
+          description: 'Custom field for storing additional information'
+          type: string
+          example: 'Payment reference 123'
+        custom_value2:
+          description: 'Custom field for storing additional information'
+          type: string
+          example: 'Approved by John'
+        custom_value3:
+          description: 'Custom field for storing additional information'
+          type: string
+          example: 'Urgent payment'
+        custom_value4:
+          description: 'Custom field for storing additional information'
+          type: string
+          example: 'Q1 2024'
+        exchange_currency_id:
+          description: 'The unique identifier of the exchange currency'
+          type: string
+          example: '2'
+        exchange_rate:
+          description: 'The exchange rate used for currency conversion'
+          type: number
+          format: float
+          example: 1.0
+        idempotency_key:
+          description: 'Unique key to ensure idempotent payment processing'
+          type: string
+          example: 'key_1234567890abcdef'
       type: object
     

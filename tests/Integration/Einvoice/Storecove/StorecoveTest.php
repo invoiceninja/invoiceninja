@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -46,6 +47,7 @@ use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
 use App\Services\EDocument\Gateway\Storecove\Models\Invoice as StorecoveInvoice;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Illuminate\Routing\Middleware\ThrottleRequests;
+
 class StorecoveTest extends TestCase
 {
     use MockAccountData;
@@ -62,7 +64,7 @@ class StorecoveTest extends TestCase
         if (config('ninja.testvars.travis') !== false || !config('ninja.storecove_api_key')) {
             $this->markTestSkipped("do not run in CI");
         }
-                
+
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
@@ -71,7 +73,7 @@ class StorecoveTest extends TestCase
 
     private function setupTestData(array $params = []): array
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
         $settings->id_number = $params['company_id_number'] ?? '';
@@ -133,7 +135,7 @@ class StorecoveTest extends TestCase
 
         $contact = ClientContact::factory()->create([
             'client_id' => $client->id,
-            'company_id' =>$client->company_id,
+            'company_id' => $client->company_id,
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
@@ -156,13 +158,12 @@ class StorecoveTest extends TestCase
         ]);
 
         $items = $invoice->line_items;
-        foreach($items as &$item)
-        {
-          $item->tax_name2 = '';
-          $item->tax_rate2 = 0;
-          $item->tax_name3 = '';
-          $item->tax_rate3 = 0;
-          $item->uses_inclusive_taxes = false;
+        foreach ($items as &$item) {
+            $item->tax_name2 = '';
+            $item->tax_rate2 = 0;
+            $item->tax_name3 = '';
+            $item->tax_rate3 = 0;
+            $item->uses_inclusive_taxes = false;
         }
         unset($item);
 
@@ -174,7 +175,7 @@ class StorecoveTest extends TestCase
 
     public function testDEtoFRB2BReverseCharge()
     {
-      
+
         $this->routing_id = 290868;
 
         $scenario = [
@@ -198,9 +199,8 @@ class StorecoveTest extends TestCase
 
         $line_items = $invoice->line_items;
 
-        foreach($line_items as &$item)
-        {
-          $item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_REVERSE_TAX;
+        foreach ($line_items as &$item) {
+            $item->tax_id = (string)\App\Models\Product::PRODUCT_TYPE_REVERSE_TAX;
         }
         unset($item);
 
@@ -213,7 +213,7 @@ class StorecoveTest extends TestCase
 
     public function testDEIToDEGNoTaxes()
     {
-      
+
         $this->routing_id = 290868;
 
         $scenario = [
@@ -241,7 +241,7 @@ class StorecoveTest extends TestCase
 
     public function testDeNoVatNumberToDeVatNumber()
     {
-      
+
         $this->routing_id = 290868;
 
         $scenario = [
@@ -295,16 +295,29 @@ class StorecoveTest extends TestCase
         $this->assertEquals('DE', $company->country()->iso_3166_2);
         $this->assertEquals('FR', $client->country->iso_3166_2);
 
-        foreach($invoice->line_items as $item)
-        {
-          $this->assertTrue(in_array($item->tax_id, ['1','2']));
-          $this->assertEquals(0, $item->tax_rate1);
+        foreach ($invoice->line_items as $item) {
+            $this->assertTrue(in_array($item->tax_id, ['1','2']));
+            $this->assertEquals(0, $item->tax_rate1);
         }
 
         $this->assertEquals(floatval(0), floatval($invoice->total_taxes));
+
+        $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+        $delivery = new \InvoiceNinja\EInvoice\Models\Peppol\DeliveryType\Delivery();
+        $delivery->ActualDeliveryDate = new \DateTime($invoice->due_date);
+
+        $einvoice->Delivery = [$delivery];
+
+        $stub = new \stdClass();
+        $stub->Invoice = $einvoice;
+        $invoice->e_invoice = $stub;
+        nlog($invoice->e_invoice);
+        $invoice->save();
+
         $this->sendDocument($invoice);
     }
-        
+
     /**
      * PtestDeToDeClientTaxExemptSending
      *
@@ -338,11 +351,10 @@ class StorecoveTest extends TestCase
         $this->assertEquals('DE', $company->country()->iso_3166_2);
         $this->assertEquals('DE', $client->country->iso_3166_2);
 
-        foreach($invoice->line_items as $item)
-        {
+        foreach ($invoice->line_items as $item) {
 
-$this->assertTrue(in_array($item->tax_id, ['1','2']));
-          $this->assertEquals(0, $item->tax_rate1);
+            $this->assertTrue(in_array($item->tax_id, ['1','2']));
+            $this->assertEquals(0, $item->tax_rate1);
         }
 
         $this->assertEquals(floatval(0), floatval($invoice->total_taxes));
@@ -375,11 +387,10 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $this->assertEquals('DE', $company->country()->iso_3166_2);
         $this->assertEquals('DE', $client->country->iso_3166_2);
 
-        foreach($invoice->line_items as $item)
-        {
+        foreach ($invoice->line_items as $item) {
 
-$this->assertTrue(in_array($item->tax_id, ['1','2']));
-          $this->assertEquals($tax_rate, $item->tax_rate1);
+            $this->assertTrue(in_array($item->tax_id, ['1','2']));
+            $this->assertEquals($tax_rate, $item->tax_rate1);
         }
 
         $this->sendDocument($invoice);
@@ -438,7 +449,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
 
     public function testTransformPeppolToStorecove()
     {
-      
+
         $phpDocExtractor = new PhpDocExtractor();
         $reflectionExtractor = new ReflectionExtractor();
         // list of PropertyListExtractorInterface (any iterable)
@@ -465,7 +476,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $serializer = new Serializer($normalizers, $encoders);
 
         $context = [
-          DateTimeNormalizer::FORMAT_KEY => 'Y-m-d', 
+          DateTimeNormalizer::FORMAT_KEY => 'Y-m-d',
           AbstractObjectNormalizer::SKIP_NULL_VALUES => true,
         ];
 
@@ -481,9 +492,9 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $peppolInvoice = $data = $e->encode($peppolInvoice, 'json', $context);
 
         $invoice = $serializer->deserialize($peppolInvoice, $parent, 'json', $context);
-        
+
         $this->assertInstanceOf($parent, $invoice);
-                
+
         $s_invoice = $serializer->encode($invoice, 'json', $context);
 
         $arr = json_decode($s_invoice, true);
@@ -491,7 +502,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $arr = $this->removeEmptyValues($arr);
 
         // nlog($arr);
-        
+
     }
 
 
@@ -514,7 +525,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
 
     public function testNormalizingToStorecove()
     {
-      
+
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $invoice = $this->createATData();
@@ -529,43 +540,43 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $p = new Peppol($invoice);
 
         $this->assertIsString($p->run()->toXml());
-        
+
 
     }
 
     public function testStorecoveTransformerWithPercentageDiscount()
     {
-            
-      $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
-      $invoice = $this->createATData();
-      $invoice->is_amount_discount = false;
-      
-      $item = new InvoiceItem();
-      $item->product_key = "Product Key";
-      $item->notes = "Product Description";
-      $item->cost = 10;
-      $item->quantity = 10;
-      $item->is_amount_discount = false;
-      $item->discount=5;
-      $item->tax_rate1 = 20;
-      $item->tax_name1 = 'VAT';
+        $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
-      $invoice->line_items = [$item];
-      $invoice->calc()->getInvoice();
+        $invoice = $this->createATData();
+        $invoice->is_amount_discount = false;
 
-      $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-      foreach ($stub as $key => $value) {
-          $e_invoice->{$key} = $value;
-      }
+        $item = new InvoiceItem();
+        $item->product_key = "Product Key";
+        $item->notes = "Product Description";
+        $item->cost = 10;
+        $item->quantity = 10;
+        $item->is_amount_discount = false;
+        $item->discount = 5;
+        $item->tax_rate1 = 20;
+        $item->tax_name1 = 'VAT';
 
-      $invoice->e_invoice = $e_invoice;
+        $invoice->line_items = [$item];
+        $invoice->calc()->getInvoice();
 
-      $p = new Peppol($invoice);
-      $p->run();
-      $peppolInvoice = $p->getInvoice();
+        $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
+        foreach ($stub as $key => $value) {
+            $e_invoice->{$key} = $value;
+        }
 
-      $this->assertNotNull($peppolInvoice);
+        $invoice->e_invoice = $e_invoice;
+
+        $p = new Peppol($invoice);
+        $p->run();
+        $peppolInvoice = $p->getInvoice();
+
+        $this->assertNotNull($peppolInvoice);
     }
 
 
@@ -573,46 +584,46 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
     public function testUnsetOfVatNumers()
     {
 
-      $settings = CompanySettings::defaults();
-      $settings->country_id = '276'; // germany
+        $settings = CompanySettings::defaults();
+        $settings->country_id = '276'; // germany
 
-      $tax_data = new TaxModel();
-      $tax_data->seller_subregion = 'DE';
-      $tax_data->regions->EU->has_sales_above_threshold = false;
-      $tax_data->regions->EU->tax_all_subregions = true;
-      $tax_data->regions->US->tax_all_subregions = true;
-      $tax_data->regions->US->has_sales_above_threshold = true;
-      
-      $tax_data->regions->EU->subregions->DE->vat_number = 'DE12345';
-      $tax_data->regions->EU->subregions->RO->vat_number = 'RO12345';
+        $tax_data = new TaxModel();
+        $tax_data->seller_subregion = 'DE';
+        $tax_data->regions->EU->has_sales_above_threshold = false;
+        $tax_data->regions->EU->tax_all_subregions = true;
+        $tax_data->regions->US->tax_all_subregions = true;
+        $tax_data->regions->US->has_sales_above_threshold = true;
 
-      $company = Company::factory()->create([
-          'account_id' => $this->account->id,
-          'settings' => $settings,
-          'tax_data' => $tax_data,
-          'calculate_taxes' => true,
-      ]);
+        $tax_data->regions->EU->subregions->DE->vat_number = 'DE12345';
+        $tax_data->regions->EU->subregions->RO->vat_number = 'RO12345';
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'tax_data' => $tax_data,
+            'calculate_taxes' => true,
+        ]);
 
 
-      $this->assertEquals('DE12345', $company->tax_data->regions->EU->subregions->DE->vat_number);
-      $this->assertEquals('RO12345', $company->tax_data->regions->EU->subregions->RO->vat_number);
-      
-      $this->assertEquals('DE12345', $company->tax_data->regions->EU->subregions->DE->vat_number);
-      $this->assertEquals('RO12345', $company->tax_data->regions->EU->subregions->RO->vat_number);
+        $this->assertEquals('DE12345', $company->tax_data->regions->EU->subregions->DE->vat_number);
+        $this->assertEquals('RO12345', $company->tax_data->regions->EU->subregions->RO->vat_number);
 
-      $company->tax_data = $this->unsetVatNumbers($company->tax_data);
+        $this->assertEquals('DE12345', $company->tax_data->regions->EU->subregions->DE->vat_number);
+        $this->assertEquals('RO12345', $company->tax_data->regions->EU->subregions->RO->vat_number);
 
-      $company->save();
+        $company->tax_data = $this->unsetVatNumbers($company->tax_data);
 
-      $company = $company->fresh();
+        $company->save();
 
-      $this->assertFalse(property_exists($company->tax_data->regions->EU->subregions->DE, 'vat_number'), "DE subregion should not have vat_number property");
-      $this->assertFalse(property_exists($company->tax_data->regions->EU->subregions->RO, 'vat_number'), "RO subregion should not have vat_number property");
+        $company = $company->fresh();
+
+        $this->assertFalse(property_exists($company->tax_data->regions->EU->subregions->DE, 'vat_number'), "DE subregion should not have vat_number property");
+        $this->assertFalse(property_exists($company->tax_data->regions->EU->subregions->RO, 'vat_number'), "RO subregion should not have vat_number property");
 
     }
 
 
-  private function unsetVatNumbers(mixed $taxData): mixed
+    private function unsetVatNumbers(mixed $taxData): mixed
     {
         if (isset($taxData->regions->EU->subregions)) {
             foreach ($taxData->regions->EU->subregions as $country => $data) {
@@ -951,14 +962,14 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
     */
     public function testCreateTestData()
     {
-      $this->createESData();
-      $this->createATData();
-      $this->createDEData();
-      $this->createFRData();
-      $this->createITData();
-      $this->createROData();
+        $this->createESData();
+        $this->createATData();
+        $this->createDEData();
+        $this->createFRData();
+        $this->createITData();
+        $this->createROData();
 
-      $this->assertTrue(true);
+        $this->assertTrue(true);
     }
 
     public function testCreateCHClient()
@@ -1730,7 +1741,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1765,7 +1776,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1795,7 +1806,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1826,7 +1837,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1856,7 +1867,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1887,7 +1898,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1918,7 +1929,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 
@@ -1957,7 +1968,7 @@ $this->assertTrue(in_array($item->tax_id, ['1','2']));
         $e_invoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
 
         $stub = json_decode('{"Invoice":{"Note":"Nooo","PaymentMeans":[{"ID":{"value":"afdasfasdfasdfas"},"PayeeFinancialAccount":{"Name":"PFA-NAME","ID":{"value":"DE89370400440532013000"},"AliasName":"PFA-Alias","AccountTypeCode":{"value":"CHECKING"},"AccountFormatCode":{"value":"IBAN"},"CurrencyCode":{"value":"EUR"},"FinancialInstitutionBranch":{"ID":{"value":"DEUTDEMMXXX"},"Name":"Deutsche Bank"}}}]}}');
-        foreach($stub as $key => $value) {
+        foreach ($stub as $key => $value) {
             $e_invoice->{$key} = $value;
         }
 

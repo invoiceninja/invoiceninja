@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,7 +26,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Jobs\Invoice\EmailInvoice
  */
 class InvoiceEmailTest extends TestCase
@@ -33,17 +34,11 @@ class InvoiceEmailTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
     use GeneratesCounter;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
@@ -54,14 +49,14 @@ class InvoiceEmailTest extends TestCase
     {
         $this->user->setCompany($this->company);
         $this->actingAs($this->user);
-    
+
         $request = new SendEmailRequest();
 
-        collect($request->templates)->filter(function ($template){
+        collect($request->templates)->filter(function ($template) {
             return stripos($template, 'quote') === false;
-        })->each(function ($template) use($request){
+        })->each(function ($template) use ($request) {
 
-        
+
             $data = [
                 "body" => "hey what's up",
                 "entity" => 'App\Models\Invoice',
@@ -72,9 +67,9 @@ class InvoiceEmailTest extends TestCase
 
             $request->initialize($data);
             $validator = Validator::make($data, $request->rules());
-    
+
             $this->assertTrue($validator->passes());
-        
+
         });
 
 
@@ -88,7 +83,7 @@ class InvoiceEmailTest extends TestCase
     }
 
 
-     public function testTemplateValidationWhenArray()
+    public function testTemplateValidationWhenArray()
     {
         $data = [
             "body" => "hey what's up",

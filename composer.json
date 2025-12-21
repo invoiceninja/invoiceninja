@@ -37,6 +37,7 @@
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
+        "ext-bcmath": "*",
         "afosto/yaac": "^1.5",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
@@ -47,7 +48,7 @@
         "babenkoivan/elastic-scout-driver-plus": "^5.1",
         "bacon/bacon-qr-code": "^2.0",
         "beganovich/snappdf": "dev-master",
-        "braintree/braintree_php": "^6.23",
+        "braintree/braintree_php": "^6.28",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
         "eway/eway-rapid-php": "^1.3",
@@ -95,6 +96,7 @@
         "pusher/pusher-php-server": "^7.2",
         "quickbooks/v3-php-sdk": "^6.2",
         "razorpay/razorpay": "2.*",
+        "robrichards/xmlseclibs": "^3.1",
         "sentry/sentry-laravel": "^4",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
@@ -102,7 +104,7 @@
         "socialiteproviders/microsoft": "^4.1",
         "sprain/swiss-qr-bill": "^4.3",
         "square/square": "30.0.0.*",
-        "stripe/stripe-php": "^13",
+        "stripe/stripe-php": "^17",
         "symfony/brevo-mailer": "^7.1",
         "symfony/http-client": "^7.0.3",
         "symfony/mailer": "7.1.6",
@@ -125,10 +127,11 @@
         "friendsofphp/php-cs-fixer": "^3.14",
         "laracasts/cypress": "^3.0",
         "larastan/larastan": "^2",
+        "laravel/boost": "^1.8",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "phpstan/phpstan": "^1.9",
-        "phpunit/phpunit": "^11",
+        "phpunit/phpunit": "^11|^12",
         "spatie/laravel-ignition": "^2.0",
         "spaze/phpstan-stripe": "^3.0"
     },
@@ -215,10 +218,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/beganovich/php-ansible"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/turbo124/snappdf"
         },
         {
             "type": "path",

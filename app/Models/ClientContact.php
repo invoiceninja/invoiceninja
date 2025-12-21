@@ -171,7 +171,7 @@ class ClientContact extends Authenticatable implements HasLocalePreference
 
     public function searchableAs(): string
     {
-        return 'client_contacts_v2';
+        return 'client_contacts';
     }
 
     public function toSearchableArray()

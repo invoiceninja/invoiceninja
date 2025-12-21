@@ -101,6 +101,20 @@ class UpdateClientRequest extends Request
         return $rules;
     }
 
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            
+            $user = auth()->user();
+            $company = $user->company();
+
+            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+                $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
+            }
+            
+        });
+    }
+    
     public function messages()
     {
         return [
@@ -143,7 +157,7 @@ class UpdateClientRequest extends Request
         }
 
         if (array_key_exists('name', $input)) {
-            $input['name'] = strip_tags($input['name']);
+            $input['name'] = strip_tags($input['name'] ?? '');
         }
 
         // allow setting country_id by iso code
@@ -210,6 +224,9 @@ class UpdateClientRequest extends Request
     private function filterSaveableSettings($settings)
     {
         $account = $this->client->company->account;
+
+        // Do not allow a user to force pdf variables on the client settings.
+        unset($settings['pdf_variables']);
 
         if (! $account->isFreeHostedClient()) {
             return $settings;

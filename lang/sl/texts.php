@@ -3785,7 +3785,7 @@ Ko imate zneske, se vrnite na to stran plačilnega sredstva in kliknite na "Comp
     'notification_partial_payment_paid' => 'Delno plačilo :amount je stranka :client izvedla proti :invoice',
     'notification_bot' => 'Notification Bot',
     'invoice_number_placeholder' => 'Številka računa :invoice',
-    'entity_number_placeholder' => ':entity # :entity _številka',
+    'entity_number_placeholder' => ':entity # :entity_number',
     'email_link_not_working' => 'Če vam zgornji gumb ne deluje, kliknite povezavo',
     'display_log' => 'Prikaz dnevnika',
     'send_fail_logs_to_our_server' => 'Prijavite napake in pomagajte izboljšati aplikacijo',

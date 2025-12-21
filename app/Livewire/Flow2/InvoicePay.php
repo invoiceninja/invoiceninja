@@ -95,9 +95,9 @@ class InvoicePay extends Component
     public $required_fields = false;
 
     #[On('update.context')]
-    public function handleContext(string $property, $value): self
+    public function handleContext(string $key, string $property, $value): self
     {
-        $this->setContext(property: $property, value: $value);
+        $this->setContext($key, $property, $value);
 
         return $this;
     }
@@ -116,7 +116,7 @@ class InvoicePay extends Component
         $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
         $invite->signature_base64 = $base64;
         $invite->signature_date = now()->addSeconds($invite->contact->client->timezone_offset());
-        $this->setContext('signature', $base64); // $this->context['signature'] = $base64;
+        $this->setContext($invite->key, 'signature', $base64); // $this->context['signature'] = $base64;
         $invite->save();
 
     }
@@ -124,15 +124,17 @@ class InvoicePay extends Component
     #[On('payable-amount')]
     public function payableAmount($payable_amount)
     {
-        $this->setContext('amount', $payable_amount);
+        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
+        $this->setContext($invite->key, 'amount', $payable_amount);
         $this->under_over_payment = false;
     }
 
     #[On('payment-method-selected')]
     public function paymentMethodSelected($company_gateway_id, $gateway_type_id, $amount)
     {
+        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
 
-        $this->bulkSetContext([
+        $this->bulkSetContext($invite->key, [
             'company_gateway_id' => $company_gateway_id,
             'gateway_type_id' => $gateway_type_id,
             'amount' => $amount,
@@ -160,14 +162,14 @@ class InvoicePay extends Component
 
     private function checkRequiredFields(CompanyGateway $company_gateway)
     {
+        $invite = \App\Models\InvoiceInvitation::withTrashed()->find($this->invitation_id);
 
         /** @var \App\Models\ClientContact $contact */
-        $contact = $this->getContext()['contact'];
+        $contact = $this->getContext($invite->key)['contact'];
 
         $fields = $company_gateway->driver($contact->client)->getClientRequiredFields();
 
-        $this->setContext('fields', $fields); // $this->context['fields'] = $fields;
-
+        $this->setContext($invite->key,'fields', $fields); // $this->context['fields'] = $fields;
 
         foreach ($fields as $index => $field) {
             $_field = $this->mappings[$field['name']];
@@ -233,7 +235,7 @@ class InvoicePay extends Component
     public function mount()
     {
 
-        $this->resetContext();
+        // $this->resetContext();
 
         MultiDB::setDb($this->db);
 
@@ -243,7 +245,7 @@ class InvoicePay extends Component
         $client = $invite->contact->client;
         $settings = $client->getMergedSettings();
 
-        $this->bulkSetContext([
+        $this->bulkSetContext($invite->key, [
             'contact' => $invite->contact,
             'settings' => $settings,
             'db' => $this->db,
@@ -286,7 +288,7 @@ class InvoicePay extends Component
             ];
         })->toArray();
 
-        $this->bulkSetContext([
+        $this->bulkSetContext($invite->key, [
             'variables' => $this->variables,
             'invoices' => $invoices,
             'settings' => $settings,
@@ -294,11 +296,16 @@ class InvoicePay extends Component
             'payable_invoices' => $payable_invoices,
         ]);
 
+        $this->dispatch(self::CONTEXT_READY);
+
     }
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
-        return render('flow2.invoice-pay');
+        //@phpstan-ignore-next-line
+        $invite = \App\Models\InvoiceInvitation::with('contact.client', 'company')->withTrashed()->find($this->invitation_id);
+
+        return render('flow2.invoice-pay', ['_key' => $invite->key]);
     }
 
     public function exception($e, $stopPropagation)

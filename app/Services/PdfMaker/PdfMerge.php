@@ -52,7 +52,12 @@ class PdfMerge
 
             for ($i = 0; $i < $pageCount; $i++) {
                 $tpl = $pdf->importPage($i + 1, '/MediaBox');
-                $pdf->addPage();
+                $size = $pdf->getTemplateSize($tpl);
+
+                // Preserve original page orientation and dimensions
+                $orientation = $size['width'] > $size['height'] ? 'L' : 'P';
+                $pdf->addPage($orientation, [$size['width'], $size['height']]);
+
                 $pdf->useTemplate($tpl);
             }
         }

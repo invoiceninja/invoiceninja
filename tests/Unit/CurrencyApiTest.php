@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,7 +18,7 @@ use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Libraries\Currency\Conversion\CurrencyApi
  */
 class CurrencyApiTest extends TestCase

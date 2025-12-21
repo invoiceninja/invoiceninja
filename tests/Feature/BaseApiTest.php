@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -97,9 +98,6 @@ class BaseApiTest extends TestCase
     public string $low_token;
 
     public string $owner_token;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();

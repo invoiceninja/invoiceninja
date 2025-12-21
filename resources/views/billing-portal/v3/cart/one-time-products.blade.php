@@ -47,7 +47,12 @@
                             class="block w-20 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
                             {{ $this->subscription->use_inventory_management && $product['in_stock_quantity'] < 1 ? 'disabled' : '' }}
                         >
-                            <option value="1" {{ $entry['quantity'] == 1 ? 'selected' : '' }}>1</option>
+                            @if($this->subscription->use_inventory_management && $product['in_stock_quantity'] < 1)
+                                <option value="0" {{ $entry['quantity'] == 0 ? 'selected' : '' }}>0</option>
+                            @else
+                                <option value="1" {{ $entry['quantity'] == 1 ? 'selected' : '' }}>1</option>
+                            @endif
+
                             @for ($i = 2; $i <= $this->subscription->maxQuantity($product); $i++)
                                 <option {{ $entry['quantity'] == $i ? 'selected' : '' }} value="{{ $i }}">{{ $i }}</option>
                             @endfor

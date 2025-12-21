@@ -42,6 +42,8 @@ class ZugferdEDocument extends AbstractService
 
     private ?string $exemption_reason_code = null;
 
+    private ?string $temp_file_path = null;
+
     /**
      * __construct
      *
@@ -84,6 +86,7 @@ class ZugferdEDocument extends AbstractService
             ->setDocumentInformation()
             ->setPoNumber()
             ->setRoutingNumber()
+            ->setIdNumber()
             ->setDeliveryAddress()
             ->setDocumentTaxes()        // 1. First set taxes
             ->setPaymentMeans()         // 2. Then payment means
@@ -91,6 +94,7 @@ class ZugferdEDocument extends AbstractService
             ->setLineItems()            // 4. Then line items
             ->setCustomSurcharges()     // 4a. Surcharges
             ->setDocumentSummation();   // 5. Finally document summation
+        // ->setAdditionalReferencedDocument();   // 6. Additional referenced document
 
         return $this;
 
@@ -104,26 +108,57 @@ class ZugferdEDocument extends AbstractService
 
         if ($this->document->custom_surcharge1 > 0) {
             $surcharge = $this->document->uses_inclusive_taxes ? ($this->document->custom_surcharge1 / (1 + ($item["tax_rate"] / 100))) : $this->document->custom_surcharge1;
-            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"],null,null,null,null,null,null, ctrans('texts.surcharge'));
+            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"], null, null, null, null, null, null, ctrans('texts.surcharge'));
         }
 
         if ($this->document->custom_surcharge2 > 0) {
             $surcharge = $this->document->uses_inclusive_taxes ? ($this->document->custom_surcharge2 / (1 + ($item["tax_rate"] / 100))) : $this->document->custom_surcharge2;
-            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"],null,null,null,null,null,null, ctrans('texts.surcharge'));
+            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"], null, null, null, null, null, null, ctrans('texts.surcharge'));
         }
 
         if ($this->document->custom_surcharge3 > 0) {
             $surcharge = $this->document->uses_inclusive_taxes ? ($this->document->custom_surcharge3 / (1 + ($item["tax_rate"] / 100))) : $this->document->custom_surcharge3;
-            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"],null,null,null,null,null,null, ctrans('texts.surcharge'));
+            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"], null, null, null, null, null, null, ctrans('texts.surcharge'));
         }
 
         if ($this->document->custom_surcharge4 > 0) {
             $surcharge = $this->document->uses_inclusive_taxes ? ($this->document->custom_surcharge4 / (1 + ($item["tax_rate"] / 100))) : $this->document->custom_surcharge4;
-            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"],null,null,null,null,null,null, ctrans('texts.surcharge'));
+            $this->xdocument->addDocumentAllowanceCharge($surcharge, true, $tax_code, "VAT", $item["tax_rate"], null, null, null, null, null, null, ctrans('texts.surcharge'));
         }
 
         return $this;
     }
+
+    /**
+     * setAdditionalReferencedDocument
+     *
+     * circular reference causing the file to never be created.
+     * PDF => xml => PDF => xml
+     *
+     * Need to abstract the insertion of the base64 document into the XML.
+     *
+     * @return self
+     */
+    // private function setAdditionalReferencedDocument(): self
+    // {
+    //     if($this->document->client->getSetting('merge_e_invoice_to_pdf')) {
+    //         return $this;
+    //     }
+
+    //     $invitation = $this->document->invitations()->first();
+    //     $pdf = (new \App\Jobs\Entity\CreateRawPdf($invitation))->handle();
+    //     $file_name = $this->document->numberFormatter().'.pdf';
+
+    //     $this->temp_file_path = \App\Utils\TempFile::filePath($pdf, $file_name);
+
+    //     $this->xdocument->addDocumentInvoiceSupportingDocumentWithFile(
+    //         $this->document->number,
+    //         $this->temp_file_path,
+    //         $file_name,
+    //     );
+
+    //     return $this;
+    // }
 
     /**
      * setDocumentTaxes
@@ -147,14 +182,14 @@ class ZugferdEDocument extends AbstractService
      */
     private function setDocumentTaxes(): self
     {
-        
+
         if ((string) $this->document->total_taxes == '0') {
 
             $base_amount = 0;
             $tax_amount = 0;
             $tax_rate = 0;
 
-            if (in_array($this->tax_code,[ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE, ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX])) { //reverse charge
+            if (in_array($this->tax_code, [ZugferdDutyTaxFeeCategories::VAT_REVERSE_CHARGE, ZugferdDutyTaxFeeCategories::EXEMPT_FROM_TAX])) { //reverse charge
                 $base_amount = $this->document->amount;
             }
 
@@ -177,7 +212,13 @@ class ZugferdEDocument extends AbstractService
                     $this->tax_code,
                     "VAT",
                     0,
-                    null,null,null,null,null,null, ctrans('texts.discount')
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    ctrans('texts.discount')
                 );
             }
 
@@ -218,7 +259,13 @@ class ZugferdEDocument extends AbstractService
                     $this->getTaxType($item["tax_id"] ?? '2'),
                     "VAT",
                     $item["tax_rate"],
-                    null,null,null,null,null,null,ctrans('texts.discount')
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    ctrans('texts.discount')
                 );
             }
 
@@ -249,7 +296,14 @@ class ZugferdEDocument extends AbstractService
 
     public function getXml(): string
     {
-        return $this->xdocument->getContent();
+        $xml = $this->xdocument->getContent();
+
+        //used if we are embedding the document within the PDF
+        if ($this->temp_file_path) {
+            unlink($this->temp_file_path);
+        }
+
+        return $xml;
     }
 
     private function bootFlags(): self
@@ -455,6 +509,10 @@ class ZugferdEDocument extends AbstractService
             );
         }
 
+        if (isset($this->document->e_invoice->Invoice->Delivery[0]->ActualDeliveryDate)) {
+            $this->xdocument->setDocumentSupplyChainEvent(new \DateTime($this->document->e_invoice->Invoice->Delivery[0]->ActualDeliveryDate));
+        }
+
         return $this;
     }
 
@@ -517,6 +575,23 @@ class ZugferdEDocument extends AbstractService
         return $this;
     }
 
+    private function setIdNumber(): self
+    {
+        $id_number = $this->company->getSetting('id_number');
+        
+        if (!empty($id_number) && str_contains($id_number, "/")) {
+            $id_number = trim($id_number);
+            
+            // BT-29: Seller identifier
+            $this->xdocument->addDocumentSellerGlobalId($id_number, "0088");
+            
+            // BT-32: Tax registration identifier
+            $this->xdocument->addDocumentSellerTaxRegistration("FC", $id_number);
+        }
+
+        return $this;
+    }
+
     //////////////////Getters//////////////////
     private function getDocumentNumber(): string
     {
@@ -546,6 +621,21 @@ class ZugferdEDocument extends AbstractService
     private function getDocumentLevelTaxRegistration(): string
     {
         return strlen($this->client->vat_number ?? '') > 1 ? "VA" : "FC";
+    }
+
+
+    private function getIdNumber(): ?string
+    {
+        return !empty($this->company->getSetting('id_number')) 
+            ? trim($this->company->getSetting('id_number')) 
+            : null;
+    }
+
+    private function getIdNumberRegistrationType(): ?string
+    {
+        return !empty($this->getIdNumber()) && str_contains($this->getIdNumber(), "/") 
+            ? "FC" 
+            : null;
     }
 
     private function getTaxType(string $tax_id): string

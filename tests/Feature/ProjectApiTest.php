@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -26,7 +27,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\ProjectController
  */
 class ProjectApiTest extends TestCase
@@ -34,9 +35,6 @@ class ProjectApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,9 +42,6 @@ class ProjectApiTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
     }
 
@@ -97,7 +92,7 @@ class ProjectApiTest extends TestCase
 
     public function testBulkProjectInvoiceValidation()
     {
-        
+
         $p1 = Project::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -133,7 +128,7 @@ class ProjectApiTest extends TestCase
 
     public function testBulkProjectInvoiceValidationPasses()
     {
-        
+
         $p1 = Project::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,

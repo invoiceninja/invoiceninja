@@ -20,20 +20,20 @@ class ImportEncodingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->controller = new ImportController();
-        
+
         // Use reflection to access private methods
         $reflection = new ReflectionClass($this->controller);
         $this->readFileMethod = $reflection->getMethod('readFileWithProperEncoding');
         $this->readFileMethod->setAccessible(true);
-        
+
         $this->containsWindows1252Method = $reflection->getMethod('containsWindows1252Bytes');
         $this->containsWindows1252Method->setAccessible(true);
-        
+
         $this->fixCorruptedMethod = $reflection->getMethod('fixCorruptedWindows1252');
         $this->fixCorruptedMethod->setAccessible(true);
-        
+
         $this->isValidConversionMethod = $reflection->getMethod('isValidConversion');
         $this->isValidConversionMethod->setAccessible(true);
     }
@@ -109,7 +109,7 @@ class ImportEncodingTest extends TestCase
     private function createTestFile(string $content, string $encoding): string
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'encoding_test_');
-        
+
         if ($encoding === 'UTF-8-BOM') {
             $content = "\xEF\xBB\xBF" . $content;
             file_put_contents($tempFile, $content);
@@ -124,7 +124,7 @@ class ImportEncodingTest extends TestCase
             $encoded = mb_convert_encoding($content, $encoding, 'UTF-8');
             file_put_contents($tempFile, $encoded);
         }
-        
+
         return $tempFile;
     }
 
@@ -135,15 +135,15 @@ class ImportEncodingTest extends TestCase
     {
         foreach ($this->getTestData() as $name => $content) {
             $tempFile = $this->createTestFile($content, 'UTF-8');
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             $this->assertEquals($content, $result, "Clean UTF-8 test failed for: {$name}");
             $this->assertTrue(
                 $this->isValidConversionMethod->invoke($this->controller, $result),
                 "Validation failed for clean UTF-8: {$name}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -155,16 +155,16 @@ class ImportEncodingTest extends TestCase
     {
         foreach ($this->getTestData() as $name => $content) {
             $tempFile = $this->createTestFile($content, 'UTF-8-BOM');
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             // Should remove BOM and return clean content
             $this->assertEquals($content, $result, "UTF-8 BOM test failed for: {$name}");
             $this->assertTrue(
                 $this->isValidConversionMethod->invoke($this->controller, $result),
                 "Validation failed for UTF-8 BOM: {$name}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -177,15 +177,15 @@ class ImportEncodingTest extends TestCase
         // Test with complex Unicode characters for Windows-1252
         foreach ($this->getComplexTestData() as $name => $content) {
             $tempFile = $this->createTestFile($content, 'WINDOWS-1252');
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             $this->assertEquals($content, $result, "Windows-1252 test failed for: {$name}");
             $this->assertTrue(
                 $this->isValidConversionMethod->invoke($this->controller, $result),
                 "Validation failed for Windows-1252: {$name}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -197,15 +197,15 @@ class ImportEncodingTest extends TestCase
     {
         foreach ($this->getComplexTestData() as $name => $content) {
             $tempFile = $this->createTestFile($content, 'UTF-8');
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             $this->assertEquals($content, $result, "Complex UTF-8 test failed for: {$name}");
             $this->assertTrue(
                 $this->isValidConversionMethod->invoke($this->controller, $result),
                 "Validation failed for complex UTF-8: {$name}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -220,18 +220,18 @@ class ImportEncodingTest extends TestCase
             'basic' => "Company's text",
             'accents' => "Café résumé naïve façade",
         ];
-        
+
         foreach ($testData as $name => $content) {
             $tempFile = $this->createTestFile($content, 'ISO-8859-1');
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             $this->assertEquals($content, $result, "ISO-8859-1 test failed for: {$name}");
             $this->assertTrue(
                 $this->isValidConversionMethod->invoke($this->controller, $result),
                 "Validation failed for ISO-8859-1: {$name}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -243,9 +243,9 @@ class ImportEncodingTest extends TestCase
     {
         foreach ($this->getTestData() as $name => $content) {
             $tempFile = $this->createTestFile($content, 'UTF-8-CORRUPTED');
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             // Expected result should have smart quotes instead of straight apostrophes
             $expectedContent = str_replace("'", "\u{2019}", $content);
             $this->assertEquals($expectedContent, $result, "Corrupted UTF-8 test failed for: {$name}");
@@ -253,7 +253,7 @@ class ImportEncodingTest extends TestCase
                 $this->isValidConversionMethod->invoke($this->controller, $result),
                 "Validation failed for corrupted UTF-8: {$name}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -264,25 +264,25 @@ class ImportEncodingTest extends TestCase
     public function testAllWindows1252SpecialCharacters()
     {
         $specialChars = $this->getWindows1252SpecialChars();
-        
+
         foreach ($specialChars as $byte => $expectedChar) {
             // Create content with the specific byte
             $content = "Test " . chr($byte) . " character";
             $tempFile = tempnam(sys_get_temp_dir(), 'char_test_');
-            
+
             // Write raw bytes including the Windows-1252 character
             $rawContent = "Test " . chr($byte) . " character";
             file_put_contents($tempFile, $rawContent);
-            
+
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             $expectedResult = "Test {$expectedChar} character";
             $this->assertEquals(
-                $expectedResult, 
-                $result, 
+                $expectedResult,
+                $result,
                 "Windows-1252 character test failed for byte 0x" . dechex($byte) . " ({$expectedChar})"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -298,14 +298,14 @@ class ImportEncodingTest extends TestCase
             $this->containsWindows1252Method->invoke($this->controller, $dataWithWindows1252),
             "Should detect Windows-1252 bytes"
         );
-        
+
         // Test without Windows-1252 bytes
         $cleanData = "Test clean content";
         $this->assertFalse(
             $this->containsWindows1252Method->invoke($this->controller, $cleanData),
             "Should not detect Windows-1252 bytes in clean data"
         );
-        
+
         // Test with UTF-8 replacement characters
         $corruptedData = "Test \xEF\xBF\xBD content";
         $this->assertFalse(
@@ -321,9 +321,9 @@ class ImportEncodingTest extends TestCase
     {
         $corruptedData = "Sya\xEF\xBF\xBDs In Le";
         $expectedResult = "Sya\u{2019}s In Le";
-        
+
         $result = $this->fixCorruptedMethod->invoke($this->controller, $corruptedData);
-        
+
         $this->assertEquals($expectedResult, $result, "Failed to fix corrupted Windows-1252 data");
     }
 
@@ -338,21 +338,21 @@ class ImportEncodingTest extends TestCase
             $this->isValidConversionMethod->invoke($this->controller, $validData),
             "Should validate clean UTF-8 content"
         );
-        
+
         // Invalid - contains replacement character bytes
         $invalidData1 = "Content with \xEF\xBF\xBD replacement";
         $this->assertFalse(
             $this->isValidConversionMethod->invoke($this->controller, $invalidData1),
             "Should reject content with UTF-8 replacement bytes"
         );
-        
+
         // Invalid - contains double-encoded replacement
         $invalidData2 = "Content with ï¿½ replacement";
         $this->assertFalse(
             $this->isValidConversionMethod->invoke($this->controller, $invalidData2),
             "Should reject content with double-encoded replacement"
         );
-        
+
         // Invalid UTF-8
         $invalidUtf8 = "Invalid \xFF UTF-8";
         $this->assertFalse(
@@ -373,9 +373,9 @@ class ImportEncodingTest extends TestCase
             'ISO-8859-15',
             'ASCII',
         ];
-        
+
         $testContent = "Company's «test» data—with symbols";
-        
+
         foreach ($encodings as $encoding) {
             if ($encoding === 'ASCII') {
                 // ASCII can't handle special characters, use simpler content
@@ -383,22 +383,22 @@ class ImportEncodingTest extends TestCase
             } else {
                 $content = $testContent;
             }
-            
+
             $tempFile = $this->createTestFile($content, $encoding);
             $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-            
+
             // Result should always be valid UTF-8
             $this->assertTrue(
                 mb_check_encoding($result, 'UTF-8'),
                 "Result should be valid UTF-8 for encoding: {$encoding}"
             );
-            
+
             // Should not contain replacement characters
             $this->assertFalse(
                 str_contains($result, '�'),
                 "Result should not contain replacement characters for encoding: {$encoding}"
             );
-            
+
             unlink($tempFile);
         }
     }
@@ -410,16 +410,16 @@ class ImportEncodingTest extends TestCase
     {
         // Test that normal CSV content still works
         $csvContent = "Name,Amount,Date\n\"John's Company\",100.50,2024-01-01\n\"Mary's Store\",250.75,2024-01-02";
-        
+
         $tempFile = $this->createTestFile($csvContent, 'UTF-8');
         $result = $this->readFileMethod->invoke($this->controller, $tempFile);
-        
+
         $this->assertEquals($csvContent, $result, "Backward compatibility test failed for CSV content");
-        
+
         // Test that it contains expected structure
         $this->assertStringContainsString("John's Company", $result, "CSV should contain original apostrophes");
         $this->assertStringContainsString("Mary's Store", $result, "CSV should contain original apostrophes");
-        
+
         unlink($tempFile);
     }
 
@@ -431,26 +431,26 @@ class ImportEncodingTest extends TestCase
         // Empty file
         $tempFile = tempnam(sys_get_temp_dir(), 'empty_test_');
         file_put_contents($tempFile, '');
-        
+
         $result = $this->readFileMethod->invoke($this->controller, $tempFile);
         $this->assertEquals('', $result, "Empty file should return empty string");
-        
+
         unlink($tempFile);
-        
+
         // Non-existent file
         $result = $this->readFileMethod->invoke($this->controller, '/non/existent/file.csv');
         $this->assertEquals('', $result, "Non-existent file should return empty string");
-        
+
         // Very large content with mixed characters
         $largeContent = str_repeat("Test's data with special chars—", 1000);
         $tempFile = $this->createTestFile($largeContent, 'WINDOWS-1252');
-        
+
         $result = $this->readFileMethod->invoke($this->controller, $tempFile);
         $this->assertTrue(
             $this->isValidConversionMethod->invoke($this->controller, $result),
             "Large file conversion should be valid"
         );
-        
+
         unlink($tempFile);
     }
 
@@ -461,20 +461,20 @@ class ImportEncodingTest extends TestCase
     {
         $content = str_repeat("Company's data with special characters test\n", 10000);
         $tempFile = $this->createTestFile($content, 'WINDOWS-1252');
-        
+
         $startTime = microtime(true);
         $result = $this->readFileMethod->invoke($this->controller, $tempFile);
         $endTime = microtime(true);
-        
+
         $processingTime = $endTime - $startTime;
-        
+
         // Should process reasonably fast (less than 1 second for 10k lines)
         $this->assertLessThan(1.0, $processingTime, "Processing should be reasonably fast");
         $this->assertTrue(
             $this->isValidConversionMethod->invoke($this->controller, $result),
             "Performance test result should be valid"
         );
-        
+
         unlink($tempFile);
     }
-} 
+}

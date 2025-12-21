@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,7 +28,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Services\Invoice\HandleReversal
  */
 class ReverseInvoiceTest extends TestCase
@@ -43,9 +44,6 @@ class ReverseInvoiceTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();

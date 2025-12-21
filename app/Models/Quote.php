@@ -83,6 +83,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $custom_surcharge_tax2
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
+ * @property int|null $location_id
  * @property float $exchange_rate
  * @property float $amount
  * @property float $balance
@@ -96,6 +97,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $reminder2_sent
  * @property string|null $reminder3_sent
  * @property string|null $reminder_last_sent
+ * @property int|null $location_id
+ * @property object|null $tax_data
+ * @property object|null $e_invoice
  * @property float $paid_to_date
  * @property object|null $tax_data
  * @property int|null $subscription_id
@@ -138,7 +142,7 @@ class Quote extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'quotes_v2';
+        return 'quotes';
     }
 
     protected $presenter = QuotePresenter::class;

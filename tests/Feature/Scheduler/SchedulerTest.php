@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -34,7 +35,7 @@ use App\Http\Requests\TaskScheduler\PaymentScheduleRequest;
 use App\Utils\Traits\MakesDates;
 
 /**
- * 
+ *
  *   App\Services\Scheduler\SchedulerService
  */
 class SchedulerTest extends TestCase
@@ -43,17 +44,11 @@ class SchedulerTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
     use MakesDates;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
@@ -74,7 +69,7 @@ class SchedulerTest extends TestCase
         $this->company->save();
 
         \App\Models\Credit::where('client_id', $this->client->id)->delete();
-        
+
         $invoice = Invoice::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -126,7 +121,7 @@ class SchedulerTest extends TestCase
         $scheduler = Scheduler::find($this->decodePrimaryKey($arr['data']['id']));
 
         $this->assertNotNull($scheduler);
-   
+
         $scheduler->service()->runTask();
 
         $invoice = $invoice->fresh();
@@ -160,7 +155,7 @@ class SchedulerTest extends TestCase
         $this->company->save();
 
         \App\Models\Credit::where('client_id', $this->client->id)->delete();
-        
+
         $invoice = Invoice::factory()->create([
             'company_id' => $this->company->id,
             'user_id' => $this->user->id,
@@ -212,7 +207,7 @@ class SchedulerTest extends TestCase
         $scheduler = Scheduler::find($this->decodePrimaryKey($arr['data']['id']));
 
         $this->assertNotNull($scheduler);
-   
+
         $scheduler->service()->runTask();
 
         $invoice = $invoice->fresh();
@@ -296,7 +291,7 @@ class SchedulerTest extends TestCase
         $scheduler = Scheduler::find($this->decodePrimaryKey($arr['data']['id']));
 
         $this->assertNotNull($scheduler);
-   
+
         $scheduler->service()->runTask();
 
         $invoice = $invoice->fresh();
@@ -368,7 +363,7 @@ class SchedulerTest extends TestCase
         $scheduler = Scheduler::find($this->decodePrimaryKey($arr['data']['id']));
 
         $this->assertNotNull($scheduler);
-   
+
         $scheduler->service()->runTask();
 
         $invoice = $invoice->fresh();
@@ -390,7 +385,7 @@ class SchedulerTest extends TestCase
         ]);
 
         $invoice->service()->markSent()->save();
-        
+
         $data = [
            'name' => 'A test payment schedule scheduler',
            'frequency_id' => 0,
@@ -416,29 +411,21 @@ class SchedulerTest extends TestCase
            ],
        ];
 
-        
-        
-
-
-$response = $this->withHeaders([
-    'X-API-SECRET' => config('ninja.api_secret'),
-    'X-API-TOKEN' => $this->token,
-])->postJson('/api/v1/task_schedulers', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(200);
 
-
-
-$response = $this->withHeaders([
-    'X-API-SECRET' => config('ninja.api_secret'),
-    'X-API-TOKEN' => $this->token,
-])->postJson('/api/v1/task_schedulers', $data);
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/task_schedulers', $data);
 
         $response->assertStatus(422);
 
-
     }
-
 
     public function testPaymentScheduleWithPercentageBasedScheduleAndFailingValidation()
     {
@@ -453,7 +440,7 @@ $response = $this->withHeaders([
         ]);
 
         $invoice->service()->markSent()->save();
-        
+
         $data = [
             'schedule' => [
                 [
@@ -471,17 +458,16 @@ $response = $this->withHeaders([
             ],
             'auto_bill' => true,
         ];
-        
+
         $response = $this->withHeaders([
-                    'X-API-SECRET' => config('ninja.api_secret'),
-                    'X-API-TOKEN' => $this->token,
-                ])->postJson('/api/v1/invoices/'.$invoice->hashed_id.'/payment_schedule?show_schedule=true', $data);
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices/'.$invoice->hashed_id.'/payment_schedule?show_schedule=true', $data);
 
         $response->assertStatus(422);
 
     }
 
-    
     public function testPaymentScheduleWithPercentageBasedSchedule()
     {
         $invoice = Invoice::factory()->create([
@@ -495,7 +481,7 @@ $response = $this->withHeaders([
         ]);
 
         $invoice->service()->markSent()->save();
-        
+
         $data = [
             'schedule' => [
                 [
@@ -514,7 +500,7 @@ $response = $this->withHeaders([
             'auto_bill' => true,
             'next_run' => now()->addDay()->format('Y-m-d'),
         ];
-        
+
         $response = $this->withHeaders([
                     'X-API-SECRET' => config('ninja.api_secret'),
                     'X-API-TOKEN' => $this->token,
@@ -523,7 +509,7 @@ $response = $this->withHeaders([
         $response->assertStatus(200);
 
         $arr = $response->json();
-    
+
         $this->assertEquals(2, count($arr['data']['schedule']));
         $this->assertEquals(now()->format($this->company->date_format()), $arr['data']['schedule'][0]['date']);
         $this->assertEquals(now()->addDays(30)->format($this->company->date_format()), $arr['data']['schedule'][1]['date']);
@@ -543,7 +529,7 @@ $response = $this->withHeaders([
         ]);
 
         $invoice->service()->markSent()->save();
-        
+
         $data = [
             'schedule' => [
                 [
@@ -562,7 +548,7 @@ $response = $this->withHeaders([
             'auto_bill' => true,
             'next_run' => now()->addDay()->format('Y-m-d'),
         ];
-        
+
         $response = $this->withHeaders([
                     'X-API-SECRET' => config('ninja.api_secret'),
                     'X-API-TOKEN' => $this->token,
@@ -571,7 +557,7 @@ $response = $this->withHeaders([
         $response->assertStatus(200);
 
         $arr = $response->json();
-        
+
         $this->assertEquals(2, count($arr['data']['schedule']));
         $this->assertEquals(now()->format($this->company->date_format()), $arr['data']['schedule'][0]['date']);
         $this->assertEquals(now()->addDays(30)->format($this->company->date_format()), $arr['data']['schedule'][1]['date']);
@@ -590,15 +576,15 @@ $response = $this->withHeaders([
         ]);
 
         $invoice->service()->markSent()->save();
-        
-        
+
+
         $data = [
             'frequency_id' => 5, // Monthly
             'remaining_cycles' => 3,
             'auto_bill' => false,
             'next_run' => now()->addDays(30)->format('Y-m-d'),
         ];
-        
+
         $response = $this->withHeaders([
                 'X-API-SECRET' => config('ninja.api_secret'),
                 'X-API-TOKEN' => $this->token,
@@ -615,8 +601,6 @@ $response = $this->withHeaders([
         $this->assertEquals($date->addMonthNoOverflow()->format($this->company->date_format()), $arr['data']['schedule'][1]['date']);
         $this->assertEquals($date->addMonthNoOverflow()->format($this->company->date_format()), $arr['data']['schedule'][2]['date']);
     }
-
-  
 
     public function testPaymentSchedule()
     {
@@ -640,14 +624,14 @@ $response = $this->withHeaders([
 
         $offset = -3600;
 
-        $next_schedule = collect($data)->first(function ($item) use ($offset){
+        $next_schedule = collect($data)->first(function ($item) use ($offset) {
             return now()->startOfDay()->eq(Carbon::parse($item['date'])->subSeconds($offset)->startOfDay());
         });
 
         $this->assertNotNull($next_schedule);
 
         $this->assertEquals(Carbon::parse($next_schedule['date'])->format($this->company->date_format()), now()->format($this->company->date_format()));
-        
+
         $this->travelTo(now()->addDays(1));
 
         $next_schedule = collect($data)->first(function ($item) use ($offset) {
@@ -657,7 +641,7 @@ $response = $this->withHeaders([
         $this->assertNotNull($next_schedule);
 
         $this->assertEquals(Carbon::parse($next_schedule['date'])->format($this->company->date_format()), now()->format($this->company->date_format()));
-        
+
     }
 
     public function testInvoiceOutstandingTasks()
@@ -781,7 +765,7 @@ $response = $this->withHeaders([
                 'report_keys' => [],
                 'client_id' => $this->client->hashed_id,
                 'report_name' => 'product_sales',
-
+                'user_id' => $this->user->id,
             ],
         ];
 
@@ -825,6 +809,7 @@ $response = $this->withHeaders([
                 'report_keys' => [],
                 'client_id' => null,
                 'report_name' => 'product_sales',
+                'user_id' => $this->user->id,
             ],
         ];
 
@@ -867,6 +852,7 @@ $response = $this->withHeaders([
                 'report_keys' => [],
                 'client_id' => null,
                 'report_name' => 'product_sales',
+                'user_id' => $this->user->id,
             ],
         ];
 
@@ -904,6 +890,7 @@ $response = $this->withHeaders([
                 'date_range' => EmailStatement::LAST_MONTH,
                 'clients' => [],
                 'report_name' => 'product_sales',
+                'user_id' => $this->user->id,
             ],
         ];
 
@@ -964,6 +951,7 @@ $response = $this->withHeaders([
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
+                'user_id' => $this->user->id,
                 'date_range' => EmailStatement::CUSTOM_RANGE,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
@@ -990,6 +978,7 @@ $response = $this->withHeaders([
             'next_run' => now()->format('Y-m-d'),
             'template' => 'client_statement',
             'parameters' => [
+                'user_id' => $this->user->id,
                 'date_range' => EmailStatement::CUSTOM_RANGE,
                 'show_payments_table' => true,
                 'show_aging_table' => true,
@@ -1020,7 +1009,8 @@ $response = $this->withHeaders([
                 'status' => 'paid',
                 'clients' => [],
                 'start_date' => now()->format('Y-m-d'),
-                'end_date' => null
+                'end_date' => null,
+                'user_id' => $this->user->id,
             ],
         ];
 
@@ -1043,7 +1033,8 @@ $response = $this->withHeaders([
                 'status' => 'paid',
                 'clients' => [],
                 'start_date' => null,
-                'end_date' => now()->format('Y-m-d')
+                'end_date' => now()->format('Y-m-d'),
+                'user_id' => $this->user->id,
             ],
         ];
 
@@ -1068,7 +1059,8 @@ $response = $this->withHeaders([
                 'status' => 'paid',
                 'clients' => [],
                 'start_date' => '',
-                'end_date' => ''
+                'end_date' => '',
+                'user_id' => $this->user->id,
             ],
         ];
 

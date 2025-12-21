@@ -5,10 +5,28 @@
       summary: "List purchase orders"
       description: "Lists purchase orders, search and filters allow fine grained lists to be generated.\n     *\n     *      Query parameters can be added to performed more fine grained filtering of the purchase orders, these are handled by the PurchaseOrderFilters class which defines the methods available"
       operationId: getPurchaseOrders
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $purchaseOrders = $ninja->purchaseOrders->all([
+              'per_page' => 10,
+              'page' => 1
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X GET https://demo.invoiceninja.com/api/v1/purchase_orders \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "X-Requested-With: XMLHttpRequest"
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+        - $ref: "#/components/parameters/index"
+        - $ref: "#/components/parameters/per_page_meta"
+        - $ref: "#/components/parameters/page_meta"
       responses:
         200:
           description: "A list of purchase orders"
@@ -47,12 +65,70 @@
       tags:
         - Purchase Orders
       summary: "Create purchase order"
-      description: "Adds an purchase order to the system"
+      description: "Adds a purchase order to the system"
       operationId: storePurchaseOrder
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
         - $ref: "#/components/parameters/X-Requested-With"
         - $ref: "#/components/parameters/include"
+      requestBody:
+        description: Purchase order object that needs to be added to the company
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          
+          $purchaseOrder = $ninja->purchase_orders->create([
+              'vendor_id' => 'D2J234DFA',
+              'date' => '2024-01-01',
+              'due_date' => '2024-01-31',
+              'private_notes' => 'Internal notes about this purchase order',
+              'public_notes' => 'Please deliver to our warehouse',
+              'line_items' => [
+                  [
+                      'quantity' => 10,
+                      'cost' => 25.00,
+                      'product_key' => 'PROD_001',
+                      'notes' => 'Office supplies',
+                      'discount' => 0,
+                      'is_amount_discount' => true,
+                      'tax_name1' => 'Sales Tax',
+                      'tax_rate1' => 8.5
+                  ]
+              ]
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X POST https://demo.invoiceninja.com/api/v1/purchase_orders \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "vendor_id": "D2J234DFA",
+              "date": "2024-01-01",
+              "due_date": "2024-01-31",
+              "private_notes": "Internal notes about this purchase order",
+              "public_notes": "Please deliver to our warehouse",
+              "line_items": [
+                {
+                  "quantity": 10,
+                  "cost": 25.00,
+                  "product_key": "PROD_001",
+                  "notes": "Office supplies",
+                  "discount": 0,
+                  "is_amount_discount": true,
+                  "tax_name1": "Sales Tax",
+                  "tax_rate1": 8.5
+                }
+              ]
+            }'
       responses:
         200:
           description: "Returns the saved purchase order object"
@@ -130,7 +206,7 @@
       tags:
         - Purchase Orders
       summary: "Update purchase order"
-      description: "Handles the updating of an purchase order by id"
+      description: "Handles the updating of a purchase order by id"
       operationId: updatePurchaseOrder
       parameters:
         - $ref: "#/components/parameters/X-API-TOKEN"
@@ -144,6 +220,37 @@
             type: string
             format: string
           example: D2J234DFA
+      requestBody:
+        description: Purchase order object that needs to be updated
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseOrderRequest'
+      x-codeSamples:
+      - lang: php
+        label: php
+        source: |
+          $ninja = new InvoiceNinja("YOUR-TOKEN");
+          $purchaseOrder = $ninja->purchase_orders->update("D2J234DFA", [
+              'date' => '2024-02-01',
+              'due_date' => '2024-02-28',
+              'private_notes' => 'Updated internal notes',
+              'public_notes' => 'Updated delivery instructions'
+          ]);
+      - lang: curl
+        label: curl
+        source: |
+          curl -X PUT https://demo.invoiceninja.com/api/v1/purchase_order/D2J234DFA \
+            -H "X-API-TOKEN: YOUR-TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Requested-With: XMLHttpRequest" \
+            -d '{
+              "date": "2024-02-01",
+              "due_date": "2024-02-28",
+              "private_notes": "Updated internal notes",
+              "public_notes": "Updated delivery instructions"
+            }'
       responses:
         200:
           description: "Returns the purchase order object"

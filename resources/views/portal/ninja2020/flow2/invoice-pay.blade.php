@@ -1,6 +1,6 @@
 <div class="grid grid-cols-1 md:grid-cols-2">
     <div class="p-2">
-        @livewire('flow2.invoice-summary')
+        @livewire('flow2.invoice-summary', ['_key' => $_key])
     </div>
 
     <div class="p-2">
@@ -18,6 +18,6 @@
             session()->forget('errors');
         @endphp
 
-        @livewire($this->component, [], key($this->componentUniqueId()))
+        @livewire($this->component, ['_key' => $_key], key($this->componentUniqueId()))
     </div>
 </div>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,20 +23,54 @@ class GroupSettingTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+
+    public function testPdfVariablesUnset()
+    {
+        $settings = new \stdClass();
+        $settings->pdf_variables = 'xx';
+
+        $data = [
+            'name' => 'testX',
+            'settings' => $settings,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/group_settings', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertArrayNotHasKey('pdf_variables', $arr['data']['settings']);
+
+        $data = [
+            'name' => 'testX',
+            'settings' => $settings,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/group_settings/'.$arr['data']['id'], $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertArrayNotHasKey('pdf_variables', $arr['data']['settings']);
+
     }
 
     public function testCastingMagic()

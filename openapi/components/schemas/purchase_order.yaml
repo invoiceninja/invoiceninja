@@ -212,5 +212,65 @@
           description: 'Boolean flag indicating if taxes are charged on the fourth custom surcharge amount'
           type: boolean
           example: true
+        backup:
+          description: 'Backup data or file reference for this purchase order'
+          type: string
+          example: 'backup_data.json'
+        client_id:
+          description: 'The unique identifier of the client associated with this purchase order'
+          type: string
+          example: Opnel5aKBz
+        currency_id:
+          description: 'The unique identifier of the currency'
+          type: string
+          example: '1'
+        design_id:
+          description: 'The unique identifier of the design template used for this purchase order'
+          type: string
+          example: Opnel5aKBz
+        exchange_rate:
+          description: 'The exchange rate used for currency conversion'
+          type: number
+          format: float
+          example: 1.0
+        invoice_id:
+          description: 'The unique identifier of the related invoice'
+          type: string
+          example: Opnel5aKBz
+        location_id:
+          description: 'The unique identifier of the location'
+          type: string
+          example: Opnel5aKBz
+        po_number:
+          description: 'The purchase order number'
+          type: string
+          example: 'PO-2024-001'
+        project_id:
+          description: 'The unique identifier of the project associated with this purchase order'
+          type: string
+          example: Opnel5aKBz
+        recurring_id:
+          description: 'The unique identifier of the recurring schedule'
+          type: string
+          example: Opnel5aKBz
+        reminder1_sent:
+          description: 'Timestamp when the first reminder was sent'
+          type: number
+          format: integer
+          example: 1234567890
+        reminder2_sent:
+          description: 'Timestamp when the second reminder was sent'
+          type: number
+          format: integer
+          example: 1234567890
+        reminder3_sent:
+          description: 'Timestamp when the third reminder was sent'
+          type: number
+          format: integer
+          example: 1234567890
+        reminder_last_sent:
+          description: 'Timestamp when the last reminder was sent'
+          type: number
+          format: integer
+          example: 1234567890
       type: object
-

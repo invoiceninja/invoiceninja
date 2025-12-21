@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -31,7 +32,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\UserController
  */
 class UserTest extends TestCase
@@ -39,15 +40,9 @@ class UserTest extends TestCase
     use MockAccountData;
 
     private $default_email = 'attach@gmail.com';
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->withoutMiddleware(
             ThrottleRequests::class,
             PasswordProtection::class
@@ -81,7 +76,7 @@ class UserTest extends TestCase
         $user->save();
 
         auth()->login($user, false);
-        
+
         $settings = CompanySettings::defaults();
         $settings->client_online_payment_notification = false;
         $settings->client_manual_payment_notification = false;
@@ -136,7 +131,7 @@ class UserTest extends TestCase
     {
         $company_token = $this->mockAccount();
         $user = auth()->user();
-        
+
         // $user = $company_token->user;
         // $user->load('company_user');
         // nlog($company_token->toArray());
@@ -145,7 +140,8 @@ class UserTest extends TestCase
         // nlog($user->toArray());
 
         $data = $user->toArray();
-        
+
+        nlog($data);
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
@@ -172,13 +168,13 @@ class UserTest extends TestCase
 
     public function testNullEmail()
     {
-        
+
         $company_token = $this->mockAccount();
         // $user = $company_token->user;
         // $user->load('company_user');
 
         $user = auth()->user();
-       
+
         $data = $user->toArray();
         $data['email'] = '';
         unset($data['password']);
@@ -222,7 +218,7 @@ class UserTest extends TestCase
 
     public function testUserLocale()
     {
-        
+
         $company_token = $this->mockAccount();
 
         $user = auth()->user();
@@ -249,7 +245,7 @@ class UserTest extends TestCase
 
         $_user = MultiDB::hasUser(['email' => 'normal_user@gmail.com']);
 
-        if($_user) {
+        if ($_user) {
             $_user->account->delete();
         }
 
@@ -437,7 +433,7 @@ class UserTest extends TestCase
     public function testUserFiltersWith()
     {
         $company_token = $this->mockAccount();
-        
+
         $response = $this->withHeaders([
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $company_token->token,
@@ -450,7 +446,7 @@ class UserTest extends TestCase
     public function testUserList()
     {
 
-        
+
         $company_token = $this->mockAccount();
 
         $response = $this->withHeaders([
@@ -466,7 +462,7 @@ class UserTest extends TestCase
     {
         $this->withoutMiddleware(PasswordProtection::class);
         $company_token = $this->mockAccount();
-        
+
         $_user = MultiDB::hasUser(['email' => 'bob1@good.ole.boys.com']);
 
         if ($_user) {
@@ -500,7 +496,7 @@ class UserTest extends TestCase
 
         $_user = MultiDB::hasUser(['email' => 'bob1@good.ole.boys.com']);
 
-        if($_user) {
+        if ($_user) {
             $_user->account->delete();
         }
 
@@ -558,11 +554,11 @@ class UserTest extends TestCase
 
         $_user = MultiDB::hasUser(['email' => 'bob1@good.ole.boys.com']);
 
-        if($_user) {
+        if ($_user) {
             $_user->account->delete();
         }
 
-        $company_token = $this->mockAccount();  
+        $company_token = $this->mockAccount();
         $data = [
             'first_name' => 'hey',
             'last_name' => 'you',
@@ -641,14 +637,14 @@ class UserTest extends TestCase
         $this->withoutMiddleware(PasswordProtection::class);
 
         $company_token = $this->mockAccount();
-        
+
         $_user = MultiDB::hasUser(['email' => $this->default_email]);
 
         if ($_user) {
             $_user->account->delete();
         }
 
-    
+
         $_user = MultiDB::hasUser(['email' => 'bob@good.ole.boys.co2.com']);
 
         if ($_user) {
@@ -671,15 +667,15 @@ class UserTest extends TestCase
         $company_token->save();
 
         /*Manually link this user to the company*/
-       auth()->user()->companies()->attach($company2->id, [
-            'account_id' => $company_token->account_id,
-            'is_owner' => 1,
-            'is_admin' => 1,
-            'is_locked' => 0,
-            'permissions' => '',
-            'notifications' => \App\DataMapper\CompanySettings::notificationAdminDefaults(),
-            'settings' => null,
-        ]);
+        auth()->user()->companies()->attach($company2->id, [
+             'account_id' => $company_token->account_id,
+             'is_owner' => 1,
+             'is_admin' => 1,
+             'is_locked' => 0,
+             'permissions' => '',
+             'notifications' => \App\DataMapper\CompanySettings::notificationAdminDefaults(),
+             'settings' => null,
+         ]);
 
         /*Create New Blank User and Attach to Company 2*/
         $data = [

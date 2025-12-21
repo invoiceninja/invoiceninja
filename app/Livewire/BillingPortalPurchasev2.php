@@ -76,6 +76,8 @@ class BillingPortalPurchasev2 extends Component
      */
     public $data = [];
 
+    public $price;
+    
     /**
      * List of payment methods fetched from client.
      *

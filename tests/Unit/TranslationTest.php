@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class TranslationTest extends TestCase
 {

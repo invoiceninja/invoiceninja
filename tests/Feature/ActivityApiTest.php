@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -17,12 +18,10 @@ use Illuminate\Validation\ValidationException;
 use Tests\MockAccountData;
 use Tests\TestCase;
 
-
 class ActivityApiTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
-
     protected function setUp(): void
     {
         parent::setUp();

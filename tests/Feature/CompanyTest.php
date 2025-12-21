@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -27,7 +28,7 @@ use App\Http\Middleware\PasswordProtection;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\CompanyController
  */
 class CompanyTest extends TestCase
@@ -35,18 +36,22 @@ class CompanyTest extends TestCase
     use MakesHash;
     use MockAccountData;
     // use DatabaseTransactions;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
     }
 
+    public function testCompanyWebsite()
+    {
+        $settings = $this->company->settings;
+        $settings->website = 'http://google.com';
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->assertEquals('https://google.com', $this->company->present()->website());
+        $this->assertNotFalse(filter_var(str_replace(["https://","http://"], "", $this->company->present()->website()), FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME));
+    }
 
     public function testCompanyExpenseMailbox()
     {

@@ -226,7 +226,7 @@ class PdfConfiguration
             $this->entity_design_id = 'purchase_order_design_id';
             $this->settings = $this->vendor->company->settings;
             $this->settings_object = $this->vendor;
-            $this->client = null;
+            $this->client = $this->entity->client ?? null;
             $this->country = $this->vendor->country ?? $this->vendor->company->country();
         } else {
             throw new \Exception('Unable to resolve entity', 500);
@@ -278,7 +278,7 @@ class PdfConfiguration
 
         $design_id = $this->entity->design_id ?: $this->decodePrimaryKey($this->settings_object->getSetting($this->entity_design_id));
 
-        $this->design = Design::withTrashed()->find($design_id) ?? Design::withTrashed()->find(2);
+        $this->design = Design::withTrashed()->find($design_id) ?? Design::find(2);
 
         return $this;
     }

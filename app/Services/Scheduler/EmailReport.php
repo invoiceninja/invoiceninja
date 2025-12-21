@@ -111,9 +111,15 @@ class EmailReport
             return;
         }
 
-        $csv = base64_encode($export->run());
-        $files = [];
-        $files[] = ['file' => $csv, 'file_name' => "{$this->file_name}", 'mime' => 'text/csv'];
+        if (isset($data['template_id']) && !empty($data['template_id'])) {
+            $builder = $export->init();
+            $pdf = $export->exportTemplate($builder, $data['template_id']);
+            $files[] = ['file' => base64_encode($pdf), 'file_name' => "report.pdf", 'mime' => 'application/pdf'];
+        } else {
+            $csv = base64_encode($export->run());
+            $files = [];
+            $files[] = ['file' => $csv, 'file_name' => "{$this->file_name}", 'mime' => 'text/csv'];
+        }
 
         if (in_array(get_class($export), [ARDetailReport::class, ARSummaryReport::class])) {
             $pdf = base64_encode($export->getPdf());

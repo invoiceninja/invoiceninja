@@ -30,6 +30,7 @@ class PaymentMethod extends Component
 
     public $amount = 0;
 
+    public $_key;
     public function placeholder()
     {
         return <<<'HTML'
@@ -56,7 +57,7 @@ class PaymentMethod extends Component
 
     public function mount()
     {
-        $_context = $this->getContext();
+        $_context = $this->getContext($this->_key);
         $this->variables = $_context['variables'];
         $this->amount = array_sum(array_column($_context['payable_invoices'], 'amount'));
 

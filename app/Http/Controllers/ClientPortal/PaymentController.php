@@ -144,6 +144,7 @@ class PaymentController extends Controller
             $data = [
                 'invoice' => $invoice,
                 'key' => false,
+                '_key' => false,
                 'invitation' => $invitation,
                 'variables' => $variables,
             ];

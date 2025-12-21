@@ -47,7 +47,7 @@ class VendorMergeTest extends TestCase
 
         $this->faker = Factory::create();
 
-        if(Country::count() == 0){
+        if (Country::count() == 0) {
             Artisan::call('migrate:fresh', ['--seed' => true]);
         }
     }

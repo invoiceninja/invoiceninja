@@ -46,6 +46,11 @@ class UpdatedCreditActivity implements ShouldQueue
 
         $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->credit->user_id;
 
+
+        if($event->credit->invoice_id) {
+            $fields->invoice_id = $event->credit->invoice_id;
+        }
+        
         $fields->credit_id = $event->credit->id;
         $fields->client_id = $event->credit->client_id;
         $fields->user_id = $user_id;

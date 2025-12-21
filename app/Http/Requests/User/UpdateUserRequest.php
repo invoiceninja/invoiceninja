@@ -39,7 +39,7 @@ class UpdateUserRequest extends Request
             'password' => 'nullable|string|min:6',
         ];
 
-        $rules['email'] = ['email', 'bail', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
+        $rules['email'] = ['email:rfc', 'bail', 'sometimes', new UniqueUserRule($this->user, $input['email'])];
 
         if (Ninja::isHosted() && $this->phone_has_changed && $this->phone && isset($this->phone)) {
             $rules['phone'] = ['sometimes', 'bail', 'string', new HasValidPhoneNumber()];

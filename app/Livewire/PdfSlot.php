@@ -172,7 +172,7 @@ class PdfSlot extends Component
             'products' => $this->getProducts(),
             'services' => $this->getServices(),
             'amount' => Number::formatMoney($this->entity()->amount, $this->entity()->client ?: $this->entity()->vendor),
-            'balance' => Number::formatMoney($this->entity()->balance, $this->entity()->client ?: $this->entity()->vendor),
+            'balance' => Number::formatMoney($this->entity()->partial > 0 ? $this->entity()->partial : $this->entity()->balance, $this->entity()->client ?: $this->entity()->vendor),
             'discount' => $this->entity_calc->getTotalDiscount() > 0 ? Number::formatMoney($this->entity_calc->getTotalDiscount(), $this->entity()->client ?: $this->entity()->vendor) : false,
             'taxes' => $this->entity_calc->getTotalTaxes() > 0 ? Number::formatMoney($this->entity_calc->getTotalTaxes(), $this->entity()->client ?: $this->entity()->vendor) : false,
             'company_details' => $this->getCompanyDetails(),
@@ -200,7 +200,7 @@ class PdfSlot extends Component
 
         $company_address = "";
 
-        foreach ($this->settings->pdf_variables->company_address as $variable) {
+        foreach ($this->settings->pdf_variables?->company_address as $variable) {
             $company_address .= "<p>{$variable}</p>";
         }
 

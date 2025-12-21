@@ -59,7 +59,7 @@ class QuoteController extends Controller
 
         $data = [
             'quote' => $quote,
-            'key' => $invitation ? $invitation->key : false,
+            '_key' => $invitation ? $invitation->key : false,
             'invitation' => $invitation,
             'variables' => $variables,
         ];

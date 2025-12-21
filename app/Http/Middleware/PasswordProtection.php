@@ -60,7 +60,7 @@ class PasswordProtection
             Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
 
             return $next($request);
-        } elseif (strlen(auth()->user()->oauth_provider_id) > 2 && !auth()->user()->company()->oauth_password_required) {
+        } elseif (strlen(auth()->user()->oauth_provider_id ?? '') > 2 && !auth()->user()->company()->oauth_password_required) {
             return $next($request);
         } elseif ($request->header('X-API-OAUTH-PASSWORD') && strlen($request->header('X-API-OAUTH-PASSWORD')) > 1) {
             //user is attempting to reauth with OAuth - check the token value

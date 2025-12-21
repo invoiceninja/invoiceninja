@@ -55,6 +55,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $custom_value4
  * @property string|null $vendor_hash
  * @property string|null $public_notes
+ * @property string|null $classification
  * @property string|null $id_number
  * @property int|null $language_id
  * @property int|null $last_login
@@ -74,6 +75,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
  * @property-read int|null $primary_contact_count
  * @property-read \App\Models\User $user
+ * @property-read \App\Models\Language|null $language
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
  * @property-read int|null $locations_count
  * @method static \Illuminate\Database\Eloquent\Builder|BaseModel exclude($columns)
@@ -90,6 +92,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $contacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Document> $documents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendorContact> $primary_contact
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Location> $locations
  * @mixin \Eloquent
  */
 class Vendor extends BaseModel
@@ -108,7 +111,7 @@ class Vendor extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'vendors_v2';
+        return 'vendors';
     }
 
     protected $fillable = [

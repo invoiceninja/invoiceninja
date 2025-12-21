@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,6 @@ class ClientModelTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -37,7 +37,7 @@ class ClientModelTest extends TestCase
             $this->markTestSkipped('Skip test no company gateways installed');
         }
 
-        if(CompanyGateway::count() == 0) {
+        if (CompanyGateway::count() == 0) {
             $this->markTestSkipped('Skip test no company gateways installed');
         }
 

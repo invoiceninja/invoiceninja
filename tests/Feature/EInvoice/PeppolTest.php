@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -11,6 +12,7 @@
 
 namespace Tests\Feature\EInvoice;
 
+use Faker\Factory;
 use Tests\TestCase;
 use App\Models\Client;
 use App\Models\Company;
@@ -46,14 +48,15 @@ class PeppolTest extends TestCase
     use MockAccountData;
 
     protected int $iterations = 10;
-
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         if (config('ninja.testvars.travis') !== false) {
             $this->markTestSkipped('Skip test for GH Actions');
         }
+
+        $this->faker = Factory::create();
 
         $this->makeTestData();
 
@@ -62,9 +65,9 @@ class PeppolTest extends TestCase
         );
     }
 
-     private function setupTestData(array $params = []): array
+    private function setupTestData(array $params = []): array
     {
-        
+
         $settings = CompanySettings::defaults();
         $settings->vat_number = $params['company_vat'] ?? 'DE123456789';
         $settings->country_id = Country::where('iso_3166_2', 'DE')->first()->id;
@@ -110,6 +113,7 @@ class PeppolTest extends TestCase
         $this->company->save();
         $company = $this->company;
 
+        /** @var Client $client */
         $client = Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -122,15 +126,23 @@ class PeppolTest extends TestCase
             'id_number' => $params['client_id_number'] ?? '',
         ]);
 
+        $client->setRelation('company', $company);
+
+        /** @var ClientContact $contact */
         $contact = ClientContact::factory()->create([
             'client_id' => $client->id,
-            'company_id' =>$client->company_id,
+            'company_id' => $client->company_id,
             'user_id' => $client->user_id,
             'first_name' => $this->faker->firstName(),
             'last_name' => $this->faker->lastName(),
-            'email' => $this->faker->safeEmail()
+            'email' => $this->faker->safeEmail(),
+            'is_primary' => true,
+            'send_email' => true,
         ]);
 
+        $client->setRelation('contacts', [$contact]);
+
+        /** @var Invoice $invoice */
         $invoice = \App\Models\Invoice::factory()->create([
             'client_id' => $client->id,
             'company_id' => $this->company->id,
@@ -144,29 +156,196 @@ class PeppolTest extends TestCase
             'tax_name2' => '',
             'tax_rate3' => 0,
             'tax_name3' => '',
+            'status_id' => Invoice::STATUS_DRAFT,
         ]);
+
 
         $items = $invoice->line_items;
 
-        foreach($items as &$item)
-        {
-          $item->tax_name2 = '';
-          $item->tax_rate2 = 0;
-          $item->tax_name3 = '';
-          $item->tax_rate3 = 0;
-          $item->uses_inclusive_taxes = false;
+        foreach ($items as &$item) {
+            $item->tax_name2 = '';
+            $item->tax_rate2 = 0;
+            $item->tax_name3 = '';
+            $item->tax_rate3 = 0;
+            $item->uses_inclusive_taxes = false;
         }
         unset($item);
 
         $invoice->line_items = array_values($items);
         $invoice = $invoice->calc()->getInvoice();
 
+        $invoice->setRelation('client', $client);
+        $invoice->setRelation('company', $company);
+
         return compact('company', 'client', 'invoice');
+    }
+
+
+    public function testBeToBeWithSpecialLineItemConfiguration()
+    {
+
+        $settings = CompanySettings::defaults();
+        $settings->address1 = 'Dudweilerstr. 34b';
+        $settings->city = 'Ost Alessa';
+        $settings->state = 'Bayern';
+        $settings->postal_code = '98060';
+        $settings->vat_number = 'BE923356489';
+        $settings->id_number = '991-00110-12';
+        $settings->country_id = '56';
+        $settings->currency_id = '3';
+
+        $einvoice = new \InvoiceNinja\EInvoice\Models\Peppol\Invoice();
+
+        $fib = new FinancialInstitutionBranch();
+        $fib->ID = "DEUTDEMMXXX"; //BIC
+        // $fib->Name = 'Deutsche Bank';
+
+        $pfa = new PayeeFinancialAccount();
+        $id = new \InvoiceNinja\EInvoice\Models\Peppol\IdentifierType\ID();
+        $id->value = 'DE89370400440532013000';
+        $pfa->ID = $id;
+        $pfa->Name = 'PFA-NAME';
+
+        $pfa->FinancialInstitutionBranch = $fib;
+
+        $pm = new PaymentMeans();
+        $pm->PayeeFinancialAccount = $pfa;
+
+        $pmc = new \InvoiceNinja\EInvoice\Models\Peppol\CodeType\PaymentMeansCode();
+        $pmc->value = '30';
+
+        $pm->PaymentMeansCode = $pmc;
+
+        $einvoice->PaymentMeans[] = $pm;
+
+        $stub = new \stdClass();
+        $stub->Invoice = $einvoice;
+
+        $company = Company::factory()->create([
+            'account_id' => $this->account->id,
+            'settings' => $settings,
+            'e_invoice' => $stub,
+        ]);
+
+        $cu = CompanyUserFactory::create($this->user->id, $company->id, $this->account->id);
+        $cu->is_owner = true;
+        $cu->is_admin = true;
+        $cu->is_locked = false;
+        $cu->save();
+
+        $client_settings = ClientSettings::defaults();
+        $client_settings->currency_id = '3';
+
+        $client = Client::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'name' => 'German Client Name',
+            'address1' => 'Kinderhausen 96b',
+            'address2' => 'Apt. 842',
+            'city' => 'Süd Jessestadt',
+            'state' => 'Bayern',
+            'postal_code' => '33323',
+            'country_id' => 56,
+            'routing_id' => 'ABC1234',
+            'settings' => $client_settings,
+            'vat_number' => 'BE173655434',
+        ]);
+
+            $item = new InvoiceItem();
+            $item->product_key = "Product Key";
+            $item->notes = "Product Description";
+            $item->cost = 795;
+            $item->quantity = 13.5;
+            $item->discount = 0;
+            $item->is_amount_discount = false;
+            $item->tax_rate1 = 21;
+            $item->tax_name1 = 'TVA';
+
+            $item2 = new InvoiceItem();
+            $item2->product_key = "Product Key 2";
+            $item2->notes = "Product Description 2";
+            $item2->cost = 795;
+            $item2->quantity = 2;
+            $item2->discount = 0;
+            $item2->is_amount_discount = false;
+            $item2->tax_rate1 = 21;
+            $item2->tax_name1 = 'TVA';
+
+        $invoice = Invoice::factory()->create([
+            'company_id' => $company->id,
+            'user_id' => $this->user->id,
+            'client_id' => $client->id,
+            'discount' => 0,
+            'uses_inclusive_taxes' => false,
+            'status_id' => 1,
+            'tax_rate1' => 0,
+            'tax_name1' => '',
+            'tax_rate2' => 0,
+            'tax_rate3' => 0,
+            'tax_name2' => '',
+            'tax_name3' => '',
+            'line_items' => [$item, $item2],
+            'number' => 'DE-'.rand(1000, 100000),
+            'date' => now()->format('Y-m-d'),
+            'due_date' => now()->addDays(30)->format('Y-m-d'),
+            'is_amount_discount' => false,
+        ]);
+
+        $invoice = $invoice->calc()->getInvoice();
+
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
+
+        $invoice->service()->markSent()->save();
+
+        $this->assertEquals(14910.23, $invoice->amount);
+        $this->assertEquals(2587.73, $invoice->total_taxes);
+
+        $peppol = new Peppol($invoice);
+        $peppol->setInvoiceDefaults();
+        $peppol->run();
+
+        $be_invoice = $peppol->getInvoice();
+
+        $this->assertNotNull($be_invoice);
+
+        $e = new EInvoice();
+        $xml = $e->encode($be_invoice, 'xml');
+
+        $this->assertNotNull($xml);
+
+        $errors = $e->validate($be_invoice);
+
+        if (count($errors) > 0) {
+            nlog($xml);
+            nlog($errors);
+        }
+
+        $this->assertCount(0, $errors);
+
+        $xml = $peppol->toXml();
+
+        try {
+            $processor = new \Saxon\SaxonProcessor();
+        } catch (\Throwable $e) {
+            $this->markTestSkipped('saxon not installed');
+        }
+
+        $validator = new XsltDocumentValidator($xml);
+        $validator->validate();
+
+        if (count($validator->getErrors()) > 0) {
+            nlog($xml);
+            nlog($validator->getErrors());
+        }
+
+        $this->assertCount(0, $validator->getErrors());
+
     }
 
     public function testInvoicePeriodValidation()
     {
-                
+
         $scenario = [
             'company_vat' => 'DE923356489',
             'company_country' => 'DE',
@@ -179,7 +358,6 @@ class PeppolTest extends TestCase
             'legal_entity_id' => 290868,
             'is_tax_exempt' => false,
         ];
-
 
         $entity_data = $this->setupTestData($scenario);
 
@@ -195,7 +373,7 @@ class PeppolTest extends TestCase
                     'EndDate' => 'boop',
                     'Description' => 'Mustafa',
                     'HelterSkelter' => 'sif'
-                ]    
+                ]
              ]
             ]
         ];
@@ -204,12 +382,12 @@ class PeppolTest extends TestCase
             'X-API-SECRET' => config('ninja.api_secret'),
             'X-API-TOKEN' => $this->token,
         ])->putJson('/api/v1/invoices/'.$invoice->hashed_id, $data);
-        
+
         $response->assertStatus(422);
 
     }
 
-    public function testInvoiceValidationWithSmallDiscount()    
+    public function testInvoiceValidationWithSmallDiscount()
     {
         $scenario = [
             'company_vat' => 'DE923356489',
@@ -224,7 +402,7 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-        
+
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
@@ -232,11 +410,11 @@ class PeppolTest extends TestCase
         $invoice->is_amount_discount = true;
         $invoice->discount = 0;
         $invoice->uses_inclusive_taxes = false;
-        
+
         $item = new InvoiceItem();
         $item->quantity = 1;
         $item->cost = 10000;
-        $item->product_key = 'test'; 
+        $item->product_key = 'test';
         $item->notes = 'Description';
         $item->is_amount_discount = true;
         $item->discount = 1;
@@ -260,6 +438,17 @@ class PeppolTest extends TestCase
         $company->settings = $settings;
         $company->save();
 
+        $invoice->setRelation('company', $company);
+        $invoice->setRelation('client', $entity_data['client']);
+        $invoice->save();
+
+        $repo = new InvoiceRepository();
+        $invoice = $repo->save([], $invoice);
+
+        $invoice = $invoice->service()->markSent()->save();
+
+        $this->assertGreaterThan(0, $invoice->invitations()->count());
+
         $data = [
             'entity' => 'invoices',
             'entity_id' => $invoice->hashed_id
@@ -270,7 +459,7 @@ class PeppolTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/einvoice/validateEntity', $data);
 
-        if($response->getStatusCode() !== 200){
+        if ($response->getStatusCode() !== 200) {
 
             $p = new Peppol($invoice);
             nlog($p->run()->toXml());
@@ -283,7 +472,7 @@ class PeppolTest extends TestCase
     }
 
 
-    public function testEntityValidationFailsForInvoiceViaInvoice()       
+    public function testEntityValidationFailsForInvoiceViaInvoice()
     {
         $scenario = [
             'company_vat' => 'DE923356489',
@@ -298,7 +487,7 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-        
+
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
@@ -322,7 +511,7 @@ class PeppolTest extends TestCase
 
     }
 
-    public function testEntityValidationFailsForClientViaClient()   
+    public function testEntityValidationFailsForClientViaClient()
     {
         $scenario = [
             'company_vat' => 'DE923356489',
@@ -337,7 +526,7 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-        
+
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
@@ -360,7 +549,7 @@ class PeppolTest extends TestCase
 
     }
 
-    public function testEntityValidationFailsForClientViaInvoice()   
+    public function testEntityValidationFailsForClientViaInvoice()
     {
         $scenario = [
             'company_vat' => 'DE923356489',
@@ -412,7 +601,7 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-        
+
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
@@ -449,7 +638,7 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-        
+
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
@@ -473,7 +662,7 @@ class PeppolTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/einvoice/validateEntity', $data);
 
-        if($response->getStatusCode() !== 422){
+        if ($response->getStatusCode() !== 422) {
 
             $p = new Peppol($invoice);
             nlog($p->run()->toXml());
@@ -500,7 +689,7 @@ class PeppolTest extends TestCase
             'is_tax_exempt' => false,
         ];
 
-        
+
         $entity_data = $this->setupTestData($scenario);
 
         $invoice = $entity_data['invoice'];
@@ -511,16 +700,19 @@ class PeppolTest extends TestCase
                     [
                     'cbc:StartDate' => $invoice->date,
                     'cbc:EndDate' => $invoice->due_date ?? $invoice->date,
+                    'StartDate' => $invoice->date,
+                    'EndDate' => $invoice->due_date ?? $invoice->date,
                     ]
                 ]
             ]
         ];
         $invoice->save();
 
-        
+        $this->assertNotNull($invoice->e_invoice->Invoice->InvoicePeriod[0]->StartDate); //@phpstan-ignore-line
+
         $repo = new InvoiceRepository();
         $invoice = $repo->save([], $invoice);
-
+        $invoice = $invoice->service()->markSent()->save();
 
         $company = $entity_data['company'];
         $settings = $company->settings;
@@ -542,7 +734,7 @@ class PeppolTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/einvoice/validateEntity', $data);
 
-        if($response->getStatusCode() !== 200){
+        if ($response->getStatusCode() !== 200) {
 
             $p = new Peppol($invoice);
             nlog($p->run()->toXml());
@@ -632,8 +824,7 @@ class PeppolTest extends TestCase
             ],
         ];
 
-        foreach($scenarios as $scenario)
-        {
+        foreach ($scenarios as $scenario) {
             $data = $this->setupTestData($scenario);
 
             $invoice = $data['invoice'];
@@ -648,6 +839,8 @@ class PeppolTest extends TestCase
                         [
                             'cbc:StartDate' => $invoice->date,
                             'cbc:EndDate' => $invoice->due_date ?? $invoice->date,
+                            'StartDate' => $invoice->date,
+                            'EndDate' => $invoice->due_date ?? $invoice->date,
                         ]
                     ]
                 ]
@@ -676,17 +869,17 @@ class PeppolTest extends TestCase
             $this->assertCount(0, $validator->getErrors());
         }
 
-        for($x=0; $x< $this->iterations; $x++){
+        for ($x = 0; $x < $this->iterations; $x++) {
 
             $scenario = $scenarios[0];
-                        
+
             $data = $this->setupTestData($scenario);
 
             $invoice = $data['invoice'];
             $invoice = $invoice->calc()->getInvoice();
 
-        $repo = new InvoiceRepository();
-        $invoice = $repo->save([], $invoice);
+            $repo = new InvoiceRepository();
+            $invoice = $repo->save([], $invoice);
 
 
             $invoice->e_invoice = [
@@ -695,6 +888,8 @@ class PeppolTest extends TestCase
                         [
                             'cbc:StartDate' => $invoice->date,
                             'cbc:EndDate' => $invoice->due_date ?? $invoice->date,
+                            'StartDate' => $invoice->date,
+                            'EndDate' => $invoice->due_date ?? $invoice->date,
                         ]
                     ]
                 ]
@@ -738,7 +933,7 @@ class PeppolTest extends TestCase
 
             $invoice = $data['invoice'];
             $invoice = $invoice->calc()->getInvoice();
-            
+
             $repo = new InvoiceRepository();
             $invoice = $repo->save([], $invoice);
 
@@ -882,7 +1077,7 @@ class PeppolTest extends TestCase
         $peppol->setInvoiceDefaults();
         $peppol->run();
 
-        
+
         nlog($peppol->toXml());
 
         // nlog($peppol->toObject());
@@ -898,7 +1093,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -963,7 +1158,7 @@ class PeppolTest extends TestCase
         $client_settings = ClientSettings::defaults();
         $client_settings->currency_id = '3';
         $client_settings->enable_e_invoice = true;
-        
+
         $client = Client::factory()->create([
             'company_id' => $company->id,
             'user_id' => $this->user->id,
@@ -1012,7 +1207,7 @@ class PeppolTest extends TestCase
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
-        
+
         $repo = new InvoiceRepository();
         $invoice = $repo->save([], $invoice);
 
@@ -1027,7 +1222,7 @@ class PeppolTest extends TestCase
         $peppol->setInvoiceDefaults();
         $peppol->run();
 
-        
+
         // $peppol->toJson()->toXml();
 
         // nlog($peppol->toObject());
@@ -1043,7 +1238,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -1145,7 +1340,7 @@ class PeppolTest extends TestCase
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
-        
+
         $repo = new InvoiceRepository();
         $invoice = $repo->save([], $invoice);
 
@@ -1157,7 +1352,7 @@ class PeppolTest extends TestCase
         $peppol->setInvoiceDefaults();
         $peppol->run();
 
-        
+
         // $peppol->toJson()->toXml();
 
         // nlog($peppol->toObject());
@@ -1173,7 +1368,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -1181,7 +1376,7 @@ class PeppolTest extends TestCase
 
     }
 
-    public function testDeInvoiceLevelAndItemLevelPercentageDiscount()  
+    public function testDeInvoiceLevelAndItemLevelPercentageDiscount()
     {
 
         $settings = CompanySettings::defaults();
@@ -1282,7 +1477,7 @@ class PeppolTest extends TestCase
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
-        
+
         $repo = new InvoiceRepository();
         $invoice = $repo->save([], $invoice);
 
@@ -1302,13 +1497,13 @@ class PeppolTest extends TestCase
 
         $e = new EInvoice();
         $xml = $e->encode($de_invoice, 'xml');
-        
-        
+
+
         $this->assertNotNull($xml);
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($xml);
             nlog($errors);
         }
@@ -1317,17 +1512,16 @@ class PeppolTest extends TestCase
 
         $xml = $peppol->toXml();
 
-        try{
+        try {
             $processor = new \Saxon\SaxonProcessor();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             $this->markTestSkipped('saxon not installed');
         }
 
         $validator = new XsltDocumentValidator($xml);
         $validator->validate();
 
-        if(count($validator->getErrors()) >0){
+        if (count($validator->getErrors()) > 0) {
             nlog($xml);
             nlog($validator->getErrors());
         }
@@ -1337,7 +1531,7 @@ class PeppolTest extends TestCase
     }
 
 
-    public function testDeInvoiceLevelPercentageDiscount()  
+    public function testDeInvoiceLevelPercentageDiscount()
     {
 
         $settings = CompanySettings::defaults();
@@ -1458,13 +1652,13 @@ class PeppolTest extends TestCase
 
         $e = new EInvoice();
         $xml = $e->encode($de_invoice, 'xml');
-        
-        
+
+
         $this->assertNotNull($xml);
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($xml);
             nlog($errors);
         }
@@ -1473,17 +1667,16 @@ class PeppolTest extends TestCase
 
         $xml = $peppol->toXml();
 
-        try{
+        try {
             $processor = new \Saxon\SaxonProcessor();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             $this->markTestSkipped('saxon not installed');
         }
 
         $validator = new XsltDocumentValidator($xml);
         $validator->validate();
 
-        if(count($validator->getErrors()) >0){
+        if (count($validator->getErrors()) > 0) {
             nlog($xml);
             nlog($validator->getErrors());
         }
@@ -1616,7 +1809,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -1624,20 +1817,18 @@ class PeppolTest extends TestCase
 
         $xml = $peppol->toXml();
 
-        
 
-        try{
+
+        try {
             $processor = new \Saxon\SaxonProcessor();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             $this->markTestSkipped('saxon not installed');
         }
 
         $validator = new XsltDocumentValidator($xml);
         $validator->validate();
 
-        if(count($validator->getErrors()) > 0)
-        {
+        if (count($validator->getErrors()) > 0) {
             nlog($xml);
             nlog($validator->getErrors());
         }
@@ -1747,7 +1938,7 @@ class PeppolTest extends TestCase
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
-        
+
         $repo = new InvoiceRepository();
         $invoice = $repo->save([], $invoice);
 
@@ -1769,7 +1960,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -1777,20 +1968,18 @@ class PeppolTest extends TestCase
 
         $xml = $peppol->toXml();
 
-        
 
-        try{
+
+        try {
             $processor = new \Saxon\SaxonProcessor();
-        }
-        catch(\Throwable $e){
+        } catch (\Throwable $e) {
             $this->markTestSkipped('saxon not installed');
         }
 
         $validator = new XsltDocumentValidator($xml);
         $validator->validate();
 
-        if(count($validator->getErrors()) > 0)
-        {
+        if (count($validator->getErrors()) > 0) {
             nlog($xml);
             nlog($validator->getErrors());
         }
@@ -1916,7 +2105,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -2018,7 +2207,7 @@ class PeppolTest extends TestCase
         ]);
 
         $invoice = $invoice->calc()->getInvoice();
-        
+
         $repo = new InvoiceRepository();
         $invoice = $repo->save([], $invoice);
 
@@ -2040,7 +2229,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($de_invoice);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 
@@ -2149,7 +2338,7 @@ class PeppolTest extends TestCase
 
         $errors = $e->validate($fe);
 
-        if(count($errors) > 0) {
+        if (count($errors) > 0) {
             nlog($errors);
         }
 

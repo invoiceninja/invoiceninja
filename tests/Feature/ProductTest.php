@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,7 +24,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\ProductController
  */
 class ProductTest extends TestCase
@@ -31,17 +32,11 @@ class ProductTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->withoutMiddleware(
@@ -55,7 +50,7 @@ class ProductTest extends TestCase
 
     public function testRequiredFields()
     {
-        
+
         $product = [
             'cost' => 10,
             'vendor_id' => $this->vendor->hashed_id
@@ -120,8 +115,8 @@ class ProductTest extends TestCase
 
                 foreach ($line_items as $key => $item) {
 
-                    if($product = Product::where('company_id', $invoice->company_id)->where('product_key', $item->product_key)->where('cost', '>', 0)->first()) {
-                        if((property_exists($item, 'product_cost') && $item->product_cost == 0) || !property_exists($item, 'product_cost')) {
+                    if ($product = Product::where('company_id', $invoice->company_id)->where('product_key', $item->product_key)->where('cost', '>', 0)->first()) {
+                        if ((property_exists($item, 'product_cost') && $item->product_cost == 0) || !property_exists($item, 'product_cost')) {
                             $line_items[$key]->product_cost = $product->cost;
                         }
                     }
@@ -167,7 +162,7 @@ class ProductTest extends TestCase
                 'X-API-TOKEN' => $this->token,
             ])->post('/api/v1/products/bulk', $update)
             ->assertStatus(200);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
 
         }
 

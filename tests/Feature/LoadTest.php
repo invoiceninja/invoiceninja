@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -37,7 +38,7 @@ use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class LoadTest extends TestCase
 {

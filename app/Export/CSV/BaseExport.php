@@ -12,12 +12,13 @@
 
 namespace App\Export\CSV;
 
-use App\Jobs\Credit\ZipCredits;
+use Str;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
+use App\Models\Design;
 use App\Models\Vendor;
 use App\Utils\Helpers;
 use App\Models\Company;
@@ -27,20 +28,21 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Document;
 use League\Fractal\Manager;
+use App\Jobs\Quote\ZipQuotes;
 use App\Models\ClientContact;
 use App\Models\PurchaseOrder;
 use Illuminate\Support\Carbon;
+use App\Jobs\Credit\ZipCredits;
 use App\Utils\Traits\MakesHash;
 use App\Models\RecurringInvoice;
-use App\Jobs\Document\ZipDocuments;
 use App\Jobs\Invoice\ZipInvoices;
-use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
-use App\Jobs\Quote\ZipQuotes;
+use App\Jobs\Document\ZipDocuments;
 use App\Transformers\TaskTransformer;
 use App\Transformers\PaymentTransformer;
 use Illuminate\Database\Eloquent\Builder;
+use App\Services\Template\TemplateService;
+use App\Jobs\PurchaseOrder\ZipPurchaseOrders;
 use League\Fractal\Serializer\ArraySerializer;
-use Str;
 
 class BaseExport
 {
@@ -1291,10 +1293,13 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
                 $this->end_date = 'All available data';
                 return $query;
             case 'last7':
+            case 'last_7_days':
+            case 'last7_days':
                 $this->start_date = now()->subDays(7)->format('Y-m-d');
                 $this->end_date = now()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->subDays(7), now()])->orderBy($this->date_key, 'ASC');
             case 'last30':
+            case 'last_30_days':
                 $this->start_date = now()->subDays(30)->format('Y-m-d');
                 $this->end_date = now()->format('Y-m-d');
                 return $query->whereBetween($this->date_key, [now()->subDays(30), now()])->orderBy($this->date_key, 'ASC');
@@ -1707,5 +1712,108 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
 
         return $entity;
 
+    }
+
+    public function filterByUserPermissions(Builder $query): Builder
+    {
+
+        $user = User::withTrashed()->where('id', $this->input['user_id'])->where('account_id', $this->company->account_id)->first();
+
+        if ($user->isAdmin() || $user->hasExactPermission('view_all') || $user->hasExactPermission('edit_all')) { // No State? Do we need to ensure -> isAdmin() binds to the correct company?
+            return $query;
+        }
+
+        if($user->hasExactPermission('create_all')){
+            return $query->where('user_id', $user->id);
+        }
+
+        return $this->resolveEntityFilters($user, $query);
+        
+    }
+
+    public function exportTemplate(Builder $query, string $template_id)
+    {
+        $template = Design::withTrashed()->find($this->decodePrimaryKey($template_id));
+
+        $model_string = $this->getModelString($query);
+
+        $data = [
+            "{$model_string}s" => $query->get(),
+            // "start_date" => $this->start_date,
+            // "end_date" => $this->end_date,
+        ];
+        
+        $ts = new TemplateService($template);
+        $ts->setCompany($this->company);
+        $ts->addGlobal(['currency_code' => $this->company->currency()->code]);
+        $ts->twig->addGlobal('start_date', $this->start_date);
+        $ts->twig->addGlobal('end_date', $this->end_date);
+        $ts->build($data);
+
+        return $ts->getPdf();
+
+    }
+
+    private function getModelString(Builder $query): ?string
+    {
+
+        $model = get_class($query->getModel());
+        
+        return match($model) {
+            'App\Models\Client' => 'client',
+            'App\Models\ClientContact' => 'client',
+            'App\Models\Invoice' => 'invoice',
+            'App\Models\Quote' => 'quote',
+            'App\Models\Credit' => 'credit',
+            'App\Models\PurchaseOrder' => 'purchase_order',
+            'App\Models\RecurringInvoice' => 'recurring_invoice',
+            'App\Models\RecurringExpense' => 'recurring_expense',
+            'App\Models\Task' => 'task',
+            'App\Models\Vendor' => 'vendor',
+            'App\Models\VendorContact' => 'vendor_contact',
+            'App\Models\Product' => 'product',
+            'App\Models\Payment' => 'payment',
+            'App\Models\Expense' => 'expense',
+            'App\Models\Document' => 'document',
+            'App\Models\Activity' => 'activity',
+            'App\Models\Task' => 'task',
+            'App\Models\Project' => 'project',
+            default => null,
+        };
+    }
+    private function resolveEntityFilters(User $user, Builder $query): Builder
+    {
+
+        $model = get_class($query->getModel());
+        $model_string = $this->getModelString($query);
+        $column_listing = \Illuminate\Support\Facades\Schema::getColumnListing($query->getModel()->getTable());
+
+        /** If the User can view or edit the entity, then return the query unfiltered */
+        if($user->hasIntersectPermissions(["view_{$model_string}", "edit_{$model_string}"])){
+            return $query;
+        }
+
+        //Handle Child Models Like ClientContact or VendorContact
+        if(in_array($model, ['App\Models\ClientContact', 'App\Models\VendorContact'])){
+
+            $query->whereHas($model_string, function ($_q) use ($user){
+                $_q->where('user_id', $user->id)->orWhere('assigned_user_id', $user->id);
+            });
+
+            return $query;
+
+        }
+
+        return $query->where(function ($q) use ($user, $column_listing){
+
+            if(in_array('user_id', $column_listing)){
+                $q->where('user_id', $user->id);
+            }
+
+            if(in_array('assigned_user_id', $column_listing)){
+                $q->orWhere('assigned_user_id', $user->id);
+            }
+
+        });
     }
 }

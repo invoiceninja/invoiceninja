@@ -67,10 +67,16 @@ class EpcQrGenerator
     public function encodeMessage()
     {
 
+        $name = $this->company->present()->name();
+
         if (isset($this->company->e_invoice->Invoice->PaymentMeans) && ($pm = $this->company->e_invoice->Invoice->PaymentMeans[0] ?? false) && in_array($pm->PaymentMeansCode->value, ['30', '58'])) {
 
             $iban = $pm->PayeeFinancialAccount->ID->value;
             $bic = $pm->PayeeFinancialAccount->FinancialInstitutionBranch->FinancialInstitution->ID->value ?? '';
+            
+            if(isset($pm->PayeeFinancialAccount->Name) && strlen($pm->PayeeFinancialAccount->Name ?? '') > 0) {
+                $name = $pm->PayeeFinancialAccount->Name;
+            }
 
         } else {
 
@@ -85,7 +91,7 @@ class EpcQrGenerator
             '1', // Encoding: 1 = UTF-8
             'SCT', // Service Tag: SEPA Credit Transfer
             $bic, // BIC
-            $this->company->present()->name(), // Name of the beneficiary
+            $name, // Recipient Name - Account Name
             $iban, // IBAN
             $this->formatMoney($this->amount), // Amount with EUR prefix
             '', // Reference

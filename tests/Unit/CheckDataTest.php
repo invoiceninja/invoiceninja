@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -26,7 +27,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Tests\TestCase;
 
 /**
- * 
+ *
  */
 class CheckDataTest extends TestCase
 {

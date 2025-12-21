@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -33,7 +34,7 @@ use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 /**
- * 
+ *
  *  App\Http\Controllers\RecurringInvoiceController
  */
 class RecurringInvoiceTest extends TestCase
@@ -41,17 +42,11 @@ class RecurringInvoiceTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->withoutMiddleware(
@@ -63,7 +58,7 @@ class RecurringInvoiceTest extends TestCase
 
     public function testUniqueNumber()
     {
-       
+
         $data = [
             'client_id' => $this->client->hashed_id,
             'frequency_id' => 5,
@@ -88,7 +83,7 @@ class RecurringInvoiceTest extends TestCase
             'X-API-TOKEN' => $this->token,
         ])->postJson('/api/v1/recurring_invoices', $data)
         ->assertStatus(422);
-        
+
     }
 
     public function testBulkUpdatesTaxes()
@@ -122,7 +117,7 @@ class RecurringInvoiceTest extends TestCase
         $response->assertStatus(200);
 
 
-        $ri->cursor()->each(function ($e){
+        $ri->cursor()->each(function ($e) {
             $this->assertEquals('GST', $e->tax_name1);
             $this->assertEquals(10, $e->tax_rate1);
         });
@@ -145,7 +140,7 @@ class RecurringInvoiceTest extends TestCase
             $this->assertEquals('CUSTOMCUSTOM123', $e->custom_value1);
         });
 
-      
+
         $data = [
             'action' => 'bulk_update',
             'ids' => $ri->get()->pluck('hashed_id'),

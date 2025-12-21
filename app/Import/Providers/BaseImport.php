@@ -94,9 +94,6 @@ class BaseImport
 
     public function getCsvData($entity_type)
     {
-        if (! ini_get('auto_detect_line_endings')) {
-            ini_set('auto_detect_line_endings', '1');
-        }
 
         /** @var string $base64_encoded_csv */
         $base64_encoded_csv = Cache::get($this->hash.'-'.$entity_type);
@@ -230,6 +227,10 @@ class BaseImport
     private function groupInvoices($csvData, $key)
     {
         if (! $key) {
+            return $csvData;
+        }
+
+        if(is_array($csvData) && !isset($csvData[0][$key])) {
             return $csvData;
         }
 

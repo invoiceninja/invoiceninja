@@ -34,20 +34,21 @@ class ReportExportController extends BaseController
             return response()->json(['message' => 'Still working.....'], 409);
         }
 
-        // $report = base64_decode($report);
+        $report = base64_decode($report);
+        Cache::forget($hash);
 
-        // Cache::forget($hash);
+        if($this->isXlsxData($report)){
+            nlog("isXlsxData");
+            return response($report, 200, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'inline; filename="report.xlsx"',
+                'Content-Length' => strlen($report)
+            ]);
 
-        // if($this->isXlsxData($report)){
+        }
+
+        nlog(" IS NOT");
         
-        //     return response($report, 200, [
-        //         'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        //         'Content-Disposition' => 'inline; filename="report.xlsx"',
-        //         'Content-Length' => strlen($report)
-        //     ]);
-
-        // }
-
         // Check if the content starts with PDF signature (%PDF-)
         $isPdf = str_starts_with(trim($report), '%PDF-');
 
@@ -72,7 +73,7 @@ class ReportExportController extends BaseController
     // private function isXlsxData($fileData)
     // {
     //     // Check minimum size (XLSX files are typically > 1KB)
-    //     if (strlen($fileData) < 1024) {
+    //     if (strlen($fileData ?? '') < 1024) {
     //         return false;
     //     }
 
@@ -85,5 +86,14 @@ class ReportExportController extends BaseController
     //     // Check for XLSX-specific content
     //     return strpos($fileData, '[Content_Types].xml') !== false;
     // }
+
+
+    function isXlsxData(string $blob): bool {
+
+        // nlog(bin2hex(substr($blob, 0, 4)));
+        nlog("504b0304" === bin2hex(substr($blob, 0, 4)));
+        return "504b0304" === bin2hex(substr($blob, 0, 4));
+
+    }
 
 }

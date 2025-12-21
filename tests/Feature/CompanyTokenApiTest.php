@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -22,7 +23,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\TokenController
  */
 class CompanyTokenApiTest extends TestCase
@@ -30,7 +31,6 @@ class CompanyTokenApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,9 +38,6 @@ class CompanyTokenApiTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->withoutMiddleware(

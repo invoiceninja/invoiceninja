@@ -30,9 +30,19 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($line_items_data)
     {
-        $invoice_data = reset($line_items_data);
 
-        if ($this->hasInvoice($invoice_data['invoice.number'])) {
+        if (!empty($line_items_data) && is_array(reset($line_items_data))) {
+            // Nested array (array of arrays)
+            $invoice_data = reset($line_items_data);
+        } else {
+            // Flat array
+            $invoice_data = $line_items_data;
+            $line_items_data = [$invoice_data];
+        }
+
+        // $invoice_data = reset($line_items_data);
+
+        if (isset($invoice_data['invoice.number']) && $this->hasInvoice($invoice_data['invoice.number'])) {
             throw new ImportException('Invoice number already exists');
         }
 
@@ -87,6 +97,11 @@ class InvoiceTransformer extends BaseTransformer
             'tax_rate2' => $this->getFloat($invoice_data, 'invoice.tax_rate2'),
             'tax_name3' => $this->getString($invoice_data, 'invoice.tax_name3'),
             'tax_rate3' => $this->getFloat($invoice_data, 'invoice.tax_rate3'),
+            'is_amount_discount' => filter_var(
+                    $this->getString($invoice_data, 'invoice.is_amount_discount'),
+                    FILTER_VALIDATE_BOOLEAN,
+                    FILTER_NULL_ON_FAILURE
+                ),
             'custom_value1' => $this->getString(
                 $invoice_data,
                 'invoice.custom_value1'
@@ -144,6 +159,8 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         if (isset($invoice_data['payment.amount'])) {
+            $currency = $this->company->currency();
+
             $transformed['payments'] = [
                 [
                     'date' => isset($invoice_data['payment.date'])
@@ -153,10 +170,10 @@ class InvoiceTransformer extends BaseTransformer
                         $invoice_data,
                         'payment.transaction_reference'
                     ),
-                    'amount' => $this->getFloat(
+                    'amount' => round($this->getFloat(
                         $invoice_data,
                         'payment.amount'
-                    ),
+                    ), $currency->precision),
                 ],
             ];
         } elseif ($status === 'paid' || $transformed['status_id'] === Invoice::STATUS_PAID) {
@@ -176,26 +193,10 @@ class InvoiceTransformer extends BaseTransformer
                 ],
             ];
         }
-        // elseif (
-        //     isset($transformed['amount']) &&
-        //     isset($transformed['balance']) &&
-        //     $transformed['amount'] != $transformed['balance']
-        // ) {
-        //     $transformed['payments'] = [
-        //         [
-        //             'date' => isset($invoice_data['payment.date'])
-        //                 ? $this->parseDate($invoice_data['payment.date'])
-        //                 : date('y-m-d'),
-        //             'transaction_reference' => $this->getString(
-        //                 $invoice_data,
-        //                 'payment.transaction_reference'
-        //             ),
-        //             'amount' => $transformed['amount'] - $transformed['balance'],
-        //         ],
-        //     ];
-        // }
+        
 
         $line_items = [];
+
         foreach ($line_items_data as $record) {
             $line_items[] = [
                 'quantity' => $this->getFloat($record, 'item.quantity'),
@@ -234,8 +235,14 @@ class InvoiceTransformer extends BaseTransformer
             ];
         }
 
-        $transformed['line_items'] = $this->cleanItems($line_items);
+        /** Support minimal invoice creation with just an amount */
+        if(count($line_items) == 1 && intval($line_items[0]['cost']) == 0 && intval($line_items[0]['quantity']) == 0 && intval($transformed['amount']) != 0) {
+            $line_items[0]['quantity'] = 1;
+            $line_items[0]['cost'] = $transformed['amount'];
+        }
 
+        $transformed['line_items'] = $this->cleanItems($line_items);
+        
         return $transformed;
     }
 }

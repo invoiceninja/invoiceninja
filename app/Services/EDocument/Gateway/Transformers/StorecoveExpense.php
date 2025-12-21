@@ -171,7 +171,7 @@ class StorecoveExpense
 
             $document = \App\Utils\TempFile::UploadedFileFromBase64($attachment->getDocument(), $attachment->getFilename(), $attachment->getMimeType());
 
-            $this->saveDocument($document, $expense);
+            $this->saveDocument($document, $expense, true);
 
         }
 

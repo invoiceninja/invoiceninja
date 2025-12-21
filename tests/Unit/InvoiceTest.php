@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -24,14 +25,13 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\Helpers\Invoice\InvoiceSum
  */
 class InvoiceTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     public $invoice;
 
     public $invoice_calc;
@@ -51,6 +51,38 @@ class InvoiceTest extends TestCase
         $this->invoice_calc = new InvoiceSum($this->invoice);
     }
 
+    public function testInvoiceCreationWithClientAndProjectDoesNotTriggerAnInvalidJsonPayloadException()
+    {
+        $data = [
+            "client_id" => $this->client->hashed_id,
+            "project_id" => $this->project->hashed_id,
+            "custom_value3" => "<FLIGHTREFERENCE>",
+            "line_items" => [
+                [
+                    "quantity" => 1,
+                    "cost" => 100,
+                    "product_key" => "<TASK_DESCRIPTION>",
+                    "notes" => "<TASK_NOTES>",
+                    "tax_name1" => "gst",
+                    "tax_rate1" => 18,
+                    "type_id" => "2",
+                    "tax_id" => "2"
+                ]
+            ],
+            "custom_surcharge1" => 4,
+            "custom_surcharge2" => 3,
+            "custom_surcharge3" => 2,
+            "custom_surcharge4" => 1
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/invoices', $data);
+
+        $response->assertStatus(200);
+    }
 
     public function testBulkInvoiceValidationRequestFailsWithMissingIds()
     {
@@ -175,7 +207,7 @@ class InvoiceTest extends TestCase
 
     public function testDeletingCancelledAndTrashedInvoicePayment()
     {
-        
+
         $c = \App\Models\Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -252,7 +284,7 @@ class InvoiceTest extends TestCase
         $payment->service()->deletePayment(false)->save();
 
         $ii = $ii->fresh();
-        
+
         $this->assertEquals(0, $ii->balance);
         $this->assertEquals(0, $ii->paid_to_date);
         $this->assertEquals(5, $ii->status_id);
@@ -261,7 +293,7 @@ class InvoiceTest extends TestCase
 
     public function testDeletingCancelledInvoicePayment()
     {
-        
+
         $c = \App\Models\Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -335,7 +367,7 @@ class InvoiceTest extends TestCase
         $payment->service()->deletePayment(false)->save();
 
         $ii = $ii->fresh();
-        
+
         $this->assertEquals(0, $ii->balance);
         $this->assertEquals(0, $ii->paid_to_date);
         $this->assertEquals(5, $ii->status_id);
@@ -344,7 +376,7 @@ class InvoiceTest extends TestCase
 
     public function testRefundPaidToDateRelation()
     {
-                
+
         $c = \App\Models\Client::factory()->create([
             'user_id' => $this->user->id,
             'company_id' => $this->company->id,
@@ -380,7 +412,7 @@ class InvoiceTest extends TestCase
 
         $this->assertEquals(10, $ii->balance);
         $this->assertEquals(2, $ii->status_id);
-        
+
         $ii = $ii->service()->markPaid()->save();
 
         $this->assertEquals(10, $ii->amount);
@@ -394,7 +426,7 @@ class InvoiceTest extends TestCase
         $this->assertEquals(10, $p->applied);
         $this->assertEquals(0, $p->refunded);
 
-        $refund_data['gateway_refund']=false;
+        $refund_data['gateway_refund'] = false;
         $refund_data['invoices'][] = [
             'invoice_id' => $ii->id,
             'amount' => 10
@@ -422,6 +454,7 @@ class InvoiceTest extends TestCase
             'settings' => $c_settings,
         ]);
 
+       
         $this->assertEquals(0, $c->balance);
 
         $item = InvoiceItemFactory::create();

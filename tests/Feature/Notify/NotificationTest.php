@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -25,16 +26,13 @@ use App\Utils\Traits\Notifications\UserNotifies;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 
 /**
- * 
+ *
  *  App\Utils\Traits\Notifications\UserNotifies
  */
 class NotificationTest extends TestCase
 {
     use UserNotifies;
     use MockAccountData;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -46,6 +44,49 @@ class NotificationTest extends TestCase
         $this->makeTestData();
     }
 
+
+    public function testEInvoiceReceivedNotification()
+    {
+
+        $u = User::factory()->create([
+            'account_id' => $this->account->id,
+            'email' => $this->faker->safeEmail(),
+            'confirmation_code' => uniqid("st", true),
+        ]);
+
+        $company_token = new CompanyToken();
+        $company_token->user_id = $u->id;
+        $company_token->company_id = $this->company->id;
+        $company_token->account_id = $this->account->id;
+        $company_token->name = 'test token';
+        $company_token->token = Str::random(64);
+        $company_token->is_system = true;
+        $company_token->save();
+
+        $u->companies()->attach($this->company->id, [
+            'account_id' => $this->account->id,
+            'is_owner' => 1,
+            'is_admin' => 1,
+            'is_locked' => 0,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'settings' => null,
+        ]);
+
+        $company_user = CompanyUser::where('user_id', $u->id)->where('company_id', $this->company->id)->first();
+
+        $notifications = new \stdClass();
+        $notifications->email = ["enable_e_invoice_received_notification"];
+        $company_user->update(['notifications' => (array)$notifications]);
+
+        $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
+
+        $this->assertEquals(0, array_search('mail', $notifications));
+
+        $notifications = $this->findCompanyUserNotificationType($company_user, ['non_existant_notification']);
+
+        $this->assertFalse(array_search('mail', $notifications));
+
+    }
 
     public function testEntityViewedNotificationWithEntityLate()
     {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -19,7 +20,6 @@ use App\Factory\InvoiceInvitationFactory;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-
 
 class InvitationTest extends TestCase
 {

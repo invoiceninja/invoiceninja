@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -20,13 +21,12 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
+ *
  */
 class CloneQuoteToInvoiceFactoryTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,7 +38,7 @@ class CloneQuoteToInvoiceFactoryTest extends TestCase
 
     public function testCloneItemSanityInvoice()
     {
-                
+
         $line_items = [];
 
         $item = InvoiceItemFactory::create();
@@ -47,7 +47,7 @@ class CloneQuoteToInvoiceFactoryTest extends TestCase
         $item->type_id = '1';
 
         $line_items[] = $item;
-        
+
         $item = InvoiceItemFactory::create();
         $item->quantity = 1;
         $item->cost = 100000000;

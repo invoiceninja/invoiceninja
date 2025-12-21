@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -23,7 +24,7 @@ use Tests\MockAccountData;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *  App\Http\Controllers\ExpenseController
  */
 class ExpenseApiTest extends TestCase
@@ -31,9 +32,6 @@ class ExpenseApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -41,9 +39,6 @@ class ExpenseApiTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
     }
 
@@ -78,7 +73,7 @@ class ExpenseApiTest extends TestCase
         $response->assertStatus(200);
 
 
-        $expenses->cursor()->each(function ($e){
+        $expenses->cursor()->each(function ($e) {
             $this->assertEquals('GST', $e->tax_name1);
             $this->assertEquals(10, $e->tax_rate1);
         });

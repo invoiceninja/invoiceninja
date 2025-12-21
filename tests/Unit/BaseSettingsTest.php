@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
@@ -15,7 +16,7 @@ use App\DataMapper\ClientSettings;
 use Tests\TestCase;
 
 /**
- * 
+ *
  *   App\DataMapper\BaseSettings
  */
 class BaseSettingsTest extends TestCase

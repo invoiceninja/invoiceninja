@@ -3784,7 +3784,7 @@ Kun saat summat, palaa tälle maksutapasivulle ja klikkaa "Saata loppuun todenta
     'notification_partial_payment_paid' => 'Asiakas :client teki osittaisen Maksu :amount kohti :invoice',
     'notification_bot' => 'Ilmoitusbotti',
     'invoice_number_placeholder' => 'Lasku numero :invoice',
-    'entity_number_placeholder' => ':entity # :entity _numero',
+    'entity_number_placeholder' => ':entity # :entity_number',
     'email_link_not_working' => 'Jos yllä oleva painike ei toimi sinulle, napsauta linkkiä',
     'display_log' => 'Näytä loki',
     'send_fail_logs_to_our_server' => 'Auta parantamaan sovellusta ilmoittamalla virheistä',

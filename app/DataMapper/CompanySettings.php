@@ -479,7 +479,7 @@ class CompanySettings extends BaseSettings
 
     public $sync_invoice_quote_columns = true;
 
-    public $e_invoice_type = 'EN16931';
+    public $e_invoice_type = 'EN16931'; //verifactu
 
     public $e_quote_type = 'OrderX_Comfort';
 
@@ -963,6 +963,7 @@ class CompanySettings extends BaseSettings
     {
         $variables = [
             'client_details' => [
+                '$client.location_name',
                 '$client.name',
                 '$client.number',
                 '$client.vat_number',

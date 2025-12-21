@@ -43,6 +43,7 @@ class StoreClientRequest extends Request
         /** @var  \App\Models\User $user */
         $user = auth()->user();
 
+        $rules['name'] = 'bail|sometimes|nullable|string';
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
         $rules['documents'] = 'bail|sometimes|array';
@@ -97,6 +98,20 @@ class StoreClientRequest extends Request
             }];
 
         return $rules;
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            
+            $user = auth()->user();
+            $company = $user->company();
+
+            if(isset($this->settings['lock_invoices']) && $company->verifactuEnabled() && $this->settings['lock_invoices'] != 'when_sent'){
+                $validator->errors()->add('settings.lock_invoices', 'Locked Invoices Cannot Be Disabled');
+            }
+            
+        });
     }
 
     public function prepareForValidation()
@@ -185,7 +200,7 @@ class StoreClientRequest extends Request
         }
 
         // prevent xss injection
-        if (array_key_exists('name', $input)) {
+        if (array_key_exists('name', $input) && is_string($input['name'])) {
             $input['name'] = strip_tags($input['name']);
         }
 
@@ -208,9 +223,7 @@ class StoreClientRequest extends Request
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
-        $language = $languages->first(function ($item) use ($language_code) {
-            return $item->locale == $language_code;
-        });
+        $language = $languages->firstWhere('locale', $language_code);
 
         return $language ? (string)$language->id : '';
 
