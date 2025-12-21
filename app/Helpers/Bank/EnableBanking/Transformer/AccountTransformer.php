@@ -78,19 +78,23 @@ class AccountTransformer
         $transformed_accounts = [];
         
         foreach ($enablebanking_accounts as $account) {
+            $accountId = $account['account_id']['iban'] ?? $account['account_id']['other']['identification'] ?? $account['uid'] ?? '';
+
+            if (empty($accountId)) {
+                continue;
+            }
+
             $balances = $enable_banking->getAccountBalances($account['uid']);
             // TODO(FlorientR) : Need to selection specific balance ?
             $balance = array_shift($balances['balances']);
 
             $transformed_accounts[] = [
-                'id' => $account['uid'] ?? '',
+                'id' => $accountId,
                 'account_type' => $account['cash_account_type'] ?? 'CACC',
                 'account_name' => $account['name'] ?? '',
                 'account_status' => 'active', // TODO(FlorientR) I don't see status field in the doc
-                'account_number' => $this->maskAccountNumber($account['accout_id']['iban'] ?? ''),
-                'provider_account_id' => $account['uid'] ?? '',
-                'provider_id' => $account['account_servicer']['bic_fi'] ?? '',
-                'provider_name' => $account['account_servicer']['name'] ?? '',
+                'account_number' => $this->maskAccountNumber($account['account_id']['iban'] ?? ''),
+                'provider_account_id' => $account['uid'],
                 'provider_history' => 90, // TODO(FlorientR) No history field in the doc
                 'nickname' => $account['name'] ?? '',
                 'current_balance' => $balance['balance_amount']['amount'] ?? 0,

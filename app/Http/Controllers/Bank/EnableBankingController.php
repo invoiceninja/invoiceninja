@@ -182,12 +182,12 @@ class EnableBankingController extends BaseController
                 $bank_integration->account_id = $company->account_id;
                 $bank_integration->user_id = $company->owner()->id;
                 $bank_integration->enablebanking_session_id = $session['session_id']; // TODO(FlorientR): Useless ?
-                $bank_integration->enablebanking_account_id = $account['id'];
-                $bank_integration->enablebanking_session_expired_at = new \DateTime($account['access']['valid_until'] ?? 'now');
+                $bank_integration->enablebanking_account_id = $account['provider_account_id'];
+                $bank_integration->enablebanking_session_expired_at = new \DateTime($session['access']['valid_until'] ?? 'now');
                 $bank_integration->bank_account_type = $account['account_type'];
                 $bank_integration->bank_account_name = $account['account_name'];
                 $bank_integration->bank_account_number = $account['account_number'];
-                $bank_integration->provider_name = $account['provider_name'];
+                $bank_integration->provider_name = $session['aspsp'] ? $session['aspsp']['name'].' '.$session['aspsp']['country'] : 'EnableBanking';
                 $bank_integration->nickname = $account['nickname'];
                 $bank_integration->currency = $account['account_currency'];
             } finally {
@@ -246,14 +246,14 @@ class EnableBankingController extends BaseController
     /**
      * Find the first available Bank Integration from its EnableBanking account or session.
      *
-     * @param array{id: string} $account
+     * @param array{provider_account_id: string} $account
      */
     private function findIntegrationBy(
         array   $account,
         Company $company,
     ): BankIntegration {
         return BankIntegration::withTrashed()
-            ->where('enablebanking_account_id', $account['id'])
+            ->where('enablebanking_account_id', $account['provider_account_id'])
             ->where('company_id', $company->id)
             ->where('is_deleted', 0)
             ->firstOrFail();
