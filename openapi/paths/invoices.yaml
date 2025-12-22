@@ -104,6 +104,14 @@
           schema:
             type: string
           example: ?payable={client_id}
+        - name: invitation_key
+          in: query
+          description: |
+            Filter invoices by a single invitation key. This is useful for retrieving a specific invoice using its unique invitation key.
+          required: false
+          schema:
+            type: string
+          example: ?invitation_key=abc123xyz
         - name: sort
           in: query
           description: Returns the list sorted by column in ascending or descending order.

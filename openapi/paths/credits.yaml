@@ -27,6 +27,14 @@
         - $ref: "#/components/parameters/index"
         - $ref: "#/components/parameters/per_page_meta"
         - $ref: "#/components/parameters/page_meta"
+        - name: invitation_key
+          in: query
+          description: |
+              Filter quotes by a single invitation key. This is useful for retrieving a specific quote using its unique invitation key.
+          required: false
+          schema:
+              type: string
+          example: ?invitation_key=abc123xyz
       responses:
         200:
           description: "A list of credits"
@@ -39,10 +47,10 @@
               $ref: "#/components/headers/X-RateLimit-Limit"
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Credit'
@@ -104,7 +112,7 @@
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  
+
   "/api/v1/credits/{id}":
     get:
       tags:

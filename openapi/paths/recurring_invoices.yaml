@@ -38,6 +38,14 @@
         - $ref: "#/components/parameters/is_deleted"
         - $ref: "#/components/parameters/filter_deleted_clients"
         - $ref: "#/components/parameters/vendor_id"
+        - name: invitation_key
+          in: query
+          description: |
+            Filter recurring invoices by a single invitation key. This is useful for retrieving a specific recurring invoice using its unique invitation key.
+          required: false
+          schema:
+            type: string
+          example: ?invitation_key=abc123xyz
         - name: filter
           in: query
           description: |

@@ -145,6 +145,23 @@ class QuoteFilters extends QueryFilters
     }
 
     /**
+     * Filter quotes by invitation key.
+     *
+     * @param string $invitation_key The invitation key to filter by
+     * @return Builder
+     */
+    public function invitation_key(string $invitation_key = ''): Builder
+    {
+        if (strlen($invitation_key) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereHas('invitations', function ($query) use ($invitation_key) {
+            $query->where('key', $invitation_key);
+        });
+    }
+
+    /**
      * Sorts the list based on $sort.
      *
      * @param string $sort formatted as column|asc
