@@ -66,7 +66,7 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">11 Professional invoice & quote template designs</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Remove "Created by Invoice Ninja" from invoices</div>
+              <div class="py-2 text-sm my-3 text-white">Remove branding from invoices</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">Enable emails to be sent via Gmail</div>
               <hr>
@@ -149,7 +149,7 @@ input:checked ~ .dot {
               <hr>
               <div class="py-2 text-sm my-3 text-white">11 Professional invoice & quote template designs</div>
               <hr>
-              <div class="py-2 text-sm my-3 text-white">Remove "Created by Invoice Ninja" from invoices</div>
+              <div class="py-2 text-sm my-3 text-white">Remove branding from invoices</div>
               <hr>
               <div class="py-2 text-sm my-3 text-white">Enable emails to be sent via Gmail</div>
               <hr>

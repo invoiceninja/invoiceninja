@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -416,7 +411,7 @@ class VendorHtmlEngine
         $data['$font_name'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['name'], 'label' => ''];
         $data['$font_url'] = ['value' => Helpers::resolveFont($this->settings->primary_font)['url'], 'label' => ''];
 
-        $data['$invoiceninja.whitelabel'] = ['value' => 'https://invoicing.co/images/new_logo.png', 'label' => ''];
+        $data['$invoiceninja.whitelabel'] = ['value' => '', 'label' => ''];
 
         $data['$primary_color'] = ['value' => $this->settings->primary_color, 'label' => ''];
         $data['$secondary_color'] = ['value' => $this->settings->secondary_color, 'label' => ''];

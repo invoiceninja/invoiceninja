@@ -1,4 +1,4 @@
-@component('email.template.admin', ['logo' => 'https://invoicing.co/images/invoiceninja-black-logo-2.png', 'settings' => $settings])
+@component('email.template.admin', ['logo' => $company ? $company->present()->logo() : '', 'settings' => $settings])
     <div class="center">
         <h1>{{ ctrans('texts.migration_completed')}}</h1>
         <p>{{ ctrans('texts.migration_completed_description')}}</p>

@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -157,7 +152,7 @@ class CreateSingleAccount extends Command
         $settings->quote_terms = 'Default company quote terms';
         $settings->invoice_footer = 'Default invoice footer';
 
-        $settings->company_logo = 'https://pdf.invoicing.co/favicon-v2.png';
+        $settings->company_logo = '';
         $settings->name = $faker->name();
         $settings->email = $faker->safeEmail();
         $settings->phone = $faker->phoneNumber();
@@ -169,7 +164,8 @@ class CreateSingleAccount extends Command
         $settings->state = $faker->state();
         $settings->postal_code = $faker->postcode();
 
-        $settings->country_id = '840';
+        $canada = \App\Models\Country::where('iso_3166_2', 'CA')->first();
+        $settings->country_id = $canada ? (string)$canada->id : '840';
         $settings->vat_number = 'vat number';
         $settings->id_number = 'id number';
         $settings->use_credits_payment = 'always';
@@ -667,7 +663,7 @@ class CreateSingleAccount extends Command
         $client->number = $this->getNextClientNumber($client);
 
         $settings = $client->settings;
-        $settings->currency_id = "1";
+        $settings->currency_id = "9"; // CAD (Canadian Dollar)
 
         $client->settings = $settings;
 

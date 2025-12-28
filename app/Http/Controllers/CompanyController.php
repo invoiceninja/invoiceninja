@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -771,7 +766,7 @@ class CompanyController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
         $company = $user->company();
-        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : 'https://pdf.invoicing.co/favicon-v2.png';
+        $logo = strlen($company->settings->company_logo) > 5 ? $company->settings->company_logo : '';
         $headers = ['Content-Disposition' => 'inline'];
 
         try {

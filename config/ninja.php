@@ -2,21 +2,21 @@
 
 return [
 
-    'web_url' => 'https://www.invoiceninja.com',
+    'web_url' => env('WEB_URL', ''),
     'admin_token' => env('NINJA_ADMIN_TOKEN', ''),
-    'license_url' => 'https://app.invoiceninja.com',
+    'license_url' => env('LICENSE_URL', ''),
     'react_url' => env('REACT_URL', env('APP_URL', '')),
     'production' => env('NINJA_PROD', false),
     'license' => env('NINJA_LICENSE', ''),
-    'version_url' => 'https://pdf.invoicing.co/api/version',
-    'app_name' => env('APP_NAME', 'Invoice Ninja'),
+    'version_url' => env('VERSION_URL', ''),
+    'app_name' => env('APP_NAME', ''),
     'app_env' => env('APP_ENV', 'selfhosted'),
-    'app_logo' => env('APP_LOGO', 'https://invoicing.co/images/new_logo.png'),
-    'ninja_client_portal' => env('NINJA_CLIENT_PORTAL', 'https://invoiceninja.invoicing.co'),
+    'app_logo' => env('APP_LOGO', ''),
+    'ninja_client_portal' => env('NINJA_CLIENT_PORTAL', ''),
     'debug_enabled' => env('APP_DEBUG', false),
     'require_https' => env('REQUIRE_HTTPS', true),
     'app_url' => rtrim(env('APP_URL', ''), '/'),
-    'app_domain' => env('APP_DOMAIN', 'invoicing.co'),
+    'app_domain' => env('APP_DOMAIN', ''),
     'app_version' => env('APP_VERSION', '5.12.38'),
     'app_tag' => env('APP_TAG', '5.12.38'),
     'minimum_client_version' => '5.0.16',
@@ -38,27 +38,27 @@ return [
     'phantomjs_secret' => env('PHANTOMJS_SECRET', false),
     'phantomjs_pdf_generation' => env('PHANTOMJS_PDF_GENERATION', false),
     'pdf_generator' => env('PDF_GENERATOR', false),
+    'pdf_url' => env('PDF_URL', ''),
     'trusted_proxies' => env('TRUSTED_PROXIES', false),
     'is_docker' => env('IS_DOCKER', false),
     'local_download' => env('LOCAL_DOWNLOAD', false),
-    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', "https://39389664f3f14969b4c43dadda00a40b@sentry2.invoicing.co/5"),
+    'sentry_dsn' => env('SENTRY_LARAVEL_DSN', ''),
     'environment' => env('NINJA_ENVIRONMENT', 'selfhost'), // 'hosted', 'development', 'selfhost', 'reseller'
     'preconfigured_install' => env('PRECONFIGURED_INSTALL', false),
     'update_secret' => env('UPDATE_SECRET', ''),
     'license_key' => env('LICENSE_KEY', false),
-    'hosted_ninja_url' => env('HOSTED_NINJA_URL', 'https://invoicing.co'),
-    // Settings used by invoiceninja.com
+    'hosted_ninja_url' => env('HOSTED_NINJA_URL', ''),
     'disks' => [
         'backup' => env('BACKUP_DISK', 's3'),
         'document' => env('DOCUMENT_DISK', 's3'),
     ],
     'terms_of_service_url' => [
-        'hosted' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/terms/'),
-        'selfhost' => env('TERMS_OF_SERVICE_URL', 'https://www.invoiceninja.com/self-hosting-terms-service/'),
+        'hosted' => env('TERMS_OF_SERVICE_URL', ''),
+        'selfhost' => env('TERMS_OF_SERVICE_URL', ''),
     ],
     'privacy_policy_url' => [
-        'hosted' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/privacy-policy/'),
-        'selfhost' => env('PRIVACY_POLICY_URL', 'https://www.invoiceninja.com/self-hosting-privacy-data-control/'),
+        'hosted' => env('PRIVACY_POLICY_URL', ''),
+        'selfhost' => env('PRIVACY_POLICY_URL', ''),
     ],
     'db' => [
         'multi_db_enabled' => env('MULTI_DB_ENABLED', false),
@@ -102,7 +102,7 @@ return [
     'contact' => [
         'email' => env('MAIL_FROM_ADDRESS'),
         'from_name' => env('MAIL_FROM_NAME'),
-        'ninja_official_contact' => env('NINJA_OFFICIAL_CONTACT', 'contact@invoiceninja.com'),
+        'ninja_official_contact' => env('NINJA_OFFICIAL_CONTACT', ''),
     ],
     'cached_tables' => [
         'banks' => App\Models\Bank::class,

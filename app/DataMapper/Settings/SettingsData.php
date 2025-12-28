@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,7 +45,7 @@ class SettingsData
 
     public string $company_gateway_ids = ''; //@implemented
 
-    public string $currency_id = '1'; //@implemented
+    public string $currency_id = '9'; //@implemented - CAD (Canadian Dollar)
 
     public string $custom_value1 = ''; //@implemented
 

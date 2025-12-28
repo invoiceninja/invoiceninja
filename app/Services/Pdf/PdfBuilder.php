@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -1388,9 +1383,6 @@ class PdfBuilder
     {
         return [
             ['element' => 'div', 'properties' => ['style' => 'display: flex; flex-direction: column;'], 'elements' => [
-                ['element' => 'div', 'properties' => ['style' => 'display: block; align-items: flex-start; page-break-inside: avoid; visible !important;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem; margin-top: 1.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
-                ]],
             ]],
         ];
     }
@@ -1462,9 +1454,6 @@ class PdfBuilder
                     ['element' => 'div', 'content' => strtr(str_replace("labels", "", $_variables['values']['$entity.terms']), $_variables['labels']), 'properties' => ['data-ref' => 'total_table-terms', 'style' => 'text-align: left;']],
                 ]],
                 ['element' => 'img', 'properties' => ['style' => 'max-width: 50%; height: auto;', 'src' => '$contact.signature', 'id' => 'contact-signature']],
-                ['element' => 'div', 'properties' => ['style' => 'display: flex; align-items: flex-start; page-break-inside: auto;'], 'elements' => [
-                    ['element' => 'img', 'properties' => ['src' => '$invoiceninja.whitelabel', 'style' => 'height: 2.5rem; margin-top: 1.5rem;', 'hidden' => $this->service->company->account->isPaid() ? 'true' : 'false', 'id' => 'invoiceninja-whitelabel-logo']],
-                ]],
             ]],
             ['element' => 'div', 'properties' => ['class' => 'totals-table-right-side', 'dir' => '$dir'], 'elements' => []],
         ];

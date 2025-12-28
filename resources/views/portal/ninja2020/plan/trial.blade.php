@@ -1581,7 +1581,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                 </h2>
                 <ul class="list-checkmark relative z-10">
                     <li class="mb-[5px]">Unlimited Clients & Invoices & Quotes</li>
-                    <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                    <li class="mb-[5px]">Remove branding</li>
                     <li class="mb-[5px]">Send Invoice Emails via Gmail or MSN Accounts</li>
                     <li class="mb-[5px]">11 Professional Invoice & Quote Template Designs</li>
                     <li class="mb-[5px]">Branded URL Option: "YourBrand".Invoicing.co"</li>
@@ -1640,7 +1640,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                             <h5 class="text-base font-bold leading-[1.36em] text-primary-dark uppercase mb-4">All Free Features +</h5>
                             <ul class="list-checkmark list-checkmark_green relative z-10">
                               <li class="mb-[5px]">Unlimited Clients & Invoices</li>
-                              <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                              <li class="mb-[5px]">Remove branding</li>
                               <li class="mb-[5px]">Email Invoices via Gmail & MSN</li>
                               <li class="mb-[5px]">Branded URL: 'YourSite".Invoicing.co'</li>
                               <li class="mb-[5px]">11 Professional Invoice Templates</li>
@@ -1736,7 +1736,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                             <h5 class="text-base font-bold leading-[1.36em] text-primary-dark uppercase mb-4">All Free Features +</h5>
                             <ul class="list-checkmark list-checkmark_green relative z-10">
                               <li class="mb-[5px]">Unlimited Clients & Invoices</li>
-                              <li class="mb-[5px]">Remove "Created by Invoice Ninja"</li>
+                              <li class="mb-[5px]">Remove branding</li>
                               <li class="mb-[5px]">Email Invoices via Gmail & MSN</li>
                               <li class="mb-[5px]">Branded URL: 'YourSite".Invoicing.co'</li>
                               <li class="mb-[5px]">11 Professional Invoice Templates</li>

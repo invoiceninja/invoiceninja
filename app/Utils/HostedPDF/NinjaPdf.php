@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -16,17 +11,23 @@ use GuzzleHttp\RequestOptions;
 
 class NinjaPdf
 {
-    private $url = 'https://pdf.invoicing.co/api/';
+    private $url = '';
 
     public function build($html)
     {
+        $url = config('ninja.pdf_url') ?: '';
+        
+        if (empty($url)) {
+            throw new \Exception('Hosted PDF generation is enabled but PDF_URL is not configured. Please set PDF_URL in your .env file or disable hosted PDF generation.');
+        }
+
         $client = new \GuzzleHttp\Client(['headers' => [
             'X-Ninja-Token' => 'test_token_for_now',
             'X-URL' => config('ninja.app_url'),
             ],
         ]);
 
-        $response = $client->post($this->url, [
+        $response = $client->post($url, [
             RequestOptions::JSON => ['html' => $html],
         ]);
 

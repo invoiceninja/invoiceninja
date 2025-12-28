@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -136,9 +131,15 @@ class SetupController extends Controller
         }
 
         try {
+            // Skip .env updates - we handle configuration manually
+            // This prevents server restart issues with php artisan serve
+            // For dev: .env is already configured
+            // For clients: we'll set up the dashboard ourselves
+            /*
             foreach ($env_values as $property => $value) {
                 $this->updateEnvironmentProperty($property, $value);
             }
+            */
 
             /* We need this in some environments that do not have STDIN defined */
             define('STDIN', fopen('php://stdin', 'r'));

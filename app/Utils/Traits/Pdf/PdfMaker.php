@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -80,11 +75,11 @@ trait PdfMaker
             '--virtual-time-budget=10000',
         ];
 
-        // if (config('ninja.snappdf_chromium_arguments')) {
-        // $pdf->clearChromiumArguments();
-        // $pdf->addChromiumArguments(config('ninja.snappdf_chromium_arguments'));
-        $pdf->addChromiumArguments(implode(' ', $chrome_flags));
-        // }
+        // Add Chromium arguments - each flag should be added separately
+        $pdf->clearChromiumArguments();
+        foreach ($chrome_flags as $flag) {
+            $pdf->addChromiumArguments($flag);
+        }
 
         if (config('ninja.snappdf_chromium_path')) {
             $pdf->setChromiumPath(config('ninja.snappdf_chromium_path'));
@@ -92,14 +87,32 @@ trait PdfMaker
 
         $html = str_ireplace(['file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost', '<?xml encoding="UTF-8">', '/etc/'], '', $html);
         // nlog($html);
-        $generated = $pdf
-                        ->setHtml($html)
-                        ->generate();
+        
+        try {
+            $generated = $pdf
+                            ->setHtml($html)
+                            ->generate();
 
-        if ($generated) {
-            return $generated;
+            if ($generated && strlen($generated) > 0) {
+                // Verify it's a valid PDF (starts with %PDF)
+                if (substr($generated, 0, 4) === '%PDF') {
+                    return $generated;
+                } else {
+                    nlog('PDF generation returned invalid content. First 100 bytes: ' . substr($generated, 0, 100));
+                    throw new InternalPDFFailure('PDF generation returned invalid content (not a valid PDF file)');
+                }
+            }
+        } catch (\Exception $e) {
+            nlog('PDF generation error: ' . $e->getMessage());
+            if ($e instanceof \Symfony\Component\Process\Exception\ProcessFailedException) {
+                $process = $e->getProcess();
+                nlog('Process output: ' . $process->getOutput());
+                nlog('Process error output: ' . $process->getErrorOutput());
+                throw new InternalPDFFailure('There was an issue generating the PDF locally: ' . $process->getErrorOutput() ?: $e->getMessage());
+            }
+            throw new InternalPDFFailure('There was an issue generating the PDF locally: ' . $e->getMessage());
         }
 
-        throw new InternalPDFFailure('There was an issue generating the PDF locally');
+        throw new InternalPDFFailure('There was an issue generating the PDF locally: PDF generation returned empty result');
     }
 }

@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,6 +36,7 @@ use App\Http\Middleware\VerifyCsrfToken;
 use App\Http\Middleware\ContactTokenAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use App\Http\Middleware\SetDbByCompanyKey;
+use App\Http\Middleware\SuperAdmin;
 use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\PasswordProtection;
 use App\Http\Middleware\ClientPortalEnabled;
@@ -165,6 +161,7 @@ class Kernel extends HttpKernel
         'document_db' => SetDocumentDb::class,
         'session_domain' => SessionDomains::class,
         'valid_json' => \App\Http\Middleware\ValidJson::class,
+        'super_admin' => SuperAdmin::class,
         //we dyanamically add the throttle middleware in RouteServiceProvider
     ];
 

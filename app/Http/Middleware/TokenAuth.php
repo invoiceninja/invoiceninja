@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,6 +55,16 @@ class TokenAuth
         if (Ninja::isHosted() && $company_token->is_system == 0 && ! $user->account->isPaid()) {
             $error = [
                 'message' => 'Feature not available with free / unpaid account.',
+                'errors' => new stdClass(),
+            ];
+
+            return response()->json($error, 403);
+        }
+
+        // Check if company is disabled
+        if ($company_token->company->is_disabled) {
+            $error = [
+                'message' => 'Your account has been disabled. Please contact support for assistance.',
                 'errors' => new stdClass(),
             ];
 

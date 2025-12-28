@@ -1,21 +1,8 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
- *
- * Documentation of Api-Usage: https://developer.gocardless.com/bank-account-data/overview
- *
- * Institutions: Are Banks or Payment-Providers, which manages bankaccounts.
- *
- * Accounts: Accounts are existing bank_accounts at a specific institution.
- *
- * Requisitions: Are registered/active user-flows to authenticate one or many accounts. After completition, the accoundId could be used to fetch data for this account. After the access expires, the user could create a new requisition to connect accounts again.
  */
 
 namespace App\Helpers\Bank\Nordigen;

@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -98,6 +93,7 @@ class AccountTransformer extends EntityTransformer
             'e_invoice_quota' => (int) $account->e_invoice_quota,
             'can_trial' => (bool) $account->canTrial(),
             'docuninja_num_users' => (int) $account->docuninja_num_users,
+            'is_super_admin' => (bool) $account->is_super_admin,
         ];
     }
 

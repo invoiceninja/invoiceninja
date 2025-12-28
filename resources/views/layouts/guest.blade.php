@@ -23,7 +23,7 @@
     @endif
 
     <meta charset="utf-8">
-    <title>@yield('meta_title', 'Invoice Ninja') | {{ config('app.name') }}</title>
+    <title>@yield('meta_title', '') | {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description')"/>
 
     @if(auth()->guard('contact')->user() && !auth()->guard('contact')->user()->user->account->isPaid())

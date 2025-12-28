@@ -1,4 +1,4 @@
-@component('email.template.admin', ['logo' => 'https://pdf.invoicing.co/favicon-v2.png'])
+@component('email.template.admin', ['logo' => $company ? $company->present()->logo() : ''])
     <div class="center">
         <h1>{{ ctrans('texts.notification_no_credits') }}</h1>
         <p>{{ ctrans('texts.notification_no_credits_text') }}</p>

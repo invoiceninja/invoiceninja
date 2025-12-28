@@ -189,11 +189,6 @@
                         <tr>
                         <td>
                         <![endif]-->
-                            <a href="https://forum.invoiceninja.com" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/forum.png') }}" width="13">
-                                <span>Forums</span>
-                            </a>
                         <!--[if mso]>
                         </td>
                         <![endif]-->
@@ -203,11 +198,6 @@
                         
                         <td>
                         <![endif]-->   
-                            <a href="http://slack.invoiceninja.com/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/slack.png') }}" width="13">
-                                <span>Slack</span>
-                            </a>
                         <!--[if mso]>
                         </td>
                         <![endif]-->
@@ -216,11 +206,6 @@
                         
                         <td>
                         <![endif]-->   
-                            <a href="https://www.invoiceninja.com/contact/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <img style="width: 13px; margin-right: 4px; display: inline-block; vertical-align:middle;" src="{{ asset('images/emails/email.png') }}" width="13">
-                                <span>E-mail</span>
-                            </a>
                         <!--[if mso]>
                         </td>
                         <![endif]-->
@@ -229,10 +214,6 @@
                         
                         <td>
                         <![endif]-->     
-                            <a href="https://invoiceninja.github.io/" target="_blank" class="btn-white"
-                               style="vertical-align: middle;display: inline-block;background-color: #ffffff; color: {{ $primary_color }}; display: inline-block; text-decoration: none;  width: 100px; text-align: center; font-size: 12px; height: 35px; line-height: 35px; margin-left: 10px; margin-right: 10px;">
-                                <span>Support Docs</span>
-                            </a>
                         <!--[if mso]>
                         </td>
                         </tr>
@@ -248,7 +229,7 @@
                         style="background-color: #242424;">
                         <div style="padding-top: 10px;padding-bottom: 10px;">
                             <p style="text-align: center; color: #ffffff; font-size: 10px;
-                            font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }} Invoice Ninja, All Rights Reserved
+                            font-family: Verdana, Geneva, Tahoma, sans-serif;">© {{ date('Y') }}
                             </p>
 
                             <!-- <a href="{{ $email_preferences }}">

@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -68,15 +63,29 @@ class PdfMock
         $this->settings = $pdf_config->settings;
         $pdf_config->entity_design_id = $pdf_config->settings->{"{$pdf_config->entity_string}_design_id"} ?? 'Wpmbk5ezJn';
         $pdf_config->setPdfVariables();
-        $pdf_config->setCurrency(Currency::find($this->settings->currency_id ?? 1));
-        $pdf_config->setCountry(Country::find($this->settings->country_id ?: 840));
+        $currency = Currency::find($this->settings->currency_id ?? 9) ?? Currency::where('code', 'CAD')->first() ?? Currency::find(9) ?? Currency::first();
+        if (!$currency) {
+            throw new \Exception('No currency found in database. Please run: php artisan db:seed --class=CurrenciesSeeder');
+        }
+        $pdf_config->setCurrency($currency);
+        $country = Country::find($this->settings->country_id ?: null) ?? Country::where('iso_3166_2', 'CA')->first() ?? Country::where('name', 'Canada')->first() ?? Country::find(124) ?? Country::first();
+        if (!$country) {
+            throw new \Exception('No country found in database. Please run: php artisan db:seed --class=CountriesSeeder');
+        }
+        $pdf_config->setCountry($country);
         $pdf_config->currency_entity = $this->mock->client ?? $this->mock->vendor;
 
         if (isset($this->request['design_id']) && $design = Design::withTrashed()->find($this->request['design_id'])) {
             $pdf_config->design = $design;
             $pdf_config->entity_design_id = $design->hashed_id;
         } else {
-            $pdf_config->design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id) ?? 2);
+            $design = Design::withTrashed()->find($this->decodePrimaryKey($pdf_config->entity_design_id) ?? 2) 
+                ?? Design::withTrashed()->find(2) 
+                ?? Design::withTrashed()->first();
+            if (!$design) {
+                throw new \Exception('No design found in database. Please run: php artisan db:seed --class=DesignSeeder');
+            }
+            $pdf_config->design = $design;
         }
 
         $this->pdf_service->config = $pdf_config;
@@ -125,7 +134,7 @@ class PdfMock
     {
         $settings = new \stdClass();
         $settings->entity = Client::class;
-        $settings->currency_id = '1';
+        $settings->currency_id = '9';
         $settings->industry_id = '';
         $settings->size_id = '';
 
@@ -384,7 +393,7 @@ class PdfMock
     '$client.currency' => 'USD',
     '$company.country' => $this->company->country()?->name ?? 'USA',
     '$company.address' => $this->company->present()->address(),
-    '$tech_hero_image' => 'https://invoicing.co/images/pdf-designs/tech-hero-image.jpg',
+    '$tech_hero_image' => '',
     '$task.tax_name1' => '',
     '$task.tax_name2' => '',
     '$task.tax_name3' => '',

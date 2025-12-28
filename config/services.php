@@ -48,7 +48,7 @@ return [
     'postmark-broadcast' => [
         'token' => env('POSTMARK_BROADCAST_SECRET', ''),
         'from' => [
-            'address' => env('POSTMARK_BROADCAST_FROM_ADDRESS', 'community@invoiceninja.com')
+            'address' => env('POSTMARK_BROADCAST_FROM_ADDRESS', '')
         ],
     ],
 

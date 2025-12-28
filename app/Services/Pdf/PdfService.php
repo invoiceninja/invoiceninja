@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2022. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -164,12 +159,45 @@ class PdfService
     {
         if (config('ninja.phantomjs_pdf_generation') || config('ninja.pdf_generator') == 'phantom') {
             $pdf = (new Phantom())->convertHtmlToPdf($html);
-        } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
-            $pdf = (new NinjaPdf())->build($html);
-       } elseif (config('ninja.pdf_generator') == 'gotenberg') {
+        } elseif (config('ninja.pdf_generator') == 'gotenberg') {
             $pdf = (new GotenbergPdf())->convertHtmlToPdf($html);
+        } elseif ((config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') && !empty(config('ninja.pdf_url'))) {
+            $pdf = (new NinjaPdf())->build($html);
+        } elseif (config('ninja.pdf_generator') == 'hosted_ninja' && empty(config('ninja.pdf_url'))) {
+            // Hosted PDF is selected but URL is not configured, fall back to local generation
+            nlog('PDF generator is set to hosted_ninja but PDF_URL is not configured. Falling back to local PDF generation.');
+            try {
+                $pdf = $this->makePdf(null, null, $html);
+            } catch (\Exception $e) {
+                // If Chromium is not available, provide a helpful error message
+                if (str_contains($e->getMessage(), 'Browser binary not found') || str_contains($e->getMessage(), 'Chromium')) {
+                    throw new \Exception(
+                        'PDF generation failed: Hosted PDF is selected but PDF_URL is not configured, and Chromium is not available for local PDF generation. ' .
+                        'Please either: 1) Set PDF_URL in your .env file for hosted PDF generation, ' .
+                        '2) Install Chromium and set SNAPPDF_CHROMIUM_PATH in your .env file, ' .
+                        'or 3) Configure a different PDF generator (gotenberg or phantom) by setting PDF_GENERATOR in your .env file. ' .
+                        'Original error: ' . $e->getMessage()
+                    );
+                }
+                throw $e;
+            }
         } else {
-            $pdf = $this->makePdf(null, null, $html);
+            // Default: Try to use local PDF generation (requires Chromium)
+            try {
+                $pdf = $this->makePdf(null, null, $html);
+            } catch (\Exception $e) {
+                // If Chromium is not available, provide a helpful error message
+                if (str_contains($e->getMessage(), 'Browser binary not found') || str_contains($e->getMessage(), 'Chromium')) {
+                    throw new \Exception(
+                        'PDF generation failed: Chromium browser is required for local PDF generation. ' .
+                        'Please either: 1) Install Chromium and set SNAPPDF_CHROMIUM_PATH in your .env file, ' .
+                        '2) Configure a different PDF generator (gotenberg, phantom, or hosted_ninja with PDF_URL), ' .
+                        'or 3) Set PDF_GENERATOR=gotenberg in your .env file. ' .
+                        'Original error: ' . $e->getMessage()
+                    );
+                }
+                throw $e;
+            }
         }
 
         return $pdf;

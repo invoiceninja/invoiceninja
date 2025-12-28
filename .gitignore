@@ -18,6 +18,15 @@ npm-debug.log
 yarn-error.log
 local_version.txt
 .env
+.env.*
+!.env.example
+!.env.dusk.example
+!.env.travis
+!.env.ci
+.env.backup
+.env.local
+.env.production
+.env.staging
 .phpunit.result.cache
 _ide_helper.php
 
@@ -26,7 +35,13 @@ _ide_helper.php
 .env.dusk.local
 .env.cypress
 /public/vendors/*
+/public/build/*
 *.log
+*backup*
+*.backup
+*.key
+!database/migrations/*backup*
+!tests/**/*backup*
 
 # Ignore local migrations
 storage/migrations

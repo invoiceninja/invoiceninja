@@ -142,6 +142,14 @@ Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
+// Super Admin Routes
+Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json', 'locale', 'super_admin'], 'prefix' => 'api/v1/super-admin', 'as' => 'super_admin.'], function () {
+    Route::get('dashboard', [App\Http\Controllers\SuperAdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('companies', [App\Http\Controllers\SuperAdminController::class, 'companies'])->name('companies.index');
+    Route::get('companies/{id}', [App\Http\Controllers\SuperAdminController::class, 'showCompany'])->name('companies.show');
+    Route::put('companies/{id}/toggle', [App\Http\Controllers\SuperAdminController::class, 'toggleCompany'])->name('companies.toggle');
+});
+
 Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
 
     Route::post('password_timeout', PasswordTimeoutController::class)->name('password_timeout');

@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -130,7 +125,8 @@ class CreateCompany
             nlog("Could not resolve country => {$e->getMessage()}");
         }
 
-        return '840';
+        $canada = Country::where('iso_3166_2', 'CA')->first();
+        return $canada ? (string)$canada->id : '840';
 
     }
 

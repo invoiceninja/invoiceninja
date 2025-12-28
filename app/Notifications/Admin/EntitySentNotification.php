@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -92,7 +87,7 @@ class EntitySentNotification extends Notification
         return (new SlackMessage())
                     ->from(ctrans('texts.notification_bot'))
                     ->success()
-                    ->image('https://app.invoiceninja.com/favicon-v2.png')
+                    ->image('')
                     ->content(trans(
                         "texts.notification_{$this->entity_name}_sent_subject",
                         [

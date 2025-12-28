@@ -150,6 +150,79 @@ Route::get('.env', function () {
 
 Route::fallback(function () {
 
+    // Helper function to get correct MIME type
+    $getMimeType = function($filePath) {
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        
+        // Explicit MIME type mapping for common web files
+        $mimeTypes = [
+            'js' => 'application/javascript',
+            'mjs' => 'application/javascript',
+            'css' => 'text/css',
+            'json' => 'application/json',
+            'png' => 'image/png',
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
+            'woff' => 'font/woff',
+            'woff2' => 'font/woff2',
+            'ttf' => 'font/ttf',
+            'eot' => 'application/vnd.ms-fontobject',
+            'html' => 'text/html',
+            'htm' => 'text/html',
+        ];
+        
+        if (isset($mimeTypes[$extension])) {
+            return $mimeTypes[$extension];
+        }
+        
+        // Fallback to system detection
+        $detected = mime_content_type($filePath);
+        return $detected ?: 'application/octet-stream';
+    };
+
+    // Don't intercept static file requests (React JS/CSS files)
+    // php artisan serve should handle these, but Laravel routing catches them first
+    $path = request()->path();
+    $publicPath = public_path($path);
+    
+    // If it's a static file that exists, serve it directly
+    if (file_exists($publicPath) && is_file($publicPath)) {
+        return response()->file($publicPath, [
+            'Content-Type' => $getMimeType($publicPath),
+        ]);
+    }
+
+    // React assets live under a versioned subfolder. If the requested file
+    // misses, try the current app version's directory before falling through.
+    $reactVersion = config('ninja.app_version');
+    if ($reactVersion && str_starts_with($path, 'react/') && $reactVersion !== '') {
+        $reactRelative = substr($path, strlen('react/'));
+        $versionedPath = public_path("react/v{$reactVersion}/{$reactRelative}");
+        if (file_exists($versionedPath) && is_file($versionedPath)) {
+            return response()->file($versionedPath, [
+                'Content-Type' => $getMimeType($versionedPath),
+            ]);
+        }
+    }
+    
+    // Also check common static file patterns and abort early
+    if (str_starts_with($path, 'react/') || 
+        str_starts_with($path, 'build/') || 
+        str_starts_with($path, 'css/') || 
+        str_starts_with($path, 'js/') ||
+        str_starts_with($path, 'vendor/') ||
+        str_ends_with($path, '.js') ||
+        str_ends_with($path, '.css') ||
+        str_ends_with($path, '.png') ||
+        str_ends_with($path, '.jpg') ||
+        str_ends_with($path, '.svg') ||
+        str_ends_with($path, '.woff') ||
+        str_ends_with($path, '.woff2')) {
+        abort(404); // Let web server handle static files
+    }
+
     if (Ninja::isSelfHost()) {
 
         $result = false;

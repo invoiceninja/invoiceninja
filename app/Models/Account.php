@@ -1,11 +1,6 @@
 <?php
 
 /**
- * Invoice Ninja (https://invoiceninja.com).
- *
- * @link https://github.com/invoiceninja/invoiceninja source repository
- *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -133,6 +128,7 @@ class Account extends BaseModel
         'set_react_as_default_ap',
         'inapp_transaction_id',
         'e_invoicing_token',
+        'is_super_admin',
     ];
 
     protected $casts = [
@@ -143,6 +139,7 @@ class Account extends BaseModel
         'set_react_as_default_ap' => 'bool',
         'promo_expires' => 'date',
         'discount_expires' => 'date',
+        'is_super_admin' => 'boolean',
     ];
 
     public const PLAN_FREE = 'free';
@@ -654,5 +651,15 @@ class Account extends BaseModel
     public function canTrial(): bool
     {
         return !$this->is_trial && empty($this->plan) && $this->created_at > time() - (60 * 60 * 24 * 14); //@phpstan-ignore-line
+    }
+
+    /**
+     * Check if account is a super admin
+     *
+     * @return bool
+     */
+    public function isSuperAdmin(): bool
+    {
+        return (bool) $this->is_super_admin;
     }
 }
