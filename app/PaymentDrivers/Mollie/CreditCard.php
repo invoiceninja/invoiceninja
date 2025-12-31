@@ -98,7 +98,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
                 }
 
                 if ($molliePayment->status === 'open') {
-                    $this->mollie->payment_hash->withData('payment_id', $molliePayment->id);
+                    $this->mollie->payment_hash->withData('transaction_reference', $molliePayment->id);
 
                     if (!$molliePayment->getCheckoutUrl()) {
                         return render('gateways.mollie.mollie_placeholder');
@@ -172,7 +172,7 @@ class CreditCard implements MethodInterface, LivewireMethodInterface
             }
 
             if ($molliePayment->status === 'open') {
-                $this->mollie->payment_hash->withData('payment_id', $molliePayment->id);
+                $this->mollie->payment_hash->withData('transaction_reference', $molliePayment->id);
 
                 if (!$molliePayment->getCheckoutUrl()) {
                     return response()->render('gateways.mollie.mollie_placeholder');

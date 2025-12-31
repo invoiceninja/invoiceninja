@@ -148,15 +148,15 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request): \Illuminate\Http\Response|RedirectResponse
     {
-        if (! \property_exists($this->mollie->payment_hash->data, 'payment_id')) {
+        if (! \property_exists($this->mollie->payment_hash->data, 'transaction_reference')) {
             return $this->processUnsuccessfulPayment(
-                new PaymentFailed('Whoops, something went wrong. Missing required [payment_id] parameter. Please contact administrator. Reference hash: '.$this->mollie->payment_hash->hash)
+                new PaymentFailed('Whoops, something went wrong. Missing required [transaction_reference] parameter. Please contact administrator. Reference hash: '.$this->mollie->payment_hash->hash)
             );
         }
 
         try {
             $molliePayment = $this->mollie->gateway->payments->get(
-                $this->mollie->payment_hash->data->payment_id
+                $this->mollie->payment_hash->data->transaction_reference
             );
 
             if ($molliePayment->status === 'paid') {
