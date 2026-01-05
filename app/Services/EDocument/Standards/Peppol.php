@@ -1507,9 +1507,9 @@ class Peppol extends AbstractService
             $tax_subtotal->TaxCategory = $this->globalTaxCategories[0];
 
             $tax_total->TaxSubtotal[] = $tax_subtotal;
-
-            $this->p_invoice->TaxTotal[] = $tax_total;
         }
+
+        $this->p_invoice->TaxTotal[] = $tax_total;
 
         return $this;
     }
