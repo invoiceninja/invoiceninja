@@ -654,10 +654,8 @@ class Peppol extends AbstractService
             case Product::PRODUCT_TYPE_DIGITAL:
             case Product::PRODUCT_TYPE_PHYSICAL:
             case Product::PRODUCT_TYPE_SHIPPING:
-                $tax_type = 'S';
-                break;
             case Product::PRODUCT_TYPE_REDUCED_TAX:
-                $tax_type = 'AA';
+                $tax_type = 'S';
                 break;
             case Product::PRODUCT_TYPE_EXEMPT:
                 $tax_type =  'E';
@@ -1492,12 +1490,6 @@ class Peppol extends AbstractService
             // Required: TaxCategory ID (BT-118)
             $category_id = new ID();
             $category_id->value = $this->getTaxType($grouped_tax['tax_id']); // Standard rate
-
-            // Temp fix for reduced tax rate categorization.
-            if($grouped_tax['tax_rate'] < 15 && $grouped_tax['tax_rate'] >= 0) {
-                $category_id->value = 'AA';
-            }
-
             $tax_category->ID = $category_id;
 
             // Required: TaxCategory Rate (BT-119)
