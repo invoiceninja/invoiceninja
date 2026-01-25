@@ -214,6 +214,15 @@ class StorecoveRouter
         $parts = explode(":", $identifier);
         $country = $parts[0];
 
+        /** When using HERMES, the country does not resolve, we cast back to BE here. */
+        if($country == 'LEI'){
+            $country = 'BE';
+            $identifier = 'BE:VAT';
+        }
+        elseif($country == 'GLN'){
+            return 'routing_id';
+        }
+
         $rules = $this->routing_rules[$country];
 
         if (is_array($rules) && !is_array($rules[0])) {

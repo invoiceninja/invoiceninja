@@ -17,7 +17,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\ChecksEntityStatus;
-use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Http\ValidationRules\EInvoice\ValidInvoiceScheme;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
 
@@ -102,7 +101,9 @@ class UpdateInvoiceRequest extends Request
     {
         $validator->after(function ($validator) {
 
-            if($this->invoice->company->verifactuEnabled() && $this->invoice->status_id !== \App\Models\Invoice::STATUS_DRAFT){
+            if(request()->input('paid') == 'true'){
+            }
+            elseif($this->invoice->company->verifactuEnabled() && $this->invoice->status_id !== \App\Models\Invoice::STATUS_DRAFT){
                 $validator->errors()->add('status_id', ctrans('texts.locked_invoice'));
             }
 

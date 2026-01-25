@@ -22,6 +22,15 @@ class BlackListRule implements ValidationRule
 {
     /** Bad domains +/- disposable email domains */
     private array $blacklist = [
+        "usdtbeta.com",
+        "asurad.com",
+        "isb.nu.edu.pk",
+        "edux3.us",
+        "bwmyga.com",    
+        "asurad.com",
+        "comfythings.com",
+        "edu.pk",
+        "bablace.com",
         "moonfee.com",
         "edus2.us",
         "educj.org",
@@ -4144,6 +4153,9 @@ class BlackListRule implements ValidationRule
         $parts = explode("@", $value);
 
         if (is_array($parts) && in_array($parts[1], $this->blacklist)) {
+            $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
+        }
+        elseif(is_array($parts) && substr($parts[1], -4) === ".sbs") {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
         }
     }

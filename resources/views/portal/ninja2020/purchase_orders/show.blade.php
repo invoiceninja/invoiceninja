@@ -53,8 +53,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            @if($key)
-                window.history.pushState({}, "", "{{ url("vendor/purchase_order/{$key}") }}");
+            @if($_key)
+                window.history.pushState({}, "", "{{ url("vendor/purchase_order/{$_key}") }}");
             @endif
 
         });

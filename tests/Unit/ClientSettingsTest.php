@@ -25,16 +25,11 @@ class ClientSettingsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->makeTestData();
-
-        $this->faker = \Faker\Factory::create();
     }
 
 

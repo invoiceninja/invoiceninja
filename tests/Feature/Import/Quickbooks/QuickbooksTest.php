@@ -35,8 +35,6 @@ class QuickbooksTest extends TestCase
     protected $quickbooks;
     protected $data;
     protected QuickbooksService $qb;
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -49,8 +47,6 @@ class QuickbooksTest extends TestCase
         // elseif(Company::whereNotNull('quickbooks')->count() == 0){
         //     $this->markTestSkipped('No need to run this test on Travis');
         // }
-
-        $this->faker = \Faker\Factory::create();
     }
 
     public function createQbProduct()

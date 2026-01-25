@@ -36,9 +36,6 @@ class RecurringDatesTest extends TestCase
     use MakesHash;
     use MockAccountData;
     use DatabaseTransactions;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();

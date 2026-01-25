@@ -322,7 +322,8 @@ trait ChartQueries
     {
 
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
-        //            AND invoices.balance > 0
+        
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
 
         return DB::select("
             SELECT
@@ -332,7 +333,7 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3)
+            {$status_filter}
             AND invoices.company_id = :company_id
             AND clients.is_deleted = 0
             {$user_filter}
@@ -347,6 +348,7 @@ trait ChartQueries
     {
 
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3)' : 'AND invoices.status_id IN (2,3)';
         //AND invoices.balance > 0
         return DB::select("
             SELECT
@@ -355,7 +357,7 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3)
+            {$status_filter}
             AND invoices.company_id = :company_id
             AND clients.is_deleted = 0
             {$user_filter}
@@ -416,13 +418,14 @@ trait ChartQueries
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
         //AND invoices.amount > 0 @2024-12-03 - allow negative invoices to be included
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
         return DB::select("
             SELECT
                 SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as invoiced_amount
             FROM clients
             JOIN invoices ON invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3,4)
+            {$status_filter}
             AND invoices.company_id = :company_id
             {$user_filter}
             
@@ -441,9 +444,8 @@ trait ChartQueries
     public function getInvoicesQuery($start_date, $end_date)
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
-        // $user_filter = $this->is_admin ? '' : 'AND (clients.user_id = '.$this->user->id.' OR clients.assigned_user_id = '.$this->user->id.')';
 
-        //AND invoices.amount > 0 @2024-12-03 - allow negative invoices to be included
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
 
         return DB::select("
             SELECT
@@ -452,7 +454,7 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3,4)
+            {$status_filter}
             AND invoices.company_id = :company_id
             {$user_filter}
             
@@ -467,6 +469,8 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
+
         return DB::select("
             SELECT
                 SUM(invoices.balance / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
@@ -474,7 +478,7 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3,4)
+            {$status_filter}
             AND invoices.company_id = :company_id
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
@@ -492,6 +496,8 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
+
 
         return DB::select("
             SELECT
@@ -500,7 +506,7 @@ trait ChartQueries
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
-            WHERE invoices.status_id IN (2,3,4)
+            {$status_filter}
             AND invoices.company_id = :company_id
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
@@ -523,6 +529,8 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
+
         return DB::select("
             SELECT
                 SUM(invoices.amount / COALESCE(NULLIF(invoices.exchange_rate, 0), 1)) as total,
@@ -534,7 +542,7 @@ trait ChartQueries
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
             {$user_filter}
-            AND invoices.status_id IN (2,3,4)
+            {$status_filter}
             AND (invoices.date BETWEEN :start_date AND :end_date)
             GROUP BY invoices.date
         ", [
@@ -548,10 +556,12 @@ trait ChartQueries
     {
         $user_filter = $this->is_admin ? '' : 'AND clients.user_id = '.$this->user->id;
 
+        $status_filter = $this->include_drafts ? 'AND invoices.status_id IN (1,2,3,4)' : 'AND invoices.status_id IN (2,3,4)';
+
         return DB::select("
             SELECT
             sum(invoices.amount) as total,
-            invoices.date
+            invoices.date   
             FROM clients
             JOIN invoices
             on invoices.client_id = clients.id
@@ -559,7 +569,7 @@ trait ChartQueries
             AND clients.is_deleted = 0
             AND invoices.is_deleted = 0
             {$user_filter}
-            AND invoices.status_id IN (2,3,4)
+            {$status_filter}
             AND (invoices.date BETWEEN :start_date AND :end_date)
             AND IFNULL(CAST(JSON_UNQUOTE(JSON_EXTRACT(clients.settings, '$.currency_id')) AS SIGNED), :company_currency) = :currency_id
             GROUP BY invoices.date

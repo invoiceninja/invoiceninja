@@ -34,8 +34,6 @@ class TaskApiTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    private $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,12 +42,10 @@ class TaskApiTest extends TestCase
 
         Session::start();
 
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
     }
 
-    private function checkTimeLog(array $log): bool
+    private function checkTimeLog(array $log)
     {
         if (count($log) == 0) {
             return true;

@@ -51,7 +51,7 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->invoice->delete();
 
-        event(new \App\Events\Invoice\InvoiceWasDeleted($this->invoice, $this->invoice->company, \App\Utils\Ninja::eventVars(auth()->guard('api')->user() ? auth()->guard('api')->user()->id : null)));
+        event(new \App\Events\Invoice\InvoiceWasDeleted($this->invoice, $this->invoice->company, \App\Utils\Ninja::eventVars(auth()->user() ? auth()->user()->id : null)));
 
         return $this->invoice;
     }

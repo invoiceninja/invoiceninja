@@ -46,9 +46,6 @@ class ClientTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     public $client_id;
 
     protected function setUp(): void
@@ -56,9 +53,6 @@ class ClientTest extends TestCase
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         // $this->withoutExceptionHandling();

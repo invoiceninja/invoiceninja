@@ -25,8 +25,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            @if($key)
-                window.history.pushState({}, "", "{{ url("client/credit/{$key}") }}");
+            @if($_key)
+                window.history.pushState({}, "", "{{ url("client/credit/{$_key}") }}");
             @endif
 
         });

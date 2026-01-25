@@ -81,7 +81,7 @@ class BulkInvoiceJob implements ShouldQueue
 
                     $invoice->service()->markSent()->save();
 
-                    if($invoice->verifactuEnabled() && !$invoice->hasSentAeat()) {
+                    if($invoice->company->verifactuEnabled() && !$invoice->hasSentAeat()) {
                         $invoice->invitations()->update(['email_error' => 'primed']); // Flag the invitations as primed for AEAT submission
                         $invoice->service()->sendVerifactu();
                         return false;

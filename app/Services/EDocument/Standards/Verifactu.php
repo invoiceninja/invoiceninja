@@ -196,7 +196,24 @@ class Verifactu extends AbstractService
             $nif = $log->nif;
             $invoiceNumber = $log->invoice_number;
             $date = $log->date->format('d-m-Y');
-            $total = (string)round($log->invoice->amount, 2);
+            $totalAmount = $log->invoice->amount;
+
+            // Intentar usar el importe que realmente se envió a la AEAT (sin retenciones)
+            try {
+                $state = @unserialize($log->state);
+
+                if ($state instanceof VerifactuInvoice) {
+                    $stateTotal = $state->getImporteTotal();
+
+                    if (is_numeric($stateTotal)) {
+                        $totalAmount = (float)$stateTotal;
+                    }
+                }
+            } catch (\Throwable $e) {
+                nlog('VERIFACTU WARNING: [qr-state]' . $e->getMessage());
+            }
+
+            $total = (string)round($totalAmount, 2);
 
             $url = sprintf(
                 $this->aeat_client->base_qr_url,

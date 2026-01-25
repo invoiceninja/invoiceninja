@@ -5,6 +5,7 @@ use Elastic\Adapter\Indices\Mapping;
 use Elastic\Adapter\Indices\Settings;
 use Elastic\Migrations\Facades\Index;
 use Elastic\Migrations\MigrationInterface;
+use Elastic\Elasticsearch\ClientBuilder;
 
 final class CreateClientsIndex implements MigrationInterface
 {
@@ -13,6 +14,12 @@ final class CreateClientsIndex implements MigrationInterface
      */
     public function up(): void
     {
+        // Check if index already exists (idempotency)
+        $client = ClientBuilder::fromConfig(config('elastic.client.connections.default'));
+        if ($client->indices()->exists(['index' => 'clients_v2'])) {
+            return; // Index already exists, skip creation
+        }
+
         $mapping = [
             'properties' => [
                 // Core client fields
@@ -140,7 +147,6 @@ final class CreateClientsIndex implements MigrationInterface
         Index::dropIfExists('clients_v2');
     }
 }
-
 
 
 

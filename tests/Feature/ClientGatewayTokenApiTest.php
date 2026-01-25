@@ -26,8 +26,6 @@ class ClientGatewayTokenApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    protected $faker;
     protected CompanyGateway $cg;
 
     protected function setUp(): void
@@ -41,9 +39,6 @@ class ClientGatewayTokenApiTest extends TestCase
         if (! config('ninja.testvars.stripe')) {
             $this->markTestSkipped('Skip test no company gateways installed');
         }
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();
@@ -97,6 +92,32 @@ class ClientGatewayTokenApiTest extends TestCase
         $this->cg->save();
     }
 
+
+    public function testCompanyGatewaySettableOnTokenAndDefaultIsTrue()
+    {
+
+        $data = [
+            'client_id' => $this->client->hashed_id,
+            'company_gateway_id' => $this->cg->hashed_id,
+            'gateway_type_id' => GatewayType::CREDIT_CARD,
+            'token' => 'tokey',
+            'gateway_customer_reference' => 'reffy',
+            'meta' => '{}',
+            'is_default' => true,
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/client_gateway_tokens', $data);
+
+        $response->assertStatus(200);
+        $arr = $response->json();
+
+        $t1 = $arr['data']['id'];
+
+        $this->assertTrue($arr['data']['is_default']);
+    }
 
     public function testCompanyGatewaySettableOnToken()
     {

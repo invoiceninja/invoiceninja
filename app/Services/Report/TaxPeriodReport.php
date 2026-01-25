@@ -450,7 +450,7 @@ class TaxPeriodReport extends BaseExport
         $this->data['invoices'][] = $invoice_row_builder->build();
 
         // Build and add invoice item rows for each tax detail
-        foreach ($event->metadata->tax_report->tax_details as $tax_detail_data) {
+        foreach ($event->metadata->tax_report->tax_details ?? [] as $tax_detail_data) {
             $tax_detail = TaxDetail::fromMetadata($tax_detail_data);
 
             $item_row_builder = new InvoiceItemReportRow(

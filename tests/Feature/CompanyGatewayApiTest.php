@@ -33,8 +33,6 @@ class CompanyGatewayApiTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
     use CompanyGatewayFeesAndLimitsSaver;
 
     protected function setUp(): void
@@ -44,10 +42,45 @@ class CompanyGatewayApiTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
+    }
+
+    public function testCompanyGatewayIdsUpdateWhenAddingNewGateway()
+    {
+        $settings = $this->company->settings;
+        $settings->company_gateway_ids = "Xe0Vjm5ybx,Xe00Aw9Lex,Xe0RpmK3Gb";
+        $this->company->settings = $settings;
+        $this->company->save();
+
+        $this->assertEquals("Xe0Vjm5ybx,Xe00Aw9Lex,Xe0RpmK3Gb", $this->company->getSetting('company_gateway_ids'));
+
+        $data = [
+            'config' => 'random config',
+            'gateway_key' => '3b6621f970ab18887c4f6dca78d3f8bb',
+        ];
+
+        /* POST */
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/company_gateways', $data);
+
+        $cg = $response->json();
+
+        $cg_id = $cg['data']['id'];
+
+        $this->assertNotNull($cg_id);
+
+        $response->assertStatus(200);        
+
+        $company = $this->company->fresh();
+
+        $settings = $company->settings;
+
+        $this->assertCount(4, explode(',', $company->getSetting('company_gateway_ids')));
+
+        $this->assertStringContainsString($cg_id, $company->getSetting('company_gateway_ids'));
+
     }
 
     public function testBulkActions()

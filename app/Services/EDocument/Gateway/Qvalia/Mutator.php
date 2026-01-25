@@ -17,7 +17,8 @@ use App\Services\EDocument\Gateway\MutatorInterface;
 
 class Mutator implements MutatorInterface
 {
-    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice $p_invoice;
+    /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
+    private \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice;
 
     private ?\InvoiceNinja\EInvoice\Models\Peppol\Invoice $_client_settings;
 
@@ -38,12 +39,18 @@ class Mutator implements MutatorInterface
         return $this;
     }
 
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice
+     */
     public function setPeppol($p_invoice): self
     {
         $this->p_invoice = $p_invoice;
         return $this;
     }
 
+    /**
+     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+     */
     public function getPeppol(): mixed
     {
         return $this->p_invoice;

@@ -12,12 +12,12 @@
 
 namespace App\Livewire\Flow2;
 
-use App\Exceptions\PaymentFailed;
-use App\Utils\Traits\WithSecureContext;
 use Livewire\Component;
 use App\Libraries\MultiDB;
 use App\Models\CompanyGateway;
+use App\Exceptions\PaymentFailed;
 use App\Models\InvoiceInvitation;
+use App\Utils\Traits\WithSecureContext;
 use App\Services\ClientPortal\LivewireInstantPayment;
 
 class ProcessPayment extends Component
@@ -29,15 +29,15 @@ class ProcessPayment extends Component
     private array $payment_data_payload = [];
 
     public $isLoading = true;
-
+    public $_key;
     public function mount()
     {
 
-        MultiDB::setDb($this->getContext()['db']);
+        MultiDB::setDb($this->getContext($this->_key)['db']);
 
-        $invitation = InvoiceInvitation::find($this->getContext()['invitation_id']);
+        $invitation = InvoiceInvitation::find($this->getContext($this->_key)['invitation_id']);
 
-        $_context = $this->getContext();
+        $_context = $this->getContext($this->_key);
 
         $data = [
             'company_gateway_id' => $_context['company_gateway_id'],
@@ -65,7 +65,7 @@ class ProcessPayment extends Component
             $gateway_fee = data_get($responder_data, 'payload.total.fee_total', false);
             $amount = data_get($responder_data, 'payload.total.amount_with_fee', 0);
 
-            $this->bulkSetContext([
+            $this->bulkSetContext($this->_key, [
                 'amount' => $amount,
                 'gateway_fee' => $gateway_fee,
             ]);
@@ -116,7 +116,7 @@ class ProcessPayment extends Component
         $bag->add('gateway_error', $e->getMessage());
         session()->put('errors', $errors->put('default', $bag));
 
-        $invoice_id = $this->getContext()['payable_invoices'][0]['invoice_id'];
+        $invoice_id = $this->getContext($this->_key)['payable_invoices'][0]['invoice_id'];
         $this->redirectRoute('client.invoice.show', ['invoice' => $invoice_id]);
         $stopPropagation();
 

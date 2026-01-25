@@ -186,6 +186,9 @@ class QuoteExport extends BaseExport
             $entity['quote.user_id'] = $quote->user ? $quote->user->present()->name() : '';
         }
 
+        if (in_array('quote.subtotal', $this->input['report_keys'])) {
+            $entity['quote.subtotal'] = $quote->calc()->getSubTotal();
+        }
 
         return $entity;
     }

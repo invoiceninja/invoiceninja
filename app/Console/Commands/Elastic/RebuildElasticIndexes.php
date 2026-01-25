@@ -335,12 +335,11 @@ class RebuildElasticIndexes extends Command
         $this->line("  Waiting for our {$expectedJobCount} jobs to complete...");
         $this->line("  (Tracking: pending + processing jobs)", 'comment');
         
-        $maxWaitSeconds = 600;
         $startTime = time();
         $lastReportedDelta = -1;
         $stableCount = 0;
         
-        while ((time() - $startTime) < $maxWaitSeconds) {
+        while (true) {
             try {
                 $currentJobCount = $this->getTotalActiveJobCount($connection, $queueName);
                 $delta = $currentJobCount - $baselineJobCount;
@@ -370,13 +369,6 @@ class RebuildElasticIndexes extends Command
                 sleep(10);
                 return;
             }
-        }
-        
-        try {
-            $finalCount = $this->getTotalActiveJobCount($connection, $queueName);
-            $this->warn("  ⚠ Timeout after {$maxWaitSeconds}s (active: {$finalCount}, baseline: {$baselineJobCount})");
-        } catch (\Exception $e) {
-            $this->warn("  ⚠ Timeout after {$maxWaitSeconds}s - continuing");
         }
     }
     

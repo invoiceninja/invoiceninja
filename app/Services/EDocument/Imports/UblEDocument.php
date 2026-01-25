@@ -54,17 +54,15 @@ class UblEDocument extends AbstractService
     /**
      * extractInvoiceUbl
      *
-     * If the <Invoice object is nested, this method will
-     * extract and return only the <Invoice> document.
+     * If the <Invoice or <CreditNote object is nested, this method will
+     * extract and return only the document.
      *
      * @param  string $xml
      * @return string
      */
     private function extractInvoiceUbl(string $xml): string
     {
-
         $xml = str_replace('<?xml version="1.0" encoding="UTF-8"?>', '', $xml);
-        // nlog($xml);
 
         $dom = new \DOMDocument();
         $dom->loadXML($xml);
@@ -73,28 +71,43 @@ class UblEDocument extends AbstractService
 
         // Register the namespaces
         $xpath->registerNamespace('sh', 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader');
-        $xpath->registerNamespace('ubl', 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2');
+        $xpath->registerNamespace('ubl-inv', 'urn:oasis:names:specification:ubl:schema:xsd:Invoice-2');
+        $xpath->registerNamespace('ubl-cn', 'urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2');
 
-        // Search for Invoice with default namespace
-        $invoiceNodes = $xpath->query('//ubl:Invoice');
+        // Try to find Invoice first
+        $invoiceNodes = $xpath->query('//ubl-inv:Invoice');
 
-        if ($invoiceNodes === false || $invoiceNodes->length === 0) {
-            throw new \Exception('No Invoice tag found in XML');
+        if ($invoiceNodes !== false && $invoiceNodes->length > 0) {
+            $invoiceNode = $invoiceNodes->item(0);
+            $newDom = new \DOMDocument();
+            $newNode = $newDom->importNode($invoiceNode, true);
+            $newDom->appendChild($newNode);
+            return $newDom->saveXML($newDom->documentElement);
         }
 
-        $invoiceNode = $invoiceNodes->item(0);
+        // Try to find CreditNote
+        $creditNoteNodes = $xpath->query('//ubl-cn:CreditNote');
 
-        // Create new document with just the Invoice
-        $newDom = new \DOMDocument();
-        $newNode = $newDom->importNode($invoiceNode, true);
-        $newDom->appendChild($newNode);
+        if ($creditNoteNodes !== false && $creditNoteNodes->length > 0) {
+            $creditNoteNode = $creditNoteNodes->item(0);
+            $newDom = new \DOMDocument();
+            $newNode = $newDom->importNode($creditNoteNode, true);
+            $newDom->appendChild($newNode);
+            return $newDom->saveXML($newDom->documentElement);
+        }
 
-        return $newDom->saveXML($newDom->documentElement);
-
+        throw new \Exception('No Invoice or CreditNote tag found in XML');
     }
 
-    private function buildAndSaveExpense(\InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice): Expense
+    /**
+     * Build and save expense from Peppol Invoice or CreditNote
+     *
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     * @return Expense
+     */
+    private function buildAndSaveExpense(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Expense
     {
+        $isCreditNote = $invoice instanceof \InvoiceNinja\EInvoice\Models\Peppol\CreditNote;
 
         $vendor = $this->findOrCreateVendor($invoice);
 
@@ -124,7 +137,10 @@ class UblEDocument extends AbstractService
                                     return $means === false;
                                 })->implode("\n");
 
-        $invoice_items = data_get($invoice, 'InvoiceLine', []);
+        // Handle both InvoiceLine and CreditNoteLine
+        $invoice_items = $isCreditNote
+            ? data_get($invoice, 'CreditNoteLine', [])
+            : data_get($invoice, 'InvoiceLine', []);
 
         $items = [];
 
@@ -225,7 +241,10 @@ class UblEDocument extends AbstractService
         })?->id ?? (int) $this->company->settings->currency_id;
     }
 
-    private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice): Vendor
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     */
+    private function findOrCreateVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
         $asp = $invoice->AccountingSupplierParty;
 
@@ -256,7 +275,10 @@ class UblEDocument extends AbstractService
         return $vendor ?? $this->newVendor($invoice);
     }
 
-    private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice): string
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     */
+    private function resolveSupplierName(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
         if (data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false)) {
             $party_name = data_get($invoice, 'AccountingSupplierParty.Party.PartyName', false);
@@ -271,7 +293,10 @@ class UblEDocument extends AbstractService
         return '';
     }
 
-    private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice): string
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     */
+    private function resolveVendorIdNumber(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
 
         $pts = data_get($invoice, 'AccountingSupplierParty.Party.PartyIdentification', false);
@@ -280,7 +305,10 @@ class UblEDocument extends AbstractService
 
     }
 
-    private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice): string
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     */
+    private function resolveVendorVat(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): string
     {
 
         $pts = data_get($invoice, 'AccountingSupplierParty.Party.PartyTaxScheme', false);
@@ -289,7 +317,10 @@ class UblEDocument extends AbstractService
 
     }
 
-    private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice): Vendor
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice
+     */
+    private function newVendor(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice): Vendor
     {
         $vendor = VendorFactory::create($this->company->id, $this->company->owner()->id);
 

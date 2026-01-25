@@ -476,7 +476,7 @@ class Payment extends BaseModel
         if (Ninja::isHosted()) {
             $domain = $this->company->domain();
         } else {
-            $domain = strlen($this->company->portal_domain) > 5 ? $this->company->portal_domain : config('ninja.app_url');
+            $domain = strlen($this->company->portal_domain ?? '') > 5 ? $this->company->portal_domain : config('ninja.app_url');
         }
 
         return $domain.'/client/payment/'.$this->client->contacts()->first()->contact_key.'/'.$this->hashed_id.'?next=/client/payments/'.$this->hashed_id;

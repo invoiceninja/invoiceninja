@@ -145,7 +145,9 @@ return [
     'gocardless' => [
         'client_id' => env('GOCARDLESS_CLIENT_ID', null),
         'client_secret' => env('GOCARDLESS_CLIENT_SECRET', null),
-        'debug' => env('APP_DEBUG',false)
+        'debug' => env('APP_DEBUG',false),
+        'redirect_uri' => env('GOCARDLESS_REDIRECT_URI', null),
+        'environment' => env('GOCARDLESS_ENVIRONMENT', 'production'),
     ],
     'quickbooks_webhook' => [
         'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),

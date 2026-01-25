@@ -18,6 +18,8 @@ use Illuminate\Validation\Rule;
 
 class StoreNoteRequest extends Request
 {
+    public $error_message;
+    
     /**
      * Determine if the user is authorized to make this request.
      *

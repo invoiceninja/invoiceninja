@@ -142,7 +142,7 @@ class Blockonomics implements LivewireMethodInterface
             'btc_price' => ['required'],
         ]);
 
-        $this->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
+        $this->blockonomics->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
 
         // Calculate fiat amount from Bitcoin
         $amount_received_satoshis = $request->btc_amount;
@@ -152,16 +152,12 @@ class Blockonomics implements LivewireMethodInterface
         $fiat_amount = round(($price_per_btc_in_fiat * $amount_received_btc), 2);
 
         // Get the expected amount from payment hash
-        $payment_hash_data = $this->payment_hash->data;
+        $payment_hash_data = $this->blockonomics->payment_hash->data;
         $expected_amount = $payment_hash_data->amount_with_fee;
 
         // Adjust invoice allocations to match actual received amount if the amounts don't match
         if (!BcMath::equal($fiat_amount, $expected_amount)) {
             $this->adjustInvoiceAllocations($fiat_amount);
-
-            // Update the blockonomics driver's payment_hash reference
-            // This is the key - the driver needs the updated payment_hash
-            $this->blockonomics->payment_hash = $this->payment_hash;
         }
 
         try {
@@ -216,7 +212,7 @@ class Blockonomics implements LivewireMethodInterface
      */
     private function adjustInvoiceAllocations(float $amount_received): void
     {
-        $payment_hash_data = $this->payment_hash->data;
+        $payment_hash_data = $this->blockonomics->payment_hash->data;
 
         // Get the invoices array from payment hash data
         $invoices = $payment_hash_data->invoices ?? [];
@@ -274,8 +270,8 @@ class Blockonomics implements LivewireMethodInterface
         $payment_hash_data->invoices = $adjusted_invoices;
         $payment_hash_data->amount_with_fee = $amount_received; // Critical: Update total amount
 
-        $this->payment_hash->data = $payment_hash_data;
-        $this->payment_hash->save();
+        $this->blockonomics->payment_hash->data = $payment_hash_data;
+        $this->blockonomics->payment_hash->save();
     }
     // Not supported yet
     public function refund(Payment $payment, $amount)

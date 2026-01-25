@@ -50,50 +50,14 @@ class Blockonomics {
     }
 
 
-    async fetchAndDisplayQRCode (newBtcAmount = null) {
-        try {
-            const btcAddress = document.querySelector('meta[name="btc_address"]').content;
-            const btcAmount = newBtcAmount || '{{$btc_amount}}';
-            const qrString = encodeURIComponent(`bitcoin:${btcAddress}?amount=${btcAmount}`);
-            const response = await fetch(`/api/v1/get-blockonomics-qr-code?qr_string=${qrString}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const svgText = await response.text();
-            document.getElementById('qrcode-container').innerHTML = svgText;
-        } catch (error) {
-            console.error('Error fetching QR code:', error);
-            document.getElementById('qrcode-container').textContent = 'Error loading QR code';
-        }
+    // QR code fetching is now handled by Livewire component (BlockonomicsQRCode)
+    async fetchAndDisplayQRCode () {
+        // This method is deprecated - use Livewire component instead
     };
 
-    startTimer = (seconds) => {
-        const countDownDate = new Date().getTime() + seconds * 1000;
-        document.getElementById("countdown").innerHTML = "10" + ":" + "00" + " min";
-
-        const updateCountdown = () => {
-            const now = new Date().getTime();
-            const distance = countDownDate - now;
-
-            const isRefreshing = document.getElementsByClassName("btc-value")[0].innerHTML.includes("Refreshing");
-            if (isRefreshing) {
-                return;
-            }
-
-            if (distance < 0) {
-                refreshBTCPrice();
-                return;
-            }
-
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            const formattedMinutes = String(minutes).padStart(2, '0');
-            const formattedSeconds = String(seconds).padStart(2, '0');
-            document.getElementById("countdown").innerHTML = formattedMinutes + ":" + formattedSeconds + " min";
-        }
-
-        clearInterval(window.countdownInterval);
-        window.countdownInterval = setInterval(updateCountdown, 1000);
+    // Countdown timer is now handled by Livewire component (BlockonomicsPriceDisplay)
+    startTimer = () => {
+        // This method is deprecated - use Livewire component instead
     }
 
 

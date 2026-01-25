@@ -338,6 +338,33 @@ abstract class QueryFilters
     }
 
 
+
+    /**
+     * Filter by created at date range
+     *
+     * @param string $date_range
+     * @return Builder
+     */
+    public function created_between(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        if (count($parts) != 2 || !in_array('created_at', \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        try {
+
+            $start_date = Carbon::parse($parts[0]);
+            $end_date = Carbon::parse($parts[1]);
+
+            return $this->builder->whereBetween('created_at', [$start_date, $end_date]);
+        } catch (\Exception $e) {
+            return $this->builder;
+        }
+
+    }
+
     /**
      * Filter by date range
      *

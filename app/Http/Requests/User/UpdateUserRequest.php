@@ -56,6 +56,8 @@ class UpdateUserRequest extends Request
             $input['email'] = trim($input['email']);
         } elseif (isset($input['email'])) {
             $input['email'] = false;
+        } else {
+            $input['email'] = $this->user->email;
         }
 
         if (array_key_exists('first_name', $input)) {

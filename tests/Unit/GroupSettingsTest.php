@@ -27,8 +27,6 @@ class GroupSettingsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
-    public $faker;
     use ClientGroupSettingsSaver;
 
     public $company_settings;

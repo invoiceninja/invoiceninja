@@ -14,6 +14,7 @@ namespace Tests;
 
 use App\Models\Task;
 use App\Models\User;
+use Faker\Generator;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -27,6 +28,7 @@ use App\Models\Product;
 use App\Models\Project;
 use App\Models\TaxRate;
 use App\Models\Currency;
+use App\Models\Language;
 use App\Models\Scheduler;
 use App\Models\TaskStatus;
 use App\Utils\TruthSource;
@@ -57,6 +59,7 @@ use App\Models\BankTransactionRule;
 use Illuminate\Support\Facades\Hash;
 use App\Factory\PurchaseOrderFactory;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\CreditRepository;
 use App\Utils\Traits\GeneratesCounter;
 use Illuminate\Support\Facades\Schema;
 use App\Models\PurchaseOrderInvitation;
@@ -66,11 +69,9 @@ use Illuminate\Support\Facades\Storage;
 use App\Factory\InvoiceInvitationFactory;
 use App\DataMapper\ClientRegistrationFields;
 use App\Jobs\Company\CreateCompanyTaskStatuses;
+
 use App\Repositories\RecurringInvoiceRepository;
 use App\Factory\InvoiceToRecurringInvoiceFactory;
-use App\Repositories\CreditRepository;
-
-use Faker\Generator;
 
 /**
  * Class MockAccountData.
@@ -87,7 +88,7 @@ trait MockAccountData
     public $quote_calc;
 
     public $recurring_invoice_calc;
-
+    
     /**
      * @var Project|null
      */
@@ -215,6 +216,8 @@ trait MockAccountData
 
     public $recurring_invoice;
 
+    public $faker;
+    
     public function makeTestData()
     {
         config(['database.default' => config('ninja.db.default')]);
@@ -227,6 +230,14 @@ trait MockAccountData
 
             $resource = Currency::query()->orderBy('name')->get();
             Cache::forever('currencies', $resource);
+            return $resource;
+
+        });
+
+        app()->singleton('languages', function ($app) {
+
+            $resource = Language::query()->orderBy('name')->get();
+            Cache::forever('languages', $resource);
             return $resource;
 
         });

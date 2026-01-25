@@ -14,11 +14,15 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Client;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\Country;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Currency;
 use Tests\MockAccountData;
+use Illuminate\Support\Str;
 use App\Models\CompanyToken;
 use App\DataMapper\InvoiceItem;
 use App\Factory\InvoiceFactory;
@@ -26,17 +30,19 @@ use App\DataMapper\CompanySettings;
 use App\Factory\CompanyUserFactory;
 use App\Factory\InvoiceItemFactory;
 use App\Helpers\Invoice\InvoiceSum;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Event;
 use App\Repositories\InvoiceRepository;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Artisan;
 use App\Helpers\Invoice\InvoiceSumInclusive;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class InvoiceMarkPaidTest extends TestCase
 {
-    use MockAccountData;
-    use DatabaseTransactions;
 
     public $invoice;
+
     public $company;
 
     public $user;
@@ -50,25 +56,35 @@ class InvoiceMarkPaidTest extends TestCase
     public $token;
 
     public $cu;
-    public $faker;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        // $this->makeTestData();
+        config(['database.default' => config('ninja.db.default')]);
 
-        $this->faker = \Faker\Factory::create();
+        if (Country::count() == 0) {
+            Artisan::call('db:seed', ['--force' => true]);
+        }
 
-        Model::reguard();
+        app()->singleton('currencies', function ($app) {
+
+            $resource = Currency::query()->orderBy('name')->get();
+            Cache::forever('currencies', $resource);
+            return $resource;
+
+        });
+        
+        Event::fake();
+
     }
 
     private function buildData()
     {
-        if ($this->account) {
+
+        if($this->account){
             $this->account->forceDelete();
         }
-
         /** @var \App\Models\Account $account */
         $this->account = Account::factory()->create([
             'hosted_client_count' => 1000,
@@ -175,7 +191,7 @@ class InvoiceMarkPaidTest extends TestCase
         $this->assertEquals(10, $i->paid_to_date);
         $this->assertEquals(4, $i->status_id);
 
-        $this->account->delete();
+        $this->account->forceDelete();
 
     }
 
@@ -245,10 +261,8 @@ class InvoiceMarkPaidTest extends TestCase
         $this->assertEquals(10, $i->paid_to_date);
         $this->assertEquals(4, $i->status_id);
 
+        $this->account->forceDelete();
 
-        $c->forceDelete();
-
-        $this->account->delete();
     }
 
 }

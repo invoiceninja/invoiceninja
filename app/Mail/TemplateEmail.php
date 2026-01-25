@@ -182,7 +182,7 @@ class TemplateEmail extends Mailable
 
             }
         } elseif ($this->invitation->credit) {//@phpstan-ignore-line
-            if (!$this->invitation->credit->client->getSetting('merge_e_invoice_to_pdf') && $this->invitation->invoice->client->getSetting('ubl_email_attachment') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
+            if (!$this->invitation->credit->client->getSetting('merge_e_invoice_to_pdf') && $this->invitation->credit->client->getSetting('ubl_email_attachment') && $this->company->account->hasFeature(Account::FEATURE_PDF_ATTACHMENT)) {
                 $xml_string = $this->invitation->credit->service()->getECredit($this->invitation->contact);
 
                 if ($xml_string) {

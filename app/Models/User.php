@@ -351,6 +351,196 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Client::class);
     }
 
+    public function activities(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Activity::class);
+    }
+
+    public function bank_integrations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BankIntegration::class)->withTrashed();
+    }
+
+    public function bank_transaction_rules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BankTransactionRule::class)->withTrashed();
+    }
+
+    public function bank_transactions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BankTransaction::class)->withTrashed();
+    }
+
+    public function client_contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ClientContact::class)->withTrashed();
+    }
+
+    public function company_gateways(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CompanyGateway::class)->withTrashed();
+    }
+
+    public function company_ledgers(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CompanyLedger::class);
+    }
+
+    public function company_tokens(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CompanyToken::class)->withTrashed();
+    }
+
+    public function credit_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CreditInvitation::class)->withTrashed();
+    }
+
+    public function credits(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Credit::class)->withTrashed();
+    }
+
+    public function designs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Design::class)->withTrashed();
+    }
+
+    public function expense_categories(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ExpenseCategory::class)->withTrashed();
+    }
+
+    public function expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Expense::class)->withTrashed();
+    }
+
+    public function group_settings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(GroupSetting::class)->withTrashed();
+    }
+
+    public function invoice_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(InvoiceInvitation::class)->withTrashed();
+    }
+
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Invoice::class)->withTrashed();
+    }
+
+    public function locations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Location::class)->withTrashed();
+    }
+
+    public function payment_terms(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PaymentTerm::class)->withTrashed();
+    }
+
+    public function payments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Payment::class)->withTrashed();
+    }
+
+    public function products(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Product::class)->withTrashed();
+    }
+
+    public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Project::class)->withTrashed();
+    }
+
+    public function purchase_order_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrderInvitation::class)->withTrashed();
+    }
+
+    public function purchase_orders(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseOrder::class)->withTrashed();
+    }
+
+    public function quote_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(QuoteInvitation::class)->withTrashed();
+    }
+
+    public function quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Quote::class)->withTrashed();
+    }
+
+    public function recurring_expenses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringExpense::class)->withTrashed();
+    }
+
+    public function recurring_invoice_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringInvoiceInvitation::class)->withTrashed();
+    }
+
+    public function recurring_invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringInvoice::class)->withTrashed();
+    }
+
+    public function recurring_quotes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringQuote::class)->withTrashed();
+    }
+
+    public function recurring_quote_invitations(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(RecurringQuoteInvitation::class)->withTrashed();
+    }
+
+    public function schedules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Scheduler::class)->withTrashed();
+    }
+
+    public function system_logs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SystemLog::class)->withTrashed();
+    }
+
+    public function tasks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Task::class)->withTrashed();
+    }
+
+    public function task_statuses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaskStatus::class)->withTrashed();
+    }
+
+    public function tax_rates(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TaxRate::class)->withTrashed();
+    }
+
+    public function vendor_contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(VendorContact::class)->withTrashed();
+    }
+
+    public function vendors(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Vendor::class)->withTrashed();
+    }
+
+    public function webhooks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Webhook::class)->withTrashed();
+    }
+
     /**
      * Returns a comma separated list of user permissions.
      *

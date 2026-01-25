@@ -75,5 +75,17 @@ class DesignRepository extends BaseRepository
 
     }
 
+    public function clone($design, $user)
+    {
+
+        $new_design = $design->replicate();
+        $new_design->company_id = $user->company()->id;
+        $new_design->user_id = $user->id;
+        $new_design->name = $new_design->name.' clone '.date('Y-m-d H:i:s');
+        $new_design->save();
+
+        return $new_design;
+    }
+
 
 }

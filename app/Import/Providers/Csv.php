@@ -382,7 +382,6 @@ class Csv extends BaseImport implements ImportInterface
 
         $this->entity_count['tasks'] = $task_count;
 
-
     }
 
     public function transform(array $data)

@@ -12,6 +12,7 @@
 
 namespace App\Models;
 
+use App\DataMapper\InvoiceBackup;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Elastic\ScoutDriverPlus\Searchable;
@@ -54,7 +55,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $due_date
  * @property bool $is_deleted
  * @property array|null $line_items
- * @property object|null $backup
+ * @property InvoiceBackup $backup
  * @property string|null $footer
  * @property string|null $public_notes
  * @property string|null $private_notes
@@ -155,7 +156,7 @@ class Credit extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'credits_v2';
+        return 'credits';
     }
 
     protected $presenter = CreditPresenter::class;
@@ -196,11 +197,12 @@ class Credit extends BaseModel
         'subscription_id',
         'vendor_id',
         'location_id',
+        'e_invoice',
     ];
 
     protected $casts = [
         'line_items' => 'object',
-        'backup' => 'object',
+        'backup' => InvoiceBackup::class,
         'updated_at' => 'timestamp',
         'created_at' => 'timestamp',
         'deleted_at' => 'timestamp',

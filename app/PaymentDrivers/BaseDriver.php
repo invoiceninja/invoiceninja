@@ -517,7 +517,7 @@ class BaseDriver extends AbstractPaymentDriver
         if ($this->invitation) {
             return ClientContact::withTrashed()->find($this->invitation->client_contact_id);
         } elseif (auth()->guard('contact')->user()) {
-            return auth()->guard('contact')->user();
+            return $this->client->contacts()->where('email', auth()->guard('contact')->user()->email)->first() ?? $this->client->contacts()->first();
         } else {
             return false;
         }

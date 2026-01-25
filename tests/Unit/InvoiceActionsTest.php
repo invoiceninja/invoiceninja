@@ -26,8 +26,6 @@ class InvoiceActionsTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
-    public $faker;
     use ActionsInvoice;
 
     protected function setUp(): void

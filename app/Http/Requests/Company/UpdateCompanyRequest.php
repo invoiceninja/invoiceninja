@@ -130,13 +130,24 @@ class UpdateCompanyRequest extends Request
             $input['portal_domain'] = rtrim(strtolower($input['portal_domain']), "/");
         }
 
-        // /** Disabled on the hosted platform */
-        // if (isset($input['expense_mailbox']) && Ninja::isHosted() && !($this->company->account->isPaid() && $this->company->account->plan == 'enterprise')) {
-        //     unset($input['expense_mailbox']);
-        // }
+
 
         if (isset($input['settings'])) {
             $input['settings'] = (array) $this->filterSaveableSettings($input['settings']);
+        }
+
+        /**
+         * @var \App\Models\User $user
+         */
+        $user = auth()->user();
+
+        /**
+         * @var \App\Models\Company $company
+         */
+        $company = $user->company();
+
+        if(isset($company->legal_entity_id) && intval($company->legal_entity_id) > 0){
+            $input['settings']['e_invoice_type'] = 'PEPPOL';
         }
 
         if (isset($input['subdomain']) && $this->company->subdomain == $input['subdomain']) {
@@ -181,6 +192,10 @@ class UpdateCompanyRequest extends Request
 
         if (isset($input['session_timeout']) && $input['session_timeout'] < 0) {
             $input['session_timeout'] = 0;
+        }
+
+        if($company->settings->e_invoice_type == 'VERIFACTU') {
+            $input['calculate_taxes'] = false;
         }
 
         $this->replace($input);

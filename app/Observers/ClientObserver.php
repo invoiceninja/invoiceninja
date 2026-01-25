@@ -137,4 +137,5 @@ class ClientObserver
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(0);
         }
     }
+
 }

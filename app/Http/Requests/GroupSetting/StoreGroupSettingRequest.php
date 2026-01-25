@@ -96,6 +96,8 @@ class StoreGroupSettingRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        unset($settings->pdf_variables);
+
         $settings_data = new SettingsData();
         $settings = $settings_data->cast($settings)->toObject();
 

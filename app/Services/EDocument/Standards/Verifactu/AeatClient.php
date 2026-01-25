@@ -14,10 +14,11 @@ namespace App\Services\EDocument\Standards\Verifactu;
 
 use Illuminate\Support\Facades\Http;
 use App\Services\EDocument\Standards\Verifactu\ResponseProcessor;
+use App\Services\EDocument\Standards\Verifactu\Signing\SigningService;
 
 class AeatClient
 {
-    private string $base_url = 'https://www1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP';
+    private string $base_url = 'https://www1.agenciatributaria.gob.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP';
 
     private string $sandbox_url = 'https://prewww1.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP';
 
@@ -61,8 +62,34 @@ class AeatClient
         return $this;
     }
 
+    /**
+     * Sign SOAP envelope with XML Digital Signature
+     *
+     * @param string $xml - Unsigned SOAP envelope
+     * @return string - Signed SOAP envelope
+     */
+    private function signSoapEnvelope(string $xml): string
+    {
+        try {
+            $signingService = new SigningService(
+                $xml,
+                file_get_contents($this->ssl_key),
+                file_get_contents($this->certificate)
+            );
+            return $signingService->sign();
+        } catch (\Exception $e) {
+            nlog("Error signing SOAP envelope: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function send($xml): array
     {
+        // Sign the SOAP envelope before sending
+        $signed_xml = $this->signSoapEnvelope($xml);
+
+        nlog("AEAT Request URL: " . $this->base_url);
+        nlog("Signed SOAP envelope size: " . strlen($signed_xml) . " bytes");
 
         $response = Http::withHeaders([
                 'Content-Type' => 'text/xml; charset=utf-8',
@@ -74,10 +101,12 @@ class AeatClient
                 'verify' => false,
                 'timeout' => 30,
             ])
-            ->withBody($xml, 'text/xml')
+            ->withBody($signed_xml, 'text/xml')
             ->post($this->base_url);
 
         $success = $response->successful();
+
+        nlog("AEAT Response HTTP Code: " . $response->status());
 
         $responseProcessor = new ResponseProcessor();
 

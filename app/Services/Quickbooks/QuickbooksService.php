@@ -62,25 +62,28 @@ class QuickbooksService
     private function init(): self
     {
 
-        $config = [
-            'ClientID' => config('services.quickbooks.client_id'),
-            'ClientSecret' => config('services.quickbooks.client_secret'),
-            'auth_mode' => 'oauth2',
-            'scope' => "com.intuit.quickbooks.accounting",
-            'RedirectURI' => $this->testMode ? 'https://grok.romulus.com.au/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
-            'baseUrl' => $this->testMode ? CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
-        ];
+        if(config('services.quickbooks.client_id'))
+        {
+            $config = [
+                'ClientID' => config('services.quickbooks.client_id'),
+                'ClientSecret' => config('services.quickbooks.client_secret'),
+                'auth_mode' => 'oauth2',
+                'scope' => "com.intuit.quickbooks.accounting",
+                'RedirectURI' => $this->testMode ? 'https://grok.romulus.com.au/quickbooks/authorized' : 'https://invoicing.co/quickbooks/authorized',
+                'baseUrl' => $this->testMode ? CoreConstants::SANDBOX_DEVELOPMENT : CoreConstants::QBO_BASEURL,
+            ];
 
-        $merged = array_merge($config, $this->ninjaAccessToken());
+            $merged = array_merge($config, $this->ninjaAccessToken());
 
-        $this->sdk = DataService::Configure($merged);
+            $this->sdk = DataService::Configure($merged);
 
-        $this->sdk->enableLog();
-        $this->sdk->setMinorVersion("75");
-        $this->sdk->throwExceptionOnError(true);
-
-        $this->checkToken();
-
+            $this->sdk->enableLog();
+            $this->sdk->setMinorVersion("75");
+            $this->sdk->throwExceptionOnError(true);
+        
+            $this->checkToken();
+        }
+        
         $this->invoice = new QbInvoice($this);
 
         $this->quote = new QbQuote($this);

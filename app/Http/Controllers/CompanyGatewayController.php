@@ -22,8 +22,8 @@ use App\Jobs\Util\ApplePayDomain;
 use Illuminate\Support\Facades\Cache;
 use App\Factory\CompanyGatewayFactory;
 use App\Filters\CompanyGatewayFilters;
-use App\Repositories\CompanyRepository;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Repositories\CompanyGatewayRepository;
 use App\Transformers\CompanyGatewayTransformer;
 use App\PaymentDrivers\Stripe\Jobs\StripeWebhook;
 use App\PaymentDrivers\CheckoutCom\CheckoutSetupWebhook;
@@ -63,9 +63,9 @@ class CompanyGatewayController extends BaseController
 
     /**
      * CompanyGatewayController constructor.
-     * @param CompanyRepository $company_repo
+     * @param CompanyGatewayRepository $company_repo
      */
-    public function __construct(CompanyRepository $company_repo)
+    public function __construct(CompanyGatewayRepository $company_repo)
     {
         parent::__construct();
 
@@ -210,9 +210,13 @@ class CompanyGatewayController extends BaseController
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        $company = $user->company();
+
         $company_gateway = CompanyGatewayFactory::create($user->company()->id, $user->id);
         $company_gateway->fill($request->all());
         $company_gateway->save();
+
+        $this->company_repo->addGatewayToCompanyGatewayIds($company_gateway);
 
         /*Always ensure at least one fees and limits object is set per gateway*/
         $gateway_types = $company_gateway->driver(new Client())->getAvailableMethods();

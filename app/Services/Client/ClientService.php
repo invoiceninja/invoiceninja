@@ -178,7 +178,7 @@ class ClientService
         $credits = Credit::withTrashed()->where('client_id', $this->client->id)
                       ->where('is_deleted', false)
                       ->where(function ($query) {
-                          $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                          $query->where('due_date', '>=', now()->format('Y-m-d'))
                                   ->orWhereNull('due_date');
                       })
                       ->orderBy('created_at', 'ASC');
@@ -192,7 +192,7 @@ class ClientService
                   ->where('is_deleted', false)
                   ->where('balance', '>', 0)
                   ->where(function ($query) {
-                      $query->whereDate('due_date', '<=', now()->format('Y-m-d'))
+                      $query->where('due_date', '>=', now()->format('Y-m-d'))
                               ->orWhereNull('due_date');
                   })
                   ->orderBy('created_at', 'ASC')->get();

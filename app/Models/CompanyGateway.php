@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $is_deleted
  * @property string $config
  * @property object $settings
- * @property mixed $fees_and_limits
+ * @property array|object|mixed $fees_and_limits
  * @property string|null $custom_value1
  * @property string|null $custom_value2
  * @property string|null $custom_value3

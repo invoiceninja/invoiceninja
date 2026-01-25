@@ -286,7 +286,7 @@ class BankIntegrationController extends BaseController
                 $bank_integration->bank_account_status = "429 Rate limit reached, check back later....";
                 $bank_integration->save();
                 return;
-            } elseif (is_array($account) && isset($account['account_status']) && !in_array($account['account_status'], ['READY', 'PROCESSING','DISCOVERED'])) {
+            } elseif (is_array($account) && isset($account['account_status']) && !in_array($account['account_status'], ['READY', 'PROCESSING', 'DISCOVERED'])) {
                 $bank_integration->disabled_upstream = true;
                 $bank_integration->save();
 

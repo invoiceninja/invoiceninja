@@ -25,8 +25,6 @@ class InvitationTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
-    public $faker;
     use MakesHash;
 
     protected function setUp(): void

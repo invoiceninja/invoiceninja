@@ -189,13 +189,12 @@ class StorecoveExpense
             $tax_totals[] = (array)$tdf;
         }
 
-        $totals = collect($tax_totals);
-
         $party = $storecove_invoice->getAccountingSupplierParty()->getParty();
         $pis = $storecove_invoice->getAccountingSupplierParty()->getPublicIdentifiers();
 
         $vat_number = '';
         $id_number = '';
+        $routing_id = '';
 
         foreach ($pis as $pi) {
             if ($ident = $this->storecove->router->resolveIdentifierTypeByValue($pi->getScheme())) {
@@ -203,6 +202,12 @@ class StorecoveExpense
                     $vat_number = $pi->getId();
                 } elseif ($ident == 'id_number') {
                     $id_number = $pi->getId();
+                } elseif ($ident == 'routing_id') {
+                    $routing_id = $pi->getId();
+                } else{
+                    //Sometimes some very unusual identifiers are returned, we should always skip these.
+                    // ie. IBAN, etc.
+                    continue;
                 }
             }
         }
@@ -271,6 +276,7 @@ class StorecoveExpense
             'currency_id' => $currency,
             'id_number' => $id_number,
             'vat_number' => $vat_number,
+            'routing_id' => $routing_id,
             'address1' => $party->getAddress()->getStreet1() ?? '',
             'address2' => $party->getAddress()->getStreet2() ?? '',
             'city' => $party->getAddress()->getCity() ?? '',

@@ -28,7 +28,15 @@ class InvoiceTransformer extends BaseTransformer
      */
     public function transform($line_items_data)
     {
-        $invoice_data = reset($line_items_data);
+        // Handle both array of arrays and single array scenarios
+        if (is_array($line_items_data) && isset($line_items_data[0]) && is_array($line_items_data[0])) {
+            // Array of arrays - take the first invoice
+            $invoice_data = reset($line_items_data);
+        } else {
+            // Single array - use as-is
+            $invoice_data = $line_items_data;
+            $line_items_data = [$line_items_data];
+        }
 
         if ($this->hasInvoice($invoice_data['Invoice Number'])) {
             throw new ImportException('Invoice number already exists');

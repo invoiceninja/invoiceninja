@@ -251,6 +251,9 @@ class CreditExport extends BaseExport
             $entity['credit.user_id'] = $credit->user ? $credit->user->present()->name() : ''; //@phpstan-ignore-line
         }
 
+        if (in_array('credit.subtotal', $this->input['report_keys'])) {
+            $entity['credit.subtotal'] = $credit->calc()->getSubTotal();
+        }   
         return $entity;
     }
 }

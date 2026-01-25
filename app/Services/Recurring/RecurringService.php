@@ -180,9 +180,9 @@ class RecurringService
 
     }
 
-    public function location(): array
+    public function location(bool $set_countries = true): array
     {
-        return (new LocationData($this->recurring_entity))->run();
+        return (new LocationData($this->recurring_entity))->run($set_countries);
     }
 
     public function save()

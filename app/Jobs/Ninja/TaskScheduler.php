@@ -64,7 +64,12 @@ class TaskScheduler implements ShouldQueue
                         //@var \App\Models\Schedule $scheduler
                         $scheduler->service()->runTask();
                     } catch (\Throwable $e) {
+                        
                         nlog("Exception:: TaskScheduler:: Doing job :: {$scheduler->id} :: {$scheduler->name}" . $e->getMessage());
+
+                        if (app()->bound('sentry')) {
+                            app('sentry')->captureException($e);
+                        }
                     }
 
                 });

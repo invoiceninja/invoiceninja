@@ -15,6 +15,7 @@ namespace App\Services\Pdf;
 use App\Jobs\EDocument\CreateEDocument;
 use App\Models\Company;
 use App\Models\CreditInvitation;
+use App\Utils\Gotenberg\GotenbergPdf;
 use App\Models\Invoice;
 use App\Models\InvoiceInvitation;
 use App\Models\PurchaseOrderInvitation;
@@ -165,6 +166,8 @@ class PdfService
             $pdf = (new Phantom())->convertHtmlToPdf($html);
         } elseif (config('ninja.invoiceninja_hosted_pdf_generation') || config('ninja.pdf_generator') == 'hosted_ninja') {
             $pdf = (new NinjaPdf())->build($html);
+       } elseif (config('ninja.pdf_generator') == 'gotenberg') {
+            $pdf = (new GotenbergPdf())->convertHtmlToPdf($html);
         } else {
             $pdf = $this->makePdf(null, null, $html);
         }

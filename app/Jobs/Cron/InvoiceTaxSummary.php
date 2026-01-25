@@ -44,6 +44,9 @@ class InvoiceTaxSummary implements ShouldQueue
 
     public function handle()
     {
+        nlog("InvoiceTaxSummary:: Starting job @ " . now()->toDateTimeString());
+        $start = now();
+
         $currentUtcHour = now()->hour;
         $transitioningTimezones = $this->getTransitioningTimezones($currentUtcHour);
      
@@ -56,6 +59,8 @@ class InvoiceTaxSummary implements ShouldQueue
                 $this->processCompanyTaxSummary($company);
             }
         }
+
+        nlog("InvoiceTaxSummary:: Job completed in " . now()->diffInSeconds($start) . " seconds");
     }
 
     private function getTransitioningTimezones($utcHour)
@@ -117,7 +122,11 @@ class InvoiceTaxSummary implements ShouldQueue
         }
 
         // Get companies that have timezone_id in their JSON settings matching the transitioning timezones
-        return Company::whereRaw("JSON_EXTRACT(settings, '$.timezone_id') IN (" . implode(',', $timezoneIds) . ")")->get();
+        $companies = Company::whereRaw("JSON_EXTRACT(settings, '$.timezone_id') IN (" . implode(',', $timezoneIds) . ")")->get();
+    
+        nlog("InvoiceTaxSummary:: Found " . $companies->count() . " companies in timezones: " . implode(',', $timezoneIds));
+
+        return $companies;
     }
 
     private function processCompanyTaxSummary($company)

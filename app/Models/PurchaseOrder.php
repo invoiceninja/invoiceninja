@@ -141,7 +141,7 @@ class PurchaseOrder extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'purchase_orders_v2';
+        return 'purchase_orders';
     }
 
     protected $hidden = [
@@ -234,7 +234,7 @@ class PurchaseOrder extends BaseModel
             'name' => ctrans('texts.purchase_order') . " " . $this->number . " | " . $this->vendor->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => (string)$this->number,
-            'is_deleted' => (bool)$this->is_deleted,
+            'is_deleted' => $this->is_deleted,
             'amount' => (float) $this->amount,
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,

@@ -12,11 +12,13 @@
 
 namespace App\Http\Requests\Invoice;
 
+use App\Utils\Ninja;
 use App\Models\Invoice;
 use App\Http\Requests\Request;
-use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\Invoice\ActionsInvoice;
 use App\Exceptions\DuplicatePaymentException;
+use App\Helpers\Cache\Atomic;
 
 class BulkInvoiceRequest extends Request
 {
@@ -78,13 +80,12 @@ class BulkInvoiceRequest extends Request
         $user = auth()->user();
         $key = ($this->ip()."|".$this->input('action', 0)."|".$user->company()->company_key);
 
-        if (\Illuminate\Support\Facades\Cache::has($key)) {
-            throw new DuplicatePaymentException('Action still processing, please wait. ', 429);
-        }
+        // Calculate TTL: 1 second base, or up to 3 seconds for delete actions
+        $delay = $this->input('action', 'delete') == 'delete' ? (min(count($this->input('ids', [])), 3)) : 1;
 
-        if($this->input('ids', false)){
-            $delay = $this->input('action', 'delete') == 'delete' ? (min(count($this->input('ids', 2)), 3)) : 1;
-            \Illuminate\Support\Facades\Cache::put($key, true, $delay);
+        // Atomic lock: returns false if key already exists (request in progress)
+        if (!Atomic::set($key, true, $delay)) {
+            throw new DuplicatePaymentException('Action still processing, please wait. ', 429);
         }
 
         $this->merge(['lock_key' => $key]);

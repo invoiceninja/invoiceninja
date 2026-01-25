@@ -404,7 +404,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '';
 
         foreach ($this->payment->invoices as $invoice) {
-            if (strlen($invoice->po_number) > 1) {
+            if (strlen($invoice->po_number ?? '') > 1) {
                 $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
             }
 
@@ -433,7 +433,7 @@ class PaymentEmailEngine extends BaseEmailEngine
         $invoice_list = '<br><br>';
 
         foreach ($this->payment->invoices as $invoice) {
-            if (strlen($invoice->po_number) > 1) {
+            if (strlen($invoice->po_number ?? '') > 1) {
                 $invoice_list .= ctrans('texts.po_number')." {$invoice->po_number} <br>";
             }
 

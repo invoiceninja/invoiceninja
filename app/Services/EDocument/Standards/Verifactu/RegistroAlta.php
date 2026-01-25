@@ -186,7 +186,7 @@ class RegistroAlta
             $destinatario->setNombreRazon($this->invoice->client->present()->name());
             $destinatario->setCodigoPais('ES')
                         ->setIdType('03')
-                        ->setId($this->invoice->client->id_number);
+                        ->setId($this->invoice->client->id_number ?? '');
 
         } else {
             $locationData = $this->invoice->service()->location();

@@ -22,9 +22,6 @@ class ActivityApiTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();

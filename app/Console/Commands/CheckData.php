@@ -184,7 +184,7 @@ class CheckData extends Command
     private function checkTaskTimeLogs()
     {
         \App\Models\Task::query()->cursor()->each(function ($task) {
-            $time_log = json_decode($task->time_log, true) ?? [];
+            $time_log = json_decode(($task->time_log ?? ''), true) ?? [];
 
             foreach($time_log as &$log){
                 if(count($log) > 4){
@@ -521,7 +521,8 @@ class CheckData extends Command
                             $this->logMessage("Add invitation for {$entity_key} - {$entity->id}");
                         }
                     } else {
-                        $this->logMessage("No contact present, so cannot add invitation for {$entity_key} - {$entity->id}");
+                        $this->logMessage("No contact present ( ? vendor not present ?? ), so cannot add invitation for {$entity_key} - {$entity->id}");
+
 
                         try {
                             $entity->service()->createInvitations()->save();

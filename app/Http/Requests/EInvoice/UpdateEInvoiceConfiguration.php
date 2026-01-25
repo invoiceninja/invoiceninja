@@ -39,7 +39,7 @@ class UpdateEInvoiceConfiguration extends Request
     public function rules()
     {
         return [
-           'entity' => 'required|bail|in:invoice,client,company',
+           'entity' => 'required|bail|in:credit,invoice,client,company',
            'payment_means' => 'sometimes|bail|array',
            'payment_means.*.code' => ['required_with:payment_means', 'bail', Rule::in(PaymentMeans::getPaymentMeansCodelist())],
            'payment_means.*.bic_swift' => Rule::forEach(function (string|null $value, string $attribute) {

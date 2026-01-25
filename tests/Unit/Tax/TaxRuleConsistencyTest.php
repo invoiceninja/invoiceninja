@@ -31,9 +31,6 @@ class TaxRuleConsistencyTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -45,9 +42,6 @@ class TaxRuleConsistencyTest extends TestCase
         $this->withoutExceptionHandling();
 
         $this->makeTestData();
-
-        $this->faker = \Faker\Factory::create();
-
     }
 
     private function setupTestData(array $params = []): array

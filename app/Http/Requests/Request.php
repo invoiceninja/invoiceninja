@@ -213,7 +213,7 @@ class Request extends FormRequest
                 }
 
                 if (array_key_exists('email', $contact)) {
-                    $input['contacts'][$key]['email'] = trim($contact['email']);
+                    $input['contacts'][$key]['email'] = trim($contact['email'] ?? '');
                 }
             }
         }

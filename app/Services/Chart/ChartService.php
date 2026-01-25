@@ -27,7 +27,7 @@ class ChartService
     use ChartQueries;
     use ChartCalculations;
 
-    public function __construct(public Company $company, private User $user, private bool $is_admin)
+    public function __construct(public Company $company, private User $user, private bool $is_admin, private bool $include_drafts = false)
     {
     }
 
