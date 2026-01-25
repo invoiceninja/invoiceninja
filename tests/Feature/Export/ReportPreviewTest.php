@@ -40,15 +40,9 @@ class ReportPreviewTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->withoutMiddleware(
             ThrottleRequests::class
         );

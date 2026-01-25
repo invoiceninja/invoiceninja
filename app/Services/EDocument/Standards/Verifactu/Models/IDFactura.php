@@ -35,9 +35,9 @@ class IDFactura extends BaseXmlModel
         return $this->numSerieFactura;
     }
 
-    public function setNumSerieFactura(string $numSerieFactura): self
+    public function setNumSerieFactura(?string $numSerieFactura = ''): self
     {
-        $this->numSerieFactura = $numSerieFactura;
+        $this->numSerieFactura = $numSerieFactura ?? '&';
         return $this;
     }
 

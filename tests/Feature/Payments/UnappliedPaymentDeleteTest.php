@@ -35,9 +35,6 @@ class UnappliedPaymentDeleteTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
         $this->withoutExceptionHandling();
 

@@ -240,6 +240,8 @@ class ZugferdTest extends TestCase
 
             $invoice_data['uses_inclusive_taxes'] = false;
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -301,6 +303,8 @@ class ZugferdTest extends TestCase
 
             $invoice_data['uses_inclusive_taxes'] = false;
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -360,6 +364,9 @@ class ZugferdTest extends TestCase
 
             $invoice_data['uses_inclusive_taxes'] = false;
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
+
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -406,6 +413,8 @@ class ZugferdTest extends TestCase
         foreach ($this->inclusive_scenarios as $scenario) {
 
             $invoice_data = json_decode($scenario, true);
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -455,6 +464,8 @@ class ZugferdTest extends TestCase
 
             $invoice_data['uses_inclusive_taxes'] = false;
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -793,6 +804,8 @@ class ZugferdTest extends TestCase
 
             $invoice_data['uses_inclusive_taxes'] = false;
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -839,6 +852,8 @@ class ZugferdTest extends TestCase
 
             $invoice_data = json_decode($scenario, true);
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 
@@ -887,6 +902,8 @@ class ZugferdTest extends TestCase
 
             $invoice_data['uses_inclusive_taxes'] = false;
 
+            unset($invoice_data['hashed_id']);
+            unset($invoice_data['status']);
             $invoice = $repo->save($invoice_data, $invoice);
             $invoice = $invoice->calc()->getInvoice();
 

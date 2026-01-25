@@ -28,9 +28,6 @@ class WebhookAPITest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,9 +35,6 @@ class WebhookAPITest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-        $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
 
         $this->withoutExceptionHandling();

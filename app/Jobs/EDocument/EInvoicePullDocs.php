@@ -27,6 +27,8 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
+use App\Utils\Traits\Notifications\UserNotifies;
+
 
 class EInvoicePullDocs implements ShouldQueue
 {
@@ -35,6 +37,7 @@ class EInvoicePullDocs implements ShouldQueue
     use Queueable;
     use SerializesModels;
     use SavesDocuments;
+    use UserNotifies;
 
     public $deleteWhenMissingModels = true;
 
@@ -97,19 +100,29 @@ class EInvoicePullDocs implements ShouldQueue
 
 
                         if($this->einvoice_received_count > 0) {
-                            App::setLocale($company->getLocale());
 
-                            $mo = new EmailObject();
-                            $mo->subject = ctrans('texts.einvoice_received_subject');
-                            $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                            $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
-                            $mo->company_key = $company->company_key;
-                            $mo->html_template = 'email.template.admin';
-                            $mo->to = [new Address($company->owner()->email, $company->owner()->present()->name())];
-                            // $mo->email_template_body = 'einvoice_received_body';
-                            // $mo->email_template_subject = 'einvoice_received_subject';
-                    
-                            Email::dispatch($mo, $company);
+                            foreach ($company->company_users as $company_user) {
+                                
+                                $user = $company_user->user;
+
+                                $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
+
+                                if(!array_search('mail', $notifications)){
+                                    continue;
+                                }
+
+                                App::setLocale($company->getLocale());
+
+                                $mo = new EmailObject();
+                                $mo->subject = ctrans('texts.einvoice_received_subject');
+                                $mo->body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                                $mo->text_body = ctrans('texts.einvoice_received_body', ['count' => $this->einvoice_received_count]);
+                                $mo->company_key = $company->company_key;
+                                $mo->html_template = 'email.template.admin';
+                                $mo->to = [new Address($user->email, $user->present()->name())];
+                        
+                                Email::dispatch($mo, $company);
+                            }
                         }
 
                     });

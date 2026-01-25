@@ -32,7 +32,6 @@ class CompanySettingsTest extends TestCase
     use DatabaseTransactions;
     use MockAccountData;
 
-    public $faker;
     // use RefreshDatabase;
 
     public function setUp(): void
@@ -43,7 +42,6 @@ class CompanySettingsTest extends TestCase
 
         Session::start();
 
-        $this->faker = \Faker\Factory::create();
         $this->withoutExceptionHandling();
         Model::reguard();
     }

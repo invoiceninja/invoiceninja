@@ -83,6 +83,27 @@ trait Inviteable
 
     }
 
+    /** 
+     * stubbed for future when we want to change from svg to png qrcodes.
+     */
+    // public function getPaymentQrCodeRawPng()
+    // {
+        
+    //     $result = \Endroid\QrCode\Builder\Builder::create()
+    //         ->writer(new \Endroid\QrCode\Writer\PngWriter())
+    //         ->data($this->getPaymentLink())
+    //         ->encoding(new \Endroid\QrCode\Encoding\Encoding('UTF-8'))
+    //         ->errorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Medium) 
+    //         ->size(150) 
+    //         ->margin(0)
+    //         ->build();
+
+    //     $png = base64_encode($result->getString());
+        
+    //     return '<img src="data:image/png;base64,' . $png . '" alt="QR Code" />';
+
+    // }
+
     public function getUnsubscribeLink()
     {
         if (Ninja::isHosted()) {

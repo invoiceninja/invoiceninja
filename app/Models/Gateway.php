@@ -25,7 +25,7 @@ namespace App\Models;
  * @property bool $is_offsite
  * @property bool $is_secure
  * @property object|null|string $fields
- * @property string|int $default_gateway_type_id
+ * @property string $default_gateway_type_id
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property-read mixed $options
@@ -147,7 +147,7 @@ class Gateway extends StaticModel
             case 56:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded', 'charge.refunded', 'payment_intent.payment_failed']],
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.refunded','charge.succeeded', 'customer.source.updated', 'payment_intent.processing', 'payment_intent.payment_failed', 'charge.failed']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.refunded', 'charge.succeeded', 'customer.source.updated', 'setup_intent.succeeded', 'payment_intent.processing', 'payment_intent.payment_failed', 'charge.failed']],
                     GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['payment_intent.processing', 'charge.refunded', 'payment_intent.succeeded', 'payment_intent.partially_funded', 'payment_intent.payment_failed']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],
@@ -231,8 +231,8 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => true, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //BTCPay
-            case 63:
-                return [
+	    case 63:
+		return [
                     GatewayType::BANK_TRANSFER => [
                         'refund' => false,
                         'token_billing' => true,

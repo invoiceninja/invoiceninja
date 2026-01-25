@@ -35,8 +35,6 @@ class TaskRoundingTest extends TestCase
 
     public bool $task_round_up = true;
 
-    private $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -44,9 +42,6 @@ class TaskRoundingTest extends TestCase
         $this->makeTestData();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
     }
 

@@ -162,6 +162,21 @@ class CheckACHStatus implements ShouldQueue
 
             });
 
+            /**
+             * Blockonomics payments that have been pending for over 3 days are deleted
+             */
+            Payment::where('status_id', 1)
+                ->where('created_at', '<', now()->startOfDay()->subDays(3))
+                ->whereHas('company_gateway', function ($q) {
+                    $q->where('gateway_key', 'wbhf02us6owgo7p4nfjd0ymssdshks4d');
+                })
+                ->cursor()
+                ->each(function ($p) {
+                    $p->service()->deletePayment();
+                    $p->status_id = \App\Models\Payment::STATUS_FAILED;
+                    $p->save();
+                });
+            
         }
     }
 }

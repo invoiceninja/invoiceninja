@@ -527,10 +527,26 @@ class DesignController extends BaseController
 
         $ids = request()->input('ids');
 
-        $designs = Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids));
-
         /** @var \App\Models\User $user */
         $user = auth()->user();
+
+
+        if($action == 'clone') {
+            $design = Design::withTrashed()
+                            ->whereIn('id', $this->transformKeys($ids))
+                            ->where(function ($q){
+                                $q->where('company_id', auth()->user()->company()->id)
+                                  ->orWhereNull('company_id');
+                            })->first();
+
+            if($design){
+                $this->design_repo->clone($design, $user);
+            }
+
+            return response()->noContent();
+        }
+
+        $designs = Design::withTrashed()->company()->whereIn('id', $this->transformKeys($ids));
 
         $designs->each(function ($design, $key) use ($action, $user) {
             if ($user->can('edit', $design)) {

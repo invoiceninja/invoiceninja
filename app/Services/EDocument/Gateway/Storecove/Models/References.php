@@ -2,10 +2,16 @@
 
 namespace App\Services\EDocument\Gateway\Storecove\Models;
 
+use Symfony\Component\Serializer\Attribute\SerializedName;
+use Symfony\Component\Serializer\Attribute\SerializedPath;
+
 class References
 {
     public ?string $document_type;
+
     public ?string $document_type_code;
+
+    #[SerializedPath('[cac:InvoiceDocumentReference][cbc:ID][#]')]
     public ?string $document_id;
     public ?string $document_uuid;
     public ?string $document_id_scheme_id;
@@ -15,6 +21,8 @@ class References
     public ?string $document_id_list_agency_id;
     public ?string $document_id_list_version_id;
     public ?string $line_id;
+
+    #[SerializedPath('[cac:InvoiceDocumentReference][cbc:IssueDate]')]
     public ?string $issue_date;
     public ?string $document_description;
 
@@ -33,7 +41,7 @@ class References
         ?string $issue_date,
         ?string $document_description
     ) {
-        $this->document_type = $document_type;
+        $this->document_type = $document_type ?? 'billing';
         $this->document_type_code = $document_type_code;
         $this->document_id = $document_id;
         $this->document_uuid = $document_uuid;
@@ -50,7 +58,7 @@ class References
 
     public function getDocumentType(): ?string
     {
-        return $this->document_type;
+        return $this->document_type ?? "billing";
     }
 
     public function getDocumentTypeCode(): ?string

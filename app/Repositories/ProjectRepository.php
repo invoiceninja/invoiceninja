@@ -21,13 +21,23 @@ use App\Models\Project;
  * Class for project repository.
  */
 class ProjectRepository extends BaseRepository
-{
+{    
+    /**
+     * Invoices a collection of projects into a single invoice.
+     *
+     * @param  mixed $projects
+     * @return App\Models\Invoice
+     */
     public function invoice(mixed $projects)
     {
         $_project = $projects->first();
 
         $invoice = InvoiceFactory::create($_project->company_id, $_project->user_id);
         $invoice->client_id = $_project->client_id;
+
+        if(count($projects) == 1) {
+            $invoice->project_id = $_project->id;
+        }
         // $invoice->project_id = $project->id;
 
         $lines = [];

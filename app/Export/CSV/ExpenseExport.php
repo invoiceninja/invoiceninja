@@ -276,7 +276,11 @@ class ExpenseExport extends BaseExport
                 $total_tax_amount = ($this->calcInclusiveLineTax($expense->tax_rate1 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate2 ?? 0, $expense->amount, $precision)) + ($this->calcInclusiveLineTax($expense->tax_rate3 ?? 0, $expense->amount, $precision));
                 $entity['expense.net_amount'] = round(($expense->amount - round($total_tax_amount, $precision)), $precision);
             } else {
-                $total_tax_amount = ($expense->amount * (($expense->tax_rate1 ?? 0) / 100)) + ($expense->amount * (($expense->tax_rate2 ?? 0) / 100)) + ($expense->amount * (($expense->tax_rate3 ?? 0) / 100));
+                $tax_amount1 = $expense->amount * (($expense->tax_rate1 ?? 0) / 100);
+                $tax_amount2 = $expense->amount * (($expense->tax_rate2 ?? 0) / 100);
+                $tax_amount3 = $expense->amount * (($expense->tax_rate3 ?? 0) / 100);
+
+                $total_tax_amount = round($tax_amount1, $precision) + round($tax_amount2, $precision) + round($tax_amount3, $precision);
                 $entity['expense.net_amount'] = round($expense->amount, $precision);
                 $entity['expense.amount'] = round($expense->amount, $precision) + $total_tax_amount;
             }

@@ -53,10 +53,10 @@ class RequiredFields extends Component
     public bool $is_loading = true;
 
     public array $errors = [];
-
+    public $_key;
     public function mount(): void
     {
-        $_context = $this->getContext();
+        $_context = $this->getContext($this->_key);
 
         MultiDB::setDB(
             $_context['db'],
@@ -114,7 +114,7 @@ class RequiredFields extends Component
 
         $rff = new RFFService(
             fields: $this->fields,
-            database: $this->getContext()['db'],
+            database: $this->getContext($this->_key)['db'],
             company_gateway_id: (string)$this->company_gateway->id,
         );
 
@@ -134,7 +134,7 @@ class RequiredFields extends Component
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         return render('flow2.required-fields', [
-            'contact' => $this->getContext()['contact'],
+            'contact' => $this->getContext($this->_key)['contact'],
         ]);
     }
 

@@ -607,7 +607,7 @@ class ProjectController extends BaseController
         $this->entity_transformer = InvoiceTransformer::class;
         $this->entity_type = Invoice::class;
 
-        $invoice = $this->project_repo->invoice($project);
+        $invoice = $this->project_repo->invoice(collect([$project]));
 
         return $this->itemResponse($invoice);
     }

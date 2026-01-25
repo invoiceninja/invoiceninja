@@ -63,7 +63,7 @@ class EncodeClassComparisonTest extends TestCase
             'force_ascii' => iconv('UTF-8', 'ASCII//IGNORE', $original),
             'manual_replace' => str_replace(['é'], ['e'], $original), // Simplistic approach
             'regex_strip' => preg_replace('/[^\x20-\x7E]/', '?', $original),
-            'sanitize_filter' => filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH) ?: 'FILTER_FAILED',
+            'sanitize_filter' => @filter_var($original, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH) ?: 'FILTER_FAILED',
         ];
 
         // The Encode class should preserve the original

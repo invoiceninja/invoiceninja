@@ -269,7 +269,7 @@ class BillingPortalPurchase extends Component
         $data = [
             'name' => '',
             'contacts' => [
-                ['email' => $this->email],
+                ['email' => $this->email, 'is_primary' => true],
             ],
             'client_hash' => Str::random(40),
             'settings' => ClientSettings::defaults(),

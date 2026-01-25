@@ -1374,6 +1374,7 @@ class PdfBuilder
             PdfService::DELIVERY_NOTE => $this->getDeliveryNoteSections(),
             PdfService::STATEMENT => $this->getStatementSections(),
             PdfService::PURCHASE_ORDER => $this->getPurchaseOrderSections(),
+            'json_design' => $this, // JSON designs have sections pre-injected
             default => $this->getProductSections(),
         };
     }

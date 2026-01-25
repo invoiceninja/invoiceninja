@@ -95,13 +95,9 @@ class EventTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
 
-    public $faker;
-
     public function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
 
         $this->makeTestData();
 

@@ -42,12 +42,29 @@ class EInvoiceController extends BaseController
      */
     public function validateEntity(ValidateEInvoiceRequest $request)
     {
+
+        $user = auth()->user();
+
+        if(!in_array($user->company()->settings->e_invoice_type, ['VERIFACTU', 'PEPPOL'])) {
+            
+            $data = [
+                'passes' => true,
+                'invoices' => [],
+                'recurring_invoices' => [],
+                'clients' => [],
+                'companies' => [],
+            ];
+
+            return response()->json($data, 200);
+        }
+
         $el = $request->getValidatorClass();
 
         $data = [];
         
         match ($request->entity) {
             'invoices' => $data = $el->checkInvoice($request->getEntity()),
+            'recurring_invoices' => $data = $el->checkRecurringInvoice($request->getEntity()),
             'clients' => $data = $el->checkClient($request->getEntity()),
             'companies' => $data = $el->checkCompany($request->getEntity()),
             default => $data['passes'] = false,
@@ -87,7 +104,24 @@ class EInvoiceController extends BaseController
                 $pm->CardAccount = $card_account;
             }
 
-            if (isset($payment_means['iban'])) {
+            if (isset($payment_means['code']) && $payment_means['code'] == '58') {
+                $fib = new FinancialInstitutionBranch();
+                $fi = new FinancialInstitution();
+                $bic_id = new ID();
+                $bic_id->value = $payment_means['bic_swift'];
+                $fi->ID = $bic_id;
+                $fib->FinancialInstitution = $fi;
+                $pfa = new PayeeFinancialAccount();
+                $iban_id = new ID();
+                $iban_id->value = $payment_means['iban'];
+                $pfa->ID = $iban_id;
+                $pfa->Name = $payment_means['account_holder'] ?? 'SEPA_CREDIT_TRANSFER';
+                $pfa->FinancialInstitutionBranch = $fib;
+
+                $pm->PayeeFinancialAccount = $pfa;
+
+            }
+            else if (isset($payment_means['iban'])) {
                 $fib = new FinancialInstitutionBranch();
                 $fi = new FinancialInstitution();
                 $bic_id = new ID();

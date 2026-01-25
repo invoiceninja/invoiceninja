@@ -21,16 +21,53 @@ class XsltDocumentValidator
 
     private string $ubl_xsd = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/UBL2.1/UBL-Invoice-2.1.xsd';
 
-    private string $peppol_stylesheet = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/generic_stylesheet.xslt';
-    // private string $peppol_stylesheet = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/xrechung.xslt';
+    private string $ubl_credit_note_xsd = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/UBL2.1/UBL-CreditNote-2.1.xsd';
 
-    // private string $peppol_stylesheetx = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/ubl_stylesheet.xslt';
-    // private string $peppol_stylesheet = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/ci_to_ubl_stylesheet.xslt';
+    private string $peppol_stylesheet = 'Services/EDocument/Standards/Validation/Peppol/Stylesheets/generic_stylesheet.xslt';
 
     public array $errors = [];
 
+    private bool $isCreditNote = false;
+
     public function __construct(public string $xml_document)
     {
+        $this->isCreditNote = $this->detectDocumentType() === 'creditnote';
+    }
+
+    /**
+     * Detect the document type from XML content
+     *
+     * @return string 'invoice' or 'creditnote'
+     */
+    private function detectDocumentType(): string
+    {
+        // Check for CreditNote root element (with or without namespace prefix)
+        if (preg_match('/<CreditNote[^>]*>/i', $this->xml_document) ||
+            preg_match('/<[a-z0-9]+:CreditNote[^>]*>/i', $this->xml_document)) {
+            return 'creditnote';
+        }
+
+        return 'invoice';
+    }
+
+    /**
+     * Get the appropriate XSD path based on document type
+     *
+     * @return string
+     */
+    private function getXsdPath(): string
+    {
+        return $this->isCreditNote ? $this->ubl_credit_note_xsd : $this->ubl_xsd;
+    }
+
+    /**
+     * Check if the document is a Credit Note
+     *
+     * @return bool
+     */
+    public function isCreditNote(): bool
+    {
+        return $this->isCreditNote;
     }
 
     /**
@@ -87,17 +124,15 @@ class XsltDocumentValidator
 
     private function validateXsd(): self
     {
-
         libxml_use_internal_errors(true);
 
         $xml = new \DOMDocument();
         $xml->loadXML($this->xml_document);
 
-        if (!$xml->schemaValidate(app_path($this->ubl_xsd))) {
+        if (!$xml->schemaValidate(app_path($this->getXsdPath()))) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
 
-            $errorMessages = [];
             foreach ($errors as $error) {
                 $this->errors['xsd'][] = sprintf(
                     'Line %d: %s',
@@ -105,7 +140,6 @@ class XsltDocumentValidator
                     trim($error->message)
                 );
             }
-
         }
 
         return $this;
@@ -154,6 +188,7 @@ class XsltDocumentValidator
             $xml_doc = $processor->parseXmlFromString($xml);
 
             // Compile and apply stylesheet
+            /** @var \Saxon\XsltExecutable $stylesheet */
             $stylesheet = $xslt->compileFromFile(app_path($this->peppol_stylesheet)); //@phpstan-ignore-line
 
             // Transform to HTML

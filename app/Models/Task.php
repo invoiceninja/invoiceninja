@@ -132,7 +132,7 @@ class Task extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'tasks_v2';
+        return 'tasks';
     }
 
     public function getEntityType()
@@ -496,7 +496,7 @@ class Task extends BaseModel
     {
 
         return
-        collect(json_decode($this->time_log, true))->map(function ($log) {
+        collect(json_decode($this->time_log ?? '{}', true))->map(function ($log) {
 
             $parent_entity = $this->client ?? $this->company;
             $logged = [];

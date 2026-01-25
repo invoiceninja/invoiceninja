@@ -22,6 +22,10 @@
                 <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_EXPIRED }}" value="expired" type="checkbox" class="cursor-pointer form-checkbox" id="expired-checkbox">
                 <label for="expired-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.expired') }}</label>
             </div>
+            <div class="mr-3">
+                <input wire:model.live="status" value="{{ App\Models\Quote::STATUS_REJECTED }}" value="rejected" type="checkbox" class="cursor-pointer form-checkbox" id="rejected-checkbox">
+                <label for="rejected-checkbox" class="text-sm cursor-pointer">{{ ctrans('texts.rejected') }}</label>
+            </div>
         </div>
     </div>
     <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">

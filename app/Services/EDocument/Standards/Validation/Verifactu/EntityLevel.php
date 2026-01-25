@@ -19,6 +19,7 @@ use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\App;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 
@@ -33,7 +34,7 @@ class EntityLevel implements EntityLevelInterface
         // 'state',
         // 'postal_code',
         // 'vat_number',
-        'country_id',
+        // 'country_id',
     ];
 
     private array $company_settings_fields = [
@@ -82,6 +83,11 @@ class EntityLevel implements EntityLevelInterface
 
         return $this->errors;
 
+    }
+
+    public function checkRecurringInvoice(RecurringInvoice $recurring_invoice): array
+    {
+        return ['passes' => true];
     }
 
     public function checkInvoice(Invoice $invoice): array
@@ -206,9 +212,12 @@ class EntityLevel implements EntityLevelInterface
             //     $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
             // }
 
-        } elseif (empty($client->vat_number)) {
-            $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
-        }
+       
+    
+        } 
+        // elseif (empty($client->vat_number)) {
+        //     $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
+        // }
 
 
         return $errors;

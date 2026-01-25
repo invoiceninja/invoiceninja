@@ -34,17 +34,11 @@ class InvoiceEmailTest extends TestCase
     use MockAccountData;
     use DatabaseTransactions;
     use GeneratesCounter;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
 
         Session::start();
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();

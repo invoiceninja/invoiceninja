@@ -28,9 +28,6 @@ class ShopInvoiceTest extends TestCase
 {
     use MakesHash;
     use MockAccountData;
-
-    protected $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,9 +35,6 @@ class ShopInvoiceTest extends TestCase
         $this->withoutMiddleware(
             ThrottleRequests::class
         );
-
-        $this->faker = \Faker\Factory::create();
-
         Model::reguard();
 
         $this->makeTestData();

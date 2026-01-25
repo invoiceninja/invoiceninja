@@ -58,7 +58,7 @@ class ChartController extends BaseController
         $user = auth()->user();
         $admin_equivalent_permissions = $user->isAdmin() || $user->hasExactPermissionAndAll('view_all') || $user->hasExactPermissionAndAll('edit_all');
 
-        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions);
+        $cs = new ChartService($user->company(), $user, $admin_equivalent_permissions, $request->input('include_drafts', false));
 
         return response()->json($cs->totals($request->input('start_date'), $request->input('end_date')), 200);
     }

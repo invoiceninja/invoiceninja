@@ -88,6 +88,10 @@ class QuotesTable extends Component
             if (in_array('3', $this->status)) {
                 $query->whereIn('status_id', [Quote::STATUS_APPROVED, Quote::STATUS_CONVERTED]);
             }
+
+            if (in_array('5', $this->status)) {
+                $query->where('status_id', Quote::STATUS_REJECTED);
+            }
         }
 
         $query = $query

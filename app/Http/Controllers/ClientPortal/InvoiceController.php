@@ -76,7 +76,7 @@ class InvoiceController extends Controller
         $data = [
             'invoice' => $invoice->service()->removeUnpaidGatewayFees()->save(),
             'invitation' => $invitation ?: $invoice->invitations->first(),
-            'key' => $invitation ? $invitation->key : false,
+            '_key' => $invitation ? $invitation->key : false,
             'hash' => $hash,
             'variables' => $variables,
             'invoices' => [$invoice->hashed_id],

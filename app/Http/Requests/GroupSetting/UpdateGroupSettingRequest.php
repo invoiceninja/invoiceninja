@@ -86,6 +86,10 @@ class UpdateGroupSettingRequest extends Request
         $settings_data = new SettingsData();
         $settings = $settings_data->cast($settings)->toObject();
 
+
+        // Do not allow a user to force pdf variables on the client settings.
+        unset($settings->pdf_variables);
+
         if (! $user->account->isFreeHostedClient()) {
             return (array)$settings;
         }

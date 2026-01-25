@@ -184,6 +184,11 @@ class Account extends BaseModel
         return self::class;
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
     public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class)->withTrashed();

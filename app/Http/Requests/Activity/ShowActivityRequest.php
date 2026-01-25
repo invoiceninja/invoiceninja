@@ -12,6 +12,7 @@
 
 namespace App\Http\Requests\Activity;
 
+use Illuminate\Support\Str;
 use App\Http\Requests\Request;
 use App\Utils\Traits\MakesHash;
 
@@ -48,4 +49,16 @@ class ShowActivityRequest extends Request
         $this->replace($input);
 
     }
+
+    public function getEntity()
+    {
+        if (!$this->entity) {
+            return false;
+        }
+
+        $class = "\\App\\Models\\".ucfirst(Str::camel(rtrim($this->entity, 's')));
+        return $class::withTrashed()->company()->where('id', is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id)->first();
+
+    }
+    
 }

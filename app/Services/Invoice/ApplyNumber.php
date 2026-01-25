@@ -69,9 +69,19 @@ class ApplyNumber extends AbstractService
     {
         $x = 1;
 
+        /** Peppol Credit Numbers should be labelled as such. */
+        $peppol_enabled =$this->client->peppolSendingEnabled();
+
         do {
             try {
-                $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
+                
+                if($peppol_enabled && strlen(trim($this->client->getSetting('credit_number_pattern'))) > 0 && $this->invoice->amount < 0) {
+                    $this->invoice->number = $this->getPeppolCreditNumber($this->client, $this->invoice);
+                }
+                else {
+                    $this->invoice->number = $this->getNextInvoiceNumber($this->client, $this->invoice, $this->invoice->recurring_id);
+                }
+                
                 $this->invoice->saveQuietly();
 
                 $this->completed = false;

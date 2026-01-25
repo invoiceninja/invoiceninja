@@ -36,15 +36,9 @@ class CompanyTest extends TestCase
     use MakesHash;
     use MockAccountData;
     // use DatabaseTransactions;
-
-    public $faker;
-
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->makeTestData();
     }
 

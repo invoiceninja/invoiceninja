@@ -424,7 +424,7 @@ class TemplateTest extends TestCase
         $invoices = Invoice::orderBy('id', 'desc')->where('client_id', $this->client->id)->take(10)->get()->map(function ($c) {
             return $c->service()->markSent()->applyNumber()->save();
         })->map(function ($i) {
-            return ['invoice_id' => $i->hashed_id, 'amount' => rand(0, $i->balance)];
+            return ['invoice_id' => $i->hashed_id, 'amount' => rand(1, $i->balance)];
         })->toArray();
 
         Credit::factory()->count(2)->create([
@@ -439,7 +439,7 @@ class TemplateTest extends TestCase
         $credits = Credit::orderBy('id', 'desc')->where('client_id', $this->client->id)->take(2)->get()->map(function ($c) {
             return $c->service()->markSent()->applyNumber()->save();
         })->map(function ($i) {
-            return ['credit_id' => $i->hashed_id, 'amount' => rand(0, $i->balance)];
+            return ['credit_id' => $i->hashed_id, 'amount' => rand(1, $i->balance)];
         })->toArray();
 
         $data = [

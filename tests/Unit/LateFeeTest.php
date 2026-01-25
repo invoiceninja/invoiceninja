@@ -33,9 +33,6 @@ class LateFeeTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     public $account;
 
     public $company;
@@ -45,9 +42,6 @@ class LateFeeTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
-        $this->faker = \Faker\Factory::create();
-
         $this->withoutMiddleware(
             ThrottleRequests::class
         );

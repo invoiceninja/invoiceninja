@@ -179,6 +179,9 @@ class ClientRepository extends BaseRepository
         $client->system_logs()->forceDelete();
         // $client->documents()->forceDelete();
         $client->payments()->forceDelete();
+
+        $client->unsearchable();
+
         $client->forceDelete();
     }
 

@@ -26,7 +26,7 @@ class ShowChartRequest extends Request
      */
     public function authorize(): bool
     {
-        /**@var \App\Models\User auth()->user */
+        /** @var \App\Models\User auth()->user */
         $user = auth()->user();
 
         return $user->isAdmin() || $user->hasPermission('view_dashboard');
@@ -38,6 +38,7 @@ class ShowChartRequest extends Request
             'date_range' => 'bail|sometimes|string|in:last7_days,last30_days,last365_days,this_month,last_month,this_quarter,last_quarter,this_year,last_year,all_time,custom',
             'start_date' => 'bail|sometimes|date',
             'end_date' => 'bail|sometimes|date',
+            'include_drafts' => 'bail|sometimes|boolean',
         ];
     }
 
@@ -48,6 +49,8 @@ class ShowChartRequest extends Request
         $user = auth()->user();
 
         $input = $this->all();
+
+        $input['include_drafts'] = filter_var($input['include_drafts'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         if (isset($input['date_range'])) {
             $dates = $this->calculateStartAndEndDates($input, $user->company());

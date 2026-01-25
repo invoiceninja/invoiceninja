@@ -37,6 +37,7 @@ use App\Jobs\EDocument\EInvoicePullDocs;
 use App\Jobs\Cron\InvoiceTaxSummary;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Jobs\Invoice\InvoiceCheckLateWebhook;
+use App\Jobs\Invoice\InvoiceCheckOverdue;
 use App\Jobs\Subscription\CleanStaleInvoiceOrder;
 use App\PaymentDrivers\Rotessa\Jobs\TransactionReport;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -130,7 +131,10 @@ class Kernel extends ConsoleKernel
         $schedule->job(new AutoBillCron())->dailyAt('06:20')->withoutOverlapping()->name('auto-bill-job')->onOneServer();
 
         /* Fires webhooks for overdue Invoice */
-        $schedule->job(new InvoiceCheckLateWebhook())->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-job')->onOneServer();
+        $schedule->job(new InvoiceCheckLateWebhook())->dailyAt('07:00')->withoutOverlapping()->name('invoice-overdue-webhook-job')->onOneServer();
+
+        /* Fires notifications for overdue Invoice (respects company timezone) */
+        $schedule->job(new InvoiceCheckOverdue())->hourly()->withoutOverlapping()->name('invoice-overdue-notification-job')->onOneServer();
 
         /* Pulls in bank transactions from third party services */
         $schedule->job(new BankTransactionSync())->twiceDaily(1, 13)->withoutOverlapping()->name('bank-trans-sync-job')->onOneServer();

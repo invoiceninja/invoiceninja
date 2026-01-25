@@ -26,9 +26,16 @@ class EmailPreferencesController extends Controller
 {
     public function index(string $entity, string $invitation_key, Request $request): \Illuminate\View\View
     {
+
+        request()->session()->invalidate();
+        request()->session()->regenerate(true);
+        request()->session()->regenerateToken();
+        
         $class = "\\App\\Models\\".ucfirst(Str::camel($entity)).'Invitation';
         $invitation = $class::where('key', $invitation_key)->firstOrFail();
 
+        auth()->guard('contact')->loginUsingId($invitation->contact->id, true);
+        
         $data['receive_emails'] = $invitation->contact->is_locked ? false : true;
         $data['company'] = $invitation->company;
 

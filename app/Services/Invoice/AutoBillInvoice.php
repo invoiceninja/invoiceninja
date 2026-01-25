@@ -33,9 +33,12 @@ use App\Events\Invoice\InvoiceWasPaid;
 use App\Repositories\CreditRepository;
 use App\Repositories\PaymentRepository;
 use App\Events\Payment\PaymentWasCreated;
+use App\Utils\Traits\MakesHash;
 
 class AutoBillInvoice extends AbstractService
 {
+    use MakesHash;
+
     private Client $client;
 
     private array $used_credit = [];
@@ -45,9 +48,7 @@ class AutoBillInvoice extends AbstractService
 
     public function __construct(private Invoice $invoice, protected string $db)
     {
-
         $this->client = $this->invoice->client;
-
     }
 
     public function run()
@@ -55,7 +56,6 @@ class AutoBillInvoice extends AbstractService
         MultiDB::setDb($this->db);
 
         /* @var \App\Modesl\Client $client */
-
         $is_partial = false;
 
         /* Is the invoice payable? */
@@ -444,14 +444,32 @@ class AutoBillInvoice extends AbstractService
      */
     public function getGateway($amount)
     {
+        $company_gateway_ids = $this->client->getSetting('company_gateway_ids');
+
+        $transformed_ids = false;
+
+        //gateways are disabled!
+        if($company_gateway_ids == "0") {
+            return false;
+        }
+        elseif(strlen($company_gateway_ids ?? '')  > 2){
+
+            // If the client has a special gateway configuration, we need to ensure we only use the ones that are enabled!
+            $transformed_ids = $this->transformKeys(explode(',', $company_gateway_ids));
+        }
+
         //get all client gateway tokens and set the is_default one to the first record
         $gateway_tokens = \App\Models\ClientGatewayToken::query()
                                 ->where('client_id', $this->client->id)
                                 ->where('is_deleted', 0)
-                                ->whereHas('gateway', function ($query) {
+                                ->whereHas('gateway', function ($query) use ($transformed_ids) {
                                     $query->where('is_deleted', 0)
-                                            ->where('deleted_at', null);
-                                })->orderBy('is_default', 'DESC')
+                                            ->where('deleted_at', null)
+                                            ->when($transformed_ids, function ($q) use ($transformed_ids) {
+                                                $q->whereIn('id', $transformed_ids);
+                                            });
+                                })
+                                ->orderBy('is_default', 'DESC')
                                 ->get();
 
         $filtered_gateways = $gateway_tokens->filter(function ($gateway_token) use ($amount) {

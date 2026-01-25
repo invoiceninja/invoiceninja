@@ -223,9 +223,7 @@ class StoreClientRequest extends Request
         /** @var \Illuminate\Support\Collection<\App\Models\Language> */
         $languages = app('languages');
 
-        $language = $languages->first(function ($item) use ($language_code) {
-            return $item->locale == $language_code;
-        });
+        $language = $languages->firstWhere('locale', $language_code);
 
         return $language ? (string)$language->id : '';
 

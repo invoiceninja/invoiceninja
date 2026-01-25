@@ -40,6 +40,13 @@ trait GeneratesCounter
     //todo in the form validation, we need to ensure that if a prefix and pattern is set we throw a validation error,
     //only one type is allow else this will cause confusion to the end user
 
+    public function getPeppolCreditNumber(Client $client, Invoice $invoice)
+    {
+        $entity_number = $this->getNextEntityNumber(Credit::class, $client);
+
+        return $this->replaceUserVars($invoice, $entity_number);
+    }
+
     private function getNextEntityNumber($entity, Client $client, $is_recurring = false)
     {
         $prefix = '';

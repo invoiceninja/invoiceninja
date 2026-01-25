@@ -144,6 +144,7 @@ class BaseExport
         'name' => 'client.name',
         "currency" => "client.currency_id",
         "invoice_number" => "invoice.number",
+        "subtotal" => "invoice.subtotal",
         "amount" => "invoice.amount",
         "balance" => "invoice.balance",
         "paid_to_date" => "invoice.paid_to_date",
@@ -259,6 +260,7 @@ class BaseExport
         'terms' => 'purchase_order.terms',
         'total_taxes' => 'purchase_order.total_taxes',
         'currency_id' => 'purchase_order.currency_id',
+        'subtotal' => 'purchase_order.subtotal',
     ];
 
     protected array $product_report_keys  = [
@@ -348,6 +350,7 @@ class BaseExport
         'tax_rate1' => 'quote.tax_rate1',
         'tax_rate2' => 'quote.tax_rate2',
         'tax_rate3' => 'quote.tax_rate3',
+        'subtotal' => 'quote.subtotal',
     ];
 
     protected array $credit_report_keys = [
@@ -382,6 +385,7 @@ class BaseExport
         "tax_amount" => "credit.total_taxes",
         "assigned_user" => "credit.assigned_user_id",
         "user" => "credit.user_id",
+        'subtotal' => 'credit.subtotal',
   ];
 
     protected array $payment_report_keys = [
@@ -1739,13 +1743,15 @@ $products = str_getcsv($this->input['product_key'], ',', "'");
 
         $data = [
             "{$model_string}s" => $query->get(),
-            "start_date" => $this->start_date,
-            "end_date" => $this->end_date,
+            // "start_date" => $this->start_date,
+            // "end_date" => $this->end_date,
         ];
         
         $ts = new TemplateService($template);
         $ts->setCompany($this->company);
         $ts->addGlobal(['currency_code' => $this->company->currency()->code]);
+        $ts->twig->addGlobal('start_date', $this->start_date);
+        $ts->twig->addGlobal('end_date', $this->end_date);
         $ts->build($data);
 
         return $ts->getPdf();

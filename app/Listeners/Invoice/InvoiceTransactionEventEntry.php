@@ -179,7 +179,7 @@ class InvoiceTransactionEventEntry
             $tax_detail = [
                 'tax_name' => $tax['name'],
                 'tax_rate' => $tax['tax_rate'],
-                'line_total' => $tax['base_amount'],
+                'line_total' => ($tax['base_amount'] ?? $calc->getNetSubtotal()),
                 'total_tax' => $tax['total'],
                 'taxable_amount' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) - ($previousLine->line_total ?? 0),
                 'tax_amount' => $tax['total'] - ($previousLine->total_tax ?? 0),
@@ -234,7 +234,7 @@ class InvoiceTransactionEventEntry
                 'tax_rate' => $tax['tax_rate'],
                 'taxable_amount' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $this->paid_ratio * -1,
                 'tax_amount' => ($tax['total'] * $this->paid_ratio * -1),
-                'line_total' => $tax['base_amount'] * $this->paid_ratio * -1,
+                'line_total' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $this->paid_ratio * -1,
                 'total_tax' => $tax['total'] * $this->paid_ratio * -1,
                 'postal_code' => $postal_code,
 
@@ -280,7 +280,7 @@ class InvoiceTransactionEventEntry
                 'tax_rate' => $tax['tax_rate'],
                 'taxable_amount' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $this->paid_ratio,
                 'tax_amount' => ($tax['total'] * $this->paid_ratio),
-                'line_total' => $tax['base_amount'] * $this->paid_ratio,
+                'line_total' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) * $this->paid_ratio,
                 'total_tax' => $tax['total'] * $this->paid_ratio,
                 'postal_code' => $postal_code,
             ];
@@ -323,7 +323,7 @@ class InvoiceTransactionEventEntry
                 'tax_rate' => $tax['tax_rate'],
                 'taxable_amount' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) * -1,
                 'tax_amount' => $tax['total'] * -1,
-                'line_total' => $tax['base_amount'] * -1,
+                'line_total' => ($tax['base_amount'] ?? $calc->getNetSubtotal()) * -1,
                 'total_tax' => $tax['total'] * -1,
                 'postal_code' => $postal_code,
             ];

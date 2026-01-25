@@ -31,9 +31,6 @@ class UsTaxTest extends TestCase
 {
     use MockAccountData;
     use DatabaseTransactions;
-
-    public $faker;
-
     private array $mock_response = [
                 "geoPostalCode" => "92582",
                 "geoCity" => "SAN JACINTO",

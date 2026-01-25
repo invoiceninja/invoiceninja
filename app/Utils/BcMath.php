@@ -26,7 +26,7 @@ class BcMath
     /**
      * Default scale for currency calculations (2 decimal places)
      */
-    private const DEFAULT_SCALE = 2;
+    private const DEFAULT_SCALE = 10;
 
     /**
      * Add two numbers using bcmath

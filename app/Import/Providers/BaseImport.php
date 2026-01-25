@@ -12,33 +12,35 @@
 
 namespace App\Import\Providers;
 
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\Quote;
+use League\Csv\Reader;
+use App\Models\Company;
+use App\Models\Invoice;
+use League\Csv\Statement;
+use App\Factory\TaskFactory;
+use App\Factory\QuoteFactory;
 use App\Factory\ClientFactory;
+use Illuminate\Support\Carbon;
 use App\Factory\InvoiceFactory;
 use App\Factory\PaymentFactory;
-use App\Factory\QuoteFactory;
-use App\Factory\RecurringInvoiceFactory;
-use App\Factory\TaskFactory;
-use App\Http\Requests\Quote\StoreQuoteRequest;
 use App\Import\ImportException;
 use App\Jobs\Mail\NinjaMailerJob;
 use App\Jobs\Mail\NinjaMailerObject;
-use App\Mail\Import\CsvImportCompleted;
-use App\Models\Company;
-use App\Models\Invoice;
-use App\Models\Quote;
-use App\Models\User;
-use App\Repositories\ClientRepository;
-use App\Repositories\InvoiceRepository;
-use App\Repositories\PaymentRepository;
-use App\Repositories\QuoteRepository;
-use App\Repositories\RecurringInvoiceRepository;
 use App\Repositories\TaskRepository;
 use App\Utils\Traits\CleanLineItems;
-use Illuminate\Support\Carbon;
+use App\Repositories\QuoteRepository;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\ClientRepository;
+use App\Mail\Import\CsvImportCompleted;
+use App\Repositories\InvoiceRepository;
+use App\Repositories\PaymentRepository;
+use App\Factory\RecurringInvoiceFactory;
 use Illuminate\Support\Facades\Validator;
-use League\Csv\Reader;
-use League\Csv\Statement;
+use App\Http\Requests\Quote\StoreQuoteRequest;
+use App\Repositories\RecurringInvoiceRepository;
+use App\Notifications\Ninja\GenericNinjaAdminNotification;
 
 class BaseImport
 {
@@ -69,6 +71,8 @@ class BaseImport
     public ?bool $skip_header;
 
     public array $entity_count = [];
+
+    public bool $store_import_for_research = false;
 
     public function __construct(array $request, Company $company)
     {
@@ -107,7 +111,7 @@ class BaseImport
         $csv = base64_decode($base64_encoded_csv);
         // $csv = mb_convert_encoding($csv, 'UTF-8', 'UTF-8');
 
-        $csv = Reader::createFromString($csv);
+        $csv = Reader::fromString($csv);
         $csvdelimiter = self::detectDelimiter($csv);
 
         $csv->setDelimiter($csvdelimiter);
@@ -119,7 +123,8 @@ class BaseImport
 
             // Remove Invoice Ninja headers
             if (
-                count($headers) &&
+                is_array($headers) && 
+                count($headers) > 0 &&
                 count($data) > 4 &&
                 $this->import_type === 'csv'
             ) {
@@ -320,7 +325,8 @@ class BaseImport
                     $entity->saveQuietly();
                     $count++;
                 }
-            } catch (\Exception $ex) {
+            } 
+            catch (\Exception $ex) {
                 if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
                     \DB::connection(config('database.default'))->rollBack();
                 }
@@ -339,6 +345,20 @@ class BaseImport
 
                 nlog("Ingest {$ex->getMessage()}");
                 nlog($record);
+
+                $this->store_import_for_research = true;
+
+            }
+            catch(\Throwable $ex){
+                if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
+                    \DB::connection(config('database.default'))->rollBack();
+                }
+
+                nlog("Throwable:: Ingest {$ex->getMessage()}");
+                nlog($record);
+
+                $this->store_import_for_research = true;
+                
             }
         }
 
@@ -945,6 +965,39 @@ class BaseImport
         $nmo->to_user = $this->company->owner();
 
         NinjaMailerJob::dispatch($nmo, true);
+
+        /** Debug for import failures */
+        if (Ninja::isHosted() && $this->store_import_for_research) {
+
+            $content = [
+                'company_key - '. $this->company->company_key,
+                'class_name - ' . class_basename($this),
+                'hash - ' => $this->hash,
+            ];
+
+            $potential_imports = [
+                'client',
+                'product',
+                'invoice',
+                'payment',
+                'vendor',
+                'expense',
+                'quote',
+                'bank_transaction',
+                'task',
+                'recurring_invoice',
+            ];
+
+            foreach ($potential_imports as $import) {
+                
+                if(Cache::has($this->hash.'-'.$import)) {
+                    Cache::put($this->hash.'-'.$import, Cache::get($this->hash.'-'.$import), 60*60*24*2);
+                }
+            }
+
+            $this->company->notification(new GenericNinjaAdminNotification($content))->ninja();
+
+        }
     }
 
     public function preTransform(array $data, $entity_type)

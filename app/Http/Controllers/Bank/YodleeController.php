@@ -78,6 +78,11 @@ class YodleeController extends BaseController
 
         foreach ($accounts as $account) {
             if ($bi = BankIntegration::where('bank_account_id', $account['id'])->where('company_id', $company->id)->first()) {
+
+                if($bi->deleted_at){
+                    continue;
+                }
+
                 $bi->disabled_upstream = false;
                 $bi->balance = $account['current_balance'];
                 $bi->currency = $account['account_currency'];

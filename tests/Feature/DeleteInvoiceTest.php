@@ -30,8 +30,6 @@ class DeleteInvoiceTest extends TestCase
 {
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
     use MakesHash;
 
     protected function setUp(): void

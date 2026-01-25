@@ -32,9 +32,6 @@ class TaskRepositoryBulkUpdateTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
-
-    public $faker;
-
     private TaskRepository $taskRepository;
     private Client $testClient;
     private Project $testProject;

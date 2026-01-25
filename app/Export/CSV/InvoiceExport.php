@@ -249,7 +249,10 @@ class InvoiceExport extends BaseExport
 
         if (in_array('invoice.user_id', $this->input['report_keys'])) {
             $entity['invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : ''; // @phpstan-ignore-line
+        }
 
+        if (in_array('invoice.subtotal', $this->input['report_keys'])) {
+            $entity['invoice.subtotal'] = $invoice->calc()->getSubTotal();
         }
 
         return $entity;

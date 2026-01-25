@@ -100,7 +100,7 @@ class PurchaseOrderController extends Controller
 
         $data = [
             'purchase_order' => $purchase_order,
-            'key' => $invitation ? $invitation->key : false,
+            '_key' => $invitation ? $invitation->key : false,
             'settings' => $purchase_order->company->settings,
             'sidebar' => $this->sidebarMenu(),
             'company' => $purchase_order->company,

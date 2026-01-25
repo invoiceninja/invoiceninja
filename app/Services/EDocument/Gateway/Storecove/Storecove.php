@@ -76,7 +76,7 @@ class Storecove
     /**
      * build
      *
-     * @param  \App\Models\Invoice $model
+     * @param  \App\Models\Invoice|\App\Models\Credit $model
      * @return self
      */
     public function build($model): self
@@ -324,6 +324,24 @@ class Storecove
                 'acts_as_receiver' => $data['acts_as_receiver'],
             ],
         ];
+    }
+
+
+    public function removePeppolIdentifier(int $legal_entity_id, string $identifier, string $scheme, string $superscheme = "iso6523-actorid-upis"): array|\Illuminate\Http\Client\Response
+    {
+
+        $uri = "/legal_entities/{$legal_entity_id}/peppol_identifiers/{$superscheme}/{$scheme}/{$identifier}";
+        
+        $r = $this->httpClient($uri, (HttpVerb::DELETE)->value, []);
+
+        if ($r->successful()) {
+            $data = $r->json();
+
+            return $data;
+        }
+
+        return $r;
+
     }
 
     /**

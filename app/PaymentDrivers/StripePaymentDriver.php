@@ -122,6 +122,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
+            
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
@@ -700,11 +701,36 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
     public function processWebhookRequest(PaymentWebhookRequest $request)
     {
-        nlog($request->all());
-
+        // nlog($request->all());
+        $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
+ 
+        if ($webhook_secret) {
+            $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
+            if (!$sig_header) {
+                nlog("Stripe webhook signature verification failed: No signature header");
+                return response()->json(['error' => 'No signature header'], 403);
+            }
+            try {
+                \Stripe\Webhook::constructEvent(
+                    $request->getContent(),
+                    $sig_header,
+                    $webhook_secret
+                );
+            } catch (\Stripe\Exception\SignatureVerificationException $e) {
+                nlog("Stripe webhook signature verification failed: " . $e->getMessage());
+                return response()->json(['error' => 'Invalid signature'], 403);
+            }
+        }
+        
         if ($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());
+        }
+
+        // Handle SetupIntent succeeded for ACH microdeposit verification
+        if ($request->type === 'setup_intent.succeeded') {
+            $ach = new ACH($this);
+            $ach->handleSetupIntentSucceeded($request->all());
         }
 
         if ($request->type === 'payment_intent.processing') {

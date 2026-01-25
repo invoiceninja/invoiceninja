@@ -110,8 +110,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
 
-            @if($key)
-                window.history.pushState({}, "", "{{ url("client/invoice/{$key}") }}");
+            @if($_key)
+                window.history.pushState({}, "", "{{ url("client/invoice/{$_key}") }}");
             @endif
 
         });

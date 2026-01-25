@@ -163,7 +163,25 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
         $now = now();
 
         foreach ($transactions as $transaction) {
-            if (BankTransaction::query()->where('transaction_id', $transaction['transaction_id'])->where('company_id', $this->company->id)->where('bank_integration_id', $this->bank_integration->id)->withTrashed()->exists()) {
+            if (BankTransaction::query() //ensure we don't duplicate transactions with the same ID
+                            ->where('transaction_id', $transaction['transaction_id'])
+                            ->where('company_id', $this->company->id)
+                            ->where('bank_integration_id', $this->bank_integration->id)
+                            ->withTrashed()
+                            ->exists()) {
+                continue;
+            }
+            elseif (BankTransaction::query() //ensure we don't duplicate transactions that have the same amount, currency, account type, category type, date, and description
+                            ->where('company_id', $this->company->id)
+                            ->where('bank_integration_id', $this->bank_integration->id)
+                            ->where('amount', $transaction['amount'])
+                            ->where('currency_id', $transaction['currency_id'])
+                            ->where('account_type', $transaction['account_type'])
+                            ->where('category_type', $transaction['category_type'])
+                            ->where('date', $transaction['date'])
+                            ->where('description', $transaction['description'])
+                            ->withTrashed()
+                            ->exists()) {
                 continue;
             }
 

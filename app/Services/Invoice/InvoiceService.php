@@ -566,8 +566,8 @@ class InvoiceService
             return $item;
         });
 
-        Task::query()->withTrashed()->whereIn('id', $tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
-        Expense::query()->withTrashed()->whereIn('id', $tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
+        Task::query()->withTrashed()->where('company_id', $this->invoice->company_id)->whereIn('id', $tasks->pluck('task_id'))->update(['invoice_id' => $this->invoice->id]);
+        Expense::query()->withTrashed()->where('company_id', $this->invoice->company_id)->whereIn('id', $tasks->pluck('expense_id'))->update(['invoice_id' => $this->invoice->id]);
 
         return $this;
     }
@@ -622,11 +622,11 @@ class InvoiceService
         return $this;
     }
 
-    public function location(): array
+    public function location(bool $set_countries = true): array
     {
-        return (new LocationData($this->invoice))->run();
+        return (new LocationData($this->invoice))->run($set_countries);
     }
-
+    
     public function workFlow()
     {
         if ($this->invoice->status_id == Invoice::STATUS_PAID && $this->invoice->client->getSetting('auto_archive_invoice')) {
@@ -720,17 +720,18 @@ class InvoiceService
          *
          */
         /** New Invoice - F1 Type */
-        if (empty($this->invoice->client->vat_number) || !in_array($this->invoice->client->country->iso_3166_2, (new \App\DataMapper\Tax\BaseRule())->eu_country_codes)) {
-
-            $this->invoice->backup->guid = 'exempt';
-            $this->invoice->saveQuietly();
-            return $this;
-        } elseif ($new_model && $this->invoice->amount >= 0) {
+                
+        if ($new_model && $this->invoice->amount >= 0) {
             $this->invoice->backup->document_type = 'F1';
             $this->invoice->backup->adjustable_amount = (new \App\Services\EDocument\Standards\Verifactu($this->invoice))->run()->registro_alta->calc->getTotal();
-            $this->invoice->backup->parent_invoice_number = $this->invoice->number;
+            $this->invoice->backup->parent_invoice_number = $this->invoice->number ?? '&';
             $this->invoice->saveQuietly();
-        } elseif (isset($invoice_array['modified_invoice_id'])) {
+        } 
+        elseif($this->invoice->backup->parent_invoice_number == '&') { // ensure we ALWAYS have a parent invoice number - handles cases where the invoice number is only set when SENT not when SAVED.
+            $this->invoice->backup->parent_invoice_number = $this->invoice->number ?? '&';
+            $this->invoice->saveQuietly();
+        }
+        elseif (isset($invoice_array['modified_invoice_id'])) {
             $document_type = 'R2'; // <- Default to R2 type
 
             /** Was it a partial or FULL rectification? */

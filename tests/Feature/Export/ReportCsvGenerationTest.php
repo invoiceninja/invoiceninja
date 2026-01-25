@@ -1134,7 +1134,7 @@ class ReportCsvGenerationTest extends TestCase
 
         $csv = $response->body();
 
-        $reader = Reader::createFromString($csv);
+        $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
         $res = $reader->fetchColumnByName('Street');
@@ -1983,7 +1983,7 @@ class ReportCsvGenerationTest extends TestCase
         $csv = $response->body();
 
 
-        $reader = Reader::createFromString($csv);
+        $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
         $res = $reader->fetchColumnByName('Contact First Name');
@@ -2014,7 +2014,7 @@ class ReportCsvGenerationTest extends TestCase
 
     private function getFirstValueByColumn($csv, $column)
     {
-        $reader = Reader::createFromString($csv);
+        $reader = Reader::fromString($csv);
         $reader->setHeaderOffset(0);
 
         $res = $reader->fetchColumnByName($column);

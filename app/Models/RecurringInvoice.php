@@ -280,7 +280,7 @@ class RecurringInvoice extends BaseModel
      */
     public function searchableAs(): string
     {
-        return 'recurring_invoices_v2';
+        return 'recurring_invoices';
     }
     
     public function toSearchableArray()
@@ -330,7 +330,7 @@ class RecurringInvoice extends BaseModel
             'name' => ctrans('texts.recurring_invoice') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
             'number' => (string)$this->number,
-            'is_deleted' => (bool)$this->is_deleted,
+            'is_deleted' => $this->is_deleted,
             'amount' => (float) $this->amount,
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,

@@ -279,7 +279,7 @@ class BaseModel extends Model
 
     public function numberFormatter()
     {
-        $number = strlen($this->number) >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5);
+        $number = strlen($this->number ?? '') >= 1 ? $this->translate_entity() . "_" . $this->number : class_basename($this) . "_" . Str::random(5);
 
         $formatted_number =  mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $number);
 
@@ -314,13 +314,13 @@ class BaseModel extends Model
         }
 
         // special catch here for einvoicing eventing
-        if ($event_id == Webhook::EVENT_SENT_INVOICE && ($this instanceof Invoice) && $this->backup->guid == "") {
+        if (in_array($event_id, [Webhook::EVENT_SENT_INVOICE, Webhook::EVENT_SENT_CREDIT]) && ($this instanceof Invoice || $this instanceof Credit) && $this->backup->guid == "") {
             if($this->client->peppolSendingEnabled()) {
                 \App\Services\EDocument\Jobs\SendEDocument::dispatch(get_class($this), $this->id, $this->company->db);
             }
-            elseif($this->company->verifactuEnabled()) {
-                $this->service()->sendVerifactu();
-            }
+        }
+        elseif(in_array($event_id, [Webhook::EVENT_SENT_INVOICE]) && $this->company->verifactuEnabled()  && ($this instanceof Invoice) && $this->backup->guid == "") {
+            $this->service()->sendVerifactu();
         }
 
     }
@@ -391,8 +391,9 @@ class BaseModel extends Model
 
         $section = strtr($this->{$field}, $variables['labels']);
 
-        return strtr($section, $variables['values']);
+        $parsed = strtr($section, $variables['values']);
 
+        return \App\Services\Pdf\Purify::clean(html_entity_decode($parsed));
     }
 
     /**

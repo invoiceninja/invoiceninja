@@ -10,7 +10,7 @@
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
-namespace App\DataMapper\Analytics;
+namespace App\DataMapper\Billing;
 
 use Turbo124\Beacon\ExampleMetric\GenericStructuredMetric;
 

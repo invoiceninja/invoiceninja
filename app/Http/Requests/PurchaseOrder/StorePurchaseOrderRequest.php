@@ -84,7 +84,8 @@ class StorePurchaseOrderRequest extends Request
 
         $input['amount'] = 0;
         $input['balance'] = 0;
-
+        $input['total_taxes'] = 0;
+        
         if ($this->file('documents') instanceof \Illuminate\Http\UploadedFile) {
             $this->files->set('documents', [$this->file('documents')]);
         }

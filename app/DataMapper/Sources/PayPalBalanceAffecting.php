@@ -236,7 +236,7 @@ class PayPalBalanceAffecting
 
 
 
-// $csv = Reader::createFromString($csvFile);
+// $csv = Reader::fromString($csvFile);
 // // $csvdelimiter = self::detectDelimiter($csvfile);
 // $csv->setDelimiter(",");
 // $stmt = new Statement();

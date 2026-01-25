@@ -200,7 +200,7 @@ class PdfSlot extends Component
 
         $company_address = "";
 
-        foreach ($this->settings->pdf_variables->company_address as $variable) {
+        foreach ($this->settings->pdf_variables?->company_address as $variable) {
             $company_address .= "<p>{$variable}</p>";
         }
 
