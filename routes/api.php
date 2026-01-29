@@ -10,6 +10,7 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SNSController;
 use App\Http\Controllers\BaseController;
@@ -81,6 +82,7 @@ use App\Http\Controllers\CompanyGatewayController;
 use App\Http\Controllers\EInvoicePeppolController;
 use App\Http\Controllers\PaymentWebhookController;
 use App\Http\Controllers\RecurringQuoteController;
+use App\Http\Controllers\ChartOfAccountController;
 use App\Http\Controllers\BankIntegrationController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\ClientStatementController;
@@ -131,6 +133,9 @@ use App\Http\Controllers\Reports\PurchaseOrderReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceReportController;
 use App\Http\Controllers\Reports\PurchaseOrderItemReportController;
 use App\Http\Controllers\Reports\RecurringInvoiceItemReportController;
+use App\Http\Controllers\TrialBalanceController;
+use App\Http\Controllers\BalanceSheetController;
+use App\Http\Controllers\IncomeStatementController;
 
 Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function () {
     Route::post('api/v1/signup', [AccountController::class, 'store'])->name('signup.submit')->middleware('throttle:1,1');
@@ -142,7 +147,7 @@ Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 });
 
-Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
+Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json', 'locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
 
     Route::post('password_timeout', PasswordTimeoutController::class)->name('password_timeout');
     Route::put('accounts/{account}', [AccountController::class, 'update'])->name('account.update');
@@ -466,6 +471,18 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
 
     Route::get('nordigen/institutions', [NordigenController::class, 'institutions'])->name('nordigen.institutions');
 
+    Route::resource('vendors', VendorController::class);
+    Route::resource('products', ProductController::class);
+    Route::get('chart_of_accounts', [ChartOfAccountController::class, 'index']);
+    Route::post('chart_of_accounts', [ChartOfAccountController::class, 'store']);
+    Route::put('chart_of_accounts/{chartOfAccount}', [ChartOfAccountController::class, 'update']);
+    Route::delete('chart_of_accounts/{chartOfAccount}', [ChartOfAccountController::class, 'destroy']);
+    Route::get('reports/trial_balance', [TrialBalanceController::class, 'index']);
+    Route::get('reports/balance_sheet', [BalanceSheetController::class, 'index']);
+    Route::get('reports/income_statement', [IncomeStatementController::class, 'index']);
+    Route::get('reports/trial_balance.csv', [TrialBalanceController::class, 'csv']);
+    Route::get('reports/balance_sheet.csv', [BalanceSheetController::class, 'csv']);
+    Route::get('reports/income_statement.csv', [IncomeStatementController::class, 'csv']);
 });
 
 Route::post('api/v1/sms_reset', [TwilioController::class, 'generate2faResetCode'])->name('sms_reset.generate')->middleware('throttle:daily-verify');

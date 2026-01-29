@@ -20,6 +20,7 @@ local_version.txt
 .env
 .phpunit.result.cache
 _ide_helper.php
+tmpclaude*
 
 /resources/assets/bower
 /public/logo

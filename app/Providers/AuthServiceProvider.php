@@ -80,6 +80,8 @@ use App\Policies\RecurringExpensePolicy;
 use App\Policies\RecurringInvoicePolicy;
 use App\Policies\BankTransactionRulePolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\ChartOfAccount;
+use App\Policies\ChartOfAccountPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -122,6 +124,7 @@ class AuthServiceProvider extends ServiceProvider
         User::class => UserPolicy::class,
         Vendor::class => VendorPolicy::class,
         Webhook::class => WebhookPolicy::class,
+        ChartOfAccount::class => ChartOfAccountPolicy::class,
     ];
 
     /**

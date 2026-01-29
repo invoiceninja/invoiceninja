@@ -304,6 +304,13 @@ use App\Listeners\RecurringExpense\RecurringExpenseArchivedActivity;
 use App\Listeners\RecurringExpense\RecurringExpenseRestoredActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceArchivedActivity;
 use App\Listeners\RecurringInvoice\RecurringInvoiceRestoredActivity;
+use App\Listeners\CreateDefaultChartOfAccounts;
+use App\Listeners\PostJournalEntriesForPayment;
+use App\Listeners\ReverseJournalEntriesForPayment;
+use App\Listeners\PostJournalEntriesForInvoice;
+use App\Listeners\ReverseJournalEntriesForInvoice;
+use App\Listeners\PostJournalEntriesForPaymentRefund;
+use App\Listeners\PostJournalEntriesForCreditNote;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -320,13 +327,26 @@ class EventServiceProvider extends ServiceProvider
         // ResponseReceived::class => [
         //     LogResponseReceived::class,
         // ],
+        'eloquent.deleted: App\Models\Payment' => [
+            ReverseJournalEntriesForPayment::class,
+        ],
+        'eloquent.updated: App\Models\Invoice' => [
+            PostJournalEntriesForInvoice::class,
+        ],
+        'eloquent.deleted: App\Models\Invoice' => [
+            ReverseJournalEntriesForInvoice::class,
+        ],
+        'eloquent.updated: App\Models\Payment' => [
+            PostJournalEntriesForPaymentRefund::class,
+        ],
+        'eloquent.created: App\Models\Invoice' => [
+            PostJournalEntriesForCreditNote::class,
+        ],
         AccountDeleted::class => [
             AccountDeletedListener::class,
         ],
-        AccountCreated::class => [
-        ],
-        MessageSending::class => [
-        ],
+        AccountCreated::class => [],
+        MessageSending::class => [],
         MessageSent::class => [
             MailSentListener::class,
         ],
@@ -406,16 +426,11 @@ class EventServiceProvider extends ServiceProvider
             ClientPurgedActivity::class,
         ],
         // Documents
-        DocumentWasCreated::class => [
-        ],
-        DocumentWasArchived::class => [
-        ],
-        DocumentWasUpdated::class => [
-        ],
-        DocumentWasDeleted::class => [
-        ],
-        DocumentWasRestored::class => [
-        ],
+        DocumentWasCreated::class => [],
+        DocumentWasArchived::class => [],
+        DocumentWasUpdated::class => [],
+        DocumentWasDeleted::class => [],
+        DocumentWasRestored::class => [],
         CreditWasCreated::class => [
             CreatedCreditActivity::class,
             CreditCreatedNotification::class,
@@ -426,14 +441,12 @@ class EventServiceProvider extends ServiceProvider
         CreditWasUpdated::class => [
             UpdatedCreditActivity::class,
         ],
-        CreditWasEmailedAndFailed::class => [
-        ],
+        CreditWasEmailedAndFailed::class => [],
         CreditWasEmailed::class => [
             CreditEmailActivity::class,
             // CreditEmailedNotification::class,
         ],
-        CreditWasMarkedSent::class => [
-        ],
+        CreditWasMarkedSent::class => [],
         CreditWasArchived::class => [
             CreditArchivedActivity::class,
         ],
@@ -444,14 +457,10 @@ class EventServiceProvider extends ServiceProvider
             CreditViewedActivity::class,
         ],
         //Designs
-        DesignWasUpdated::class => [
-        ],
-        DesignWasArchived::class => [
-        ],
-        DesignWasDeleted::class => [
-        ],
-        DesignWasRestored::class => [
-        ],
+        DesignWasUpdated::class => [],
+        DesignWasArchived::class => [],
+        DesignWasDeleted::class => [],
+        DesignWasRestored::class => [],
         EntityWasEmailed::class => [
             EntityEmailedNotification::class,
         ],
@@ -477,8 +486,7 @@ class EventServiceProvider extends ServiceProvider
         InvoiceAutoBillFailed::class => [
             InvoiceAutoBillFailedActivity::class,
         ],
-        InvoiceWasMarkedSent::class => [
-        ],
+        InvoiceWasMarkedSent::class => [],
         InvoiceWasUpdated::class => [
             UpdateInvoiceActivity::class,
         ],
@@ -522,8 +530,7 @@ class EventServiceProvider extends ServiceProvider
         InvitationWasViewed::class => [
             InvitationViewedListener::class,
         ],
-        JobFailed::class => [
-        ],
+        JobFailed::class => [],
         PaymentWasEmailed::class => [
             PaymentEmailedActivity::class,
         ],
@@ -559,6 +566,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         CompanyDocumentsDeleted::class => [
             DeleteCompanyDocuments::class,
+        ],
+        'eloquent.created: App\Models\Company' => [
+            CreateDefaultChartOfAccounts::class,
         ],
         QuoteWasApproved::class => [
             ReachWorkflowSettings::class,
@@ -696,10 +706,12 @@ class EventServiceProvider extends ServiceProvider
         ],
         \SocialiteProviders\Manager\SocialiteWasCalled::class => [
             // ... Manager won't register drivers that are not added to this listener.
-            \SocialiteProviders\Apple\AppleExtendSocialite::class.'@handle',
-            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class.'@handle',
+            \SocialiteProviders\Apple\AppleExtendSocialite::class . '@handle',
+            \SocialiteProviders\Microsoft\MicrosoftExtendSocialite::class . '@handle',
         ],
-
+        'eloquent.created: App\Models\Payment' => [
+            PostJournalEntriesForPayment::class,
+        ],
     ];
 
     /**
@@ -707,9 +719,7 @@ class EventServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $subscribe = [
-
-    ];
+    protected $subscribe = [];
 
     /**
      * Register any events for your application.

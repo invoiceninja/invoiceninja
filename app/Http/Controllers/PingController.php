@@ -82,7 +82,7 @@ class PingController extends BaseController
             // return response()->json(['message' => ctrans('texts.route_not_available'), 'errors' => []], 403);
         }
 
-        return response()->json(SystemHealth::check(), 200);
+        return response()->json(SystemHealth::check(false, false), 200);
     }
 
     /**

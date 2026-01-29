@@ -68,7 +68,7 @@ trait CompanySettingsSaver
             }
         }
 
-        if (property_exists($settings, 'translations')) {
+        if (property_exists($settings, 'translations') && !is_null($settings->translations)) {
             //this pass will handle any null values that are in the translations
             foreach ($settings->translations as $key => $value) {
                 if (is_array($settings->translations)) {

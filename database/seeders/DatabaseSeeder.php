@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
             GatewayTypesSeeder::class,
             DateFormatsSeeder::class,
             DesignSeeder::class,
+            ChartOfAccountsSeeder::class,
         ]);
     }
 }

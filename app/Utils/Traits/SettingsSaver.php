@@ -70,6 +70,9 @@ trait SettingsSaver
 
                 if (! property_exists($settings, $key)) {
                     continue;
+                } elseif ($settings->{$key} === '' || is_null($settings->{$key})) {
+                    // Skip validation for empty _id fields - they will use defaults
+                    continue;
                 } elseif (! $this->checkAttribute($value, $settings->{$key})) {
                     return [$key, $value, $settings->{$key}];
                 }
