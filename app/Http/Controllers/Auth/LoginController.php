@@ -200,6 +200,40 @@ class LoginController extends BaseController
         }
     }
 
+    public function refreshReact(Request $request)
+    {
+        $truth = app()->make(TruthSource::class);
+
+        if ($truth->getCompanyToken()) {
+            $company_token = $truth->getCompanyToken();
+        } else {
+            $company_token = CompanyToken::where('token', $request->header('X-API-TOKEN'))->first();
+        }
+
+        $cu = CompanyUser::query()
+            ->where('user_id', $company_token->user_id);
+
+        if ($cu->count() == 0) {
+            return response()->json(['message' => 'User found, but not attached to any companies, please see your administrator'], 400);
+        }
+
+        $cu->first()->account->companies->each(function ($company) use ($cu, $request) {
+            if ($company->tokens()->where('is_system', true)->count() == 0) {
+                (new CreateCompanyToken($company, $cu->first()->user, $request->server('HTTP_USER_AGENT')))->handle();
+            }
+        });
+
+        if ($request->has('current_company') && $request->input('current_company') == 'true') {
+            $cu->where('company_id', $company_token->company_id);
+        }
+
+        if (Ninja::isHosted() && !$cu->first()->is_owner && !$cu->first()->user->account->isEnterprisePaidClient()) {
+            return response()->json(['message' => 'Pro / Free accounts only the owner can log in. Please upgrade'], 403);
+        }
+
+        return $this->refreshReactResponse($cu);
+    }
+
     /**
      * Refreshes the data feed with the current Company User.
      *

@@ -184,6 +184,9 @@ class PurchaseOrderExport extends BaseExport
             $entity['purchase_order.assigned_user_id'] = $purchase_order->assigned_user ? $purchase_order->assigned_user->present()->name() : '';
         }
 
+        if (in_array('purchase_order.subtotal', $this->input['report_keys'])) {
+            $entity['purchase_order.subtotal'] = $purchase_order->calc()->getSubTotal();
+        }   
 
         return $entity;
     }

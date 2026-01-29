@@ -50,6 +50,8 @@ class ShowChartRequest extends Request
 
         $input = $this->all();
 
+        $input['include_drafts'] = filter_var($input['include_drafts'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
         if (isset($input['date_range'])) {
             $dates = $this->calculateStartAndEndDates($input, $user->company());
             $input['start_date'] = $dates[0];

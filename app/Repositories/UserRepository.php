@@ -12,17 +12,33 @@
 
 namespace App\Repositories;
 
-use App\DataMapper\CompanySettings;
-use App\Events\User\UserWasArchived;
-use App\Events\User\UserWasDeleted;
-use App\Events\User\UserWasRestored;
-use App\Jobs\Company\CreateCompanyToken;
-use App\Models\CompanyUser;
+use App\Models\Task;
 use App\Models\User;
 use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
+use App\Models\Quote;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Vendor;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Project;
+use App\Models\CompanyUser;
 use Illuminate\Http\Request;
+use App\Models\PurchaseOrder;
+use App\Models\RecurringQuote;
+use App\Utils\Traits\MakesHash;
+use App\Models\RecurringExpense;
+use App\Models\RecurringInvoice;
+use Illuminate\Support\Facades\DB;
+use App\DataMapper\CompanySettings;
+use App\Events\User\UserWasDeleted;
+use App\Events\User\UserWasArchived;
+use App\Events\User\UserWasRestored;
+use App\Repositories\BaseRepository;
 use Illuminate\Support\Facades\Hash;
+use App\Jobs\Company\CreateCompanyToken;
 
 /**
  * UserRepository.
@@ -80,7 +96,7 @@ class UserRepository extends BaseRepository
 
         $user->account_id = $account->id;//@todo we should never change the account_id if it is set at this point.
 
-        if (strlen($user->password) >= 1) {
+        if (strlen($user->password ?? '') >= 1) {
             $user->has_password = true;
         }
 
@@ -241,5 +257,60 @@ class UserRepository extends BaseRepository
                    $account->companies()->update(['is_large' => true]);
                });
         }
+    }
+    
+    /**
+     * purge a user and all of their data across
+     * all companies and accounts.
+     *
+     * @param  User $user
+     * @param  User $new_owner_user
+     * @return void
+     */
+    public function purge(User $user, User $new_owner_user): void
+    {
+
+        \DB::transaction(function () use ($user, $new_owner_user) {
+            
+            // Relations to transfer user_id to new owner
+            $allRelations = [
+                'activities', 'bank_integrations', 'bank_transaction_rules',
+                'bank_transactions', 'client_contacts', 'company_gateways',
+                'company_ledgers', 'company_tokens', 'credit_invitations',
+                'designs', 'expense_categories', 'group_settings',
+                'invoice_invitations', 'locations', 'payment_terms',
+                'quote_invitations', 'purchase_order_invitations',
+                'recurring_invoice_invitations', 'recurring_quote_invitations',
+                'schedules', 'system_logs', 'task_statuses', 'tax_rates',
+                'vendor_contacts', 'webhooks',
+                // Models that also have assigned_user_id
+                'clients', 'invoices', 'credits', 'quotes', 'payments',
+                'expenses', 'tasks', 'projects', 'vendors', 'products',
+                'purchase_orders', 'recurring_invoices', 'recurring_expenses',
+                'recurring_quotes',
+            ];
+
+            foreach ($allRelations as $relation) {
+                $user->{$relation}()->update(['user_id' => $new_owner_user->id]);
+            }
+
+            // Models with both user_id and assigned_user_id
+            $modelsWithAssignedUser = [
+                Client::class, Invoice::class, Credit::class, Quote::class,
+                Payment::class, Expense::class, Task::class, Project::class,
+                Vendor::class, Product::class, PurchaseOrder::class,
+                RecurringInvoice::class, RecurringExpense::class, RecurringQuote::class,
+            ];
+
+            foreach ($modelsWithAssignedUser as $model) {
+                // Null out assigned_user_id
+                $model::withTrashed()
+                    ->where('assigned_user_id', $user->id)
+                    ->update(['assigned_user_id' => null]);
+            }
+
+            $user->forceDelete();
+        });
+
     }
 }

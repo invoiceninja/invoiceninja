@@ -11,37 +11,42 @@
 
 namespace App\Helpers\Cache;
 
+use Illuminate\Contracts\Redis\Factory as RedisFactory;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Redis;
 
 class Atomic
 {
-    public static function set($key, $value = true, $ttl = 1): bool
+    public static function set(string $key, mixed $value = true, int $ttl = 1): bool
     {
         $new_ttl = now()->addSeconds($ttl);
 
         try {
-            return Redis::connection('sentinel-cache')->set($key, $value, 'EX', $ttl, 'NX') ? true : false;
+            /** @var RedisFactory $redis */
+            $redis = app('redis');
+            $result = $redis->connection('sentinel-cache')->command('set', [$key, $value, 'EX', $ttl, 'NX']);
+            return (bool) $result;
         } catch (\Throwable) {
             return Cache::add($key, $value, $new_ttl) ? true : false;
         }
-    
     }
 
-    public static function get($key)
+    public static function get(string $key): mixed
     {
         try {
-            return Redis::connection('sentinel-cache')->get($key);
+            /** @var RedisFactory $redis */
+            $redis = app('redis');
+            return $redis->connection('sentinel-cache')->command('get', [$key]);
         } catch (\Throwable) {
             return Cache::get($key);
         }
-
     }
 
-    public static function del($key)
+    public static function del(string $key): mixed
     {
         try {
-            return Redis::connection('sentinel-cache')->del($key);
+            /** @var RedisFactory $redis */
+            $redis = app('redis');
+            return $redis->connection('sentinel-cache')->command('del', [$key]);
         } catch (\Throwable) {
             return Cache::forget($key);
         }

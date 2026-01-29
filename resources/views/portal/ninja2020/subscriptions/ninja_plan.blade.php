@@ -56,7 +56,7 @@ input:checked ~ .dot {
                 Pro Plan
               </h3>
               <p class="text-5xl font-bold text-center text-white">
-                $12
+                $14
               </p>
               <p class="text-xs text-center uppercase text-white">
                 monthly
@@ -95,7 +95,7 @@ input:checked ~ .dot {
                 Enterprise Plan
               </h3>
               <p class="text-5xl font-bold text-center text-white" id="m_plan_price">
-                $14
+                $18
               </p>
               <p class="text-xs text-center uppercase text-white">
                 monthly
@@ -139,7 +139,7 @@ input:checked ~ .dot {
                 Pro Plan
               </h3>
               <p class="text-5xl font-bold text-center text-white">
-                $120
+                $140
               </p>
               <p class="text-xs text-center uppercase text-white">
                 yearly
@@ -178,7 +178,7 @@ input:checked ~ .dot {
                 Enterprise Plan
               </h3>
               <p class="text-5xl font-bold text-center text-white" id="y_plan_price">
-                $140
+                $180
               </p>
               <p class="text-xs text-center uppercase text-white">
                 yearly
@@ -275,15 +275,15 @@ document.getElementById('handleProYearlyClick').addEventListener('click', functi
 });
 const price_map = new Map();
 //monthly
-price_map.set('7LDdwRb1YK', '$14');
-price_map.set('MVyb8mdvAZ', '$26');
-price_map.set('WpmbkR5azJ', '$36');
-price_map.set('k8mepY2aMy', '$44');
+price_map.set('7LDdwRb1YK', '$18');
+price_map.set('MVyb8mdvAZ', '$32');
+price_map.set('WpmbkR5azJ', '$54');
+price_map.set('k8mepY2aMy', '$84');
 //yearly
-price_map.set('LYqaQWldnj', '$140');
-price_map.set('kQBeX6mbyK', '$260');
-price_map.set('GELe32Qd69', '$360');
-price_map.set('MVyb86oevA', '$440');
+price_map.set('LYqaQWldnj', '$180');
+price_map.set('kQBeX6mbyK', '$320');
+price_map.set('GELe32Qd69', '$540');
+price_map.set('MVyb86oevA', '$840');
 
 </script>
 

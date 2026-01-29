@@ -20,20 +20,26 @@ use App\Services\Quickbooks\QuickbooksService;
 
 class ImportQuickbooksController extends BaseController
 {
+    
     /**
-     * Determine if the user is authorized to make this request.
+     * authorizeQuickbooks
      *
+     * Starts the Quickbooks authorization process.
+     * 
+     * @param  AuthQuickbooksRequest $request
+     * @param  string $token
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function authorizeQuickbooks(AuthQuickbooksRequest $request, string $token)
     {
 
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
+        
         $company = $request->getCompany();
+        
         $qb = new QuickbooksService($company);
 
         $authorizationUrl = $qb->sdk()->getAuthorizationUrl();
-
-        nlog($authorizationUrl);
 
         $state = $qb->sdk()->getState();
 
@@ -41,17 +47,44 @@ class ImportQuickbooksController extends BaseController
 
         return redirect()->to($authorizationUrl);
     }
-
+    
+    /**
+     * onAuthorized
+     * 
+     * Handles the callback from Quickbooks after authorization.
+     * 
+     * @param  AuthorizedQuickbooksRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function onAuthorized(AuthorizedQuickbooksRequest $request)
     {
 
+        nlog($request->all());
+
         MultiDB::findAndSetDbByCompanyKey($request->getTokenContent()['company_key']);
         $company = $request->getCompany();
+        
         $qb = new QuickbooksService($company);
 
         $realm = $request->query('realmId');
+        
+        nlog($realm);
+
         $access_token_object = $qb->sdk()->accessTokenFromCode($request->query('code'), $realm);
+        
+        nlog($access_token_object);
+        
         $qb->sdk()->saveOAuthToken($access_token_object);
+
+        // Refresh the service to initialize SDK with the new access token
+        $qb->refresh();
+
+        $companyInfo = $qb->sdk()->company();
+        
+        $company->quickbooks->companyName = $companyInfo->CompanyName;
+        $company->save();
+        
+        nlog($companyInfo);
 
         return redirect(config('ninja.react_url'));
 

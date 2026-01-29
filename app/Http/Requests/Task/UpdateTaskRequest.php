@@ -136,6 +136,10 @@ class UpdateTaskRequest extends Request
             $input['status_id'] = $this->decodePrimaryKey($input['status_id']);
         }
 
+        if(isset($input['description']) && is_string($input['description'])) {
+            $input['description'] = str_ireplace(['</sc', 'file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost', '<?xml encoding="UTF-8">', '/etc/'], "", $input['description']);
+        }
+
         if (isset($input['documents'])) {
             unset($input['documents']);
         }

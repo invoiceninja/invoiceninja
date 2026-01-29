@@ -32,12 +32,12 @@
     "type": "project",
     "require": {
         "php": ">=8.2",
+        "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-json": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
-        "ext-bcmath": "*",
         "afosto/yaac": "^1.5",
         "asm/php-ansible": "dev-main",
         "authorizenet/authorizenet": "^2.0",
@@ -51,6 +51,7 @@
         "braintree/braintree_php": "^6.28",
         "btcpayserver/btcpayserver-greenfield-php": "^2.6",
         "checkout/checkout-sdk-php": "^3.0",
+        "endroid/qr-code": "^5",
         "eway/eway-rapid-php": "^1.3",
         "fakerphp/faker": "^1.14",
         "getbrevo/brevo-php": "^1.0",
@@ -102,7 +103,7 @@
         "setasign/fpdi": "^2.6",
         "socialiteproviders/apple": "dev-master",
         "socialiteproviders/microsoft": "^4.1",
-        "sprain/swiss-qr-bill": "^4.3",
+        "sprain/swiss-qr-bill": "^5.2",
         "square/square": "30.0.0.*",
         "stripe/stripe-php": "^17",
         "symfony/brevo-mailer": "^7.1",
@@ -218,6 +219,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/beganovich/php-ansible"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/turbo124/snappdf"
         },
         {
             "type": "path",

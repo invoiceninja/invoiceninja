@@ -65,7 +65,7 @@ class RecurringInvoiceItemExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('recurring_invoice_report_keys'));
-            nlog($this->input['report_keys']);
+            // nlog($this->input['report_keys']);
         }
 
         $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));

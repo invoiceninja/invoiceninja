@@ -249,6 +249,9 @@ class QuoteItemExport extends BaseExport
         }
 
 
+        if (in_array('quote.subtotal', $this->input['report_keys'])) {
+            $entity['quote.subtotal'] = $quote->calc()->getSubTotal();
+        }   
 
         return $entity;
     }

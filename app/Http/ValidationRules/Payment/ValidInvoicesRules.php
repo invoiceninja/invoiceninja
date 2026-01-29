@@ -88,6 +88,9 @@ class ValidInvoicesRules implements Rule
             } elseif ($inv->status_id == Invoice::STATUS_DRAFT && floatval($invoice['amount']) > floatval($inv->amount)) {
                 $this->error_msg = 'Amount cannot be greater than invoice balance';
                 return false;
+            } elseif($invoice['amount'] < 0 && $inv->amount >= 0) {
+                $this->error_msg = 'Amount cannot be negative';
+                return false;
             } elseif (floatval($invoice['amount']) > floatval($inv->balance)) {
                 $this->error_msg = ctrans('texts.amount_greater_than_balance_v5');
                 return false;

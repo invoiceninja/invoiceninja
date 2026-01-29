@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Setup;
 
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CheckMailRequest extends Request
 {
@@ -23,7 +24,16 @@ class CheckMailRequest extends Request
      */
     public function authorize()
     {
-        return true; /* Return something that will check if setup has been completed, like Ninja::hasCompletedSetup() */
+        if (!\App\Utils\Ninja::isSelfHost()) {
+            return false;
+        }
+
+        try {
+            return !Schema::hasTable('accounts') || \App\Models\Account::count() == 0;
+        } catch (\Throwable $e) {
+            // If database connection fails, allow the request (we're checking the DB)
+            return true;
+        }
     }
 
     /**

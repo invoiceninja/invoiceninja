@@ -12,31 +12,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Utils\Ninja;
+use App\Models\CompanyUser;
+use App\Factory\UserFactory;
+use App\Filters\UserFilters;
+use Illuminate\Http\Response;
+use App\Utils\Traits\MakesHash;
 use App\Events\User\UserWasCreated;
 use App\Events\User\UserWasDeleted;
 use App\Events\User\UserWasUpdated;
-use App\Factory\UserFactory;
-use App\Filters\UserFilters;
-use App\Http\Controllers\Traits\VerifiesUserEmail;
-use App\Http\Requests\User\BulkUserRequest;
-use App\Http\Requests\User\CreateUserRequest;
-use App\Http\Requests\User\DestroyUserRequest;
-use App\Http\Requests\User\DetachCompanyUserRequest;
-use App\Http\Requests\User\DisconnectUserMailerRequest;
-use App\Http\Requests\User\EditUserRequest;
-use App\Http\Requests\User\ReconfirmUserRequest;
-use App\Http\Requests\User\ShowUserRequest;
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\Requests\User\UpdateUserRequest;
-use App\Jobs\Company\CreateCompanyToken;
 use App\Jobs\User\UserEmailChanged;
-use App\Models\CompanyUser;
-use App\Models\User;
 use App\Repositories\UserRepository;
 use App\Transformers\UserTransformer;
-use App\Utils\Ninja;
-use App\Utils\Traits\MakesHash;
-use Illuminate\Http\Response;
+use App\Jobs\Company\CreateCompanyToken;
+use App\Http\Requests\User\BulkUserRequest;
+use App\Http\Requests\User\EditUserRequest;
+use App\Http\Requests\User\ShowUserRequest;
+use App\Http\Requests\User\PurgeUserRequest;
+use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\CreateUserRequest;
+use App\Http\Requests\User\UpdateUserRequest;
+use App\Http\Requests\User\DestroyUserRequest;
+use App\Http\Requests\User\ReconfirmUserRequest;
+use App\Http\Controllers\Traits\VerifiesUserEmail;
+use App\Http\Requests\User\DetachCompanyUserRequest;
+use App\Http\Requests\User\DisconnectUserMailerRequest;
 
 /**
  * Class UserController.
@@ -347,6 +348,14 @@ class UserController extends BaseController
         $user->save();
 
         return $this->itemResponse($user->fresh());
+
+    }
+
+    public function purge(PurgeUserRequest $request, User $user)
+    {
+        $this->user_repo->purge($user, auth()->user());
+
+        return response()->noContent();
 
     }
 

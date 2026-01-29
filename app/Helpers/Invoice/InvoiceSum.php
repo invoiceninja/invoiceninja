@@ -141,11 +141,14 @@ class InvoiceSum
         }
 
         if (is_string($this->invoice->tax_name1) && strlen($this->invoice->tax_name1) >= 2) {
+
             $tax = $this->taxer($this->total, $this->invoice->tax_rate1);
+
             $tax += $this->getSurchargeTaxTotalForKey($this->invoice->tax_name1, $this->invoice->tax_rate1);
 
             $this->total_taxes += $tax;
             $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
+
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) >= 2) {

@@ -12,7 +12,8 @@
     "file": "assets/wait-8f4ae121.js"
   },
   "resources/js/app.js": {
-    "file": "assets/app-eee19136.js",
+    "file": "assets/app-73d3ce3f.js",
+
     "imports": [
       "_index-08e160a7.js",
       "__commonjsHelpers-725317a4.js"
@@ -203,7 +204,7 @@
     "src": "resources/js/clients/payments/stripe-ach-pay.js"
   },
   "resources/js/clients/payments/stripe-ach.js": {
-    "file": "assets/stripe-ach-fe366ca7.js",
+    "file": "assets/stripe-ach-1f0bff4a.js",
     "isEntry": true,
     "src": "resources/js/clients/payments/stripe-ach.js"
   },
@@ -360,6 +361,11 @@
     "isEntry": true,
     "src": "resources/js/clients/quotes/approve.js"
   },
+  "resources/js/clients/quotes/reject.js": {
+    "file": "assets/reject-9868e19a.js",
+    "isEntry": true,
+    "src": "resources/js/clients/quotes/reject.js"
+  },
   "resources/js/clients/shared/multiple-downloads.js": {
     "file": "assets/multiple-downloads-2f8b7e95.js",
     "isEntry": true,
@@ -385,7 +391,7 @@
     "src": "resources/js/setup/setup.js"
   },
   "resources/sass/app.scss": {
-    "file": "assets/app-55cdafc9.css",
+    "file": "assets/app-2350ca5d.css",
     "isEntry": true,
     "src": "resources/sass/app.scss"
   }

@@ -55,6 +55,11 @@ class SdkWrapper
         return $this->accessToken()->getRefreshToken();
     }
 
+    public function revokeAccessToken()
+    {
+        return $this->sdk->getOAuth2LoginHelper()->revokeToken($this->accessToken()->getAccessToken());
+    }
+
     public function company()
     {
         return $this->sdk->getCompanyInfo();

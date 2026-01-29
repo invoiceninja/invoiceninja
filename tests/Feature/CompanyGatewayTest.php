@@ -12,12 +12,10 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\Invoice\CheckGatewayFee;
 use App\Models\CompanyGateway;
 use App\Models\GatewayType;
 use App\Models\Invoice;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\MockAccountData;
 use Tests\TestCase;
 

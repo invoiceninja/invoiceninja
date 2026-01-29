@@ -75,7 +75,7 @@ class ApplyNumber extends AbstractService
         do {
             try {
                 
-                if($peppol_enabled && strlen(trim($this->client->getSetting('credit_number_pattern'))) > 0) {
+                if($peppol_enabled && strlen(trim($this->client->getSetting('credit_number_pattern'))) > 0 && $this->invoice->amount < 0) {
                     $this->invoice->number = $this->getPeppolCreditNumber($this->client, $this->invoice);
                 }
                 else {

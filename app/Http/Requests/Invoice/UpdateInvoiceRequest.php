@@ -17,7 +17,6 @@ use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
 use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\ChecksEntityStatus;
-use App\Http\ValidationRules\Invoice\LockedInvoiceRule;
 use App\Http\ValidationRules\EInvoice\ValidInvoiceScheme;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
 

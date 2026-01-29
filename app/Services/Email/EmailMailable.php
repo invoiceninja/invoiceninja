@@ -119,13 +119,19 @@ class EmailMailable extends Mailable
 
                     $file = $document->getFile();
 
+                        if (empty($file)) {
+                            nlog("EmailMailable: Document file is empty: {$document->url}");
+                            return null;
+                        }                    
+                        
                     $finfo = finfo_open(FILEINFO_MIME_TYPE);
                     $mime  = finfo_buffer($finfo, $file);
                     $mime = $mime ?: 'application/octet-stream';
                     finfo_close($finfo);
 
                     return Attachment::fromData(fn () => $file, $document->name)->withMime($mime);
-                });
+                })
+                ->filter();
 
         return $attachments->merge($documents)->toArray();
     }

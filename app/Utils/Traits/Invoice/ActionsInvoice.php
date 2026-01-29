@@ -22,7 +22,24 @@ trait ActionsInvoice
         if($invoice->company->verifactuEnabled() && $invoice->amount < 0) {
             return false;
         }
-        return $invoice->isPayable();
+        elseif($invoice->is_deleted) {
+            return false;
+        }
+        elseif(in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])) {
+            return false;
+        }
+        elseif ($invoice->status_id == Invoice::STATUS_PAID) {
+            return false;
+        } 
+        elseif ($invoice->status_id == Invoice::STATUS_DRAFT) {
+            return true;
+        } 
+        elseif (in_array($invoice->status_id, [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL]) && $invoice->balance != 0) {
+            return true;
+        } 
+
+        return false;
+        
     }
     
     public function invoiceDeletable($invoice): bool

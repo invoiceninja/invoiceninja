@@ -25,6 +25,7 @@ export default defineConfig({
             'resources/js/clients/payments/checkout-credit-card.js',
             'resources/js/clients/quotes/action-selectors.js',
             'resources/js/clients/quotes/approve.js',
+            'resources/js/clients/quotes/reject.js',
             'resources/js/clients/payments/stripe-credit-card.js',
             'resources/js/setup/setup.js',
             'resources/js/clients/shared/pdf.js',

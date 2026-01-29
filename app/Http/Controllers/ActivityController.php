@@ -102,7 +102,9 @@ class ActivityController extends BaseController
         /** @var \App\Models\User auth()->user() */
         $user = auth()->user();
 
-        if (!$user->isAdmin()) {
+        $entity = $request->getEntity();
+
+        if ($user->cannot('view', $entity)) {
             $activities->where('user_id', auth()->user()->id);
         }
 
@@ -131,6 +133,11 @@ class ActivityController extends BaseController
     {
         $backup = $activity->backup;
         $html_backup = '';
+
+
+        if (!$activity->backup) {
+            return response()->json(['message' => ctrans('texts.no_backup_exists'), 'errors' => new stdClass()], 404);
+        }
 
         $file = $backup->getFile();
 

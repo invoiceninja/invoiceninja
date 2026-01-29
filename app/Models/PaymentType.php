@@ -37,6 +37,7 @@ class PaymentType extends StaticModel
 
     public const BANK_TRANSFER = 1;
     public const CASH = 2;
+    public const DEBIT = 3;
     public const ACH = 4;
     public const VISA = 5;
     public const MASTERCARD = 6;
@@ -47,6 +48,7 @@ class PaymentType extends StaticModel
     public const NOVA = 11;
     public const CREDIT_CARD_OTHER = 12;
     public const PAYPAL = 13;
+    public const GOOGLE_WALLET = 14;
     public const CHECK = 15;
     public const CARTE_BLANCHE = 16;
     public const UNIONPAY = 17;
@@ -55,7 +57,10 @@ class PaymentType extends StaticModel
     public const MAESTRO = 20;
     public const SOLO = 21;
     public const SWITCH = 22;
-    public const VENMO = 24;
+    public const iZETTLE = 23;
+    public const SWISH = 24;
+    public const VENMO = 25;
+    public const MONEY_ORDER = 26;
     public const ALIPAY = 27;
     public const SOFORT = 28;
     public const SEPA = 29;
@@ -63,6 +68,7 @@ class PaymentType extends StaticModel
     public const CRYPTO = 31;
     public const CREDIT = 32;
     public const ZELLE = 33;
+
     public const MOLLIE_BANK_TRANSFER = 34;
     public const KBC = 35;
     public const BANCONTACT = 36;

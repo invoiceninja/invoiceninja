@@ -30,6 +30,7 @@ parameters:
         - \Stripe\Collection
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
+        - '#\Saxon\SaxonProcessor#'
         - '#Array has 2 duplicate keys with value#'
         - '#Call to an undefined method#'
         - '#makeHidden#'

@@ -32,7 +32,8 @@ class ARDetailReport extends BaseExport
 
     public Writer $csv;
 
-    public string $date_key = 'created_at';
+    // 2026-01-16: Changed from created_at to date to match the invoice date
+    public string $date_key = 'date';
 
     private string $template = '/views/templates/reports/ar_detail_report.html';
 

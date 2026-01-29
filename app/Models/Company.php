@@ -1062,4 +1062,49 @@ class Company extends BaseModel
             return $this->getSetting('e_invoice_type') == 'VERIFACTU';
         });
     }
+
+    /**
+     * Check if QuickBooks push should be triggered for an entity/action.
+     * 
+     * Uses efficient checks to avoid overhead for companies not using QuickBooks.
+     * Uses once() to cache the result for the request lifecycle.
+     * 
+     * This method is designed to be called from model observers to efficiently
+     * determine if a push job should be dispatched, with zero overhead for
+     * companies that don't use QuickBooks.
+     * 
+     * @param string $entity Entity type: 'client', 'invoice', etc.
+     * @param string $action Action type: 'create', 'update', 'status'
+     * @param string|null $status Optional status for status-based pushes (e.g., invoice status: 'draft', 'sent', 'paid', 'deleted')
+     * @return bool
+     */
+    public function shouldPushToQuickbooks(string $entity, string $action, ?string $status = null): bool
+    {
+        // FASTEST CHECK: Raw database column (no object instantiation, no JSON decode)
+        // This is the cheapest possible check - just a null comparison
+        // For companies without QuickBooks, this returns immediately with ~0.001ms overhead
+        if (is_null($this->getRawOriginal('quickbooks'))) {
+            return false;
+        }
+        
+        // Cache the detailed check for this request lifecycle
+        // This prevents re-checking if called multiple times in the same request
+        return once(function () use ($entity) {
+            // Check if QuickBooks is actually configured (has token)
+            if (!$this->quickbooks->isConfigured()) {
+                return false;
+            }
+            
+            // Verify entity exists in settings
+            if (!isset($this->quickbooks->settings->{$entity})) {
+                return false;
+            }
+            
+            $entitySettings = $this->quickbooks->settings->{$entity};
+            $direction = $entitySettings->direction->value;
+            
+            // Check if sync direction allows push
+            return $direction === 'push' || $direction === 'bidirectional';
+        });
+    }
 }

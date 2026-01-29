@@ -19,6 +19,7 @@ use App\Utils\Traits\MakesHash;
 use App\Exceptions\QuoteConversion;
 use App\Repositories\QuoteRepository;
 use App\Events\Quote\QuoteWasApproved;
+use App\Events\Quote\QuoteWasRejected;
 use App\Services\Invoice\LocationData;
 use App\Services\Quote\UpdateReminder;
 use App\Jobs\EDocument\CreateEDocument;
@@ -147,6 +148,24 @@ class QuoteService
         return $this;
     }
 
+
+    public function reject($contact = null, ?string $notes = null): self
+    {
+
+        if($this->quote->status_id != Quote::STATUS_SENT) {
+            return $this;
+        }
+
+        $this->setStatus(Quote::STATUS_REJECTED)->save();
+
+        if (! $contact) {
+            $contact = $this->quote->invitations->first()->contact;
+        }
+
+        event(new QuoteWasRejected($contact, $this->quote, $this->quote->company, $notes ?? '', Ninja::eventVars()));
+
+        return $this;
+    }
 
 
     public function approveWithNoCoversion($contact = null): self

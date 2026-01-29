@@ -13,10 +13,11 @@
 namespace App\Http\Requests\Credit;
 
 use App\Http\Requests\Request;
-use App\Utils\Traits\ChecksEntityStatus;
-use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\MakesHash;
 use Illuminate\Validation\Rule;
+use App\Utils\Traits\CleanLineItems;
+use App\Utils\Traits\ChecksEntityStatus;
+use App\Http\ValidationRules\EInvoice\ValidCreditScheme;
 
 class UpdateCreditRequest extends Request
 {
@@ -81,6 +82,8 @@ class UpdateCreditRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->credit->client_id)];
 
+        $rules['e_invoice'] = ['sometimes', 'nullable', new ValidCreditScheme()];
+
         return $rules;
     }
 
@@ -94,6 +97,7 @@ class UpdateCreditRequest extends Request
     {
         $input = $this->all();
 
+        nlog($input);
         $input = $this->decodePrimaryKeys($input);
        
         if (isset($input['documents'])) {

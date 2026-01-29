@@ -77,6 +77,17 @@ class ClientObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(0);
         }
+
+        // QuickBooks push - efficient check in observer (zero overhead if not configured)
+        if ($client->company->shouldPushToQuickbooks('client', 'create')) {
+            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+                'client',
+                $client->id,
+                $client->company->id,
+                $client->company->db,
+                'create'
+            );
+        }
     }
 
     /**
@@ -115,6 +126,17 @@ class ClientObserver
         if ($subscriptions) {
             WebhookHandler::dispatch($event, $client, $client->company, 'client')->delay(0);
         }
+
+        // QuickBooks push - efficient check in observer (zero overhead if not configured)
+        if ($client->company->shouldPushToQuickbooks('client', 'update')) {
+            \App\Jobs\Quickbooks\PushToQuickbooks::dispatch(
+                'client',
+                $client->id,
+                $client->company->id,
+                $client->company->db,
+                'update'
+            );
+        }
     }
 
     /**
@@ -137,4 +159,5 @@ class ClientObserver
             WebhookHandler::dispatch(Webhook::EVENT_ARCHIVE_CLIENT, $client, $client->company)->delay(0);
         }
     }
+
 }

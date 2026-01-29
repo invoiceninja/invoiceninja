@@ -185,7 +185,7 @@ class SetupController extends Controller
         try {
             $status = SystemHealth::dbCheck($request);
 
-            if (is_array($status) && $status['success'] === true) {
+            if (is_array($status) && $status['success'] === true && \App\Models\Account::count() > 0) {
                 return response([], 200);
             }
 

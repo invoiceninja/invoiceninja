@@ -23,6 +23,7 @@ use App\Services\EDocument\Gateway\Storecove\Storecove;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
 use App\Services\EDocument\Gateway\Storecove\Models\Invoice;
+use App\Services\EDocument\Gateway\Storecove\Models\Credit;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Normalizer\ArrayDenormalizer;
@@ -45,7 +46,7 @@ class StorecoveAdapter
     {
     }
 
-    private Invoice $storecove_invoice;
+    private Invoice | Credit $storecove_invoice;
 
     private array $errors = [];
 
@@ -113,10 +114,10 @@ class StorecoveAdapter
     /**
      * transform
      *
-     * @param  \App\Models\Invoice $invoice
+     * @param  \App\Models\Invoice |\App\Models\Credit $invoice
      * @return self
      */
-    public function transform($invoice): self
+    public function transform(\App\Models\Invoice|\App\Models\Credit $invoice): self
     {
         try {
             $this->ninja_invoice = $invoice;
@@ -134,7 +135,8 @@ class StorecoveAdapter
 
             $e = new \InvoiceNinja\EInvoice\EInvoice();
             $peppolInvoice = $e->decode('Peppol', $p, 'xml');
-            $parent = \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
+            
+            $parent = $invoice instanceof \App\Models\Credit ? \App\Services\EDocument\Gateway\Storecove\Models\Credit::class : \App\Services\EDocument\Gateway\Storecove\Models\Invoice::class;
             $peppolInvoice = $e->encode($peppolInvoice, 'json');
             $this->storecove_invoice = $serializer->deserialize($peppolInvoice, $parent, 'json', $context);
 
@@ -159,6 +161,12 @@ class StorecoveAdapter
         if ($this->has_error) {
             return $this;
         }
+
+        // if($this->ninja_invoice instanceof \App\Models\Credit) {
+        //     $lines = $this->storecove_invoice->getCreditLines();
+        //     $this->storecove_invoice->setCreditLines([]);
+        //     $this->storecove_invoice->setInvoiceLines($lines);
+        // } 
 
         //set all taxmap countries - resolve the taxing country
         $lines = $this->storecove_invoice->getInvoiceLines();
@@ -254,7 +262,7 @@ class StorecoveAdapter
         //resolve and set the public identifier for the customer
         $accounting_customer_party = $this->storecove_invoice->getAccountingCustomerParty();
 
-        if (strlen($this->ninja_invoice->client->vat_number) > 2) {
+        if (strlen($this->ninja_invoice->client->vat_number ?? '') > 2) {
             $id =  preg_replace("/[^a-zA-Z0-9]/", "", $this->ninja_invoice->client->vat_number ?? '');
             $scheme = $this->storecove->router->setInvoice($this->ninja_invoice)->resolveTaxScheme($this->ninja_invoice->client->country->iso_3166_2, $this->ninja_invoice->client->classification ?? 'individual');
             $pi = new \App\Services\EDocument\Gateway\Storecove\Models\PublicIdentifiers($scheme, $id);
@@ -374,13 +382,13 @@ class StorecoveAdapter
                                 $this->ninja_invoice->company->tax_data->regions->EU->has_sales_above_threshold;
 
             // Is this B2B or B2C?
-            $is_b2c = strlen($this->ninja_invoice->client->vat_number) < 2 ||
+            $is_b2c = strlen($this->ninja_invoice->client->vat_number ?? '') < 2 ||
                     !($this->ninja_invoice->client->has_valid_vat_number ?? false) ||
                     $this->ninja_invoice->client->classification == 'individual';
 
 
             // B2C, under threshold, no Company VAT Registerd - must charge origin country VAT
-            if ($is_b2c && !$is_over_threshold && strlen($this->ninja_invoice->company->settings->vat_number) < 2) {
+            if ($is_b2c && !$is_over_threshold && strlen($this->ninja_invoice->company->settings->vat_number ?? '') < 2) {
                 nlog("no company vat");
                 $this->nexus = $company_country_code;
             } elseif ($is_b2c) {

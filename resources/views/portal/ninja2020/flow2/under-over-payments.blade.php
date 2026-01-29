@@ -8,14 +8,24 @@
     <dd class="text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2 flex flex-col">
         <template x-for="(invoice, index) in payableInvoices" :key="index">
 
-            <div class="flex items-center mb-2">
-                <label>
-                    <span x-text="'{{ ctrans('texts.invoice') }} ' + invoice.number" class="mt-2"></span>
-                    <span class="pr-2">{{ $currency->code }} ({{ $currency->symbol }})</span>
-                    <input type="text" class="input mt-0 mr-4 relative" name="payable_invoices[]"
-                        x-model="payableInvoices[index].formatted_amount" />
-                </label>
+            <div class="mb-2">
+                <div class="flex items-center">
+                    <label>
+                        <span x-text="'{{ ctrans('texts.invoice') }} ' + invoice.number" class="mt-2"></span>
+                        <span class="pr-2">{{ $currency->code }} ({{ $currency->symbol }})</span>
+                        <input type="text" class="input mt-0 mr-4 relative" name="payable_invoices[]"
+                            x-model="payableInvoices[index].formatted_amount" />
+                    </label>
+                </div>
+
+                @if($settings->client_portal_allow_over_payment)
+                    <div class="mt-1">
+                        <span class="text-xs text-gray-800 italic">{{ ctrans('texts.over_payment_helper') }}</span>
+                    </div>
+                @endif
             </div>
+
+            
         </template>
 
         <template x-if="errors.length > 0">
@@ -26,6 +36,8 @@
             <span class="mt-1 text-sm text-gray-800">{{ ctrans('texts.minimum_payment') }}:
                 {{ $settings->client_portal_under_payment_minimum }}</span>
         @endif
+
+        
     </dd>
 
     <div class="bg-white px-4 py-5 flex items-center w-full justify-end space-x-3">

@@ -194,6 +194,8 @@ class HtmlEngine
         $data['$payment_schedule'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
         $data['$payment_schedule_interval'] = ['value' => '', 'label' => ctrans('texts.payment_schedule')];
 
+        $data['$days_overdue'] = ['value' => $this->daysOverdue(), 'label' => ctrans('texts.overdue')];
+
         if(method_exists($this->entity, 'paymentSchedule')) {
             $data['$payment_schedule'] = ['value' => $this->entity->paymentSchedule(true), 'label' => ctrans('texts.payment_schedule')];
             $data['$payment_schedule_interval'] = ['value' => $this->entity->paymentScheduleInterval(), 'label' => ctrans('texts.payment_schedule')];
@@ -208,15 +210,13 @@ class HtmlEngine
         $data['$location.custom3'] = &$data['$location3'];
         $data['$location.custom4'] = &$data['$location4'];
 
+        $data['$term_days'] = ['value' => '', 'label' => ctrans('texts.payment_terms')];
+
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {    
             
-            if($this->client->peppolSendingEnabled() && $this->entity->amount < 0) {
-                $data['$entity'] = ['value' => ctrans('texts.credit'), 'label' => ctrans('texts.credit')];
-            }
-            else {
-                $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
-            }
-            
+            $data['$entity'] = ['value' => ctrans('texts.invoice'), 'label' => ctrans('texts.invoice')];
+            $data['$term_days'] = ['value' => $this->client->getSetting('payment_terms'), 'label' => ctrans('texts.payment_terms')];
+
             $data['$number'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$invoice'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: ' ', 'label' => ctrans('texts.invoice_number_short')];
@@ -275,6 +275,10 @@ class HtmlEngine
         }
 
         if ($this->entity_string == 'quote') {
+
+            
+            $data['$term_days'] = ['value' => $this->client->getSetting('valid_until'), 'label' => ctrans('texts.valid_until')];
+
             $data['$entity'] = ['value' => ctrans('texts.quote'), 'label' => ctrans('texts.quote')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.quote_number_short')];
@@ -312,9 +316,16 @@ class HtmlEngine
             $data['$quote.project'] = &$data['$project.name'];
 
             $data['$invoice.vendor'] = ['value' => $this->entity->vendor?->present()->name() ?: '', 'label' => ctrans('texts.vendor_name')];
+        
+            $data['$payment_qrcode'] = ['value' => '', 'label' => ctrans('texts.pay_now')];
+            $data['$payment_qrcode_raw'] = ['value' => '', 'label' => ctrans('texts.pay_now')];
+
         }
 
-        if ($this->entity_string == 'credit') {
+        if ($this->entity_string == 'credit' || ($this->entity_string == 'invoice' && $this->client->peppolSendingEnabled() && $this->entity->amount < 0)) {
+
+            $data['$term_days'] = ['value' => $this->client->getSetting('payment_terms'), 'label' => ctrans('texts.payment_terms')];
+
             $data['$entity'] = ['value' => ctrans('texts.credit'), 'label' => ctrans('texts.credit')];
             $data['$number'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number')];
             $data['$number_short'] = ['value' => $this->entity->number ?: '', 'label' => ctrans('texts.credit_number_short')];
@@ -347,6 +358,9 @@ class HtmlEngine
             $data['$invoice.custom2'] = &$data['$credit.custom2'];
             $data['$invoice.custom3'] = &$data['$credit.custom3'];
             $data['$invoice.custom4'] = &$data['$credit.custom4'];
+
+            $data['$invoice.number'] = &$data['$number'];
+            $data['$invoice.total'] = &$data['$credit_total'];
         }
 
         $data['$portal_url'] = ['value' => $this->invitation->getPortalLink(), 'label' => ''];
@@ -378,7 +392,14 @@ class HtmlEngine
                 $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->amount), 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.balance_due')];
                 $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
-            } else {
+            } 
+            elseif($this->entity->status_id == 4 && $this->entity_string == 'invoice') {
+                $data['$balance_due'] = ['value' => Number::formatMoney(0, $this->client) ?: ' ', 'label' => ctrans('texts.balance_due')];
+                $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", 0), 'label' => ctrans('texts.balance_due')];
+                $data['$balance_due_raw'] = ['value' => 0, 'label' => ctrans('texts.balance_due')];
+                $data['$amount_raw'] = ['value' => $this->entity->amount, 'label' => ctrans('texts.amount')];
+            }
+            else {
                 $data['$balance_due'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: ' ', 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_dec'] = ['value' => sprintf("%01.2f", $this->entity->balance), 'label' => ctrans('texts.balance_due')];
                 $data['$balance_due_raw'] = ['value' => $this->entity->balance, 'label' => ctrans('texts.balance_due')];
@@ -474,6 +495,12 @@ class HtmlEngine
         $data['$credit_amount'] = ['value' => Number::formatMoney($this->entity_calc->getTotal(), $this->client) ?: ' ', 'label' => ctrans('texts.credit_amount')];
         $data['$credit_balance'] = ['value' => Number::formatMoney($this->entity->balance, $this->client) ?: ' ', 'label' => ctrans('texts.credit_balance')];
 
+
+        if($this->entity_string == 'invoice' && $this->client->peppolSendingEnabled() && $this->entity->amount < 0) {
+            $data['$invoice.total'] = &$data['$credit_amount'];
+            $data['$invoice_total_raw'] = ['value' => $this->entity_calc->getTotal(), 'label' => ctrans('texts.credit_total')];
+            $data['$invoice.amount'] = &$data['$credit_amount'];
+        }
 
         $data['$credit_number'] = &$data['$number'];
         $data['$credit_no'] = &$data['$number'];
@@ -667,6 +694,7 @@ class HtmlEngine
         $data['$task.rate'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.cost'] = ['value' => '', 'label' => ctrans('texts.rate')];
         $data['$task.hours'] = ['value' => '', 'label' => ctrans('texts.hours')];
+        $data['$task.total_hours'] = ['value' => $this->totalTaskHours(), 'label' => ctrans('texts.total_hours')];
         $data['$task.tax'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name1'] = ['value' => '', 'label' => ctrans('texts.tax')];
         $data['$task.tax_name2'] = ['value' => '', 'label' => ctrans('texts.tax')];
@@ -816,7 +844,7 @@ class HtmlEngine
         }
 
         if ($this->entity_string == 'invoice' || $this->entity_string == 'recurring_invoice') {
-            $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity, $data['$amount_raw']['value']))->getQrCode(), 'label' => ''];
+            $data['$sepa_qr_code'] = ['value' => (new EpcQrGenerator($this->company, $this->entity, $data['$balance_due_raw']['value']))->getQrCode(), 'label' => ''];
             $data['$sepa_qr_code_raw'] = ['value' => html_entity_decode($data['$sepa_qr_code']['value']), 'label' => ''];
         }
 
@@ -874,6 +902,48 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
         return "<tr><td>{$text}</td></tr><tr><td><img src=\"data:image/png;base64,{$qr_code}\" alt=\"Verifactu QR Code\"></td></tr>";
     }
 
+    
+    /**
+     * totalTaskHours
+     *
+     * calculates the total hours of all tasks in the invoice
+     * 
+     * @return int
+     */
+    private function totalTaskHours()
+    {
+        return collect($this->entity->line_items)
+                    ->filter(function ($item) {
+                        return $item->type_id == '2';
+                    })
+                    ->sum('quantity');
+    }
+    
+    /**
+     * daysOverdue
+     *
+     * calculates the number of days overdue the entity is
+     * 
+     * @return int
+     */
+    private function daysOverdue()
+    {
+        if($this->entity->partial > 0 && !empty($this->entity->partial_due_date)) {
+
+            $days_overdue = \Carbon\Carbon::parse($this->entity->partial_due_date)->diffInDays(now()->startOfDay()->setTimezone($this->entity->company->timezone()->name));
+
+            return max($days_overdue, 0);
+        }
+
+        if(!empty($this->entity->due_date)) {
+            
+            $days_overdue = \Carbon\Carbon::parse($this->entity->due_date)->diffInDays(now()->startOfDay()->setTimezone($this->entity->company->timezone()->name));
+
+            return max($days_overdue, 0);
+        }
+
+        return 0;
+    }
 
     private function getPaymentMeta(\App\Models\Payment $payment)
     {
@@ -917,11 +987,10 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
         $tax_label = '';
 
         if (collect($this->entity->line_items)->contains('tax_id', \App\Models\Product::PRODUCT_TYPE_REVERSE_TAX)) {
-            $tax_label .= ctrans('texts.reverse_tax_info') . "<br>";
+            $tax_label .= ctrans('texts.reverse_tax_info') . " <br>";
         }
-
-        if ((int)$this->client->country_id !== (int)$this->company->settings->country_id) {
-            $tax_label .= ctrans('texts.intracommunity_tax_info') . "<br>";
+        else if ((int)$this->client->country_id !== (int)$this->company->settings->country_id) {
+            $tax_label .= ctrans('texts.intracommunity_tax_info') . " <br>";
 
             if ($this->entity_calc->getTotalTaxes() > 0) {
                 $tax_label = '';
@@ -1106,6 +1175,24 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
             $image->setAttribute('style', 'max-width: 50%; margin-top: 20px;');
 
             $container->appendChild($image);
+        }
+
+        if($this->entity_string == 'invoice') {
+
+            foreach($this->entity->expense_documents() as $expense){
+                foreach($expense->documents()->where('is_public', true)->get() as $document){
+                    if (!$document->isImage()) {
+                        continue;
+                    }
+
+                    $image = $dom->createElement('img');
+
+                    $image->setAttribute('src', "data:image/png;base64,".base64_encode($document->compress()));
+                    $image->setAttribute('style', 'max-width: 50%; margin-top: 20px;');
+
+                    $container->appendChild($image);
+                }
+            }
         }
 
         $dom->appendChild($container);

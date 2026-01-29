@@ -31,6 +31,10 @@ trait UserNotifies
 {
     public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions): array
     {
+        if(!$invitation) {
+            return [];
+        }
+        
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 

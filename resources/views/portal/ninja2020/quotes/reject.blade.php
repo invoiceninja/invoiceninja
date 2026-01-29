@@ -1,0 +1,87 @@
+@extends('portal.ninja2020.layout.app')
+@section('meta_title', ctrans('texts.reject'))
+
+
+@section('body')
+    <form action="{{ route('client.quotes.bulk') }}" method="post" id="reject-form">
+        @csrf
+        <input type="hidden" name="action" value="reject">
+        <input type="hidden" name="process" value="true">
+        <input type="hidden" name="user_input" value="">
+
+        @foreach($quotes as $quote)
+            <input type="hidden" name="quotes[]" value="{{ $quote->hashed_id }}">
+        @endforeach
+    </form>
+
+    <div class="container mx-auto">
+        <div class="grid grid-cols-6 gap-4">
+            <div class="col-span-6 md:col-start-2 md:col-span-4">
+                <div class="flex justify-end">
+                    <div class="flex justify-end mb-2">
+                        <div class="relative inline-block text-left">
+                            <div>
+                                <div class="rounded-md shadow-sm">
+                                    <button type="button" id="reject-button" onclick="setTimeout(() => this.disabled = true, 0); return true;"
+                                            class="button button-secondary bg-red-500 text-white hover:bg-red-600">
+                                        {{ ctrans('texts.reject') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @foreach($quotes as $quote)
+                    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-4">
+                        <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                                {{ ctrans('texts.quote') }}
+                                <a class="button-link text-primary" href="{{ route('client.quote.show', $quote->hashed_id) }}">
+                                    ({{ $quote->number }})
+                                </a>
+                            </h3>
+                            <p class="mt-1 max-w-2xl text-sm leading-5 text-gray-500" translate>
+                            </p>
+                        </div>
+                        <div>
+                            <dl>
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm leading-5 font-medium text-gray-500">
+                                        {{ ctrans('texts.quote_number') }}
+                                    </dt>
+                                    <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                        {{ $quote->number }}
+                                    </dd>
+                                </div>
+                                <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm leading-5 font-medium text-gray-500">
+                                        {{ ctrans('texts.quote_date') }}
+                                    </dt>
+                                    <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                        {{ $quote->translateDate($quote->date, $quote->client->date_format(), $quote->client->locale()) }}
+                                    </dd>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                                    <dt class="text-sm leading-5 font-medium text-gray-500">
+                                        {{ ctrans('texts.amount') }}
+                                    </dt>
+                                    <dd class="mt-1 text-sm leading-5 text-gray-900 sm:mt-0 sm:col-span-2">
+                                        {{ App\Utils\Number::formatMoney($quote->amount, $quote->client) }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('footer')
+    @include('portal.ninja2020.quotes.includes.reject-input')
+@endsection
+
+@push('footer')
+    @vite('resources/js/clients/quotes/reject.js')
+@endpush

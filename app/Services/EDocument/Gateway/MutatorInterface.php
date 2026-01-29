@@ -20,8 +20,14 @@ interface MutatorInterface
 
     public function setInvoice($invoice): self;
 
+    /**
+     * @param \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $p_invoice
+     */
     public function setPeppol($p_invoice): self;
 
+    /**
+     * @return \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote
+     */
     public function getPeppol(): mixed;
 
     public function setClientSettings($client_settings): self;

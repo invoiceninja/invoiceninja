@@ -15,6 +15,7 @@ namespace App\Services\EDocument\Jobs;
 use Mail;
 use App\Utils\Ninja;
 use App\Models\Invoice;
+use App\Models\Credit;
 use App\Models\Activity;
 use App\Models\SystemLog;
 use App\Libraries\MultiDB;
@@ -100,7 +101,7 @@ class SendEDocument implements ShouldQueue
         ];
 
         //Self Hosted Sending Code Path
-        if (Ninja::isSelfHost() && ($model instanceof Invoice) && $model->company->peppolSendingEnabled()) {
+        if (Ninja::isSelfHost() && ($model instanceof Invoice || $model instanceof Credit) && $model->company->peppolSendingEnabled()) {
 
             $r = Http::withHeaders([...$this->getHeaders(), 'X-EInvoice-Token' => $model->company->account->e_invoicing_token])
                 ->post(config('ninja.hosted_ninja_url')."/api/einvoice/submission", $payload);
@@ -161,7 +162,7 @@ class SendEDocument implements ShouldQueue
         }
 
         //Hosted Sending Code Path.
-        if (($model instanceof Invoice) && $model->company->peppolSendingEnabled()) {
+        if (($model instanceof Invoice || $model instanceof Credit) && $model->company->peppolSendingEnabled()) {
             if ($model->company->account->e_invoice_quota <= config('ninja.e_invoice_quota_warning')) {
                 $key = "e_invoice_quota_low_{$model->company->account->key}";
 
@@ -224,16 +225,14 @@ class SendEDocument implements ShouldQueue
         $activity->company_id = $model->company_id;
         $activity->account_id = $model->company->account_id;
         $activity->activity_type_id = $activity_id;
-        $activity->invoice_id = $model->id;
+        $activity->invoice_id = ($model instanceof Invoice) ? $model->id : null;
+        $activity->credit_id = ($model instanceof Credit) ? $model->id : null;
         $activity->notes = str_replace('"', '', $notes);
         $activity->is_system = true;
 
         $activity->save();
 
         if ($activity_id == Activity::EINVOICE_DELIVERY_SUCCESS) {
-
-            // $backup = ($model->backup && is_object($model->backup)) ? $model->backup : new \stdClass();
-            // $backup->guid = str_replace('"', '', $notes);
             $model->backup->guid = str_replace('"', '', $notes);
             $model->saveQuietly();
 

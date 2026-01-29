@@ -30,6 +30,7 @@ class CreditTest extends TestCase
     use MakesHash;
     use DatabaseTransactions;
     use MockAccountData;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -38,6 +39,148 @@ class CreditTest extends TestCase
         Model::reguard();
 
         $this->makeTestData();
+    }
+
+    public function testCreditEInvoiceValidation()
+    {
+
+        $credit_update = [
+            'e_invoice' => [
+                    'CreditNote' => [
+                        'BillingReference' => [
+                            [
+                            'InvoiceDocumentReference' => [
+                                'ID' => '',
+                                'IssueDate' => '',
+                            ],
+                            ]
+                        ],
+                    ],
+                ],
+            
+        ];
+
+        $data = array_merge($this->credit->toArray(), $credit_update);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCreditEInvoiceValidationWithProperNumber()
+    {
+
+        $credit_update = [
+            'e_invoice' => [
+                    'CreditNote' => [
+                        'BillingReference' => [
+                            [
+                            'InvoiceDocumentReference' => [
+                        'ID' => 'INV-123456S',
+                        'IssueDate' => '',
+                            ],
+                    ],
+                ],
+            ],
+            ],
+        ];
+
+        $data = array_merge($this->credit->toArray(), $credit_update);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(200);
+    }
+
+    public function testCreditEInvoiceValidationWithProperDate()
+    {
+
+        $credit_update = [
+            'e_invoice' => [
+                    'CreditNote' => [
+                        'BillingReference' => [
+                            [
+                            'InvoiceDocumentReference' => [
+                        'ID' => 'INV-123456S',
+                        'IssueDate' => '2026-01-18',
+                        ],
+                    ],
+                ],
+            ],
+            ],
+        ];
+
+        $data = array_merge($this->credit->toArray(), $credit_update);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(200);
+    }
+
+
+    public function testCreditEInvoiceValidationWithIncorrectDate()
+    {
+
+        $credit_update = [
+            'e_invoice' => [
+                    'CreditNote' => [
+                        'BillingReference' => [
+                            [
+                                'InvoiceDocumentReference' => [
+                                    'ID' => 'INV-123456S',
+                                    'IssueDate' => '203326-01-118',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+
+        $data = array_merge($this->credit->toArray(), $credit_update);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(422);
+    }
+
+    public function testCreditEInvoiceValidationWithIncorrectDateButPassesValidation()
+    {
+
+        $credit_update = [
+            'e_invoice' => [
+                    'CreditNote' => [
+                        'BillingReference' => [
+                            [
+                    'InvoiceDocumentReference' => [
+                        'ID' => 'INV-123456S',
+                        'IssueDate' => '3000-01-11',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $data = array_merge($this->credit->toArray(), $credit_update);
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->putJson('/api/v1/credits/'.$this->encodePrimaryKey($this->credit->id), $data);
+
+        $response->assertStatus(200);
     }
 
 

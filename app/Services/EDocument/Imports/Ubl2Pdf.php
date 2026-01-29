@@ -32,11 +32,15 @@ use App\Services\Template\TemplateService;
 
 class Ubl2Pdf extends AbstractService
 {
+    /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
+    public \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice;
+
     /**
      * @throws \Throwable
      */
-    public function __construct(public \InvoiceNinja\EInvoice\Models\Peppol\Invoice $invoice, public Company $company)
+    public function __construct(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice, public Company $company)
     {
+        $this->invoice = $invoice;
     }
 
     public function run()

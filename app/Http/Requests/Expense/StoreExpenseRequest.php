@@ -85,6 +85,10 @@ class StoreExpenseRequest extends Request
             $this->files->set('file', [$this->file('file')]);
         }
 
+        if(!array_key_exists('amount', $input)){
+            $input['amount'] = 0;
+        }
+
         if (! array_key_exists('currency_id', $input) || strlen($input['currency_id']) == 0) {
             $input['currency_id'] = (string) $user->company()->settings->currency_id;
         }

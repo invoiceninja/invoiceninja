@@ -296,6 +296,8 @@ class Activity extends StaticModel
 
     public const VERIFACTU_CANCELLATION_SENT_FAILURE = 157;
     
+    public const QUOTE_REJECTED = 158;
+    
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',

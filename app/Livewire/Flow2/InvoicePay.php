@@ -235,8 +235,6 @@ class InvoicePay extends Component
     public function mount()
     {
 
-        // $this->resetContext();
-
         MultiDB::setDb($this->db);
 
         // @phpstan-ignore-next-line
@@ -302,6 +300,8 @@ class InvoicePay extends Component
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
+        MultiDB::setDb($this->db);
+        
         //@phpstan-ignore-next-line
         $invite = \App\Models\InvoiceInvitation::with('contact.client', 'company')->withTrashed()->find($this->invitation_id);
 

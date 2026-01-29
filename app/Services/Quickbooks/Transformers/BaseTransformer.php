@@ -50,6 +50,21 @@ class BaseTransformer
         return $currency ? (string) $currency->id : $this->company->settings->currency_id;
     }
 
+    public function resolveTimezone(?string $timezone_name): string
+    {
+        if (empty($timezone_name)) {
+            return (string) $this->company->settings->timezone_id;
+        }
+
+        /** @var \App\Models\Timezone $timezone */
+        $timezone = app('timezones')->first(function ($t) use ($timezone_name) {
+            /** @var \App\Models\Timezone $t */
+            return $t->name === $timezone_name;
+        });
+
+        return $timezone ? (string) $timezone->id : (string) $this->company->settings->timezone_id;
+    }
+
     public function getShipAddrCountry($data, $field)
     {
         return is_null(($c = $this->getString($data, $field))) ? null : $this->getCountryId($c);

@@ -45,6 +45,36 @@ class DesignApiTest extends TestCase
         $this->makeTestData();
     }
 
+    public function testCloneDesign()
+    {
+     
+        $design = Design::find(2);
+
+        $this->assertNotNull($design);
+
+        $data = [
+            'ids' => [$design->hashed_id],
+            'action' => 'clone',
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->post('/api/v1/designs/bulk', $data);
+   
+        
+        $response->assertStatus(204);
+
+
+        $d = Design::query()->latest()->first();
+
+
+        $this->assertEquals($this->user->id, $d->user_id);
+        $this->assertEquals($this->company->id, $d->company_id);
+        $this->assertStringContainsString($design->name.' clone ', $d->name);
+        // $dsd = Design::all()->pluck('name')->toArray();
+    }
+
     public function testSelectiveDefaultDesignUpdatesInvoice()
     {
         $settings = ClientSettings::defaults();

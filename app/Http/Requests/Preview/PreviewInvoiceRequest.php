@@ -118,7 +118,7 @@ class PreviewInvoiceRequest extends Request
         };
 
         if ($invitation) {
-            nlog($invitation->toArray());
+            // nlog($invitation->toArray());
             return $invitation;
         }
 

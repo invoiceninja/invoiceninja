@@ -233,7 +233,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        $data['logo'] = $user->company()->present()->logo();
+        $data['logo'] = $user->company()->present()->logo($this->settings);
 
         if ($this->entity_obj->client()->exists()) {
             $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));

@@ -102,6 +102,12 @@
                                     {{ $invoice->client->currency()->code }} ({{ $invoice->client->currency()->symbol }})
                                     {{ $invoice->partial > 0 ? $invoice->partial : $invoice->balance }}
                                 </dd>
+
+                                @if($settings->client_portal_allow_over_payment)
+                                    <div class="mt-1">
+                                        <span class="mt-1 text-sm text-gray-800">{{ ctrans('texts.over_payment_helper') }}</span>
+                                    </div>
+                                @endif
                             </div>
                             @endif
 

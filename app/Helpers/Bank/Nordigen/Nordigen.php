@@ -297,10 +297,10 @@ class Nordigen
      * getTransactions
      *
      * @param  string $accountId
-     * @param  string $dateFrom
+     * @param  ?string $dateFrom
      * @return array
      */
-    public function getTransactions(Company $company, string $accountId, string $dateFrom = null): array
+    public function getTransactions(Company $company, string $accountId, ?string $dateFrom = null): array
     {
         $transactionResponse = $this->client->account($accountId)->getAccountTransactions($dateFrom);
 
@@ -310,7 +310,7 @@ class Nordigen
 
     public function disabledAccountEmail(BankIntegration $bank_integration): void
     {
-        $cache_key = "email_quota:{$bank_integration->company->company_key}:{$bank_integration->id}";
+        $cache_key = "email_quota:{$bank_integration->account->key}:bank_integration_notified";
 
         if (Cache::has($cache_key)) {
             return;

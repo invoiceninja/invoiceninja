@@ -825,7 +825,7 @@ class NinjaMailerJob implements ShouldQueue
         }
 
         /* Ensure the user has a valid email address */
-        if (!str_contains($this->nmo->to_user->email, "@")) {
+        if (!str_contains($this->nmo->to_user->email ?? '', "@")) {
             return true;
         }
 

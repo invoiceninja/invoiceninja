@@ -23,7 +23,7 @@ trait WithSecureContext
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function getContext(string $key): mixed
+    public function getContext(?string $key): mixed
     {
         $context = \Illuminate\Support\Facades\Cache::get($key) ?? [];
 

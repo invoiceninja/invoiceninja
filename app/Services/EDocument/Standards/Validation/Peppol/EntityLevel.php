@@ -12,7 +12,7 @@
 
 namespace App\Services\EDocument\Standards\Validation\Peppol;
 
-use App\Exceptions\PeppolValidationException;
+use XSLTProcessor;
 use App\Models\Quote;
 use App\Models\Client;
 use App\Models\Credit;
@@ -20,11 +20,12 @@ use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
-use App\Services\EDocument\Standards\Peppol;
-use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
-use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\App;
-use XSLTProcessor;
+use App\Services\EDocument\Standards\Peppol;
+use App\Exceptions\PeppolValidationException;
+use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
+use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 
 class EntityLevel implements EntityLevelInterface
 {
@@ -124,7 +125,12 @@ class EntityLevel implements EntityLevelInterface
 
     }
 
-    public function checkInvoice(Invoice $invoice): array
+    public function checkRecurringInvoice(RecurringInvoice $recurring_invoice): array
+    {
+        return ['passes' => true];
+    }
+
+    public function checkInvoice(Invoice | Credit $invoice): array
     {
         $this->init($invoice->client->locale());
 
@@ -271,7 +277,7 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //test legal entity id present
-        if (!is_int($company->legal_entity_id)) {
+        if(intval($company->legal_entity_id) == 0){
             $errors[] = ['field' => "You have not registered a legal entity id as yet."];
         }
 

@@ -10,7 +10,7 @@
 
 @section('body')
 
-    @if(!$quote->isApproved() && $client->getSetting('custom_message_unapproved_quote'))
+    @if(!$quote->isApproved() && !$quote->isRejected() && $client->getSetting('custom_message_unapproved_quote'))
         @component('portal.ninja2020.components.message')
             <pre>{{ $client->getSetting('custom_message_unapproved_quote') }}</pre>
         @endcomponent
@@ -31,13 +31,13 @@
                         </h3>
                     </div>
 
-                                @if($quote->invoice()->exists())
-                                    <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
-                                        <div class="inline-flex rounded-md shadow-sm">
-                                            <a class="button button-primary bg-primary" href="/client/invoices/{{ $quote->invoice->hashed_id }}">{{ ctrans('texts.view_invoice') }}</a>
-                                        </div>
-                                    </div>
-                                @endif
+                    @if($quote->invoice()->exists())
+                        <div class="mt-5 sm:mt-0 sm:ml-6 flex justify-end">
+                            <div class="inline-flex rounded-md shadow-sm">
+                                <a class="button button-primary bg-primary" href="/client/invoices/{{ $quote->invoice->hashed_id }}">{{ ctrans('texts.view_invoice') }}</a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -55,7 +55,19 @@
                 </div>
             </div>
         </div>
+    @elseif($quote->status_id == \App\Models\Quote::STATUS_REJECTED)
 
+        <div class="bg-white shadow sm:rounded-lg mb-4">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="sm:flex sm:items-start sm:justify-between">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ ctrans('texts.rejected') }}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
     @else
 
         <div class="bg-white shadow sm:rounded-lg mb-4">
@@ -78,13 +90,17 @@
 
 @section('footer')
     @include('portal.ninja2020.quotes.includes.user-input')
+    @include('portal.ninja2020.quotes.includes.reject-input')
     @include('portal.ninja2020.invoices.includes.terms', ['entities' => [$quote], 'variables' => $variables, 'entity_type' => ctrans('texts.quote')])
     @include('portal.ninja2020.invoices.includes.signature')
 @endsection
 
-@push('head')
+@push('footer')
     @vite('resources/js/clients/quotes/approve.js')
+    @vite('resources/js/clients/quotes/reject.js')
+@endpush
 
+@push('head')
     <script type="text/javascript" defer>
 
     document.addEventListener('DOMContentLoaded', () => {

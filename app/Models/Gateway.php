@@ -147,7 +147,7 @@ class Gateway extends StaticModel
             case 56:
                 return [
                     GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => true, 'webhooks' => ['payment_intent.succeeded', 'charge.refunded', 'payment_intent.payment_failed']],
-                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.refunded','charge.succeeded', 'customer.source.updated', 'payment_intent.processing', 'payment_intent.payment_failed', 'charge.failed']],
+                    GatewayType::BANK_TRANSFER => ['refund' => true, 'token_billing' => true, 'webhooks' => ['source.chargeable', 'charge.refunded', 'charge.succeeded', 'customer.source.updated', 'setup_intent.succeeded', 'payment_intent.processing', 'payment_intent.payment_failed', 'charge.failed']],
                     GatewayType::DIRECT_DEBIT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['payment_intent.processing', 'charge.refunded', 'payment_intent.succeeded', 'payment_intent.partially_funded', 'payment_intent.payment_failed']],
                     GatewayType::ALIPAY => ['refund' => false, 'token_billing' => false],
                     GatewayType::APPLE_PAY => ['refund' => false, 'token_billing' => false],

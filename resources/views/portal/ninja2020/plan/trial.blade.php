@@ -1627,7 +1627,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               30 day money back guarantee!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
-                                $12<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
+                                $14<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
                             </h3>
                             <button
                                     type="button"
@@ -1669,7 +1669,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               30 day money back guarantee!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="m_plan_price">
-                                $16<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
+                                $18<span class="font-normal text-base ml-[10px] text-gray">Per month</span>
                             </h3>
                             <form
                                     id="plan-form"
@@ -1723,7 +1723,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               Pay annually for 10 months + 2 free!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black">
-                                $120<span class="font-normal text-base ml-[10px] text-gray">Per year</span>
+                                $140<span class="font-normal text-base ml-[10px] text-gray">Per year</span>
                             </h3>
                             <button
                                     type="button"
@@ -1764,7 +1764,7 @@ Ensure the default browser behavior of the `hidden` attribute.
                               Pay annually for 10 months + 2 free!
                             </p>
                             <h3 class="text-[35px] font-bold leading-[1.35em] mb-[36px] text-black" id="y_plan_price">
-                                $160<span class="font-normal text-base ml-[10px] text-gray">Per Year</span>
+                                $180<span class="font-normal text-base ml-[10px] text-gray">Per Year</span>
                             </h3>
                             <form
                                     id="plan-form"
@@ -1981,17 +1981,17 @@ document.getElementById('handleProYearlyClick').addEventListener('click', functi
 });
 const price_map = new Map();
 //monthly
-price_map.set('7LDdwRb1YK', '$16 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
-price_map.set('MVyb8mdvAZ', '$28 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
-price_map.set('WpmbkR5azJ', '$36 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
-price_map.set('k8mepY2aMy', '$48 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
-price_map.set('MVyb8VlevA', '$64 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('7LDdwRb1YK', '$18 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('MVyb8mdvAZ', '$32 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('WpmbkR5azJ', '$54 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('k8mepY2aMy', '$84 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
+price_map.set('MVyb8VlevA', '$96 <span class="font-normal text-base ml-[10px] text-gray">Per month</span>');
 //yearly
-price_map.set('LYqaQWldnj', '$160 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
-price_map.set('kQBeX6mbyK', '$280 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
-price_map.set('GELe32Qd69', '$360 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
-price_map.set('MVyb86oevA', '$480 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
-price_map.set('VWPe9WPbLy', '$640 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('LYqaQWldnj', '$180 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('kQBeX6mbyK', '$320 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('GELe32Qd69', '$540 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('MVyb86oevA', '$840 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
+price_map.set('VWPe9WPbLy', '$960 <span class="font-normal text-base ml-[10px] text-gray">Per year</span>');
 
 </script>
 

@@ -146,6 +146,8 @@ class InvoiceItemSum
 
     private RuleInterface $rule;
 
+    public bool $peppol_enabled = false;
+
     public function __construct(RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice)
     {
         $this->tax_collection = collect([]);
@@ -157,6 +159,7 @@ class InvoiceItemSum
         if ($this->client) {
             $this->currency = $this->client->currency();
             $this->shouldCalculateTax();
+            $this->peppol_enabled = $this->client->getSetting('e_invoice_type') == 'PEPPOL';
         } else {
             $this->currency = $this->invoice->vendor->currency();
         }

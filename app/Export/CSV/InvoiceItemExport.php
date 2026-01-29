@@ -282,6 +282,11 @@ class InvoiceItemExport extends BaseExport
             $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line
         }
 
+        if (in_array('invoice.subtotal', $this->input['report_keys'])) {
+            $entity['invoice.subtotal'] = $invoice->calc()->getSubTotal();
+        }
+
+
         return $entity;
     }
 

@@ -101,7 +101,53 @@ class QbInvoice implements SyncInterface
 
     public function syncToForeign(array $records): void
     {
+        foreach ($records as $invoice) {
+            if (!$invoice instanceof Invoice) {
+                continue;
+            }
 
+            // Check if sync direction allows push
+            if (!$this->service->syncable('invoice', \App\Enum\SyncDirection::PUSH)) {
+                continue;
+            }
+
+            try {
+                // Transform invoice to QuickBooks format
+                $qb_invoice_data = $this->invoice_transformer->ninjaToQb($invoice, $this->service);
+                
+                // If updating, fetch SyncToken using existing find() method
+                if (isset($invoice->sync->qb_id) && !empty($invoice->sync->qb_id)) {
+                    $existing_qb_invoice = $this->find($invoice->sync->qb_id);
+                    if ($existing_qb_invoice) {
+                        $qb_invoice_data['SyncToken'] = $existing_qb_invoice->SyncToken ?? '0';
+                    }
+                }
+
+                // Create or update invoice in QuickBooks
+                $qb_invoice = \QuickBooksOnline\API\Facades\Invoice::create($qb_invoice_data);
+
+                if (isset($invoice->sync->qb_id) && !empty($invoice->sync->qb_id)) {
+                    // Update existing invoice
+                    $result = $this->service->sdk->Update($qb_invoice);
+                    nlog("QuickBooks: Updated invoice {$invoice->id} (QB ID: {$invoice->sync->qb_id})");
+                } else {
+                    // Create new invoice
+                    $result = $this->service->sdk->Add($qb_invoice);
+                    
+                    // Store QB ID in invoice sync
+                    $sync = new InvoiceSync();
+                    $sync->qb_id = data_get($result, 'Id') ?? data_get($result, 'Id.value');
+                    $invoice->sync = $sync;
+                    $invoice->saveQuietly();
+                    
+                    nlog("QuickBooks: Created invoice {$invoice->id} (QB ID: {$sync->qb_id})");
+                }
+            } catch (\Exception $e) {
+                nlog("QuickBooks: Error pushing invoice {$invoice->id} to QuickBooks: {$e->getMessage()}");
+                // Continue with next invoice instead of failing completely
+                continue;
+            }
+        }
     }
 
     private function qbInvoiceUpdate(array $ninja_invoice_data, Invoice $invoice): void

@@ -23,7 +23,7 @@ class Helpers
 {
     use MakesDates;
 
-    public static function sharedEmailVariables(?Client $client, array $settings = null): array
+    public static function sharedEmailVariables(?Client $client, ?array $settings = null): array
     {
         if (! $client) {
             $elements['signature'] = '';
@@ -360,6 +360,26 @@ class Helpers
                         $final_date->translatedFormat('F'),
                         $final_date->year,
                     );
+                }
+
+                if ($matches->keys()->first() == ':QUARTER') {
+                    // Use date math to properly handle quarter wrapping (Q4+1 = Q1 of next year)
+                    if ($_operation == '+') {
+                        $final_date = $currentDateTime->copy()->addQuarters((int) $_value[1]);
+                    } elseif ($_operation == '-') {
+                        $final_date = $currentDateTime->copy()->subQuarters((int) $_value[1]);
+                    } else {
+                        // For division/multiplication, calculate target quarter and use date math
+                        // Calculate how many quarters to add/subtract from current quarter
+                        $quarters_to_add = $output - $currentDateTime->quarter;
+                        $final_date = $currentDateTime->copy();
+                        if ($quarters_to_add != 0) {
+                            $final_date = $quarters_to_add > 0 
+                                ? $final_date->addQuarters($quarters_to_add)
+                                : $final_date->subQuarters(abs($quarters_to_add));
+                        }
+                    }
+                    $output = $final_date->quarter;
                 }
 
                 $value = preg_replace(

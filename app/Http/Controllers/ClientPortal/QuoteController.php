@@ -90,6 +90,10 @@ class QuoteController extends Controller
             return $this->approve((array) $transformed_ids, $request->has('process'));
         }
 
+        if ($request->action == 'reject') {
+            return $this->reject((array) $transformed_ids, $request->has('process'));
+        }
+
         return back();
     }
 
@@ -169,6 +173,44 @@ class QuoteController extends Controller
         } finally {
             $zipFile->close();
         }
+    }
+
+    protected function reject(array $ids, $process = false)
+    {
+        $quotes = Quote::query()
+            ->whereIn('id', $ids)
+            ->where('client_id', auth()->guard('contact')->user()->client_id)
+            ->where('company_id', auth()->guard('contact')->user()->company_id)
+            ->where('status_id', Quote::STATUS_SENT)
+            ->withTrashed()
+            ->get();
+
+        if (! $quotes || $quotes->count() == 0) {
+            return redirect()
+                ->route('client.quotes.index')
+                ->with('message', ctrans('texts.quotes_with_status_sent_can_be_rejected'));
+        }
+
+        if ($process) {
+            foreach ($quotes as $quote) {
+
+                $quote->service()->reject(auth()->guard('contact')->user(), request()->input('user_input', ''))->save();
+
+            }
+
+            return redirect()
+                ->route('client.quotes.index')
+                ->withSuccess('Quote(s) rejected successfully.');
+        }
+
+
+        $variables = false;
+
+        return $this->render('quotes.reject', [
+            'quotes' => $quotes,
+            'variables' => $variables,
+        ]);
+
     }
 
     protected function approve(array $ids, $process = false)

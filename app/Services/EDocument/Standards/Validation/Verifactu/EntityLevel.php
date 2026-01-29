@@ -19,6 +19,7 @@ use App\Models\Vendor;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Models\PurchaseOrder;
+use App\Models\RecurringInvoice;
 use Illuminate\Support\Facades\App;
 use App\Services\EDocument\Standards\Validation\EntityLevelInterface;
 
@@ -82,6 +83,11 @@ class EntityLevel implements EntityLevelInterface
 
         return $this->errors;
 
+    }
+
+    public function checkRecurringInvoice(RecurringInvoice $recurring_invoice): array
+    {
+        return ['passes' => true];
     }
 
     public function checkInvoice(Invoice $invoice): array

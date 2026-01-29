@@ -161,6 +161,10 @@ class StoreTaskRequest extends Request
 
         }
 
+        if(isset($input['description']) && is_string($input['description'])) {
+            $input['description'] = str_ireplace(['</sc', 'file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost', '<?xml encoding="UTF-8">', '/etc/'], "", $input['description']);
+        }
+
         /* Ensure the project is related */
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
             $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();

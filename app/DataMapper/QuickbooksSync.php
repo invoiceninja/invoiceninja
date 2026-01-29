@@ -12,8 +12,15 @@
 
 namespace App\DataMapper;
 
+use App\Models\Product;
+
 /**
  * QuickbooksSync.
+ *
+ * Product type to income account mapping:
+ * Keys are Product::PRODUCT_TYPE_* constants (int). Values are QuickBooks account IDs (string|null).
+ * Example: [Product::PRODUCT_TYPE_SERVICE => '123', Product::PRODUCT_TYPE_PHYSICAL => '456']
+ * Null values indicate the account has not been configured for that product type.
  */
 class QuickbooksSync
 {
@@ -35,9 +42,11 @@ class QuickbooksSync
 
     public QuickbooksSyncMap $expense;
 
-    public string $default_income_account = '';
-
-    public string $default_expense_account = '';
+    /**
+     * QuickBooks income account ID per product type.
+     * Use getAccountId(int $productTypeId) or the typed properties (physical, service, etc.).
+     */
+    public IncomeAccountMap $income_account_map;
 
     public function __construct(array $attributes = [])
     {
@@ -50,7 +59,23 @@ class QuickbooksSync
         $this->product = new QuickbooksSyncMap($attributes['product'] ?? []);
         $this->payment = new QuickbooksSyncMap($attributes['payment'] ?? []);
         $this->expense = new QuickbooksSyncMap($attributes['expense'] ?? []);
-        $this->default_income_account = $attributes['default_income_account'] ?? '';
-        $this->default_expense_account = $attributes['default_expense_account'] ?? '';
+        $this->income_account_map = new IncomeAccountMap($attributes['income_account_map'] ?? []);
+
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'client' => $this->client->toArray(),
+            'vendor' => $this->vendor->toArray(),
+            'invoice' => $this->invoice->toArray(),
+            'sales' => $this->sales->toArray(),
+            'quote' => $this->quote->toArray(),
+            'purchase_order' => $this->purchase_order->toArray(),
+            'product' => $this->product->toArray(),
+            'payment' => $this->payment->toArray(),
+            'expense' => $this->expense->toArray(),
+            'income_account_map' => $this->income_account_map->toArray(),
+        ];
     }
 }

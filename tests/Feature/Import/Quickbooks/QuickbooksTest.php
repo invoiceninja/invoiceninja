@@ -77,9 +77,7 @@ class QuickbooksTest extends TestCase
             "Taxable" => true,
             "UnitPrice" => $non_inventory_product->price,
             "Type" => "NonInventory",
-            "IncomeAccountRef" => [
-                "value" => $this->qb->settings->default_income_account, // Replace with your actual income account ID
-            ],
+            
             // "AssetAccountRef" => [
             //     "value" => "81", // Replace with your actual asset account ID
             //     "name" => "Inventory Asset"
@@ -109,9 +107,7 @@ class QuickbooksTest extends TestCase
             "Taxable" => true,
             "UnitPrice" => $service_product->price,
             "Type" => "Service",
-            "IncomeAccountRef" => [
-                "value" => $this->qb->settings->default_income_account, // Replace with your actual income account ID
-            ],
+           
             "TrackQtyOnHand" => false,
 
         ]);

@@ -12,19 +12,20 @@
 
 namespace App\Utils;
 
+use Exception;
+use App\Utils\Ninja;
 use App\Models\Account;
 use App\Models\Country;
-use App\Models\CreditInvitation;
-use App\Models\InvoiceInvitation;
-use App\Models\PurchaseOrderInvitation;
-use App\Models\QuoteInvitation;
-use App\Models\RecurringInvoiceInvitation;
 use App\Utils\Traits\AppSetup;
-use App\Utils\Traits\DesignCalculator;
+use App\Models\QuoteInvitation;
+use App\Models\CreditInvitation;
 use App\Utils\Traits\MakesDates;
-use Exception;
+use App\Models\InvoiceInvitation;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
+use App\Utils\Traits\DesignCalculator;
+use App\Models\PurchaseOrderInvitation;
+use App\Models\RecurringInvoiceInvitation;
 
 /**
  * Note the premise used here is that any currencies will be formatted back to the company currency and not
@@ -350,8 +351,13 @@ class VendorHtmlEngine
         $data['$signature'] = ['value' => $this->settings->email_signature ?: '&nbsp;', 'label' => ''];
         $data['$emailSignature'] = &$data['$signature'];
 
-        $logo = $this->company->present()->logo_base64($this->settings);
+        if (Ninja::isHosted()) {
+            $logo = $this->company->present()->logo($this->settings);
+        } else {
+            $logo = $this->company->present()->logo_base64($this->settings);
+        }
 
+        
         $data['$company.logo'] = ['value' => $logo ?: '&nbsp;', 'label' => ctrans('texts.logo')];
         $data['$company_logo'] = &$data['$company.logo'];
         $data['$company1'] = ['value' => $this->helpers->formatCustomFieldValue($this->company->custom_fields, 'company1', $this->settings->custom_value1, $this->vendor) ?: '&nbsp;', 'label' => $this->helpers->makeCustomField($this->company->custom_fields, 'company1')];

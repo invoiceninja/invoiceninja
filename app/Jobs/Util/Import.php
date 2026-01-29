@@ -472,16 +472,56 @@ class Import implements ShouldQueue
         $company_repository->save($data, $this->company);
 
         if (isset($data['settings']->company_logo) && strlen($data['settings']->company_logo) > 0) {
+
+
             try {
-                $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
-                copy($data['settings']->company_logo, $tempImage);
-                $this->uploadLogo($tempImage, $this->company, $this->company);
+                $logoUrl = $data['settings']->company_logo;
+                
+                // 1. Validate URL format
+                if (!filter_var($logoUrl, FILTER_VALIDATE_URL)) {
+                    throw new \Exception('Invalid URL format');
+                }
+                
+                // 2. Restrict protocols
+                $parsed = parse_url($logoUrl);
+                if (!in_array($parsed['scheme'] ?? '', ['http', 'https'])) {
+                    throw new \Exception('Only HTTP/HTTPS allowed');
+                }
+                
+                // 3. Block internal/private IPs (SSRF protection)
+                $host = $parsed['host'] ?? '';
+                $ip = gethostbyname($host);
+                if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                    throw new \Exception('Internal hosts not allowed');
+                }
+                
+                // 4. Use HTTP client with timeout and size limits instead of copy()
+                $response = \Illuminate\Support\Facades\Http::timeout(20)->get($logoUrl);
+                
+                if ($response->successful() && strlen($response->body()) < 20 * 1024 * 1024) { // 5MB limit
+                    $tempImage = tempnam(sys_get_temp_dir(), 'logo_');
+                    file_put_contents($tempImage, $response->body());
+                    $this->uploadLogo($tempImage, $this->company, $this->company);
+                    @unlink($tempImage); // Cleanup
+                }
             } catch (\Exception $e) {
                 $settings = $this->company->settings;
                 $settings->company_logo = '';
                 $this->company->settings = $settings;
                 $this->company->save();
+                nlog("Logo import failed: " . $e->getMessage());
             }
+
+            // try {
+            //     $tempImage = tempnam(sys_get_temp_dir(), basename($data['settings']->company_logo));
+            //     copy($data['settings']->company_logo, $tempImage);
+            //     $this->uploadLogo($tempImage, $this->company, $this->company);
+            // } catch (\Exception $e) {
+            //     $settings = $this->company->settings;
+            //     $settings->company_logo = '';
+            //     $this->company->settings = $settings;
+            //     $this->company->save();
+            // }
         }
 
         Company::reguard();

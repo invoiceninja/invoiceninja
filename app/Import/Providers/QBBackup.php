@@ -4,6 +4,7 @@ namespace App\Import\Providers;
 
 use App\Models\Company;
 use App\Models\Invoice;
+use App\Import\Providers\BaseImport;
 use Illuminate\Support\Facades\Cache;
 use App\Services\Quickbooks\QuickbooksService;
 use App\Services\Quickbooks\Transformers\ClientTransformer;

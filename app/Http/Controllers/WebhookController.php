@@ -303,7 +303,6 @@ class WebhookController extends BaseController
 
         $webhook = WebhookFactory::create($user->company()->id, $user->id);
         $webhook->fill($request->all());
-        $webhook->save();
 
         return $this->itemResponse($webhook);
     }

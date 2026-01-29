@@ -229,7 +229,7 @@ class StorecoveProxy
 
     private function remoteRequest(string $uri, array $payload = []): array
     {
-        // nlog(config('ninja.hosted_ninja_url'));
+
         $response = Http::baseUrl(config('ninja.hosted_ninja_url'))
             ->withHeaders($this->getHeaders())
             ->post($uri, $payload);

@@ -1272,7 +1272,6 @@ class CompanyImport implements ShouldQueue
     {
         $activities = [];
 
-
         $this->genericNewClassImport(
             Activity::class,
             [
@@ -1556,9 +1555,23 @@ class CompanyImport implements ShouldQueue
     {
         // foreach($this->backup_file->payments as $payment)
         foreach ((object)$this->getObject("payments") as $payment) {
+
+
             foreach ($payment->paymentables as $paymentable_obj) {
+
+
+try {
+    $ppid = $this->transformId('payments', $paymentable_obj->payment_id);
+
+} catch (\Exception $e) {
+    // nlog($e->getMessage());
+    nlog($paymentable_obj);
+    continue;
+}
+
+
                 $paymentable = new Paymentable();
-                $paymentable->payment_id = $this->transformId('payments', $paymentable_obj->payment_id);
+                $paymentable->payment_id = $ppid;
                 $paymentable->paymentable_type = $paymentable_obj->paymentable_type;
                 $paymentable->amount = $paymentable_obj->amount;
                 $paymentable->refunded = $paymentable_obj->refunded;
@@ -1675,7 +1688,15 @@ class CompanyImport implements ShouldQueue
                         $key = $activity_invitation_key;
                     }
 
-                    $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                    if($class == 'App\Models\Activity'){
+
+                        if(isset($this->ids[$key][$obj->{$value}])) 
+                            $obj_array["{$value}"] = $this->ids[$key][$obj->{$value}];
+                    }
+                    else {
+                        $obj_array["{$value}"] = $this->transformId($key, $obj->{$value});
+                    }
+
                 }
             }
 
@@ -1978,7 +1999,11 @@ class CompanyImport implements ShouldQueue
     private function transformId(string $resource, ?string $old): ?int
     {
 
-        if (empty($old) || $old == 'WjnegYbwZ1') {
+        if (empty($old) || in_array($old,  ['WjnegYbwZ1'])) {
+            return null;
+        }
+
+        if($resource == 'tasks' && in_array($old,  ['WjnegnldwZ','kQBeX5layK','MVyb895dvA','OpnelpJeKB'])) {
             return null;
         }
 

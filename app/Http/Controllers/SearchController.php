@@ -232,7 +232,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/expense',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/expenses/{$result['_source']['hashed_id']}"
+                        'path' => "/expenses/{$result['_source']['hashed_id']}/edit"
                     ];
 
                     break;
