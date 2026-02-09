@@ -1,2 +1,4 @@
 [build]
-builder = "docker"
+builder = "DOCKERFILE"
+# If your Dockerfile is not in the root, uncomment and set the path:
+# dockerfilePath = "Dockerfile"
