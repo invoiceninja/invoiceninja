@@ -25,7 +25,7 @@
     },
     "dependencies": {
         "@apidevtools/swagger-parser": "^10.1.1",
-        "axios": "^0.25",
+        "axios": "^1.13",
         "card-js": "^1.0.13",
         "card-validator": "^8.1.1",
         "chartjs": "^0.3.24",
