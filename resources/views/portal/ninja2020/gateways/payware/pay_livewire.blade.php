@@ -30,10 +30,12 @@
             <span style="font-weight: 600; color: #059669;" id="payware-countdown">--:--</span>
         @endcomponent
 
-        <div style="display: flex; flex-direction: column; align-items: center; padding: 1rem;" id="payware-qr-container">
-            @if($qr_image_data)
-                <img src="data:image/svg+xml;base64,{{ $qr_image_data }}" alt="payware QR Code" style="max-width: 250px; max-height: 250px; width: 100%; height: auto;">
-            @endif
+        <div class="payware-qr-container" style="flex-direction: column; align-items: center; padding: 1rem;" id="payware-qr-container"></div>
+
+        <div class="payware-deeplink-container" style="flex-direction: column; align-items: center; padding: 1rem;" id="payware-deeplink-container">
+            <a href="payware://{{ $transaction_id }}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #059669; color: #ffffff; font-weight: 600; font-size: 1rem; border-radius: 0.5rem; text-decoration: none;">
+                {{ ctrans('texts.pay_now') }}
+            </a>
         </div>
 
         <div class="px-4 py-3 sm:px-6" id="payware-status-container">
@@ -53,6 +55,12 @@
         @@keyframes payware-spin {
             to { transform: rotate(360deg); }
         }
+        .payware-qr-container { display: flex; }
+        .payware-deeplink-container { display: none; }
+        @@media (max-width: 640px) {
+            .payware-qr-container { display: none !important; }
+            .payware-deeplink-container { display: flex !important; }
+        }
     </style>
 
     @script
@@ -66,11 +74,30 @@
     let pollInterval = null;
     let countdownInterval = null;
 
+    // Generate QR code (hidden on mobile via CSS)
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    script.onload = function() {
+        var qrContainer = document.getElementById('payware-qr-container');
+        if (qrContainer) {
+            new QRCode(qrContainer, {
+                text: 'payware://' + transactionId,
+                width: 250,
+                height: 250,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.Q,
+            });
+        }
+    };
+    document.head.appendChild(script);
+
     function updateCountdown() {
         if (secondsRemaining <= 0) {
             clearInterval(countdownInterval);
             clearInterval(pollInterval);
             document.getElementById('payware-qr-container').style.display = 'none';
+            document.getElementById('payware-deeplink-container').style.display = 'none';
             const statusEl = document.getElementById('payware-status');
             statusEl.style.color = '#991b1b';
             statusEl.style.backgroundColor = '#fee2e2';

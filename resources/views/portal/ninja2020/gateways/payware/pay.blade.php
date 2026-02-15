@@ -91,16 +91,11 @@
         .payware-copy-btn:hover {
             background-color: #f3f4f6;
         }
-        .payware-deep-link {
-            display: none;
-        }
+        .payware-qr-container { display: flex; }
+        .payware-deeplink-container { display: none; }
         @@media (max-width: 640px) {
-            #payware-qr-container img {
-                max-width: 200px;
-            }
-            .payware-deep-link {
-                display: inline-flex;
-            }
+            .payware-qr-container { display: none !important; }
+            .payware-deeplink-container { display: flex !important; }
         }
     </style>
 @endsection
@@ -136,12 +131,10 @@
             </div>
         </div>
 
-        <div id="payware-qr-container">
-            @if($qr_image_data)
-                <img src="data:image/svg+xml;base64,{{ $qr_image_data }}" alt="payware QR Code" id="payware-qr-image">
-            @endif
+        <div class="payware-qr-container" id="payware-qr-container" style="flex-direction: column; align-items: center; padding: 1rem;"></div>
 
-            <a href="payware://{{ $transaction_id }}" class="payware-deep-link button button-primary bg-primary mt-4" style="padding: 0.5rem 1.5rem; text-decoration: none; color: white; border-radius: 0.375rem;">
+        <div class="payware-deeplink-container" id="payware-deeplink-container" style="flex-direction: column; align-items: center; padding: 1rem;">
+            <a href="payware://{{ $transaction_id }}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #059669; color: #ffffff; font-weight: 600; font-size: 1rem; border-radius: 0.5rem; text-decoration: none;">
                 {{ ctrans('texts.pay_now') }}
             </a>
         </div>
@@ -175,6 +168,25 @@
     <script>
         (function() {
             const transactionId = @json($transaction_id);
+
+            // Generate QR code (hidden on mobile via CSS)
+            var script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.onload = function() {
+                var qrContainer = document.getElementById('payware-qr-container');
+                if (qrContainer) {
+                    new QRCode(qrContainer, {
+                        text: 'payware://' + transactionId,
+                        width: 250,
+                        height: 250,
+                        colorDark: '#000000',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.Q,
+                    });
+                }
+            };
+            document.head.appendChild(script);
+
             const paymentHash = @json($payment_hash);
             const companyGatewayId = @json($gateway->getCompanyGatewayId());
             const paymentMethodId = @json($payment_method_id);

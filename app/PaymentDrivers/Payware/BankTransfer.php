@@ -129,14 +129,12 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
             // Store transaction data in payment_hash for webhook and polling
             $hashData = (array) $this->driver->payment_hash->data;
             $hashData['payware_transaction_id'] = $result['transactionId'];
-            $hashData['payware_image_data'] = $result['imageData'];
             $hashData['payware_status'] = 'PENDING';
             $hashData['payware_created_at'] = time();
             $this->driver->payment_hash->data = $hashData;
             $this->driver->payment_hash->save();
 
             $data['transaction_id'] = $result['transactionId'];
-            $data['qr_image_data'] = $result['imageData'];
             $data['time_to_live'] = 600;
 
         } catch (\Exception $e) {

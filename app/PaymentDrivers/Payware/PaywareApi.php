@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers\Payware;
 
+use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Support\Facades\Http;
 
 class PaywareApi
@@ -50,7 +51,32 @@ class PaywareApi
     }
 
     /**
-     * Create a payment transaction and get a QR code.
+     * Login to vPOS and return a cookie jar with the session.
+     *
+     * @return CookieJar
+     *
+     * @throws \Exception
+     */
+    private function login(): CookieJar
+    {
+        $cookieJar = new CookieJar();
+
+        $response = Http::withOptions(['cookies' => $cookieJar])
+            ->asForm()
+            ->post($this->baseUrl . '/vpos/login', [
+                'username' => $this->vposId,
+                'password' => '',
+            ]);
+
+        if ($response->failed()) {
+            throw new \Exception('payware login failed (HTTP ' . $response->status() . ')');
+        }
+
+        return $cookieJar;
+    }
+
+    /**
+     * Create a payment transaction via vPOS API.
      *
      * @param float $amount
      * @param string $currency
@@ -58,7 +84,7 @@ class PaywareApi
      * @param string $callbackUrl
      * @param string $passbackParams
      * @param int $timeToLive
-     * @return array{transactionId: string, imageData: string}
+     * @return array{transactionId: string}
      *
      * @throws \Exception
      */
@@ -72,8 +98,9 @@ class PaywareApi
     ): array {
         $timeToLive = max(60, min(600, $timeToLive));
 
+        $cookieJar = $this->login();
+
         $payload = [
-            'vloginId' => $this->vposId,
             'passbackParams' => $passbackParams,
             'callbackUrl' => $callbackUrl,
             'trData' => [
@@ -85,17 +112,12 @@ class PaywareApi
                 'type' => 'QR',
                 'timeToLive' => (string) $timeToLive,
             ],
-            'qrOptions' => [
-                'qrFormat' => 'SVG',
-                'qrErrorCorrection' => 'QUARTILE',
-                'qrVersion' => '3',
-                'qrBorder' => '4',
-            ],
         ];
 
-        $response = Http::timeout(30)
+        $response = Http::withOptions(['cookies' => $cookieJar])
+            ->timeout(30)
             ->acceptJson()
-            ->post($this->baseUrl . '/internal/transactions', $payload);
+            ->post($this->baseUrl . '/vpos/api/transactions', $payload);
 
         if ($response->failed()) {
             throw new \Exception('payware API error: ' . $response->body());
@@ -109,7 +131,6 @@ class PaywareApi
 
         return [
             'transactionId' => $data['transactionId'],
-            'imageData' => $data['imageData'] ?? '',
         ];
     }
 
