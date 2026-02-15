@@ -5942,6 +5942,11 @@ $lang = array(
     'unapplied_payments' => 'Unapplied Payments',
     'debit' => 'Debit',
     'auto_convert_credit_help' => 'Automatically link or create a payment matching these rules.',
+    'mobile_payment' => 'Pago móvil',
+    'payware_awaiting_payment' => 'Esperando pago',
+    'payware_payment_confirmed' => 'Pago confirmado',
+    'payware_payment_expired' => 'El pago ha expirado. Por favor, vuelva e inténtelo de nuevo.',
+    'payware_certified_by' => 'Certificado por',
 );
 
 return $lang;

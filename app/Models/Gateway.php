@@ -110,6 +110,8 @@ class Gateway extends StaticModel
             $link = 'https://rotessa.com';
         } elseif ($this->id == 65) {
             $link = 'https://help.blockonomics.co/a/solutions/articles/33000291849';
+        } elseif ($this->id == 66) {
+            $link = 'https://payware.eu';
         }
 
         return $link;
@@ -259,6 +261,10 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => false, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //Blockonomics
+            case 66:
+                return [
+                    GatewayType::MOBILE_PAYMENT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['CONFIRMED', 'DECLINED', 'FAILED']],
+                ]; //payware
             default:
                 return [];
         }
