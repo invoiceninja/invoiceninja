@@ -11,7 +11,10 @@
             <input type="hidden" name="token">
         </form>
 
-        @include('portal.ninja2020.gateways.includes.payment_details')
+        <div style="position: relative;">
+            @include('portal.ninja2020.gateways.includes.payment_details')
+            <img src="{{ asset('gateway-card-images/payware-certified-rc.svg') }}" alt="payware certified" style="position: absolute; top: 1.25rem; right: 1.5rem; height: 28px;">
+        </div>
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment_type')])
             {{ ctrans('texts.mobile_payment') }}
@@ -19,7 +22,7 @@
 
         @component('portal.ninja2020.components.general.card-element', ['title' => ctrans('texts.payment') . ' ID'])
             <span style="display: inline-flex; align-items: center; gap: 0.375rem;">
-                <span style="font-family: monospace; font-size: 0.75rem;" id="payware-payment-id">{{ $transaction_id }}</span>
+                <span class="text-sm leading-5 text-gray-900" id="payware-payment-id">{{ $transaction_id }}</span>
                 <button type="button" style="background: none; border: none; padding: 0.125rem; cursor: pointer; color: #6b7280; display: inline-flex; align-items: center;" onclick="paywareCopyId()" title="{{ ctrans('texts.copy') }}">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 </button>
@@ -45,10 +48,6 @@
             </div>
         </div>
 
-        <div style="display: flex; align-items: center; justify-content: center; gap: 0.375rem; padding: 0.75rem; border-top: 1px solid #e5e7eb;">
-            <span style="font-size: 0.7rem; color: #9ca3af;">{{ ctrans('texts.payware_certified_by') }}</span>
-            <img src="{{ asset('gateway-card-images/payware-logo.svg') }}" alt="payware" style="height: 16px;">
-        </div>
     </div>
 
     <style>
