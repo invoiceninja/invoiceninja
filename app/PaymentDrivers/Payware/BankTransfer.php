@@ -49,17 +49,20 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
 
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        // Handle AJAX status polling
-        if ($request->has('payware_check_status')) {
-            $paymentHash = PaymentHash::where('hash', $request->payment_hash)->first();
+        $paymentHash = PaymentHash::where('hash', $request->payment_hash)->first();
 
-            if (!$paymentHash) {
+        if (!$paymentHash) {
+            if ($request->has('payware_check_status')) {
                 return response()->json(['status' => 'FAILED', 'message' => 'Payment hash not found']);
             }
+            throw new PaymentFailed('payware: Payment hash not found.');
+        }
 
-            $data = (array) $paymentHash->data;
-            $status = $data['payware_status'] ?? 'PENDING';
+        $data = (array) $paymentHash->data;
+        $status = $data['payware_status'] ?? 'PENDING';
 
+        // Handle AJAX status polling
+        if ($request->has('payware_check_status')) {
             $response = ['status' => $status];
 
             if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
@@ -68,7 +71,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
                 ]);
             }
 
-            if (in_array($status, ['DECLINED', 'FAILED'])) {
+            if (in_array($status, ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'])) {
                 $response['message'] = $data['payware_status_message'] ?? 'Payment was not completed.';
             }
 
@@ -76,17 +79,10 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
         }
 
         // Handle final redirect after webhook confirmation
-        $paymentHash = PaymentHash::where('hash', $request->payment_hash)->first();
-
-        if ($paymentHash) {
-            $data = (array) $paymentHash->data;
-            $status = $data['payware_status'] ?? 'PENDING';
-
-            if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
-                return redirect()->route('client.payments.show', [
-                    'payment' => $this->encodePrimaryKey($data['payware_payment_id']),
-                ]);
-            }
+        if ($status === 'CONFIRMED' && isset($data['payware_payment_id'])) {
+            return redirect()->route('client.payments.show', [
+                'payment' => $this->encodePrimaryKey($data['payware_payment_id']),
+            ]);
         }
 
         throw new PaymentFailed('payware: Payment was not confirmed.');
@@ -118,12 +114,15 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
             $companyName = $this->driver->client->company->present()->name();
             $reason = $companyName . ', order #' . ($invoice->invoice_number ?? '');
 
+            $timeToLive = (int) ($this->driver->company_gateway->getConfigField('timeToLive') ?: 600);
+
             $result = $api->createTransaction(
                 (float) $data['amount'],
                 $data['currency'],
                 $reason,
                 $callbackUrl,
                 $this->driver->payment_hash->hash,
+                $timeToLive,
             );
 
             // Store transaction data in payment_hash for webhook and polling
@@ -135,7 +134,7 @@ class BankTransfer implements MethodInterface, LivewireMethodInterface
             $this->driver->payment_hash->save();
 
             $data['transaction_id'] = $result['transactionId'];
-            $data['time_to_live'] = 600;
+            $data['time_to_live'] = $timeToLive;
 
         } catch (\Exception $e) {
             throw new PaymentFailed('payware: Failed to create payment - ' . $e->getMessage());

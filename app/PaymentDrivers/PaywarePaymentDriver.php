@@ -19,6 +19,7 @@ use App\Models\PaymentType;
 use App\Models\SystemLog;
 use App\PaymentDrivers\Payware\BankTransfer;
 use App\PaymentDrivers\Payware\PaywareApi;
+use App\Http\Requests\Payments\PaymentNotificationWebhookRequest;
 use App\Utils\Traits\MakesHash;
 
 class PaywarePaymentDriver extends BaseDriver
@@ -100,11 +101,11 @@ class PaywarePaymentDriver extends BaseDriver
         // payware does not support refunds via API
     }
 
-    public function processWebhookRequest()
+    public function processWebhookRequest(PaymentNotificationWebhookRequest $request)
     {
         // Handle GET status check (polling from browser)
-        if (request()->isMethod('GET') && request()->has('check_status')) {
-            $hash = request()->input('payment_hash');
+        if ($request->isMethod('GET') && $request->has('check_status')) {
+            $hash = $request->input('payment_hash');
             $paymentHash = PaymentHash::where('hash', $hash)->first();
 
             if (!$paymentHash) {
@@ -122,7 +123,7 @@ class PaywarePaymentDriver extends BaseDriver
                 ]);
             }
 
-            if (in_array($status, ['DECLINED', 'FAILED'])) {
+            if (in_array($status, ['DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED'])) {
                 $response['message'] = $data['payware_status_message'] ?? 'Payment was not completed.';
             }
 
@@ -199,6 +200,10 @@ class PaywarePaymentDriver extends BaseDriver
             nlog('payware: Payment declined - ' . $transactionId . ' - ' . $statusMessage);
         } elseif ($status === 'FAILED') {
             nlog('payware: Payment failed - ' . $transactionId . ' - ' . $statusMessage);
+        } elseif ($status === 'CANCELLED') {
+            nlog('payware: Payment cancelled - ' . $transactionId . ' - ' . $statusMessage);
+        } elseif ($status === 'EXPIRED') {
+            nlog('payware: Payment expired - ' . $transactionId);
         }
 
         $paymentHash->data = $hashData;

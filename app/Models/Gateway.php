@@ -263,7 +263,7 @@ class Gateway extends StaticModel
                 ]; //Blockonomics
             case 66:
                 return [
-                    GatewayType::MOBILE_PAYMENT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['CONFIRMED', 'DECLINED', 'FAILED']],
+                    GatewayType::MOBILE_PAYMENT => ['refund' => false, 'token_billing' => false, 'webhooks' => ['CONFIRMED', 'DECLINED', 'FAILED', 'CANCELLED', 'EXPIRED']],
                 ]; //payware
             default:
                 return [];

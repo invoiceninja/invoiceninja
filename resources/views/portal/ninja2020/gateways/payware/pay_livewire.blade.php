@@ -137,9 +137,11 @@
                 if (data.redirect) {
                     setTimeout(function() { window.location.href = data.redirect; }, 1500);
                 }
-            } else if (data.status === 'DECLINED' || data.status === 'FAILED') {
+            } else if (data.status === 'DECLINED' || data.status === 'FAILED' || data.status === 'CANCELLED' || data.status === 'EXPIRED') {
                 clearInterval(pollInterval);
                 clearInterval(countdownInterval);
+                document.getElementById('payware-qr-container').style.display = 'none';
+                document.getElementById('payware-deeplink-container').style.display = 'none';
                 const statusEl = document.getElementById('payware-status');
                 statusEl.style.color = '#991b1b';
                 statusEl.style.backgroundColor = '#fee2e2';

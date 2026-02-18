@@ -254,7 +254,7 @@
                                 window.location.href = data.redirect;
                             }, 1500);
                         }
-                    } else if (data.status === 'DECLINED' || data.status === 'FAILED') {
+                    } else if (data.status === 'DECLINED' || data.status === 'FAILED' || data.status === 'CANCELLED' || data.status === 'EXPIRED') {
                         clearInterval(pollInterval);
                         clearInterval(countdownInterval);
 
