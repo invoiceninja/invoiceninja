@@ -109,6 +109,8 @@ class Gateway extends StaticModel
             $link = 'https://rotessa.com';
         } elseif ($this->id == 65) {
             $link = 'https://help.blockonomics.co/a/solutions/articles/33000291849';
+        } elseif ($this->id == 66) {
+            $link = 'https://developer.revolut.com/docs/merchant';
         }
 
         return $link;
@@ -219,10 +221,10 @@ class Gateway extends StaticModel
                     GatewayType::CREDIT_CARD => ['refund' => false, 'token_billing' => false],
                     GatewayType::VENMO => ['refund' => false, 'token_billing' => false],
                     GatewayType::PAYPAL_ADVANCED_CARDS => ['refund' => false, 'token_billing' => true],
-                    // GatewayType::SEPA => ['refund' => false, 'token_billing' => false],
-                    // GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
-                    // GatewayType::EPS => ['refund' => false, 'token_billing' => false],
-                    // GatewayType::MYBANK => ['refund' => false, 'token_billing' => false],
+                        // GatewayType::SEPA => ['refund' => false, 'token_billing' => false],
+                        // GatewayType::BANCONTACT => ['refund' => false, 'token_billing' => false],
+                        // GatewayType::EPS => ['refund' => false, 'token_billing' => false],
+                        // GatewayType::MYBANK => ['refund' => false, 'token_billing' => false],
                     GatewayType::PAYLATER => ['refund' => false, 'token_billing' => false],
                     // GatewayType::PRZELEWY24 => ['refund' => false, 'token_billing' => false],
                     // GatewayType::SOFORT => ['refund' => false, 'token_billing' => false],
@@ -231,13 +233,13 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => true, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //BTCPay
-	    case 63:
-		return [
+            case 63:
+                return [
                     GatewayType::BANK_TRANSFER => [
                         'refund' => false,
                         'token_billing' => true,
                         'webhooks' => [],
-                        ],
+                    ],
                     GatewayType::ACSS => ['refund' => false, 'token_billing' => true, 'webhooks' => []]
                 ]; // Rotessa
             case 64: //b67581d804dbad1743b61c57285142ad - powerboard
@@ -248,6 +250,10 @@ class Gateway extends StaticModel
                 return [
                     GatewayType::CRYPTO => ['refund' => false, 'token_billing' => false, 'webhooks' => ['confirmed', 'paid_out', 'failed', 'fulfilled']],
                 ]; //Blockonomics
+            case 66:
+                return [
+                    GatewayType::CREDIT_CARD => ['refund' => true, 'token_billing' => false, 'webhooks' => [' ']], // Revolut
+                ];
             default:
                 return [];
         }
