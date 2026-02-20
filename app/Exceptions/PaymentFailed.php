@@ -24,10 +24,10 @@ class PaymentFailed extends Exception
     public function render($request)
     {
         if (auth()->guard('contact')->user() || ($request->has('cko-session-id') && $request->query('cko-session-id'))) {
-            return response(render('gateways.unsuccessful', [
+            return render('gateways.unsuccessful', [
                 'message' => $this->getMessage(),
                 'code' => $this->getCode(),
-            ]));
+            ]);
         }
 
         return response([
