@@ -62,11 +62,6 @@ class Hosted implements MethodInterface, LivewireMethodInterface
 
         $redirectUrl = route('client.payments.response') . '?payment_hash=' . $this->revolut->payment_hash->hash . '&company_gateway_id=' . $this->revolut->company_gateway->id . '&payment_method_id=' . GatewayType::CREDIT_CARD;
 
-        // Revolut API validation rejects 'localhost' as a host. For local testing, substitute it with nip.io.
-        if (app()->environment('local') && str_contains($redirectUrl, 'localhost')) {
-            $redirectUrl = str_replace('localhost', '127.0.0.1.nip.io', $redirectUrl);
-        }
-
         $payload = [
             'amount' => $this->revolut->convertToRevolutAmount($amount),
             'currency' => $this->revolut->client->getCurrencyCode(),
@@ -76,9 +71,17 @@ class Hosted implements MethodInterface, LivewireMethodInterface
 
         try {
             $response = $this->revolut->httpClient()
-                ->post($this->revolut->apiUrl('/api/orders'), ['json' => $payload]);
+                ->post($this->revolut->apiUrl('/api/orders'), [
+                    'json' => $payload,
+                    'http_errors' => false,
+                ]);
 
             $order = json_decode($response->getBody()->getContents(), true);
+
+            if ($response->getStatusCode() >= 400 || empty($order['id'])) {
+                $errorMsg = $order['message'] ?? 'Failed to create Revolut order';
+                throw new PaymentFailed($errorMsg);
+            }
 
             $this->revolut->payment_hash->withData('order_id', $order['id']);
             $this->revolut->payment_hash->withData('checkout_url', $order['checkout_url']);
@@ -123,9 +126,16 @@ class Hosted implements MethodInterface, LivewireMethodInterface
 
         try {
             $response = $this->revolut->httpClient()
-                ->get($this->revolut->apiUrl("/api/orders/{$order_id}"));
+                ->get($this->revolut->apiUrl("/api/orders/{$order_id}"), [
+                    'http_errors' => false,
+                ]);
 
             $order = json_decode($response->getBody()->getContents(), true);
+
+            if ($response->getStatusCode() >= 400 || empty($order['id'])) {
+                $errorMsg = $order['message'] ?? 'Failed to retrieve Revolut order details';
+                throw new PaymentFailed($errorMsg);
+            }
 
             if (isset($order['state']) && in_array(strtoupper($order['state']), ['COMPLETED', 'AUTHORISED'])) {
                 return $this->processSuccessfulPayment($order);
