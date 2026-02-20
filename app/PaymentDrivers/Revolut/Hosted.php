@@ -60,13 +60,15 @@ class Hosted implements MethodInterface, LivewireMethodInterface
     {
         $amount = (float) $this->revolut->payment_hash->data->amount_with_fee;
 
-        $redirectUrl = route('client.payments.response') . '?payment_hash=' . $this->revolut->payment_hash->hash . '&company_gateway_id=' . $this->revolut->company_gateway->id . '&payment_method_id=' . GatewayType::CREDIT_CARD;
-
         $payload = [
             'amount' => $this->revolut->convertToRevolutAmount($amount),
             'currency' => $this->revolut->client->getCurrencyCode(),
             'description' => ctrans('texts.invoice') . ' - ' . $this->revolut->company_gateway->company->present()->name(),
-            'redirect_url' => $redirectUrl,
+            'redirect_url' => route('client.payments.response', [
+                'company_gateway_id' => $this->revolut->company_gateway->id,
+                'payment_hash' => $this->revolut->payment_hash->hash,
+                'payment_method_id' => GatewayType::CREDIT_CARD,
+            ]),
         ];
 
         try {
