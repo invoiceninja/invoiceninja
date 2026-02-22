@@ -80,6 +80,10 @@ class Hosted implements MethodInterface, LivewireMethodInterface
 
             $order = json_decode($response->getBody()->getContents(), true);
 
+            if (!is_array($order)) {
+                $order = ['message' => 'Invalid JSON response from Revolut API'];
+            }
+
             if ($response->getStatusCode() >= 400 || empty($order['id'])) {
                 $errorMsg = $order['message'] ?? 'Failed to create Revolut order';
                 throw new PaymentFailed($errorMsg);
@@ -133,6 +137,10 @@ class Hosted implements MethodInterface, LivewireMethodInterface
                 ]);
 
             $order = json_decode($response->getBody()->getContents(), true);
+
+            if (!is_array($order)) {
+                $order = ['message' => 'Invalid JSON response from Revolut API'];
+            }
 
             if ($response->getStatusCode() >= 400 || empty($order['id'])) {
                 $errorMsg = $order['message'] ?? 'Failed to retrieve Revolut order details';

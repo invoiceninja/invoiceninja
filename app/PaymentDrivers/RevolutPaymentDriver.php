@@ -95,51 +95,75 @@ class RevolutPaymentDriver extends BaseDriver
     {
         $order_id = $payment->transaction_reference;
 
-        $response = $this->httpClient()
-            ->post($this->apiUrl("/api/orders/{$order_id}/refund"), [
-                'json' => [
-                    'amount' => $this->convertToRevolutAmount($amount),
-                    'currency' => $this->client->getCurrencyCode(),
-                ],
-            ]);
+        try {
+            $response = $this->httpClient()
+                ->post($this->apiUrl("/api/orders/{$order_id}/refund"), [
+                    'json' => [
+                        'amount' => $this->convertToRevolutAmount($amount),
+                        'currency' => $this->client->getCurrencyCode(),
+                    ],
+                    'http_errors' => false,
+                ]);
 
-        $body = json_decode($response->getBody()->getContents(), true);
+            $body = json_decode($response->getBody()->getContents(), true);
 
-        if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            if (!is_array($body)) {
+                $body = ['message' => 'Invalid JSON response from Revolut API'];
+            }
+
+            if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                \App\Jobs\Util\SystemLogger::dispatch(
+                    ['response' => $body, 'data' => ['amount' => $amount, 'order_id' => $order_id]],
+                    SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                    SystemLog::EVENT_GATEWAY_SUCCESS,
+                    SystemLog::TYPE_REVOLUT,
+                    $this->client,
+                    $this->client->company,
+                );
+
+                return [
+                    'transaction_reference' => $body['id'] ?? $order_id,
+                    'transaction_response' => json_encode($body),
+                    'success' => true,
+                    'description' => $payment->number,
+                    'code' => $response->getStatusCode(),
+                ];
+            }
+
             \App\Jobs\Util\SystemLogger::dispatch(
                 ['response' => $body, 'data' => ['amount' => $amount, 'order_id' => $order_id]],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
-                SystemLog::EVENT_GATEWAY_SUCCESS,
+                SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_REVOLUT,
                 $this->client,
                 $this->client->company,
             );
 
             return [
-                'transaction_reference' => $body['id'] ?? $order_id,
+                'transaction_reference' => null,
                 'transaction_response' => json_encode($body),
-                'success' => true,
-                'description' => $payment->number,
+                'success' => false,
+                'description' => $body['message'] ?? 'Refund failed',
                 'code' => $response->getStatusCode(),
             ];
+        } catch (\Exception $e) {
+            \App\Jobs\Util\SystemLogger::dispatch(
+                ['server_response' => $e->getMessage(), 'data' => ['amount' => $amount, 'order_id' => $order_id]],
+                SystemLog::CATEGORY_GATEWAY_RESPONSE,
+                SystemLog::EVENT_GATEWAY_FAILURE,
+                SystemLog::TYPE_REVOLUT,
+                $this->client,
+                $this->client->company,
+            );
+
+            return [
+                'transaction_reference' => null,
+                'transaction_response' => json_encode(['error' => $e->getMessage()]),
+                'success' => false,
+                'description' => $e->getMessage(),
+                'code' => 500,
+            ];
         }
-
-        \App\Jobs\Util\SystemLogger::dispatch(
-            ['response' => $body, 'data' => ['amount' => $amount, 'order_id' => $order_id]],
-            SystemLog::CATEGORY_GATEWAY_RESPONSE,
-            SystemLog::EVENT_GATEWAY_FAILURE,
-            SystemLog::TYPE_REVOLUT,
-            $this->client,
-            $this->client->company,
-        );
-
-        return [
-            'transaction_reference' => null,
-            'transaction_response' => json_encode($body),
-            'success' => false,
-            'description' => $body['message'] ?? 'Refund failed',
-            'code' => $response->getStatusCode(),
-        ];
     }
 
     /**
