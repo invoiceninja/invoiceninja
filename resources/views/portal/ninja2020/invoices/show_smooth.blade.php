@@ -38,6 +38,6 @@
     @endif
 
     @if($invoice->isPayable())
-        @livewire('flow2.invoice-pay', ['invoices' => $invoices, 'invitation_id' => $invitation->id, 'db' => $db, 'variables' => $variables])
+        @livewire('flow2.invoice-pay', ['invoices' => $invoices, 'invitation_id' => $invitation->id, 'db' => $db, 'variables' => $variables, '_key' => $_key])
     @endif
 @endsection

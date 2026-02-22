@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -122,7 +122,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 throw new StripeConnectFailure('Stripe Connect has not been configured');
             }
         } else {
-            
+
             $this->stripe = new StripeClient(
                 $this->company_gateway->getConfigField('apiKey')
             );
@@ -272,11 +272,11 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
             $this->client
             && isset($this->client->country)
             && (
-                (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR') ||
-                ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY') ||
-                ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN') ||
-                ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP') ||
-                ($this->client->country->iso_3166_2 == 'US' && $this->client->currency()->code == 'USD')
+                (in_array($this->client->country->iso_3166_2, ['FR', 'IE', 'NL', 'DE', 'ES']) && $this->client->currency()->code == 'EUR')
+                || ($this->client->country->iso_3166_2 == 'JP' && $this->client->currency()->code == 'JPY')
+                || ($this->client->country->iso_3166_2 == 'MX' && $this->client->currency()->code == 'MXN')
+                || ($this->client->country->iso_3166_2 == 'GB' && $this->client->currency()->code == 'GBP')
+                || ($this->client->country->iso_3166_2 == 'US' && $this->client->currency()->code == 'USD')
             )
         ) {
             $types[] = GatewayType::DIRECT_DEBIT;
@@ -552,7 +552,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
 
         //Search by email
         $searchResults = \Stripe\Customer::all([
-            'email' => (string)$this->client->present()->email(),
+            'email' => (string) $this->client->present()->email(),
             'limit' => 2,
             // 'starting_after' => null,
         ], $this->stripe_connect_auth);
@@ -703,7 +703,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         // nlog($request->all());
         $webhook_secret = $this->company_gateway->getConfigField('webhookSecret');
- 
+
         if ($webhook_secret) {
             $sig_header = $_SERVER["HTTP_STRIPE_SIGNATURE"] ?? $request->header('Stripe-Signature');
             if (!$sig_header) {
@@ -721,7 +721,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
                 return response()->json(['error' => 'Invalid signature'], 403);
             }
         }
-        
+
         if ($request->type === 'customer.source.updated') {
             $ach = new ACH($this);
             $ach->updateBankAccount($request->all());
@@ -899,14 +899,14 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         try {
             $stripe_payment_method = $this->getStripePaymentMethod($payment_method);
             $stripe_payment_method->attach(['customer' => $customer->id], $this->stripe_connect_auth);
-        } catch (ApiErrorException | Exception $e) {
+        } catch (ApiErrorException|Exception $e) {
             nlog($e->getMessage());
 
             SystemLogger::dispatch(
                 [
-                'server_response' => $e->getMessage(),
-                'data' => request()->all(),
-            ],
+                    'server_response' => $e->getMessage(),
+                    'data' => request()->all(),
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_STRIPE,
@@ -930,14 +930,14 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
         try {
             $pm = $this->getStripePaymentMethod($token->token);
             $pm->detach([], $this->stripe_connect_auth);
-        } catch (ApiErrorException | Exception $e) {
+        } catch (ApiErrorException|Exception $e) {
             nlog($e->getMessage());
 
             SystemLogger::dispatch(
                 [
-                'server_response' => $e->getMessage(),
-                'data' => request()->all(),
-            ],
+                    'server_response' => $e->getMessage(),
+                    'data' => request()->all(),
+                ],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_STRIPE,
@@ -963,7 +963,7 @@ class StripePaymentDriver extends BaseDriver implements SupportsHeadlessInterfac
     {
         try {
             return PaymentMethod::retrieve($source, $this->stripe_connect_auth);
-        } catch (ApiErrorException | Exception $e) {
+        } catch (ApiErrorException|Exception $e) {
             throw new PaymentFailed($e->getMessage(), $e->getCode());
         }
     }

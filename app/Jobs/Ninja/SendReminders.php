@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,7 +58,7 @@ class SendReminders implements ShouldQueue
      */
     public function handle()
     {
-        nlog('Sending reminders '.Carbon::now()->format('Y-m-d h:i:s'));
+        nlog('Sending reminders ' . Carbon::now()->format('Y-m-d h:i:s'));
 
         if (! config('ninja.db.multi_db_enabled')) {
             $this->sendReminderEmails();
@@ -189,13 +189,13 @@ class SendReminders implements ShouldQueue
 
         switch ($schedule_reminder) {
             case 'after_invoice_date':
-                return Carbon::parse($invoice->date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset);
+                return Carbon::parse($invoice->date)->addDays((int) $num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'before_due_date':
-                return Carbon::parse($invoice->due_date)->subDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset);
+                return Carbon::parse($invoice->due_date)->subDays((int) $num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             case 'after_due_date':
-                return Carbon::parse($invoice->due_date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset);
+                return Carbon::parse($invoice->due_date)->addDays((int) $num_days_reminder)->startOfDay()->addSeconds($offset);
                 break;
             default:
                 return null;
@@ -229,7 +229,7 @@ class SendReminders implements ShouldQueue
         $invoice->next_send_date = $this->calculateNextSendDate($invoice);
 
         if (in_array($template, ['reminder1', 'reminder2', 'reminder3'])) {
-            $invoice->{$template.'_sent'} = now();
+            $invoice->{$template . '_sent'} = now();
         }
 
         $invoice->service()->touchReminder($template)->save();

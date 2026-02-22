@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -151,6 +151,7 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $invoice->id;
                     $paymentable->paymentable_type = 'invoices';
                     $paymentable->amount = $paid_invoice['amount'];
+                    $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
                     $paymentable->save();
 
                     $invoice = $invoice->service()
@@ -181,6 +182,7 @@ class PaymentRepository extends BaseRepository
                     $paymentable->paymentable_id = $credit->id;
                     $paymentable->paymentable_type = Credit::class;
                     $paymentable->amount = $paid_credit['amount'];
+                    $paymentable->created_at = $is_existing_payment ? now()->setTimezone($payment->company->timezone()->name) : $payment->date ?? now()->setTimezone($payment->company->timezone()->name) ; //@phpstan-ignore-line
                     $paymentable->save();
 
                     $credit = $credit->service()->markSent()->save();

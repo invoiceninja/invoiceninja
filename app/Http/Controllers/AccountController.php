@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -86,8 +86,8 @@ class AccountController extends BaseController
 
         }
 
-        if ($request->has('hash') && config('ninja.cloudflare.turnstile.secret')) { 
-            
+        if ($request->has('hash') && config('ninja.cloudflare.turnstile.secret')) {
+
             if (Secure::decrypt($request->input('hash')) !== $request->input('email')) {
                 return response()->json(['message' => 'Invalid Signup Payload'], 400);
             }
@@ -104,7 +104,7 @@ class AccountController extends BaseController
         $cu = CompanyUser::query()->where('user_id', $account->users()->first()->id);
 
         $company_user = $cu->first();
-        
+
         $truth = app()->make(TruthSource::class);
         $truth->setCompanyUser($company_user);
         $truth->setUser($company_user->user);

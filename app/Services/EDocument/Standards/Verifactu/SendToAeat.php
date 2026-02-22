@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,9 +58,7 @@ class SendToAeat implements ShouldQueue
      * @param  string $action create, modify, cancel
      * @return void
      */
-    public function __construct(private int $invoice_id, private Company $company, private string $action)
-    {
-    }
+    public function __construct(private int $invoice_id, private Company $company, private string $action) {}
 
     public function backoff()
     {
@@ -172,17 +170,17 @@ class SendToAeat implements ShouldQueue
 
         nlog($response);
 
-        LightLogs::create(new VerifactuLog(html: $invoice->number,json: $response))->batch();
-        
+        LightLogs::create(new VerifactuLog(html: $invoice->number, json: $response))->batch();
+
         $message = '';
 
         if ($response['success']) {
             //if successful, we need to pop this invoice from the child array of the parent invoice!
-            nlog("searching for parent invoice ".$invoice->backup->parent_invoice_id);
+            nlog("searching for parent invoice " . $invoice->backup->parent_invoice_id);
             $parent = Invoice::withTrashed()->find($this->decodePrimaryKey($invoice->backup->parent_invoice_id));
 
             if ($parent) {
-                $parent->backup->child_invoice_ids = $parent->backup->child_invoice_ids->reject(fn ($id) => $id === $invoice->hashed_id);
+                $parent->backup->child_invoice_ids = $parent->backup->child_invoice_ids->reject(fn($id) => $id === $invoice->hashed_id);
                 $parent->saveQuietly();
             }
 
@@ -207,8 +205,9 @@ class SendToAeat implements ShouldQueue
 
     public function failed($exception = null)
     {
-        if($exception)
+        if ($exception) {
             nlog($exception);
+        }
     }
 
     private function writeActivity(Invoice $invoice, int $activity_id, string $notes = ''): void
@@ -255,11 +254,11 @@ class SendToAeat implements ShouldQueue
         $fechaExpedicionFacturaAnulada = $document->getIdFactura()->getFechaExpedicionFactura();
         $fechaHoraHusoGenRegistro = $document->getFechaHoraHusoGenRegistro();
 
-        $hashInput = "IDEmisorFacturaAnulada={$idEmisorFacturaAnulada}&" .
-            "NumSerieFacturaAnulada={$numSerieFacturaAnulada}&" .
-            "FechaExpedicionFacturaAnulada={$fechaExpedicionFacturaAnulada}&" .
-            "Huella={$huella}&" .
-            "FechaHoraHusoGenRegistro={$fechaHoraHusoGenRegistro}";
+        $hashInput = "IDEmisorFacturaAnulada={$idEmisorFacturaAnulada}&"
+            . "NumSerieFacturaAnulada={$numSerieFacturaAnulada}&"
+            . "FechaExpedicionFacturaAnulada={$fechaExpedicionFacturaAnulada}&"
+            . "Huella={$huella}&"
+            . "FechaHoraHusoGenRegistro={$fechaHoraHusoGenRegistro}";
 
         return strtoupper(hash('sha256', $hashInput));
 

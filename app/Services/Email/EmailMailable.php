@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,9 +32,7 @@ class EmailMailable extends Mailable
      *
      * @return void
      */
-    public function __construct(public EmailObject $email_object)
-    {
-    }
+    public function __construct(public EmailObject $email_object) {}
 
     /**
      * Get the message envelope.
@@ -69,7 +67,7 @@ class EmailMailable extends Mailable
                     $hash = Str::random(64);
                     Cache::put($hash, ['db' => $this->email_object->company->db, 'doc_hash' => $document->hash], now()->addDays(7));
 
-                    return "<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) ."'>". $document->name ."</a>";
+                    return "<a class='doc_links' href='" . URL::signedRoute('documents.hashed_download', ['hash' => $hash]) . "'>" . $document->name . "</a>";
                 });
 
         return new Content(
@@ -108,7 +106,7 @@ class EmailMailable extends Mailable
             $mime = $mime ?: 'application/octet-stream';
             finfo_close($finfo);
 
-            return Attachment::fromData(fn () => base64_decode($file['file']), $file['name'])->withMime($mime);
+            return Attachment::fromData(fn() => base64_decode($file['file']), $file['name'])->withMime($mime);
         });
 
         $documents = Document::query()->whereIn('id', $this->email_object->documents)
@@ -119,13 +117,19 @@ class EmailMailable extends Mailable
 
                     $file = $document->getFile();
 
+                    if (empty($file)) {
+                        nlog("EmailMailable: Document file is empty: {$document->url}");
+                        return null;
+                    }
+
                     $finfo = finfo_open(FILEINFO_MIME_TYPE);
                     $mime  = finfo_buffer($finfo, $file);
                     $mime = $mime ?: 'application/octet-stream';
                     finfo_close($finfo);
 
-                    return Attachment::fromData(fn () => $file, $document->name)->withMime($mime);
-                });
+                    return Attachment::fromData(fn() => $file, $document->name)->withMime($mime);
+                })
+                ->filter();
 
         return $attachments->merge($documents)->toArray();
     }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -196,7 +196,7 @@ class CreditCard implements LivewireMethodInterface
     public function paymentResponse(Request $request)
     {
 
-        if($request->token){
+        if ($request->token) {
             return $this->processTokenPayment($request->token, $request->payment_hash);
         }
 
@@ -297,7 +297,7 @@ class CreditCard implements LivewireMethodInterface
             'm_payment_id' => $data['payment_hash'],
             'amount' => $data['amount_with_fee'],
             'item_name' => 'purchase',
-            'item_description' => ctrans('texts.invoices').': '.collect($data['invoices'])->pluck('invoice_number'),
+            'item_description' => ctrans('texts.invoices') . ': ' . collect($data['invoices'])->pluck('invoice_number'),
             'passphrase' => $this->payfast->company_gateway->getConfigField('passphrase'),
         ];
 

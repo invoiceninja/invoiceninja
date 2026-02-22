@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -151,11 +151,11 @@ class Task extends BaseModel
 
         // Get basic data
         $data = [
-            'id' => $this->company->db.":".$this->id,
+            'id' => $this->company->db . ":" . $this->id,
             'name' => ctrans('texts.task') . " " . ($this->number ?? '') . $project . $client,
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
-            'description' => (string)$this->description,
+            'number' => (string) $this->number,
+            'description' => (string) $this->description,
             'task_rate' => (float) $this->rate,
             'is_deleted' => (bool) $this->is_deleted,
             'custom_value1' => (string) $this->custom_value1,
@@ -210,7 +210,7 @@ class Task extends BaseModel
 
     public function getScoutKey()
     {
-        return $this->company->db.":".$this->id;
+        return $this->company->db . ":" . $this->id;
     }
 
     /**
@@ -279,7 +279,7 @@ class Task extends BaseModel
     public function stringStatus(): string
     {
         if ($this->invoice_id) {
-            return '<h5><span class="badge badge-success">'.ctrans('texts.invoiced').'</span></h5>';
+            return '<h5><span class="badge badge-success">' . ctrans('texts.invoiced') . '</span></h5>';
         }
 
         if ($this->status) {
@@ -295,7 +295,7 @@ class Task extends BaseModel
         $parts = json_decode($this->time_log) ?: [];
 
         if (count($parts)) {
-            return Carbon::createFromTimeStamp((int)$parts[0][0])->timestamp;
+            return Carbon::createFromTimeStamp((int) $parts[0][0])->timestamp;
         } else {
             return null;
         }
@@ -321,7 +321,7 @@ class Task extends BaseModel
 
         foreach ($parts as $part) {
 
-            if($billable && isset($part[3]) && !$part[3]){
+            if ($billable && isset($part[3]) && !$part[3]) {
                 continue;
             }
 
@@ -337,6 +337,13 @@ class Task extends BaseModel
         }
 
         return round($duration);
+    }
+
+    public function calcDurationForHumans()
+    {
+        $duration = $this->calcDuration();
+
+        return \Carbon\CarbonInterval::seconds($duration)->locale($this->client->locale())->cascade()->forHumans();
     }
 
     public function translate_entity()
@@ -410,11 +417,11 @@ class Task extends BaseModel
             $parent_entity = $this->client ?? $this->company;
 
             if ($log[0]) {
-                $log[0] = Carbon::createFromTimestamp((int)$log[0])->format($parent_entity->date_format().' H:i:s');
+                $log[0] = Carbon::createFromTimestamp((int) $log[0])->format($parent_entity->date_format() . ' H:i:s');
             }
 
             if ($log[1] && $log[1] != 0) {
-                $log[1] = Carbon::createFromTimestamp((int)$log[1])->format($parent_entity->date_format().' H:i:s');
+                $log[1] = Carbon::createFromTimestamp((int) $log[1])->format($parent_entity->date_format() . ' H:i:s');
             } else {
                 $log[1] = ctrans('texts.running');
             }
@@ -441,16 +448,16 @@ class Task extends BaseModel
                 $date_time = [];
 
                 if ($this->company->invoice_task_datelog) {
-                    $date_time[] = Carbon::createFromTimestamp((int)$log[0])
+                    $date_time[] = Carbon::createFromTimestamp((int) $log[0])
                         ->setTimeZone($this->company->timezone()->name)
                         ->format($parent_entity->date_format());
                 }
 
                 if ($this->company->invoice_task_timelog) {
-                    $date_time[] = Carbon::createFromTimestamp((int)$log[0])
+                    $date_time[] = Carbon::createFromTimestamp((int) $log[0])
                         ->setTimeZone($this->company->timezone()->name)
-                        ->format($time_format) . " - " .
-                        Carbon::createFromTimestamp((int)$log[1])
+                        ->format($time_format) . " - "
+                        . Carbon::createFromTimestamp((int) $log[1])
                         ->setTimeZone($this->company->timezone()->name)
                         ->format($time_format);
                 }
@@ -484,7 +491,7 @@ class Task extends BaseModel
         $body = '';
 
         if (strlen($this->description ?? '') > 1) {
-            $body .= $this->description. " ";
+            $body .= $this->description . " ";
         }
 
         $body .= $task_description;
@@ -495,8 +502,10 @@ class Task extends BaseModel
     public function processLogsExpandedNotation()
     {
 
+        $locale = $this->client ? $this->client->locale() : $this->company->locale();
+
         return
-        collect(json_decode($this->time_log ?? '{}', true))->map(function ($log) {
+        collect(json_decode($this->time_log ?? '{}', true))->map(function ($log) use ($locale) {
 
             $parent_entity = $this->client ?? $this->company;
             $logged = [];
@@ -510,11 +519,11 @@ class Task extends BaseModel
             if ($log[0]) {
                 $logged['start_date_raw'] = $log[0];
             }
-            $logged['start_date'] = Carbon::createFromTimestamp((int)$log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+            $logged['start_date'] = Carbon::createFromTimestamp((int) $log[0])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format() . ' H:i:s');
 
             if ($log[1] && $log[1] != 0) {
                 $logged['end_date_raw'] = $log[1];
-                $logged['end_date'] = Carbon::createFromTimestamp((int)$log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format().' H:i:s');
+                $logged['end_date'] = Carbon::createFromTimestamp((int) $log[1])->setTimeZone($this->company->timezone()->name)->format($parent_entity->date_format() . ' H:i:s');
             } else {
                 $logged['end_date_raw'] = 0;
                 $logged['end_date'] = ctrans('texts.running');
@@ -523,11 +532,18 @@ class Task extends BaseModel
             $logged['description'] =  $log[2] ?? '';
             $logged['billable'] = $log[3] ?? false;
             $logged['duration_raw'] = $duration;
-            $logged['duration'] = gmdate("H:i:s", $duration);
+            // $logged['duration'] = gmdate("H:i:s", $duration);
+
+            $logged['duration'] = \Carbon\CarbonInterval::seconds($duration)->locale($locale)->cascade()->forHumans();
 
             return $logged;
 
         })->toArray();
+    }
+
+    public function calculatedStartDate()
+    {
+        return Carbon::parse($this->calculated_start_date)->setTimeZone($this->company->timezone()->name)->format($this->client->date_format());
     }
 
     public function assignedCompanyUser()

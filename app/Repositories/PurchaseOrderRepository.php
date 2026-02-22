@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,15 +22,14 @@ class PurchaseOrderRepository extends BaseRepository
 {
     use MakesHash;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function save(array $data, PurchaseOrder $purchase_order): ?PurchaseOrder
     {
         $purchase_order->fill($data);
 
         $purchase_order->save();
+        $dn_enabled = $purchase_order->company->docuninjaActive();
 
         if (isset($data['invitations'])) {
             $invitations = collect($data['invitations']);
@@ -46,12 +45,18 @@ class PurchaseOrderRepository extends BaseRepository
 
             foreach ($data['invitations'] as $invitation) {
                 //if no invitations are present - create one.
-                if (! $this->getInvitation($invitation)) {
+                if($invite = $this->getInvitation($invitation, 'PurchaseOrder')){
+                    if($dn_enabled){
+                        $invite->can_sign = isset($invitation['can_sign']) ? $invitation['can_sign'] : false;
+                        $invite->saveQuietly();
+                    }
+                }
+                else{
                     if (isset($invitation['id'])) {
                         unset($invitation['id']);
                     }
 
-                    //make sure we are creating an invite for a contact who belongs to the client only!
+                    //make sure we are creating an invite for a contact who belongs to the vendor only!
                     $contact = VendorContact::find($invitation['vendor_contact_id']);
 
                     if ($contact && $purchase_order->vendor_id == $contact->vendor_id) {
@@ -67,6 +72,7 @@ class PurchaseOrderRepository extends BaseRepository
                             $new_invitation->purchase_order_id = $purchase_order->id;
                             $new_invitation->vendor_contact_id = $contact->id;
                             $new_invitation->key = $this->createDbHash($purchase_order->company->db);
+                            $new_invitation->can_sign = isset($invitation['can_sign']) ? $invitation['can_sign'] : false;
                             $new_invitation->saveQuietly();
                         }
                     }
@@ -77,6 +83,14 @@ class PurchaseOrderRepository extends BaseRepository
         /* If no invitations have been created, this is our fail safe to maintain state*/
         if ($purchase_order->invitations()->count() == 0) {
             $purchase_order->service()->createInvitations();
+        }
+
+        if($dn_enabled && $purchase_order->invitations()->where('can_sign', true)->count() == 0){
+            $ii = $purchase_order->invitations()->whereHas('contact', function ($q){
+                $q->where('is_primary', true);
+            })->first() ?? $purchase_order->invitations()->first();
+            $ii->can_sign = true;
+            $ii->saveQuietly();
         }
 
         /* Recalculate invoice amounts */

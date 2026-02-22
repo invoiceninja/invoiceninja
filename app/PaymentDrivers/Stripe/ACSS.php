@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,20 +60,20 @@ class ACSS implements LivewireMethodInterface
         $data['post_auth_response'] = false;
 
         $intent = \Stripe\SetupIntent::create([
-        'usage' => 'off_session',
-        'payment_method_types' => ['acss_debit'],
-        'customer' => $data['customer'],
-        'payment_method_options' => [
-            'acss_debit' => [
-            'currency' => strtolower($this->stripe->client->currency()->code),
-            'mandate_options' => [
-                'payment_schedule' => 'combined',
-                'interval_description' => 'On any invoice due date',
-                'transaction_type' => 'personal',
+            'usage' => 'off_session',
+            'payment_method_types' => ['acss_debit'],
+            'customer' => $data['customer'],
+            'payment_method_options' => [
+                'acss_debit' => [
+                    'currency' => strtolower($this->stripe->client->currency()->code),
+                    'mandate_options' => [
+                        'payment_schedule' => 'combined',
+                        'interval_description' => 'On any invoice due date',
+                        'transaction_type' => 'personal',
+                    ],
+                    'verification_method' => 'instant',
+                ],
             ],
-            'verification_method' => 'instant',
-            ],
-        ],
         ], $this->stripe->stripe_connect_auth);
 
         $data['pi_client_secret'] = $intent->client_secret;
@@ -100,7 +100,7 @@ class ACSS implements LivewireMethodInterface
             }
 
             SystemLogger::dispatch(
-                ['response' => (array)$setup_intent, 'data' => $request->all()],
+                ['response' => (array) $setup_intent, 'data' => $request->all()],
                 SystemLog::CATEGORY_GATEWAY_RESPONSE,
                 SystemLog::EVENT_GATEWAY_FAILURE,
                 SystemLog::TYPE_STRIPE,
@@ -187,13 +187,13 @@ class ACSS implements LivewireMethodInterface
                 'customer' => $data['customer'],
                 'payment_method_options' => [
                     'acss_debit' => [
-                    'currency' => strtolower($this->stripe->client->currency()->code),
-                    'mandate_options' => [
-                        'payment_schedule' => 'combined',
-                        'interval_description' => 'On any invoice due date',
-                        'transaction_type' => 'personal',
-                    ],
-                    'verification_method' => 'instant',
+                        'currency' => strtolower($this->stripe->client->currency()->code),
+                        'mandate_options' => [
+                            'payment_schedule' => 'combined',
+                            'interval_description' => 'On any invoice due date',
+                            'transaction_type' => 'personal',
+                        ],
+                        'verification_method' => 'instant',
                     ],
                 ],
             ], $this->stripe->stripe_connect_auth);
@@ -232,7 +232,7 @@ class ACSS implements LivewireMethodInterface
 
         if (isset($data['one_page_checkout']) && $data['one_page_checkout']) {
             $data = [
-                'invoices' => collect($data['invoices'])->map(fn ($invoice) => $invoice['invoice_id'])->toArray(),
+                'invoices' => collect($data['invoices'])->map(fn($invoice) => $invoice['invoice_id'])->toArray(),
                 'action' => 'payment',
             ];
 

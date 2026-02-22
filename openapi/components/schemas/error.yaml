@@ -7,5 +7,5 @@
         code:
           description: 'The HTTP error code, ie 5xx 4xx'
           type: integer
-          example: '500'
+          example: 500
       type: object

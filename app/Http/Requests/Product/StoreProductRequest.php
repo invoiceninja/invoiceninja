@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,7 +48,7 @@ class StoreProductRequest extends Request
         $rules['tax_rate1'] = 'bail|sometimes|numeric';
         $rules['tax_rate2'] = 'bail|sometimes|numeric';
         $rules['tax_rate3'] = 'bail|sometimes|numeric';
-
+        $rules['income_account_id'] = 'bail|sometimes|nullable|string|max:64';
 
         return $rules;
     }
@@ -73,9 +73,9 @@ class StoreProductRequest extends Request
             $input['assigned_user_id'] = $this->decodePrimaryKey($input['assigned_user_id']);
         }
 
-        $input['tax_name1'] =  $input['tax_name1'] ?? '';
-        $input['tax_name2'] =  $input['tax_name2'] ?? '';
-        $input['tax_name3'] =  $input['tax_name3'] ?? '';
+        $input['tax_name1'] ??= '';
+        $input['tax_name2'] ??= '';
+        $input['tax_name3'] ??= '';
 
         $this->replace($input);
     }

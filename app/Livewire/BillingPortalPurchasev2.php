@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,7 +77,7 @@ class BillingPortalPurchasev2 extends Component
     public $data = [];
 
     public $price;
-    
+
     /**
      * List of payment methods fetched from client.
      *
@@ -324,7 +324,7 @@ class BillingPortalPurchasev2 extends Component
 
         /* Recurring products can have a variable quantity */
         foreach ($this->recurring_products as $key => $p) {
-            $qty = isset($data[$key]['recurring_qty']) ? $data[$key]['recurring_qty'] : 1;
+            $qty = $data[$key]['recurring_qty'] ?? 1;
             $total = $p->price * $qty;
 
             $this->bundle->push([
@@ -332,7 +332,7 @@ class BillingPortalPurchasev2 extends Component
                 'product_key' => $p->product_key,
                 'unit_cost' => $p->price,
                 'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
-                'price' => Number::formatMoney($total, $subscription->company).' / '. RecurringInvoice::frequencyForKey($subscription->frequency_id),
+                'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                 'total' => $total,
                 'qty' => $qty,
                 'is_recurring' => true,
@@ -353,7 +353,7 @@ class BillingPortalPurchasev2 extends Component
                 'price' => Number::formatMoney($total, $subscription->company),
                 'total' => $total,
                 'qty' => $qty,
-                'is_recurring' => false
+                'is_recurring' => false,
             ]);
         }
 
@@ -364,7 +364,7 @@ class BillingPortalPurchasev2 extends Component
                     return $k == $key;
                 });
 
-                $qty = isset($this->data[$key]['optional_recurring_qty']) ? $this->data[$key]['optional_recurring_qty'] : false;
+                $qty = $this->data[$key]['optional_recurring_qty'] ?? false;
                 $total = $p->price * $qty;
 
                 if ($qty) {
@@ -373,10 +373,10 @@ class BillingPortalPurchasev2 extends Component
                         'product_key' => $p->product_key,
                         'unit_cost' => $p->price,
                         'product' => substr(strip_tags($p->markdownNotes()), 0, 50),
-                        'price' => Number::formatMoney($total, $subscription->company).' / '. RecurringInvoice::frequencyForKey($subscription->frequency_id),
+                        'price' => Number::formatMoney($total, $subscription->company) . ' / ' . RecurringInvoice::frequencyForKey($subscription->frequency_id),
                         'total' => $total,
                         'qty' => $qty,
-                        'is_recurring' => true
+                        'is_recurring' => true,
                     ]);
                 }
             }
@@ -387,7 +387,7 @@ class BillingPortalPurchasev2 extends Component
                     return $k == $key;
                 });
 
-                $qty = isset($this->data[$key]['optional_qty']) ? $this->data[$key]['optional_qty'] : false;
+                $qty = $this->data[$key]['optional_qty'] ?? false;
                 $total = $p->price * $qty;
 
                 if ($qty) {
@@ -399,7 +399,7 @@ class BillingPortalPurchasev2 extends Component
                         'price' => Number::formatMoney($total, $subscription->company),
                         'total' => $total,
                         'qty' => $qty,
-                        'is_recurring' => false
+                        'is_recurring' => false,
                     ]);
                 }
             }
@@ -487,11 +487,11 @@ class BillingPortalPurchasev2 extends Component
         $this->client_postal_code = $contact->client->postal_code;
 
         if (
-            strlen($this->contact_first_name ?? '') == 0 ||
-            strlen($this->contact_last_name ?? '') == 0 ||
-            strlen($this->contact_email ?? '') == 0 ||
-            strlen($this->client_city ?? '') == 0 ||
-            strlen($this->client_postal_code ?? '') == 0
+            strlen($this->contact_first_name ?? '') == 0
+            || strlen($this->contact_last_name ?? '') == 0
+            || strlen($this->contact_email ?? '') == 0
+            || strlen($this->client_city ?? '') == 0
+            || strlen($this->client_postal_code ?? '') == 0
         ) {
             $this->check_rff = true;
         }
@@ -693,9 +693,7 @@ class BillingPortalPurchasev2 extends Component
         return $attributes;
     }
 
-    public function store()
-    {
-    }
+    public function store() {}
 
     /**
      * Create a blank client. Used for new customers purchasing.
@@ -771,7 +769,7 @@ class BillingPortalPurchasev2 extends Component
             });
 
             if ($record) {
-                $data['settings']['language_id'] = (string)$record->id;
+                $data['settings']['language_id'] = (string) $record->id;
             }
         }
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -21,12 +21,16 @@ class PaymentSchedule
 {
     use MakesHash;
 
-    public function __construct(public Scheduler $scheduler)
-    {
-    }
+    public function __construct(public Scheduler $scheduler) {}
 
     public function run()
     {
+        //Handle if the invoice_id has been deleted
+        if(!isset($this->scheduler->parameters['invoice_id'])) {
+            $this->scheduler->forceDelete();
+            return;
+        }
+
         $invoice = Invoice::find($this->decodePrimaryKey($this->scheduler->parameters['invoice_id']));
 
         // Needs to be draft, partial or sent AND not deleted

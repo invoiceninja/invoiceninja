@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,9 +52,7 @@ class EmailDefaults
     /**
      * @param Email $email job class
      */
-    public function __construct(protected Email $email)
-    {
-    }
+    public function __construct(protected Email $email) {}
 
     /**
      * Entry point for generating
@@ -181,7 +179,7 @@ class EmailDefaults
         $breaks = ["<br />","<br>","<br/>"];
         $this->email->email_object->text_body = str_ireplace($breaks, "\r\n", $this->email->email_object->body);
         $this->email->email_object->text_body = strip_tags($this->email->email_object->text_body);
-        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n".'$view_url'."\r\n", $this->email->email_object->text_body);
+        $this->email->email_object->text_body = str_replace(['$view_button','$viewButton'], "\r\n\r\n" . '$view_url' . "\r\n", $this->email->email_object->text_body);
 
         if ($this->template == 'email.template.custom') {
             $this->email->email_object->body = (str_replace('$body', $this->email->email_object->body, str_replace(["\r","\n"], "", $this->email->email_object->settings->email_style_custom)));
@@ -311,7 +309,7 @@ class EmailDefaults
         if ($this->email->email_object->settings->pdf_email_attachment) {
             $pdf = ((new CreateRawPdf($this->email->email_object->invitation))->handle());
 
-            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter().'.pdf']]);
+            $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($pdf), 'name' => $this->email->email_object->entity->numberFormatter() . '.pdf']]);
         }
 
         /** UBL xml file */
@@ -330,11 +328,11 @@ class EmailDefaults
             try {
                 $xml_string = $this->email->email_object->entity->service()->getEDocument();
             } catch (\Throwable $th) {
-                nlog("could not generate e invoice for:: ".$this->email->email_object->entity->id);
+                nlog("could not generate e invoice for:: " . $this->email->email_object->entity->id);
             }
 
             if ($xml_string) {
-                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0]."-e_invoice.xml"]]);
+                $this->email->email_object->attachments = array_merge($this->email->email_object->attachments, [['file' => base64_encode($xml_string), 'name' => explode(".", $this->email->email_object->entity->getFileName('xml'))[0] . "-e_invoice.xml"]]);
             }
 
         }

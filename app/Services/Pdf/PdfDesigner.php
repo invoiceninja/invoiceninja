@@ -32,9 +32,7 @@ class PdfDesigner
 
     public string $template;
 
-    public function __construct(public PdfService $service)
-    {
-    }
+    public function __construct(public PdfService $service) {}
 
     public function build(): self
     {

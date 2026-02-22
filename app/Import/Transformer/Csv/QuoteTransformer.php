@@ -169,9 +169,9 @@ class QuoteTransformer extends BaseTransformer
                 ],
             ];
         } elseif (
-            isset($transformed['amount']) &&
-            isset($transformed['balance']) &&
-            $transformed['amount'] != $transformed['balance']
+            isset($transformed['amount'])
+            && isset($transformed['balance'])
+            && $transformed['amount'] != $transformed['balance']
         ) {
             $transformed['payments'] = [
                 [

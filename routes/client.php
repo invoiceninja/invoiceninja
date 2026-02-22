@@ -109,6 +109,9 @@ Route::group(['middleware' => ['auth:contact', 'locale', 'domain_db','check_clie
 
     Route::resource('tasks', TaskController::class)->only(['index']);
 
+    Route::get('projects', [App\Http\Controllers\ClientPortal\ProjectController::class, 'index'])->name('projects.index')->middleware('portal_enabled');
+    Route::get('projects/{project}', [App\Http\Controllers\ClientPortal\ProjectController::class, 'show'])->name('projects.show');
+
     Route::get('statement', [App\Http\Controllers\ClientPortal\StatementController::class, 'index'])->name('statement');
     Route::get('statement/raw', [App\Http\Controllers\ClientPortal\StatementController::class, 'raw'])->name('statement.raw');
 

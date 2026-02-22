@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -55,6 +55,7 @@ class CreateInvitations extends AbstractService
                 $ii->key = $this->createDbHash($this->credit->company->db);
                 $ii->credit_id = $this->credit->id;
                 $ii->client_contact_id = $contact->id;
+                $ii->can_sign = $contact->can_sign;
                 $ii->save();
             } elseif (! $contact->send_email) {
                 $invitation->delete();
@@ -84,7 +85,18 @@ class CreateInvitations extends AbstractService
             $ii->key = $this->createDbHash($this->credit->company->db);
             $ii->credit_id = $this->credit->id;
             $ii->client_contact_id = $contact->id;
+            $ii->can_sign = $contact->can_sign;
             $ii->save();
+        }
+
+        if($this->credit->invitations()->where('can_sign', true)->count() == 0){
+            
+            $ii = $this->credit->invitations()->whereHas('contact', function ($q){
+                $q->where('is_primary', true);
+            })->first() ?? $this->credit->invitations()->first();
+
+            $ii->can_sign = true;
+            $ii->saveQuietly();
         }
 
         return $this->credit;
@@ -96,6 +108,7 @@ class CreateInvitations extends AbstractService
         $new_contact->client_id = $this->credit->client_id;
         $new_contact->contact_key = Str::random(40);
         $new_contact->is_primary = true;
+        $new_contact->can_sign = false;
         $new_contact->save();
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,9 +42,7 @@ class SendToAdmin implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected Company $company, protected array $request, protected string $report_class, protected string $file_name)
-    {
-    }
+    public function __construct(protected Company $company, protected array $request, protected string $report_class, protected string $file_name) {}
 
     public function handle()
     {
@@ -57,12 +55,12 @@ class SendToAdmin implements ShouldQueue
         $file_name = $this->file_name;
 
         $size_mb = round(strlen($csv) / (1024 * 1024), 2); // Size in MB
-        
+
         // If the file is greater than 5MB, we need to zip it to ensure it does not break attachment size limits
-        if($size_mb > 5){
+        if ($size_mb > 5) {
 
             $zipFile = new \PhpZip\ZipFile();
-            $file_name = basename($file_name).'.zip';
+            $file_name = basename($file_name) . '.zip';
 
             try {
                 $zipFile->addFromString($this->file_name, $csv_file);
@@ -105,7 +103,7 @@ class SendToAdmin implements ShouldQueue
 
     public function failed(?\Throwable $exception = null)
     {
-        if($exception) {
+        if ($exception) {
             nlog("EXCEPTION:: SendToAdmin:: could not email report for" . $exception->getMessage());
         }
     }

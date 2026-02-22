@@ -47,5 +47,5 @@
         bank_account_id:
           description: 'The ID number of the bank account'
           type: integer
-          example: '1'
+          example: 1
       type: object

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -203,7 +203,7 @@ class Payment extends BaseModel
 
     public function contact(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->belongsTo(ClientContact::class);
+        return $this->belongsTo(ClientContact::class)->withTrashed();
     }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -225,7 +225,7 @@ class Payment extends BaseModel
     {
         return $this->hasMany(Activity::class)->where('company_id', $this->company_id)->take(50)->orderBy('id', 'desc');
     }
-    
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
@@ -326,11 +326,11 @@ class Payment extends BaseModel
     {
         switch ($this->status_id) {
             case self::STATUS_PENDING:
-                return '<h6><span class="badge badge-secondary">'.ctrans('texts.payment_status_1').'</span></h6>';
+                return '<h6><span class="badge badge-secondary">' . ctrans('texts.payment_status_1') . '</span></h6>';
             case self::STATUS_CANCELLED:
-                return '<h6><span class="badge badge-warning text-white">'.ctrans('texts.payment_status_2').'</span></h6>';
+                return '<h6><span class="badge badge-warning text-white">' . ctrans('texts.payment_status_2') . '</span></h6>';
             case self::STATUS_FAILED:
-                return '<h6><span class="badge badge-danger">'.ctrans('texts.payment_status_3').'</span></h6>';
+                return '<h6><span class="badge badge-danger">' . ctrans('texts.payment_status_3') . '</span></h6>';
             case self::STATUS_COMPLETED:
 
                 if ($this->applied == 0) {
@@ -339,11 +339,11 @@ class Payment extends BaseModel
                     return '<h6><span class="badge badge-info">' . ctrans('texts.partially_unapplied') . '</span></h6>';
                 }
 
-                return '<h6><span class="badge badge-info">'.ctrans('texts.payment_status_4').'</span></h6>';
+                return '<h6><span class="badge badge-info">' . ctrans('texts.payment_status_4') . '</span></h6>';
             case self::STATUS_PARTIALLY_REFUNDED:
-                return '<h6><span class="badge badge-success">'.ctrans('texts.payment_status_5').'</span></h6>';
+                return '<h6><span class="badge badge-success">' . ctrans('texts.payment_status_5') . '</span></h6>';
             case self::STATUS_REFUNDED:
-                return '<h6><span class="badge badge-primary">'.ctrans('texts.payment_status_6').'</span></h6>';
+                return '<h6><span class="badge badge-primary">' . ctrans('texts.payment_status_6') . '</span></h6>';
             default:
                 return '';
         }
@@ -479,7 +479,7 @@ class Payment extends BaseModel
             $domain = strlen($this->company->portal_domain ?? '') > 5 ? $this->company->portal_domain : config('ninja.app_url');
         }
 
-        return $domain.'/client/payment/'.$this->client->contacts()->first()->contact_key.'/'.$this->hashed_id.'?next=/client/payments/'.$this->hashed_id;
+        return $domain . '/client/payment/' . $this->client->contacts()->first()->contact_key . '/' . $this->hashed_id . '?next=/client/payments/' . $this->hashed_id;
     }
 
     public function translate_entity(): string
@@ -489,7 +489,7 @@ class Payment extends BaseModel
 
     public function portalUrl($use_react_url): string
     {
-        return $use_react_url ? config('ninja.react_url')."/#/payments/{$this->hashed_id}/edit" : config('ninja.app_url');
+        return $use_react_url ? config('ninja.react_url') . "/#/payments/{$this->hashed_id}/edit" : config('ninja.app_url');
     }
 
     public function setRefundMeta(array $data)

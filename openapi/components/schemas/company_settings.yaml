@@ -414,7 +414,7 @@
           description: "The company website URL"
           type: string
           format: uri
-          example: "www.acme.com"
+          example: "https://www.acme.com"
         address1:
           description: "The company address line 1"
           type: string

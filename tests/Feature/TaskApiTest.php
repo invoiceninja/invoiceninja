@@ -101,6 +101,35 @@ class TaskApiTest extends TestCase
         }
     }
 
+
+    public function testTaskCreationAndClientLinkingByEmail()
+    {
+
+        $contact_email = $this->client->contacts->first()->email;
+
+        $this->assertNotNull($contact_email);
+
+        $data = [
+            'email' => $contact_email,
+            'description' => 'Test Task',
+            'time_log' => [
+            ],
+        ];
+
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson("/api/v1/tasks", $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json();
+
+        $this->assertEquals($this->client->hashed_id, $arr['data']['client_id']);
+
+    }
+
     public function testTimeLogValidationWith5ElementsPostTimeLogBooleanPasses()
     {
 

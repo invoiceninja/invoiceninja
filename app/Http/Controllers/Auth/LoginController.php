@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -176,7 +176,7 @@ class LoginController extends BaseController
             LightLogs::create(new LoginFailure())
                 ->increment()
                 ->batch();
-                
+
             $ip = '';
 
             if (request()->hasHeader('Cf-Connecting-Ip')) {
@@ -190,7 +190,7 @@ class LoginController extends BaseController
             LightLogs::create(new LoginMeta($request->email, $ip, 'failure'))->batch();
 
             event(new UserLoginFailed($request->email, $ip));
-            
+
             $this->incrementLoginAttempts($request);
 
             return response()
@@ -663,7 +663,7 @@ class LoginController extends BaseController
             return $account;
         }
 
-        $user = $account->default_company->owner();        
+        $user = $account->default_company->owner();
         // $user->email_verified_at = now();
         // $user->save();
 
@@ -702,7 +702,7 @@ class LoginController extends BaseController
         if (request()->hasHeader('X-REACT') || request()->query('react')) {
             /**@var \App\Models\User $user */
             $user = auth()->user();
-            Cache::put("react_redir:".$user?->account->key, 'true', 300);
+            Cache::put("react_redir:" . $user?->account->key, 'true', 300);
         }
 
         if (request()->has('code')) {
@@ -757,10 +757,10 @@ class LoginController extends BaseController
 
         $redirect_url = '/#/';
 
-        $request_from_react = Cache::pull("react_redir:".auth()->user()?->account?->key);
+        $request_from_react = Cache::pull("react_redir:" . auth()->user()?->account?->key);
 
         // if($request_from_react)
-        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+        $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);
     }
@@ -795,7 +795,7 @@ class LoginController extends BaseController
             nlog('user not found for oauth');
         }
 
-        $redirect_url = config('ninja.react_url')."/#/settings/user_details/connect";
+        $redirect_url = config('ninja.react_url') . "/#/settings/user_details/connect";
 
         return redirect($redirect_url);
 

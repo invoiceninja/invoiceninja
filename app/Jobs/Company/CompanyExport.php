@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,9 +58,7 @@ class CompanyExport implements ShouldQueue
      * @param \App\Models\User $user
      * @param string $hash
      */
-    public function __construct(public Company $company, private User $user, public string $hash)
-    {
-    }
+    public function __construct(public Company $company, private User $user, public string $hash) {}
 
     /**
      * Execute the job.
@@ -72,7 +70,7 @@ class CompanyExport implements ShouldQueue
 
         $this->file_name = date('Y-m-d') . '_' . str_replace([" ", "/"], ["_",""], $this->company->present()->name() . '_' . $this->company->company_key . '.json');
 
-        $this->writer = new File(sys_get_temp_dir().'/'.$this->file_name);
+        $this->writer = new File(sys_get_temp_dir() . '/' . $this->file_name);
 
         set_time_limit(0);
 
@@ -97,7 +95,7 @@ class CompanyExport implements ShouldQueue
                 'token_id',
                 'quote_id',
                 'subscription_id',
-                'recurring_invoice_id'
+                'recurring_invoice_id',
             ]);
 
             return $activity;
@@ -318,10 +316,10 @@ class CompanyExport implements ShouldQueue
             $invoice->tax_data = '';
 
             return $invoice->makeHidden(['gateway_fee'])->makeVisible(['id',
-                                        'private_notes',
-                                        'user_id',
-                                        'client_id',
-                                        'company_id',]);
+                'private_notes',
+                'user_id',
+                'client_id',
+                'company_id',]);
         })->all();
 
 
@@ -465,12 +463,12 @@ class CompanyExport implements ShouldQueue
             $subscription->group_id = $this->encodePrimaryKey($subscription->group_id);
 
             return $subscription->makeVisible([ 'id',
-                                                'user_id',
-                                                'assigned_user_id',
-                                                'company_id',
-                                                'product_ids',
-                                                'recurring_product_ids',
-                                                'group_id']);
+                'user_id',
+                'assigned_user_id',
+                'company_id',
+                'product_ids',
+                'recurring_product_ids',
+                'group_id']);
         })->all();
 
 
@@ -575,11 +573,11 @@ class CompanyExport implements ShouldQueue
             $purchase_order = $this->transformArrayOfKeys($purchase_order, ['expense_id','client_id', 'vendor_id', 'project_id', 'design_id', 'subscription_id','project_id', 'location_id']);
 
             return $purchase_order->makeVisible(['id',
-                                        'private_notes',
-                                        'user_id',
-                                        'client_id',
-                                        'vendor_id',
-                                        'company_id',]);
+                'private_notes',
+                'user_id',
+                'client_id',
+                'vendor_id',
+                'company_id',]);
         })->all();
 
 
@@ -753,7 +751,7 @@ class CompanyExport implements ShouldQueue
     private function zipAndSend()
     {
 
-        $zip_path = sys_get_temp_dir().'/'.\Illuminate\Support\Str::ascii(str_replace(".json", ".zip", $this->file_name));
+        $zip_path = sys_get_temp_dir() . '/' . \Illuminate\Support\Str::ascii(str_replace(".json", ".zip", $this->file_name));
 
         $zip = new \ZipArchive();
 
@@ -761,7 +759,7 @@ class CompanyExport implements ShouldQueue
             nlog("cannot open {$zip_path}");
         }
 
-        $zip->addFile(sys_get_temp_dir().'/'.$this->file_name, 'backup.json');
+        $zip->addFile(sys_get_temp_dir() . '/' . $this->file_name, 'backup.json');
 
         $zip = $this->backupCompanyLogo($zip);
 
@@ -770,20 +768,20 @@ class CompanyExport implements ShouldQueue
         $zip = $this->zipBackups($zip);
         $zip->close();
 
-        Storage::disk(config('filesystems.default'))->put('backups/'.str_replace(".json", ".zip", $this->file_name), file_get_contents($zip_path));
+        Storage::disk(config('filesystems.default'))->put('backups/' . str_replace(".json", ".zip", $this->file_name), file_get_contents($zip_path));
 
         if (file_exists($zip_path)) {
             unlink($zip_path);
         }
 
-        if (file_exists(sys_get_temp_dir().'/'.$this->file_name)) {
-            unlink(sys_get_temp_dir().'/'.$this->file_name);
+        if (file_exists(sys_get_temp_dir() . '/' . $this->file_name)) {
+            unlink(sys_get_temp_dir() . '/' . $this->file_name);
         }
 
         if (Ninja::isSelfHost()) {
-            $storage_path = 'backups/'.str_replace(".json", ".zip", $this->file_name);
+            $storage_path = 'backups/' . str_replace(".json", ".zip", $this->file_name);
         } else {
-            $storage_path = Storage::disk(config('filesystems.default'))->path('backups/'.str_replace(".json", ".zip", $this->file_name));
+            $storage_path = Storage::disk(config('filesystems.default'))->path('backups/' . str_replace(".json", ".zip", $this->file_name));
         }
 
         $url = Cache::get($this->hash);
@@ -807,8 +805,8 @@ class CompanyExport implements ShouldQueue
         if (Ninja::isHosted()) {
             sleep(3);
 
-            if (file_exists(sys_get_temp_dir().'/'.$zip_path)) {
-                unlink(sys_get_temp_dir().'/'.$zip_path);
+            if (file_exists(sys_get_temp_dir() . '/' . $zip_path)) {
+                unlink(sys_get_temp_dir() . '/' . $zip_path);
             }
         }
     }

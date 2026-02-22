@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,17 +49,17 @@ class ActionInvoiceRequest extends Request
 
             if ($this->action == 'delete' && ! $this->invoiceDeletable($this->invoice)) {
                 $validator->errors()->add('action', 'This invoice cannot be deleted');
-            }elseif ($this->action == 'cancel' && ! $this->invoiceCancellable($this->invoice)) {
+            } elseif ($this->action == 'cancel' && ! $this->invoiceCancellable($this->invoice)) {
                 $validator->errors()->add('action', 'This invoice cannot be cancelled');
-            }elseif ($this->action == 'reverse' && ! $this->invoiceReversable($this->invoice)) {
+            } elseif ($this->action == 'reverse' && ! $this->invoiceReversable($this->invoice)) {
                 $validator->errors()->add('action', 'This invoice cannot be reversed');
-            }elseif($this->action == 'restore' && ! $this->invoiceRestorable($this->invoice)) {
+            } elseif ($this->action == 'restore' && ! $this->invoiceRestorable($this->invoice)) {
                 $validator->errors()->add('action', 'This invoice cannot be restored');
-            }elseif($this->action == 'mark_paid' && ! $this->invoicePayable($this->invoice)) {
+            } elseif ($this->action == 'mark_paid' && ! $this->invoicePayable($this->invoice)) {
                 $validator->errors()->add('action', 'This invoice cannot be marked as paid');
             }
         });
-        
+
     }
 
     public function prepareForValidation()
@@ -67,7 +67,7 @@ class ActionInvoiceRequest extends Request
         $input = $this->all();
 
         $input['action'] = $this->route('action');
-        
+
         $this->replace($input);
     }
 

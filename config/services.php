@@ -152,12 +152,21 @@ return [
     'quickbooks_webhook' => [
         'verifier_token' => env('QUICKBOOKS_VERIFIER_TOKEN', false),
     ],
+
     'verifactu' => [
         'sender_nif' => env('VERIFACTU_SENDER_NIF', ''),
         'certificate' => env('VERIFACTU_CERTIFICATE', ''),
         'ssl_key' => env('VERIFACTU_SSL_KEY', ''),
         'sender_name' => env('VERIFACTU_SENDER_NAME', 'CERTIFICADO FISICA PRUEBAS'),
         'test_mode' => env('VERIFACTU_TEST_MODE', false),
+    ],
+    'quickbooks' => [
+        'client_id' => env('QUICKBOOKS_CLIENT_ID', false),
+        'client_secret' => env('QUICKBOOKS_CLIENT_SECRET', false),
+        'redirect' => env('QUICKBOOKS_REDIRECT_URI'),
+        'test_redirect' => env('QUICKBOOKS_TEST_REDIRECT_URI'),
+        'env' => env('QUICKBOOKS_ENV', 'sandbox'),
+        'debug' => env('APP_DEBUG',false)
     ],
     'cloudflare' => [
         'zone_id' => env('CLOUDFLARE_SAAS_ZONE_ID', false),

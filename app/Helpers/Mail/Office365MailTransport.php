@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,13 +45,13 @@ class Office365MailTransport extends AbstractTransport
 
             /** @phpstan-ignore-next-line **/
             foreach ($bccs->getAddresses() as $address) {
-                $bcc_list .= 'Bcc: "'.$address->getAddress().'" <'.$address->getAddress().'>\r\n';
+                $bcc_list .= 'Bcc: "' . $address->getAddress() . '" <' . $address->getAddress() . '>\r\n';
             }
         }
 
         try {
-            $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
-                ->attachBody(base64_encode($bcc_list.$message->toString()))
+            $graphMessage = $graph->createRequest('POST', '/users/' . $symfony_message->getFrom()[0]->getAddress() . '/sendmail')
+                ->attachBody(base64_encode($bcc_list . $message->toString()))
                 ->addHeaders(['Content-Type' => 'text/plain'])
                 ->setReturnType(\Microsoft\Graph\Model\Message::class)
                 ->execute();
@@ -60,8 +60,8 @@ class Office365MailTransport extends AbstractTransport
             sleep(rand(5, 10));
 
             try {
-                $graphMessage = $graph->createRequest('POST', '/users/'.$symfony_message->getFrom()[0]->getAddress().'/sendmail')
-                    ->attachBody(base64_encode($bcc_list.$message->toString()))
+                $graphMessage = $graph->createRequest('POST', '/users/' . $symfony_message->getFrom()[0]->getAddress() . '/sendmail')
+                    ->attachBody(base64_encode($bcc_list . $message->toString()))
                     ->addHeaders(['Content-Type' => 'text/plain'])
                     ->setReturnType(\Microsoft\Graph\Model\Message::class)
                     ->execute();

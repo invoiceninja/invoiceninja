@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,9 +35,7 @@ class PaymentLinkService
 
     public const WHITE_LABEL = 4316;
 
-    public function __construct(public Subscription $subscription)
-    {
-    }
+    public function __construct(public Subscription $subscription) {}
 
     /**
      * CompletePurchase
@@ -65,7 +63,7 @@ class PaymentLinkService
 
         if (strlen($this->subscription->recurring_product_ids) >= 1) {
 
-            $bundle = isset($payment_hash->data->billing_context->bundle) ? $payment_hash->data->billing_context->bundle : [];
+            $bundle = $payment_hash->data->billing_context->bundle ?? [];
             $recurring_invoice = (new InvoiceToRecurring($payment_hash->payment->client_id, $this->subscription, $bundle))->run();
 
             $recurring_invoice_repo = new RecurringInvoiceRepository();
@@ -137,13 +135,13 @@ class PaymentLinkService
     {
 
         $context = [
-                    'context' => 'is_eligible',
-                    'subscription' => $this->subscription->hashed_id,
-                    'contact' => $contact->hashed_id,
-                    'contact_email' => $contact->email,
-                    'client' => $contact->client->hashed_id,
-                    'account_key' => $contact->client->custom_value2,
-                ];
+            'context' => 'is_eligible',
+            'subscription' => $this->subscription->hashed_id,
+            'contact' => $contact->hashed_id,
+            'contact_email' => $contact->email,
+            'client' => $contact->client->hashed_id,
+            'account_key' => $contact->client->custom_value2,
+        ];
 
         $response = $this->triggerWebhook($context);
 
@@ -243,7 +241,7 @@ class PaymentLinkService
      * @param  array $data{recurring_invoice: RecurringInvoice, subscription: Subscription, target: Subscription, hash: string}
      * @return Invoice | Credit
      */
-    public function createChangePlanInvoice($data): Invoice | Credit
+    public function createChangePlanInvoice($data): Invoice|Credit
     {
         $recurring_invoice = $data['recurring_invoice'];
         $old_subscription = $data['subscription'];
@@ -346,7 +344,7 @@ class PaymentLinkService
 
         nlog($response);
 
-        return $this->handleRedirect('/client/recurring_invoices/'.$recurring_invoice->hashed_id);
+        return $this->handleRedirect('/client/recurring_invoices/' . $recurring_invoice->hashed_id);
     }
 
 

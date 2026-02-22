@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -121,8 +121,8 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
 
         if ($this->company_gateway->require_shipping_address) {
 
-            $shipping_data =
-            [[
+            $shipping_data
+            = [[
                 "op" => "replace",
                 "path" => "/purchase_units/@reference_id=='default'/shipping/address",
                 "value" => [
@@ -222,12 +222,12 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         })->implode("\n");
 
         $order = [
-                "intent" => "CAPTURE",
-                "payment_source" => $this->getPaymentSource(),
-                "purchase_units" => [
-                    [
+            "intent" => "CAPTURE",
+            "payment_source" => $this->getPaymentSource(),
+            "purchase_units" => [
+                [
                     "custom_id" => $this->payment_hash->hash,
-                    "description" => ctrans('texts.invoice_number').'# '.$invoice->number,
+                    "description" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
                     "invoice_id" => $invoice->number,
                     "payee" => [
                         "merchant_id" => $this->company_gateway->getConfigField('merchantId'),
@@ -236,29 +236,29 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
                         "disbursement_mode" => "INSTANT",
                     ],
                     "amount" => [
-                        "value" => (string)$data['amount_with_fee'],
+                        "value" => (string) $data['amount_with_fee'],
                         "currency_code" => $this->client->currency()->code,
                         "breakdown" => [
                             "item_total" => [
                                 "currency_code" => $this->client->currency()->code,
-                                "value" => (string)$data['amount_with_fee']
-                            ]
-                        ]
+                                "value" => (string) $data['amount_with_fee'],
+                            ],
+                        ],
                     ],
                     "items" => [
                         [
-                            "name" => ctrans('texts.invoice_number').'# '.$invoice->number,
+                            "name" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
                             "description" => mb_substr($description, 0, 127),
                             "quantity" => "1",
                             "unit_amount" => [
                                 "currency_code" => $this->client->currency()->code,
-                                "value" => (string)$data['amount_with_fee']
+                                "value" => (string) $data['amount_with_fee'],
                             ],
                         ],
                     ],
                 ],
-                ]
-            ];
+            ],
+        ];
 
         if ($shipping = $this->getShippingAddress()) {
             $order['purchase_units'][0]["shipping"] = $shipping;
@@ -312,7 +312,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data["payer"] = [
             "name" => [
                 "given_name" => $this->client->present()->first_name(),
-                "surname" => $this->client->present()->last_name()
+                "surname" => $this->client->present()->last_name(),
             ],
             "email_address" => $this->client->present()->email(),
         ];
@@ -394,7 +394,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data["payer"] = [
             "name" => [
                 "given_name" => $this->client->present()->first_name(),
-                "surname" => $this->client->present()->last_name()
+                "surname" => $this->client->present()->last_name(),
             ],
             "email_address" => $this->client->present()->email(),
         ];
@@ -443,7 +443,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         if (isset($response['purchase_units'][0]['payments']['captures'][0]['status']) && $response['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED') {
 
             $data = [
-                'payment_type' => $this->getPaymentMethod((string)$cgt->gateway_type_id),
+                'payment_type' => $this->getPaymentMethod((string) $cgt->gateway_type_id),
                 'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
                 'gateway_type_id' => $this->gateway_type_id,
@@ -485,7 +485,7 @@ class PayPalPPCPPaymentDriver extends PayPalBasePaymentDriver
         $data['merchantId'] = $this->company_gateway->getConfigField('merchantId');
         $data['currency'] = $this->client->currency()->code;
         $data['guid'] = $this->risk_guid;
-        $data['identifier'] = "s:INN_".$this->company_gateway->getConfigField('merchantId')."_CHCK";
+        $data['identifier'] = "s:INN_" . $this->company_gateway->getConfigField('merchantId') . "_CHCK";
         $data['pp_client_reference'] = $this->getClientHash();
         $data['invoice_hash'] = $this->payment_hash->fee_invoice->hashed_id;
 

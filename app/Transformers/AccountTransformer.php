@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -91,10 +91,10 @@ class AccountTransformer extends EntityTransformer
             'set_react_as_default_ap' => (bool) $account->set_react_as_default_ap,
             'trial_days_left' => Ninja::isSelfHost() ? (int) $account->getTrialDays() : 0,
             'account_sms_verified' => (bool) $account->account_sms_verified,
-            'has_iap_plan' => (bool)$account->inapp_transaction_id,
+            'has_iap_plan' => (bool) $account->inapp_transaction_id,
             'tax_api_enabled' => (bool) config('services.tax.zip_tax.key') ? true : false,
             'nordigen_enabled' => (bool) (config('ninja.nordigen.secret_id') && config('ninja.nordigen.secret_key')) ? true : false,
-            'upload_extensions' => (string) "png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp,".config('ninja.upload_extensions'),
+            'upload_extensions' => (string) "png,ai,jpeg,tiff,pdf,gif,psd,txt,doc,xls,ppt,xlsx,docx,pptx,webp,xml,zip,csv,ods,odt,odp," . config('ninja.upload_extensions'),
             'e_invoice_quota' => (int) $account->e_invoice_quota,
             'can_trial' => (bool) $account->canTrial(),
             'docuninja_num_users' => (int) $account->docuninja_num_users,

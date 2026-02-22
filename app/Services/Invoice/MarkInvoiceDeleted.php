@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,9 +30,7 @@ class MarkInvoiceDeleted extends AbstractService
 
     private $balance_adjustment = 0;
 
-    public function __construct(public Invoice $invoice)
-    {
-    }
+    public function __construct(public Invoice $invoice) {}
 
     public function run()
     {
@@ -140,9 +138,9 @@ class MarkInvoiceDeleted extends AbstractService
 
         $this->balance_adjustment = $this->invoice->balance;
 
-        $pre_count = count((array)$this->invoice->line_items);
+        $pre_count = count((array) $this->invoice->line_items);
 
-        $items = collect((array)$this->invoice->line_items)
+        $items = collect((array) $this->invoice->line_items)
                     ->filter(function ($item) {
                         return $item->type_id != '3';
                     })->toArray();
@@ -185,9 +183,9 @@ class MarkInvoiceDeleted extends AbstractService
     private function calcNumber($x)
     {
         if ($x == 0) {
-            $number = $this->invoice->number.'_'.ctrans('texts.deleted');
+            $number = $this->invoice->number . '_' . ctrans('texts.deleted');
         } else {
-            $number = $this->invoice->number.'_'.ctrans('texts.deleted').'_'.$x;
+            $number = $this->invoice->number . '_' . ctrans('texts.deleted') . '_' . $x;
         }
 
         return $number;

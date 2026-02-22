@@ -27,7 +27,7 @@ class Transformer
             'FamilyName',
             'PrimaryEmailAddr',
             'CurrencyRef',
-            'MetaData'
+            'MetaData',
         ]);
     }
 
@@ -50,7 +50,7 @@ class Transformer
             "Id",
             "CurrencyRef",
             "TxnTaxDetail",
-            "TxnDate"
+            "TxnDate",
         ]);
     }
 
@@ -64,7 +64,7 @@ class Transformer
             "TxnDate",
             "Line",
             "PrivateNote",
-            "MetaData"
+            "MetaData",
         ]);
     }
 
@@ -76,7 +76,7 @@ class Transformer
             'PurchaseCost',
             'UnitPrice',
             'QtyOnHand',
-            'MetaData'
+            'MetaData',
         ]);
     }
 

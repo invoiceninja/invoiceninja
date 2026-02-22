@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,9 +36,7 @@ class AutoBill implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(public int $invoice_id, public ?string $db, public bool $send_email_on_failure = false)
-    {
-    }
+    public function __construct(public int $invoice_id, public ?string $db, public bool $send_email_on_failure = false) {}
 
     /**
      * Execute the job.
@@ -66,7 +64,7 @@ class AutoBill implements ShouldQueue
             }
 
         } catch (\Exception $e) {
-            nlog("Failed to capture payment for {$this->invoice_id} ->".$e->getMessage());
+            nlog("Failed to capture payment for {$this->invoice_id} ->" . $e->getMessage());
 
             if ($this->send_email_on_failure && $invoice) {
 

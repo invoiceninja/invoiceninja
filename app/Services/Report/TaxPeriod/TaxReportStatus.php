@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,7 +30,7 @@ enum TaxReportStatus: string
      */
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::UPDATED => 'payable',
             self::DELTA => 'payable',
             self::ADJUSTMENT => 'adjustment',

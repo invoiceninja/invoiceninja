@@ -27,7 +27,7 @@
         log:
           description: 'The json object of the error'
           type: object
-          example: '{''key'':''value''}'
+          example: {}
         updated_at:
           description: Timestamp
           type: string

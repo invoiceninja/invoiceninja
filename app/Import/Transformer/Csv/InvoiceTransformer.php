@@ -98,10 +98,10 @@ class InvoiceTransformer extends BaseTransformer
             'tax_name3' => $this->getString($invoice_data, 'invoice.tax_name3'),
             'tax_rate3' => $this->getFloat($invoice_data, 'invoice.tax_rate3'),
             'is_amount_discount' => filter_var(
-                    $this->getString($invoice_data, 'invoice.is_amount_discount'),
-                    FILTER_VALIDATE_BOOLEAN,
-                    FILTER_NULL_ON_FAILURE
-                ),
+                $this->getString($invoice_data, 'invoice.is_amount_discount'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE
+            ),
             'custom_value1' => $this->getString(
                 $invoice_data,
                 'invoice.custom_value1'
@@ -193,7 +193,7 @@ class InvoiceTransformer extends BaseTransformer
                 ],
             ];
         }
-        
+
 
         $line_items = [];
 
@@ -236,13 +236,13 @@ class InvoiceTransformer extends BaseTransformer
         }
 
         /** Support minimal invoice creation with just an amount */
-        if(count($line_items) == 1 && intval($line_items[0]['cost']) == 0 && intval($line_items[0]['quantity']) == 0 && intval($transformed['amount']) != 0) {
+        if (count($line_items) == 1 && intval($line_items[0]['cost']) == 0 && intval($line_items[0]['quantity']) == 0 && intval($transformed['amount']) != 0) {
             $line_items[0]['quantity'] = 1;
             $line_items[0]['cost'] = $transformed['amount'];
         }
 
         $transformed['line_items'] = $this->cleanItems($line_items);
-        
+
         return $transformed;
     }
 }

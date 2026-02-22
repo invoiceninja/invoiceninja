@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,7 +100,7 @@ class SearchController extends Controller
                                     'query' => $search,
                                     'fields' => ['*'],
                                     'fuzziness' => 'AUTO',
-                                ]
+                                ],
                             ],
                             // Safe nested search that won't fail on missing fields
                             [
@@ -115,13 +115,13 @@ class SearchController extends Controller
                                                 'line_items.custom_value1',
                                                 'line_items.custom_value2',
                                                 'line_items.custom_value3',
-                                                'line_items.custom_value4'
+                                                'line_items.custom_value4',
                                             ],
                                             'fuzziness' => 'AUTO',
-                                        ]
+                                        ],
                                     ],
-                                    'ignore_unmapped' => true
-                                ]
+                                    'ignore_unmapped' => true,
+                                ],
                             ],
                         ],
                         'minimum_should_match' => 1,
@@ -176,7 +176,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/client',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/clients/{$result['_source']['hashed_id']}"
+                        'path' => "/clients/{$result['_source']['hashed_id']}",
                     ];
 
                     break;
@@ -191,7 +191,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/invoice',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/invoices/{$result['_source']['hashed_id']}/edit"
+                        'path' => "/invoices/{$result['_source']['hashed_id']}/edit",
                     ];
                     break;
                 case Str::startsWith($result['_index'], 'client_contacts'):
@@ -204,7 +204,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/client',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/clients/{$result['_source']['client_id']}"
+                        'path' => "/clients/{$result['_source']['client_id']}",
                     ];
                     break;
                 case Str::startsWith($result['_index'], 'quotes'):
@@ -217,7 +217,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/quote',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/quotes/{$result['_source']['hashed_id']}"
+                        'path' => "/quotes/{$result['_source']['hashed_id']}",
                     ];
 
                     break;
@@ -232,7 +232,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/expense',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/expenses/{$result['_source']['hashed_id']}/edit"
+                        'path' => "/expenses/{$result['_source']['hashed_id']}/edit",
                     ];
 
                     break;
@@ -247,7 +247,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/credit',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/credits/{$result['_source']['hashed_id']}"
+                        'path' => "/credits/{$result['_source']['hashed_id']}",
                     ];
 
                     break;
@@ -262,7 +262,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/recurring_invoice',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/recurring_invoices/{$result['_source']['hashed_id']}"
+                        'path' => "/recurring_invoices/{$result['_source']['hashed_id']}",
                     ];
 
                     break;
@@ -274,11 +274,11 @@ class SearchController extends Controller
                     }
 
                     $this->vendors[] = [
-                       'name' => $result['_source']['name'],
-                       'type' => '/vendor',
-                       'id' => $result['_source']['hashed_id'],
-                       'path' => "/vendors/{$result['_source']['hashed_id']}"
-                   ];
+                        'name' => $result['_source']['name'],
+                        'type' => '/vendor',
+                        'id' => $result['_source']['hashed_id'],
+                        'path' => "/vendors/{$result['_source']['hashed_id']}",
+                    ];
 
                     break;
 
@@ -292,7 +292,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/vendor',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/vendors/{$result['_source']['vendor_id']}"
+                        'path' => "/vendors/{$result['_source']['vendor_id']}",
                     ];
 
                     break;
@@ -304,11 +304,11 @@ class SearchController extends Controller
                     }
 
                     $this->purchase_orders[] = [
-                       'name' => $result['_source']['name'],
-                       'type' => '/purchase_order',
-                       'id' => $result['_source']['hashed_id'],
-                       'path' => "/purchase_orders/{$result['_source']['hashed_id']}"
-                   ];
+                        'name' => $result['_source']['name'],
+                        'type' => '/purchase_order',
+                        'id' => $result['_source']['hashed_id'],
+                        'path' => "/purchase_orders/{$result['_source']['hashed_id']}",
+                    ];
 
                     break;
 
@@ -322,7 +322,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/project',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/projects/{$result['_source']['hashed_id']}"
+                        'path' => "/projects/{$result['_source']['hashed_id']}",
                     ];
 
                     break;
@@ -336,7 +336,7 @@ class SearchController extends Controller
                         'name' => $result['_source']['name'],
                         'type' => '/task',
                         'id' => $result['_source']['hashed_id'],
-                        'path' => "/tasks/{$result['_source']['hashed_id']}/edit"
+                        'path' => "/tasks/{$result['_source']['hashed_id']}/edit",
                     ];
 
                     break;
@@ -363,7 +363,7 @@ class SearchController extends Controller
                 'name' => $client->present()->name(),
                 'type' => '/client',
                 'id' => $client->hashed_id,
-                'path' => "/clients/{$client->hashed_id}"
+                'path' => "/clients/{$client->hashed_id}",
             ];
 
             $client->contacts->each(function ($contact) {
@@ -371,7 +371,7 @@ class SearchController extends Controller
                     'name' => $contact->present()->search_display(),
                     'type' => '/client',
                     'id' => $contact->client->hashed_id,
-                    'path' => "/clients/{$contact->client->hashed_id}"
+                    'path' => "/clients/{$contact->client->hashed_id}",
                 ];
             });
         }
@@ -402,7 +402,7 @@ class SearchController extends Controller
                 'name' => $project->name . ' - ' . $project->number,
                 'type' => '/project',
                 'id' => $project->hashed_id,
-                'path' => "/projects/{$project->hashed_id}"
+                'path' => "/projects/{$project->hashed_id}",
             ];
         }
 
@@ -431,7 +431,7 @@ class SearchController extends Controller
                 'name' => $invoice->client->present()->name() . ' - ' . $invoice->number,
                 'type' => '/invoice',
                 'id' => $invoice->hashed_id,
-                'path' => "/invoices/{$invoice->hashed_id}/edit"
+                'path' => "/invoices/{$invoice->hashed_id}/edit",
             ];
         }
 
@@ -516,7 +516,7 @@ class SearchController extends Controller
             $translation = '';
 
             foreach (explode(",", $key) as $transkey) {
-                $translation .= ctrans("texts.{$transkey}")." ";
+                $translation .= ctrans("texts.{$transkey}") . " ";
             }
 
             $translation = rtrim($translation, " ");

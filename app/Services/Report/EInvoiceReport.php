@@ -49,9 +49,7 @@ class EInvoiceReport extends BaseExport
      *     'client_id',
      * ]
      */
-    public function __construct(public Company $company, public array $input)
-    {
-    }
+    public function __construct(public Company $company, public array $input) {}
 
     public function run()
     {

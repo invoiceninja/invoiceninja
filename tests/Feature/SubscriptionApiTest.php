@@ -174,9 +174,11 @@ class SubscriptionApiTest extends TestCase
 
             // nlog($i->count());
             // nlog($i->toArray());
-        }
 
-        $this->assertFalse($i);
+            $this->assertCount(0, $i);
+        }
+        else
+            $this->assertFalse($i);
 
         $this->travelTo($timezone_now->copy()->startOfDay());
 
@@ -213,9 +215,9 @@ class SubscriptionApiTest extends TestCase
                     ->whereDate('due_date', '<=', now()->setTimezone($company->timezone()->name)->addDay()->startOfDay())
                     ->get();
 
-        }
+                     $this->assertCount(0, $i);
 
-        $this->assertFalse($i);
+        }
 
         $count = Invoice::whereNotNull('subscription_id')->whereIn('company_id', [$c2->id, $c->id])->count();
 

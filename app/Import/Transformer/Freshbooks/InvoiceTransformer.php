@@ -45,8 +45,8 @@ class InvoiceTransformer extends BaseTransformer
             'number'      => $this->getString($invoice_data, 'Invoice #'),
             'date'        => isset($invoice_data['Date Issued']) ? $this->parseDate($invoice_data['Date Issued']) : null,
             'amount'      => 0,
-            'status_id'   => $invoiceStatusMap[$status =
-                    strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
+            'status_id'   => $invoiceStatusMap[$status
+                    = strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
             // 'viewed'      => $status === 'viewed',
         ];
 
@@ -85,11 +85,11 @@ class InvoiceTransformer extends BaseTransformer
             return ($record[$field] / $record['Line Subtotal']) * 100;
         }
 
-        $tax_amount1 = isset($record['Tax 1 Amount']) ? $record['Tax 1 Amount'] : 0;
+        $tax_amount1 = isset($record['Tax 1 Amount']) ? floatval($record['Tax 1 Amount']) : 0;
 
-        $tax_amount2 = isset($record['Tax 2 Amount']) ? $record['Tax 2 Amount'] : 0;
+        $tax_amount2 = isset($record['Tax 2 Amount']) ? floatval($record['Tax 2 Amount']) : 0;
 
-        $line_total = isset($record['Line Total']) ? $record['Line Total'] : 0;
+        $line_total = isset($record['Line Total']) ? floatval($record['Line Total']) : 0;
 
         $subtotal = $line_total - $tax_amount2 - $tax_amount1;
 

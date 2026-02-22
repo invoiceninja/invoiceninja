@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,8 +36,8 @@ class InvoiceWithNoExistingSchedule implements Rule
         return Scheduler::where('company_id', $user->company()->id)
                             ->where('template', 'payment_schedule')
                             ->where('parameters->invoice_id', $value)
-                            ->count() == 0;        
-        
+                            ->count() == 0;
+
     }
 
     /**

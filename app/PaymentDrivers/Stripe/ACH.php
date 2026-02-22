@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -68,9 +68,9 @@ class ACH implements LivewireMethodInterface
     public function authorizeView(array $data)
     {
         $data['gateway'] = $this->stripe;
-        
+
         $customer = $this->stripe->findOrCreateCustomer();
-        
+
         // Create SetupIntent with Financial Connections for instant verification
         $intent = \Stripe\SetupIntent::create([
             'customer' => $customer->id,
@@ -87,10 +87,10 @@ class ACH implements LivewireMethodInterface
                 ],
             ],
         ], $this->stripe->stripe_connect_auth);
-        
+
         $data['client_secret'] = $intent->client_secret;
         $data['customer'] = $customer;
-    
+
         return render('gateways.stripe.ach.authorize', array_merge($data));
     }
 
@@ -133,13 +133,13 @@ class ACH implements LivewireMethodInterface
             $method->state = $state;
 
             // If microdeposit verification is required, store the verification URL
-            if ($status === 'requires_action' && 
-                isset($setup_intent->next_action) && 
-                ($setup_intent->next_action->type ?? null) === 'verify_with_microdeposits') { //@phpstan-ignore-line
+            if ($status === 'requires_action'
+                && isset($setup_intent->next_action)
+                && ($setup_intent->next_action->type ?? null) === 'verify_with_microdeposits') { //@phpstan-ignore-line
                 $method->next_action = $setup_intent->next_action->verify_with_microdeposits->hosted_verification_url ?? null; //@phpstan-ignore-line
             }
 
-            // Note: We don't attach the payment method here - it's already linked to the 
+            // Note: We don't attach the payment method here - it's already linked to the
             // customer via the SetupIntent. For us_bank_account, the payment method must be
             // verified before it can be used. Verification happens via:
             // - Instant verification (Financial Connections) - already verified
@@ -155,8 +155,8 @@ class ACH implements LivewireMethodInterface
 
             // If microdeposit verification required, send notification and redirect
             $verification = route('client.payment_methods.verification', [
-                'payment_method' => $client_gateway_token->hashed_id, 
-                'method' => GatewayType::BANK_TRANSFER
+                'payment_method' => $client_gateway_token->hashed_id,
+                'method' => GatewayType::BANK_TRANSFER,
             ], false);
 
             $mailer = new NinjaMailerObject();
@@ -164,8 +164,8 @@ class ACH implements LivewireMethodInterface
             $mailer->mailable = new ACHVerificationNotification(
                 auth()->guard('contact')->user()->client->company,
                 route('client.contact_login', [
-                    'contact_key' => auth()->guard('contact')->user()->contact_key, 
-                    'next' => $verification
+                    'contact_key' => auth()->guard('contact')->user()->contact_key,
+                    'next' => $verification,
                 ])
             );
 
@@ -176,8 +176,8 @@ class ACH implements LivewireMethodInterface
             NinjaMailerJob::dispatch($mailer);
 
             return redirect()->route('client.payment_methods.verification', [
-                'payment_method' => $client_gateway_token->hashed_id, 
-                'method' => GatewayType::BANK_TRANSFER
+                'payment_method' => $client_gateway_token->hashed_id,
+                'method' => GatewayType::BANK_TRANSFER,
             ]);
 
         } catch (InvalidRequestException $e) {
@@ -206,7 +206,7 @@ class ACH implements LivewireMethodInterface
 
     /**
      * Handle setup_intent.succeeded webhook (new SetupIntent/Financial Connections flow)
-     * 
+     *
      * This is called when microdeposit verification is completed for us_bank_account payment methods.
      */
     public function handleSetupIntentSucceeded(array $event): void
@@ -243,7 +243,7 @@ class ACH implements LivewireMethodInterface
         // Update the token state to authorized
         $meta = $token->meta;
         $meta->state = 'authorized';
-        
+
         // Clear the next_action since verification is complete
         if (isset($meta->next_action)) {
             unset($meta->next_action);
@@ -356,7 +356,7 @@ class ACH implements LivewireMethodInterface
 
         return render('gateways.stripe.ach.pay', $data);
     }
-    
+
     /**
      * tokenBilling
      *
@@ -370,7 +370,7 @@ class ACH implements LivewireMethodInterface
 
         //@2025-11-21: Charges API is deprecated for ACH, we can pass the ba_ token with mandate data now.
         // if (substr($cgt->token, 0, 2) === 'pm') {
-            return $this->paymentIntentTokenBilling($amount, $description, $cgt, false);
+        return $this->paymentIntentTokenBilling($amount, $description, $cgt, false);
         // }
 
         $this->stripe->init();
@@ -433,19 +433,19 @@ class ACH implements LivewireMethodInterface
                     'gateway_type_id' => $cgt->gateway_type_id,
                 ],
                 'statement_descriptor' => $this->stripe->getStatementDescriptor(),
-               
+
             ];
 
             if ($cgt->gateway_type_id == GatewayType::BANK_TRANSFER) {
                 $data['payment_method_types'] = ['us_bank_account'];
             }
 
-            if(str_starts_with($cgt->token, 'ba_')) {
-            
+            if (str_starts_with($cgt->token, 'ba_')) {
+
                 $data["mandate_data"] = [
                     "customer_acceptance" => [
-                        "type" => "offline"
-                    ]
+                        "type" => "offline",
+                    ],
                 ];
             }
 
@@ -503,7 +503,7 @@ class ACH implements LivewireMethodInterface
         $data = [
             'gateway_type_id' => $cgt->gateway_type_id,
             'payment_type' => PaymentType::ACH,
-            'transaction_reference' => isset($response->latest_charge) ? $response->latest_charge : $response->charges->data[0]->id,
+            'transaction_reference' => $response->latest_charge ?? $response->charges->data[0]->id,
             'amount' => $amount,
         ];
 
@@ -526,7 +526,7 @@ class ACH implements LivewireMethodInterface
         $response = json_decode($request->gateway_response);
         $bank_account_response = json_decode($request->bank_account_response);
 
-        if (in_array($response->status,['requires_action','requires_source_action']) && ($response->next_action->type ?? null) == 'verify_with_microdeposits') {
+        if (in_array($response->status, ['requires_action','requires_source_action']) && ($response->next_action->type ?? null) == 'verify_with_microdeposits') {
             $method = $bank_account_response->payment_method->us_bank_account ?? null;
 
             if (!$method) {
@@ -642,7 +642,7 @@ class ACH implements LivewireMethodInterface
         $description = $this->stripe->getDescription(false);
 
         // if (substr($source->token, 0, 2) === 'pm') {
-            return $this->paymentIntentTokenBilling($amount, $description, $source);
+        return $this->paymentIntentTokenBilling($amount, $description, $source);
         // }
 
         try {
@@ -797,21 +797,21 @@ class ACH implements LivewireMethodInterface
         }
 
         if (count($data['tokens']) == 0) {
-            $intent =
-            $this->stripe->createPaymentIntent(
+            $intent
+            = $this->stripe->createPaymentIntent(
                 [
-                'amount' => $data['amount'],
-                'currency' => $data['currency'],
-                'setup_future_usage' => 'off_session',
-                'customer' => $data['customer']->id,
-                'payment_method_types' => ['us_bank_account'],
-                'description' => $description,
-                'metadata' => [
-                    'payment_hash' => $this->stripe->payment_hash->hash,
-                    'gateway_type_id' => GatewayType::BANK_TRANSFER,
-                ],
-                'statement_descriptor' => $this->stripe->getStatementDescriptor(),
-            ]
+                    'amount' => $data['amount'],
+                    'currency' => $data['currency'],
+                    'setup_future_usage' => 'off_session',
+                    'customer' => $data['customer']->id,
+                    'payment_method_types' => ['us_bank_account'],
+                    'description' => $description,
+                    'metadata' => [
+                        'payment_hash' => $this->stripe->payment_hash->hash,
+                        'gateway_type_id' => GatewayType::BANK_TRANSFER,
+                    ],
+                    'statement_descriptor' => $this->stripe->getStatementDescriptor(),
+                ]
             );
         }
 

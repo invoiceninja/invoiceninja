@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,7 +46,7 @@ class InvoiceMigrationRepository extends BaseRepository
 
         $state = [];
         $resource = explode('\\', $class->name)[2]; /** This will extract 'Invoice' from App\Models\Invoice */
-        $lcfirst_resource_id = lcfirst($resource).'_id';
+        $lcfirst_resource_id = lcfirst($resource) . '_id';
 
         if ($class->name == Invoice::class || $class->name == Quote::class || $class->name == RecurringInvoice::class) {
             $state['starting_amount'] = $model->amount;

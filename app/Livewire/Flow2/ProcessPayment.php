@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,8 +43,8 @@ class ProcessPayment extends Component
             'company_gateway_id' => $_context['company_gateway_id'],
             'payment_method_id' => $_context['gateway_type_id'],
             'payable_invoices' => $_context['payable_invoices'],
-            'signature' => isset($_context['signature']) ? $_context['signature'] : false,
-            'signature_ip' => isset($_context['signature_ip']) ? $_context['signature_ip'] : false,
+            'signature' => $_context['signature'] ?? false,
+            'signature_ip' => $_context['signature_ip'] ?? false,
             'pre_payment' => false,
             'frequency_id' => false,
             'remaining_cycles' => false,
@@ -98,8 +98,8 @@ class ProcessPayment extends Component
     {
         if ($this->isLoading) {
             return <<<'HTML'
-            <template></template>
-        HTML;
+                    <template></template>
+                HTML;
         }
 
         return render($this->payment_view, $this->payment_data_payload);

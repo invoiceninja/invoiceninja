@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class PurgeClientDocuments implements ShouldQueue   
+class PurgeClientDocuments implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -20,16 +20,14 @@ class PurgeClientDocuments implements ShouldQueue
     use SerializesModels;
 
     public $tries = 1;
-    
-    public function __construct(private array $data, public Company $company)
-    {
-    }
+
+    public function __construct(private array $data, public Company $company) {}
 
     public function handle()
     {
         MultiDB::setDb($this->company->db);
 
-        foreach($this->data as $key => $value) {
+        foreach ($this->data as $key => $value) {
             $this->deleteDocumentsForEntities($key, $value);
         }
     }
@@ -40,7 +38,7 @@ class PurgeClientDocuments implements ShouldQueue
                     ->where('documentable_type', $class)
                     ->whereIn('documentable_id', $value)
                     ->cursor()
-                    ->each(function ($document){
+                    ->each(function ($document) {
 
                         $document->deleteFile();
                         $document->forceDelete();

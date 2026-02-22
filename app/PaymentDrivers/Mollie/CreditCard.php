@@ -51,7 +51,7 @@ class CreditCard implements LivewireMethodInterface
      */
     public function paymentResponse(PaymentResponseRequest $request)
     {
-        
+
         $amount = $this->mollie->convertToMollieAmount((float) $this->mollie->payment_hash->data->amount_with_fee);
 
         $description = sprintf('%s: %s', ctrans('texts.invoices'), \implode(', ', collect($this->mollie->payment_hash->invoices())->pluck('invoice_number')->toArray()));
@@ -65,7 +65,7 @@ class CreditCard implements LivewireMethodInterface
                 $cgt = ClientGatewayToken::where('token', $request->token)->firstOrFail();
 
                 $payment = $this->mollie->gateway->payments->create([
-                    'method' => 'creditcard',                                                
+                    'method' => 'creditcard',
                     'amount' => [
                         'currency' => $this->mollie->client->currency()->code,
                         'value' => $amount,
@@ -178,7 +178,7 @@ class CreditCard implements LivewireMethodInterface
 
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment)
     {
-        
+
         $payment_hash = $this->mollie->payment_hash;
 
         if (property_exists($payment_hash->data, 'shouldStoreToken') && $payment_hash->data->shouldStoreToken) {
@@ -190,7 +190,7 @@ class CreditCard implements LivewireMethodInterface
                 return $this->processUnsuccessfulPayment($e);
             }
 
-            if(empty($mandates)){
+            if (empty($mandates)) {
                 return render('gateways.mollie.mollie_placeholder');
             }
 
@@ -214,7 +214,7 @@ class CreditCard implements LivewireMethodInterface
             'payment_type' => PaymentType::CREDIT_CARD_OTHER,
             'transaction_reference' => $payment->id,
         ];
-        
+
         $payment_record = $this->mollie->createPayment($data, $payment->status === 'paid' ? Payment::STATUS_COMPLETED : Payment::STATUS_PENDING);
 
         SystemLogger::dispatch(

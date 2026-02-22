@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -118,7 +118,7 @@ use Illuminate\Contracts\Translation\HasLocalePreference;
  * @method static \Illuminate\Database\Eloquent\Builder|Client without()
  * @method static \Illuminate\Database\Eloquent\Builder|Client find()
  * @method static \Illuminate\Database\Eloquent\Builder|Client select()
- * @property string $payment_balance
+ * @property float|null $payment_balance
  * @property mixed $tax_data
  * @property bool $is_tax_exempt
  * @property bool $has_valid_vat_number
@@ -264,15 +264,15 @@ class Client extends BaseModel implements HasLocalePreference
         $name = ctrans('texts.client') . " | " . $this->present()->name();
 
         if (strlen($this->vat_number ?? '') > 1) {
-            $name .= " | ". $this->vat_number;
+            $name .= " | " . $this->vat_number;
         }
 
         return [
-            'id' => $this->company->db.":".$this->id,
+            'id' => $this->company->db . ":" . $this->id,
             'name' => $name,
-            'is_deleted' => (bool)$this->is_deleted,
+            'is_deleted' => (bool) $this->is_deleted,
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
+            'number' => (string) $this->number,
             'id_number' => $this->id_number,
             'vat_number' => $this->vat_number,
             'balance' => $this->balance,
@@ -301,7 +301,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function getScoutKey()
     {
-        return $this->company ? $this->company->db.":".$this->id : config('database.default').":".$this->id; //28-04-2025 handle removing clients when purged
+        return $this->company ? $this->company->db . ":" . $this->id : config('database.default') . ":" . $this->id; //28-04-2025 handle removing clients when purged
     }
 
     public function getEntityType()
@@ -502,7 +502,7 @@ class Client extends BaseModel implements HasLocalePreference
     {
 
         return once(function () {
-            
+
             /** @var \Illuminate\Support\Collection<Currency> */
             $currencies = app('currencies');
 
@@ -748,7 +748,7 @@ class Client extends BaseModel implements HasLocalePreference
         }
 
         // if (in_array($this->currency()->code, ['USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
-            if (in_array($this->currency()->code, ['CAD','USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
+        if (in_array($this->currency()->code, ['CAD','USD']) && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
             // if ($this->currency()->code == 'CAD' && in_array(GatewayType::ACSS, array_column($pms, 'gateway_type_id'))) {
             foreach ($pms as $pm) {
                 if ($pm['gateway_type_id'] == GatewayType::ACSS) {
@@ -899,48 +899,48 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function backup_path(): string
     {
-        return $this->company->company_key.'/'.$this->client_hash.'/backups';
+        return $this->company->company_key . '/' . $this->client_hash . '/backups';
     }
 
     public function invoice_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/invoices/';
+        return $this->company->company_key . '/' . $this->client_hash . '/' . $contact_key . '/invoices/';
     }
     public function e_document_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/e_invoice/';
+        return $this->company->company_key . '/' . $this->client_hash . '/' . $contact_key . '/e_invoice/';
     }
 
     public function quote_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/quotes/';
+        return $this->company->company_key . '/' . $this->client_hash . '/' . $contact_key . '/quotes/';
     }
 
     public function credit_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/credits/';
+        return $this->company->company_key . '/' . $this->client_hash . '/' . $contact_key . '/credits/';
     }
 
     public function recurring_invoice_filepath($invitation): string
     {
         $contact_key = $invitation->contact->contact_key;
 
-        return $this->company->company_key.'/'.$this->client_hash.'/'.$contact_key.'/recurring_invoices/';
+        return $this->company->company_key . '/' . $this->client_hash . '/' . $contact_key . '/recurring_invoices/';
     }
 
     public function company_filepath(): string
     {
-        return $this->company->company_key.'/';
+        return $this->company->company_key . '/';
     }
-    
+
     /**
      * document_filepath
      * @deprecated. not used.
@@ -948,7 +948,7 @@ class Client extends BaseModel implements HasLocalePreference
      */
     public function document_filepath(): string
     {
-        return $this->company->company_key.'/documents/';
+        return $this->company->company_key . '/documents/';
     }
 
     public function setCompanyDefaults($data, $entity_name): array
@@ -959,13 +959,13 @@ class Client extends BaseModel implements HasLocalePreference
         $footer = &$data['footer'];
 
         if (empty($terms)) {
-            $defaults['terms'] = $this->getSetting($entity_name.'_terms');
+            $defaults['terms'] = $this->getSetting($entity_name . '_terms');
         } elseif ($terms) {
             $defaults['terms'] = $data['terms'];
         }
 
         if (empty($footer)) {
-            $defaults['footer'] = $this->getSetting($entity_name.'_footer');
+            $defaults['footer'] = $this->getSetting($entity_name . '_footer');
         } elseif ($footer) {
             $defaults['footer'] = $data['footer'];
         }
@@ -1021,7 +1021,7 @@ class Client extends BaseModel implements HasLocalePreference
 
         return $offset;
     }
-    
+
     public function translate_entity(): string
     {
         return ctrans('texts.client');
@@ -1029,7 +1029,7 @@ class Client extends BaseModel implements HasLocalePreference
 
     public function portalUrl(bool $use_react_url): string
     {
-        return $use_react_url ? config('ninja.react_url'). "/#/clients/{$this->hashed_id}" : config('ninja.app_url');
+        return $use_react_url ? config('ninja.react_url') . "/#/clients/{$this->hashed_id}" : config('ninja.app_url');
     }
 
     /**

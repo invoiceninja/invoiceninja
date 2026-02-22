@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -65,7 +65,7 @@ class SendEmailRequest extends Request
         $user = auth()->user();
 
         return [
-            'template' => 'bail|required|string|in:'.implode(',', $this->templates),
+            'template' => 'bail|required|string|in:' . implode(',', $this->templates),
             'entity' => 'bail|required|in:App\Models\Invoice,App\Models\Quote,App\Models\Credit,App\Models\RecurringInvoice,App\Models\PurchaseOrder,App\Models\Payment',
             'entity_id' => ['bail', 'required', Rule::exists($this->entity_plural, 'id')->where('company_id', $user->company()->id)],
             'cc_email.*' => 'bail|sometimes|email',
@@ -96,7 +96,7 @@ class SendEmailRequest extends Request
 
         if (isset($input['entity']) && in_array($input['entity'], ['invoice','quote','credit','recurring_invoice','purchase_order','payment','purchaseOrder'])) {
             $this->entity_plural = Str::plural($input['entity']) ?? '';
-            $input['entity'] = "App\Models\\".ucfirst(Str::camel($input['entity']));
+            $input['entity'] = "App\Models\\" . ucfirst(Str::camel($input['entity']));
         }
 
         if (isset($input['entity']) && $input['entity'] == 'purchaseOrder') {
@@ -111,7 +111,7 @@ class SendEmailRequest extends Request
             })->slice(0, 4)->toArray();
         }
 
-        if(\App\Utils\Ninja::isHosted() && !$user->account->isPaid()){
+        if (\App\Utils\Ninja::isHosted() && !$user->account->isPaid()) {
             unset($input['subject']);
             unset($input['body']);
             unset($input['cc_email']);
@@ -124,7 +124,7 @@ class SendEmailRequest extends Request
     {
         return [
             'template.in' => 'Template :input is not a valid template.',
-            'entity.in' => 'Entity :input is not a valid entity.'
+            'entity.in' => 'Entity :input is not a valid entity.',
         ];
     }
 

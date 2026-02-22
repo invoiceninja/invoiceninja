@@ -19,7 +19,7 @@
         status_id:
           description: "The ID representing the current status of the credit"
           type: string
-          example: 3
+          example: "3"
         invoice_id:
           description: "The unique hashed ID of the linked invoice to which the credit is applied"
           type: string
@@ -194,17 +194,17 @@
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean

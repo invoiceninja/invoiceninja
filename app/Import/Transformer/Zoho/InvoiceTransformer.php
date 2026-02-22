@@ -51,8 +51,8 @@ class InvoiceTransformer extends BaseTransformer
             // 'currency_id'  => $this->getCurrencyByCode($invoice_data, 'Currency'),
             'amount'       => $this->getFloat($invoice_data, 'Total'),
             'balance'      => $this->getFloat($invoice_data, 'Balance'),
-            'status_id'    => $invoiceStatusMap[$status =
-                    strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
+            'status_id'    => $invoiceStatusMap[$status
+                    = strtolower($this->getString($invoice_data, 'Invoice Status'))] ?? Invoice::STATUS_SENT,
             'terms'        => $this->getString($invoice_data, 'Terms & Conditions'),
 
             // 'viewed'       => $status === 'viewed',

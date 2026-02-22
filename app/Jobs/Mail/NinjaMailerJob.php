@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -68,9 +68,7 @@ class NinjaMailerJob implements ShouldQueue
 
     protected $client_ses_secret = false;
 
-    public function __construct(public ?NinjaMailerObject $nmo, public bool $override = false)
-    {
-    }
+    public function __construct(public ?NinjaMailerObject $nmo, public bool $override = false) {}
 
     public function backoff()
     {
@@ -140,7 +138,7 @@ class NinjaMailerJob implements ShouldQueue
                 $mailer->brevo_config($this->client_brevo_secret);
             }
 
-            if($this->client_ses_secret) {
+            if ($this->client_ses_secret) {
                 $mailer->ses_config($this->nmo->settings->ses_access_key, $this->nmo->settings->ses_secret_key, $this->nmo->settings->ses_region, $this->nmo->settings->ses_topic_arn);
             }
 
@@ -216,8 +214,8 @@ class NinjaMailerJob implements ShouldQueue
 
             }
 
-        } catch(\ErrorException $e){ //@todo - remove after symfony/mailer is updated with bug fix
-            
+        } catch (\ErrorException $e) { //@todo - remove after symfony/mailer is updated with bug fix
+
             nlog("Mailer failed with an Error Exception {$e->getMessage()}");
             $message = "Attachment size is too large.";
             $this->fail();
@@ -226,9 +224,8 @@ class NinjaMailerJob implements ShouldQueue
             $this->cleanUpMailers();
 
             return;
-        
-        }
-        catch (\Exception $e) {
+
+        } catch (\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -312,7 +309,7 @@ class NinjaMailerJob implements ShouldQueue
     private function incrementEmailCounter(): void
     {
         if (in_array($this->nmo->settings->email_sending_method, ['default','mailgun','postmark'])) {
-            Cache::increment("email_quota".$this->company->account->key);
+            Cache::increment("email_quota" . $this->company->account->key);
         }
 
     }
@@ -353,7 +350,7 @@ class NinjaMailerJob implements ShouldQueue
         $t = app('translator');
         $t->replace(Ninja::transformTranslations($this->nmo->settings));
 
-        if(Ninja::isHosted() && $this->nmo?->transport == 'default' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
+        if (Ninja::isHosted() && $this->nmo?->transport == 'default' && ($this->company->account->isNewHostedAccount() || !$this->company->account->isPaid())) {
             $this->mailer = 'mailgun';
             $this->setHostedMailgunMailer();
             return $this;
@@ -466,16 +463,16 @@ class NinjaMailerJob implements ShouldQueue
         $company = $this->company;
 
         $smtp_host = $company->smtp_host ?? '';
-        $smtp_port = (int)$company->smtp_port ?? 0; //@phpstan-ignore-line
+        $smtp_port = (int) $company->smtp_port ?? 0; //@phpstan-ignore-line
         $smtp_username = $company->smtp_username ?? '';
         $smtp_password = $company->smtp_password ?? '';
         $smtp_encryption = $company->smtp_encryption ?? 'tls';
         $smtp_local_domain = strlen($company->smtp_local_domain ?? '') > 2 ? $company->smtp_local_domain : null;
         $smtp_verify_peer = $company->smtp_verify_peer ?? true;
 
-        if (strlen($smtp_host) <= 1 ||
-        strlen($smtp_username) <= 1 ||
-        strlen($smtp_password) <= 1
+        if (strlen($smtp_host) <= 1
+        || strlen($smtp_username) <= 1
+        || strlen($smtp_password) <= 1
         ) {
             $this->nmo->settings->email_sending_method = 'default';
             return $this->setMailDriver();
@@ -486,7 +483,7 @@ class NinjaMailerJob implements ShouldQueue
             'mail.mailers.smtp' => [
                 'transport' => 'smtp',
                 'host' => $smtp_host,
-                'port' => (int)$smtp_port,
+                'port' => (int) $smtp_port,
                 'username' => $smtp_username,
                 'password' => $smtp_password,
                 'encryption' => $smtp_encryption,
@@ -665,7 +662,7 @@ class NinjaMailerJob implements ShouldQueue
             ->mailable
             ->from($this->nmo->settings->ses_from_address, $sending_user);
 
-            return $this;
+        return $this;
     }
 
     /**
@@ -911,7 +908,7 @@ class NinjaMailerJob implements ShouldQueue
                         'client_secret' => config('ninja.o365.client_secret'),
                         'scope' => 'email Mail.Send offline_access profile User.Read openid',
                         'grant_type' => 'refresh_token',
-                        'refresh_token' => $user->oauth_user_refresh_token
+                        'refresh_token' => $user->oauth_user_refresh_token,
                     ],
                 ])->getBody()->getContents());
             } catch (\Exception $e) {

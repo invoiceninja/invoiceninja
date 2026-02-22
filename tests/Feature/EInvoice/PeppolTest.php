@@ -648,6 +648,294 @@ class PeppolTest extends TestCase
         $this->assertContains('city', $errorFields, 'Should have city error');
     }
 
+    /**
+     * Test VAT number validation for various EU countries with valid formats.
+     * Tests that valid VAT numbers pass validation.
+     */
+    public function testVatNumberValidationWithValidFormats()
+    {
+        $validVatNumbers = [
+            'AT' => ['ATU123456789', 'U123456789', 'AT U 123456789', 'U-123-456-789'], // U + 9 digits
+            'BE' => ['BE0123456789', '0123456789', 'BE 0 123456789', '0-123-456-789'], // 0 + 9 digits
+            'BG' => ['BG123456789', '123456789', 'BG 1234567890', '123-456-789-0'], // 9-10 digits
+            'CY' => ['CY12345678A', '12345678A', 'CY 12345678 A', '12345678-A'], // 8 digits + 1 letter
+            'CZ' => ['CZ12345678', '12345678', 'CZ 1234567890', '123-456-789-0'], // 8-10 digits
+            'DE' => ['DE123456789', '123456789', 'DE 123456789', '123-456-789'], // 9 digits
+            'DK' => ['DK12345678', '12345678', 'DK 12345678', '123-456-78'], // 8 digits
+            'EE' => ['EE123456789', '123456789', 'EE 123456789', '123-456-789'], // 9 digits
+            'ES' => ['ESA1234567B', 'A1234567B', 'ES A 1234567 B', 'A-123-456-7-B'], // 1 alphanumeric + 7 digits + 1 alphanumeric
+            'FI' => ['FI12345678', '12345678', 'FI 12345678', '123-456-78'], // 8 digits
+            'FR' => ['FRAA123456789', 'AA123456789', 'FR AA 123456789', 'AA-123-456-789'], // 2 alphanumeric + 9 digits
+            'GR' => ['GR123456789', 'EL123456789', 'GR 123456789', 'EL-123-456-789'], // 9 digits
+            'HR' => ['HR12345678901', '12345678901', 'HR 12345678901', '123-456-789-01'], // 11 digits
+            'HU' => ['HU12345678', '12345678', 'HU 12345678', '123-456-78'], // 8 digits
+            'IE' => ['IE1234567A', '1234567A', 'IE 1 234567 A', '1-234-567-A'], // 1 digit + 1 alphanumeric + 5 digits + 1 letter
+            'IT' => ['IT12345678901', '12345678901', 'IT 12345678901', '123-456-789-01'], // 11 digits
+            'LT' => ['LT123456789', '123456789', 'LT 123456789012', '123-456-789-012'], // 9 or 12 digits
+            'LU' => ['LU12345678', '12345678', 'LU 12345678', '123-456-78'], // 8 digits
+            'LV' => ['LV12345678901', '12345678901', 'LV 12345678901', '123-456-789-01'], // 11 digits
+            'MT' => ['MT12345678', '12345678', 'MT 12345678', '123-456-78'], // 8 digits
+            'NL' => ['NL123456789B01', '123456789B01', 'NL 123456789 B 01', '123-456-789-B-01'], // 9 digits + B + 2 digits
+            'PL' => ['PL1234567890', '1234567890', 'PL 1234567890', '123-456-789-0'], // 10 digits
+            'PT' => ['PT123456789', '123456789', 'PT 123456789', '123-456-789'], // 9 digits
+            'RO' => ['RO12345678', '12345678', 'RO 1234567890', '123-456-789-0'], // 2-10 digits
+            'SE' => ['SE123456789001', '123456789001', 'SE 123456789001', '123-456-789-001'], // 12 digits
+            'SI' => ['SI12345678', '12345678', 'SI 12345678', '123-456-78'], // 8 digits
+            'SK' => ['SK1234567890', '1234567890', 'SK 1234567890', '123-456-789-0'], // 10 digits
+        ];
+
+        foreach ($validVatNumbers as $countryCode => $vatNumbers) {
+            foreach ($vatNumbers as $vatNumber) {
+                $scenario = [
+                    'company_vat' => 'DE923356489',
+                    'company_country' => 'DE',
+                    'client_country' => $countryCode,
+                    'client_vat' => $vatNumber,
+                    'client_id_number' => '123456789',
+                    'classification' => 'business',
+                    'has_valid_vat' => true,
+                    'over_threshold' => true,
+                    'legal_entity_id' => 290868,
+                    'is_tax_exempt' => false,
+                ];
+
+                $entity_data = $this->setupTestData($scenario);
+                $client = $entity_data['client'];
+                
+                // Ensure client has required address fields
+                $client->address1 = 'Test Address';
+                $client->city = 'Test City';
+                $client->postal_code = '12345';
+                $client->save();
+
+                $entityLevel = new EntityLevel();
+                $result = $entityLevel->checkClient($client);
+
+                $errorFields = array_column($result['client'], 'field');
+                $errorLabels = array_column($result['client'], 'label');
+                $errorFields = array_column($result['client'], 'field');
+                
+                // Should not have invalid_vat_number error (check both field and translated label)
+                $hasInvalidVatError = in_array('vat_number', $errorFields) && 
+                    in_array(ctrans('texts.invalid_vat_number'), $errorLabels);
+                $this->assertFalse($hasInvalidVatError, 
+                    "VAT number '{$vatNumber}' for country '{$countryCode}' should be valid");
+            }
+        }
+    }
+
+    /**
+     * Test VAT number validation for various EU countries with invalid formats.
+     * Tests that invalid VAT numbers fail validation.
+     */
+    public function testVatNumberValidationWithInvalidFormats()
+    {
+        $invalidVatNumbers = [
+            'AT' => ['AT123456789', 'U1234567', 'U1234567890', 'ATU12345678'], // Missing U, wrong digit count
+            'BE' => ['BE123456789', '123456789', 'BE012345678', '012345678'], // Missing leading 0 or wrong length
+            'BG' => ['BG12345678', '12345678', 'BG12345678901', '12345678901'], // Wrong length (not 9-10)
+            'CY' => ['CY12345678', '1234567A', '123456789A', '12345678'], // Missing letter, wrong digit count, or no letter
+            'CZ' => ['CZ1234567', '1234567', 'CZ12345678901', '12345678901'], // Wrong length (not 8-10)
+            'DE' => ['DE12345678', '12345678', 'DE1234567890', '1234567890'], // Wrong length (not 9)
+            'DK' => ['DK1234567', '1234567', 'DK123456789', '123456789'], // Wrong length (not 8)
+            'EE' => ['EE12345678', '12345678', 'EE1234567890', '1234567890'], // Wrong length (not 9)
+            'ES' => ['ES12345678', '12345678', 'ESA123456', 'A123456'], // Wrong format (not 1 alphanumeric + 7 digits + 1 alphanumeric)
+            'FI' => ['FI1234567', '1234567', 'FI123456789', '123456789'], // Wrong length (not 8)
+            'FR' => ['FRAA12345678', 'AA12345678', 'FR12345678', '12345678'], // Wrong length (needs 2 alphanumeric + 9 digits = 11 chars after optional FR)
+            'GR' => ['GR12345678', '12345678', 'GR1234567890', '1234567890'], // Wrong length (not 9)
+            'HR' => ['HR1234567890', '1234567890', 'HR123456789012', '123456789012'], // Wrong length (not 11)
+            'HU' => ['HU1234567', '1234567', 'HU123456789', '123456789'], // Wrong length (not 8)
+            'IE' => ['IE123456', '123456', 'IE12345678A', '12345678A'], // Wrong format (not 1 digit + 1 alphanumeric + 5 digits + 1-2 letters)
+            'IT' => ['IT1234567890', '1234567890', 'IT123456789012', '123456789012'], // Wrong length (not 11)
+            'LT' => ['LT12345678', '12345678', 'LT12345678901', '12345678901'], // Wrong length (not 9 or 12)
+            'LU' => ['LU1234567', '1234567', 'LU123456789', '123456789'], // Wrong length (not 8)
+            'LV' => ['LV1234567890', '1234567890', 'LV123456789012', '123456789012'], // Wrong length (not 11)
+            'MT' => ['MT1234567', '1234567', 'MT123456789', '123456789'], // Wrong length (not 8)
+            'NL' => ['NL123456789', '123456789', 'NL123456789B', '123456789B'], // Missing B01 suffix
+            'PL' => ['PL123456789', '123456789', 'PL12345678901', '12345678901'], // Wrong length (not 10)
+            'PT' => ['PT12345678', '12345678', 'PT1234567890', '1234567890'], // Wrong length (not 9)
+            'RO' => ['RO1', '1', 'RO12345678901', '12345678901'], // Too short (1 digit) or too long (11 digits, max is 10)
+            'SE' => ['SE12345678900', '12345678900', 'SE1234567890012', '1234567890012'], // Wrong length (not 12)
+            'SI' => ['SI1234567', '1234567', 'SI123456789', '123456789'], // Wrong length (not 8)
+            'SK' => ['SK123456789', '123456789', 'SK12345678901', '12345678901'], // Wrong length (not 10)
+        ];
+
+        foreach ($invalidVatNumbers as $countryCode => $vatNumbers) {
+            foreach ($vatNumbers as $vatNumber) {
+                $scenario = [
+                    'company_vat' => 'DE923356489',
+                    'company_country' => 'DE',
+                    'client_country' => $countryCode,
+                    'client_vat' => $vatNumber,
+                    'client_id_number' => '123456789',
+                    'classification' => 'business',
+                    'has_valid_vat' => true,
+                    'over_threshold' => true,
+                    'legal_entity_id' => 290868,
+                    'is_tax_exempt' => false,
+                ];
+
+                $entity_data = $this->setupTestData($scenario);
+                $client = $entity_data['client'];
+                
+                // Ensure client has required address fields
+                $client->address1 = 'Test Address';
+                $client->city = 'Test City';
+                $client->postal_code = '12345';
+                $client->save();
+
+                $entityLevel = new EntityLevel();
+                $result = $entityLevel->checkClient($client);
+
+                $errorLabels = array_column($result['client'], 'label');
+                $errorFields = array_column($result['client'], 'field');
+                
+                // Should have invalid_vat_number error (check both field and translated label)
+                $hasInvalidVatError = in_array('vat_number', $errorFields) && 
+                    in_array(ctrans('texts.invalid_vat_number'), $errorLabels);
+                $this->assertTrue($hasInvalidVatError, 
+                    "VAT number '{$vatNumber}' for country '{$countryCode}' should be invalid");
+            }
+        }
+    }
+
+    /**
+     * Test that VAT number validation is skipped for individuals and government entities.
+     */
+    public function testVatNumberValidationSkippedForIndividualsAndGovernment()
+    {
+        $classifications = ['individual', 'government'];
+        
+        foreach ($classifications as $classification) {
+            $scenario = [
+                'company_vat' => 'DE923356489',
+                'company_country' => 'DE',
+                'client_country' => 'DE',
+                'client_vat' => '', // Empty VAT number
+                'client_id_number' => '123456789',
+                'classification' => $classification,
+                'has_valid_vat' => false,
+                'over_threshold' => true,
+                'legal_entity_id' => 290868,
+                'is_tax_exempt' => false,
+            ];
+
+            $entity_data = $this->setupTestData($scenario);
+            $client = $entity_data['client'];
+            
+            // Ensure client has required address fields
+            $client->address1 = 'Test Address';
+            $client->city = 'Test City';
+            $client->postal_code = '12345';
+            $client->save();
+
+            $entityLevel = new EntityLevel();
+            $result = $entityLevel->checkClient($client);
+
+            $errorFields = array_column($result['client'], 'field');
+            
+            // Should not have vat_number error for individuals/government
+            $this->assertNotContains('vat_number', $errorFields, 
+                "VAT number should not be required for '{$classification}' classification");
+        }
+    }
+
+    /**
+     * Test that VAT number is required for business entities in EU countries.
+     */
+    public function testVatNumberRequiredForBusinessInEU()
+    {
+        $scenario = [
+            'company_vat' => 'DE923356489',
+            'company_country' => 'DE',
+            'client_country' => 'DE',
+            'client_vat' => '', // Empty VAT number
+            'client_id_number' => '123456789',
+            'classification' => 'business',
+            'has_valid_vat' => false,
+            'over_threshold' => true,
+            'legal_entity_id' => 290868,
+            'is_tax_exempt' => false,
+        ];
+
+        $entity_data = $this->setupTestData($scenario);
+        $client = $entity_data['client'];
+        
+        // Ensure client has required address fields
+        $client->address1 = 'Test Address';
+        $client->city = 'Test City';
+        $client->postal_code = '12345';
+        $client->save();
+
+        $entityLevel = new EntityLevel();
+        $result = $entityLevel->checkClient($client);
+
+        $errorFields = array_column($result['client'], 'field');
+        
+        // Should have vat_number error for business in EU
+        $this->assertContains('vat_number', $errorFields, 
+            'VAT number should be required for business entities in EU countries');
+    }
+
+    /**
+     * Test VAT number validation with special characters (spaces, dots, dashes).
+     * These should be stripped before validation.
+     */
+    public function testVatNumberValidationWithSpecialCharacters()
+    {
+        $testCases = [
+            ['DE', 'DE 123 456 789', true], // Valid with spaces
+            ['DE', 'DE-123-456-789', true], // Valid with dashes
+            ['DE', 'DE.123.456.789', true], // Valid with dots
+            ['FR', 'FR AA 123 456 789', true], // Valid with spaces
+            ['FR', 'FR-AA-123-456-789', true], // Valid with dashes
+            ['NL', 'NL 123 456 789 B 01', true], // Valid with spaces
+            ['NL', 'NL-123-456-789-B-01', true], // Valid with dashes
+            ['DE', 'DE 123 456 78', false], // Invalid (wrong length) even with spaces
+        ];
+
+        foreach ($testCases as [$countryCode, $vatNumber, $shouldBeValid]) {
+            $scenario = [
+                'company_vat' => 'DE923356489',
+                'company_country' => 'DE',
+                'client_country' => $countryCode,
+                'client_vat' => $vatNumber,
+                'client_id_number' => '123456789',
+                'classification' => 'business',
+                'has_valid_vat' => true,
+                'over_threshold' => true,
+                'legal_entity_id' => 290868,
+                'is_tax_exempt' => false,
+            ];
+
+            $entity_data = $this->setupTestData($scenario);
+            $client = $entity_data['client'];
+            
+            // Ensure client has required address fields
+            $client->address1 = 'Test Address';
+            $client->city = 'Test City';
+            $client->postal_code = '12345';
+            $client->save();
+
+            $entityLevel = new EntityLevel();
+            $result = $entityLevel->checkClient($client);
+
+            $errorLabels = array_column($result['client'], 'label');
+            $errorFields = array_column($result['client'], 'field');
+            
+            $hasInvalidVatError = in_array('vat_number', $errorFields) && 
+                in_array(ctrans('texts.invalid_vat_number'), $errorLabels);
+            
+            if ($shouldBeValid) {
+                $this->assertFalse($hasInvalidVatError, 
+                    "VAT number '{$vatNumber}' for country '{$countryCode}' should be valid after stripping special characters");
+            } else {
+                $this->assertTrue($hasInvalidVatError, 
+                    "VAT number '{$vatNumber}' for country '{$countryCode}' should be invalid");
+            }
+        }
+    }
+
     public function testEntityValidationFailsForClientViaInvoice()
     {
         $scenario = [

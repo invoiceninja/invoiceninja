@@ -108,6 +108,6 @@ class CreditTaxSubtotals
 
     public function toArray(): array
     {
-        return (array)$this;
+        return (array) $this;
     }
 }

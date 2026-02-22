@@ -182,26 +182,26 @@ class InvoiceValidator
         return [
             'nif' => [
                 'format' => 'Company: Letter + 8 digits (B12345678), Individual: 8 digits + letter (12345678A)',
-                'required' => true
+                'required' => true,
             ],
             'dates' => [
                 'FechaHoraHusoGenRegistro' => 'YYYY-MM-DDTHH:MM:SS+HH:MM',
-                'FechaExpedicionFactura' => 'YYYY-MM-DD'
+                'FechaExpedicionFactura' => 'YYYY-MM-DD',
             ],
             'amounts' => [
                 'decimal_places' => 'Maximum 2 decimal places',
                 'positive' => 'ImporteTotal must be positive',
-                'tax_rates' => 'Valid rates: 0%, 4%, 10%, 21%'
+                'tax_rates' => 'Valid rates: 0%, 4%, 10%, 21%',
             ],
             'invoice_numbers' => [
                 'min_length' => 'Test numbers should be at least 10 characters',
-                'characters' => 'Only letters, numbers, hyphens, underscores'
+                'characters' => 'Only letters, numbers, hyphens, underscores',
             ],
             'business_logic' => [
                 'R1_invoices' => 'Must specify TipoRectificativa',
                 'F2_invoices' => 'Must specify FacturaSimplificadaArt7273',
-                'required_fields' => 'SistemaInformatico and Encadenamiento are required'
-            ]
+                'required_fields' => 'SistemaInformatico and Encadenamiento are required',
+            ],
         ];
     }
 }

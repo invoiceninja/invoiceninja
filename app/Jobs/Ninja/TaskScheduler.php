@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,9 +36,7 @@ class TaskScheduler implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -64,7 +62,7 @@ class TaskScheduler implements ShouldQueue
                         //@var \App\Models\Schedule $scheduler
                         $scheduler->service()->runTask();
                     } catch (\Throwable $e) {
-                        
+
                         nlog("Exception:: TaskScheduler:: Doing job :: {$scheduler->id} :: {$scheduler->name}" . $e->getMessage());
 
                         if (app()->bound('sentry')) {

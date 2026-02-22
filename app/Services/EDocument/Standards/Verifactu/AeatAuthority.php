@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,10 +37,7 @@ class AeatAuthority
 
     private string $sandbox_url = 'https://prewww1.aeat.es/wlpl/BDC/conapoderWS';
 
-    public function __construct()
-    {
-
-    }
+    public function __construct() {}
 
     public function setTestMode(): self
     {
@@ -57,31 +54,31 @@ class AeatAuthority
         $ssl_key = config('services.verifactu.ssl_key');
 
         $xml = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
-                  xmlns:apod="http://www2.agenciatributaria.gob.es/apoderamiento/ws/apoderamientos">
-    <soapenv:Header/>
-    <soapenv:Body>
-        <apod:ConsultaApoderamiento>
-            <apod:identificadorApoderado>
-                <apod:nifRepresentante>{$sender_nif}</apod:nifRepresentante>
-            </apod:identificadorApoderado>
-            <apod:identificadorPoderdante>
-                <apod:nifPoderdante>{$client_nif}</apod:nifPoderdante>
-            </apod:identificadorPoderdante>
-            <apod:codigoPoder>LGTINVDI</apod:codigoPoder>
-        </apod:ConsultaApoderamiento>
-    </soapenv:Body>
-</soapenv:Envelope>
-XML;
+            <?xml version="1.0" encoding="UTF-8"?>
+            <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                              xmlns:apod="http://www2.agenciatributaria.gob.es/apoderamiento/ws/apoderamientos">
+                <soapenv:Header/>
+                <soapenv:Body>
+                    <apod:ConsultaApoderamiento>
+                        <apod:identificadorApoderado>
+                            <apod:nifRepresentante>{$sender_nif}</apod:nifRepresentante>
+                        </apod:identificadorApoderado>
+                        <apod:identificadorPoderdante>
+                            <apod:nifPoderdante>{$client_nif}</apod:nifPoderdante>
+                        </apod:identificadorPoderdante>
+                        <apod:codigoPoder>LGTINVDI</apod:codigoPoder>
+                    </apod:ConsultaApoderamiento>
+                </soapenv:Body>
+            </soapenv:Envelope>
+            XML;
 
         $signingService = new \App\Services\EDocument\Standards\Verifactu\Signing\SigningService($xml, file_get_contents($ssl_key), file_get_contents($certificate));
         $soapXml = $signingService->sign();
 
         $response = Http::withHeaders([
-                    'Content-Type' => 'text/xml; charset=utf-8',
-                    'SOAPAction' => '',
-                ])
+            'Content-Type' => 'text/xml; charset=utf-8',
+            'SOAPAction' => '',
+        ])
                 ->withOptions([
                     'cert' => $certificate,
                     'ssl_key' => $ssl_key,

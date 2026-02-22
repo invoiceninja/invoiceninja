@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,7 +100,7 @@ class BaseImport
     {
 
         /** @var string $base64_encoded_csv */
-        $base64_encoded_csv = Cache::get($this->hash.'-'.$entity_type);
+        $base64_encoded_csv = Cache::get($this->hash . '-' . $entity_type);
 
         if (empty($base64_encoded_csv)) {
             return null;
@@ -123,10 +123,10 @@ class BaseImport
 
             // Remove Invoice Ninja headers
             if (
-                is_array($headers) && 
-                count($headers) > 0 &&
-                count($data) > 4 &&
-                $this->import_type === 'csv'
+                is_array($headers)
+                && count($headers) > 0
+                && count($data) > 4
+                && $this->import_type === 'csv'
             ) {
                 $first_cell = $headers[0];
                 if (strstr($first_cell, config('ninja.app_name'))) {
@@ -235,7 +235,7 @@ class BaseImport
             return $csvData;
         }
 
-        if(is_array($csvData) && !isset($csvData[0][$key])) {
+        if (is_array($csvData) && !isset($csvData[0][$key])) {
             return $csvData;
         }
 
@@ -325,8 +325,7 @@ class BaseImport
                     $entity->saveQuietly();
                     $count++;
                 }
-            } 
-            catch (\Exception $ex) {
+            } catch (\Exception $ex) {
                 if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
                     \DB::connection(config('database.default'))->rollBack();
                 }
@@ -348,8 +347,7 @@ class BaseImport
 
                 $this->store_import_for_research = true;
 
-            }
-            catch(\Throwable $ex){
+            } catch (\Throwable $ex) {
                 if (\DB::connection(config('database.default'))->transactionLevel() > 0) {
                     \DB::connection(config('database.default'))->rollBack();
                 }
@@ -358,7 +356,7 @@ class BaseImport
                 nlog($record);
 
                 $this->store_import_for_research = true;
-                
+
             }
         }
 
@@ -452,8 +450,8 @@ class BaseImport
 
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
-                    empty($invoice_data['client_id']) &&
-                    ! empty($invoice_data['client'])
+                    empty($invoice_data['client_id'])
+                    && ! empty($invoice_data['client'])
                 ) {
                     $client_data = $invoice_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -618,8 +616,8 @@ class BaseImport
 
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
-                    empty($invoice_data['client_id']) &&
-                    ! empty($invoice_data['client'])
+                    empty($invoice_data['client_id'])
+                    && ! empty($invoice_data['client'])
                 ) {
                     $client_data = $invoice_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -666,8 +664,8 @@ class BaseImport
                     // If we're doing a generic CSV import, only import payment data if we're not importing a payment CSV.
                     // If we're doing a platform-specific import, trust the platform to only return payment info if there's not a separate payment CSV.
                     if (
-                        $this->import_type !== 'csv' ||
-                        empty($this->column_map['payment'])
+                        $this->import_type !== 'csv'
+                        || empty($this->column_map['payment'])
                     ) {
                         // Check for payment columns
                         if (! empty($invoice_data['payments'])) {
@@ -675,16 +673,17 @@ class BaseImport
                                 $invoice_data['payments'] as $payment_data
                             ) {
 
-                                if($invoice->status_id == \App\Models\Invoice::STATUS_DRAFT)
+                                if ($invoice->status_id == \App\Models\Invoice::STATUS_DRAFT) {
                                     continue;
+                                }
 
                                 if ($payment_data['amount'] == 0 && $invoice->status_id == \App\Models\Invoice::STATUS_PAID) {
                                     $payment_data['amount'] = $invoice->amount;
                                 }
 
                                 $payment_data['user_id'] = $invoice->user_id;
-                                $payment_data['client_id'] =
-                                    $invoice->client_id;
+                                $payment_data['client_id']
+                                    = $invoice->client_id;
                                 $payment_data['invoices'] = [
                                     [
                                         'invoice_id' => $invoice->id,
@@ -845,8 +844,8 @@ class BaseImport
 
                 // If we don't have a client ID, but we do have client data, go ahead and create the client.
                 if (
-                    empty($quote_data['client_id']) &&
-                    ! empty($quote_data['client'])
+                    empty($quote_data['client_id'])
+                    && ! empty($quote_data['client'])
                 ) {
                     $client_data = $quote_data['client'];
                     $client_data['user_id'] = $this->getUserIDForRecord(
@@ -881,7 +880,7 @@ class BaseImport
                     if (! empty($quote_data['status_id'])) {
                         $quote->status_id = $quote_data['status_id'];
                     }
-                    
+
                     if (array_key_exists('payments', $quote_data)) {
                         unset($quote_data['payments']);
                     }
@@ -940,7 +939,7 @@ class BaseImport
             return $user->id;
         }
 
-        $user = User::whereRaw("account_id = ? AND CONCAT_WS(' ', first_name, last_name) like ?", [$this->company->account_id, '%'.$user_hash.'%'])
+        $user = User::whereRaw("account_id = ? AND CONCAT_WS(' ', first_name, last_name) like ?", [$this->company->account_id, '%' . $user_hash . '%'])
             ->first();
 
         if ($user) {
@@ -955,7 +954,7 @@ class BaseImport
         $data = [
             'errors'  => $this->error_array,
             'company' => $this->company,
-            'entity_count' => $this->entity_count
+            'entity_count' => $this->entity_count,
         ];
 
         $nmo = new NinjaMailerObject();
@@ -970,7 +969,7 @@ class BaseImport
         if (Ninja::isHosted() && $this->store_import_for_research) {
 
             $content = [
-                'company_key - '. $this->company->company_key,
+                'company_key - ' . $this->company->company_key,
                 'class_name - ' . class_basename($this),
                 'hash - ' => $this->hash,
             ];
@@ -989,9 +988,9 @@ class BaseImport
             ];
 
             foreach ($potential_imports as $import) {
-                
-                if(Cache::has($this->hash.'-'.$import)) {
-                    Cache::put($this->hash.'-'.$import, Cache::get($this->hash.'-'.$import), 60*60*24*2);
+
+                if (Cache::has($this->hash . '-' . $import)) {
+                    Cache::put($this->hash . '-' . $import, Cache::get($this->hash . '-' . $import), 60 * 60 * 24 * 2);
                 }
             }
 
@@ -1069,7 +1068,7 @@ class BaseImport
             'WINDOWS-1251', // CP1251
             'UTF-16',
             'UTF-32',
-            'ASCII'
+            'ASCII',
         ];
 
         foreach ($data as $key => $value) {

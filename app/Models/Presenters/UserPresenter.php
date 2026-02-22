@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,10 +28,10 @@ class UserPresenter extends EntityPresenter
             return 'No User Object Available';
         }
 
-        $first_name = isset($this->entity->first_name) ? $this->entity->first_name : '';
-        $last_name = isset($this->entity->last_name) ? $this->entity->last_name : '';
+        $first_name = $this->entity->first_name ?? '';
+        $last_name = $this->entity->last_name ?? '';
 
-        return $first_name.' '.$last_name;
+        return $first_name . ' ' . $last_name;
     }
 
     /**
@@ -57,7 +57,7 @@ class UserPresenter extends EntityPresenter
     public function getFullName()
     {
         if ($this->entity->first_name || $this->entity->last_name) {
-            return $this->entity->first_name.' '.$this->entity->last_name;
+            return $this->entity->first_name . ' ' . $this->entity->last_name;
         } else {
             return '';
         }

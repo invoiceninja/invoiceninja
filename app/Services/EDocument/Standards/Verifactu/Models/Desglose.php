@@ -65,7 +65,7 @@ class Desglose extends BaseXmlModel
                 $detalleDesglose->appendChild($this->createElement(
                     $doc,
                     'TipoImpositivo',
-                    number_format((float)$this->desgloseFactura['TipoImpositivo'], 2, '.', '')
+                    number_format((float) $this->desgloseFactura['TipoImpositivo'], 2, '.', '')
                 ));
             }
             // else {
@@ -74,14 +74,13 @@ class Desglose extends BaseXmlModel
             // }
 
             // Convert BaseImponible to BaseImponibleOimporteNoSujeto if needed
-            $baseImponible = isset($this->desgloseFactura['BaseImponible'])
-                ? $this->desgloseFactura['BaseImponible']
-                : ($this->desgloseFactura['BaseImponibleOimporteNoSujeto'] ?? '0');
+            $baseImponible = $this->desgloseFactura['BaseImponible']
+                ?? ($this->desgloseFactura['BaseImponibleOimporteNoSujeto'] ?? '0');
 
             $detalleDesglose->appendChild($this->createElement(
                 $doc,
                 'BaseImponibleOimporteNoSujeto',
-                number_format((float)$baseImponible, 2, '.', '')
+                number_format((float) $baseImponible, 2, '.', '')
             ));
 
 
@@ -89,7 +88,7 @@ class Desglose extends BaseXmlModel
                 $detalleDesglose->appendChild($this->createElement(
                     $doc,
                     'CuotaRepercutida',
-                    number_format((float)$this->desgloseFactura['Cuota'], 2, '.', '')
+                    number_format((float) $this->desgloseFactura['Cuota'], 2, '.', '')
                 ));
             }
 
@@ -98,7 +97,7 @@ class Desglose extends BaseXmlModel
                 $detalleDesglose->appendChild($this->createElement(
                     $doc,
                     'TipoRecargoEquivalencia',
-                    number_format((float)$this->desgloseFactura['TipoRecargoEquivalencia'], 2, '.', '')
+                    number_format((float) $this->desgloseFactura['TipoRecargoEquivalencia'], 2, '.', '')
                 ));
             }
 
@@ -107,7 +106,7 @@ class Desglose extends BaseXmlModel
                 $detalleDesglose->appendChild($this->createElement(
                     $doc,
                     'CuotaRecargoEquivalencia',
-                    number_format((float)$this->desgloseFactura['CuotaRecargoEquivalencia'], 2, '.', '')
+                    number_format((float) $this->desgloseFactura['CuotaRecargoEquivalencia'], 2, '.', '')
                 ));
             }
         }
@@ -334,7 +333,7 @@ class Desglose extends BaseXmlModel
             $detalleDesglose->appendChild($this->createElement(
                 $doc,
                 'TipoImpositivo',
-                number_format((float)$taxRate['TipoImpositivo'], 2, '.', '')
+                number_format((float) $taxRate['TipoImpositivo'], 2, '.', '')
             ));
         }
 
@@ -343,7 +342,7 @@ class Desglose extends BaseXmlModel
         $detalleDesglose->appendChild($this->createElement(
             $doc,
             'BaseImponibleOimporteNoSujeto',
-            number_format((float)$baseImponible, 2, '.', '')
+            number_format((float) $baseImponible, 2, '.', '')
         ));
 
         // Convert Cuota to CuotaRepercutida if needed
@@ -351,7 +350,7 @@ class Desglose extends BaseXmlModel
         $detalleDesglose->appendChild($this->createElement(
             $doc,
             'CuotaRepercutida',
-            number_format((float)$cuota, 2, '.', '')
+            number_format((float) $cuota, 2, '.', '')
         ));
 
         return $detalleDesglose;

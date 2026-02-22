@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,6 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $viewed_date
  * @property string|null $opened_date
  * @property string|null $email_status
+ * @property bool $can_sign
  * @property \App\Models\Company $company
  * @property \App\Models\ClientContact $contact
  * @property string $hashed_id

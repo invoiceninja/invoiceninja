@@ -37,16 +37,10 @@ class BTCPay implements MethodInterface, LivewireMethodInterface
         $this->driver_class->init();
     }
 
-    public function authorizeView($data)
-    {
-    }
+    public function authorizeView($data) {}
 
-    public function authorizeRequest($request)
-    {
-    }
-    public function authorizeResponse($request)
-    {
-    }
+    public function authorizeRequest($request) {}
+    public function authorizeResponse($request) {}
 
     public function paymentView($data)
     {
@@ -91,7 +85,7 @@ class BTCPay implements MethodInterface, LivewireMethodInterface
                 'buyerCountry' => $cli->country_id,
                 'buyerPhone' => $cli->phone,
                 'itemDesc' => "From InvoiceNinja",
-                'InvoiceNinjaPaymentHash' => $drv->payment_hash->hash
+                'InvoiceNinjaPaymentHash' => $drv->payment_hash->hash,
             ];
 
 

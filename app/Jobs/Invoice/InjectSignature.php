@@ -24,9 +24,7 @@ class InjectSignature implements ShouldQueue
      * @param string $signature
      * @param string $ip
      */
-    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder $entity, private int $contact_id, private string $signature, private ?string $ip)
-    {
-    }
+    public function __construct(public \App\Models\Invoice|\App\Models\Quote|\App\Models\Credit|\App\Models\PurchaseOrder $entity, private int $contact_id, private string $signature, private ?string $ip) {}
 
     /**
      * Execute the job.

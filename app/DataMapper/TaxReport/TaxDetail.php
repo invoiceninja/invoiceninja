@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,13 +24,13 @@ class TaxDetail
     public float $taxable_amount; // net amount exclusive of taxes
     public float $tax_amount; // total tax amount
     public string $tax_status; // "collected", "pending", "refundable", "partially_paid", "adjustment"
-    
+
     // Adjustment-specific fields (used when tax_status is "adjustment")
     public ?string $postal_code; // "invoice_cancelled", "tax_rate_change", "exemption_applied", "correction"
     public float $line_total;
     public float $total_tax;
-    
-  
+
+
     public function __construct(array $attributes = [])
     {
         $this->tax_name = $attributes['tax_name'] ?? '';
@@ -42,7 +42,7 @@ class TaxDetail
         $this->tax_status = $attributes['tax_status'] ?? 'pending';
         // Adjustment fields
         $this->postal_code = $attributes['postal_code'] ?? null;
-        
+
         $this->line_total = $attributes['line_total'] ?? 0.0;
         $this->total_tax = $attributes['total_tax'] ?? 0.0;
     }

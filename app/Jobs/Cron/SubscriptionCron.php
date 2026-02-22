@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,9 +29,7 @@ class SubscriptionCron
      *
      * @return void
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Execute the job.
@@ -45,7 +43,7 @@ class SubscriptionCron
 
         if (! config('ninja.db.multi_db_enabled')) {
 
-            nlog('Subscription Cron '. now()->toDateTimeString());
+            nlog('Subscription Cron ' . now()->toDateTimeString());
 
             $this->timezoneAware();
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,7 +35,7 @@ class StoreWebhookRequest extends Request
         return [
             'target_url' => 'bail|required|url',
             'event_id' => 'bail|required',
-            'rest_method' => 'required|in:post,put'
+            'rest_method' => 'required|in:post,put',
         ];
     }
 

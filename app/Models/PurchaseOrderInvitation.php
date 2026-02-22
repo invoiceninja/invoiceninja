@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,6 +38,7 @@ use Illuminate\Support\Str;
  * @property int|null $created_at
  * @property int|null $updated_at
  * @property int|null $deleted_at
+ * @property boolean $can_sign
  * @property string|null $email_status
  * @property \App\Models\Company $company
  * @property \App\Models\VendorContact $contact
@@ -153,11 +154,11 @@ class PurchaseOrderInvitation extends BaseModel
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/vendor/';
+                return $domain . '/vendor/';
             case 'iframe':
-                return $domain.'/vendor/';
+                return $domain . '/vendor/';
             case 'domain':
-                return $domain.'/vendor/';
+                return $domain . '/vendor/';
 
             default:
                 return '';
@@ -176,11 +177,11 @@ class PurchaseOrderInvitation extends BaseModel
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/vendor/'.$entity_type.'/'.$this->key;
+                return $domain . '/vendor/' . $entity_type . '/' . $this->key;
             case 'iframe':
-                return $domain.'/vendor/'.$entity_type.'/'.$this->key;
+                return $domain . '/vendor/' . $entity_type . '/' . $this->key;
             case 'domain':
-                return $domain.'/vendor/'.$entity_type.'/'.$this->key;
+                return $domain . '/vendor/' . $entity_type . '/' . $this->key;
 
             default:
                 return '';
@@ -189,14 +190,14 @@ class PurchaseOrderInvitation extends BaseModel
 
     public function getAdminLink($use_react_link = false): string
     {
-        return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
+        return $use_react_link ? $this->getReactLink() : $this->getLink() . '?silent=true';
     }
 
     private function getReactLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return config('ninja.react_url')."/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+        return config('ninja.react_url') . "/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
     }
 
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -41,15 +41,14 @@ class GenerateSmsRequest extends Request
         $key = "phone_verification_code_{$user->id}_{$user->account_id}";
         $count = \Illuminate\Support\Facades\Cache::get($key);
 
-        if($count && $count > 1) {
+        if ($count && $count > 1) {
 
             \Illuminate\Support\Facades\Cache::put($key, $count + 1, 300);
             $validator->after(function ($validator) {
                 $validator->errors()->add('phone', 'You requested a verification code recently. Please retry again in a few minutes.');
             });
-            
-        }
-        else{
+
+        } else {
             \Illuminate\Support\Facades\Cache::put($key, 1, 300);
         }
 

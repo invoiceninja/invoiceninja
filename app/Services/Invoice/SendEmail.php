@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -25,9 +25,7 @@ use App\Events\Invoice\InvoiceWasEmailed;
 
 class SendEmail extends AbstractService
 {
-    public function __construct(protected Invoice $invoice, protected $reminder_template = null, protected ?ClientContact $contact = null)
-    {
-    }
+    public function __construct(protected Invoice $invoice, protected $reminder_template = null, protected ?ClientContact $contact = null) {}
 
     /**
      * Builds the correct template to send.

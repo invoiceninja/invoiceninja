@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,14 +14,13 @@ namespace App\Utils;
 
 class Encode
 {
-
     /**
      * Convert string content to UTF-8
      * Safe for emojis, file content, and any encoding issues
      */
     public static function convert(string $contents): string
     {
- 
+
         // Check for different UTF BOMs and handle accordingly
         $bomResult = self::detectAndHandleUTFEncoding($contents);
         if ($bomResult !== null) {
@@ -36,7 +36,7 @@ class Encode
             return $contents;
         }
 
-        // Method 1: Try Windows-1252 conversion               
+        // Method 1: Try Windows-1252 conversion
         $contextContents = $contents;
         if ($contextContents !== false) {
             $contextContents = self::removeBOM($contextContents);
@@ -48,9 +48,9 @@ class Encode
 
         // Method 2: Binary conversion
         $binaryContents = $contents;
-        
+
         $binaryContents = self::removeBOM($binaryContents);
-        
+
         // Check if this looks like Windows-1252 by looking for problem bytes
         if (self::containsWindows1252Bytes($binaryContents)) {
             $converted = mb_convert_encoding($binaryContents, 'UTF-8', 'WINDOWS-1252');
@@ -92,28 +92,28 @@ class Encode
             $withoutBOM = substr($data, 4);
             return mb_convert_encoding($withoutBOM, 'UTF-8', 'UTF-32BE');
         }
-        
+
         // UTF-32 LE BOM
         if (substr($data, 0, 4) === "\xFF\xFE\x00\x00") {
             $withoutBOM = substr($data, 4);
             return mb_convert_encoding($withoutBOM, 'UTF-8', 'UTF-32LE');
         }
-        
+
         // UTF-16 BE BOM
         if (substr($data, 0, 2) === "\xFE\xFF") {
             $withoutBOM = substr($data, 2);
             return mb_convert_encoding($withoutBOM, 'UTF-8', 'UTF-16BE');
         }
-        
+
         // UTF-16 LE BOM
         if (substr($data, 0, 2) === "\xFF\xFE") {
             $withoutBOM = substr($data, 2);
             return mb_convert_encoding($withoutBOM, 'UTF-8', 'UTF-16LE');
         }
-        
+
         // Try to detect UTF-16/32 without BOM (heuristic approach)
         $length = strlen($data);
-        
+
         // UTF-32 detection (every 4th byte pattern)
         if ($length >= 8 && $length % 4 === 0) {
             $nullCount = 0;
@@ -126,7 +126,7 @@ class Encode
                 return mb_convert_encoding($data, 'UTF-8', 'UTF-32LE');
             }
         }
-        
+
         // UTF-16 detection (every 2nd byte pattern)
         if ($length >= 4 && $length % 2 === 0) {
             $nullCount = 0;
@@ -138,7 +138,7 @@ class Encode
             if ($nullCount > 10) { // Likely UTF-16LE
                 return mb_convert_encoding($data, 'UTF-8', 'UTF-16LE');
             }
-            
+
             // Check for UTF-16BE
             $nullCount = 0;
             for ($i = 0; $i < min(100, $length); $i += 2) {
@@ -150,7 +150,7 @@ class Encode
                 return mb_convert_encoding($data, 'UTF-8', 'UTF-16BE');
             }
         }
-        
+
         return null;
     }
 
@@ -163,27 +163,27 @@ class Encode
         if (substr($data, 0, 3) === "\xEF\xBB\xBF") {
             return substr($data, 3);
         }
-        
+
         // UTF-16 BE BOM
         if (substr($data, 0, 2) === "\xFE\xFF") {
             return substr($data, 2);
         }
-        
+
         // UTF-16 LE BOM
         if (substr($data, 0, 2) === "\xFF\xFE") {
             return substr($data, 2);
         }
-        
+
         // UTF-32 BE BOM
         if (substr($data, 0, 4) === "\x00\x00\xFE\xFF") {
             return substr($data, 4);
         }
-        
+
         // UTF-32 LE BOM
         if (substr($data, 0, 4) === "\xFF\xFE\x00\x00") {
             return substr($data, 4);
         }
-        
+
         return $data;
     }
 
@@ -191,7 +191,7 @@ class Encode
     {
         // Check for Windows-1252 specific bytes in 0x80-0x9F range
         $windows1252Bytes = [0x80, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8E, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9E, 0x9F];
-        
+
         foreach ($windows1252Bytes as $byte) {
             if (strpos($data, chr($byte)) !== false) {
                 return true;
@@ -217,9 +217,9 @@ class Encode
         // 1. Must be valid UTF-8
         // 2. Must NOT contain replacement characters (indicating corruption)
         // 3. Additional check for double-encoded replacement
-        return mb_check_encoding($data, 'UTF-8') && 
-               !str_contains($data, "\xEF\xBF\xBD") &&  // UTF-8 replacement character bytes
-               !str_contains($data, 'ï¿½'); // Double-encoded replacement character
+        return mb_check_encoding($data, 'UTF-8')
+               && !str_contains($data, "\xEF\xBF\xBD")  // UTF-8 replacement character bytes
+               && !str_contains($data, 'ï¿½'); // Double-encoded replacement character
     }
 
 }

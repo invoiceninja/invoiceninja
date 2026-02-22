@@ -19,19 +19,19 @@ tags:
       The Clients API provides endpoints for managing client records within your company. A client represents a customer 
       or business entity that you provide services or products to.
 
-      ## Key Features
+      ### Key Features
       - Create, read, update, and delete client records
       - Manage client contact information and billing details
       - View client-specific transaction history
       - Handle multiple contacts per client
       - Track client-specific settings and preferences
 
-      ## Client Statuses
+      ### Client Statuses
       - Active: Client is currently active and can be billed
       - Archived: Client is archived and hidden from active lists
       - Deleted: Client is marked for deletion but retained in the database
 
-      ## Best Practices
+      ### Best Practices
       - Always validate client email addresses
       - Use unique client numbers for easy reference
       - Keep contact information up to date
@@ -49,7 +49,7 @@ tags:
       Endpoint definitions for interacting with products.
   - name: invoices
     x-displayName: Invoices
-    
+  
     description: |
 
       ## Invoice Statuses
@@ -72,6 +72,11 @@ tags:
         - An invoice which is not yet due, but also, not paid
         
   - name: Recurring Invoices
+    x-displayName: Recurring Invoices
+    description: |
+      Endpoint definitions for interacting with recurring_invoices.
+
+  - name: Recurring-Invoices
     x-displayName: Recurring Invoices
     description: |
       Endpoint definitions for interacting with recurring_invoices.
@@ -111,6 +116,11 @@ tags:
     description: |
       Endpoint definitions for interacting with purchase orders.
 
+  - name: Purchase-Orders
+    x-displayName: Purchase Orders
+    description: |
+      Endpoint definitions for interacting with purchase orders.
+
   - name: expenses
     x-displayName: Expenses
     description: |
@@ -130,6 +140,261 @@ tags:
     x-displayName: Reports
     description: |
       Endpoint definitions for interacting with reports.
+
+  - name: activities
+    x-displayName: Activities
+    description: |
+      Endpoint definitions for interacting with activities.
+
+  - name: bank_integrations
+    x-displayName: Bank Integrations
+    description: |
+      Endpoint definitions for interacting with bank integrations.
+
+  - name: bank_transaction_rules
+    x-displayName: Bank Transaction Rules
+    description: |
+      Endpoint definitions for interacting with bank transaction rules.
+
+  - name: charts
+    x-displayName: Charts
+    description: |
+      Endpoint definitions for interacting with charts.
+
+  - name: claim_license
+    x-displayName: Claim License
+    description: |
+      Endpoint definitions for claiming licenses.
+
+  - name: client_gateway_tokens
+    x-displayName: Client Gateway Tokens
+    description: |
+      Endpoint definitions for interacting with client gateway tokens.
+
+  - name: companies
+    x-displayName: Companies
+    description: |
+      Endpoint definitions for interacting with companies.
+
+  - name: company_gateways
+    x-displayName: Company Gateways
+    description: |
+      Endpoint definitions for interacting with company gateways.
+
+  - name: company_ledger
+    x-displayName: Company Ledger
+    description: |
+      Endpoint definitions for interacting with company ledger.
+
+  - name: company_user
+    x-displayName: Company User
+    description: |
+      Endpoint definitions for interacting with company users.
+
+  - name: connected_account
+    x-displayName: Connected Account
+    description: |
+      Endpoint definitions for connecting accounts.
+
+  - name: Credits
+    x-displayName: Credits
+    description: |
+      Endpoint definitions for interacting with credits.
+
+  - name: designs
+    x-displayName: Designs
+    description: |
+      Endpoint definitions for interacting with designs.
+
+  - name: documents
+    x-displayName: Documents
+    description: |
+      Endpoint definitions for interacting with documents.
+
+  - name: emails
+    x-displayName: Emails
+    description: |
+      Endpoint definitions for sending emails.
+
+  - name: expense
+    x-displayName: Expense
+    description: |
+      Endpoint definitions for interacting with expense documents.
+
+  - name: expense_categories
+    x-displayName: Expense Categories
+    description: |
+      Endpoint definitions for interacting with expense categories.
+
+  - name: export
+    x-displayName: Export
+    description: |
+      Endpoint definitions for exporting data.
+
+  - name: group_settings
+    x-displayName: Group Settings
+    description: |
+      Endpoint definitions for interacting with group settings.
+
+  - name: health_check
+    x-displayName: Health Check
+    description: |
+      Endpoint definitions for health checks.
+
+  - name: import
+    x-displayName: Import
+    description: |
+      Endpoint definitions for importing data.
+
+  - name: imports
+    x-displayName: Imports
+    description: |
+      Endpoint definitions for pre-import operations.
+
+  - name: logout
+    x-displayName: Logout
+    description: |
+      Endpoint definitions for logging out.
+
+  - name: migration
+    x-displayName: Migration
+    description: |
+      Endpoint definitions for migration operations.
+
+  - name: one_time_token
+    x-displayName: One Time Token
+    description: |
+      Endpoint definitions for one-time tokens.
+
+  - name: payment_terms
+    x-displayName: Payment Terms
+    description: |
+      Endpoint definitions for interacting with payment terms.
+
+  - name: payment_termss
+    x-displayName: Payment Terms
+    description: |
+      Endpoint definitions for payment terms operations.
+
+  - name: ping
+    x-displayName: Ping
+    description: |
+      Endpoint definitions for ping operations.
+
+  - name: postmark
+    x-displayName: Postmark
+    description: |
+      Endpoint definitions for Postmark webhooks.
+
+  - name: preview
+    x-displayName: Preview
+    description: |
+      Endpoint definitions for PDF previews.
+
+  - name: recurring_expense
+    x-displayName: Recurring Expense
+    description: |
+      Endpoint definitions for recurring expense documents.
+
+  - name: recurring_quotes
+    x-displayName: Recurring Quotes
+    description: |
+      Endpoint definitions for interacting with recurring quotes.
+
+  - name: refresh
+    x-displayName: Refresh
+    description: |
+      Endpoint definitions for refreshing data.
+
+  - name: scheduler
+    x-displayName: Scheduler
+    description: |
+      Endpoint definitions for scheduler operations.
+
+  - name: search
+    x-displayName: Search
+    description: |
+      Endpoint definitions for search operations.
+
+  - name: statics
+    x-displayName: Statics
+    description: |
+      Endpoint definitions for static data.
+
+  - name: subscriptions
+    x-displayName: Subscriptions
+    description: |
+      Endpoint definitions for interacting with subscriptions.
+
+  - name: support
+    x-displayName: Support
+    description: |
+      Endpoint definitions for support operations.
+
+  - name: system_logs
+    x-displayName: System Logs
+    description: |
+      Endpoint definitions for system logs.
+
+  - name: task_schedulers
+    x-displayName: Task Schedulers
+    description: |
+      Endpoint definitions for interacting with task schedulers.
+
+  - name: task_status
+    x-displayName: Task Status
+    description: |
+      Endpoint definitions for interacting with task statuses.
+
+  - name: task_statuss
+    x-displayName: Task Status
+    description: |
+      Endpoint definitions for task status operations.
+
+  - name: tax_rates
+    x-displayName: Tax Rates
+    description: |
+      Endpoint definitions for interacting with tax rates.
+
+  - name: templates
+    x-displayName: Templates
+    description: |
+      Endpoint definitions for template operations.
+
+  - name: tokens
+    x-displayName: Tokens
+    description: |
+      Endpoint definitions for interacting with tokens.
+
+  - name: update
+    x-displayName: Update
+    description: |
+      Endpoint definitions for system updates.
+
+  - name: users
+    x-displayName: Users
+    description: |
+      Endpoint definitions for interacting with users.
+
+  - name: webcron
+    x-displayName: Webcron
+    description: |
+      Endpoint definitions for webcron operations.
+
+  - name: webhooks
+    x-displayName: Webhooks
+    description: |
+      Endpoint definitions for interacting with webhooks.
+
+  - name: Webhooks
+    x-displayName: Webhooks
+    description: |
+      Endpoint definitions for webhook operations.
+
+  - name: yodlee
+    x-displayName: Yodlee
+    description: |
+      Endpoint definitions for Yodlee webhooks.
 
 externalDocs:
   description: "Client Libraries"

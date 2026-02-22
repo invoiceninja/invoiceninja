@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -159,7 +159,7 @@ class PaymentIntentWebhook implements ShouldQueue
             $payment->save();
         }
 
-        $hash = isset($charge['metadata']['payment_hash']) ? $charge['metadata']['payment_hash'] : false;
+        $hash = $charge['metadata']['payment_hash'] ?? false;
 
         if (!$hash) {
             return;
@@ -178,7 +178,7 @@ class PaymentIntentWebhook implements ShouldQueue
             'transaction_reference' => $charge['id'],
             'customer' => $charge['customer'],
             'payment_method' => $charge['payment_method'],
-            'card_details' => isset($charge['payment_method_details']['card']['brand']) ? $charge['payment_method_details']['card']['brand'] : PaymentType::CREDIT_CARD_OTHER
+            'card_details' => $charge['payment_method_details']['card']['brand'] ?? PaymentType::CREDIT_CARD_OTHER,
         ];
 
         SystemLogger::dispatch(

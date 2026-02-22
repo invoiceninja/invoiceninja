@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -87,7 +87,7 @@ class ApplePay
     private function registerDomain()
     {
         if (Ninja::isHosted()) {
-            $domain = isset($this->stripe_driver->company_gateway->company->portal_domain) ? $this->stripe_driver->company_gateway->company->portal_domain : $this->stripe_driver->company_gateway->company->domain();
+            $domain = $this->stripe_driver->company_gateway->company->portal_domain ?? $this->stripe_driver->company_gateway->company->domain();
 
             \Stripe\ApplePayDomain::create([
                 'domain_name' => $domain,

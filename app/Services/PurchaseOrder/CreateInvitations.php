@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,6 +36,7 @@ class CreateInvitations extends AbstractService
         $new_contact = VendorContactFactory::create($this->purchase_order->company_id, $this->purchase_order->user_id);
         $new_contact->vendor_id = $this->purchase_order->vendor_id;
         $new_contact->contact_key = Str::random(40);
+        $new_contact->can_sign = true;
         $new_contact->is_primary = true;
         $new_contact->save();
     }
@@ -69,6 +70,7 @@ class CreateInvitations extends AbstractService
                     $ii->key = $this->createDbHash($this->purchase_order->company->db);
                     $ii->purchase_order_id = $this->purchase_order->id;
                     $ii->vendor_contact_id = $contact->id;
+                    $ii->can_sign = $contact->can_sign;
                     $ii->save();
                 } catch (\Exception $e) {
                     nlog($e->getMessage());
@@ -101,7 +103,18 @@ class CreateInvitations extends AbstractService
             $ii->key = $this->createDbHash($this->purchase_order->company->db);
             $ii->purchase_order_id = $this->purchase_order->id;
             $ii->vendor_contact_id = $contact->id;
+            $ii->can_sign = $contact->can_sign;
             $ii->save();
+        }
+
+        if($this->purchase_order->invitations()->where('can_sign', true)->count() == 0){
+            
+            $ii = $this->purchase_order->invitations()->whereHas('contact', function ($q){
+                $q->where('is_primary', true);
+            })->first() ?? $this->purchase_order->invitations()->first();
+
+            $ii->can_sign = true;
+            $ii->saveQuietly();
         }
 
         return $this->purchase_order;

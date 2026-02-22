@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -68,7 +68,7 @@ class CreditCard implements LivewireMethodInterface
 
         if (! $response->success) {
             $error = 'Error creating customer in gateway';
-            $error_code = isset($response->response_code) ? $response->response_code : 'PT_ERR';
+            $error_code = $response->response_code ?? 'PT_ERR';
 
             if (isset($response->errors)) {
                 foreach ($response->errors as $err) {
@@ -126,7 +126,7 @@ class CreditCard implements LivewireMethodInterface
             'city' => $this->paytrace->client->city,
             'state' => $this->paytrace->client->state,
             'zip' => $this->paytrace->client->postal_code,
-            'country' => $this->paytrace->client->country->iso_3166_2
+            'country' => $this->paytrace->client->country->iso_3166_2,
         ];
 
         return $data;
@@ -201,10 +201,10 @@ class CreditCard implements LivewireMethodInterface
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         if ($invoice) {
-            return ctrans('texts.invoice_number').'# '.$invoice->number;
+            return ctrans('texts.invoice_number') . '# ' . $invoice->number;
         }
 
-        return ctrans('texts.invoice_number').'####';
+        return ctrans('texts.invoice_number') . '####';
     }
 
     private function processSuccessfulPayment($response)

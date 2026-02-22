@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class CompanyPolicy extends EntityPolicy
     public function view(User $user, $entity): bool
     {
         return ($user->isAdmin() && $entity->id == $user->companyId())
-            || ($user->hasPermission('view_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
+            || ($user->hasPermission('view_' . strtolower(class_basename($entity))) && $entity->id == $user->companyId())
             // || ($user->hasPermission('view_all') && $entity->id == $user->companyId())
             || $user->owns($entity)
             || $user->companyId() == $entity->id;
@@ -60,7 +60,7 @@ class CompanyPolicy extends EntityPolicy
     public function edit(User $user, $entity): bool
     {
         return ($user->isAdmin() && $entity->id == $user->companyId())
-            || ($user->hasPermission('edit_'.strtolower(class_basename($entity))) && $entity->id == $user->companyId())
+            || ($user->hasPermission('edit_' . strtolower(class_basename($entity))) && $entity->id == $user->companyId())
             // || ($user->hasPermission('edit_all') && $entity->id == $user->companyId())
             || $user->owns($entity);
     }

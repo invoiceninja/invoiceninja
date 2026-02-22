@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,9 +43,7 @@ class ChargeRefunded implements ShouldQueue
 
     public $payment_completed = false;
 
-    public function __construct(public array $stripe_request, private string $company_key)
-    {
-    }
+    public function __construct(public array $stripe_request, private string $company_key) {}
 
     public function handle()
     {
@@ -114,7 +112,7 @@ class ChargeRefunded implements ShouldQueue
                     ->map(function ($pivot) {
                         return [
                             'invoice_id' => $pivot->paymentable_id,
-                            'amount' => $pivot->amount - $pivot->refunded
+                            'amount' => $pivot->amount - $pivot->refunded,
                         ];
                     });
 
@@ -126,7 +124,7 @@ class ChargeRefunded implements ShouldQueue
                     ->map(function ($pivot) use ($amount_refunded) {
                         return [
                             'invoice_id' => $pivot->paymentable_id,
-                            'amount' => $amount_refunded
+                            'amount' => $amount_refunded,
                         ];
                     });
 

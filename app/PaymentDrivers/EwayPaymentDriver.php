@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -135,9 +135,7 @@ class EwayPaymentDriver extends BaseDriver
         return (new Token($this))->tokenBilling($cgt, $payment_hash);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
-    {
-    }
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null) {}
 
     public function convertAmount($amount)
     {

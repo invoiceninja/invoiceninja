@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,9 +38,7 @@ class ZipCredits implements ShouldQueue
 
     public $timeout = 3600;
 
-    public function __construct(protected mixed $credit_ids, protected Company $company, protected User $user)
-    {
-    }
+    public function __construct(protected mixed $credit_ids, protected Company $company, protected User $user) {}
 
     /**
      * Execute the job.
@@ -53,7 +51,7 @@ class ZipCredits implements ShouldQueue
 
         $settings = $this->company->settings;
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s').'_'.str_replace(' ', '_', trans('texts.credits')).'.zip';
+        $file_name = now()->addSeconds($this->company->timezone_offset())->format('Y-m-d-h-m-s') . '_' . str_replace(' ', '_', trans('texts.credits')) . '.zip';
 
         nlog($this->credit_ids);
 
@@ -74,17 +72,17 @@ class ZipCredits implements ShouldQueue
                 $zipFile->addFromString($invitation->credit->numberFormatter() . '.pdf', $file);
             }
 
-            Storage::put($path.$file_name, $zipFile->outputAsString());
+            Storage::put($path . $file_name, $zipFile->outputAsString());
 
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new DownloadCredits(Storage::url($path.$file_name), $this->company);
+            $nmo->mailable = new DownloadCredits(Storage::url($path . $file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $settings;
             $nmo->company = $this->company;
 
             NinjaMailerJob::dispatch($nmo);
 
-            UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+            UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
         } catch (\PhpZip\Exception\ZipException $e) {
             // handle exception
         } finally {
@@ -94,7 +92,7 @@ class ZipCredits implements ShouldQueue
 
     public function failed($exception)
     {
-        nlog("ZipCredits:: Exception:: => ".$exception->getMessage());
+        nlog("ZipCredits:: Exception:: => " . $exception->getMessage());
         config(['queue.failed.driver' => null]);
     }
 }

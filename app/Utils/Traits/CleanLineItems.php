@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -60,59 +60,28 @@ trait CleanLineItems
         unset($invoice_item->casts);
 
         foreach ($invoice_item as $key => $value) {
-            //if the key has not been set, we set it to a default value
-            if (! array_key_exists($key, $item) || ! isset($item[$key])) {
-                $item[$key] = $value;
-                $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $value);
-            } else {
-                //always cast the value!
-                $item[$key] = BaseSettings::castAttribute(InvoiceItem::$casts[$key], $item[$key]);
-            }
-
-            if (array_key_exists('type_id', $item) && $item['type_id'] == '0') {
-                $item['type_id'] = '1';
-            }
-
-            if (! array_key_exists('type_id', $item)) {
-                $item['type_id'] = '1';
-            }
-
-            if (! array_key_exists('tax_id', $item)) {
-                $item['tax_id'] = '1';
-            } elseif (array_key_exists('tax_id', $item) && $item['tax_id'] == '') {
-
-                if ($item['type_id'] == '2') {
-                    $item['tax_id'] = '2';
-                } else {
-                    $item['tax_id'] = '1';
-                }
-
-            }
-
-            if (isset($item['notes'])) {
-                $item['notes'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['notes']);
-            }
-            if (isset($item['product_key'])) {
-                $item['product_key'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['product_key']);
-            }
-            if (isset($item['custom_value1'])) {
-                $item['custom_value1'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value1']);
-            }
-            if (isset($item['custom_value2'])) {
-                $item['custom_value2'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value2']);
-            }
-            if (isset($item['custom_value3'])) {
-                $item['custom_value3'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value3']);
-            }
-            if (isset($item['custom_value4'])) {
-                $item['custom_value4'] = str_replace(["</sc","onerror","prompt(","alert(",], "<-", $item['custom_value4']);
-            }
-
+            $item[$key] = BaseSettings::castAttribute(
+                InvoiceItem::$casts[$key],
+                array_key_exists($key, $item) && isset($item[$key]) ? $item[$key] : $value
+            );
         }
 
-        if (array_key_exists('id', $item) || array_key_exists('_id', $item)) {
-            unset($item['id']);
+        if (empty($item['type_id']) || $item['type_id'] === '0') {
+            $item['type_id'] = '1';
         }
+
+        if (empty($item['tax_id'])) {
+            $item['tax_id'] = ($item['type_id'] === '2') ? '2' : '1';
+        }
+
+        $xss_patterns = ["</sc", "onerror", "prompt(", "alert("];
+        foreach (['notes', 'product_key', 'custom_value1', 'custom_value2', 'custom_value3', 'custom_value4'] as $field) {
+            if (!empty($item[$field]) && is_string($item[$field])) {
+                $item[$field] = str_replace($xss_patterns, "<-", $item[$field]);
+            }
+        }
+
+        unset($item['id'], $item['_id']);
 
         return $item;
     }

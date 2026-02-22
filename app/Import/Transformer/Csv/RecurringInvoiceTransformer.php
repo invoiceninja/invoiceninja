@@ -135,10 +135,10 @@ class RecurringInvoiceTransformer extends BaseTransformer
                 $this->getString($invoice_data, 'invoice.auto_bill')
             ),
             'frequency_id' => $this->getFrequency(
-                isset($invoice_data['invoice.frequency_id']) ? $invoice_data['invoice.frequency_id'] : 'monthly'
+                $invoice_data['invoice.frequency_id'] ?? 'monthly'
             ),
             'remaining_cycles' => $this->getRemainingCycles(
-                isset($invoice_data['invoice.remaining_cycles']) ? $invoice_data['invoice.remaining_cycles'] : -1
+                $invoice_data['invoice.remaining_cycles'] ?? -1
             ),
             // 'archived' => $status === 'archived',
         ];

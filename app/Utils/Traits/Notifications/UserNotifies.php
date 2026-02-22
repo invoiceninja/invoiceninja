@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,18 +31,18 @@ trait UserNotifies
 {
     public function findUserNotificationTypes($invitation, $company_user, $entity_name, $required_permissions): array
     {
-        if(!$invitation) {
+        if (!$invitation) {
             return [];
         }
-        
+
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if ($company_user->company->is_disabled &&
-            is_array($notifications->email) ||
-            $company_user->trashed() ||
-            ! $company_user->user ||
-            $company_user->user->trashed()) {
+        if ($company_user->company->is_disabled
+            && is_array($notifications->email)
+            || $company_user->trashed()
+            || ! $company_user->user
+            || $company_user->user->trashed()) {
             return [];
         }
 
@@ -65,11 +65,11 @@ trait UserNotifies
         $notifiable_methods = [];
         $notifications = $company_user->notifications;
 
-        if ($company_user->company->is_disabled ||
-            ! $notifications ||
-            $company_user->trashed() ||
-            ! $company_user->user ||
-            $company_user->user->trashed()) {
+        if ($company_user->company->is_disabled
+            || ! $notifications
+            || $company_user->trashed()
+            || ! $company_user->user
+            || $company_user->user->trashed()) {
             return [];
         }
 
@@ -116,10 +116,10 @@ trait UserNotifies
 
     public function findCompanyUserNotificationType($company_user, $required_permissions): array
     {
-        if ($company_user->company->is_disabled ||
-            $company_user->trashed() ||
-            ! $company_user->user ||
-            $company_user->user->trashed()) {
+        if ($company_user->company->is_disabled
+            || $company_user->trashed()
+            || ! $company_user->user
+            || $company_user->user->trashed()) {
             return [];
         }
 

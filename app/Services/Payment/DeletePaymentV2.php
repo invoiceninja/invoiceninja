@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,9 +29,7 @@ class DeletePaymentV2
      * @param Payment $payment
      * @return void
      */
-    public function __construct(public Payment $payment, private bool $update_client_paid_to_date)
-    {
-    }
+    public function __construct(public Payment $payment, private bool $update_client_paid_to_date) {}
 
     /**
      * @return Payment

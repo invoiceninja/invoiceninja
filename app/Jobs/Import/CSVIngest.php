@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -62,9 +62,9 @@ class CSVIngest implements ShouldQueue
         $this->hash = $request['hash'];
         $this->import_type = $request['import_type'];
         $this->skip_header = $request['skip_header'] ?? null;
-        $this->column_map =
-            ! empty($request['column_map']) ?
-                array_combine(array_keys($request['column_map']), array_column($request['column_map'], 'mapping')) : null;
+        $this->column_map
+            = ! empty($request['column_map'])
+                ? array_combine(array_keys($request['column_map']), array_column($request['column_map'], 'mapping')) : null;
     }
 
     /**

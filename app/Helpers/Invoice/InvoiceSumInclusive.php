@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -31,7 +31,7 @@ class InvoiceSumInclusive
     use Discounter;
     use NumberFormatter;
 
-    protected RecurringInvoice | Invoice | Quote | Credit | PurchaseOrder | RecurringQuote $invoice;
+    protected RecurringInvoice|Invoice|Quote|Credit|PurchaseOrder|RecurringQuote $invoice;
 
     public $tax_map;
 
@@ -53,7 +53,7 @@ class InvoiceSumInclusive
 
     private $rappen_rounding = false;
 
-    private Client | Vendor $client;
+    private Client|Vendor $client;
 
     public InvoiceItemSumInclusive $invoice_items;
     /**
@@ -168,19 +168,19 @@ class InvoiceSumInclusive
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate1, $amount);
             $this->total_taxes += $tax;
 
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name1 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate1), $this->client) . '%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate1];
         }
 
         if (is_string($this->invoice->tax_name2) && strlen($this->invoice->tax_name2) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate2, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name2 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate2), $this->client) . '%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate2];
         }
 
         if (is_string($this->invoice->tax_name3) && strlen($this->invoice->tax_name3) > 1) {
             $tax = $this->calcInclusiveLineTax($this->invoice->tax_rate3, $amount);
             $this->total_taxes += $tax;
-            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3.' '.Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client).'%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
+            $this->total_tax_map[] = ['name' => $this->invoice->tax_name3 . ' ' . Number::formatValueNoTrailingZeroes(floatval($this->invoice->tax_rate3), $this->client) . '%', 'total' => $tax, 'tax_rate' => $this->invoice->tax_rate3];
         }
 
         return $this;

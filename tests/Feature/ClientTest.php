@@ -68,6 +68,55 @@ class ClientTest extends TestCase
     }
 
 
+    public function testClientClone()
+    {
+        $settings = $this->client->settings;
+        $settings->currency_id = 12;
+        $this->client->settings = $settings;
+        $this->client->save();
+
+        $this->client->fresh();
+
+        $data = [
+            'action' => 'clone',
+            'ids' => [$this->client->hashed_id],
+        ];
+
+        $response = $this->withHeaders([
+            'X-API-SECRET' => config('ninja.api_secret'),
+            'X-API-TOKEN' => $this->token,
+        ])->postJson('/api/v1/clients/bulk', $data);
+
+        $response->assertStatus(200);
+
+        $arr = $response->json()['data'][0];
+
+        $this->assertEquals($this->client->client_hash, $arr['client_hash']);
+
+        $this->assertEquals($this->client->address1, $arr['address1']);
+        $this->assertEquals($this->client->address2, $arr['address2']);
+        $this->assertEquals($this->client->city, $arr['city']);
+        $this->assertEquals($this->client->state, $arr['state']);
+        $this->assertEquals($this->client->postal_code, $arr['postal_code']);
+        $this->assertEquals($this->client->country_id, $arr['country_id']);
+        $this->assertEquals($this->client->shipping_address1, $arr['shipping_address1']);
+        $this->assertEquals($this->client->shipping_address2, $arr['shipping_address2']);
+        $this->assertEquals($this->client->shipping_city, $arr['shipping_city']);
+        $this->assertEquals($this->client->shipping_state, $arr['shipping_state']);
+        $this->assertEquals($this->client->shipping_postal_code, $arr['shipping_postal_code']);
+        $this->assertEquals($this->client->shipping_country_id, $arr['shipping_country_id']);
+        $this->assertEquals($this->client->routing_id, $arr['routing_id']);
+        $this->assertEquals($this->client->is_tax_exempt, $arr['is_tax_exempt']);
+        $this->assertEquals($this->client->has_valid_vat_number, $arr['has_valid_vat_number']);
+        $this->assertEquals($this->client->classification, $arr['classification']);
+        $this->assertEquals($this->client->phone, $arr['phone']);
+        $this->assertEquals($this->client->website, $arr['website']);
+        $this->assertEquals($this->client->private_notes, $arr['private_notes']);
+        $this->assertEquals($this->client->public_notes, $arr['public_notes']);
+        $this->assertEquals($this->client->settings->currency_id, $arr['settings']['currency_id']);
+        $this->assertCount(count($arr['contacts']), $this->client->contacts);
+    }
+
     public function testNameValidation4()
     {
         $data = [

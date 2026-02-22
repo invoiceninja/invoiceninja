@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -110,8 +110,8 @@ class ContactLoginController extends Controller
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
-        if (method_exists($this, 'hasTooManyLoginAttempts') &&
-            $this->hasTooManyLoginAttempts($request)) {
+        if (method_exists($this, 'hasTooManyLoginAttempts')
+            && $this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
@@ -196,17 +196,17 @@ class ContactLoginController extends Controller
 
         if (auth()->guard('contact')->user()->client->getSetting('enable_client_portal_dashboard') === true) {
             $this->redirectTo = '/client/dashboard';
-        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)) {
+        } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_INVOICES)) {
             $this->redirectTo = '/client/invoices';
-        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)) {
+        } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_RECURRING_INVOICES)) {
             $this->redirectTo = '/client/recurring_invoices';
-        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)) {
+        } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_QUOTES)) {
             $this->redirectTo = '/client/quotes';
-        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)) {
+        } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_CREDITS)) {
             $this->redirectTo = '/client/credits';
-        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)) {
+        } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_TASKS)) {
             $this->redirectTo = '/client/tasks';
-        } elseif ((bool)(auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)) {
+        } elseif ((bool) (auth()->guard('contact')->user()->company->enabled_modules & PortalComposer::MODULE_EXPENSES)) {
             $this->redirectTo = '/client/expenses';
         }
     }

@@ -20,9 +20,7 @@ class MergeEDocument implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct(private mixed $document, private string $pdf_file)
-    {
-    }
+    public function __construct(private mixed $document, private string $pdf_file) {}
 
     /**
      * Execute the job.

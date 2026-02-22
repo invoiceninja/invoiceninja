@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -136,10 +136,10 @@ class PaytracePaymentDriver extends BaseDriver
         $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
 
         if ($invoice) {
-            $invoice_id =  ctrans('texts.invoice_number').'# '.$invoice->number;
+            $invoice_id =  ctrans('texts.invoice_number') . '# ' . $invoice->number;
         }
 
-        $invoice_id = ctrans('texts.invoice_number').'# '.substr($payment_hash->hash, 0, 6);
+        $invoice_id = ctrans('texts.invoice_number') . '# ' . substr($payment_hash->hash, 0, 6);
 
         $data = [
             'customer_id' => $cgt->token,
@@ -183,9 +183,7 @@ class PaytracePaymentDriver extends BaseDriver
         $this->processUnsuccessfulTransaction($data, false);
     }
 
-    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null)
-    {
-    }
+    public function processWebhookRequest(PaymentWebhookRequest $request, Payment $payment = null) {}
 
     /*Helpers*/
     private function generateAuthHeaders()
@@ -210,7 +208,7 @@ class PaytracePaymentDriver extends BaseDriver
 
         $headers = [];
         $headers[] = 'Content-type: application/json';
-        $headers[] = 'Authorization: Bearer '.$auth_data->access_token;
+        $headers[] = 'Authorization: Bearer ' . $auth_data->access_token;
 
         return $headers;
     }

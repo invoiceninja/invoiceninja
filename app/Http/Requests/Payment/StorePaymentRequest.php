@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -50,8 +50,8 @@ class StorePaymentRequest extends Request
             'client_id' => ['bail','required',Rule::exists('clients', 'id')->where('company_id', $user->company()->id)->where('is_deleted', 0)],
             'invoices' => ['bail', 'sometimes', 'nullable', 'array', new ValidPayableInvoicesRule()],
             'invoices.*.amount' => ['bail','required'],
-            'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted',0)],
-            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted',0)],
+            'invoices.*.invoice_id' => ['bail','required','distinct', Rule::exists('invoices', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
+            'credits.*.credit_id' => ['bail','required','distinct', new ValidCreditsRules($this->all()),Rule::exists('credits', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)->where('is_deleted', 0)],
             'credits.*.amount' => ['bail','required', new CreditsSumRule($this->all())],
             'amount' => ['bail', 'numeric', new PaymentAmountsBalanceRule(), 'max:99999999999999'],
             'number' => ['bail', 'nullable',  Rule::unique('payments')->where('company_id', $user->company()->id)],
@@ -135,14 +135,13 @@ class StorePaymentRequest extends Request
 
         $client_id = is_string($this->input('client_id', '')) ? $this->input('client_id') : '';
 
-        if(isset($input['invoices'][0]['invoice_id'])) {
+        if (isset($input['invoices'][0]['invoice_id'])) {
             $hash_key = implode(',', array_column($input['invoices'], 'invoice_id'));
-        } 
-        else {
+        } else {
             $hash_key = $this->input('amount', 0);
         }
 
-        $hash = $this->ip()."|".$hash_key."|".$client_id."|".$user->company()->company_key;
+        $hash = $this->ip() . "|" . $hash_key . "|" . $client_id . "|" . $user->company()->company_key;
 
         // Atomic lock: returns false if key already exists (request in progress)
         if (!Atomic::set($hash, true, 1)) {
@@ -209,7 +208,7 @@ class StorePaymentRequest extends Request
         }
 
         if (! isset($input['idempotency_key'])) {
-            $input['idempotency_key'] = substr(time()."{$input['date']}{$input['amount']}{$credits_total}{$this->client_id}{$user->company()->company_key}", 0, 64);
+            $input['idempotency_key'] = substr(time() . "{$input['date']}{$input['amount']}{$credits_total}{$this->client_id}{$user->company()->company_key}", 0, 64);
         }
 
         if (array_key_exists('exchange_rate', $input) && $input['exchange_rate'] === null) {

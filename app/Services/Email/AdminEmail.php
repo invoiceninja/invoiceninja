@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,9 +66,7 @@ class AdminEmail implements ShouldQueue
 
     public Mailable $mailable;
 
-    public function __construct(public EmailObject $email_object, public Company $company)
-    {
-    }
+    public function __construct(public EmailObject $email_object, public Company $company) {}
 
     /**
      * The backoff time between retries.
@@ -167,7 +165,7 @@ class AdminEmail implements ShouldQueue
             $this->cleanUpMailers();
             $this->logMailError($e->getMessage(), $this->company->clients()->first());
             return;
-        } catch (\Exception | \RuntimeException | \Google\Service\Exception $e) {
+        } catch (\Exception|\RuntimeException|\Google\Service\Exception $e) {
             nlog("Mailer failed with {$e->getMessage()}");
             $message = $e->getMessage();
 
@@ -649,7 +647,7 @@ class AdminEmail implements ShouldQueue
                     'client_secret' => config('ninja.o365.client_secret'),
                     'scope' => 'email Mail.Send offline_access profile User.Read openid',
                     'grant_type' => 'refresh_token',
-                    'refresh_token' => $user->oauth_user_refresh_token
+                    'refresh_token' => $user->oauth_user_refresh_token,
                 ],
             ])->getBody()->getContents());
 

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,36 +30,36 @@ use App\Services\EDocument\Standards\Validation\XsltDocumentValidator;
 class EntityLevel implements EntityLevelInterface
 {
     private array $eu_country_codes = [
-            'AT', // Austria
-            'BE', // Belgium
-            'BG', // Bulgaria
-            'CY', // Cyprus
-            'CZ', // Czech Republic
-            'DE', // Germany
-            'DK', // Denmark
-            'EE', // Estonia
-            'ES', // Spain
-            'ES-CN', // Canary Islands
-            'ES-CE', // Ceuta
-            'ES-ML', // Melilla
-            'FI', // Finland
-            'FR', // France
-            'GR', // Greece
-            'HR', // Croatia
-            'HU', // Hungary
-            'IE', // Ireland
-            'IT', // Italy
-            'LT', // Lithuania
-            'LU', // Luxembourg
-            'LV', // Latvia
-            'MT', // Malta
-            'NL', // Netherlands
-            'PL', // Poland
-            'PT', // Portugal
-            'RO', // Romania
-            'SE', // Sweden
-            'SI', // Slovenia
-            'SK', // Slovakia
+        'AT', // Austria
+        'BE', // Belgium
+        'BG', // Bulgaria
+        'CY', // Cyprus
+        'CZ', // Czech Republic
+        'DE', // Germany
+        'DK', // Denmark
+        'EE', // Estonia
+        'ES', // Spain
+        'ES-CN', // Canary Islands
+        'ES-CE', // Ceuta
+        'ES-ML', // Melilla
+        'FI', // Finland
+        'FR', // France
+        'GR', // Greece
+        'HR', // Croatia
+        'HU', // Hungary
+        'IE', // Ireland
+        'IT', // Italy
+        'LT', // Lithuania
+        'LU', // Luxembourg
+        'LV', // Latvia
+        'MT', // Malta
+        'NL', // Netherlands
+        'PL', // Poland
+        'PT', // Portugal
+        'RO', // Romania
+        'SE', // Sweden
+        'SI', // Slovenia
+        'SK', // Slovakia
     ];
 
     private array $client_fields = [
@@ -78,6 +78,44 @@ class EntityLevel implements EntityLevelInterface
         'country_id',
     ];
 
+    /**
+     * VAT number validation regex patterns for EU countries.
+     * Patterns validate format only - they do not verify checksums or actual validity.
+     * Patterns allow optional country prefix (e.g., "AT" or "ATU12345678").
+     */
+    private array $vat_number_regex = [
+        'AT' => '/^(AT)?U\d{9}$/i', // Austria: U + 9 digits
+        'BE' => '/^(BE)?0\d{9}$/i', // Belgium: 0 + 9 digits
+        'BG' => '/^(BG)?\d{9,10}$/i', // Bulgaria: 9-10 digits
+        'CY' => '/^(CY)?\d{8}[A-Z]$/i', // Cyprus: 8 digits + 1 letter
+        'CZ' => '/^(CZ)?\d{8,10}$/i', // Czech Republic: 8-10 digits
+        'DE' => '/^(DE)?\d{9}$/i', // Germany: 9 digits
+        'DK' => '/^(DK)?\d{8}$/i', // Denmark: 8 digits
+        'EE' => '/^(EE)?\d{9}$/i', // Estonia: 9 digits
+        'ES' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Spain: 1 alphanumeric + 7 digits + 1 alphanumeric
+        'ES-CN' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Canary Islands: Same as Spain
+        'ES-CE' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Ceuta: Same as Spain
+        'ES-ML' => '/^(ES)?[A-Z0-9]\d{7}[A-Z0-9]$/i', // Melilla: Same as Spain
+        'FI' => '/^(FI)?\d{8}$/i', // Finland: 8 digits
+        'FR' => '/^(FR)?[A-HJ-NP-Z0-9]{2}\d{9}$/i', // France: 2 alphanumeric (excluding I, O, Q) + 9 digits
+        'GR' => '/^(GR|EL)?\d{9}$/i', // Greece: 9 digits (can use GR or EL prefix)
+        'HR' => '/^(HR)?\d{11}$/i', // Croatia: 11 digits
+        'HU' => '/^(HU)?\d{8}$/i', // Hungary: 8 digits
+        'IE' => '/^(IE)?\d[A-Z0-9\+\*]\d{5}[A-Z]{1,2}$/i', // Ireland: 1 digit + 1 alphanumeric + 5 digits + 1-2 letters
+        'IT' => '/^(IT)?\d{11}$/i', // Italy: 11 digits
+        'LT' => '/^(LT)?(\d{9}|\d{12})$/i', // Lithuania: 9 or 12 digits
+        'LU' => '/^(LU)?\d{8}$/i', // Luxembourg: 8 digits
+        'LV' => '/^(LV)?\d{11}$/i', // Latvia: 11 digits
+        'MT' => '/^(MT)?\d{8}$/i', // Malta: 8 digits
+        'NL' => '/^(NL)?\d{9}B\d{2}$/i', // Netherlands: 9 digits + B + 2 digits
+        'PL' => '/^(PL)?\d{10}$/i', // Poland: 10 digits
+        'PT' => '/^(PT)?\d{9}$/i', // Portugal: 9 digits
+        'RO' => '/^(RO)?\d{2,10}$/i', // Romania: 2-10 digits
+        'SE' => '/^(SE)?\d{12}$/i', // Sweden: 12 digits
+        'SI' => '/^(SI)?\d{8}$/i', // Slovenia: 8 digits
+        'SK' => '/^(SK)?\d{10}$/i', // Slovakia: 10 digits
+    ];
+
     private array $company_fields = [
         // 'legal_entity_id',
         // 'vat_number IF NOT an individual
@@ -89,9 +127,7 @@ class EntityLevel implements EntityLevelInterface
 
     private array $errors = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     private function init(string $locale): self
     {
@@ -130,7 +166,7 @@ class EntityLevel implements EntityLevelInterface
         return ['passes' => true];
     }
 
-    public function checkInvoice(Invoice | Credit $invoice): array
+    public function checkInvoice(Invoice|Credit $invoice): array
     {
         $this->init($invoice->client->locale());
 
@@ -214,9 +250,15 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //If not an individual, you MUST have a VAT number if you are in the EU
-        if (!in_array($client->classification, ['government', 'individual']) && in_array($client->country->iso_3166_2, $this->eu_country_codes) && !$this->validString($client->vat_number)) {
-            $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
+        if (!in_array($client->classification, ['government', 'individual']) && in_array($client->country->iso_3166_2, $this->eu_country_codes)) {
+            if (!$this->validString($client->vat_number)) {
+                $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
+            } elseif (isset($this->vat_number_regex[$client->country->iso_3166_2]) && !preg_match($this->vat_number_regex[$client->country->iso_3166_2], str_replace([" ",".","-"], "", $client->vat_number))) {
+                $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.invalid_vat_number")];
+            }
         }
+
+
 
         //Primary contact email is present.
         if ($client->present()->email() == 'No Email Set') {
@@ -277,7 +319,7 @@ class EntityLevel implements EntityLevelInterface
         }
 
         //test legal entity id present
-        if(intval($company->legal_entity_id) == 0){
+        if (intval($company->legal_entity_id) == 0) {
             $errors[] = ['field' => "You have not registered a legal entity id as yet."];
         }
 
@@ -335,13 +377,13 @@ class EntityLevel implements EntityLevelInterface
         } elseif (in_array($client_country_code, $eu_countries)) {
 
             // First, determine if we're over threshold
-            $is_over_threshold = isset($client->company->tax_data->regions->EU->has_sales_above_threshold) &&
-                                $client->company->tax_data->regions->EU->has_sales_above_threshold;
+            $is_over_threshold = isset($client->company->tax_data->regions->EU->has_sales_above_threshold)
+                                && $client->company->tax_data->regions->EU->has_sales_above_threshold;
 
             // Is this B2B or B2C?
-            $is_b2c = strlen($client->vat_number ?? '') < 2 ||
-                    !($client->has_valid_vat_number ?? false) ||
-                    $client->classification == 'individual';
+            $is_b2c = strlen($client->vat_number ?? '') < 2
+                    || !($client->has_valid_vat_number ?? false)
+                    || $client->classification == 'individual';
 
             // B2C, under threshold, no Company VAT Registerd - must charge origin country VAT
             if ($is_b2c && !$is_over_threshold && strlen($client->company->settings->vat_number ?? '') < 2) {

@@ -73,7 +73,7 @@ class Summary extends Component
 
             $default_quantity = $bundle['one_time_products'][$product->hashed_id]['quantity'] ?? 1;
 
-            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+            if ($subscription->use_inventory_management && $product['in_stock_quantity'] < 1) {
                 $default_quantity = 0;
             }
 
@@ -89,7 +89,7 @@ class Summary extends Component
 
             $default_quantity = $bundle['optional_recurring_products'][$product->hashed_id]['quantity'] ?? 0;
 
-            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+            if ($subscription->use_inventory_management && $product['in_stock_quantity'] < 1) {
                 $default_quantity = 0;
             }
 
@@ -105,7 +105,7 @@ class Summary extends Component
 
             $default_quantity = $bundle['optional_one_time_products'][$product->hashed_id]['quantity'] ?? 0;
 
-            if($subscription->use_inventory_management && $product['in_stock_quantity'] < 1){
+            if ($subscription->use_inventory_management && $product['in_stock_quantity'] < 1) {
                 $default_quantity = 0;
             }
 
@@ -114,6 +114,7 @@ class Summary extends Component
                 'quantity' => $default_quantity,
                 'notes' => $product->markdownNotes(),
             ];
+
             
             $bundle['optional_one_time_products'][$product->hashed_id]['product']['is_recurring'] = false;
         }
@@ -133,14 +134,14 @@ class Summary extends Component
         }
 
         $one_time = collect($this->context['bundle']['one_time_products'])->sum(function ($item) {
-            return (float)$item['product']['price'] * (float)$item['quantity'];
+            return (float) $item['product']['price'] * (float) $item['quantity'];
         });
 
         $one_time_optional = collect($this->context['bundle']['optional_one_time_products'])->sum(function ($item) {
-            return (float)$item['product']['price'] * (float)$item['quantity'];
+            return (float) $item['product']['price'] * (float) $item['quantity'];
         });
 
-        return (float)$one_time + (float)$one_time_optional;
+        return (float) $one_time + (float) $one_time_optional;
     }
 
     /**
@@ -154,14 +155,14 @@ class Summary extends Component
         }
 
         $recurring = collect($this->context['bundle']['recurring_products'])->sum(function ($item) {
-            return (float)$item['product']['price'] * (float)$item['quantity'];
+            return (float) $item['product']['price'] * (float) $item['quantity'];
         });
 
         $recurring_optional = collect($this->context['bundle']['optional_recurring_products'])->sum(function ($item) {
-            return (float)$item['product']['price'] * (float)$item['quantity'];
+            return (float) $item['product']['price'] * (float) $item['quantity'];
         });
 
-        return (float)$recurring + (float)$recurring_optional;
+        return (float) $recurring + (float) $recurring_optional;
     }
 
     /**
@@ -179,8 +180,8 @@ class Summary extends Component
     #[Computed]
     public function discount(): float
     {
-        if (!isset($this->context['valid_coupon']) ||
-            $this->context['valid_coupon'] != $this->subscription()->promo_code) {
+        if (!isset($this->context['valid_coupon'])
+            || $this->context['valid_coupon'] != $this->subscription()->promo_code) {
             return 0.0;
         }
 
@@ -270,10 +271,7 @@ class Summary extends Component
     }
 
     #[On('summary.refresh')]
-    public function refresh()
-    {
-
-    }
+    public function refresh() {}
 
     public function render()
     {

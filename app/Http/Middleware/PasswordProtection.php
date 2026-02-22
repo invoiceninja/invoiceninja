@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -56,8 +56,8 @@ class PasswordProtection
         }
 
         // If no password supplied - then we just check if their authentication is in cache //
-        if (Cache::get(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in') && !$x_api_password) {
-            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+        if (Cache::get(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in') && !$x_api_password) {
+            Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
 
             return $next($request);
         } elseif (strlen(auth()->user()->oauth_provider_id ?? '') > 2 && !auth()->user()->company()->oauth_password_required) {
@@ -73,41 +73,45 @@ class PasswordProtection
                 if (is_array($user)) {
                     $query = [
                         'oauth_user_id' => $google->harvestSubField($user),
-                        'oauth_provider_id' => 'google'
+                        'oauth_provider_id' => 'google',
                     ];
 
                     //If OAuth and user also has a password set  - check both
                     if ($existing_user = MultiDB::hasUser($query) && auth()->user()->company()->oauth_password_required && auth()->user()->has_password && Hash::check(auth()->user()->password, $x_api_password)) {
                         nlog("existing user with password");
 
-                        Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                        Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
 
                         return $next($request);
                     } elseif ($existing_user = MultiDB::hasUser($query) && !auth()->user()->company()->oauth_password_required) {
                         nlog("existing user without password");
 
-                        Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                        Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
                         return $next($request);
                     }
                 }
             } elseif (auth()->user()->oauth_provider_id == 'microsoft') {
                 try {
-                    $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', request()->header('X-API-OAUTH-PASSWORD'))[1]))));
+                    $user = Socialite::driver('microsoft')->userFromToken($request->header('X-API-OAUTH-PASSWORD'));
+
+                    // $payload = json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', request()->header('X-API-OAUTH-PASSWORD'))[1]))));
                 } catch (\Exception $e) {
                     nlog("Exception:: PasswordProtection::" . $e->getMessage());
                     nlog("could not decode microsoft response");
                     return response()->json(['message' => 'Could not decode the response from Microsoft'], 412);
                 }
 
-                if ($payload->preferred_username == auth()->user()->email) {
-                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                if ($user && $user->getEmail() === auth()->user()->email) {
+
+                    // if ($payload->preferred_username == auth()->user()->email) {
+                    Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
                     return $next($request);
                 }
             } elseif (auth()->user()->oauth_provider_id == 'apple') {
                 $user = Socialite::driver('apple')->userFromToken($request->header('X-API-OAUTH-PASSWORD'));
 
                 if ($user && ($user->email == auth()->user()->email)) {
-                    Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+                    Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
                     return $next($request);
                 }
             }
@@ -115,7 +119,7 @@ class PasswordProtection
 
             return response()->json($error, 412);
         } elseif ($x_api_password && Hash::check($x_api_password, auth()->user()->password)) {
-            Cache::put(auth()->user()->hashed_id.'_'.auth()->user()->account_id.'_logged_in', Str::random(64), $timeout);
+            Cache::put(auth()->user()->hashed_id . '_' . auth()->user()->account_id . '_logged_in', Str::random(64), $timeout);
 
             return $next($request);
         } else {

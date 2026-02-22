@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,6 +17,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\BankTransaction;
 use App\Listeners\Payment\PaymentTransactionEventEntry;
+use App\Utils\BcMath;
 use Illuminate\Contracts\Container\BindingResolutionException;
 
 /**
@@ -33,9 +34,7 @@ class DeletePayment
      * @param Payment $payment
      * @return void
      */
-    public function __construct(public Payment $payment, private bool $update_client_paid_to_date)
-    {
-    }
+    public function __construct(public Payment $payment, private bool $update_client_paid_to_date) {}
 
     /**
      * @return Payment
@@ -176,7 +175,7 @@ class DeletePayment
 
             });
 
-        } elseif (floatval($this->payment->amount) == floatval($this->payment->applied)) {
+        } elseif (BcMath::equal($this->payment->amount, $this->payment->applied)) {
             // If there are no invoices associated with the payment, we should not be updating the clients paid to date amount
             // The edge case handled here is when an invoice has been "reversed" an associated credit note is created, this is effectively the same
             // payment which can then be used _again_. So the first payment of a reversed invoice should NEVER reduce the paid to date amount.
@@ -190,7 +189,7 @@ class DeletePayment
             $reduced_paid_to_date = $this->payment->amount < 0 ? $this->payment->amount * -1 : min(0, ($this->payment->amount - $this->payment->refunded - $this->_paid_to_date_deleted) * -1);
 
             /** handle the edge case where a partial credit + unapplied payment is deleted */
-            if (floatval($this->total_payment_amount) != floatval($this->_paid_to_date_deleted)) {
+            if (!BcMath::equal($this->total_payment_amount, $this->_paid_to_date_deleted)) {
                 $reduced_paid_to_date = min(0, ($this->total_payment_amount - $this->_paid_to_date_deleted) * -1);
             }
 

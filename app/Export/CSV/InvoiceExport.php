@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -84,7 +84,7 @@ class InvoiceExport extends BaseExport
 
         $query = $this->filterByUserPermissions($query);
 
-        
+
         if ($this->input['document_email_attachment'] ?? false) {
             $this->queueDocuments($query);
         }
@@ -169,7 +169,7 @@ class InvoiceExport extends BaseExport
 
 
             foreach ($this->tax_names as $tax_name) {
-                $labels[] = 'tax.'.$tax_name;
+                $labels[] = 'tax.' . $tax_name;
             }
 
             $this->input['report_keys'] = array_merge($first_part, $labels, $second_part);
@@ -208,7 +208,7 @@ class InvoiceExport extends BaseExport
 
         }
 
-        
+
         if (count($this->tax_names) > 0) {
 
             $calc = $invoice->calc();

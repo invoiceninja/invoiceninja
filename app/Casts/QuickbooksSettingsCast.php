@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,10 +30,9 @@ class QuickbooksSettingsCast implements CastsAttributes
     public function set($model, string $key, $value, array $attributes)
     {
         if ($value instanceof QuickbooksSettings) {
-            return json_encode(get_object_vars($value));
+            return json_encode($value->toArray());
         }
 
         return null;
-        // return json_encode($value);
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class RegistroAlta
 
     private Company $company;
 
-    public InvoiceSum | InvoiceSumInclusive $calc;
+    public InvoiceSum|InvoiceSumInclusive $calc;
 
     private VerifactuInvoice $v_invoice;
 
@@ -59,7 +59,7 @@ class RegistroAlta
         '03' => 'IGIC (Impuesto General Indirecto Canario)', // Canary Islands General Indirect Tax
         '05' => 'Otros (Others)', // Other taxes
         '06' => 'IAE', //local taxes - rarely used
-        '07' => 'Non-Vat / Exempt operations'
+        '07' => 'Non-Vat / Exempt operations',
     ];
 
     private array $clave_regimen_codes = [
@@ -82,14 +82,14 @@ class RegistroAlta
         '17' => 'Régimen Especial de los Bienes de Inversión y Servicios (Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios - Inversión del Sujeto Pasivo)', // Special Investment Goods and Services Regime (Reverse Charge - Investment Goods and Services - Reverse Charge)
         '18' => 'Régimen Especial de los Bienes de Inversión y Servicios (Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios - Inversión del Sujeto Pasivo - Bienes de Inversión)', // Special Investment Goods and Services Regime (Reverse Charge - Investment Goods and Services - Reverse Charge - Investment Goods)
         '19' => 'Régimen Especial de los Bienes de Inversión y Servicios (Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios - Inversión del Sujeto Pasivo - Servicios)', // Special Investment Goods and Services Regime (Reverse Charge - Investment Goods and Services - Reverse Charge - Services)
-        '20' => 'Régimen Especial de los Bienes de Inversión y Servicios (Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios - Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios)' // Special Investment Goods and Services Regime (Reverse Charge - Investment Goods and Services - Reverse Charge - Investment Goods and Services)
+        '20' => 'Régimen Especial de los Bienes de Inversión y Servicios (Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios - Inversión del Sujeto Pasivo - Bienes de Inversión y Servicios)', // Special Investment Goods and Services Regime (Reverse Charge - Investment Goods and Services - Reverse Charge - Investment Goods and Services)
     ];
 
     private array $calificacion_operacion_codes = [
         'S1' => 'OPERACIÓN SUJETA Y NO EXENTA - SIN INVERSIÓN DEL SUJETO PASIVO', // Subject and Non-Exempt Operation - Without Reverse Charge
         'S2' => 'OPERACIÓN SUJETA Y NO EXENTA - CON INVERSIÓN DEL SUJETO PASIVO', // Subject and Non-Exempt Operation - With Reverse Charge
         'N1' => 'OPERACIÓN NO SUJETA ARTÍCULO 7, 14, OTROS', // Non-Subject Operation Article 7, 14, Others
-        'N2' => 'OPERACIÓN NO SUJETA POR REGLAS DE LOCALIZACIÓN' // Non-Subject Operation by Location Rules
+        'N2' => 'OPERACIÓN NO SUJETA POR REGLAS DE LOCALIZACIÓN', // Non-Subject Operation by Location Rules
     ];
 
     public function __construct(public Invoice $invoice)
@@ -223,7 +223,7 @@ class RegistroAlta
                 'CalificacionOperacion' => $this->calculateOperationClassification($tax['name']), //operation classification code
                 'BaseImponible' => $tax['base_amount'] ?? $this->calc->getNetSubtotal(), // taxable base amount - fixed: key matches DetalleDesglose::toXml()
                 'TipoImpositivo' => $tax['tax_rate'], // Tax Rate
-                'Cuota' => $tax['total'] // Tax Amount - fixed: key matches DetalleDesglose::toXml()
+                'Cuota' => $tax['total'], // Tax Amount - fixed: key matches DetalleDesglose::toXml()
             ];
 
             $detalle_desglose = new DetalleDesglose();
@@ -341,8 +341,8 @@ class RegistroAlta
             [
                 'IDEmisorFactura' => $this->company->settings->vat_number,
                 'NumSerieFactura' => $_i->number,
-                'FechaExpedicionFactura' => \Carbon\Carbon::parse($_i->date)->format('d-m-Y')
-            ]
+                'FechaExpedicionFactura' => \Carbon\Carbon::parse($_i->date)->format('d-m-Y'),
+            ],
         ];
 
         $this->v_invoice->setFacturasRectificadas($facturasRectificadas);

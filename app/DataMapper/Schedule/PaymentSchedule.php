@@ -12,7 +12,7 @@ class PaymentSchedule
     public string $template = 'payment_schedule';
 
     /**
-     * 
+     *
      * @var array(
      *  'id' => int,
      *  'date' => string,

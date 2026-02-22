@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,15 +24,12 @@ class InvoiceSyncCast implements CastsAttributes
         }
 
         $data = json_decode($value, true);
-
-        if (!is_array($data)) {
-            return null;
+   
+        if (!is_array($data) || empty($data)) {
+            return null; // Return null if decoded data is not an array or is empty
         }
 
-        $is = new InvoiceSync();
-        $is->qb_id = $data['qb_id'];
-        
-        return $is;
+        return InvoiceSync::fromArray($data);
     }
 
     public function set($model, string $key, $value, array $attributes)
@@ -41,12 +38,12 @@ class InvoiceSyncCast implements CastsAttributes
             return [$key => null];
         }
 
-        $data = [
-            'qb_id' => $value->qb_id,
-        ];
-
         return [
-            $key => json_encode($data)
+            $key => json_encode([
+                'qb_id' => $value->qb_id,
+                'invitations' => $value->invitations,
+                'dn_completed' => $value->dn_completed,
+            ])
         ];
     }
 }

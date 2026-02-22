@@ -186,7 +186,7 @@ class PurchaseOrderExport extends BaseExport
 
         if (in_array('purchase_order.subtotal', $this->input['report_keys'])) {
             $entity['purchase_order.subtotal'] = $purchase_order->calc()->getSubTotal();
-        }   
+        }
 
         return $entity;
     }

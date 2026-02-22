@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -102,9 +102,7 @@ class StorecoveRouter
 
     private $invoice;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Return the routing code based on country and entity classification
@@ -119,7 +117,7 @@ class StorecoveRouter
 
         $code = 'B';
 
-        match($classification) {
+        match ($classification) {
             "business" => $code = "B",
             "government" => $code = "G",
             "individual" => $code = "C",
@@ -174,11 +172,11 @@ class StorecoveRouter
     public function resolveTaxScheme(string $country, ?string $classification = "business"): string
     {
 
-        $rules = isset($this->routing_rules[$country]) ? $this->routing_rules[$country] : [false, false, false, false];
+        $rules = $this->routing_rules[$country] ?? [false, false, false, false];
 
         $code = "B";
 
-        match($classification) {
+        match ($classification) {
             "business" => $code = "B",
             "government" => $code = "G",
             "individual" => $code = "C",
@@ -215,11 +213,10 @@ class StorecoveRouter
         $country = $parts[0];
 
         /** When using HERMES, the country does not resolve, we cast back to BE here. */
-        if($country == 'LEI'){
+        if ($country == 'LEI') {
             $country = 'BE';
             $identifier = 'BE:VAT';
-        }
-        elseif($country == 'GLN'){
+        } elseif ($country == 'GLN') {
             return 'routing_id';
         }
 

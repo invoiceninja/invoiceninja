@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -276,6 +276,10 @@ class SettingsData
 
     public string $email_template_reminder_endless = ''; //@implemented
 
+    public string $email_template_payment_failed = ''; //@implemented
+
+    public string $email_subject_payment_failed = ''; //@implemented
+
     public string $email_signature = ''; //@implemented
 
     public bool $enable_email_markup = true; //@TODO -
@@ -481,7 +485,7 @@ class SettingsData
 
                 try {
                     settype($object->{$key}, gettype($this->{$key}));
-                } catch (\Exception | \Error | \Throwable $e) {
+                } catch (\Exception|\Error|\Throwable $e) {
 
                     if (property_exists($this, $key)) {
                         $object->{$key} = $this->{$key};

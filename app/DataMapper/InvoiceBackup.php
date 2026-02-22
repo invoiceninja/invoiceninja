@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www/elastic.co/licensing/elastic-license
  */
@@ -35,13 +35,13 @@ class InvoiceBackup implements Castable
      * @return void
      */
     public function __construct(
-        public string $guid = '', 
-        public Cancellation $cancellation = new Cancellation(0,0), 
-        public ?string $parent_invoice_id = null, 
-        public ?string $parent_invoice_number = null, 
-        public ?string $document_type = null, 
-        public Collection $child_invoice_ids = new Collection(), 
-        public ?string $redirect = null, 
+        public string $guid = '',
+        public Cancellation $cancellation = new Cancellation(0, 0),
+        public ?string $parent_invoice_id = null,
+        public ?string $parent_invoice_number = null,
+        public ?string $document_type = null,
+        public Collection $child_invoice_ids = new Collection(),
+        public ?string $redirect = null,
         public float $adjustable_amount = 0,
         public ?string $notes = null,
     ) {}
@@ -103,4 +103,3 @@ class InvoiceBackup implements Castable
         return $this->child_invoice_ids->toArray();
     }
 }
-

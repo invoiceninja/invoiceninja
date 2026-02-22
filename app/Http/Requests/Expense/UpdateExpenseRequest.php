@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -49,15 +49,15 @@ class UpdateExpenseRequest extends Request
         }
 
         if ($this->client_id) {
-            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,'.$user->company()->id;
+            $rules['client_id'] = 'bail|sometimes|exists:clients,id,company_id,' . $user->company()->id;
         }
 
-        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,'.$user->company()->id.',is_deleted,0';
-        $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,'.$user->company()->id;
-        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,'.$user->company()->id;
+        $rules['category_id'] = 'bail|sometimes|nullable|exists:expense_categories,id,company_id,' . $user->company()->id . ',is_deleted,0';
+        $rules['transaction_id'] = 'bail|sometimes|nullable|exists:bank_transactions,id,company_id,' . $user->company()->id;
+        $rules['invoice_id'] = 'bail|sometimes|nullable|exists:invoices,id,company_id,' . $user->company()->id;
         $rules['documents'] = 'bail|sometimes|array';
         $rules['amount'] = ['sometimes', 'bail', 'nullable', 'numeric', 'max:99999999999999'];
-        
+
         $rules['file'] = 'bail|sometimes|array';
         $rules['file.*'] = $this->fileValidation();
 

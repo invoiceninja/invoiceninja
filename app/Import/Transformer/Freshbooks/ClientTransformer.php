@@ -32,11 +32,15 @@ class ClientTransformer extends BaseTransformer
             throw new ImportException('Client already exists');
         }
 
+        $address1 = data_get($data, 'Street', data_get($data, 'Address Line 1', ''));
+        $address2 = data_get($data, 'Address Line 2', '');
+
         return [
             'company_id'     => $this->company->id,
             'name'           => $this->getString($data, 'Organization'),
             'phone'     => $this->getString($data, 'Phone'),
-            'address1'       => $this->getString($data, 'Street'),
+            'address1'       => $address1,
+            'address2'       => $address2,
             'city'           => $this->getString($data, 'City'),
             'state'          => $this->getString($data, 'Province/State'),
             'postal_code'    => $this->getString($data, 'Postal Code'),

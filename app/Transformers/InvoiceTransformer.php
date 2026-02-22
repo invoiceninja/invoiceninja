@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -187,6 +187,7 @@ class InvoiceTransformer extends EntityTransformer
             'e_invoice' => $invoice->e_invoice ?: new \stdClass(),
             'backup' => $invoice->backup,
             'location_id' => $this->encodePrimaryKey($invoice->location_id),
+            'sync' => $invoice->sync,
         ];
 
         if (request()->has('reminder_schedule') && request()->query('reminder_schedule') == 'true') {
@@ -196,7 +197,7 @@ class InvoiceTransformer extends EntityTransformer
         if (request()->has('is_locked') && request()->query('is_locked') == 'true') {
             $data['is_locked'] = (bool) $invoice->isLocked();
         }
-        
+
         if (request()->has('show_schedule') && request()->query('show_schedule') == 'true') {
             $data['schedule'] = (array) $invoice->paymentSchedule();
         }

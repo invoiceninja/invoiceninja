@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,21 +33,21 @@ class ExpenseFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('number', 'like', '%'.$filter.'%')
-                ->orWhere('amount', 'like', '%'.$filter.'%')
-                ->orWhere('public_notes', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value1', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+            $query->where('number', 'like', '%' . $filter . '%')
+                ->orWhere('amount', 'like', '%' . $filter . '%')
+                ->orWhere('public_notes', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value1', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                ->orWhere('custom_value4', 'like', '%' . $filter . '%')
                 ->orWhereHas('category', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%'.$filter.'%');
+                    $q->where('name', 'like', '%' . $filter . '%');
                 })
                 ->orWhereHas('vendor', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%'.$filter.'%');
+                    $q->where('name', 'like', '%' . $filter . '%');
                 })
                 ->orWhereHas('client', function ($q) use ($filter) {
-                    $q->where('name', 'like', '%'.$filter.'%');
+                    $q->where('name', 'like', '%' . $filter . '%');
                 });
         });
     }
@@ -229,7 +229,7 @@ class ExpenseFilters extends QueryFilters
             $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
             return $this->builder->withCount('documents')->orderBy('documents_count', $dir);
-        } 
+        }
 
         if (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
             return $this->builder;
@@ -239,7 +239,7 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'client_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(client_id), client_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(client_id), client_id ' . $sort_col[1])
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'expenses.client_id'), $sort_col[1]);
         }
@@ -247,14 +247,14 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'project' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(project_id), project_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(project_id), project_id ' . $sort_col[1])
                     ->orderBy(\App\Models\Project::select('name')
                     ->whereColumn('projects.id', 'expenses.project_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'vendor_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(vendor_id), vendor_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(vendor_id), vendor_id ' . $sort_col[1])
                     ->orderBy(\App\Models\Vendor::select('name')
                     ->whereColumn('vendors.id', 'expenses.vendor_id'), $sort_col[1]);
 
@@ -262,14 +262,14 @@ class ExpenseFilters extends QueryFilters
 
         if ($sort_col[0] == 'category_id' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(category_id), category_id '. $sort_col[1])
+                    ->orderByRaw('ISNULL(category_id), category_id ' . $sort_col[1])
                     ->orderBy(\App\Models\ExpenseCategory::select('name')
                     ->whereColumn('expense_categories.id', 'expenses.category_id'), $sort_col[1]);
         }
 
         if ($sort_col[0] == 'payment_date' && in_array($sort_col[1], ['asc', 'desc'])) {
             return $this->builder
-                    ->orderByRaw('ISNULL(payment_date), payment_date '. $sort_col[1]);
+                    ->orderByRaw('ISNULL(payment_date), payment_date ' . $sort_col[1]);
         }
 
         if ($sort_col[0] == 'number') {

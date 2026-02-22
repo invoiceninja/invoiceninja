@@ -170,8 +170,7 @@ class ProcessBankTransactionsYodlee implements ShouldQueue
                             ->withTrashed()
                             ->exists()) {
                 continue;
-            }
-            elseif (BankTransaction::query() //ensure we don't duplicate transactions that have the same amount, currency, account type, category type, date, and description
+            } elseif (BankTransaction::query() //ensure we don't duplicate transactions that have the same amount, currency, account type, category type, date, and description
                             ->where('company_id', $this->company->id)
                             ->where('bank_integration_id', $this->bank_integration->id)
                             ->where('amount', $transaction['amount'])

@@ -39,9 +39,7 @@ class TransactionReport implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function handle()
     {
@@ -132,7 +130,7 @@ class TransactionReport implements ShouldQueue
                                                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
                                                     'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
                                             } else {
-                                                $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                                                $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
                                             }
 
                                             PaymentFailedMailer::dispatch(
