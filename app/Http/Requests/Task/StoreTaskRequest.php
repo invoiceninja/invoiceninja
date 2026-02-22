@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -48,11 +48,11 @@ class StoreTaskRequest extends Request
         }
 
         if (isset($this->client_id)) {
-            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,'.$user->company()->id.',is_deleted,0';
+            $rules['client_id'] = 'bail|required|exists:clients,id,company_id,' . $user->company()->id . ',is_deleted,0';
         }
 
         if (isset($this->project_id)) {
-            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,'.$user->company()->id.',is_deleted,0';
+            $rules['project_id'] = 'bail|required|exists:projects,id,company_id,' . $user->company()->id . ',is_deleted,0';
         }
 
         $rules['hash'] = 'bail|sometimes|string|nullable';
@@ -64,7 +64,7 @@ class StoreTaskRequest extends Request
             }
 
             if (!is_array($values)) {
-                $fail('The '.$attribute.' must be a valid array.');
+                $fail('The ' . $attribute . ' must be a valid array.');
                 return;
             }
 
@@ -72,37 +72,37 @@ class StoreTaskRequest extends Request
 
                 // Check if this is an array
                 if (!is_array($k)) {
-                    return $fail('Time log entry at position '.$key.' must be an array.');
+                    return $fail('Time log entry at position ' . $key . ' must be an array.');
                 }
 
                 // Check for associative array (has string keys)
                 if (array_keys($k) !== range(0, count($k) - 1)) {
-                    return $fail('Time log entry at position '.$key.' uses invalid format. Expected: [unix_start, unix_end, description, billable]. Received associative array with keys: '.implode(', ', array_keys($k)));
+                    return $fail('Time log entry at position ' . $key . ' uses invalid format. Expected: [unix_start, unix_end, description, billable]. Received associative array with keys: ' . implode(', ', array_keys($k)));
                 }
 
                 // Ensure minimum required elements exist
                 if (!isset($k[0]) || !isset($k[1])) {
-                    return $fail('Time log entry at position '.$key.' must have at least 2 elements: [start_timestamp, end_timestamp].');
+                    return $fail('Time log entry at position ' . $key . ' must have at least 2 elements: [start_timestamp, end_timestamp].');
                 }
 
                 // Validate types for required elements
                 if (!is_int($k[0]) || !is_int($k[1])) {
-                    return $fail('Time log entry at position '.$key.' is invalid. Elements [0] and [1] must be Unix timestamps (integers). Received: '.print_r($k, true));
+                    return $fail('Time log entry at position ' . $key . ' is invalid. Elements [0] and [1] must be Unix timestamps (integers). Received: ' . print_r($k, true));
                 }
 
                 // Validate max elements
-                if(count($k) > 4) {
-                    return $fail('Time log entry at position '.$key.' can only have up to 4 elements. Received '.count($k).' elements.');
+                if (count($k) > 4) {
+                    return $fail('Time log entry at position ' . $key . ' can only have up to 4 elements. Received ' . count($k) . ' elements.');
                 }
 
                 // Validate optional element [2] (description)
                 if (isset($k[2]) && !is_string($k[2])) {
-                    return $fail('Time log entry at position '.$key.': element [2] (description) must be a string. Received: '.gettype($k[2]));
+                    return $fail('Time log entry at position ' . $key . ': element [2] (description) must be a string. Received: ' . gettype($k[2]));
                 }
 
                 // Validate optional element [3] (billable)
-                if(isset($k[3]) && !is_bool($k[3])) {
-                    return $fail('Time log entry at position '.$key.': element [3] (billable) must be a boolean. Received: '.gettype($k[3]));
+                if (isset($k[3]) && !is_bool($k[3])) {
+                    return $fail('Time log entry at position ' . $key . ': element [3] (billable) must be a boolean. Received: ' . gettype($k[3]));
                 }
             }
 
@@ -136,18 +136,23 @@ class StoreTaskRequest extends Request
             $this->files->set('file', [$this->file('file')]);
         }
 
-        if(isset($input['time_log']) &&is_string($input['time_log'])) {
+        if (isset($input['time_log']) && is_string($input['time_log'])) {
             $input['time_log'] = json_decode($input['time_log'], true);
         }
 
-        if(isset($input['time_log']) && is_array($input['time_log'])) {
-        
+        if (isset($input['time_log']) && is_array($input['time_log'])) {
+
             $time_logs = $input['time_log'];
 
-            foreach($time_logs as &$time_log) {
-                
+            foreach ($time_logs as &$time_log) {
+
                 if (is_string($time_log)) {
                     continue; //catch if it isn't even a proper time log
+                }
+
+                // Ensure $time_log is an array before accessing indices
+                if (!is_array($time_log)) {
+                    continue;
                 }
 
                 $time_log[0] = intval($time_log[0] ?? 0);
@@ -161,18 +166,25 @@ class StoreTaskRequest extends Request
 
         }
 
-        if(isset($input['description']) && is_string($input['description'])) {
+        if (isset($input['description']) && is_string($input['description'])) {
             $input['description'] = str_ireplace(['</sc', 'file:/', 'iframe', '<embed', '&lt;embed', '&lt;object', '<object', '127.0.0.1', 'localhost', '<?xml encoding="UTF-8">', '/etc/'], "", $input['description']);
         }
 
         /* Ensure the project is related */
         if (array_key_exists('project_id', $input) && isset($input['project_id'])) {
             $project = Project::withTrashed()->where('id', $input['project_id'])->company()->first();
-            
+
             if ($project) {
                 $input['client_id'] = $project->client_id;
             } else {
                 unset($input['project_id']);
+            }
+        } elseif (array_key_exists('email', $input) && isset($input['email']) && strlen($input['email']) > 3) { // if creating a task via the chrome extension, we can associate the task to the client email.
+            $contact = \App\Models\ClientContact::where('email', $input['email'])->company()->first();
+            if ($contact) {
+                $input['client_id'] = $contact->client_id;
+            } else {
+                unset($input['email']);
             }
         }
 

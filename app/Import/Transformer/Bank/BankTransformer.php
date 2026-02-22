@@ -97,7 +97,7 @@ class BankTransformer extends BaseTransformer
             return 'CREDIT';
         }
 
-        if (array_key_exists('transaction.category_type', $transaction)) {
+        if (array_key_exists('transaction.category_type', $transaction) && strlen($transaction['transaction.category_type']) >= 1) {
             return 'DEBIT';
         }
 

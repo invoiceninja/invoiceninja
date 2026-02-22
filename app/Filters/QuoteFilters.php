@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -36,18 +36,18 @@ class QuoteFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('number', 'like', '%'.$filter.'%')
-                  ->orwhere('custom_value1', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value2', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value3', 'like', '%'.$filter.'%')
-                  ->orWhere('custom_value4', 'like', '%'.$filter.'%')
+            $query->where('number', 'like', '%' . $filter . '%')
+                  ->orwhere('custom_value1', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value2', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value3', 'like', '%' . $filter . '%')
+                  ->orWhere('custom_value4', 'like', '%' . $filter . '%')
                   ->orWhereHas('client', function ($q) use ($filter) {
-                      $q->where('name', 'like', '%'.$filter.'%');
+                      $q->where('name', 'like', '%' . $filter . '%');
                   })
                   ->orWhereHas('client.contacts', function ($q) use ($filter) {
-                      $q->where('first_name', 'like', '%'.$filter.'%')
-                        ->orWhere('last_name', 'like', '%'.$filter.'%')
-                        ->orWhere('email', 'like', '%'.$filter.'%');
+                      $q->where('first_name', 'like', '%' . $filter . '%')
+                        ->orWhere('last_name', 'like', '%' . $filter . '%')
+                        ->orWhere('email', 'like', '%' . $filter . '%');
                   })
                                             ->orWhereRaw("
                             JSON_UNQUOTE(JSON_EXTRACT(
@@ -55,7 +55,7 @@ class QuoteFilters extends QueryFilters
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')), 
                                     JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].product_key'))
                                 ), '$[*]')
-                            ) LIKE ?", ['%'.$filter.'%']);
+                            ) LIKE ?", ['%' . $filter . '%']);
             //   ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(line_items, '$[*].notes')) LIKE ?", ['%'.$filter.'%']);
         });
     }
@@ -85,7 +85,7 @@ class QuoteFilters extends QueryFilters
         }
 
         $this->builder->where(function ($query) use ($status_parameters) {
-            
+
             if (in_array('sent', $status_parameters)) {
                 $query->orWhere(function ($q) {
                     $q->where('status_id', Quote::STATUS_SENT)
@@ -173,7 +173,7 @@ class QuoteFilters extends QueryFilters
         }
 
         if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderByRaw('ISNULL(client_id), client_id '. $dir)
+            return $this->builder->orderByRaw('ISNULL(client_id), client_id ' . $dir)
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'quotes.client_id'), $dir);
         }

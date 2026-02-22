@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -73,7 +73,7 @@ class EmailController extends BaseController
         $company = $entity_obj->company;
 
         /** Force AEAT Submission */
-        if($company->verifactuEnabled() && ($entity_obj instanceof Invoice) && $entity_obj->backup->guid == "") {
+        if ($company->verifactuEnabled() && ($entity_obj instanceof Invoice) && $entity_obj->backup->guid == "") {
             $entity_obj->invitations()->update(['email_error' => 'primed']); // Flag the invitations as primed for AEAT submission
             $entity_obj->service()->markSent()->sendVerifactu();
             return $this->itemResponse($entity_obj->fresh());
@@ -88,8 +88,8 @@ class EmailController extends BaseController
         }
 
         $entity_obj->invitations()
-            ->whereHas('contact', function($query) {
-                $query->where(function ($sq){
+            ->whereHas('contact', function ($query) {
+                $query->where(function ($sq) {
                     $sq->whereNotNull('email')
                     ->orWhere('email', '!=', '');
                 })->where('is_locked', false)
@@ -99,13 +99,13 @@ class EmailController extends BaseController
 
                 $entity_obj->service()->markSent()->save();
 
-                    $mo->invitation_id = $invitation->id;
-                    $mo->client_id = $invitation->contact->client_id ?? null;
-                    $mo->vendor_id = $invitation->contact->vendor_id ?? null;
+                $mo->invitation_id = $invitation->id;
+                $mo->client_id = $invitation->contact->client_id ?? null;
+                $mo->vendor_id = $invitation->contact->vendor_id ?? null;
 
-                    Email::dispatch($mo, $invitation->company);
-                    
-                    $entity_obj->entityEmailEvent($invitation, $template, $template);
+                Email::dispatch($mo, $invitation->company);
+
+                $entity_obj->entityEmailEvent($invitation, $template, $template);
 
             });
 

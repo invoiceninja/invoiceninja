@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,43 +22,41 @@ class MapSettings extends AbstractService
     use MakesHash;
 
     private array $default_settings = [
-       "company_gateway_ids" => "company_gateways",
-       "auto_archive_invoice" => "auto_archive_invoice_help",
-       "enable_client_portal_password" => "enable_portal_password",
-       "enable_client_portal" => "enable_client_portal_help",
-       "signature_on_pdf" => "signature_on_pdf_help",
-       "default_task_rate" => "default_task_rate",
-       "payment_terms" => "payment_terms",
-       "send_reminders" => "send_reminders",
-       "auto_email_invoice" => "auto_email_invoice_help",
-       "entity_send_time" => "send_time",
-       "auto_bill_date" => "auto_bill_on",
-       "valid_until" => "quote_valid_until",
-       "show_accept_invoice_terms" => "show_accept_invoice_terms",
-       "show_accept_quote_terms" => "show_accept_quote_terms",
-       "require_invoice_signature" => "require_invoice_signature",
-       "require_quote_signature" => "require_quote_signature",
-       "client_online_payment_notification" => "online_payment_email",
-       "client_manual_payment_notification" => "manual_payment_email",
-       "send_email_on_mark_paid" => "mark_paid_payment_email",
-       "auto_bill_standard_invoices" => "auto_bill_standard_invoices",
-       "client_portal_enable_uploads" => "client_document_upload",
-       "vendor_portal_enable_uploads" => "vendor_document_upload",
-       "accept_client_input_quote_approval" => "accept_purchase_order_number",
+        "company_gateway_ids" => "company_gateways",
+        "auto_archive_invoice" => "auto_archive_invoice_help",
+        "enable_client_portal_password" => "enable_portal_password",
+        "enable_client_portal" => "enable_client_portal_help",
+        "signature_on_pdf" => "signature_on_pdf_help",
+        "default_task_rate" => "default_task_rate",
+        "payment_terms" => "payment_terms",
+        "send_reminders" => "send_reminders",
+        "auto_email_invoice" => "auto_email_invoice_help",
+        "entity_send_time" => "send_time",
+        "auto_bill_date" => "auto_bill_on",
+        "valid_until" => "quote_valid_until",
+        "show_accept_invoice_terms" => "show_accept_invoice_terms",
+        "show_accept_quote_terms" => "show_accept_quote_terms",
+        "require_invoice_signature" => "require_invoice_signature",
+        "require_quote_signature" => "require_quote_signature",
+        "client_online_payment_notification" => "online_payment_email",
+        "client_manual_payment_notification" => "manual_payment_email",
+        "send_email_on_mark_paid" => "mark_paid_payment_email",
+        "auto_bill_standard_invoices" => "auto_bill_standard_invoices",
+        "client_portal_enable_uploads" => "client_document_upload",
+        "vendor_portal_enable_uploads" => "vendor_document_upload",
+        "accept_client_input_quote_approval" => "accept_purchase_order_number",
     ];
 
-    public function __construct(private Client $client)
-    {
-    }
+    public function __construct(private Client $client) {}
 
     public function run()
     {
         $settings_map = [];
         $group_only_settings = [];
-        $client_settings = (array)$this->client->settings;
+        $client_settings = (array) $this->client->settings;
 
         if ($this->client->group_settings) {
-            $group_settings = (array)$this->client->group_settings->settings;
+            $group_settings = (array) $this->client->group_settings->settings;
             $group_only_settings = array_diff_key($group_settings, $client_settings);
         }
 

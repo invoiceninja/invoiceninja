@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -66,10 +66,10 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
             $response = $this->go_cardless->gateway->billingRequests()->create([
                 "params" => [
                     "mandate_request" => [
-                    "currency" => auth()->guard('contact')->user()->client->currency()->code,
-                    "verify" => $verify
-                    ]
-                ]
+                        "currency" => auth()->guard('contact')->user()->client->currency()->code,
+                        "verify" => $verify,
+                    ],
+                ],
             ]);
         } catch (\Throwable $e) {
             nlog($e->getMessage());
@@ -80,19 +80,19 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
             $brf = $this->go_cardless->gateway->billingRequestFlows()->create([
                 "params" => [
                     "redirect_uri" => route('client.payment_methods.confirm', [
-                            'method' => GatewayType::DIRECT_DEBIT,
-                            'session_token' => $session_token,
-                            'billing_request' => $response->id,
-                            'authorize_then_redirect' => true,
-                            'payment_hash' => $this->go_cardless->payment_hash->hash ?? '',
-                        ]),
+                        'method' => GatewayType::DIRECT_DEBIT,
+                        'session_token' => $session_token,
+                        'billing_request' => $response->id,
+                        'authorize_then_redirect' => true,
+                        'payment_hash' => $this->go_cardless->payment_hash->hash ?? '',
+                    ]),
                     "exit_uri" => $exit_uri,
                     "links" => [
-                    "billing_request" => $response->id
+                        "billing_request" => $response->id,
                     ],
                     "show_redirect_buttons" => true,
                     "show_success_redirect_button" => true,
-                ]
+                ],
             ]);
 
             return redirect($brf->authorisation_url);
@@ -158,7 +158,7 @@ class DirectDebit implements MethodInterface, LivewireMethodInterface
                 $this->go_cardless->payment_hash = PaymentHash::where('hash', $request->payment_hash)->firstOrFail();
 
                 $data = [
-                    'invoices' => collect($this->go_cardless->payment_hash->data->invoices)->map(fn ($invoice) => $invoice->invoice_id)->toArray(),
+                    'invoices' => collect($this->go_cardless->payment_hash->data->invoices)->map(fn($invoice) => $invoice->invoice_id)->toArray(),
                     'action' => 'payment',
                 ];
 

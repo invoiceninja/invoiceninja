@@ -134,7 +134,7 @@ class RotessaPaymentDriver extends BaseDriver
             collect($client_contacts)->each(
                 function ($contact) {
 
-                    $contact = (object)$contact;
+                    $contact = (object) $contact;
 
                     $result = $this->gatewayRequest("get", "customers/{$contact->id}");
                     $result = $result->json();
@@ -159,7 +159,7 @@ class RotessaPaymentDriver extends BaseDriver
 
                 $settings = ClientSettings::defaults();
                 $settings->currency_id = $this->company_gateway->company->getSetting('currency_id');
-                $customer = (object)$customer;
+                $customer = (object) $customer;
                 $client = (\App\Factory\ClientFactory::create($this->company_gateway->company_id, $this->company_gateway->user_id))->fill(
                     [
                         'address1' => $customer->address['address_1'] ?? '',
@@ -189,12 +189,12 @@ class RotessaPaymentDriver extends BaseDriver
             });
         } catch (\Throwable $th) {
             $data = [
-                 'transaction_reference' => null,
-                 'transaction_response' => $th->getMessage(),
-                 'success' => false,
-                 'description' => $th->getMessage(),
-                 'code' => (int) $th->getCode()
-             ];
+                'transaction_reference' => null,
+                'transaction_response' => $th->getMessage(),
+                'success' => false,
+                'description' => $th->getMessage(),
+                'code' => (int) $th->getCode(),
+            ];
             SystemLogger::dispatch(['server_response' => $th->getMessage(), 'data' => $data], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, SystemLog::TYPE_ROTESSA, $this->company_gateway->client, $this->company_gateway->company);
 
             throw $th;
@@ -206,10 +206,10 @@ class RotessaPaymentDriver extends BaseDriver
     public function findOrCreateCustomer(array $data)
     {
         nlog($data);
-        
+
         $result = null;
-        
-        
+
+
         try {
 
             $existing = ClientGatewayToken::query()
@@ -240,10 +240,10 @@ class RotessaPaymentDriver extends BaseDriver
             $gateway_token = $this->storeGatewayToken([
                 'payment_meta' => ['brand' => 'Bank Transfer', 'last4' => substr($data['account_number'], -4), 'type' => GatewayType::ACSS ],
                 'token' => join(".", Arr::only($data, ['id','custom_identifier'])),
-                'payment_method_id' => $payment_method_id ,
+                'payment_method_id' => $payment_method_id,
             ], [
                 'gateway_customer_reference' => $data['id'],
-                'routing_number' => Arr::has($data, 'routing_number') ? $data['routing_number'] : $data['transit_number']
+                'routing_number' => Arr::has($data, 'routing_number') ? $data['routing_number'] : $data['transit_number'],
             ]);
 
             return $data['id'];
@@ -255,7 +255,7 @@ class RotessaPaymentDriver extends BaseDriver
                 'transaction_response' => $th->getMessage(),
                 'success' => false,
                 'description' => $th->getMessage(),
-                'code' => 500
+                'code' => 500,
             ];
 
             SystemLogger::dispatch(['server_response' => $data, 'data' => []], SystemLog::CATEGORY_GATEWAY_RESPONSE, SystemLog::EVENT_GATEWAY_FAILURE, 880, $this->client, $this->company_gateway->company);
@@ -273,7 +273,7 @@ class RotessaPaymentDriver extends BaseDriver
     public function gatewayRequest($verb, $uri, $payload = [])
     {
         $r = Http::withToken($this->company_gateway->getConfigField('apiKey'))
-                ->{$verb}($this->getUrl().$uri, $payload);
+                ->{$verb}($this->getUrl() . $uri, $payload);
 
         nlog($r->body());
 

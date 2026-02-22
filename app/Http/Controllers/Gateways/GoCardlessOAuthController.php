@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,7 +100,8 @@ class GoCardlessOAuthController extends Controller
             'scope' => $response['scope'],
             'active' => $response['active'],
             'accessToken' => $response['access_token'],
-            'testMode' => $company_gateway->getConfigField('testMode'),
+            'testMode' => false,
+            // 'testMode' => $company_gateway->getConfigField('testMode'),
             'oauth2' => true,
         ];
 

@@ -31,7 +31,7 @@ class SupportMessageSent extends Mailable
      */
     public function build()
     {
-        $system_info = request()->has('version') ? 'Version: '.request()->input('version') : 'Version: No Version Supplied.';
+        $system_info = request()->has('version') ? 'Version: ' . request()->input('version') : 'Version: No Version Supplied.';
 
         $log_lines = [];
 
@@ -78,9 +78,9 @@ class SupportMessageSent extends Mailable
         }
 
         if (Ninja::isHosted()) {
-            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} ".date('M jS, g:ia');
+            $subject = "{$priority}Hosted-{$db}-{$is_large}{$platform}{$migrated}{$trial} :: {$plan} :: {$plan_status} " . date('M jS, g:ia');
         } else {
-            $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: ".date('M jS, g:ia');
+            $subject = "{$priority}Self Hosted :: {$plan} :: {$is_large}{$platform}{$migrated} :: " . date('M jS, g:ia');
         }
 
         return $this->from(config('mail.from.address'), $user->present()->name())

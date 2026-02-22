@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Models;
 
 use App\DataMapper\InvoiceBackup;
+use App\DataMapper\InvoiceSync;
 use App\Utils\Ninja;
 use App\Utils\Number;
 use Elastic\ScoutDriverPlus\Searchable;
@@ -82,6 +83,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $custom_surcharge_tax3
  * @property int $custom_surcharge_tax4
  * @property float $exchange_rate
+ * @property int|null $location_id
+ * @property object|null $tax_data
+ * @property InvoiceSync|null $sync
  * @property float $amount
  * @property float $balance
  * @property float|null $partial
@@ -208,6 +212,7 @@ class Credit extends BaseModel
         'deleted_at' => 'timestamp',
         'is_amount_discount' => 'bool',
         'e_invoice' => 'object',
+        'sync' => InvoiceSync::class,
 
     ];
 
@@ -227,27 +232,27 @@ class Credit extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => $this->company->db.":".$this->id,
-            'name' => ctrans('texts.credit') . " " . $this->number . " | " . $this->client->present()->name() .  ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
+            'id' => $this->company->db . ":" . $this->id,
+            'name' => ctrans('texts.credit') . " " . $this->number . " | " . $this->client->present()->name() . ' | ' . Number::formatMoney($this->amount, $this->company) . ' | ' . $this->translateDate($this->date, $this->company->date_format(), $locale),
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
-            'is_deleted' => (bool)$this->is_deleted,
+            'number' => (string) $this->number,
+            'is_deleted' => (bool) $this->is_deleted,
             'amount' => (float) $this->amount,
             'balance' => (float) $this->balance,
             'due_date' => $this->due_date,
             'date' => $this->date,
-            'custom_value1' => (string)$this->custom_value1,
-            'custom_value2' => (string)$this->custom_value2,
-            'custom_value3' => (string)$this->custom_value3,
-            'custom_value4' => (string)$this->custom_value4,
+            'custom_value1' => (string) $this->custom_value1,
+            'custom_value2' => (string) $this->custom_value2,
+            'custom_value3' => (string) $this->custom_value3,
+            'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
-            'po_number' => (string)$this->po_number,
+            'po_number' => (string) $this->po_number,
         ];
     }
 
     public function getScoutKey()
     {
-        return $this->company->db.":".$this->id;
+        return $this->company->db . ":" . $this->id;
     }
 
     public function getEntityType()
@@ -371,7 +376,7 @@ class Credit extends BaseModel
      *
      * @return InvoiceSumInclusive | InvoiceSum The invoice calculator object getters
      */
-    public function calc(): InvoiceSumInclusive | InvoiceSum
+    public function calc(): InvoiceSumInclusive|InvoiceSum
     {
         $credit_calc = null;
 

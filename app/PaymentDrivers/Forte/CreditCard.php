@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,12 +64,12 @@ class CreditCard implements LivewireMethodInterface
         $cst = $this->forte->findOrCreateCustomer();
 
         $data = [
-            "label" => $request->card_holders_name." " .$request->card_type,
-            "notes" => $request->card_holders_name." " .$request->card_type,
+            "label" => $request->card_holders_name . " " . $request->card_type,
+            "notes" => $request->card_holders_name . " " . $request->card_type,
             "card" => [
                 "one_time_token" => $request->one_time_token,
-                "name_on_card" => $request->card_holders_name
-                ],
+                "name_on_card" => $request->card_holders_name,
+            ],
         ];
 
         $response = $this->forte->stubRequest()
@@ -127,8 +127,8 @@ class CreditCard implements LivewireMethodInterface
             "notes" => $this->forte->client->present()->name(),
             "card" => [
                 "one_time_token" => $request->payment_token,
-                "name_on_card" => $this->forte->client->present()->first_name(). " ". $this->forte->client->present()->last_name()
-                ],
+                "name_on_card" => $this->forte->client->present()->first_name() . " " . $this->forte->client->present()->last_name(),
+            ],
         ];
 
         $response = $this->forte->stubRequest()
@@ -203,7 +203,7 @@ class CreditCard implements LivewireMethodInterface
             $curl = curl_init();
 
             curl_setopt_array($curl, [
-                CURLOPT_URL => $this->forte_base_uri.'organizations/'.$this->forte_organization_id.'/locations/'.$this->forte_location_id.'/transactions',
+                CURLOPT_URL => $this->forte_base_uri . 'organizations/' . $this->forte_organization_id . '/locations/' . $this->forte_location_id . '/transactions',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => '',
                 CURLOPT_MAXREDIRS => 10,
@@ -213,22 +213,22 @@ class CreditCard implements LivewireMethodInterface
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => '{
                      "action":"sale", 
-                     "authorization_amount":'.$amount_with_fee.',
-                     "service_fee_amount":'.$fee_total.',
+                     "authorization_amount":' . $amount_with_fee . ',
+                     "service_fee_amount":' . $fee_total . ',
                      "billing_address":{
-                        "first_name":"'.$this->forte->client->present()->first_name().'",
-                        "last_name":"'.$this->forte->client->present()->last_name().'"
+                        "first_name":"' . $this->forte->client->present()->first_name() . '",
+                        "last_name":"' . $this->forte->client->present()->last_name() . '"
                      },
                      "card":{
-                        "one_time_token":"'.$request->payment_token.'"
+                        "one_time_token":"' . $request->payment_token . '"
                      }
               }',
                 CURLOPT_HTTPHEADER => [
-                  'Content-Type: application/json',
-                  'X-Forte-Auth-Organization-Id: '.$this->forte_organization_id,
-                  'Authorization: Basic '.base64_encode($this->forte_api_access_id.':'.$this->forte_secure_key)
+                    'Content-Type: application/json',
+                    'X-Forte-Auth-Organization-Id: ' . $this->forte_organization_id,
+                    'Authorization: Basic ' . base64_encode($this->forte_api_access_id . ':' . $this->forte_secure_key),
                 ],
-              ]);
+            ]);
 
             $response = curl_exec($curl);
             $httpcode = curl_getinfo($curl, CURLINFO_HTTP_CODE);

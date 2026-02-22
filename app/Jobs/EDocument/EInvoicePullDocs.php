@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -29,7 +29,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Services\EDocument\Gateway\Storecove\Storecove;
 use App\Utils\Traits\Notifications\UserNotifies;
 
-
 class EInvoicePullDocs implements ShouldQueue
 {
     use Dispatchable;
@@ -44,14 +43,12 @@ class EInvoicePullDocs implements ShouldQueue
     public $tries = 1;
 
     private int $einvoice_received_count = 0;
-    
-    public function __construct()
-    {
-    }
+
+    public function __construct() {}
 
     public function handle()
     {
-        nlog("Pulling Peppol Docs ". now()->format('Y-m-d h:i:s'));
+        nlog("Pulling Peppol Docs " . now()->format('Y-m-d h:i:s'));
 
         if (Ninja::isHosted()) {
             return;
@@ -99,15 +96,15 @@ class EInvoicePullDocs implements ShouldQueue
 
 
 
-                        if($this->einvoice_received_count > 0) {
+                        if ($this->einvoice_received_count > 0) {
 
                             foreach ($company->company_users as $company_user) {
-                                
+
                                 $user = $company_user->user;
 
                                 $notifications = $this->findCompanyUserNotificationType($company_user, ['enable_e_invoice_received_notification']);
 
-                                if(!array_search('mail', $notifications)){
+                                if (!array_search('mail', $notifications)) {
                                     continue;
                                 }
 
@@ -120,7 +117,7 @@ class EInvoicePullDocs implements ShouldQueue
                                 $mo->company_key = $company->company_key;
                                 $mo->html_template = 'email.template.admin';
                                 $mo->to = [new Address($user->email, $user->present()->name())];
-                        
+
                                 Email::dispatch($mo, $company);
                             }
                         }
@@ -137,8 +134,17 @@ class EInvoicePullDocs implements ShouldQueue
 
         $mail_payload = [];
 
+        $this->einvoice_received_count = count($received_documents);
+
         foreach ($received_documents as $document) {
+        
             nlog($document);
+
+            if(!isset($document['document']['invoice'])) {
+                nlog("No invoice found in document!!");
+                continue;
+            }
+
             $storecove_invoice = $storecove->expense->getStorecoveInvoice(json_encode($document['document']['invoice']));
             $expense = $storecove->expense->createExpense($storecove_invoice, $company);
 
@@ -181,7 +187,7 @@ class EInvoicePullDocs implements ShouldQueue
                 'account_key' => $company->account->key,
                 'company_key' => $company->company_key,
                 'legal_entity_id' => $company->legal_entity_id,
-                'hash'  => $hash
+                'hash'  => $hash,
             ]);
 
         if ($response->successful()) {

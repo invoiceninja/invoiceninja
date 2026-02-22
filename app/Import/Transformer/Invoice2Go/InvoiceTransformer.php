@@ -57,8 +57,8 @@ class InvoiceTransformer extends BaseTransformer
             'date'        => isset($invoice_data['DocumentDate']) ? $this->parseDate($invoice_data['DocumentDate']) : null,
             // 'currency_id' => $this->getCurrencyByCode( $invoice_data, 'Currency' ),
             'amount'      => $this->getFloat($invoice_data, 'TotalAmount'),
-            'status_id'   => $invoiceStatusMap[$status =
-                    strtolower($this->getString($invoice_data, 'DocumentStatus'))] ?? Invoice::STATUS_SENT,
+            'status_id'   => $invoiceStatusMap[$status
+                    = strtolower($this->getString($invoice_data, 'DocumentStatus'))] ?? Invoice::STATUS_SENT,
             // 'viewed'      => $status === 'viewed',
             'line_items'  => $this->harvestLineItems($invoice_data),
         ];
@@ -108,7 +108,7 @@ class InvoiceTransformer extends BaseTransformer
                 [
                     'date'   => $this->parseDate($invoice_data['DatePaid']),
                     'amount' => $this->getFloat($invoice_data, 'AmountPaidAmount'),
-                ]
+                ],
             ];
         } elseif (isset($invoice_data['DocumentStatus']) && $invoice_data['DocumentStatus'] == 'fully_paid') {
 
@@ -116,7 +116,7 @@ class InvoiceTransformer extends BaseTransformer
                 [
                     'date'   => isset($invoice_data['DatePaid']) ? $this->parseDate($invoice_data['DatePaid']) : ($this->parseDate($invoice_data['DocumentDate']) ?? now()->format('Y-m-d')),
                     'amount' => $this->getFloat($invoice_data, 'TotalAmount'),
-                ]
+                ],
             ];
 
         }
@@ -190,8 +190,8 @@ class InvoiceTransformer extends BaseTransformer
     private function harvestLineItems(array $invoice_data): array
     {
 
-        $default_data =
-            [
+        $default_data
+            = [
                 [
                     'cost'             	  => $this->getFloat($invoice_data, 'TotalAmount'),
                     'quantity'           => 1,

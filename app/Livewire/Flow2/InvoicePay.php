@@ -5,23 +5,23 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Livewire\Flow2;
 
-use App\Libraries\MultiDB;
-use App\Models\CompanyGateway;
-use App\Models\Invoice;
 use App\Utils\Number;
-use App\Utils\Traits\MakesDates;
-use App\Utils\Traits\MakesHash;
-use App\Utils\Traits\WithSecureContext;
-use Livewire\Attributes\Computed;
-use Livewire\Attributes\On;
+use App\Models\Invoice;
 use Livewire\Component;
+use App\Libraries\MultiDB;
+use Livewire\Attributes\On;
+use App\Models\CompanyGateway;
+use App\Utils\Traits\MakesHash;
+use App\Utils\Traits\MakesDates;
+use Livewire\Attributes\Computed;
+use App\Utils\Traits\WithSecureContext;
 
 class InvoicePay extends Component
 {
@@ -94,6 +94,9 @@ class InvoicePay extends Component
 
     public $required_fields = false;
 
+    public $docu_ninja_active = false;
+    public $docu_ninja_ready = false;
+
     #[On('update.context')]
     public function handleContext(string $key, string $property, $value): self
     {
@@ -119,6 +122,21 @@ class InvoicePay extends Component
         $this->setContext($invite->key, 'signature', $base64); // $this->context['signature'] = $base64;
         $invite->save();
 
+    }
+
+    #[On('docuninja-signature-captured')]
+    public function docuNinjaSignatureCaptured()
+    {
+        $this->signature_accepted = true;
+
+        // @todo: Rest of events...
+    }
+
+    /** We need to have a valid docuninja payload prior to calling the DocuNinja component. */
+    #[On('docuninja-loader-ready')]
+    public function docuninjaLoaderReady()
+    {
+        $this->docu_ninja_ready = true;    
     }
 
     #[On('payable-amount')]
@@ -169,7 +187,7 @@ class InvoicePay extends Component
 
         $fields = $company_gateway->driver($contact->client)->getClientRequiredFields();
 
-        $this->setContext($invite->key,'fields', $fields); // $this->context['fields'] = $fields;
+        $this->setContext($invite->key, 'fields', $fields); // $this->context['fields'] = $fields;
 
         foreach ($fields as $index => $field) {
             $_field = $this->mappings[$field['name']];
@@ -206,7 +224,15 @@ class InvoicePay extends Component
             return Terms::class;
         }
 
-        if (!$this->signature_accepted) {
+        /** Async loading of DocuNinja component needs to be done like this. ie. need full payload prior to passing in. */
+        if($this->docu_ninja_active && !$this->signature_accepted) {
+            if ($this->docu_ninja_ready) {
+                return \App\Livewire\Flow2\DocuNinja::class;
+            } else {
+                return \App\Livewire\Flow2\DocuNinjaLoader::class;
+            }
+        }
+        elseif (!$this->signature_accepted && !$this->docu_ninja_active) {
             return Signature::class;
         }
 
@@ -235,8 +261,6 @@ class InvoicePay extends Component
     public function mount()
     {
 
-        // $this->resetContext();
-
         MultiDB::setDb($this->db);
 
         // @phpstan-ignore-next-line
@@ -245,13 +269,15 @@ class InvoicePay extends Component
         $client = $invite->contact->client;
         $settings = $client->getMergedSettings();
 
+        $this->docu_ninja_active = $invite->company->docuninjaActive(); //Is the company an Active DocuNinja User - or bypass completely if signed!
+
         $this->bulkSetContext($invite->key, [
             'contact' => $invite->contact,
             'settings' => $settings,
             'db' => $this->db,
             'invitation_id' => $this->invitation_id,
+            'entity_type' => 'invoice',
         ]);
-
 
         $invoices = Invoice::withTrashed()
                                     ->whereIn('id', $this->transformKeys($this->invoices))
@@ -273,6 +299,10 @@ class InvoicePay extends Component
         $this->signature_accepted = !$settings->require_invoice_signature;
         $this->under_over_payment = $settings->client_portal_allow_over_payment || $settings->client_portal_allow_under_payment;
         $this->required_fields = false;
+
+        if($invite->invoice->sync?->dn_completed === true){
+            $this->signature_accepted = true;
+        }
 
         $payable_invoices = $invoices->map(function ($i) {
             /** @var \App\Models\Invoice $i */
@@ -302,6 +332,8 @@ class InvoicePay extends Component
 
     public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
+        MultiDB::setDb($this->db);
+
         //@phpstan-ignore-next-line
         $invite = \App\Models\InvoiceInvitation::with('contact.client', 'company')->withTrashed()->find($this->invitation_id);
 

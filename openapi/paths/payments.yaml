@@ -467,7 +467,7 @@
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Payment response"

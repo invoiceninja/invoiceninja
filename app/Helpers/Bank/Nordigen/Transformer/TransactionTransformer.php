@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -130,14 +130,14 @@ class TransactionTransformer implements BankRevenueInterface
         }
 
         // participant data
-        $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"]) ?
-            $transaction['debtorAccount']['iban'] :
-            (array_key_exists('creditorAccount', $transaction) && array_key_exists('iban', $transaction["creditorAccount"]) ?
-                $transaction['creditorAccount']['iban'] : null);
-        $participant_name = array_key_exists('debtorName', $transaction) ?
-            $transaction['debtorName'] :
-            (array_key_exists('creditorName', $transaction) ?
-                $transaction['creditorName'] : null);
+        $participant = array_key_exists('debtorAccount', $transaction) && array_key_exists('iban', $transaction["debtorAccount"])
+            ? $transaction['debtorAccount']['iban']
+            : (array_key_exists('creditorAccount', $transaction) && array_key_exists('iban', $transaction["creditorAccount"])
+                ? $transaction['creditorAccount']['iban'] : null);
+        $participant_name = array_key_exists('debtorName', $transaction)
+            ? $transaction['debtorName']
+            : (array_key_exists('creditorName', $transaction)
+                ? $transaction['creditorName'] : null);
 
         $data = [
             'transaction_id' => 0,

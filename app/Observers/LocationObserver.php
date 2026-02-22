@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -52,10 +52,7 @@ class LocationObserver
      * @param Location $location
      * @return void
      */
-    public function deleted(Location $location)
-    {
-
-    }
+    public function deleted(Location $location) {}
 
     /**
      * Handle the location "restored" event.
@@ -63,10 +60,7 @@ class LocationObserver
      * @param Location $location
      * @return void
      */
-    public function restored(Location $location)
-    {
-
-    }
+    public function restored(Location $location) {}
 
     /**
      * Handle the location "force deleted" event.

@@ -82,6 +82,74 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+  /api/v1/activities/entity:
+    post:
+      tags:
+        - activities
+      summary: "Entity activity"
+      description: "Returns activity for a given entity"
+      operationId: postActivitiesEntity
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Entity activity response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/activities/notes:
+    post:
+      tags:
+        - activities
+      summary: "Activity note"
+      description: "Creates or updates an activity note"
+      operationId: postActivitiesNotes
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Activity note response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
 
   /api/v1/login:
     post:
@@ -276,7 +344,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "A list of bank integrations"
@@ -578,7 +646,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -731,7 +799,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "A list of bank integrations"
@@ -1008,7 +1076,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_transations/bulk:
+  /api/v1/bank_transactions/bulk:
     post:
       tags:
         - bank_transactions
@@ -1029,7 +1097,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -1052,7 +1120,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_transations/match:
+  /api/v1/bank_transactions/match:
     post:
       tags:
         - bank_transactions
@@ -1095,7 +1163,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -1137,7 +1205,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "A list of bank integrations"
@@ -1418,11 +1486,11 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_transation_rules/bulk:
+  /api/v1/bank_transaction_rules/bulk:
     post:
       tags:
         - bank_transaction_rules
-      summary: "Performs bulk actions on an array of bank_transation rules"
+      summary: "Performs bulk actions on an array of bank_transaction rules"
       description: ""
       operationId: bulkBankTransactionRules
       parameters:
@@ -1439,7 +1507,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -1481,7 +1549,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "json dataset of chart data"
@@ -1498,6 +1566,102 @@ paths:
           $ref: "#/components/responses/429"
         5XX:
           description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/charts/totals_v2:
+    post:
+      tags:
+        - charts
+      summary: "Get chart data v2"
+      description: "Get chart data (v2)"
+      operationId: getChartTotalsV2
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "json dataset of chart data"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/charts/chart_summary_v2:
+    post:
+      tags:
+        - charts
+      summary: "Get chart summary v2"
+      description: "Get chart summary (v2)"
+      operationId: getChartSummaryV2
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "json dataset of chart summary"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/charts/calculated_fields:
+    post:
+      tags:
+        - charts
+      summary: "Get calculated fields"
+      description: "Get chart calculated fields"
+      operationId: getChartCalculatedFields
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "json dataset of calculated fields"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
         default:
           $ref: "#/components/responses/default"
 
@@ -2526,7 +2690,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Company Gateways response"
@@ -2952,7 +3116,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Design User response"
@@ -3070,7 +3234,7 @@ paths:
                     - email_template_custom3
                     - email_template_purchase_order
                     - email_quote_template_reminder1
-                  example: invoice
+                  example: email_template_invoice
               type: object
       responses:
         200:
@@ -3371,7 +3535,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The ExpenseCategory List response"
@@ -3679,7 +3843,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Expense User response"
@@ -4071,7 +4235,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -4434,7 +4598,6 @@ paths:
           schema:
             type: object
             format: file
-          example: migration.zip
       responses:
         200:
           description: Success
@@ -4773,7 +4936,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Payment Terms response"
@@ -4815,6 +4978,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
   /api/v1/health_check:
     get:
       tags:
@@ -4834,6 +4999,34 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+  /api/v1/last_error:
+    get:
+      tags:
+        - ping
+      summary: "Returns the last error"
+      description: "Returns the last error from the API"
+      operationId: getLastError
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Last error response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        default:
+          $ref: "#/components/responses/default"
   /api/v1/postmark_webhook:
     post:
       tags:
@@ -5207,7 +5400,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The RecurringExpense User response"
@@ -5573,7 +5766,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The RecurringQuote response"
@@ -5711,7 +5904,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/reports/credit:
+  /api/v1/reports/credits:
     post:
       tags:
         - reports
@@ -5777,7 +5970,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/reports/expense:
+  /api/v1/reports/expenses:
     post:
       tags:
         - reports
@@ -6140,6 +6333,416 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+  /api/v1/reports/activities:
+    post:
+      tags:
+        - reports
+      summary: "Activity reports"
+      description: "Export activity reports"
+      operationId: getActivityReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/client_contacts:
+    post:
+      tags:
+        - reports
+      summary: "Client contact reports"
+      description: "Export client contact reports"
+      operationId: getClientContactReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/ar_detail_report:
+    post:
+      tags:
+        - reports
+      summary: "AR detail report"
+      description: "Export AR detail report"
+      operationId: getARDetailReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/ar_summary_report:
+    post:
+      tags:
+        - reports
+      summary: "AR summary report"
+      description: "Export AR summary report"
+      operationId: getARSummaryReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/client_balance_report:
+    post:
+      tags:
+        - reports
+      summary: "Client balance report"
+      description: "Export client balance report"
+      operationId: getClientBalanceReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/client_sales_report:
+    post:
+      tags:
+        - reports
+      summary: "Client sales report"
+      description: "Export client sales report"
+      operationId: getClientSalesReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/tax_summary_report:
+    post:
+      tags:
+        - reports
+      summary: "Tax summary report"
+      description: "Export tax summary report"
+      operationId: getTaxSummaryReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/tax_period_report:
+    post:
+      tags:
+        - reports
+      summary: "Tax period report"
+      description: "Export tax period report"
+      operationId: getTaxPeriodReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/user_sales_report:
+    post:
+      tags:
+        - reports
+      summary: "User sales report"
+      description: "Export user sales report"
+      operationId: getUserSalesReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/projects:
+    post:
+      tags:
+        - reports
+      summary: "Project reports"
+      description: "Export project reports"
+      operationId: getProjectReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/preview/{hash}":
+    post:
+      tags:
+        - reports
+      summary: "Report preview"
+      description: "Preview a report by hash"
+      operationId: getReportPreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: hash
+          in: path
+          description: "The report hash"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/exports/preview/{hash}":
+    post:
+      tags:
+        - reports
+      summary: "Export preview"
+      description: "Preview an export by hash"
+      operationId: getExportPreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: hash
+          in: path
+          description: "The export hash"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
   /api/v1/self-update:
     post:
       tags:
@@ -6161,6 +6764,32 @@ paths:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/self-update/check_version:
+    post:
+      tags:
+        - update
+      summary: "Check for available update"
+      description: "Checks for an available system update"
+      operationId: selfUpdateCheckVersion
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Version check response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         default:
           $ref: "#/components/responses/default"
   /api/v1/statics:
@@ -6476,7 +7105,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Subscription response"
@@ -6497,6 +7126,32 @@ paths:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/scheduler:
+    get:
+      tags:
+        - scheduler
+      summary: "Get scheduler status"
+      description: "Returns the task scheduler status and job list"
+      operationId: getScheduler
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Scheduler status response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         default:
           $ref: "#/components/responses/default"
   /api/v1/support/messages/send:
@@ -6537,7 +7192,11 @@ paths:
                 items:
                   description: "Server response"
                   type: string
-                  example: true
+                  example: "success"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
   /api/v1/system_logs:
@@ -6622,7 +7281,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   
-  /api/v1/task_schedulers/:
+  /api/v1/task_schedulers:
     get:
       tags:
         - task_schedulers
@@ -6641,6 +7300,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
     post:
@@ -6736,6 +7397,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
     put:
@@ -6805,6 +7468,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
   /api/v1/task_schedulers/bulk:
@@ -6828,7 +7493,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The TaskSchedule response"
@@ -7143,7 +7808,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The TaskStatus Terms response"
@@ -7411,7 +8076,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The TaxRate List response"
@@ -7471,6 +8136,80 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Template"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/templates/preview/{hash}":
+    post:
+      tags:
+        - templates
+      summary: "Preview template by hash"
+      description: "Returns a template preview for the given hash"
+      operationId: getTemplatePreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: hash
+          in: path
+          description: "The template hash"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Template preview response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/search:
+    post:
+      tags:
+        - search
+      summary: "Search"
+      description: "Performs a search across entities"
+      operationId: postSearch
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Search results"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7764,7 +8503,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Token response"
@@ -8079,7 +8818,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The User response"
@@ -8526,7 +9265,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Webhook User response"

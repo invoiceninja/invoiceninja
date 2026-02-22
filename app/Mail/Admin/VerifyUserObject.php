@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,9 +22,7 @@ class VerifyUserObject
 {
     use MakesHash;
 
-    public function __construct(public User $user, public Company $company, private bool $is_react = false)
-    {
-    }
+    public function __construct(public User $user, public Company $company, private bool $is_react = false) {}
 
     public function build()
     {
@@ -50,7 +48,7 @@ class VerifyUserObject
         $data = [
             'title' => ctrans('texts.confirmation_subject'),
             'content' => ctrans('texts.confirmation_message'),
-            'url' => url("/user/confirm/{$this->user->confirmation_code}".$react_redirect),
+            'url' => url("/user/confirm/{$this->user->confirmation_code}" . $react_redirect),
             'button' => ctrans('texts.button_confirmation_message'),
             'settings' => $this->company->settings,
             'logo' => $this->company->present()->logo(),

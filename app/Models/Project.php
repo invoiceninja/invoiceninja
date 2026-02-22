@@ -1,10 +1,11 @@
 <?php
+
 /**
  * Invoice Ninja (https://invoiceninja.com).
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -122,28 +123,28 @@ class Project extends BaseModel
         App::setLocale($locale);
 
         return [
-            'id' => (string)$this->company->db.":".$this->id,
-            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name .  " | " . $this->client->present()->name(),
+            'id' => (string) $this->company->db . ":" . $this->id,
+            'name' => ctrans('texts.project') . " " . $this->number . ' | ' . $this->name . " | " . $this->client->present()->name(),
             'hashed_id' => $this->hashed_id,
-            'number' => (string)$this->number,
+            'number' => (string) $this->number,
             'is_deleted' => $this->is_deleted,
             'task_rate' => (float) $this->task_rate,
             'budgeted_hours' => (float) $this->budgeted_hours,
             'due_date' => $this->due_date,
-            'custom_value1' => (string)$this->custom_value1,
-            'custom_value2' => (string)$this->custom_value2,
-            'custom_value3' => (string)$this->custom_value3,
-            'custom_value4' => (string)$this->custom_value4,
+            'custom_value1' => (string) $this->custom_value1,
+            'custom_value2' => (string) $this->custom_value2,
+            'custom_value3' => (string) $this->custom_value3,
+            'custom_value4' => (string) $this->custom_value4,
             'company_key' => $this->company->company_key,
             'private_notes' => (string) $this->private_notes ?: '',
             'public_notes' => (string) $this->public_notes ?: '',
             'current_hours' => (int) $this->current_hours ?: 0,
         ];
     }
-    
+
     public function getScoutKey()
     {
-        return (string)$this->company->db.":".$this->id;
+        return (string) $this->company->db . ":" . $this->id;
     }
 
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo

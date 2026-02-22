@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -65,7 +65,7 @@ class CreateUbl implements ShouldQueue
         // invoice
         $ubl_invoice->setId($invoice->number);
         $ubl_invoice->setIssueDate(date_create($invoice->date));
-        $ubl_invoice->setInvoiceTypeCode($invoice->amount < 0 ? (string)self::INVOICE_TYPE_CREDIT : (string)self::INVOICE_TYPE_STANDARD);
+        $ubl_invoice->setInvoiceTypeCode($invoice->amount < 0 ? (string) self::INVOICE_TYPE_CREDIT : (string) self::INVOICE_TYPE_STANDARD);
 
         $supplier_party = $this->createParty($company, $invoice->user);
         $ubl_invoice->setAccountingSupplierParty($supplier_party);

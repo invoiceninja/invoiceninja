@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -34,7 +34,7 @@ class ShowActivityRequest extends Request
     {
         return [
             'entity' => 'bail|required|in:invoice,quote,credit,purchase_order,payment,client,vendor,expense,task,project,subscription,recurring_invoice,',
-            'entity_id' => 'bail|required|exists:'.$this->entity.'s,id,company_id,'.auth()->user()->company()->id,
+            'entity_id' => 'bail|required|exists:' . $this->entity . 's,id,company_id,' . auth()->user()->company()->id,
         ];
     }
 
@@ -56,9 +56,9 @@ class ShowActivityRequest extends Request
             return false;
         }
 
-        $class = "\\App\\Models\\".ucfirst(Str::camel(rtrim($this->entity, 's')));
+        $class = "\\App\\Models\\" . ucfirst(Str::camel(rtrim($this->entity, 's')));
         return $class::withTrashed()->company()->where('id', is_string($this->entity_id) ? $this->decodePrimaryKey($this->entity_id) : $this->entity_id)->first();
 
     }
-    
+
 }

@@ -31,18 +31,15 @@ namespace App\Services\Pdf;
  */
 class JsonDesignService
 {
-    private PdfService $pdfService;
-    private array $jsonDesign;
+    
     private JsonToSectionsAdapter $adapter;
 
     /**
      * @param PdfService $pdfService
      * @param array $jsonDesign Complete JSON design with blocks and pageSettings
      */
-    public function __construct(PdfService $pdfService, array $jsonDesign)
+    public function __construct(private PdfService $pdfService, private array $jsonDesign)
     {
-        $this->pdfService = $pdfService;
-        $this->jsonDesign = $jsonDesign;
         $this->adapter = new JsonToSectionsAdapter($jsonDesign, $pdfService);
     }
 
@@ -74,8 +71,8 @@ class JsonDesignService
         // This prevents buildSections() from generating default sections
         $this->pdfService->document_type = 'json_design';
 
-        // Populate table bodies before injecting sections
-        $sections = $this->populateTableBodies($sections, $builder);
+        // Table bodies are already built by JsonToSectionsAdapter with custom columns
+        // No need to populate them here
 
         // Inject our sections before build
         $builder->setSections($sections);
@@ -86,64 +83,16 @@ class JsonDesignService
         $builder->build();
 
         // Get the compiled HTML
-        return $builder->getCompiledHTML();
+        $html = $builder->getCompiledHTML();
+
+        // Log the final HTML output before PDF conversion
+        \Log::info('=== JSON Design: Final HTML Output (Before PDF Conversion) ===');
+        \Log::info($html);
+        \Log::info('=== End of HTML Output ===');
+
+        return $html;
     }
 
-    /**
-     * Populate table bodies in sections using PdfBuilder
-     *
-     * Finds table elements in sections and populates their tbody
-     * using PdfBuilder's buildTableBody() method.
-     *
-     * @param array $sections
-     * @param PdfBuilder $builder
-     * @return array
-     */
-    private function populateTableBodies(array $sections, PdfBuilder $builder): array
-    {
-        foreach ($sections as $sectionId => &$section) {
-            if (isset($section['elements'])) {
-                $section['elements'] = $this->populateTableBodyElements($section['elements'], $builder);
-            }
-        }
-
-        return $sections;
-    }
-
-    /**
-     * Recursively populate table body elements
-     *
-     * @param array $elements
-     * @param PdfBuilder $builder
-     * @return array
-     */
-    private function populateTableBodyElements(array $elements, PdfBuilder $builder): array
-    {
-        foreach ($elements as &$element) {
-            // Check if this is a table element
-            if (isset($element['element']) && $element['element'] === 'table') {
-                // Check if it has a data-table-type attribute
-                $tableType = $element['properties']['data-table-type'] ?? null;
-
-                if ($tableType && isset($element['elements'])) {
-                    // Find tbody in table elements
-                    foreach ($element['elements'] as &$tableChild) {
-                        if (isset($tableChild['element']) && $tableChild['element'] === 'tbody') {
-                            // Populate tbody with rows from PdfBuilder
-                            $tableChild['elements'] = $builder->buildTableBody('$' . $tableType);
-                        }
-                    }
-                }
-            }
-
-            // Recurse into nested elements
-            if (isset($element['elements'])) {
-                $element['elements'] = $this->populateTableBodyElements($element['elements'], $builder);
-            }
-        }
-
-        return $elements;
-    }
 
     /**
      * Generate base HTML template structure for JSON designs
@@ -185,23 +134,23 @@ class JsonDesignService
         }
 
         return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
-    <style>
-        {$pageCSS}
-    </style>
-</head>
-<body>
-    <div class="invoice-container">
-        {$blockContainers}
-    </div>
-</body>
-</html>
-HTML;
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Invoice</title>
+                <style>
+                    {$pageCSS}
+                </style>
+            </head>
+            <body>
+                <div class="invoice-container">
+                    {$blockContainers}
+                </div>
+            </body>
+            </html>
+            HTML;
     }
 
     /**
@@ -221,53 +170,53 @@ HTML;
         $backgroundColor = $pageSettings['backgroundColor'] ?? '#ffffff';
 
         return <<<CSS
-        @page {
-            size: {$pageSize};
-            margin: {$pageMargins};
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: {$fontFamily};
-            font-size: {$fontSize};
-            color: {$textColor};
-            line-height: {$lineHeight};
-            background-color: {$backgroundColor};
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-        .invoice-container {
-            width: 794px;
-            background: {$backgroundColor};
-            margin: 0 auto;
-            padding: 30px;
-        }
-        .flex-row {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .flex-col {
-            box-sizing: border-box;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            .invoice-container {
-                margin: 0;
-            }
-        }
-CSS;
+                    @page {
+                        size: {$pageSize};
+                        margin: {$pageMargins};
+                    }
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }
+                    body {
+                        font-family: {$fontFamily};
+                        font-size: {$fontSize};
+                        color: {$textColor};
+                        line-height: {$lineHeight};
+                        background-color: {$backgroundColor};
+                        -webkit-print-color-adjust: exact;
+                        print-color-adjust: exact;
+                    }
+                    .invoice-container {
+                        width: 794px;
+                        background: {$backgroundColor};
+                        margin: 0 auto;
+                        padding: 30px;
+                    }
+                    .flex-row {
+                        display: flex;
+                        flex-wrap: nowrap;
+                        gap: 10px;
+                        margin-bottom: 10px;
+                    }
+                    .flex-col {
+                        box-sizing: border-box;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+                    @media print {
+                        body {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .invoice-container {
+                            margin: 0;
+                        }
+                    }
+            CSS;
     }
 
     /**

@@ -16,7 +16,7 @@ class Cupon extends BaseXmlModel
         // Add required elements
         $root->appendChild($this->createElement($doc, 'IDCupon', $this->idCupon));
         $root->appendChild($this->createElement($doc, 'FechaExpedicionCupon', $this->fechaExpedicionCupon));
-        $root->appendChild($this->createElement($doc, 'ImporteCupon', (string)$this->importeCupon));
+        $root->appendChild($this->createElement($doc, 'ImporteCupon', (string) $this->importeCupon));
 
         // Add optional description
         if ($this->descripcionCupon !== null) {
@@ -31,7 +31,7 @@ class Cupon extends BaseXmlModel
         $cupon = new self();
         $cupon->setIdCupon($cupon->getElementValue($element, 'IDCupon'));
         $cupon->setFechaExpedicionCupon($cupon->getElementValue($element, 'FechaExpedicionCupon'));
-        $cupon->setImporteCupon((float)$cupon->getElementValue($element, 'ImporteCupon'));
+        $cupon->setImporteCupon((float) $cupon->getElementValue($element, 'ImporteCupon'));
 
         $descripcionCupon = $cupon->getElementValue($element, 'DescripcionCupon');
         if ($descripcionCupon !== null) {

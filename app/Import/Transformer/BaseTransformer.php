@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -100,12 +100,12 @@ class BaseTransformer
 
     public function getInvoiceTypeId($data, $field, $default = '1')
     {
-        return isset($data[$field]) && $data[$field] ? (string)$data[$field] : $default;
+        return isset($data[$field]) && $data[$field] ? (string) $data[$field] : $default;
     }
 
     public function getNumber($data, $field, $default = 0)
     {
-        return (isset($data->$field) && $data->$field) ? (int)$data->$field : $default;
+        return (isset($data->$field) && $data->$field) ? (int) $data->$field : $default;
     }
 
     public function getString($data, $field, $default = '')
@@ -143,7 +143,7 @@ class BaseTransformer
         // if(is_string($frequency)){
         //     $frequency = strtolower(trim($frequency));
         // }
-        
+
         switch ($frequency) {
             case RecurringInvoice::FREQUENCY_DAILY:
             case 'daily':
@@ -174,6 +174,8 @@ class BaseTransformer
                 return RecurringInvoice::FREQUENCY_SIX_MONTHS;
             case RecurringInvoice::FREQUENCY_ANNUALLY:
             case 'yearly':
+            case 'annually':
+            case 'year':
                 return RecurringInvoice::FREQUENCY_ANNUALLY;
             case RecurringInvoice::FREQUENCY_TWO_YEARS:
             case '2years':
@@ -194,7 +196,7 @@ class BaseTransformer
             return -1;
         }
 
-        return (int)$remaining_cycles;
+        return (int) $remaining_cycles;
     }
 
     public function getAutoBillFlag(string $option): string
@@ -366,7 +368,7 @@ class BaseTransformer
      */
     public function getFloat($data, $field)
     {
-        
+
         if (array_key_exists($field, $data)) {
 
             if ($this->company->use_comma_as_decimal_place) {

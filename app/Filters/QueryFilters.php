@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -210,7 +210,7 @@ abstract class QueryFilters
 
         try {
             if (is_numeric($value)) {
-                $created_at = Carbon::createFromTimestamp((int)$value);
+                $created_at = Carbon::createFromTimestamp((int) $value);
             } else {
                 $created_at = Carbon::parse($value);
             }
@@ -229,7 +229,7 @@ abstract class QueryFilters
 
         try {
             if (is_numeric($value)) {
-                $created_at = Carbon::createFromTimestamp((int)$value);
+                $created_at = Carbon::createFromTimestamp((int) $value);
             } else {
                 $created_at = Carbon::parse($value);
             }

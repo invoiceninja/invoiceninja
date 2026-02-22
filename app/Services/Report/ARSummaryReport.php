@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -43,13 +43,13 @@ class ARSummaryReport extends BaseExport
     private array $clients = [];
 
     private string $template = '/views/templates/reports/ar_summary_report.html';
-    
+
     /**
      * Flag to use optimized query (single query vs N+1).
      * Set to false to rollback to legacy implementation.
      */
     private bool $useOptimizedQuery = true;
-    
+
     /**
      * Chunk size for whereIn queries to avoid SQL limits.
      * MySQL has max_allowed_packet and whereIn performance degrades with large arrays.
@@ -80,9 +80,7 @@ class ARSummaryReport extends BaseExport
             'client_id',
         ]
     */
-    public function __construct(public Company $company, public array $input)
-    {
-    }
+    public function __construct(public Company $company, public array $input) {}
 
     public function run()
     {
@@ -155,20 +153,20 @@ class ARSummaryReport extends BaseExport
         $query->orderBy('balance', 'desc')
             ->chunk($this->chunkSize, function ($clientChunk) {
                 $clientIds = $clientChunk->pluck('id')->toArray();
-                
+
                 if (empty($clientIds)) {
                     return true; // Continue to next chunk
                 }
-                
+
                 // Fetch aging data for this chunk (1 query per chunk)
                 $agingData = $this->getAgingDataOptimized($clientIds);
-                
+
                 // Build rows from cached data
                 foreach ($clientChunk as $client) {
                     /** @var \App\Models\Client $client */
                     $this->csv->insertOne($this->buildRowOptimized($client, $agingData));
                 }
-                
+
                 return true; // Continue to next chunk
             });
     }
@@ -201,7 +199,7 @@ class ARSummaryReport extends BaseExport
     /**
      * Fetch all aging data for multiple clients in a single query.
      * Uses CASE statements to calculate all aging buckets in one pass.
-     * 
+     *
      * @param array $clientIds Array of client IDs (should be ≤ 1000 from chunking)
      * @return Collection Aging data keyed by client_id
      */
@@ -210,7 +208,7 @@ class ARSummaryReport extends BaseExport
         if (empty($clientIds)) {
             return collect([]);
         }
-        
+
         $now = now()->startOfDay();
         $nowStr = $now->toDateString();
         $date_30 = $now->copy()->subDays(30)->toDateString();

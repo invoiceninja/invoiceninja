@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -17,13 +17,13 @@ use App\Models\Invoice;
 use App\Models\TransactionEvent;
 use Illuminate\Support\Collection;
 use App\DataMapper\TransactionEventMetadata;
+
 /**
  * Handles entries for invoices.
  * Used for end of month aggregation of accrual accounting.
  */
 class InvoiceTransactionEventEntry
 {
-
     private Collection $payments;
 
     private float $paid_ratio;
@@ -39,20 +39,21 @@ class InvoiceTransactionEventEntry
     public function run(?Invoice $invoice, ?string $force_period = null)
     {
 
-        if(!$invoice)
+        if (!$invoice) {
             return;
-        
+        }
+
         $this->setPaidRatio($invoice);
 
         //Long running tasks may spill over into the next day therefore month!
         $period = $force_period ?? now()->endOfMonth()->subHours(5)->format('Y-m-d');
-        
+
         $event = $invoice->transaction_events()
                         ->where('event_id', TransactionEvent::INVOICE_UPDATED)
                         ->orderBy('timestamp', 'desc')
                         ->first();
 
-        if($event){
+        if ($event) {
 
 
             $this->entry_type = 'delta';
@@ -63,45 +64,38 @@ class InvoiceTransactionEventEntry
             //     return;
             // }
             // else
-            if($invoice->is_deleted && $event->metadata->tax_report->tax_summary->status == 'deleted'){ 
+            if ($invoice->is_deleted && $event->metadata->tax_report->tax_summary->status == 'deleted') {
                 // Invoice was previously deleted, and is still deleted... return early!!
                 return;
-            }
-            else if(in_array($invoice->status_id,[Invoice::STATUS_CANCELLED]) && $event->metadata->tax_report->tax_summary->status == 'cancelled'){
+            } elseif (in_array($invoice->status_id, [Invoice::STATUS_CANCELLED]) && $event->metadata->tax_report->tax_summary->status == 'cancelled') {
                 // Invoice was previously cancelled, and is still cancelled... return early!!
                 return;
-            }
-            else if(in_array($invoice->status_id,[Invoice::STATUS_REVERSED]) && $event->metadata->tax_report->tax_summary->status == 'reversed'){
+            } elseif (in_array($invoice->status_id, [Invoice::STATUS_REVERSED]) && $event->metadata->tax_report->tax_summary->status == 'reversed') {
                 // Invoice was previously cancelled, and is still cancelled... return early!!
                 return;
-            }
-            else if (!$invoice->is_deleted && $event->metadata->tax_report->tax_summary->status == 'deleted'){
+            } elseif (!$invoice->is_deleted && $event->metadata->tax_report->tax_summary->status == 'deleted') {
                 //restored invoice must be reported!!!! _do not return early!!
                 $this->entry_type = 'restored';
-            }
-            else if(in_array($invoice->status_id,[Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])){
-                // Need to ensure first time cancellations are reported.  
+            } elseif (in_array($invoice->status_id, [Invoice::STATUS_CANCELLED, Invoice::STATUS_REVERSED])) {
+                // Need to ensure first time cancellations are reported.
                 // return; // Only return if BOTH amount AND status unchanged - for handling cancellations.
-                
+
                 // return;
+            } elseif ($invoice->is_deleted) {
+
             }
-            else if($invoice->is_deleted){
-                
-            }
-            /** If the invoice hasn't changed its state... return early!! */
-            else if(BcMath::comp($invoice->amount, $event->invoice_amount) == 0 || $event->period->format('Y-m-d') == $period){
+            /** If the invoice hasn't changed its state... return early!! */ elseif (BcMath::comp($invoice->amount, $event->invoice_amount) == 0 || $event->period->format('Y-m-d') == $period) {
                 nlog("event period => {$period} => " . $event->period->format('Y-m-d'));
                 nlog("invoice amount => {$invoice->amount} => " . $event->invoice_amount);
-              nlog("apparently no change in amount or period");
+                nlog("apparently no change in amount or period");
                 return;
             }
 
-        }
-        elseif($invoice->is_deleted){
+        } elseif ($invoice->is_deleted) {
             // elseif($invoice->is_deleted && \Carbon\Carbon::parse($invoice->date)->lte(\Carbon\Carbon::parse($period))){
             //If the invoice was created and deleted in the same period, we don't need to report it!!!
             // return;
-           
+
         }
 
         nlog("invoice amount => {$invoice->amount}");
@@ -123,7 +117,7 @@ class InvoiceTransactionEventEntry
             'client_paid_to_date' => $invoice->client->paid_to_date,
             'client_credit_balance' => $invoice->client->credit_balance,
             'invoice_balance' => $invoice->balance ?? 0,
-            'invoice_amount' => $invoice->amount ?? 0  ,
+            'invoice_amount' => $invoice->amount ?? 0,
             'invoice_partial' => $invoice->partial ?? 0,
             'invoice_paid_to_date' => $invoice->paid_to_date ?? 0,
             'invoice_status' => $invoice->is_deleted ? 7 : $invoice->status_id,
@@ -136,7 +130,7 @@ class InvoiceTransactionEventEntry
 
     private function setPaidRatio(Invoice $invoice): self
     {
-        if($invoice->amount == 0){
+        if ($invoice->amount == 0) {
             $this->paid_ratio = 0;
             return $this;
         }
@@ -145,12 +139,12 @@ class InvoiceTransactionEventEntry
 
         return $this;
     }
-        
+
     /**
      * calculateDeltaMetaData
      *
      * Calculates the differential between this period and the previous period.
-     * 
+     *
      * @param  mixed $invoice
      *
      */
@@ -217,7 +211,7 @@ class InvoiceTransactionEventEntry
         ]);
 
     }
-    
+
     private function getReversedMetaData($invoice)
     {
         $calc = $invoice->calc();
@@ -264,7 +258,7 @@ class InvoiceTransactionEventEntry
      */
     private function getCancelledMetaData($invoice)
     {
-                
+
         $calc = $invoice->calc();
 
         $details = [];
@@ -301,7 +295,7 @@ class InvoiceTransactionEventEntry
         ]);
 
     }
-    
+
     /**
      * Set all tax details to 0
      *
@@ -309,7 +303,7 @@ class InvoiceTransactionEventEntry
      */
     private function getDeletedMetaData($invoice)
     {
-                
+
         $calc = $invoice->calc();
 
         $details = [];
@@ -351,7 +345,7 @@ class InvoiceTransactionEventEntry
             return $this->getCancelledMetaData($invoice);
         } elseif ($invoice->is_deleted) {
             return $this->getDeletedMetaData($invoice);
-        } elseif ($invoice->status_id == Invoice::STATUS_REVERSED){
+        } elseif ($invoice->status_id == Invoice::STATUS_REVERSED) {
             return $this->getReversedMetaData($invoice);
         } elseif ($this->entry_type == 'delta') {
             return $this->calculateDeltaMetaData($invoice);
@@ -390,5 +384,5 @@ class InvoiceTransactionEventEntry
         ]);
 
     }
-    
+
 }

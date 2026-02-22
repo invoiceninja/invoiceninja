@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -295,9 +295,23 @@ class Activity extends StaticModel
     public const VERIFACTU_CANCELLATION_SENT = 156;
 
     public const VERIFACTU_CANCELLATION_SENT_FAILURE = 157;
-    
+
     public const QUOTE_REJECTED = 158;
-    
+
+    public const INVOICE_DOCUMENT_SIGNED = 159;
+
+    public const QUOTE_DOCUMENT_SIGNED = 160;
+
+    public const CREDIT_DOCUMENT_SIGNED = 161;
+
+    public const PURCHASE_ORDER_DOCUMENT_SIGNED = 162;
+
+    public const CUSTOM_DOCUMENT_SIGNED = 163;
+
+    public const QUICKBOOKS_PUSH_FAILURE = 164;
+
+    public const QUICKBOOKS_PUSH_SUCCESS = 165;
+
     protected $casts = [
         'is_system' => 'boolean',
         'updated_at' => 'timestamp',
@@ -442,7 +456,7 @@ class Activity extends StaticModel
             ':number',
             ':payment_amount',
             ':gateway',
-            ':adjustment'
+            ':adjustment',
         ];
 
         $found_variables = array_intersect(explode(" ", trans("texts.activity_{$this->activity_type_id}")), $intersect);
@@ -522,7 +536,7 @@ class Activity extends StaticModel
 
         $translation = '';
 
-        match($variable) {
+        match ($variable) {
             ':invoice' => $translation = [substr($variable, 1) => [ 'label' => $this?->invoice?->number ?? '', 'hashed_id' => $this->invoice?->hashed_id ?? '']],
             ':user' => $translation =  [substr($variable, 1) => [ 'label' => $this?->user?->present()->name() ?? $system, 'hashed_id' => $this->user->hashed_id ?? '']],
             ':quote' => $translation =  [substr($variable, 1) => [ 'label' => $this?->quote?->number ?? '', 'hashed_id' => $this->quote->hashed_id ?? '']],
@@ -548,8 +562,9 @@ class Activity extends StaticModel
 
     public function getPaymentAdjustment(?\App\Models\Payment $payment): string
     {
-        if(!$payment)
+        if (!$payment) {
             return '';
+        }
 
         preg_match('/:\s*(\d+)\s*-/', $this->notes, $matches);
         $amount = $matches[1] ?? null;

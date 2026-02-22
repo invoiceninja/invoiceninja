@@ -5,26 +5,25 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Services\Invoice;
 
-use App\DataMapper\InvoiceItem;
-use App\Models\CompanyGateway;
-use App\Models\Invoice;
-use App\Services\AbstractService;
 use App\Utils\Ninja;
-use Illuminate\Support\Facades\App;
+use App\Utils\BcMath;
+use App\Models\Invoice;
 use App\Models\Product;
+use App\Models\CompanyGateway;
+use App\DataMapper\InvoiceItem;
+use App\Services\AbstractService;
+use Illuminate\Support\Facades\App;
 
 class AddGatewayFee extends AbstractService
 {
-    public function __construct(private CompanyGateway $company_gateway, private int $gateway_type_id, public Invoice $invoice, private float $amount, private string $payment_hash_string)
-    {
-    }
+    public function __construct(private CompanyGateway $company_gateway, private int $gateway_type_id, public Invoice $invoice, private float $amount, private string $payment_hash_string) {}
 
     public function run()
     {
@@ -62,7 +61,7 @@ class AddGatewayFee extends AbstractService
             $invoice_item->tax_name2 = $fees_and_limits->fee_tax_name2;
             $invoice_item->tax_rate3 = $fees_and_limits->fee_tax_rate3;
             $invoice_item->tax_name3 = $fees_and_limits->fee_tax_name3;
-            $invoice_item->tax_id = (string)Product::PRODUCT_TYPE_OVERRIDE_TAX;
+            $invoice_item->tax_id = (string) Product::PRODUCT_TYPE_OVERRIDE_TAX;
         }
 
         $invoice_items = (array) $this->invoice->line_items;
@@ -75,14 +74,14 @@ class AddGatewayFee extends AbstractService
 
         $new_balance = $this->invoice->balance;
 
-        if (floatval($new_balance) - floatval($balance) != 0) {
+        if (!BcMath::equal($new_balance, $balance)) {
             $adjustment = $new_balance - $balance;
 
             $this->invoice
             ->ledger()
             ->updateInvoiceBalance($adjustment, 'Adjustment for adding gateway fee');
 
-            $this->invoice->client->service()->calculateBalance();
+            $this->invoice->client->service()->updateBalance($adjustment);
 
         }
 
@@ -119,14 +118,14 @@ class AddGatewayFee extends AbstractService
 
         $new_balance = $this->invoice->balance;
 
-        if (floatval($new_balance) - floatval($balance) != 0) {
+        if (!BcMath::equal($new_balance, $balance)) {
             $adjustment = $new_balance - $balance;
 
             $this->invoice
             ->ledger()
             ->updateInvoiceBalance($adjustment * -1, 'Adjustment for adding gateway DISCOUNT');
 
-            $this->invoice->client->service()->calculateBalance();
+            $this->invoice->client->service()->updateBalance($adjustment * -1);
 
         }
 

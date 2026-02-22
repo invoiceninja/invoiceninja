@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -58,7 +58,7 @@ trait Inviteable
             $domain = config('ninja.app_url');
         }
 
-        return $domain.'/client/pay/'.$this->key;
+        return $domain . '/client/pay/' . $this->key;
     }
 
     public function getPaymentQrCode()
@@ -83,23 +83,23 @@ trait Inviteable
 
     }
 
-    /** 
+    /**
      * stubbed for future when we want to change from svg to png qrcodes.
      */
     // public function getPaymentQrCodeRawPng()
     // {
-        
+
     //     $result = \Endroid\QrCode\Builder\Builder::create()
     //         ->writer(new \Endroid\QrCode\Writer\PngWriter())
     //         ->data($this->getPaymentLink())
     //         ->encoding(new \Endroid\QrCode\Encoding\Encoding('UTF-8'))
-    //         ->errorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Medium) 
-    //         ->size(150) 
+    //         ->errorCorrectionLevel(\Endroid\QrCode\ErrorCorrectionLevel::Medium)
+    //         ->size(150)
     //         ->margin(0)
     //         ->build();
 
     //     $png = base64_encode($result->getString());
-        
+
     //     return '<img src="data:image/png;base64,' . $png . '" alt="QR Code" />';
 
     // }
@@ -114,7 +114,7 @@ trait Inviteable
 
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return $domain.'/client/unsubscribe/'.$entity_type.'/'.$this->key;
+        return $domain . '/client/unsubscribe/' . $entity_type . '/' . $this->key;
     }
 
     public function getLink(): string
@@ -129,13 +129,13 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/client/'.$entity_type.'/'.$this->key;
+                return $domain . '/client/' . $entity_type . '/' . $this->key;
                 break;
             case 'iframe':
-                return $domain.'/client/'.$entity_type.'/'.$this->key;
+                return $domain . '/client/' . $entity_type . '/' . $this->key;
                 break;
             case 'domain':
-                return $domain.'/client/'.$entity_type.'/'.$this->key;
+                return $domain . '/client/' . $entity_type . '/' . $this->key;
                 break;
 
             default:
@@ -154,13 +154,13 @@ trait Inviteable
 
         switch ($this->company->portal_mode) {
             case 'subdomain':
-                return $domain.'/client/';
+                return $domain . '/client/';
                 break;
             case 'iframe':
-                return $domain.'/client/';
+                return $domain . '/client/';
                 break;
             case 'domain':
-                return $domain.'/client/';
+                return $domain . '/client/';
                 break;
 
             default:
@@ -171,13 +171,13 @@ trait Inviteable
 
     public function getAdminLink($use_react_link = false): string
     {
-        return $use_react_link ? $this->getReactLink() : $this->getLink().'?silent=true';
+        return $use_react_link ? $this->getReactLink() : $this->getLink() . '?silent=true';
     }
 
     private function getReactLink(): string
     {
         $entity_type = Str::snake(class_basename($this->entityType()));
 
-        return config('ninja.react_url')."/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
+        return config('ninja.react_url') . "/#/{$entity_type}s/{$this->{$entity_type}->hashed_id}/edit";
     }
 }

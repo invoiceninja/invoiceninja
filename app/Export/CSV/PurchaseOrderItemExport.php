@@ -147,7 +147,7 @@ class PurchaseOrderItemExport extends BaseExport
 
         //if we have product filters in place, we will also need to filter the items at this level:
         if (isset($this->input['product_key'])) {
-                        
+
             $products = str_getcsv($this->input['product_key'], ',', "'");
 
             $products = array_map(function ($product) {
@@ -251,8 +251,8 @@ class PurchaseOrderItemExport extends BaseExport
 
         if (in_array('purchase_order.subtotal', $this->input['report_keys'])) {
             $entity['purchase_order.subtotal'] = $purchase_order->calc()->getSubTotal();
-        }       
-        
+        }
+
         return $entity;
     }
 

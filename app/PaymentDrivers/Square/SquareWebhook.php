@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,12 +54,10 @@ class SquareWebhook implements ShouldQueue
         'BUY_NOW_PAY_LATER' => PaymentType::CREDIT_CARD_OTHER,
         'SQUARE_ACCOUNT' => PaymentType::CREDIT_CARD_OTHER,
         'CASH' => PaymentType::CASH,
-        'EXTERNAL' => PaymentType::CREDIT_CARD_OTHER
+        'EXTERNAL' => PaymentType::CREDIT_CARD_OTHER,
     ];
 
-    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id)
-    {
-    }
+    public function __construct(public array $webhook_array, public string $company_key, public int $company_gateway_id) {}
 
     public function handle()
     {
@@ -76,7 +74,7 @@ class SquareWebhook implements ShouldQueue
 
         $payment_status = false;
 
-        match($status) {
+        match ($status) {
             'APPROVED' => $payment_status = false,
             'COMPLETED' => $payment_status = Payment::STATUS_COMPLETED,
             'PENDING' => $payment_status = Payment::STATUS_PENDING,
@@ -102,7 +100,7 @@ class SquareWebhook implements ShouldQueue
                     'amount' => array_sum(array_column($this->driver->payment_hash->invoices(), 'amount')) + $this->driver->payment_hash->fee_total,
                 ]);
             } else {
-                $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
             }
 
             PaymentFailedMailer::dispatch(
@@ -142,7 +140,7 @@ class SquareWebhook implements ShouldQueue
             $square_payment = $apiResponse->getResult()->getPayment()->jsonSerialize();
             $payment_hash = PaymentHash::query()->where('hash', $payment_hash_id)->firstOrFail();
 
-            $payment_hash->data = array_merge((array) $payment_hash->data, (array)$square_payment);
+            $payment_hash->data = array_merge((array) $payment_hash->data, (array) $square_payment);
             $payment_hash->save();
 
             $this->driver->setPaymentHash($payment_hash);

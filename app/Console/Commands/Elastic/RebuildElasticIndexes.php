@@ -72,17 +72,17 @@ class RebuildElasticIndexes extends Command
             $this->info('  • Each index will be dropped, migrated, and re-imported sequentially');
             $this->info('  • Search will be unavailable for each model during its rebuild');
             $this->info('  • Other models remain searchable while one rebuilds');
-            
+
             if ($this->option('wait')) {
                 $this->info('  • Will WAIT for our jobs to complete (tracks pending + processing)');
             } else {
                 $this->warn('  • WARNING: Jobs will queue up async (use --wait for production)');
             }
-            
+
             if ($this->option('no-queue')) {
                 $this->info('  • Using SYNCHRONOUS import (slower but guaranteed)');
             }
-            
+
             $this->newLine();
 
             $totalRecords = $this->getTotalRecordCount();
@@ -139,7 +139,7 @@ class RebuildElasticIndexes extends Command
         }
 
         $indexName = $this->searchableModels[$modelClass];
-        
+
         try {
             $recordCount = $modelClass::count();
         } catch (\Exception $e) {
@@ -190,7 +190,7 @@ class RebuildElasticIndexes extends Command
 
         foreach ($this->searchableModels as $modelClass => $indexName) {
             $modelName = class_basename($modelClass);
-            
+
             try {
                 $recordCount = $modelClass::count();
             } catch (\Exception $e) {
@@ -214,10 +214,10 @@ class RebuildElasticIndexes extends Command
 
         try {
             $this->line("  [1/3] Dropping index {$indexName}...");
-            
+
             try {
                 $indexExists = $client->indices()->exists(['index' => $indexName]);
-                
+
                 if ($indexExists) {
                     try {
                         $client->indices()->delete(['index' => $indexName]);
@@ -235,7 +235,7 @@ class RebuildElasticIndexes extends Command
             }
 
             $this->line("  [2/3] Running elastic migration...");
-            
+
             try {
                 Artisan::call('elastic:migrate', [], $this->getOutput());
                 $this->info("    ✓ Migration completed");
@@ -245,7 +245,7 @@ class RebuildElasticIndexes extends Command
             }
 
             $this->line("  [3/3] Importing {$modelName} data...");
-            
+
             try {
                 $recordCount = $modelClass::count();
             } catch (\Exception $countException) {
@@ -278,15 +278,15 @@ class RebuildElasticIndexes extends Command
             return false;
         }
     }
-    
+
     protected function importSynchronously(string $modelClass, int $totalRecords): void
     {
         $chunkSize = (int) $this->option('chunk');
         $chunks = ceil($totalRecords / $chunkSize);
         $processed = 0;
-        
+
         $this->line("    - Processing {$chunks} chunks of {$chunkSize} records each", 'comment');
-        
+
         $modelClass::chunk($chunkSize, function ($models) use (&$processed, $totalRecords) {
             $models->searchable();
             $processed += $models->count();
@@ -294,61 +294,61 @@ class RebuildElasticIndexes extends Command
             $this->line("    - Indexed {$processed}/{$totalRecords} ({$percentage}%)", 'comment');
         });
     }
-    
+
     protected function importWithQueueTracking(string $modelClass, int $recordCount): void
     {
         $chunkSize = (int) $this->option('chunk');
         $expectedJobCount = ceil($recordCount / $chunkSize);
-        
+
         $queueName = config('scout.queue.queue', 'scout');
         $connection = config('scout.queue.connection', config('queue.default'));
-        
+
         try {
             $baselineJobCount = $this->getTotalActiveJobCount($connection, $queueName);
         } catch (\Exception $e) {
             $baselineJobCount = 0;
             $this->line("    - Cannot track queue baseline: " . $e->getMessage(), 'comment');
         }
-        
+
         $this->line("    - Baseline active jobs: {$baselineJobCount} (pending + processing)", 'comment');
         $this->line("    - Dispatching ~{$expectedJobCount} import jobs (chunks of {$chunkSize})", 'comment');
-        
+
         Artisan::call('scout:import', [
             'model' => $modelClass,
             '--chunk' => $chunkSize,
         ], $this->getOutput());
-        
+
         $this->line("    - Jobs dispatched to queue", 'comment');
-        
+
         if ($this->option('wait')) {
             $this->waitForOurJobsToComplete($connection, $queueName, $baselineJobCount, $expectedJobCount);
         }
     }
-    
+
     protected function waitForOurJobsToComplete(
-        string $connection, 
-        string $queueName, 
+        string $connection,
+        string $queueName,
         int $baselineJobCount,
         int $expectedJobCount
     ): void {
         $this->newLine();
         $this->line("  Waiting for our {$expectedJobCount} jobs to complete...");
         $this->line("  (Tracking: pending + processing jobs)", 'comment');
-        
+
         $startTime = time();
         $lastReportedDelta = -1;
         $stableCount = 0;
-        
+
         while (true) {
             try {
                 $currentJobCount = $this->getTotalActiveJobCount($connection, $queueName);
                 $delta = $currentJobCount - $baselineJobCount;
-                
+
                 if ($currentJobCount <= $baselineJobCount) {
                     $this->info("  ✓ Our jobs completed (active: {$currentJobCount}, baseline: {$baselineJobCount})");
                     return;
                 }
-                
+
                 if ($delta !== $lastReportedDelta) {
                     $this->line("    - Our jobs remaining: ~{$delta} (total active: {$currentJobCount})", 'comment');
                     $lastReportedDelta = $delta;
@@ -356,12 +356,12 @@ class RebuildElasticIndexes extends Command
                 } else {
                     $stableCount++;
                 }
-                
+
                 if ($stableCount >= 15 && $delta <= $expectedJobCount) {
                     $this->info("  ✓ Queue stabilized - assuming complete");
                     return;
                 }
-                
+
                 sleep(2);
             } catch (\Exception $e) {
                 $this->warn("  ⚠ Could not check queue status: " . $e->getMessage());
@@ -371,34 +371,34 @@ class RebuildElasticIndexes extends Command
             }
         }
     }
-    
+
     protected function getTotalActiveJobCount(string $connection, string $queueName): int
     {
         $driver = config("queue.connections.{$connection}.driver");
-        
+
         switch ($driver) {
             case 'database':
                 // Count both pending (reserved_at IS NULL) and processing (reserved_at IS NOT NULL)
                 return DB::table(config("queue.connections.{$connection}.table", 'jobs'))
                     ->where('queue', $queueName)
                     ->count();
-                
+
             case 'redis':
                 // Redis: pending jobs in list + reserved jobs in processing set
                 $redis = Redis::connection('sentinel-default');
                 $prefix = config('database.redis.options.prefix', '');
-                
+
                 // Pending jobs in the queue list
                 $pending = $redis->llen($prefix . 'queues:' . $queueName);
-                
+
                 // Processing jobs in the reserved set
                 $processing = $redis->zcard($prefix . 'queues:' . $queueName . ':reserved');
-                
+
                 return $pending + $processing;
-                
+
             case 'sync':
                 return 0;
-                
+
             default:
                 throw new \Exception("Cannot check queue size for driver: {$driver}");
         }

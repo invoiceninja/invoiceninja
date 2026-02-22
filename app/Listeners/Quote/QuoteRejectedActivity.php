@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,7 +46,7 @@ class QuoteRejectedActivity implements ShouldQueue
 
         $fields = new stdClass();
 
-        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->quote->user_id;
+        $user_id = $event->event_vars['user_id'] ?? $event->quote->user_id;
 
         $fields->user_id = $user_id;
         $fields->quote_id = $event->quote->id;
@@ -55,7 +55,7 @@ class QuoteRejectedActivity implements ShouldQueue
         $fields->company_id = $event->quote->company_id;
         $fields->activity_type_id = Activity::QUOTE_REJECTED;
         $fields->notes = $event->notes ?? '';
-        
+
         $this->activity_repo->save($fields, $event->quote, $event->event_vars);
     }
 }

@@ -38,11 +38,11 @@
         industry_id:
           description: 'The unique identifier of the industry the client operates in'
           type: number
-          example: '5'
+          example: 5
         size_id:
           description: 'The unique identifier for the size category of the client company or organization'
           type: number
-          example: '2'
+          example: 2
         address1:
           description: "First line of the client's address"
           type: string
@@ -124,7 +124,7 @@
           description: "The unique identifier of the country for the client's shipping address"
           type: number
           format: integer
-          example: '4'
+          example: 4
         is_deleted:
           description: 'A boolean value indicating whether the client has been deleted or not'
           type: boolean
@@ -134,37 +134,37 @@
           description: 'The outstanding balance the client owes'
           type: number
           format: float
-          example: '500.00'
+          example: 500.00
           readOnly: true
         paid_to_date:
           description: 'The total amount the client has paid to date'
           type: number
           format: float
-          example: '2000.00'
+          example: 2000.00
           readOnly: true
         credit_balance:
           description: 'The available credit balance for the client to use on future purchases'
           type: number
           format: float
-          example: '100.00'
+          example: 100.00
           readOnly: true
         last_login:
           description: "The timestamp of the client's last login"
           type: number
           format: integer
-          example: '1628686031'
+          example: 1628686031
           readOnly: true
         created_at:
           description: 'The timestamp when the client was created'
           type: number
           format: integer
-          example: '1617629031'
+          example: 1617629031
           readOnly: true
         updated_at:
           description: 'The timestamp when the client was last updated'
           type: number
           format: integer
-          example: '1628445631'
+          example: 1628445631
           readOnly: true
         group_settings_id:
           description: 'The group settings assigned to the client'

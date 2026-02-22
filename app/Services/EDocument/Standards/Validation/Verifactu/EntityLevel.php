@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,9 +46,7 @@ class EntityLevel implements EntityLevelInterface
         'country_id',
     ];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
 
     private function init(string $locale): self
@@ -212,9 +210,9 @@ class EntityLevel implements EntityLevelInterface
             //     $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
             // }
 
-       
-    
-        } 
+
+
+        }
         // elseif (empty($client->vat_number)) {
         //     $errors[] = ['field' => 'vat_number', 'label' => ctrans("texts.vat_number")];
         // }
@@ -296,7 +294,7 @@ class EntityLevel implements EntityLevelInterface
 
         // NIF (individuals)
         if (preg_match('/^\d{8}[A-Z]$/', $vat)) {
-            $number = (int)substr($vat, 0, 8);
+            $number = (int) substr($vat, 0, 8);
             $letter = substr($vat, -1);
             $letters = 'TRWAGMYFPDXBNJZSQVHLCKE';
             return $letter === $letters[$number % 23];
@@ -305,7 +303,7 @@ class EntityLevel implements EntityLevelInterface
         // NIE (foreigners)
         if (preg_match('/^[XYZ]\d{7}[A-Z]$/', $vat)) {
             $replace = ['X' => '0', 'Y' => '1', 'Z' => '2'];
-            $number = (int)($replace[$vat[0]] . substr($vat, 1, 7));
+            $number = (int) ($replace[$vat[0]] . substr($vat, 1, 7));
             $letter = substr($vat, -1);
             $letters = 'TRWAGMYFPDXBNJZSQVHLCKE';
             return $letter === $letters[$number % 23];
@@ -319,7 +317,7 @@ class EntityLevel implements EntityLevelInterface
             $sumEven = 0;
             $sumOdd = 0;
             for ($i = 0; $i < 7; $i++) {
-                $n = (int)$digits[$i];
+                $n = (int) $digits[$i];
                 if ($i % 2 === 0) { // Odd positions (0-based index)
                     $n = $n * 2;
                     if ($n > 9) {

@@ -1131,6 +1131,10 @@ class UsTaxTest extends TestCase
         $company->tax_data = $tax_data;
         $company->save();
 
+        // Reload the company relationship on the invoice to ensure fresh tax_data is used
+        $invoice->load('company');
+        $invoice->client->load('company');
+
         $invoice = $invoice->calc()->getInvoice()->service()->markSent()->save();
 
         $this->assertEquals(0, $invoice->line_items[0]->tax_rate1);

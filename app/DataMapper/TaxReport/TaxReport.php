@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -32,10 +32,10 @@ class TaxReport
             ? new TaxSummary($attributes['tax_summary'])
             : null;
         $this->tax_details = isset($attributes['tax_details'])
-            ? array_map(fn ($detail) => new TaxDetail($detail), $attributes['tax_details'])
+            ? array_map(fn($detail) => new TaxDetail($detail), $attributes['tax_details'])
             : null;
         $this->payment_history = isset($attributes['payment_history'])
-            ? collect($attributes['payment_history'])->map(fn ($payment) => new PaymentHistory($payment))
+            ? collect($attributes['payment_history'])->map(fn($payment) => new PaymentHistory($payment))
             : null;
     }
 
@@ -43,8 +43,8 @@ class TaxReport
     {
         return [
             'tax_summary' => $this->tax_summary?->toArray(),
-            'tax_details' => $this->tax_details ? array_map(fn ($detail) => $detail->toArray(), $this->tax_details) : null,
-            'payment_history' => $this->payment_history ? $this->payment_history->map(fn ($payment) => $payment->toArray())->toArray() : null,
+            'tax_details' => $this->tax_details ? array_map(fn($detail) => $detail->toArray(), $this->tax_details) : null,
+            'payment_history' => $this->payment_history ? $this->payment_history->map(fn($payment) => $payment->toArray())->toArray() : null,
         ];
     }
 }

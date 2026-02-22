@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -106,9 +106,7 @@ class PayPalBalanceAffecting
     public $creditTransactionalFee;
     public $originalInvoiceId;
 
-    public function __construct(private array $import_row)
-    {
-    }
+    public function __construct(private array $import_row) {}
 
     public function run(): self
     {
@@ -120,7 +118,7 @@ class PayPalBalanceAffecting
 
             if ($prop) {
 
-                echo "Setting {$prop} to {$value}".PHP_EOL;
+                echo "Setting {$prop} to {$value}" . PHP_EOL;
                 $this->{$prop} = $value;
 
             }
@@ -133,7 +131,7 @@ class PayPalBalanceAffecting
     {
 
         foreach ($this->key_map as $value) {
-            echo "Setting {$value} to null".PHP_EOL;
+            echo "Setting {$value} to null" . PHP_EOL;
             $this->{$value} = null;
         }
 

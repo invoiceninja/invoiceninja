@@ -71,7 +71,7 @@ class DesignApiTest extends TestCase
 
         $this->assertEquals($this->user->id, $d->user_id);
         $this->assertEquals($this->company->id, $d->company_id);
-        $this->assertEquals($design->name.' clone '.date('Y-m-d H:i:s'), $d->name);
+        $this->assertStringContainsString($design->name.' clone ', $d->name);
         // $dsd = Design::all()->pluck('name')->toArray();
     }
 

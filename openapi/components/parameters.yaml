@@ -253,5 +253,5 @@
       required: false
       schema:
         type: number
-        example: user
+        example: 1
    

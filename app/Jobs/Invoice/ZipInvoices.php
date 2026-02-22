@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -46,9 +46,7 @@ class ZipInvoices implements ShouldQueue
      * @param $email
      * Create a new job instance.
      */
-    public function __construct(public mixed $invoices, public Company $company, public User $user)
-    {
-    }
+    public function __construct(public mixed $invoices, public Company $company, public User $user) {}
 
     /**
      * Execute the job.
@@ -70,7 +68,7 @@ class ZipInvoices implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.invoices')).'.zip';
+        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoices')) . '.zip';
         $invitation = $this->invoices->first()->invitations->first();
 
         if (!$invitation) {
@@ -100,8 +98,8 @@ class ZipInvoices implements ShouldQueue
 
             }
 
-            Storage::put($path.$file_name, $zipFile->outputAsString());
-            $storage_url = Storage::url($path.$file_name);
+            Storage::put($path . $file_name, $zipFile->outputAsString());
+            $storage_url = Storage::url($path . $file_name);
 
             $nmo = new NinjaMailerObject();
             $nmo->mailable = new DownloadInvoices($storage_url, $this->company);
@@ -111,15 +109,15 @@ class ZipInvoices implements ShouldQueue
 
             NinjaMailerJob::dispatch($nmo);
 
-            UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+            UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
 
-            $message = count($this->invoices). " ". ctrans('texts.invoices');
+            $message = count($this->invoices) . " " . ctrans('texts.invoices');
             $message = ctrans('texts.download_ready', ['message' => $message]);
 
             broadcast(new DownloadAvailable($storage_url, $message, $this->user));
 
         } catch (\PhpZip\Exception\ZipException $e) {
-            nlog('ZipInvoices:: could not make zip => '.$e->getMessage());
+            nlog('ZipInvoices:: could not make zip => ' . $e->getMessage());
         } finally {
             $zipFile->close();
         }
@@ -127,7 +125,7 @@ class ZipInvoices implements ShouldQueue
 
     public function failed($exception)
     {
-        nlog("ZipInvoices:: Exception:: => ".$exception->getMessage());
+        nlog("ZipInvoices:: Exception:: => " . $exception->getMessage());
         config(['queue.failed.driver' => null]);
     }
 }

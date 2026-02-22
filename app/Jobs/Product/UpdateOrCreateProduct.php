@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -107,11 +107,11 @@ class UpdateOrCreateProduct implements ShouldQueue
             }
 
             $product->product_key = $item->product_key;
-            $product->notes = isset($item->notes) ? $item->notes : '';
-            $product->price = isset($item->cost) ? $item->cost : 0;
+            $product->notes = $item->notes ?? '';
+            $product->price = $item->cost ?? 0;
 
             if (! $product->id) {
-                $product->quantity = isset($item->quantity) ? $item->quantity : 0;
+                $product->quantity = $item->quantity ?? 0;
             }
 
             if (isset($item->custom_value1) && strlen($item->custom_value1) >= 1) {

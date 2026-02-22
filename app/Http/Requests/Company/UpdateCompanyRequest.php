@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,7 +33,7 @@ class UpdateCompanyRequest extends Request
         'client_portal_terms',
         'portal_custom_footer',
         'portal_custom_css',
-        'portal_custom_head'
+        'portal_custom_head',
     ];
 
     /**
@@ -116,7 +116,7 @@ class UpdateCompanyRequest extends Request
         $rules['settings.ses_region'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.ses_from_address'] = 'required_if:settings.email_sending_method,client_ses'; //ses specific rules
         $rules['settings.reply_to_email'] = 'sometimes|nullable|email'; // ensures that the reply to email address is a valid email address
-        $rules['settings.bcc_email'] = ['sometimes', 'nullable', new \App\Rules\CommaSeparatedEmails]; //ensure that the BCC's are valid comma separated emails
+        $rules['settings.bcc_email'] = ['sometimes', 'nullable', new \App\Rules\CommaSeparatedEmails()]; //ensure that the BCC's are valid comma separated emails
 
         return $rules;
     }
@@ -146,7 +146,7 @@ class UpdateCompanyRequest extends Request
          */
         $company = $user->company();
 
-        if(isset($company->legal_entity_id) && intval($company->legal_entity_id) > 0){
+        if (isset($company->legal_entity_id) && intval($company->legal_entity_id) > 0) {
             $input['settings']['e_invoice_type'] = 'PEPPOL';
         }
 
@@ -194,7 +194,7 @@ class UpdateCompanyRequest extends Request
             $input['session_timeout'] = 0;
         }
 
-        if($company->settings->e_invoice_type == 'VERIFACTU') {
+        if ($company->settings->e_invoice_type == 'VERIFACTU') {
             $input['calculate_taxes'] = false;
         }
 
@@ -229,13 +229,13 @@ class UpdateCompanyRequest extends Request
                 }
             }
 
-            if($this->company->getSetting('e_invoice_type') == 'VERIFACTU') {
+            if ($this->company->getSetting('e_invoice_type') == 'VERIFACTU') {
                 $settings['e_invoice_type'] = 'VERIFACTU';
             }
 
         }
 
-        if(isset($settings['e_invoice_type']) && $settings['e_invoice_type'] == 'VERIFACTU' && $this->company->verifactuEnabled()) {
+        if (isset($settings['e_invoice_type']) && $settings['e_invoice_type'] == 'VERIFACTU' && $this->company->verifactuEnabled()) {
             $settings['lock_invoices'] = 'when_sent';
         }
 

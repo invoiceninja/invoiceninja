@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *1`
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,11 +22,42 @@ class BlackListRule implements ValidationRule
 {
     /** Bad domains +/- disposable email domains */
     private array $blacklist = [
+        "dollicons.com",
+        "mypost.lol",
+        "mozmail.com",
+        "specialmail.online",
+        "mailbank.org",
+        "guesswho.click",
+        "autorambler.ru",
+        "twothird.org",
+        "wutcloud.com",
+        "weebox.org",
+        "bitdelivery.org",
+        "pucann.org",
+        "longbiba.org",
+        "holeass.com",
+        "2mails1box.info",
+        "myhyperspace.org",
+        "rambler.ua",
+        "cockbit.org",
+        "list.ru",
+        "rambler.ru",
+        "mail.ru",
+        "mailwarrior.info",
+        "gogomail.ink",
+        "ro.ru",
+        "gaylordmail.com",
+        "sendme.digital",
+        "desumail.com",
+        "gmx.com",
+        "email-lab.de",
+        "echat.rest",
+        "hotmail.com",
         "usdtbeta.com",
         "asurad.com",
         "isb.nu.edu.pk",
         "edux3.us",
-        "bwmyga.com",    
+        "bwmyga.com",
         "asurad.com",
         "comfythings.com",
         "edu.pk",
@@ -4154,8 +4185,13 @@ class BlackListRule implements ValidationRule
 
         if (is_array($parts) && in_array($parts[1], $this->blacklist)) {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
-        }
-        elseif(is_array($parts) && substr($parts[1], -4) === ".sbs") {
+        } elseif (is_array($parts) && substr($parts[1], -4) === ".sbs") {
+            $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
+        } elseif (is_array($parts) && substr($parts[1], -3) === ".ru") {
+            $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
+        } elseif (is_array($parts) && substr($parts[1], -4) === ".lol") {
+            $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
+        } elseif (is_array($parts) && isset($parts[1]) && in_array($parts[1], cache()->get('spam_domains', []))) {
             $fail('This domain is blacklisted, if you think this is in error, please email contact@invoiceninja.com');
         }
     }

@@ -28,9 +28,7 @@ class PurchaseOrderCreatedListener implements ShouldQueue
 
     public $delay = 7;
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     /**
      * Handle the event.

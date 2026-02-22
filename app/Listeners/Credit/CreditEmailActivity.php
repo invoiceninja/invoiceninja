@@ -46,7 +46,7 @@ class CreditEmailActivity implements ShouldQueue
 
         $fields = new stdClass();
 
-        $user_id = isset($event->event_vars['user_id']) ? $event->event_vars['user_id'] : $event->invitation->credit->user_id;
+        $user_id = $event->event_vars['user_id'] ?? $event->invitation->credit->user_id;
 
         $fields->user_id = $user_id;
         $fields->credit_id = $event->invitation->credit->id;

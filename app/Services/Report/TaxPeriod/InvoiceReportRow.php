@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -27,8 +27,7 @@ class InvoiceReportRow
         private TransactionEvent $event,
         private TaxSummary $tax_summary,
         private ?RegionalTaxCalculator $regional_calculator = null,
-    ) {
-    }
+    ) {}
 
     /**
      * Get column headers
@@ -157,7 +156,7 @@ class InvoiceReportRow
      */
     public function build(): array
     {
-        return match($this->tax_summary->status) {
+        return match ($this->tax_summary->status) {
             TaxReportStatus::UPDATED => $this->buildUpdatedRow(),
             TaxReportStatus::DELTA => $this->buildDeltaRow(),
             TaxReportStatus::ADJUSTMENT => $this->buildAdjustmentRow(),

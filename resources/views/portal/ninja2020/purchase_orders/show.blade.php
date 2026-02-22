@@ -3,7 +3,8 @@
 
 @push('head')
     <meta name="show-purchase_order-terms" content="false">
-    <meta name="require-purchase_order-signature" content="{{ $purchase_order->company->account->hasFeature(\App\Models\Account::FEATURE_INVOICE_SETTINGS) && property_exists($settings, 'require_purchase_order_signature') && $settings->require_purchase_order_signature }}">
+    <meta name="require-purchase_order-signature" content="{{ $requires_signature ? true : false }}">
+    <meta name="docuninja-active" content="{{ $docuninja_active ? true : false }}">
     @include('portal.ninja2020.components.no-cache')
     
     <script src="{{ asset('vendor/signature_pad@2.3.2/signature_pad.min.js') }}"></script>
@@ -37,7 +38,16 @@
     @endif
 
     @include('portal.ninja2020.components.entity-documents', ['entity' => $purchase_order])
-    @livewire('pdf-slot', ['class' => get_class($purchase_order), 'entity_id' => $purchase_order->id, 'invitation_id' => $invitation->id ?? false, 'db' => $purchase_order->company->db])
+
+    @if($docuninja_active)
+    <div id="docuninja-container" class="hidden">
+        @livewire('sign', ['invitation_id' => $invitation->id ?? false, 'entity_type' => 'purchase_order', 'entity_number' => $purchase_order->number, 'db' => $purchase_order->company->db, '_key' => $_key, 'request_hash' => $request_hash])
+    </div>
+    @endif
+
+    <div id="pdf-slot-container" class="">
+        @livewire('pdf-slot', ['class' => get_class($purchase_order), 'entity_id' => $purchase_order->id, 'invitation_id' => $invitation->id ?? false, 'db' => $purchase_order->company->db])
+    </div>
 
 @endsection
 
@@ -57,6 +67,10 @@
                 window.history.pushState({}, "", "{{ url("vendor/purchase_order/{$_key}") }}");
             @endif
 
+            window.addEventListener('builder:sign.submit.success', function () {
+                window.location.reload();
+            });
+            
         });
 
     </script>

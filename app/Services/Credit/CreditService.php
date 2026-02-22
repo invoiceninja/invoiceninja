@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -238,12 +238,12 @@ class CreditService
         $this->credit->invitations->each(function ($invitation) {
             try {
                 // if (Storage::disk(config('filesystems.default'))->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
-                Storage::disk(config('filesystems.default'))->delete($this->credit->client->e_document_filepath($invitation).$this->credit->getFileName("xml"));
+                Storage::disk(config('filesystems.default'))->delete($this->credit->client->e_document_filepath($invitation) . $this->credit->getFileName("xml"));
                 // }
 
                 // if (Ninja::isHosted() && Storage::disk('public')->exists($this->invoice->client->e_invoice_filepath($invitation).$this->invoice->getFileName("xml"))) {
                 if (Ninja::isHosted()) {
-                    Storage::disk('public')->delete($this->credit->client->e_document_filepath($invitation).$this->credit->getFileName("xml"));
+                    Storage::disk('public')->delete($this->credit->client->e_document_filepath($invitation) . $this->credit->getFileName("xml"));
                 }
             } catch (\Exception $e) {
                 nlog($e->getMessage());
@@ -270,51 +270,50 @@ class CreditService
             ->save();
 
 
-            /** 2025-12-03 - On credit deletion => credit => delete - if this credit was linked to a previous invoice
-             * reversal, we cannot leave the payment dangling. This has the same net effect as a payment refund.
-             * 
-             * At this point, we will assign whatever balance remains as a refund on the payment.
-             * 
-             * Need to ensure the refund is never > than payment amount &&
-             * The refund amount should be no more than the invoice amount.
-             * or any remainder on the credit if it has been subsequently used elsewhere.
-             * 
-             * Once this credit has been deleted, it cannot be restored?
-            */
+        /** 2025-12-03 - On credit deletion => credit => delete - if this credit was linked to a previous invoice
+         * reversal, we cannot leave the payment dangling. This has the same net effect as a payment refund.
+         *
+         * At this point, we will assign whatever balance remains as a refund on the payment.
+         *
+         * Need to ensure the refund is never > than payment amount &&
+         * The refund amount should be no more than the invoice amount.
+         * or any remainder on the credit if it has been subsequently used elsewhere.
+         *
+         * Once this credit has been deleted, it cannot be restored?
+        */
 
-            if($this->credit->invoice_id && $this->credit->balance > 0){
-               
-                $this->credit->invoice
-                        ->payments()
-                        ->where('is_deleted', 0)
-                        ->cursor()
-                        ->each(function ($payment){
-               
-                    $balance = $this->credit->balance;
-                                        
-                    $pivot = $payment->pivot;
+        if ($this->credit->invoice_id && $this->credit->balance > 0) {
 
-                    $refundable_amount = min($balance, $pivot->amount);
-                    
-                    $paymentable = new Paymentable();
-                    $paymentable->payment_id = $payment->id;
-                    $paymentable->paymentable_id = $this->credit->id;
-                    $paymentable->paymentable_type = Credit::class;
-                    $paymentable->refunded = $refundable_amount;
-                    $paymentable->save();
+            $this->credit->invoice
+                    ->payments()
+                    ->where('is_deleted', 0)
+                    ->cursor()
+                    ->each(function ($payment) {
 
-                    $payment->refunded += $refundable_amount;
+                        $balance = $this->credit->balance;
 
-                    if(BcMath::comp($payment->amount, $refundable_amount) == 0) {
-                        $payment->status_id = Payment::STATUS_REFUNDED;
-                    }
-                    else {
-                        $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
-                    }
-                    $payment->save();
+                        $pivot = $payment->pivot;
 
-                });
-            }
+                        $refundable_amount = min($balance, $pivot->amount);
+
+                        $paymentable = new Paymentable();
+                        $paymentable->payment_id = $payment->id;
+                        $paymentable->paymentable_id = $this->credit->id;
+                        $paymentable->paymentable_type = Credit::class;
+                        $paymentable->refunded = $refundable_amount;
+                        $paymentable->save();
+
+                        $payment->refunded += $refundable_amount;
+
+                        if (BcMath::comp($payment->amount, $refundable_amount) == 0) {
+                            $payment->status_id = Payment::STATUS_REFUNDED;
+                        } else {
+                            $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
+                        }
+                        $payment->save();
+
+                    });
+        }
 
         return $this;
     }
@@ -333,18 +332,18 @@ class CreditService
              ->save();
 
 
-             /**
-              * If we have previously deleted a reversed credit / invoice
-              * we would have applied an adjustment to the payments for the 
-              * credit balance remaining. This section reverses the adjustment.
-              */
-        if($this->credit->invoice_id && $this->credit->balance > 0){
-        
-            
+        /**
+         * If we have previously deleted a reversed credit / invoice
+         * we would have applied an adjustment to the payments for the
+         * credit balance remaining. This section reverses the adjustment.
+         */
+        if ($this->credit->invoice_id && $this->credit->balance > 0) {
+
+
             $this->credit->invoice
             ->payments()
             ->where('is_deleted', 0)
-            ->whereHas('paymentables', function ($q){
+            ->whereHas('paymentables', function ($q) {
                 $q->where('paymentable_type', Credit::class)
                 ->where('paymentable_id', $this->credit->id)
                 ->where('refunded', '>', 0);
@@ -356,7 +355,7 @@ class CreditService
 
                 $payment->paymentables->where('paymentable_type', Credit::class)
                 ->where('paymentable_id', $this->credit->id)
-                ->each(function ($paymentable) use (&$refund_reversal){
+                ->each(function ($paymentable) use (&$refund_reversal) {
                     $refund_reversal += $paymentable->refunded;
 
                     $paymentable->forceDelete();
@@ -366,23 +365,32 @@ class CreditService
                 $payment->refunded -= $refund_reversal;
                 $payment->save();
 
-                if(BcMath::comp($payment->refunded, 0) == 0) {
+                if (BcMath::comp($payment->refunded, 0) == 0) {
                     $payment->status_id = Payment::STATUS_COMPLETED;
-                }
-                elseif(BcMath::comp($payment->amount, $payment->refunded) == 0) {
+                } elseif (BcMath::comp($payment->amount, $payment->refunded) == 0) {
                     $payment->status_id = Payment::STATUS_REFUNDED;
-                }
-                else {
+                } else {
                     $payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;
                 }
                 $payment->save();
             });
 
         }
-        
+
         return $this;
     }
 
+
+    public function getDocuNinjaSignable(?\App\Models\CreditInvitation $invite = null)
+    {
+
+        if (class_exists(\InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja::class))
+        {
+            $invite = $invite ?: $this->credit->invitations->first();
+            return (new \InvoiceNinja\AdminApi\Services\DocuNinja\DocuNinja())->signable->get($invite);
+        }
+        
+    }
     /**
      * Saves the credit.
      * @return Credit object

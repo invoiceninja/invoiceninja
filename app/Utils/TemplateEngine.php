@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -51,7 +51,7 @@ class TemplateEngine
     public $template;
 
     /** @var \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice | \App\Models\Payment $entity_obj **/
-    private \App\Models\Invoice | \App\Models\Quote | \App\Models\Credit | \App\Models\PurchaseOrder | \App\Models\RecurringInvoice | \App\Models\Payment $entity_obj;
+    private \App\Models\Invoice|\App\Models\Quote|\App\Models\Credit|\App\Models\PurchaseOrder|\App\Models\RecurringInvoice|\App\Models\Payment $entity_obj;
 
     /** @var \App\Models\Company | \App\Models\Client | null $settings_entity **/
     private $settings_entity;
@@ -233,7 +233,7 @@ class TemplateEngine
         $data['title'] = '';
         $data['body'] = '$body';
         $data['footer'] = '';
-        $data['logo'] = $user->company()->present()->logo();
+        $data['logo'] = $user->company()->present()->logo($this->settings);
 
         if ($this->entity_obj->client()->exists()) {
             $data = array_merge($data, Helpers::sharedEmailVariables($this->entity_obj->client));
@@ -328,7 +328,7 @@ class TemplateEngine
                     'client_id' => $client->id,
                     'amount' => 10,
                     'balance' => 10,
-                    'number' => rand(1, 10000)
+                    'number' => rand(1, 10000),
                 ]);
 
                 /** @var \App\Models\InvoiceInvitation $invitation */

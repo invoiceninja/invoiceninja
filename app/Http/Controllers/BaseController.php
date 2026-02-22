@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -105,58 +105,58 @@ class BaseController extends Controller
      * An array of includes to be loaded by default.
      */
     private $first_load = [
-          'account',
-          'user.company_user',
-          'token.company_user',
-          'company.activities',
-          'company.designs.company',
-          'company.task_statuses',
-          'company.expense_categories',
-          'company.documents',
-          'company.users.company_user',
-          'company.clients.contacts.company',
-          'company.clients.gateway_tokens',
-          'company.clients.documents',
-          'company.company_gateways.gateway',
-          'company.credits.invitations.contact',
-          'company.credits.invitations.company',
-          'company.credits.documents',
-          'company.expenses.documents',
-          'company.groups.documents',
-          'company.invoices.invitations.contact',
-          'company.invoices.invitations.company',
-          'company.purchase_orders.invitations',
-          'company.invoices.documents',
-          'company.products',
-          'company.products.documents',
-          'company.payments.paymentables',
-          'company.payments.documents',
-          'company.purchase_orders.documents',
-          'company.payment_terms.company',
-          'company.projects.documents',
-          'company.recurring_expenses',
-          'company.recurring_invoices',
-          'company.recurring_invoices.invitations.contact',
-          'company.recurring_invoices.invitations.company',
-          'company.recurring_invoices.documents',
-          'company.quotes.invitations.contact',
-          'company.quotes.invitations.company',
-          'company.quotes.documents',
-          'company.tasks.documents',
+        'account',
+        'user.company_user',
+        'token.company_user',
+        'company.activities',
+        'company.designs.company',
+        'company.task_statuses',
+        'company.expense_categories',
+        'company.documents',
+        'company.users.company_user',
+        'company.clients.contacts.company',
+        'company.clients.gateway_tokens',
+        'company.clients.documents',
+        'company.company_gateways.gateway',
+        'company.credits.invitations.contact',
+        'company.credits.invitations.company',
+        'company.credits.documents',
+        'company.expenses.documents',
+        'company.groups.documents',
+        'company.invoices.invitations.contact',
+        'company.invoices.invitations.company',
+        'company.purchase_orders.invitations',
+        'company.invoices.documents',
+        'company.products',
+        'company.products.documents',
+        'company.payments.paymentables',
+        'company.payments.documents',
+        'company.purchase_orders.documents',
+        'company.payment_terms.company',
+        'company.projects.documents',
+        'company.recurring_expenses',
+        'company.recurring_invoices',
+        'company.recurring_invoices.invitations.contact',
+        'company.recurring_invoices.invitations.company',
+        'company.recurring_invoices.documents',
+        'company.quotes.invitations.contact',
+        'company.quotes.invitations.company',
+        'company.quotes.documents',
+        'company.tasks.documents',
         //   'company.tasks.project',
-          'company.subscriptions',
-          'company.tax_rates',
-          'company.tokens_hashed',
-          'company.vendors.contacts.company',
-          'company.vendors.documents',
-          'company.webhooks',
-          'company.system_logs',
-          'company.bank_integrations',
-          'company.bank_transactions',
-          'company.bank_transaction_rules',
-          'company.task_schedulers',
-          'company.locations',
-        ];
+        'company.subscriptions',
+        'company.tax_rates',
+        'company.tokens_hashed',
+        'company.vendors.contacts.company',
+        'company.vendors.documents',
+        'company.webhooks',
+        'company.system_logs',
+        'company.bank_integrations',
+        'company.bank_transactions',
+        'company.bank_transaction_rules',
+        'company.task_schedulers',
+        'company.locations',
+    ];
 
     /**
      * An array of includes to be loaded by default
@@ -305,12 +305,12 @@ class BaseController extends Controller
      */
     protected function refreshReactResponse($query)
     {
-        $this->manager->parseIncludes([        
-                'account',
-                'user.company_user',
-                'token',
-                'company.tax_rates',
-            ]);
+        $this->manager->parseIncludes([
+            'account',
+            'user.company_user',
+            'token',
+            'company.tax_rates',
+        ]);
 
         $this->serializer = request()->input('serializer') ?: EntityTransformer::API_SERIALIZER_ARRAY;
 
@@ -600,7 +600,7 @@ class BaseController extends Controller
     private function resolveQueryLimit(): int
     {
         if (request()->has('per_page')) {
-            return min(abs((int)request()->input('per_page', 20)), 5000);
+            return min(abs((int) request()->input('per_page', 20)), 5000);
         }
 
         return 20;
@@ -691,7 +691,7 @@ class BaseController extends Controller
             $resource = new Collection($query, $transformer, $this->entity_type);
             $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         }
-        
+
         return $this->response($this->manager->createData($resource)->toArray());
     }
 
@@ -707,14 +707,15 @@ class BaseController extends Controller
         $user = auth()->user();
 
         /** React does not require bloated login response. */
-        if(request()->hasHeader('X-React')){
+        if (request()->hasHeader('X-React')) {
             $this->manager->parseIncludes(
-            [
-                'account',
-                'user.company_user',
-                'token',
-                'company',
-            ]);
+                [
+                    'account',
+                    'user.company_user',
+                    'token',
+                    'company',
+                ]
+            );
 
             // Set created_at to current time to filter out all existing related records
             // (designs, documents, groups, etc.) for a minimal response payload
@@ -723,8 +724,7 @@ class BaseController extends Controller
             //2026-01-23: Improve Login Performance for react.
             return $this->refreshReactResponse($query);
             // return $this->miniLoadResponse($query);
-        } 
-        elseif ($user->getCompany()->is_large) {
+        } elseif ($user->getCompany()->is_large) {
             $this->manager->parseIncludes($this->mini_load);
 
             return $this->miniLoadResponse($query);
@@ -979,7 +979,7 @@ class BaseController extends Controller
 
         $user = Auth::user();
 
-        if ($user && ! $user->hasPermission('view_'.Str::snake(class_basename($this->entity_type)))) {
+        if ($user && ! $user->hasPermission('view_' . Str::snake(class_basename($this->entity_type)))) {
             if (in_array($this->entity_type, [User::class])) {
                 $query->where('id', $user->id);
             } elseif (in_array($this->entity_type, [BankTransactionRule::class,CompanyGateway::class, TaxRate::class, BankIntegration::class, Scheduler::class, BankTransaction::class, Webhook::class, ExpenseCategory::class])) { //table without assigned_user_id
@@ -1039,7 +1039,7 @@ class BaseController extends Controller
         if ($index == 'none') {
             unset($response['meta']);
         } else {
-            $meta = isset($response['meta']) ? $response['meta'] : null;
+            $meta = $response['meta'] ?? null;
             $response = [
                 $index => $response,
             ];

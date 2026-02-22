@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -316,7 +316,7 @@ class BraintreePaymentDriver extends BaseDriver
 
     public function processWebhookRequest($request)
     {
-        
+
         $validator = Validator::make($request->all(), [
             'bt_signature' => ['required'],
             'bt_payload' => ['required'],
@@ -340,9 +340,9 @@ class BraintreePaymentDriver extends BaseDriver
 
         nlog($message);
 
-        if($message == 'transaction_settlement_declined'){
+        if ($message == 'transaction_settlement_declined') {
             $payment = Payment::withTrashed()->where('transaction_reference', $webhookNotification->transaction->id)->first();
-            
+
             if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
                 $payment->service()->deletePayment();
                 $payment->status_id = Payment::STATUS_FAILED;
@@ -446,14 +446,14 @@ class BraintreePaymentDriver extends BaseDriver
 
         if ($b_business_address) {
 
-            $braintree_address =
-            [
-            'address1' => $b_business_address->extendedAddress ?? '',
-            'address2' => $b_business_address->streetAddress ?? '',
-            'city' => $b_business_address->locality ?? '',
-            'postal_code' => $b_business_address->postalCode ?? '',
-            'state' => $b_business_address->region ?? '',
-            'country_id' => $b_business_address->countryCodeNumeric ?? '840',
+            $braintree_address
+            = [
+                'address1' => $b_business_address->extendedAddress ?? '',
+                'address2' => $b_business_address->streetAddress ?? '',
+                'city' => $b_business_address->locality ?? '',
+                'postal_code' => $b_business_address->postalCode ?? '',
+                'state' => $b_business_address->region ?? '',
+                'country_id' => $b_business_address->countryCodeNumeric ?? '840',
             ];
 
             $import_client_data = array_merge($import_client_data, $braintree_address);
@@ -461,14 +461,14 @@ class BraintreePaymentDriver extends BaseDriver
 
         if ($b_shipping_address) {
 
-            $braintree_shipping_address =
-            [
-            'shipping_address1' => $b_shipping_address->extendedAddress ?? '',
-            'shipping_address2' => $b_shipping_address->streetAddress ?? '',
-            'shipping_city' => $b_shipping_address->locality ?? '',
-            'shipping_postal_code' => $b_shipping_address->postalCode ?? '',
-            'shipping_state' => $b_shipping_address->region ?? '',
-            'shipping_country_id' => $b_shipping_address->countryCodeNumeric ?? '840',
+            $braintree_shipping_address
+            = [
+                'shipping_address1' => $b_shipping_address->extendedAddress ?? '',
+                'shipping_address2' => $b_shipping_address->streetAddress ?? '',
+                'shipping_city' => $b_shipping_address->locality ?? '',
+                'shipping_postal_code' => $b_shipping_address->postalCode ?? '',
+                'shipping_state' => $b_shipping_address->region ?? '',
+                'shipping_country_id' => $b_shipping_address->countryCodeNumeric ?? '840',
             ];
 
             $import_client_data = array_merge($import_client_data, $braintree_shipping_address);

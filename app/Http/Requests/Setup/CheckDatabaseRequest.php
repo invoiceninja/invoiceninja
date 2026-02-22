@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -13,6 +13,7 @@
 namespace App\Http\Requests\Setup;
 
 use App\Http\Requests\Request;
+use Illuminate\Support\Facades\Schema;
 
 class CheckDatabaseRequest extends Request
 {
@@ -23,7 +24,16 @@ class CheckDatabaseRequest extends Request
      */
     public function authorize()
     {
-        return true; /* Return something that will check if setup has been completed, like Ninja::hasCompletedSetup() */
+        if (!\App\Utils\Ninja::isSelfHost()) {
+            return false;
+        }
+
+        try {
+            return !Schema::hasTable('accounts') || \App\Models\Account::count() == 0;
+        } catch (\Throwable $e) {
+            // If database connection fails, allow the request (we're checking the DB)
+            return true;
+        }
     }
 
     /**

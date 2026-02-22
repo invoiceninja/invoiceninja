@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -55,7 +55,7 @@ class ClientMergedActivity implements ShouldQueue
         $fields->company_id = $client->company_id;
         $fields->activity_type_id = Activity::MERGE_CLIENT;
         $fields->notes = $event->mergeable_client;
-        
+
         $this->activity_repo->save($fields, $client, $event->event_vars);
     }
 }

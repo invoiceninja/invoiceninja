@@ -27,7 +27,7 @@ class Setup extends Component
     public function render()
     {
         return <<<'HTML'
-            <template></template>
-        HTML;
+                <template></template>
+            HTML;
     }
 }

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -38,11 +38,11 @@ class DestroyInvoiceRequest extends Request
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if (\Illuminate\Support\Facades\Cache::has($this->ip()."|".$this->invoice->id."|".$user->company()->company_key)) {
+        if (\Illuminate\Support\Facades\Cache::has($this->ip() . "|" . $this->invoice->id . "|" . $user->company()->company_key)) {
             throw new \App\Exceptions\DuplicatePaymentException('Duplicate request.', 429);
         }
 
-        \Illuminate\Support\Facades\Cache::put(($this->ip()."|".$this->invoice->id."|".$user->company()->company_key), true, 1);
+        \Illuminate\Support\Facades\Cache::put(($this->ip() . "|" . $this->invoice->id . "|" . $user->company()->company_key), true, 1);
 
     }
 }

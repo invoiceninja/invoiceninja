@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -72,7 +72,7 @@ class UserTransformer extends EntityTransformer
             'language_id' => (string) $user->language_id ?: '',
             'user_logged_in_notification' => (bool) $user->user_logged_in_notification,
             'referral_code' => (string) $user->referral_code,
-            'referral_meta' => $user->referral_meta ? (object)$user->referral_meta : $ref,
+            'referral_meta' => $user->referral_meta ? (object) $user->referral_meta : $ref,
         ];
     }
 

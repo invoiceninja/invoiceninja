@@ -47,7 +47,7 @@
         language_id:
           description: 'The language id of the user'
           type: string
-          example: 1  
+          example: "1"
         verified_phone_number:
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean
@@ -151,7 +151,7 @@
         language_id:
           description: 'The language id of the user'
           type: string
-          example: 1  
+          example: "1"
         verified_phone_number:
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean

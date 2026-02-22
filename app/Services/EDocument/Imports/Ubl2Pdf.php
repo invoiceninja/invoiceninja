@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,12 +33,12 @@ use App\Services\Template\TemplateService;
 class Ubl2Pdf extends AbstractService
 {
     /** @var \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote */
-    public \InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice;
+    public \InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice;
 
     /**
      * @throws \Throwable
      */
-    public function __construct(\InvoiceNinja\EInvoice\Models\Peppol\Invoice | \InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice, public Company $company)
+    public function __construct(\InvoiceNinja\EInvoice\Models\Peppol\Invoice|\InvoiceNinja\EInvoice\Models\Peppol\CreditNote $invoice, public Company $company)
     {
         $this->invoice = $invoice;
     }
@@ -160,12 +160,12 @@ class Ubl2Pdf extends AbstractService
     private function customCss(): string
     {
         $css = '';
-        $css .= ".".str_replace(" ", "", ctrans('texts.product_key'))." { width: 15%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.quantity'))." { width: 8%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.notes'))." { width: 40%; } ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.cost'))." { width:10%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.tax'))." { width:10%;} ";
-        $css .= ".".str_replace(" ", "", ctrans('texts.line_total'))." { width:15%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.product_key')) . " { width: 15%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.quantity')) . " { width: 8%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.notes')) . " { width: 40%; } ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.cost')) . " { width:10%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.tax')) . " { width:10%;} ";
+        $css .= "." . str_replace(" ", "", ctrans('texts.line_total')) . " { width:15%;} ";
 
         return $css;
 
@@ -193,7 +193,7 @@ class Ubl2Pdf extends AbstractService
         return $this->processValues([
             'currency' => data_get($this->invoice, 'DocumentCurrencyCode.value', $this->company->currency()->code),
             ctrans('texts.terms') => $this->harvestTerms(),
-            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', '')
+            ctrans('texts.public_notes') => data_get($this->invoice, 'Note', ''),
         ]);
     }
 

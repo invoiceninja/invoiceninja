@@ -51,11 +51,11 @@ class PdfConfiguration
 
     public Currency $currency;
 
-    public Client | Vendor $currency_entity;
+    public Client|Vendor $currency_entity;
 
     public Design $design;
 
-    public Invoice | Credit | Quote | PurchaseOrder | RecurringInvoice $entity;
+    public Invoice|Credit|Quote|PurchaseOrder|RecurringInvoice $entity;
 
     public string $entity_design_id;
 
@@ -86,9 +86,7 @@ class PdfConfiguration
      * @param  PdfService $service
      * @return void
      */
-    public function __construct(public PdfService $service)
-    {
-    }
+    public function __construct(public PdfService $service) {}
 
     /**
      * init
@@ -153,7 +151,7 @@ class PdfConfiguration
         $default = (array) CompanySettings::getEntityVariableDefaults();
 
         // $variables = (array)$this->service->company->settings->pdf_variables;
-        $variables = (array)$this->settings->pdf_variables;
+        $variables = (array) $this->settings->pdf_variables;
 
         foreach ($default as $property => $value) {
             if (array_key_exists($property, $variables)) {
@@ -235,7 +233,7 @@ class PdfConfiguration
         $this->setTaxMap($this->entity->calc()->getTaxMap());
         $this->setTotalTaxMap($this->entity->calc()->getTotalTaxMap());
 
-        $this->path = $this->path.$this->entity->numberFormatter().'.pdf';
+        $this->path = $this->path . $this->entity->numberFormatter() . '.pdf';
 
         return $this;
     }
@@ -319,7 +317,7 @@ class PdfConfiguration
         } elseif ($this->settings->show_currency_code === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
-            return "{$value} ".trim($symbol);
+            return "{$value} " . trim($symbol);
         } elseif ($this->settings->show_currency_code === false) {
             return "{$symbol}{$value}";
         } else {
@@ -413,7 +411,7 @@ class PdfConfiguration
         } elseif ($this->settings->show_currency_code === true) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
-            return "{$value} ".trim($symbol);
+            return "{$value} " . trim($symbol);
         } elseif ($this->settings->show_currency_code === false) {
             if ($_value < 0) {
                 $value = substr($value, 1);

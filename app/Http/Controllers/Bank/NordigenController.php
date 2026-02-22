@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -69,7 +69,7 @@ class NordigenController extends BaseController
                 'account' => $company->account,
                 'institutions' => $institutions,
                 'institutionId' => $data['institution_id'] ?? null,
-                'redirectUrl' => $context['redirect'] . '?action=nordigen_connect&status=user-aborted'
+                'redirectUrl' => $context['redirect'] . '?action=nordigen_connect&status=user-aborted',
             ]);
         }
 
@@ -79,7 +79,7 @@ class NordigenController extends BaseController
 
         try {
             $txDays = $data['tx_days'] ?? $institution['transaction_total_days'] ?? 90; //@phpstan-ignore-line
-            
+
             $agreement = $nordigen->createAgreement($institution, $institution['max_access_valid_for_days'], $txDays);//@2025-07-01: this is the correct way to get the access days
 
         } catch (\Exception $e) {

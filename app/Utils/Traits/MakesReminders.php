@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -37,20 +37,20 @@ trait MakesReminders
                 // return Carbon::parse($this->date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
 
                 return Carbon::parse($this->date)
-                            ->addDays((int)$num_days_reminder)
+                            ->addDays((int) $num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() ===
-                                ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                            ->toDateString()
+                                === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'before_due_date':
                 $partial_or_due_date = ($this->partial > 0 && isset($this->partial_due_date)) ? $this->partial_due_date : $this->due_date;
                 // return Carbon::parse($partial_or_due_date)->subDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
 
                 return Carbon::parse($partial_or_due_date)
-                            ->subDays((int)$num_days_reminder)
+                            ->subDays((int) $num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() ===
-                                ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                            ->toDateString()
+                                === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
 
             case 'after_due_date':
@@ -58,34 +58,34 @@ trait MakesReminders
                 // return Carbon::parse($partial_or_due_date)->addDays((int)$num_days_reminder)->startOfDay()->addSeconds($offset)->isSameDay(Carbon::now());
 
                 return Carbon::parse($partial_or_due_date)
-                            ->addDays((int)$num_days_reminder)
+                            ->addDays((int) $num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() ===
-                                ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                            ->toDateString()
+                                === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'after_quote_date':
 
                 return Carbon::parse($this->date)
-                            ->addDays((int)$num_days_reminder)
+                            ->addDays((int) $num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() ===
-                                ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                            ->toDateString()
+                                === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'after_valid_until_date':
 
                 return Carbon::parse($this->due_date)
-                            ->addDays((int)$num_days_reminder)
+                            ->addDays((int) $num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() ===
-                                ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                            ->toDateString()
+                                === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             case 'before_valid_until_date':
 
                 return Carbon::parse($this->due_date)
-                            ->subDays((int)$num_days_reminder)
+                            ->subDays((int) $num_days_reminder)
                             ->startOfDay()
-                            ->toDateString() ===
-                                ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
+                            ->toDateString()
+                                === ($entity_send_time === 0 ? now()->startOfDay()->toDateString() : now()->setTimezone($this->client->timezone()->name)->startOfDay()->toDateString());
 
             default:
                 return null;

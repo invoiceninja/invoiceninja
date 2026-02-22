@@ -2,6 +2,4 @@
 
 namespace App\Import;
 
-class ImportException extends \Exception
-{
-}
+class ImportException extends \Exception {}

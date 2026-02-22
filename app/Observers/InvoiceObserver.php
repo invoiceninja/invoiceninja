@@ -5,13 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Observers;
 
+use App\Jobs\Quickbooks\PushToQuickbooks;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Invoice;
 use App\Models\Webhook;
@@ -19,6 +20,16 @@ use App\Models\Webhook;
 class InvoiceObserver
 {
     public $afterCommit = true;
+
+    /**
+     * Handle the invoice "updating" event (before save).
+     *
+     * @param Invoice $invoice
+     * @return void
+     */
+    public function updating(Invoice $invoice)
+    {       
+    }
 
     /**
      * Handle the client "created" event.
@@ -35,6 +46,7 @@ class InvoiceObserver
         if ($subscriptions) {
             WebhookHandler::dispatch(Webhook::EVENT_CREATE_INVOICE, $invoice, $invoice->company, 'client')->delay(0);
         }
+        
     }
 
     /**
@@ -63,6 +75,7 @@ class InvoiceObserver
         if ($subscriptions) {
             WebhookHandler::dispatch($event, $invoice, $invoice->company, 'client')->delay(0);
         }
+
     }
 
     /**

@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -30,9 +30,7 @@ class EntityPolicy
      * @param  $ability
      * @return void /void
      */
-    public function before($user, $ability)
-    {
-    }
+    public function before($user, $ability) {}
 
     /**
      * Checks if the user has edit permissions.
@@ -46,7 +44,7 @@ class EntityPolicy
     public function edit(User $user, $entity): bool
     {
         return ($user->isAdmin() && $entity->company_id == $user->companyId())
-            || ($user->hasPermission('edit_'.\Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
+            || ($user->hasPermission('edit_' . \Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
             // || ($user->hasPermission('edit_all') && $entity->company_id == $user->companyId()) //this is redundant as the edit_ check covers the _all check
             || ($user->owns($entity) && $entity->company_id == $user->companyId())
             || ($user->assigned($entity) && $entity->company_id == $user->companyId());
@@ -63,7 +61,7 @@ class EntityPolicy
     public function view(User $user, $entity): bool
     {
         return ($user->isAdmin() && $entity->company_id == $user->companyId())
-            || ($user->hasPermission('view_'.\Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
+            || ($user->hasPermission('view_' . \Illuminate\Support\Str::snake(class_basename($entity))) && $entity->company_id == $user->companyId())
             // || ($user->hasPermission('view_all') && $entity->company_id == $user->companyId()) //this is redundant as the edit_ check covers the _all check
             || ($user->owns($entity) && $entity->company_id == $user->companyId())
             || ($user->assigned($entity) && $entity->company_id == $user->companyId());

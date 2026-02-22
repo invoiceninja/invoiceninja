@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -22,7 +22,7 @@ class SdkWrapper
 {
     public const MAXRESULTS = 10000;
 
-    private $entities = ['Customer','Invoice','Item', 'SalesReceipt', 'Vendor', 'Purchase', 'Payment'];
+    private $entities = ['Customer','Invoice', 'Item', 'SalesReceipt', 'Vendor', 'Purchase', 'Payment'];
 
     private OAuth2AccessToken $token;
 
@@ -55,9 +55,19 @@ class SdkWrapper
         return $this->accessToken()->getRefreshToken();
     }
 
+    public function revokeAccessToken()
+    {
+        return $this->sdk->getOAuth2LoginHelper()->revokeToken($this->accessToken()->getAccessToken());
+    }
+
     public function company()
     {
         return $this->sdk->getCompanyInfo();
+    }
+
+    public function getPreferences()
+    {
+        return $this->sdk->getCompanyPreferences();
     }
     /*
     accessTokenKey
@@ -161,7 +171,9 @@ class SdkWrapper
 
     public function totalRecords(string $entity): int
     {
-        return (int)$this->sdk->Query("select count(*) from $entity");
+        $whereClause = $this->buildEntityWhereClause($entity);
+        $query = "select count(*) from $entity" . ($whereClause ? " WHERE $whereClause" : "");
+        return (int) $this->sdk->Query($query);
     }
 
     private function queryData(string $query, int $start = 1, $limit = 1000): array
@@ -186,6 +198,10 @@ class SdkWrapper
         $limit = 1000;
         try {
 
+            // Build query with filters for specific entities
+            $whereClause = $this->buildEntityWhereClause($entity);
+            $baseQuery = "select * from $entity" . ($whereClause ? " WHERE $whereClause" : "");
+
             $total = $this->totalRecords($entity);
             $total = min($max, $total);
 
@@ -193,7 +209,7 @@ class SdkWrapper
             do {
                 $limit = min(self::MAXRESULTS, $total - $start);
 
-                $recordsChunk = $this->queryData("select * from $entity", $start, $limit);
+                $recordsChunk = $this->queryData($baseQuery, $start, $limit);
                 if (empty($recordsChunk)) {
                     break;
                 }
@@ -211,5 +227,27 @@ class SdkWrapper
         }
 
         return $records;
+    }
+
+    /**
+     * Build WHERE clause for entity-specific filtering.
+     *
+     * For Items, we only include types that can be used as line items on invoices.
+     * QuickBooks doesn't support != operator, so we use IN with valid types.
+     *
+     * @param string $entity The QuickBooks entity name
+     * @return string The WHERE clause (without the WHERE keyword) or empty string
+     */
+    private function buildEntityWhereClause(string $entity): string
+    {
+        if ($entity === 'Item') {
+            // Only include item types that can be used as line items on invoices/estimates
+            // Valid types: Service, NonInventory, Inventory
+            // Excluded types: Category, Group, Bundle (not universally supported)
+            // See: https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/item
+            return "Type IN ('Service', 'NonInventory', 'Inventory')";
+        }
+
+        return '';
     }
 }

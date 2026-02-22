@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -109,7 +109,7 @@ class PdfSlot extends Component
     public function downloadPdf()
     {
 
-        $file_name = $this->entity()->numberFormatter().'.pdf';
+        $file_name = $this->entity()->numberFormatter() . '.pdf';
 
         $file = (new \App\Jobs\Entity\CreateRawPdf($this->invitation()))->handle();
 
@@ -124,7 +124,7 @@ class PdfSlot extends Component
     public function downloadEDocument()
     {
 
-        $file_name = $this->entity()->numberFormatter().'.xml';
+        $file_name = $this->entity()->numberFormatter() . '.xml';
 
         $file = (new CreateEDocument($this->entity()))->handle();
 
@@ -156,9 +156,9 @@ class PdfSlot extends Component
             $this->show_line_total = in_array('$product.line_total', $this->settings->pdf_variables->product_quote_columns);
         }
 
-        $this->html_variables = $this->entity_type == 'purchase_order' ?
-                            (new VendorHtmlEngine($this->invitation()))->generateLabelsAndValues() :
-                            (new HtmlEngine($this->invitation()))->generateLabelsAndValues();
+        $this->html_variables = $this->entity_type == 'purchase_order'
+                            ? (new VendorHtmlEngine($this->invitation()))->generateLabelsAndValues()
+                            : (new HtmlEngine($this->invitation()))->generateLabelsAndValues();
 
         $terms = $this->entity()->parseHtmlVariables('terms', $this->html_variables);
         $public_notes = $this->entity()->parseHtmlVariables('public_notes', $this->html_variables);

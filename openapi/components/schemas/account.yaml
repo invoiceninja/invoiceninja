@@ -7,5 +7,5 @@
         account_sms_verified:
           description: 'Boolean flag if the account has been verified by sms'
           type: string
-          example: true
+          example: "true"
       type: object

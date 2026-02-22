@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -24,26 +24,26 @@ class StoreSchedulerRequest extends Request
 {
     use MakesHash;
     public array $client_statuses = [
-                        'all',
-                        'draft',
-                        'paid',
-                        'unpaid',
-                        'overdue',
-                        'pending',
-                        'invoiced',
-                        'logged',
-                        'partial',
-                        'applied',
-                        'active',
-                        'paused',
-                        'completed',
-                        'approved',
-                        'expired',
-                        'upcoming',
-                        'converted',
-                        'uninvoiced',
+        'all',
+        'draft',
+        'paid',
+        'unpaid',
+        'overdue',
+        'pending',
+        'invoiced',
+        'logged',
+        'partial',
+        'applied',
+        'active',
+        'paused',
+        'completed',
+        'approved',
+        'expired',
+        'upcoming',
+        'converted',
+        'uninvoiced',
     ];
-    
+
     public array $templates = [
         'invoice',
         'quote',
@@ -79,7 +79,7 @@ class StoreSchedulerRequest extends Request
         $rules = [
             'name' => 'bail|sometimes|nullable|string',
             'is_paused' => 'bail|sometimes|boolean',
-            'frequency_id' => 'bail|sometimes|integer|digits_between:1,12',
+            'frequency_id' => 'bail|sometimes|integer|between:0,12',
             'next_run' => 'bail|required|date:Y-m-d|after_or_equal:today',
             'next_run_client' => 'bail|sometimes|date:Y-m-d',
             'template' => 'bail|required|string',
@@ -112,12 +112,12 @@ class StoreSchedulerRequest extends Request
     public function withValidator(\Illuminate\Validation\Validator $validator)
     {
         $validator->after(function ($validator) {
-            if(!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template',true)->company()->doesntExist()) {
+            if (!empty($this->parameters['template_id']) && Design::where('id', $this->decodePrimaryKey($this->parameters['template_id']))->where('is_template', true)->company()->doesntExist()) {
                 $validator->errors()->add('template_id', 'Invalid Template ID Selected');
             }
         });
     }
-    
+
     public function prepareForValidation()
     {
         $input = $this->all();
@@ -150,15 +150,14 @@ class StoreSchedulerRequest extends Request
 
         }
 
-        if(isset($input['parameters']['schedule']) && is_array($input['parameters']['schedule']) && count($input['parameters']['schedule']) > 0) {
+        if (isset($input['parameters']['schedule']) && is_array($input['parameters']['schedule']) && count($input['parameters']['schedule']) > 0) {
             $input['remaining_cycles'] = count($input['parameters']['schedule']);
         }
 
-        if($input['template'] == 'payment_schedule' && isset($input['parameters']['invoice_id'])){
+        if ($input['template'] == 'payment_schedule' && isset($input['parameters']['invoice_id'])) {
             $i = Invoice::withTrashed()->find($this->decodePrimaryKey($input['parameters']['invoice_id']));
-            $input['name'] = ctrans('texts.payment_schedule'). " " . ctrans('texts.invoice_number_short') . " " . $i->number;
-        }
-        elseif($input['template'] == 'invoice_outstanding_tasks'){
+            $input['name'] = ctrans('texts.payment_schedule') . " " . ctrans('texts.invoice_number_short') . " " . $i->number;
+        } elseif ($input['template'] == 'invoice_outstanding_tasks') {
             $input['name'] = ctrans('texts.invoice_outstanding_tasks');
         }
 
@@ -172,7 +171,7 @@ class StoreSchedulerRequest extends Request
         return [
             'parameters.schedule.min' => 'The schedule must have at least one item.',
             'parameters.schedule' => 'You must have at least one schedule entry.',
-            'parameters.invoice_id.required_if' => 'The invoice is required for the payment schedule template.'
+            'parameters.invoice_id.required_if' => 'The invoice is required for the payment schedule template.',
         ];
     }
 }

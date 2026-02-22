@@ -9,14 +9,24 @@
  */
 
 class Accept {
-    constructor(displaySignature, displayTerms) {
+    constructor(displaySignature, displayTerms, docuninjaActive) {
         this.shouldDisplaySignature = displaySignature;
         this.shouldDisplayTerms = displayTerms;
         this.termsAccepted = false;
+        this.docuninjaActive = docuninjaActive;
     }
 
     submitForm() {
         document.getElementById('approve-form').submit();
+    }
+
+    displayDocuNinja() {
+        const pdfContainer = document.getElementById('pdf-slot-container');
+        const docuninjaContainer = document.getElementById('docuninja-container');
+
+        pdfContainer.classList.add('hidden');
+        docuninjaContainer.classList.remove('hidden');
+
     }
 
     displaySignature() {
@@ -63,6 +73,12 @@ class Accept {
                 console.log("accepted ");
 
                 if (this.shouldDisplaySignature && this.shouldDisplayTerms) {
+
+                    if(this.docuninjaActive){
+                        this.displayDocuNinja();
+                        return;
+                    }
+
                     this.displaySignature();
 
                     document
@@ -83,6 +99,12 @@ class Accept {
                 }
 
                 if (this.shouldDisplaySignature && !this.shouldDisplayTerms) {
+
+                    if(this.docuninjaActive){
+                        this.displayDocuNinja();
+                        return;
+                    }
+                    
                     this.displaySignature();
 
                     document
@@ -118,4 +140,6 @@ const signature = document.querySelector('meta[name="require-purchase_order-sign
 
 const terms = document.querySelector('meta[name="show-purchase_order-terms"]').content;
 
-new Accept(Boolean(+signature), Boolean(+terms)).handle();
+const docuninja_active = document.querySelector('meta[name="docuninja-active"]').content;
+
+new Accept(Boolean(+signature), Boolean(+terms), Boolean(+docuninja_active)).handle();

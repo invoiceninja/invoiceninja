@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -14,7 +14,6 @@ namespace App\PaymentDrivers;
 
 use App\Models\Client;
 use App\Models\Country;
-use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\SystemLog;
 use App\Models\GatewayType;
@@ -263,7 +262,7 @@ class GoCardlessPaymentDriver extends BaseDriver
         $this->init();
 
         nlog('GoCardless Event');
-        nlog($request->all());
+        // nlog($request->all());
         if (! $request->has('events')) {
             nlog('No GoCardless events to process in response?');
 
@@ -273,9 +272,10 @@ class GoCardlessPaymentDriver extends BaseDriver
         sleep(1);
 
         foreach ($request->events as $event) {
+            nlog($event);
             if (
-                ($event['resource_type'] == 'payments' && $event['action'] == 'confirmed') ||
-                $event['action'] === 'paid_out') {
+                ($event['resource_type'] == 'payments' && $event['action'] == 'confirmed')
+                || $event['action'] === 'paid_out') {
                 nlog('Searching for transaction reference');
 
                 $payment = Payment::query()
@@ -459,8 +459,8 @@ class GoCardlessPaymentDriver extends BaseDriver
         $mandates = $this->gateway->mandates()->list();
 
         foreach ($mandates->records as $mandate) {
-            if ($customer->id != $mandate->links->customer || !in_array($mandate->status,['active', 'pending_submission']) || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
-            // if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+            if ($customer->id != $mandate->links->customer || !in_array($mandate->status, ['active', 'pending_submission']) || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
+                // if ($customer->id != $mandate->links->customer || $mandate->status != 'active' || ClientGatewayToken::where('token', $mandate->id)->where('gateway_customer_reference', $customer->id)->exists()) {
                 continue;
             }
 

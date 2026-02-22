@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -64,8 +64,8 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
         if ($this->company_gateway->require_shipping_address) {
 
-            $shipping_data =
-            [[
+            $shipping_data
+            = [[
                 "op" => "replace",
                 "path" => "/purchase_units/@reference_id=='default'/shipping/address",
                 "value" => [
@@ -150,10 +150,10 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         })->implode("\n");
 
         $order = [
-                "intent" => "CAPTURE",
-                "payment_source" => $this->getPaymentSource(),
-                "purchase_units" => [
-                    [
+            "intent" => "CAPTURE",
+            "payment_source" => $this->getPaymentSource(),
+            "purchase_units" => [
+                [
                     "custom_id" => $this->payment_hash->hash,
                     "description" => ctrans('texts.invoice_number') . '# ' . $invoice->number,
                     "invoice_id" => $invoice->number,
@@ -163,9 +163,9 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
                         "breakdown" => [
                             "item_total" => [
                                 "currency_code" => $this->client->currency()->code,
-                                "value" => (string) $data['amount_with_fee']
-                            ]
-                        ]
+                                "value" => (string) $data['amount_with_fee'],
+                            ],
+                        ],
                     ],
                     "items" => [
                         [
@@ -174,13 +174,13 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
                             "quantity" => "1",
                             "unit_amount" => [
                                 "currency_code" => $this->client->currency()->code,
-                                "value" => (string) $data['amount_with_fee']
+                                "value" => (string) $data['amount_with_fee'],
                             ],
                         ],
                     ],
                 ],
-                ]
-            ];
+            ],
+        ];
 
         if ($shipping = $this->getShippingAddress()) {
             $order['purchase_units'][0]["shipping"] = $shipping;
@@ -205,7 +205,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
 
             $_invoice = collect($this->payment_hash->data->invoices)->first();
             $invoice = Invoice::withTrashed()->find($this->decodePrimaryKey($_invoice->invoice_id));
-            $new_invoice_number = $invoice->number."_".Str::random(5);
+            $new_invoice_number = $invoice->number . "_" . Str::random(5);
 
             $order['purchase_units'][0]['invoice_id'] = $new_invoice_number;
 
@@ -256,12 +256,12 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         nlog($r->body());
 
         $data["payer"] = [
-                    "name" => [
-                        "given_name" => $this->client->present()->first_name(),
-                        "surname" => $this->client->present()->last_name()
-                    ],
-                    "email_address" => $this->client->present()->email(),
-                ];
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name(),
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
             "card" => [
@@ -337,12 +337,12 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         $this->payment_hash = $payment_hash;
 
         $data['payer'] = [
-                    "name" => [
-                        "given_name" => $this->client->present()->first_name(),
-                        "surname" => $this->client->present()->last_name()
-                    ],
-                    "email_address" => $this->client->present()->email(),
-                ];
+            "name" => [
+                "given_name" => $this->client->present()->first_name(),
+                "surname" => $this->client->present()->last_name(),
+            ],
+            "email_address" => $this->client->present()->email(),
+        ];
 
         $data['amount_with_fee'] = $this->payment_hash->data->amount_with_fee;
         $data["payment_source"] = [
@@ -387,7 +387,7 @@ class PayPalRestPaymentDriver extends PayPalBasePaymentDriver
         if (isset($response['purchase_units'][0]['payments']['captures'][0]['status']) && $response['purchase_units'][0]['payments']['captures'][0]['status'] == 'COMPLETED') {
 
             $data = [
-                'payment_type' => $this->getPaymentMethod((string)$cgt->gateway_type_id),
+                'payment_type' => $this->getPaymentMethod((string) $cgt->gateway_type_id),
                 'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'transaction_reference' => $response['purchase_units'][0]['payments']['captures'][0]['id'],
                 'gateway_type_id' => $this->gateway_type_id,

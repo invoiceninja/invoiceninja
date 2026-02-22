@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,9 +33,7 @@ class RefundPayment
 
     private string $refund_failed_message = '';
 
-    public function __construct(public Payment $payment, public array $refund_data)
-    {
-    }
+    public function __construct(public Payment $payment, public array $refund_data) {}
 
     public function run()
     {
@@ -196,7 +194,7 @@ class RefundPayment
      */
     private function setStatus()
     {
-        if ($this->total_refund == $this->payment->amount || floatval($this->payment->amount) == floatval($this->payment->refunded)) {
+        if ($this->total_refund == $this->payment->amount || \App\Utils\BcMath::equal($this->payment->amount, $this->payment->refunded)) {
             $this->payment->status_id = Payment::STATUS_REFUNDED;
         } else {
             $this->payment->status_id = Payment::STATUS_PARTIALLY_REFUNDED;

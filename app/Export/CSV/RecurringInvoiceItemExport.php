@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -42,7 +42,7 @@ class RecurringInvoiceItemExport extends BaseExport
     private array $decorate_keys = [
         'client',
         'currency_id',
-        'status'
+        'status',
     ];
 
     public function __construct(Company $company, array $input)
@@ -65,7 +65,7 @@ class RecurringInvoiceItemExport extends BaseExport
         if (count($this->input['report_keys']) == 0) {
             $this->force_keys = true;
             $this->input['report_keys'] = array_values($this->mergeItemsKeys('recurring_invoice_report_keys'));
-            nlog($this->input['report_keys']);
+            // nlog($this->input['report_keys']);
         }
 
         $this->input['report_keys'] = array_merge($this->input['report_keys'], array_diff($this->forced_client_fields, $this->input['report_keys']));
@@ -162,7 +162,7 @@ class RecurringInvoiceItemExport extends BaseExport
 
         //if we have product filters in place, we will also need to filter the items at this level:
         if (isset($this->input['product_key'])) {
-                        
+
             $products = str_getcsv($this->input['product_key'], ',', "'");
 
             $products = array_map(function ($product) {
@@ -198,7 +198,7 @@ class RecurringInvoiceItemExport extends BaseExport
                             $item->tax_id = '1';
                         }
 
-                        $item_array[$key] = $this->getTaxCategoryName((int)$item->tax_id ?? 1); // @phpstan-ignore-line
+                        $item_array[$key] = $this->getTaxCategoryName((int) $item->tax_id ?? 1); // @phpstan-ignore-line
                     } elseif (property_exists($item, $tmp_key)) {
                         $item_array[$key] = $item->{$tmp_key};
                     } else {
@@ -281,7 +281,7 @@ class RecurringInvoiceItemExport extends BaseExport
             $entity['recurring_invoice.user_id'] = $invoice->user ? $invoice->user->present()->name() : '';
         }
 
-        
+
         if (in_array('invoice.project', $this->input['report_keys'])) {
             $entity['invoice.project'] = $invoice->project ? $invoice->project->name : '';// @phpstan-ignore-line
         }

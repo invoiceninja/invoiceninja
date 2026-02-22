@@ -100,32 +100,32 @@
           description: 'Tax rate 1'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'Tax rate 2'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate3:
           description: 'Tax rate 3'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         amount:
           description: 'The total expense amont'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         foreign_amount:
           description: 'The total foreign amount of the expense'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         exchange_rate:
           description: 'The exchange rate at the time of the expense'
           type: number
           format: float
-          example: '0.80'
+          example: 0.80
         date:
           description: 'The expense date format Y-m-d'
           type: string
@@ -150,12 +150,12 @@
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
           type: boolean

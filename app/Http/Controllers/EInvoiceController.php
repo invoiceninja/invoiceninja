@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -45,8 +45,8 @@ class EInvoiceController extends BaseController
 
         $user = auth()->user();
 
-        if(!in_array($user->company()->settings->e_invoice_type, ['VERIFACTU', 'PEPPOL'])) {
-            
+        if (!in_array($user->company()->settings->e_invoice_type, ['VERIFACTU', 'PEPPOL'])) {
+
             $data = [
                 'passes' => true,
                 'invoices' => [],
@@ -61,7 +61,7 @@ class EInvoiceController extends BaseController
         $el = $request->getValidatorClass();
 
         $data = [];
-        
+
         match ($request->entity) {
             'invoices' => $data = $el->checkInvoice($request->getEntity()),
             'recurring_invoices' => $data = $el->checkRecurringInvoice($request->getEntity()),
@@ -120,8 +120,7 @@ class EInvoiceController extends BaseController
 
                 $pm->PayeeFinancialAccount = $pfa;
 
-            }
-            else if (isset($payment_means['iban'])) {
+            } elseif (isset($payment_means['iban'])) {
                 $fib = new FinancialInstitutionBranch();
                 $fi = new FinancialInstitution();
                 $bic_id = new ID();
@@ -166,7 +165,7 @@ class EInvoiceController extends BaseController
     public function quota(ShowQuotaRequest $request): JsonResponse
     {
         nlog(["quota" => $request->all()]);
-        
+
         /** @var \App\Models\Company $company */
         $company = auth()->user()->company();
 
@@ -208,7 +207,7 @@ class EInvoiceController extends BaseController
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
-                'X-EInvoice-Token' => $user->account->e_invoicing_token
+                'X-EInvoice-Token' => $user->account->e_invoicing_token,
             ])
             ->post('/api/einvoice/health_check', data: [
                 'license' => config('ninja.license_key'),

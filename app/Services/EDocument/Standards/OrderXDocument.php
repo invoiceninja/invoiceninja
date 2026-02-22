@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -35,9 +35,7 @@ class OrderXDocument extends AbstractService
      * @param  array $tax_map
      * @return void
      */
-    public function __construct(public \App\Models\Invoice | \App\Models\Quote | \App\Models\PurchaseOrder | \App\Models\Credit  $document, private readonly bool $returnObject = false, private array $tax_map = [])
-    {
-    }
+    public function __construct(public \App\Models\Invoice|\App\Models\Quote|\App\Models\PurchaseOrder|\App\Models\Credit  $document, private readonly bool $returnObject = false, private array $tax_map = []) {}
 
     public function run(): self
     {
@@ -254,14 +252,14 @@ class OrderXDocument extends AbstractService
     }
     private function addtoTaxMap(string $tax_type, float $net_amount, float $tax_rate): void
     {
-        $hash = hash("md5", $tax_type."-".$tax_rate);
+        $hash = hash("md5", $tax_type . "-" . $tax_rate);
         if (array_key_exists($hash, $this->tax_map)) {
             $this->tax_map[$hash]["net_amount"] += $net_amount;
         } else {
             $this->tax_map[$hash] = [
                 "tax_type" => $tax_type,
                 "net_amount" => $net_amount,
-                "tax_rate" => $tax_rate / 100
+                "tax_rate" => $tax_rate / 100,
             ];
         }
     }

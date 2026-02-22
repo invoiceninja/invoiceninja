@@ -5,12 +5,14 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
 
 namespace App\Models;
+
+use Illuminate\Support\Collection;
 
 /**
  * App\Models\PaymentType
@@ -138,6 +140,72 @@ class PaymentType extends StaticModel
         self::PAY_LATER => 'payment_type_Pay Later',
     ];
 
+    /**
+     * Default payment types in the shape expected for seeding/API: id, name, gateway_type_id.
+     * Returns a Collection of stdClass objects with id, name, gateway_type_id.
+     *
+     * @return Collection
+     */
+    public static function getDefaultPaymentTypes(): Collection
+    {
+        $types = [
+            ['id' => 1, 'name' => 'Bank Transfer', 'gateway_type_id' => 2],
+            ['id' => 2, 'name' => 'Cash', 'gateway_type_id' => null],
+            ['id' => 3, 'name' => 'Debit', 'gateway_type_id' => 1],
+            ['id' => 4, 'name' => 'ACH', 'gateway_type_id' => 2],
+            ['id' => 5, 'name' => 'Visa Card', 'gateway_type_id' => 1],
+            ['id' => 6, 'name' => 'MasterCard', 'gateway_type_id' => 1],
+            ['id' => 7, 'name' => 'American Express', 'gateway_type_id' => 1],
+            ['id' => 8, 'name' => 'Discover Card', 'gateway_type_id' => 1],
+            ['id' => 9, 'name' => 'Diners Card', 'gateway_type_id' => 1],
+            ['id' => 10, 'name' => 'EuroCard', 'gateway_type_id' => 1],
+            ['id' => 11, 'name' => 'Nova', 'gateway_type_id' => 1],
+            ['id' => 12, 'name' => 'Credit Card Other', 'gateway_type_id' => 1],
+            ['id' => 13, 'name' => 'PayPal', 'gateway_type_id' => 3],
+            ['id' => 14, 'name' => 'Google Wallet', 'gateway_type_id' => null],
+            ['id' => 15, 'name' => 'Check', 'gateway_type_id' => null],
+            ['id' => 16, 'name' => 'Carte Blanche', 'gateway_type_id' => 1],
+            ['id' => 17, 'name' => 'UnionPay', 'gateway_type_id' => 1],
+            ['id' => 18, 'name' => 'JCB', 'gateway_type_id' => 1],
+            ['id' => 19, 'name' => 'Laser', 'gateway_type_id' => 1],
+            ['id' => 20, 'name' => 'Maestro', 'gateway_type_id' => 1],
+            ['id' => 21, 'name' => 'Solo', 'gateway_type_id' => 1],
+            ['id' => 22, 'name' => 'Switch', 'gateway_type_id' => 1],
+            ['id' => 23, 'name' => 'iZettle', 'gateway_type_id' => 1],
+            ['id' => 24, 'name' => 'Swish', 'gateway_type_id' => 2],
+            ['id' => 25, 'name' => 'Venmo', 'gateway_type_id' => null],
+            ['id' => 26, 'name' => 'Money Order', 'gateway_type_id' => null],
+            ['id' => 27, 'name' => 'Alipay', 'gateway_type_id' => 7],
+            ['id' => 28, 'name' => 'Sofort', 'gateway_type_id' => 8],
+            ['id' => 29, 'name' => 'SEPA', 'gateway_type_id' => 9],
+            ['id' => 30, 'name' => 'GoCardless', 'gateway_type_id' => 10],
+            ['id' => 31, 'name' => 'Crypto', 'gateway_type_id' => 4],
+            ['id' => 32, 'name' => 'Credit', 'gateway_type_id' => 14],
+            ['id' => 33, 'name' => 'Zelle', 'gateway_type_id' => null],
+            ['id' => 34, 'name' => 'Mollie Bank Transfer', 'gateway_type_id' => 2],
+            ['id' => 35, 'name' => 'KBC/CBC', 'gateway_type_id' => 2],
+            ['id' => 36, 'name' => 'Bancontact', 'gateway_type_id' => 2],
+            ['id' => 37, 'name' => 'iDEAL', 'gateway_type_id' => 2],
+            ['id' => 38, 'name' => 'Hosted Page', 'gateway_type_id' => null],
+            ['id' => 39, 'name' => 'GiroPay', 'gateway_type_id' => 2],
+            ['id' => 40, 'name' => 'Przelewy24', 'gateway_type_id' => 2],
+            ['id' => 41, 'name' => 'EPS', 'gateway_type_id' => 2],
+            ['id' => 42, 'name' => 'Direct Debit', 'gateway_type_id' => 2],
+            ['id' => 43, 'name' => 'BECS', 'gateway_type_id' => 2],
+            ['id' => 44, 'name' => 'ACSS', 'gateway_type_id' => 2],
+            ['id' => 45, 'name' => 'Instant Bank Pay', 'gateway_type_id' => 2],
+            ['id' => 46, 'name' => 'FPX', 'gateway_type_id' => 2],
+            ['id' => 47, 'name' => 'Klarna', 'gateway_type_id' => 14],
+            ['id' => 48, 'name' => 'Interac E Transfer', 'gateway_type_id' => 2],
+            ['id' => 49, 'name' => 'BACS', 'gateway_type_id' => 2],
+            ['id' => 50, 'name' => 'Stripe Bank Transfer', 'gateway_type_id' => 2],
+            ['id' => 51, 'name' => 'Cash App', 'gateway_type_id' => null],
+            ['id' => 52, 'name' => 'Pay Later', 'gateway_type_id' => 14],
+        ];
+
+        return collect($types)->map(fn (array $item): \stdClass => (object) $item)->values();
+    }
+
     public static function parseCardType($cardName)
     {
         $cardTypes = [
@@ -159,7 +227,7 @@ class PaymentType extends StaticModel
 
         $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
 
-        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
+        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^(' . implode('|', array_keys($cardTypes)) . ')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
             $cardName = $matches[1];
         }
@@ -174,7 +242,7 @@ class PaymentType extends StaticModel
     public function name($id)
     {
         if (isset($this->type_names[$id])) {
-            return ctrans("texts.".$this->type_names[$id]);
+            return ctrans("texts." . $this->type_names[$id]);
         }
 
         return ctrans('texts.manual_entry');

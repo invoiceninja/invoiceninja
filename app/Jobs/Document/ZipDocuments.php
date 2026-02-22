@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -83,7 +83,7 @@ class ZipDocuments implements ShouldQueue
 
         // create new zip object
         $zipFile = new \PhpZip\ZipFile();
-        $file_name = date('Y-m-d').'_'.str_replace(' ', '_', trans('texts.documents')).'.zip';
+        $file_name = date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.documents')) . '.zip';
         $path = $this->company->file_path();
 
         try {
@@ -93,19 +93,19 @@ class ZipDocuments implements ShouldQueue
                 $zipFile->addFromString($this->buildFileName($document), $document->getFile());
             }
 
-            Storage::put($path.$file_name, $zipFile->outputAsString());
+            Storage::put($path . $file_name, $zipFile->outputAsString());
 
             $nmo = new NinjaMailerObject();
-            $nmo->mailable = new DownloadDocuments(Storage::url($path.$file_name), $this->company);
+            $nmo->mailable = new DownloadDocuments(Storage::url($path . $file_name), $this->company);
             $nmo->to_user = $this->user;
             $nmo->settings = $this->settings;
             $nmo->company = $this->company;
 
             NinjaMailerJob::dispatch($nmo);
 
-            UnlinkFile::dispatch(config('filesystems.default'), $path.$file_name)->delay(now()->addHours(1));
+            UnlinkFile::dispatch(config('filesystems.default'), $path . $file_name)->delay(now()->addHours(1));
         } catch (\PhpZip\Exception\ZipException $e) {
-            nlog('could not make zip => '.$e->getMessage());
+            nlog('could not make zip => ' . $e->getMessage());
         } finally {
             $zipFile->close();
         }
@@ -120,7 +120,7 @@ class ZipDocuments implements ShouldQueue
         $number = '_';
 
         if (isset($document->documentable->number)) {
-            $number = '_'.$document->documentable->number;
+            $number = '_' . $document->documentable->number;
         }
 
         $entity = ctrans('texts.document');

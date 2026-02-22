@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -175,14 +175,14 @@ class Verifactu extends AbstractService
         $importeTotal = $document->getImporteTotal();
         $fechaHoraHusoGenRegistro = $document->getFechaHoraHusoGenRegistro();
 
-        $hashInput = "IDEmisorFactura={$idEmisorFactura}&" .
-            "NumSerieFactura={$numSerieFactura}&" .
-            "FechaExpedicionFactura={$fechaExpedicionFactura}&" .
-            "TipoFactura={$tipoFactura}&" .
-            "CuotaTotal={$cuotaTotal}&" .
-            "ImporteTotal={$importeTotal}&" .
-            "Huella={$huella}&" .
-            "FechaHoraHusoGenRegistro={$fechaHoraHusoGenRegistro}";
+        $hashInput = "IDEmisorFactura={$idEmisorFactura}&"
+            . "NumSerieFactura={$numSerieFactura}&"
+            . "FechaExpedicionFactura={$fechaExpedicionFactura}&"
+            . "TipoFactura={$tipoFactura}&"
+            . "CuotaTotal={$cuotaTotal}&"
+            . "ImporteTotal={$importeTotal}&"
+            . "Huella={$huella}&"
+            . "FechaHoraHusoGenRegistro={$fechaHoraHusoGenRegistro}";
 
         return strtoupper(hash('sha256', $hashInput));
     }
@@ -206,14 +206,14 @@ class Verifactu extends AbstractService
                     $stateTotal = $state->getImporteTotal();
 
                     if (is_numeric($stateTotal)) {
-                        $totalAmount = (float)$stateTotal;
+                        $totalAmount = (float) $stateTotal;
                     }
                 }
             } catch (\Throwable $e) {
                 nlog('VERIFACTU WARNING: [qr-state]' . $e->getMessage());
             }
 
-            $total = (string)round($totalAmount, 2);
+            $total = (string) round($totalAmount, 2);
 
             $url = sprintf(
                 $this->aeat_client->base_qr_url,

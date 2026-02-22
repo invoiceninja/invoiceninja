@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -164,7 +164,7 @@ class ProfitLoss
             $this->income_taxes += $invoice->net_converted_taxes;
 
             $currency = Currency::find(intval(str_replace('"', '', $invoice->currency_id)));
-            $currency->name = ctrans('texts.currency_'.Str::slug($currency->name, '_'));
+            $currency->name = ctrans('texts.currency_' . Str::slug($currency->name, '_'));
 
             $this->foreign_income[] = ['currency' => $currency->name, 'amount' => $invoice->amount, 'total_taxes' => $invoice->total_taxes];
         }
@@ -370,7 +370,7 @@ class ProfitLoss
 
         $csv->insertOne(['--------------------']);
 
-        $csv->insertOne([ctrans('texts.total_revenue'). "[".ctrans('texts.tax')." " .ctrans('texts.exclusive'). "]", Number::formatMoney($this->income, $this->company)]);
+        $csv->insertOne([ctrans('texts.total_revenue') . "[" . ctrans('texts.tax') . " " . ctrans('texts.exclusive') . "]", Number::formatMoney($this->income, $this->company)]);
 
         //total taxes
 
@@ -385,7 +385,7 @@ class ProfitLoss
         //total expense taxes
 
         $csv->insertOne(['--------------------']);
-        $csv->insertOne([ctrans('texts.total_expenses'). "[".ctrans('texts.tax')." " .ctrans('texts.exclusive'). "]", Number::formatMoney(array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
+        $csv->insertOne([ctrans('texts.total_expenses') . "[" . ctrans('texts.tax') . " " . ctrans('texts.exclusive') . "]", Number::formatMoney(array_sum(array_column($this->expense_break_down, 'total')), $this->company)]);
 
         $csv->insertOne([ctrans('texts.total_taxes'), Number::formatMoney(array_sum(array_column($this->expense_break_down, 'tax')), $this->company)]);
 

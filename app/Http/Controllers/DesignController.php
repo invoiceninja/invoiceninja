@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -464,7 +464,7 @@ class DesignController extends BaseController
     {
         //may not need these destroy routes as we are using actions to 'archive/delete'
         $design->is_deleted = true;
-        $design->name = $design->name.'_deleted_'.Str::random(5);
+        $design->name = $design->name . '_deleted_' . Str::random(5);
         $design->delete();
         $design->save();
 
@@ -531,15 +531,15 @@ class DesignController extends BaseController
         $user = auth()->user();
 
 
-        if($action == 'clone') {
+        if ($action == 'clone') {
             $design = Design::withTrashed()
                             ->whereIn('id', $this->transformKeys($ids))
-                            ->where(function ($q){
+                            ->where(function ($q) {
                                 $q->where('company_id', auth()->user()->company()->id)
                                   ->orWhereNull('company_id');
                             })->first();
 
-            if($design){
+            if ($design) {
                 $this->design_repo->clone($design, $user);
             }
 

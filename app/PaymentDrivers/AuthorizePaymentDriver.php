@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -220,12 +220,12 @@ class AuthorizePaymentDriver extends BaseDriver
     {
         return $this->init()->getPublicClientKey() ? 'ok' : 'error';
     }
-    
+
     /**
      * processWebhookRequest
-     * 
+     *
      * We only handle voided payments for now.
-     * 
+     *
      * @param  PaymentWebhookRequest $request
      * @return void
      */
@@ -241,13 +241,13 @@ class AuthorizePaymentDriver extends BaseDriver
         {
             // Normalize headers to uppercase for consistent lookup
             $normalizedHeaders = array_change_key_case($headers, CASE_UPPER);
-            
+
             if (!isset($normalizedHeaders['X-ANET-SIGNATURE'])) {
                 return false;
             }
 
             $receivedSignature = $normalizedHeaders['X-ANET-SIGNATURE'];
-            
+
             // Remove 'sha512=' prefix if it exists
             $receivedHash = str_replace('sha512=', '', $receivedSignature);
 
@@ -258,7 +258,7 @@ class AuthorizePaymentDriver extends BaseDriver
 
             // Calculate HMAC exactly as Authorize.net does
             $expectedHash = strtoupper(hash_hmac('sha512', $payload, $signatureKey));
-                        
+
             return hash_equals($receivedHash, $expectedHash);
         }
 
@@ -276,7 +276,7 @@ class AuthorizePaymentDriver extends BaseDriver
             case 'net.authorize.payment.void.created':
                 $this->voidPayment($data);
                 break;
-                
+
             default:
                 // Other webhook event types can be handled here
                 nlog("ℹ️ Unhandled event type: $eventType");
@@ -287,32 +287,32 @@ class AuthorizePaymentDriver extends BaseDriver
 
     }
 
-// array (
-//   'notificationId' => '2ebb25fa-a814-4c53-8e1c-013423214f00',
-//   'eventType' => 'net.authorize.payment.void.created',
-//   'eventDate' => '2025-05-14T04:09:10.2193293Z',
-//   'webhookId' => '95c72ffd-635d-43a7-97b6-8096078cb11a',
-//   'payload' => 
-//   array (
-//     'responseCode' => 1,
-//     'avsResponse' => 'P',
-//     'authAmount' => 13.85,
-//     'merchantReferenceId' => 'ref1747192172',
-//     'invoiceNumber' => '0082',
-//     'entityName' => 'transaction',
-//     'id' => '80040995616',
-//   ),
-// )  
+    // array (
+    //   'notificationId' => '2ebb25fa-a814-4c53-8e1c-013423214f00',
+    //   'eventType' => 'net.authorize.payment.void.created',
+    //   'eventDate' => '2025-05-14T04:09:10.2193293Z',
+    //   'webhookId' => '95c72ffd-635d-43a7-97b6-8096078cb11a',
+    //   'payload' =>
+    //   array (
+    //     'responseCode' => 1,
+    //     'avsResponse' => 'P',
+    //     'authAmount' => 13.85,
+    //     'merchantReferenceId' => 'ref1747192172',
+    //     'invoiceNumber' => '0082',
+    //     'entityName' => 'transaction',
+    //     'id' => '80040995616',
+    //   ),
+    // )
     private function voidPayment(array $data)
     {
 
         $payment = Payment::withTrashed()
-                        ->where('company_id', $this->company_gateway->company_id)        
+                        ->where('company_id', $this->company_gateway->company_id)
                         ->where('transaction_reference', $data['payload']['id'])
                         ->first();
 
-        if($payment && $payment->status_id == Payment::STATUS_COMPLETED){
-            
+        if ($payment && $payment->status_id == Payment::STATUS_COMPLETED) {
+
             $payment->service()->deletePayment();
             $payment->status_id = Payment::STATUS_FAILED;
             $payment->save();
@@ -324,9 +324,9 @@ class AuthorizePaymentDriver extends BaseDriver
                     'invoice' => implode(',', $payment->invoices->pluck('number')->toArray()),
                     'amount' => array_sum(array_column($payment_hash->invoices(), 'amount')) + $payment_hash->fee_total, ]);
             } else {
-                $error = 'Payment for '.$payment->client->present()->name()." for {$payment->amount} failed";
+                $error = 'Payment for ' . $payment->client->present()->name() . " for {$payment->amount} failed";
             }
-            
+
             PaymentFailedMailer::dispatch(
                 $payment_hash,
                 $payment->client->company,

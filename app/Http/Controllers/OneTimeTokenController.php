@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -78,7 +78,7 @@ class OneTimeTokenController extends BaseController
             $data['institution_id'] = $request->institution_id;
         }
 
-        if($request->provider_id) {
+        if ($request->provider_id) {
             $data['provider_id'] = $request->provider_id;
         }
 

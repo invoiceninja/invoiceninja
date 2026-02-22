@@ -30,11 +30,11 @@
         updated_at:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
-          example: '1231232312321'
+          example: 1231232312321
         deleted_at:
           description: 'Timestamp when the user was archived, format Unix Timestamp'
           type: integer
-          example: '12312312321'
+          example: 12312312321
         account:
           $ref: '#/components/schemas/Account'
         company:
@@ -76,11 +76,11 @@
         updated_at:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
-          example: '1231232312321'
+          example: 1231232312321
         deleted_at:
           description: 'Timestamp when the user was archived, format Unix Timestamp'
           type: integer
-          example: '12312312321'
+          example: 12312312321
         account:
           $ref: '#/components/schemas/Account'
         company:

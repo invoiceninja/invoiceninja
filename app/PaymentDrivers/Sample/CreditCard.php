@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -28,21 +28,13 @@ class CreditCard
         $this->driver_class = $driver_class;
     }
 
-    public function authorizeView($data)
-    {
-    }
+    public function authorizeView($data) {}
 
-    public function authorizeRequest($request)
-    {
-    }
+    public function authorizeRequest($request) {}
 
-    public function paymentView($data)
-    {
-    }
+    public function paymentView($data) {}
 
-    public function processPaymentResponse($request)
-    {
-    }
+    public function processPaymentResponse($request) {}
 
     /* This method is stubbed ready to go - you just need to harvest the equivalent 'transaction_reference' */
     private function processSuccessfulPayment($response)

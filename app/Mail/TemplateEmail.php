@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -77,7 +77,7 @@ class TemplateEmail extends Mailable
 
     public function build()
     {
-        $template_name = 'email.template.'.$this->build_email->getTemplate();
+        $template_name = 'email.template.' . $this->build_email->getTemplate();
 
         if (in_array($this->build_email->getTemplate(), ['light', 'dark'])) {
             $template_name = 'email.template.client';
@@ -88,7 +88,7 @@ class TemplateEmail extends Mailable
         }
 
         if ($this->build_email->getTemplate() == 'custom') {
-            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody().$this->buildLinksForCustomDesign(), $this->client->getSetting('email_style_custom')));
+            $this->build_email->setBody(str_replace('$body', $this->build_email->getBody() . $this->buildLinksForCustomDesign(), $this->client->getSetting('email_style_custom')));
         }
 
         $settings = $this->client->getMergedSettings();

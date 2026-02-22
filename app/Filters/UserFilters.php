@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,10 +33,10 @@ class UserFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('first_name', 'like', '%'.$filter.'%')
-                          ->orWhere('last_name', 'like', '%'.$filter.'%')
-                          ->orWhere('email', 'like', '%'.$filter.'%')
-                          ->orWhere('signature', 'like', '%'.$filter.'%');
+            $query->where('first_name', 'like', '%' . $filter . '%')
+                          ->orWhere('last_name', 'like', '%' . $filter . '%')
+                          ->orWhere('email', 'like', '%' . $filter . '%')
+                          ->orWhere('signature', 'like', '%' . $filter . '%');
         });
     }
 
@@ -71,6 +71,10 @@ class UserFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        if($user->isOwner() && request()->input('showAccountUsers', false) == 'true'){
+            return $this->builder;
+        }
+
         return $this->builder->whereHas('company_users', function ($q) use ($user) {
             $q->where('company_id', '=', $user->company()->id);
         });
@@ -86,10 +90,30 @@ class UserFilters extends QueryFilters
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+        if($user->isOwner() && request()->input('showAccountUsers', false) == 'true'){
+            
+            return $this->builder->whereHas('company_users', function ($q) {
+                $q->where('is_owner', false);
+            });
+        }
+
         return $this->builder->whereHas('company_users', function ($q) use ($user) {
             $q->where('company_id', '=', $user->company()->id)->where('is_owner', false);
         });
 
+    }
+
+    public function showAccountUsers(string $value = ''): Builder
+    {
+
+        if($value !== 'true'){
+            return $this->builder;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        return $this->builder->where('account_id', $user->account_id);
     }
 
     /**

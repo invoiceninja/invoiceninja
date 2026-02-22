@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -33,12 +33,12 @@ class ProjectFilters extends QueryFilters
         }
 
         return  $this->builder->where(function ($query) use ($filter) {
-            $query->where('name', 'like', '%'.$filter.'%')
+            $query->where('name', 'like', '%' . $filter . '%')
                   ->orWhereHas('client', function ($q) use ($filter) {
-                      $q->where('name', 'like', '%'.$filter.'%');
+                      $q->where('name', 'like', '%' . $filter . '%');
                   })
-                  ->orWhere('public_notes', 'like', '%'.$filter.'%')
-                  ->orWhere('private_notes', 'like', '%'.$filter.'%');
+                  ->orWhere('public_notes', 'like', '%' . $filter . '%')
+                  ->orWhere('private_notes', 'like', '%' . $filter . '%');
         });
     }
 
@@ -68,7 +68,7 @@ class ProjectFilters extends QueryFilters
         $dir = ($sort_col[1] == 'asc') ? 'asc' : 'desc';
 
         if ($sort_col[0] == 'client_id') {
-            return $this->builder->orderByRaw('ISNULL(client_id), client_id '. $dir)
+            return $this->builder->orderByRaw('ISNULL(client_id), client_id ' . $dir)
                     ->orderBy(\App\Models\Client::select('name')
                     ->whereColumn('clients.id', 'projects.client_id'), $dir);
         }
@@ -81,6 +81,33 @@ class ProjectFilters extends QueryFilters
 
     }
 
+    /**
+     * date_range
+     *
+     * only filters on date
+     * @param  string $date_range in format column,start_date,end_date
+     * @return Builder
+     */
+    public function date_range(string $date_range = ''): Builder
+    {
+        $parts = explode(",", $date_range);
+
+        if (count($parts) != 3 || !in_array($parts[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
+            return $this->builder;
+        }
+
+        try {
+
+            $start_date = \Carbon\Carbon::parse($parts[1]);
+            $end_date = \Carbon\Carbon::parse($parts[2]);
+
+
+            return $this->builder->whereBetween($parts[0], [$start_date, $end_date]);
+        } catch (\Exception $e) {
+            return $this->builder;
+        }
+
+    }
     /**
      * Filters the query by the users company ID.
      *

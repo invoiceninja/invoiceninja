@@ -5,7 +5,7 @@
  *
  * @link https://github.com/invoiceninja/invoiceninja source repository
  *
- * @copyright Copyright (c) 2025. Invoice Ninja LLC (https://invoiceninja.com)
+ * @copyright Copyright (c) 2026. Invoice Ninja LLC (https://invoiceninja.com)
  *
  * @license https://www.elastic.co/licensing/elastic-license
  */
@@ -54,7 +54,7 @@ class MailWebhookSync implements ShouldQueue
      */
     public function handle()
     {
-        
+
         if (! Ninja::isHosted()) {
             return;
         }
@@ -135,10 +135,10 @@ class MailWebhookSync implements ShouldQueue
 
                 try {
                     $messageDetail = $postmark->getOutboundMessageDetails($invite->message_id);
-                } catch (\Throwable $th){
+                } catch (\Throwable $th) {
 
                 }
-                
+
             }
 
             try {
@@ -157,7 +157,7 @@ class MailWebhookSync implements ShouldQueue
                     'DeliveredAt' => '2025-01-01T16:34:52Z',
                     'Metadata' => [
 
-                    ]
+                    ],
                 ];
 
                 (new \App\Jobs\PostMark\ProcessPostmarkWebhook($data, $token))->handle();
@@ -180,7 +180,7 @@ class MailWebhookSync implements ShouldQueue
 
     public function failed($exception)
     {
-        nlog("MailWebhookSync:: Exception:: => ".$exception->getMessage());
+        nlog("MailWebhookSync:: Exception:: => " . $exception->getMessage());
         config(['queue.failed.driver' => null]);
     }
 }

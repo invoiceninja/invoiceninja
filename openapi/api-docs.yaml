@@ -2,18 +2,38 @@ openapi: 3.0.1
 info:
   title: 'Invoice Ninja API Reference.'
   description: |
-        ---
+          ---
+          
           ![Invoice Ninja](https://invoicing.co/images/new_logo.png)
+          
           ## Introduction
           Welcome to the Invoice Ninja API documentation, your comprehensive guide to integrating Invoice Ninja's powerful features into your applications. Whether you're building a custom client, automating workflows, or integrating with other systems, our API provides the tools you need to streamline your invoicing and billing processes.
+          
+          ---
+        
           ### What is Invoice Ninja?
           Invoice Ninja is a robust source-available platform designed to simplify invoicing, billing, and payment management for freelancers, small businesses, and enterprises alike. With a user-friendly interface, customizable templates, and a suite of powerful features, Invoice Ninja empowers businesses to create professional invoices, track expenses, manage clients, and get paid faster.
+
+          ---
+          
+          ### Client Libraries
+          PHP SDK can be found [here](https://github.com/invoiceninja/sdk-php)
+          Go SDK can be found [here](https://github.com/AshkanYarmoradi/go-invoice-ninja)
+          
+          ---
+
           ### Why use the Invoice Ninja API?
           The Invoice Ninja API allows developers to extend the functionality of Invoice Ninja by programmatically accessing and manipulating data within their Invoice Ninja accounts. With the API, you can automate repetitive tasks, integrate with third-party services, and build custom solutions tailored to your specific business needs.
+          
+          ---
+
           ### Getting Started
           To get started with the Invoice Ninja API, you'll need an active Invoice Ninja account (or your own self hosted installation) and API credentials. If you haven't already done so, sign up for an account at Invoice Ninja and generate your API keys from the settings section.
 
           Once you have your API credentials, you can start exploring the API endpoints, authentication methods, request and response formats, and more using the documentation provided here.
+          
+          ---
+
           ### Explore the Documentation  
           This documentation is organized into sections to help you navigate and understand the various aspects of the Invoice Ninja API:
 
@@ -22,11 +42,17 @@ info:
           - Request and Response Formats: Understand the structure of API requests and responses, including parameters, headers, and payloads.
           - Error Handling: Learn about error codes, status messages, and best practices for handling errors gracefully.
           - Code Examples: Find code examples and tutorials to help you get started with integrating the Invoice Ninja API into your applications.      
+          
+          ---
+
           ### Need Help?     
 
           If you have any questions, encounter any issues, or need assistance with using the Invoice Ninja API, don't hesitate to reach out to our support team or join our community forums. We're here to help you succeed with Invoice Ninja and make the most of our API.    
 
           Let's start building together!
+
+          ---
+
           ### Endpoints
           
           <div style="background-color: #2D394E; color: #fff padding: 20px; border-radius: 5px; border: 4px solid #212A3B; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
@@ -34,14 +60,23 @@ info:
               <p style="padding:10px; color: #DBDBDB;">Demo: https://demo.invoiceninja.com</p>
           </div>
 
+          ---
+          
           ### Client Libraries
 
           PHP SDK can be found [here](https://github.com/invoiceninja/sdk-php)
+          Go SDK can be found [here](https://github.com/AshkanYarmoradi/go-invoice-ninja)
+
+          ---
+
           ### Authentication:
 
           Invoice Ninja uses API tokens to authenticate requests. You can view and manage your API keys in Settings > Account Management > Integrations > API tokens
 
           API requests must be made over HTTPS. Calls made to HTTP will fail.
+
+          ---
+
           ### Errors:
 
           Invoice Ninja uses standard HTTP response codes to indicate the success or failure of a request. below is a table of standard status codes and responses
@@ -60,6 +95,9 @@ info:
           | 422         | Unprocessable Entity: The request was well-formed but was unable to be followed due to semantic errors. |
           | 429         | Too Many Requests: The user has sent too many requests in a given amount of time ("rate limiting"). |
           | 500         | Internal Server Error: A generic error message, given when an unexpected condition was encountered and no more specific message is suitable. |
+
+          ---
+
           ### Pagination
 
           When using index routes to retrieve lists of data, by default we limit the number of records returned to 20. You can using standard pagination to paginate results, ie: ?per_page=50
@@ -71,7 +109,7 @@ info:
   license:
     name: 'Elastic License'
     url: 'https://www.elastic.co/licensing/elastic-license'
-  version: 5.11.48
+  version: 5.12.55
 
 servers:
   - url: 'https://demo.invoiceninja.com'
@@ -157,6 +195,74 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Limit"
         404:
           description: "No file exists for the given record"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/activities/entity:
+    post:
+      tags:
+        - activities
+      summary: "Entity activity"
+      description: "Returns activity for a given entity"
+      operationId: postActivitiesEntity
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Entity activity response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/activities/notes:
+    post:
+      tags:
+        - activities
+      summary: "Activity note"
+      description: "Creates or updates an activity note"
+      operationId: postActivitiesNotes
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Activity note response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -359,7 +465,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "A list of bank integrations"
@@ -661,7 +767,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -814,7 +920,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "A list of bank integrations"
@@ -1091,7 +1197,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_transations/bulk:
+  /api/v1/bank_transactions/bulk:
     post:
       tags:
         - bank_transactions
@@ -1112,7 +1218,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -1135,7 +1241,7 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_transations/match:
+  /api/v1/bank_transactions/match:
     post:
       tags:
         - bank_transactions
@@ -1178,7 +1284,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -1220,7 +1326,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "A list of bank integrations"
@@ -1501,11 +1607,11 @@ paths:
           description: 'Server error'
         default:
           $ref: "#/components/responses/default"
-  /api/v1/bank_transation_rules/bulk:
+  /api/v1/bank_transaction_rules/bulk:
     post:
       tags:
         - bank_transaction_rules
-      summary: "Performs bulk actions on an array of bank_transation rules"
+      summary: "Performs bulk actions on an array of bank_transaction rules"
       description: ""
       operationId: bulkBankTransactionRules
       parameters:
@@ -1522,7 +1628,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -1564,7 +1670,7 @@ paths:
           schema:
             type: number
             format: integer
-          example: "50"
+          example: 50
       responses:
         200:
           description: "json dataset of chart data"
@@ -1581,6 +1687,102 @@ paths:
           $ref: "#/components/responses/429"
         5XX:
           description: 'Server error'
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/charts/totals_v2:
+    post:
+      tags:
+        - charts
+      summary: "Get chart data v2"
+      description: "Get chart data (v2)"
+      operationId: getChartTotalsV2
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "json dataset of chart data"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/charts/chart_summary_v2:
+    post:
+      tags:
+        - charts
+      summary: "Get chart summary v2"
+      description: "Get chart summary (v2)"
+      operationId: getChartSummaryV2
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "json dataset of chart summary"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/charts/calculated_fields:
+    post:
+      tags:
+        - charts
+      summary: "Get calculated fields"
+      description: "Get chart calculated fields"
+      operationId: getChartCalculatedFields
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "json dataset of calculated fields"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        422:
+          $ref: "#/components/responses/422"
+        429:
+          $ref: "#/components/responses/429"
         default:
           $ref: "#/components/responses/default"
 
@@ -2609,7 +2811,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Company Gateways response"
@@ -3035,7 +3237,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Design User response"
@@ -3153,7 +3355,7 @@ paths:
                     - email_template_custom3
                     - email_template_purchase_order
                     - email_quote_template_reminder1
-                  example: invoice
+                  example: email_template_invoice
               type: object
       responses:
         200:
@@ -3454,7 +3656,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The ExpenseCategory List response"
@@ -3762,7 +3964,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Expense User response"
@@ -4154,7 +4356,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -4517,7 +4719,6 @@ paths:
           schema:
             type: object
             format: file
-          example: migration.zip
       responses:
         200:
           description: Success
@@ -4856,7 +5057,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Payment Terms response"
@@ -4898,6 +5099,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
   /api/v1/health_check:
     get:
       tags:
@@ -4917,6 +5120,34 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+  /api/v1/last_error:
+    get:
+      tags:
+        - ping
+      summary: "Returns the last error"
+      description: "Returns the last error from the API"
+      operationId: getLastError
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Last error response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        default:
+          $ref: "#/components/responses/default"
   /api/v1/postmark_webhook:
     post:
       tags:
@@ -5290,7 +5521,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The RecurringExpense User response"
@@ -5656,7 +5887,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The RecurringQuote response"
@@ -5794,7 +6025,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/reports/credit:
+  /api/v1/reports/credits:
     post:
       tags:
         - reports
@@ -5860,7 +6091,7 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
-  /api/v1/reports/expense:
+  /api/v1/reports/expenses:
     post:
       tags:
         - reports
@@ -6223,6 +6454,416 @@ paths:
           $ref: "#/components/responses/422"
         default:
           $ref: "#/components/responses/default"
+  /api/v1/reports/activities:
+    post:
+      tags:
+        - reports
+      summary: "Activity reports"
+      description: "Export activity reports"
+      operationId: getActivityReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/client_contacts:
+    post:
+      tags:
+        - reports
+      summary: "Client contact reports"
+      description: "Export client contact reports"
+      operationId: getClientContactReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/ar_detail_report:
+    post:
+      tags:
+        - reports
+      summary: "AR detail report"
+      description: "Export AR detail report"
+      operationId: getARDetailReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/ar_summary_report:
+    post:
+      tags:
+        - reports
+      summary: "AR summary report"
+      description: "Export AR summary report"
+      operationId: getARSummaryReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/client_balance_report:
+    post:
+      tags:
+        - reports
+      summary: "Client balance report"
+      description: "Export client balance report"
+      operationId: getClientBalanceReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/client_sales_report:
+    post:
+      tags:
+        - reports
+      summary: "Client sales report"
+      description: "Export client sales report"
+      operationId: getClientSalesReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/tax_summary_report:
+    post:
+      tags:
+        - reports
+      summary: "Tax summary report"
+      description: "Export tax summary report"
+      operationId: getTaxSummaryReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/tax_period_report:
+    post:
+      tags:
+        - reports
+      summary: "Tax period report"
+      description: "Export tax period report"
+      operationId: getTaxPeriodReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/user_sales_report:
+    post:
+      tags:
+        - reports
+      summary: "User sales report"
+      description: "Export user sales report"
+      operationId: getUserSalesReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/reports/projects:
+    post:
+      tags:
+        - reports
+      summary: "Project reports"
+      description: "Export project reports"
+      operationId: getProjectReport
+      parameters:
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenericReportSchema"
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/reports/preview/{hash}":
+    post:
+      tags:
+        - reports
+      summary: "Report preview"
+      description: "Preview a report by hash"
+      operationId: getReportPreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: hash
+          in: path
+          description: "The report hash"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/exports/preview/{hash}":
+    post:
+      tags:
+        - reports
+      summary: "Export preview"
+      description: "Preview an export by hash"
+      operationId: getExportPreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: hash
+          in: path
+          description: "The export hash"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: success
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
   /api/v1/self-update:
     post:
       tags:
@@ -6244,6 +6885,32 @@ paths:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/self-update/check_version:
+    post:
+      tags:
+        - update
+      summary: "Check for available update"
+      description: "Checks for an available system update"
+      operationId: selfUpdateCheckVersion
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Version check response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         default:
           $ref: "#/components/responses/default"
   /api/v1/statics:
@@ -6559,7 +7226,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Subscription response"
@@ -6580,6 +7247,32 @@ paths:
           $ref: "#/components/responses/403"
         422:
           $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/scheduler:
+    get:
+      tags:
+        - scheduler
+      summary: "Get scheduler status"
+      description: "Returns the task scheduler status and job list"
+      operationId: getScheduler
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      responses:
+        200:
+          description: "Scheduler status response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
         default:
           $ref: "#/components/responses/default"
   /api/v1/support/messages/send:
@@ -6620,7 +7313,11 @@ paths:
                 items:
                   description: "Server response"
                   type: string
-                  example: true
+                  example: "success"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
   /api/v1/system_logs:
@@ -6705,7 +7402,7 @@ paths:
         default:
           $ref: "#/components/responses/default"
   
-  /api/v1/task_schedulers/:
+  /api/v1/task_schedulers:
     get:
       tags:
         - task_schedulers
@@ -6724,6 +7421,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
     post:
@@ -6819,6 +7518,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
     put:
@@ -6888,6 +7589,8 @@ paths:
               $ref: "#/components/headers/X-RateLimit-Remaining"
             X-RateLimit-Limit:
               $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
         default:
           $ref: "#/components/responses/default"
   /api/v1/task_schedulers/bulk:
@@ -6911,7 +7614,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The TaskSchedule response"
@@ -7226,7 +7929,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The TaskStatus Terms response"
@@ -7494,7 +8197,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The TaxRate List response"
@@ -7554,6 +8257,80 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Template"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  "/api/v1/templates/preview/{hash}":
+    post:
+      tags:
+        - templates
+      summary: "Preview template by hash"
+      description: "Returns a template preview for the given hash"
+      operationId: getTemplatePreview
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+        - name: hash
+          in: path
+          description: "The template hash"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Template preview response"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+  /api/v1/search:
+    post:
+      tags:
+        - search
+      summary: "Search"
+      description: "Performs a search across entities"
+      operationId: postSearch
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - $ref: "#/components/parameters/X-Requested-With"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: "Search results"
+          headers:
+            X-MINIMUM-CLIENT-VERSION:
+              $ref: "#/components/headers/X-MINIMUM-CLIENT-VERSION"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
         401:
           $ref: "#/components/responses/401"
         403:
@@ -7847,7 +8624,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Token response"
@@ -8162,7 +8939,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The User response"
@@ -8609,7 +9386,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Webhook User response"
@@ -10802,7 +11579,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Task User response"
@@ -11958,7 +12735,7 @@ paths:
           required: false
           schema:
             type: integer
-          example: ?status_id=1
+          example: 1
       responses:
         200:
           description: "A list of invoices"
@@ -12418,6 +13195,7 @@ paths:
 
   /api/v1/invoices/create:
     get:
+      operationId: getInvoiceCreate
       tags:
         - invoices
       summary: "Blank invoice"
@@ -12660,6 +13438,7 @@ paths:
           $ref: "#/components/responses/default"
   "/api/v1/invoice/{invitation_key}/download":
     get:
+      operationId: downloadInvoiceByInvitation
       tags:
         - invoices
       summary: "Download invoice PDF"
@@ -12717,6 +13496,7 @@ paths:
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/delivery_note":
     get:
+      operationId: getInvoiceDeliveryNote
       tags:
         - invoices
       summary: "Download delivery note"
@@ -12774,6 +13554,7 @@ paths:
           $ref: "#/components/responses/default"
   "/api/v1/invoices/{id}/upload":
     post:
+      operationId: uploadInvoiceDocument
       tags:
         - invoices
       summary: "Add invoice document"
@@ -13298,7 +14079,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Project User response"
@@ -13861,7 +14642,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Vendor User response"
@@ -14419,7 +15200,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Payment response"
@@ -14588,7 +15369,7 @@ paths:
             --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
             --header 'Accept: application/json'
       description: |
-            ##  GET /api/v1/clients  
+            ###  GET /api/v1/clients  
             When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000
               
             ```
@@ -15392,7 +16173,7 @@ paths:
                     type: string
                     format: binary
                     description: The file contents
-                  example: "@/path/to/document.pdf"
+                  example: ["@/path/to/document.pdf"]
       responses:
         200:
           description: 'Returns the client object'
@@ -15679,7 +16460,7 @@ paths:
           schema:
             type: string
             format: string
-          example: 123243
+          example: "123243"
       responses:
         200:
           description: 'Success'
@@ -16201,7 +16982,7 @@ paths:
               items:
                 description: "Array of hashed IDs to be bulk 'actioned"
                 type: integer
-                example: "[0,1,2,3]"
+                example: 0
       responses:
         200:
           description: "The Bulk Action response"
@@ -17376,7 +18157,7 @@ components:
       required: false
       schema:
         type: number
-        example: user
+        example: 1
    
 ########################### Generic filters available across all filter ##################################
     status:
@@ -17423,7 +18204,7 @@ components:
       required: false
       schema:
         type: integer
-      example: ?created_at=2022-01-10
+      example: 1641772800
     updated_at:
       name: updated_at
       in: query
@@ -17437,7 +18218,7 @@ components:
       required: false
       schema:
         type: integer
-      example: ?updated_at=2022-01-10
+      example: 1641772800
     is_deleted:
       name: is_deleted
       in: query
@@ -17451,7 +18232,7 @@ components:
       required: false
       schema:
         type: boolean
-      example: ?is_deleted=true
+      example: true
     vendor_id:
       name: vendor_id
       in: query
@@ -17535,7 +18316,7 @@ components:
         settings:
           description: 'The settings object'
           type: object
-          example: ''
+          example: {}
       type: object
     InvoicePaymentable:
       properties:
@@ -17559,7 +18340,7 @@ components:
         paused:
           description: 'The scheduler paused state'
           type: boolean
-          example: 'false'
+          example: false
         repeat_every:
           description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
           type: string
@@ -17567,7 +18348,7 @@ components:
         start_from:
           description: 'Timestamp when we should start the scheduler, default is today'
           type: integer
-          example: '1652898504'
+          example: 1652898504
         job:
           description: 'Job, we can find list of available jobs in Scheduler model'
           type: string
@@ -17600,7 +18381,7 @@ components:
         paused:
           description: 'The scheduler paused state'
           type: boolean
-          example: 'false'
+          example: false
         repeat_every:
           description: 'Accepted values (DAY,WEEK,MONTH,3MONTHS,YEAR)'
           type: string
@@ -17608,7 +18389,7 @@ components:
         start_from:
           description: 'Timestamp when we should start the scheduler, default is today'
           type: integer
-          example: '1652898504'
+          example: 1652898504
         job:
           description: 'Job, we can find list of available jobs in Scheduler model'
           type: string
@@ -17656,12 +18437,12 @@ components:
         task_status_order:
           description: 'The order of the task status'
           type: integer
-          example: '4'
+          example: 4
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         is_deleted:
           description: 'A boolean flag determining if the task status has been deleted'
@@ -17672,13 +18453,13 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
       type: object
     TaxRate:
@@ -17695,7 +18476,7 @@ components:
         rate:
           description: 'The tax rate'
           type: number
-          example: '10'
+          example: 10
         is_deleted:
           description: 'Boolean flag determining if the tax has been deleted'
           type: boolean
@@ -18703,17 +19484,17 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         deleted_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
       type: object
     Error:
       properties:
@@ -18724,7 +19505,7 @@ components:
         code:
           description: 'The HTTP error code, ie 5xx 4xx'
           type: integer
-          example: '500'
+          example: 500
       type: object
     InvoiceItem:
       type: object
@@ -18857,11 +19638,11 @@ components:
         updated_at:
           description: 'The updated at timestamp'
           type: integer
-          example: '2'
+          example: 2
         created_at:
           description: 'The created at timestamp'
           type: integer
-          example: '2'
+          example: 2
       type: object
     Client:
       properties:
@@ -18903,11 +19684,11 @@ components:
         industry_id:
           description: 'The unique identifier of the industry the client operates in'
           type: number
-          example: '5'
+          example: 5
         size_id:
           description: 'The unique identifier for the size category of the client company or organization'
           type: number
-          example: '2'
+          example: 2
         address1:
           description: "First line of the client's address"
           type: string
@@ -18989,7 +19770,7 @@ components:
           description: "The unique identifier of the country for the client's shipping address"
           type: number
           format: integer
-          example: '4'
+          example: 4
         is_deleted:
           description: 'A boolean value indicating whether the client has been deleted or not'
           type: boolean
@@ -18999,37 +19780,37 @@ components:
           description: 'The outstanding balance the client owes'
           type: number
           format: float
-          example: '500.00'
+          example: 500.00
           readOnly: true
         paid_to_date:
           description: 'The total amount the client has paid to date'
           type: number
           format: float
-          example: '2000.00'
+          example: 2000.00
           readOnly: true
         credit_balance:
           description: 'The available credit balance for the client to use on future purchases'
           type: number
           format: float
-          example: '100.00'
+          example: 100.00
           readOnly: true
         last_login:
           description: "The timestamp of the client's last login"
           type: number
           format: integer
-          example: '1628686031'
+          example: 1628686031
           readOnly: true
         created_at:
           description: 'The timestamp when the client was created'
           type: number
           format: integer
-          example: '1617629031'
+          example: 1617629031
           readOnly: true
         updated_at:
           description: 'The timestamp when the client was last updated'
           type: number
           format: integer
-          example: '1628445631'
+          example: 1628445631
           readOnly: true
         group_settings_id:
           description: 'The group settings assigned to the client'
@@ -19675,13 +20456,13 @@ components:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         email_error:
           description: 'The email error'
@@ -19710,7 +20491,7 @@ components:
         bank_account_id:
           description: 'The bank account id'
           type: integer
-          example: '1233434'
+          example: 1233434
         bank_account_name:
           description: 'The name of the account'
           type: string
@@ -19730,7 +20511,7 @@ components:
         balance:
           description: 'The current bank balance if available'
           type: number
-          example: '1000000'
+          example: 1000000
         currency:
           description: 'iso_3166_3 code'
           type: string
@@ -19749,7 +20530,7 @@ components:
         is_system:
           description: 'Determines whether the token is created by the system rather than a user'
           type: boolean
-          example: 'true'
+          example: true
       type: object
     PurchaseOrder:
       properties:
@@ -20068,13 +20849,13 @@ components:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         email_error:
           description: 'The email error'
@@ -20149,7 +20930,7 @@ components:
           description: 'The date which the contact confirmed their email'
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         password:
           description: 'The hashed password of the contact'
@@ -20163,19 +20944,19 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         deleted_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         send_email:
           description: 'Flag indicating whether to send emails to this contact'
@@ -20208,7 +20989,7 @@ components:
         is_default:
           description: 'Flag determining if the token is the default payment method'
           type: boolean
-          example: 'true'
+          example: true
       type: object
     VendorRequest:
       required:
@@ -20340,7 +21121,7 @@ components:
         enabled_tax_rates:
           description: "The number of tax rates used per entity"
           type: integer
-          example: '2'
+          example: 2
         fill_products:
           description: "A flag determining whether to auto-fill product descriptions based on the product key"
           type: boolean
@@ -20719,7 +21500,8 @@ components:
         smtp_encryption:
           description: "The encryption method for SMTP"
           type: string
-          enum: [tls, ssl, null]
+          nullable: true
+          enum: [tls, ssl]
           example: "tls"
 
         smtp_local_domain:
@@ -20779,22 +21561,22 @@ components:
           description: 'The client balance'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         adjustment:
           description: 'The amount the client balance is adjusted by'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
       type: object
     RecurringInvoice:
       properties:
@@ -20821,11 +21603,11 @@ components:
         frequency_id:
           description: 'The recurring invoice frequency'
           type: number
-          example: '4'
+          example: 4
         remaining_cycles:
           description: 'The number of invoices left to be generated'
           type: number
-          example: '4'
+          example: 4
         number:
           description: 'The recurringinvoice number - is a unique alpha numeric number per invoice per company'
           type: string
@@ -20878,12 +21660,12 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_name3:
           description: 'The tax name'
           type: string
@@ -20892,41 +21674,41 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         total_taxes:
           description: 'The total taxes for the invoice'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the invoice'
           type: object
-          example: ''
+          example: {}
         amount:
           description: 'The invoice amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         balance:
           description: 'The invoice balance'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         paid_to_date:
           description: 'The amount paid on the invoice to date'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         discount:
           description: 'The invoice discount, can be an amount or a percentage'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         partial:
           description: 'The deposit/partial amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         is_amount_discount:
           description: 'Flag determining if the discount is an amount or a percentage'
           type: boolean
@@ -20970,37 +21752,37 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge2:
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
@@ -21230,16 +22012,16 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         company_gateway_id:
           description: 'The company gateway id'
           type: string
-          example: '3'
+          example: "3"
         paymentables:
           $ref: '#/components/schemas/Paymentable'
         invoices:
@@ -21279,7 +22061,7 @@ components:
         exchange_currency_id:
           description: 'The unique identifier of the exchange currency'
           type: string
-          example: '2'
+          example: "2"
         exchange_rate:
           description: 'The exchange rate used for currency conversion'
           type: number
@@ -21313,7 +22095,7 @@ components:
         status_id:
           description: "The ID representing the current status of the credit"
           type: string
-          example: 3
+          example: "3"
         invoice_id:
           description: "The unique hashed ID of the linked invoice to which the credit is applied"
           type: string
@@ -21488,17 +22270,17 @@ components:
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
@@ -21563,7 +22345,7 @@ components:
         is_recurring:
           description: Indicates whether the subscription is recurring
           type: boolean
-          example: 'true'
+          example: true
         frequency_id:
           description: 'integer const representation of the frequency'
           type: string
@@ -21583,43 +22365,43 @@ components:
         is_amount_discount:
           description: Indicates whether the discount is a fixed amount
           type: boolean
-          example: 'true'
+          example: true
         allow_cancellation:
           description: Indicates whether the subscription can be cancelled
           type: boolean
-          example: 'true'
+          example: true
         per_seat_enabled:
           description: Indicates whether the subscription pricing is per seat
           type: boolean
-          example: 'true'
+          example: true
         currency_id:
           description: Unique identifier for the currency used in the subscription
           type: integer
-          example: '1'
+          example: 1
         max_seats_limit:
           description: Maximum number of seats allowed for the subscription
           type: integer
-          example: '100'
+          example: 100
         trial_enabled:
           description: Indicates whether the subscription has a trial period
           type: boolean
-          example: 'true'
+          example: true
         trial_duration:
           description: Duration of the trial period in days
           type: integer
-          example: '14'
+          example: 14
         allow_query_overrides:
           description: Indicates whether query overrides are allowed for the subscription
           type: boolean
-          example: 'true'
+          example: true
         allow_plan_changes:
           description: Indicates whether plan changes are allowed for the subscription
           type: boolean
-          example: 'true'
+          example: true
         refund_period:
           description: Number of days within which refunds can be requested
           type: integer
-          example: '30'
+          example: 30
         webhook_configuration:
           description: Webhook configuration for the subscription
           type: string
@@ -21627,28 +22409,28 @@ components:
         is_deleted:
           description: Indicates whether the subscription has been deleted
           type: boolean
-          example: 'false'
+          example: false
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
       type: object
     BulkAction:
       type: array
       items:
         type: integer
-        example: '[0,1,2,3,]'
+        example: 0
     Project:
       type: object
       properties:
@@ -22153,7 +22935,7 @@ components:
           description: "The company website URL"
           type: string
           format: uri
-          example: "www.acme.com"
+          example: "https://www.acme.com"
         address1:
           description: "The company address line 1"
           type: string
@@ -22656,17 +23438,17 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         deleted_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
       type: object
     ClientSettings:
       required:
@@ -22675,7 +23457,7 @@ components:
         currency_id:
           description: 'The default currency id'
           type: string
-          example: true
+          example: "1"
         timezone_id:
           description: 'The timezone id'
           type: string
@@ -22699,7 +23481,7 @@ components:
         payment_terms:
           description: '-1 sets no payment term, 0 sets payment due immediately, positive integers indicates payment terms in days'
           type: integer
-          example: '1'
+          example: 1
         company_gateway_ids:
           description: 'A commad separate list of available gateways'
           type: string
@@ -22724,7 +23506,7 @@ components:
           description: 'The default task rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         send_reminders:
           description: 'Toggles whether reminders are sent'
           type: boolean
@@ -22808,11 +23590,11 @@ components:
         task_number_counter:
           description: 'The incrementing counter for tasks'
           type: integer
-          example: '1'
+          example: 1
         reminder_send_time:
           description: 'Time from UTC +0 when the email will be sent to the client'
           type: integer
-          example: '32400'
+          example: 32400
         expense_number_pattern:
           description: 'Allows customisation of the expense number pattern'
           type: string
@@ -22820,7 +23602,7 @@ components:
         expense_number_counter:
           description: 'The incrementing counter for expenses'
           type: integer
-          example: '1'
+          example: 1
         vendor_number_pattern:
           description: 'Allows customisation of the vendor number pattern'
           type: string
@@ -22828,7 +23610,7 @@ components:
         vendor_number_counter:
           description: 'The incrementing counter for vendors'
           type: integer
-          example: '1'
+          example: 1
         ticket_number_pattern:
           description: 'Allows customisation of the ticket number pattern'
           type: string
@@ -22836,7 +23618,7 @@ components:
         ticket_number_counter:
           description: 'The incrementing counter for tickets'
           type: integer
-          example: '1'
+          example: 1
         payment_number_pattern:
           description: 'Allows customisation of the payment number pattern'
           type: string
@@ -22844,7 +23626,7 @@ components:
         payment_number_counter:
           description: 'The incrementing counter for payments'
           type: integer
-          example: '1'
+          example: 1
         invoice_number_pattern:
           description: 'Allows customisation of the invoice number pattern'
           type: string
@@ -22852,7 +23634,7 @@ components:
         invoice_number_counter:
           description: 'The incrementing counter for invoices'
           type: integer
-          example: '1'
+          example: 1
         quote_number_pattern:
           description: 'Allows customisation of the quote number pattern'
           type: string
@@ -22860,7 +23642,7 @@ components:
         quote_number_counter:
           description: 'The incrementing counter for quotes'
           type: integer
-          example: '1'
+          example: 1
         client_number_pattern:
           description: 'Allows customisation of the client number pattern'
           type: string
@@ -22868,7 +23650,7 @@ components:
         client_number_counter:
           description: 'The incrementing counter for clients'
           type: integer
-          example: '1'
+          example: 1
         credit_number_pattern:
           description: 'Allows customisation of the credit number pattern'
           type: string
@@ -22876,7 +23658,7 @@ components:
         credit_number_counter:
           description: 'The incrementing counter for credits'
           type: integer
-          example: '1'
+          example: 1
         recurring_invoice_number_prefix:
           description: 'This string is prepended to the recurring invoice number'
           type: string
@@ -22884,7 +23666,7 @@ components:
         reset_counter_frequency_id:
           description: 'CONSTANT which is used to apply the frequency which the counters are reset'
           type: integer
-          example: '1'
+          example: 1
         reset_counter_date:
           description: 'The explicit date which is used to reset counters'
           type: string
@@ -22892,7 +23674,7 @@ components:
         counter_padding:
           description: 'Pads the counter with leading zeros'
           type: integer
-          example: '1'
+          example: 1
         shared_invoice_quote_counter:
           description: 'Flags whether to share the counter for invoices and quotes'
           type: boolean
@@ -22920,7 +23702,7 @@ components:
         invoice_taxes:
           description: 'Taxes can be applied to the invoice'
           type: number
-          example: '1'
+          example: 1
         invoice_design_id:
           description: 'The default design id (invoice, quote etc)'
           type: string
@@ -22940,7 +23722,7 @@ components:
         tax_rate1:
           description: 'The tax rate (float)'
           type: number
-          example: '10'
+          example: 10
         tax_name1:
           description: 'The tax name'
           type: string
@@ -22948,7 +23730,7 @@ components:
         tax_rate2:
           description: 'The tax rate (float)'
           type: number
-          example: '10'
+          example: 10
         tax_name2:
           description: 'The tax name'
           type: string
@@ -22956,7 +23738,7 @@ components:
         tax_rate3:
           description: 'The tax rate (float)'
           type: number
-          example: '10'
+          example: 10
         tax_name3:
           description: 'The tax name'
           type: string
@@ -23064,11 +23846,11 @@ components:
         company_logo:
           description: 'The company logo file'
           type: object
-          example: logo.png
+          example: {}
         website:
           description: 'The company website URL'
           type: string
-          example: www.acme.com
+          example: "https://www.acme.com"
         address1:
           description: 'The company address line 1'
           type: string
@@ -23112,7 +23894,7 @@ components:
         font_size:
           description: 'The font size'
           type: number
-          example: '9'
+          example: 9
         primary_font:
           description: 'The primary font'
           type: string
@@ -23212,15 +23994,15 @@ components:
         num_days_reminder1:
           description: 'The Reminder interval'
           type: number
-          example: '9'
+          example: 9
         num_days_reminder2:
           description: 'The Reminder interval'
           type: number
-          example: '9'
+          example: 9
         num_days_reminder3:
           description: 'The Reminder interval'
           type: number
-          example: '9'
+          example: 9
         schedule_reminder1:
           description: '(enum: after_invoice_date, before_due_date, after_due_date)'
           type: string
@@ -23526,7 +24308,7 @@ components:
         account_sms_verified:
           description: 'Boolean flag if the account has been verified by sms'
           type: string
-          example: true
+          example: "true"
       type: object
     Invoice:
       properties:
@@ -23604,12 +24386,12 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_name3:
           description: 'The tax name'
           type: string
@@ -23618,12 +24400,12 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         total_taxes:
           description: 'The total taxes for the invoice'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         line_items:
           type: array
           description: 'An array of objects which define the line items of the invoice'
@@ -23638,27 +24420,27 @@ components:
           description: 'The invoice amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         balance:
           description: 'The invoice balance'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         paid_to_date:
           description: 'The amount paid on the invoice to date'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         discount:
           description: 'The invoice discount, can be an amount or a percentage'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         partial:
           description: 'The deposit/partial amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         is_amount_discount:
           description: 'Flag determining if the discount is an amount or a percentage'
           type: boolean
@@ -23700,37 +24482,37 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge2:
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
@@ -23754,7 +24536,7 @@ components:
         auto_bill_tries:
           description: 'The number of times the invoice has attempted to be auto billed'
           type: integer
-          example: '1'
+          example: 1
           readOnly: true
         auto_bill_enabled:
           description: 'Boolean flag determining if the invoice is set to auto bill'
@@ -23817,11 +24599,11 @@ components:
         industry_id:
           description: 'The unique identifier of the industry the client operates in'
           type: number
-          example: '5'
+          example: 5
         size_id:
           description: 'The unique identifier for the size category of the client company or organization'
           type: number
-          example: '2'
+          example: 2
         address1:
           description: "First line of the client's address"
           type: string
@@ -23854,7 +24636,7 @@ components:
           type: number
           format: integer
           $ref: '#/components/schemas/CountryType'
-          example: '1'
+          example: 1
         custom_value1:
           description: 'A custom field for storing additional information'
           type: string
@@ -23909,7 +24691,7 @@ components:
             Optionally, instead of the shipping_country_id you can pass either the iso_3166_2 or iso_3166_3 country code into the shipping_country_code property.
           type: number
           format: integer
-          example: '4'
+          example: 4
         is_deleted:
           description: 'A boolean value indicating whether the client has been deleted or not'
           type: boolean
@@ -23943,7 +24725,7 @@ components:
         num_days:
           description: 'The payment term length in days'
           type: integer
-          example: '1'
+          example: 1
         name:
           description: 'The payment term length in string format'
           type: string
@@ -23952,17 +24734,17 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
       type: object
     ClientContactRequest:
       properties:
@@ -24108,13 +24890,13 @@ components:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         email_error:
           description: 'The email error'
@@ -24279,19 +25061,19 @@ components:
           type: integer
           format: timestamp
           description: 'The timestamp when the product was archived.'
-          example: '2022-03-18T15:00:00Z'
+          example: 1647604800
           readOnly: true
         created_at:
           type: integer
           format: timestamp
           description: 'The timestamp when the product was created.'
-          example: '2022-03-18T15:00:00Z'
+          example: 1647604800
           readOnly: true
         updated_at:
           description: Timestamp
           type: integer
           format: timestamp
-          example: '2022-03-18T12:34:56.789Z'
+          example: 1647691496
           readOnly: true
         is_deleted:
           type: boolean
@@ -24418,11 +25200,11 @@ components:
         frequency_id:
           description: 'The recurring quote frequency'
           type: number
-          example: '4'
+          example: 4
         remaining_cycles:
           description: 'The number of quotes left to be generated'
           type: number
-          example: '4'
+          example: 4
         number:
           description: 'The recurringquote number - is a unique alpha numeric number per quote per company'
           type: string
@@ -24475,12 +25257,12 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_name3:
           description: 'The tax name'
           type: string
@@ -24489,41 +25271,41 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         total_taxes:
           description: 'The total taxes for the quote'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         line_items:
           description: 'An array of objects which define the line items of the quote'
           type: object
-          example: ''
+          example: {}
         amount:
           description: 'The quote amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         balance:
           description: 'The quote balance'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         paid_to_date:
           description: 'The amount paid on the quote to date'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         discount:
           description: 'The quote discount, can be an amount or a percentage'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         partial:
           description: 'The deposit/partial amount'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         is_amount_discount:
           description: 'Flag determining if the discount is an amount or a percentage'
           type: boolean
@@ -24567,37 +25349,37 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         custom_surcharge1:
           description: 'First Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge2:
           description: 'Second Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge3:
           description: 'Third Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge4:
           description: 'Fourth Custom Surcharge'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         custom_surcharge_tax1:
           description: 'Toggles charging taxes on custom surcharge amounts'
           type: boolean
@@ -24633,22 +25415,22 @@ components:
           description: 'The amount that has been refunded for this payment'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         amount:
           description: 'The amount that has been applied to the payment'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
       type: object
     SystemLog:
       properties:
@@ -24679,7 +25461,7 @@ components:
         log:
           description: 'The json object of the error'
           type: object
-          example: '{''key'':''value''}'
+          example: {}
         updated_at:
           description: Timestamp
           type: string
@@ -24738,7 +25520,7 @@ components:
         bank_account_id:
           description: 'The ID number of the bank account'
           type: integer
-          example: '1'
+          example: 1
       type: object
     ProjectRequest:
       required:
@@ -24839,13 +25621,13 @@ components:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         archived_at:
           description: 'Timestamp'
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         email_error:
           description: 'The email error'
@@ -25031,7 +25813,7 @@ components:
         accepted_credit_cards:
           description: 'Bitmask representation of cards'
           type: integer
-          example: '32'
+          example: 32
         require_billing_address:
           description: 'Determines if the the billing address is required prior to payment.'
           type: boolean
@@ -25093,7 +25875,7 @@ components:
         updated_at:
           description: 'Unixtimestamp the last time the record was updated'
           type: integer
-          example: '343421434'
+          example: 343421434
         expense_id:
           description: 'The expense hashed id'
           type: string
@@ -25365,7 +26147,7 @@ components:
         language_id:
           description: 'The language id of the user'
           type: string
-          example: 1  
+          example: "1"
         verified_phone_number:
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean
@@ -25469,7 +26251,7 @@ components:
         language_id:
           description: 'The language id of the user'
           type: string
-          example: 1  
+          example: "1"
         verified_phone_number:
           description: 'Boolean flag if the user has their phone verified. Required to settings up 2FA'
           type: boolean
@@ -25571,11 +26353,11 @@ components:
         updated_at:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
-          example: '1231232312321'
+          example: 1231232312321
         deleted_at:
           description: 'Timestamp when the user was archived, format Unix Timestamp'
           type: integer
-          example: '12312312321'
+          example: 12312312321
         account:
           $ref: '#/components/schemas/Account'
         company:
@@ -25617,11 +26399,11 @@ components:
         updated_at:
           description: 'The last time the record was modified, format Unix Timestamp'
           type: integer
-          example: '1231232312321'
+          example: 1231232312321
         deleted_at:
           description: 'Timestamp when the user was archived, format Unix Timestamp'
           type: integer
-          example: '12312312321'
+          example: 12312312321
         account:
           $ref: '#/components/schemas/Account'
         company:
@@ -25660,19 +26442,19 @@ components:
         invoice_currency_id:
           description: 'The currency id of the invoice associated with this recurring expense'
           type: string
-          example: '1'
+          example: "1"
         expense_currency_id:
           description: 'The currency id of the expense associated with this recurring expense'
           type: string
-          example: '1'
+          example: "1"
         invoice_category_id:
           description: 'The category id of the invoice'
           type: string
-          example: '1'
+          example: "1"
         payment_type_id:
           description: 'The payment type id'
           type: string
-          example: '1'
+          example: "1"
         private_notes:
           description: 'The recurring expense private notes'
           type: string
@@ -25717,12 +26499,12 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_name3:
           description: 'The tax name'
           type: string
@@ -25731,32 +26513,32 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         amount:
           description: 'The total amount of the recurring expense'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         frequency_id:
           description: 'The frequency this recurring expense fires'
           type: number
           format: int
-          example: '1'
+          example: 1
         remaining_cycles:
           description: 'The number of remaining cycles for this recurring expense'
           type: number
           format: int
-          example: '1'
+          example: 1
         foreign_amount:
           description: 'The foreign currency amount of the recurring expense'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         exchange_rate:
           description: 'The exchange rate for the expernse'
           type: number
           format: float
-          example: '0.80'
+          example: 0.80
         date:
           description: 'The date of the expense'
           type: string
@@ -25791,12 +26573,12 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
           type: boolean
@@ -25808,7 +26590,7 @@ components:
         currency_id:
           description: 'The unique identifier of the currency'
           type: string
-          example: '1'
+          example: "1"
         next_send_date_client:
           description: 'The next scheduled send date for the client'
           type: string
@@ -25944,37 +26726,37 @@ components:
           description: 'The number of failed logins the contact has had'
           type: number
           format: integer
-          example: '3'
+          example: 3
           readOnly: true
         email_verified_at:
           description: 'The date which the contact confirmed their email'
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         last_login:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         deleted_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
       type: object
     TaskSortRequest:
@@ -26184,32 +26966,32 @@ components:
           description: 'Tax rate 1'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate2:
           description: 'Tax rate 2'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         tax_rate3:
           description: 'Tax rate 3'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         amount:
           description: 'The total expense amont'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         foreign_amount:
           description: 'The total foreign amount of the expense'
           type: number
           format: float
-          example: '10.00'
+          example: 10.00
         exchange_rate:
           description: 'The exchange rate at the time of the expense'
           type: number
           format: float
-          example: '0.80'
+          example: 0.80
         date:
           description: 'The expense date format Y-m-d'
           type: string
@@ -26234,12 +27016,12 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
         calculate_tax_by_amount:
           description: 'Flag indicating whether to calculate tax based on amount rather than percentage'
           type: boolean
@@ -26338,11 +27120,11 @@ components:
         duration:
           description: 'The task duration in seconds'
           type: integer
-          example: '3600'
+          example: 3600
         task_status_order:
           description: 'The order of the task'
           type: integer
-          example: '4'
+          example: 4
         rate:
           description: 'The task rate'
           type: number
@@ -26380,19 +27162,19 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         archived_at:
           description: Timestamp
           type: number
           format: integer
-          example: '1434342123'
+          example: 1434342123
           readOnly: true
         hash:
           description: 'Unique hash identifier for this task'
@@ -26431,12 +27213,12 @@ components:
           description: 'The gateway fee amount'
           type: number
           format: float
-          example: '2.0'
+          example: 2.0
         fee_percent:
           description: 'The gateway fee percentage'
           type: number
           format: float
-          example: '2.0'
+          example: 2.0
         fee_tax_name1:
           description: 'Fee tax name'
           type: string
@@ -26453,22 +27235,22 @@ components:
           description: 'The tax rate'
           type: number
           format: float
-          example: '10.0'
+          example: 10.0
         fee_tax_rate2:
           description: 'The tax rate'
           type: number
           format: float
-          example: '17.5'
+          example: 17.5
         fee_tax_rate3:
           description: 'The tax rate'
           type: number
           format: float
-          example: '25.0'
+          example: 25.0
         fee_cap:
           description: 'If set the fee amount will be no higher than this amount'
           type: number
           format: float
-          example: '2.0'
+          example: 2.0
         adjust_fee_percent:
           description: 'Adjusts the fee to match the exact gateway fee.'
           type: boolean
@@ -26599,19 +27381,19 @@ components:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         created_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         updated_at:
           description: Timestamp
           type: number
           format: integer
-          example: '134341234234'
+          example: 134341234234
           readOnly: true
         display_name:
           description: 'The display name of the vendor.'
@@ -26653,19 +27435,19 @@ tags:
       The Clients API provides endpoints for managing client records within your company. A client represents a customer 
       or business entity that you provide services or products to.
 
-      ## Key Features
+      ### Key Features
       - Create, read, update, and delete client records
       - Manage client contact information and billing details
       - View client-specific transaction history
       - Handle multiple contacts per client
       - Track client-specific settings and preferences
 
-      ## Client Statuses
+      ### Client Statuses
       - Active: Client is currently active and can be billed
       - Archived: Client is archived and hidden from active lists
       - Deleted: Client is marked for deletion but retained in the database
 
-      ## Best Practices
+      ### Best Practices
       - Always validate client email addresses
       - Use unique client numbers for easy reference
       - Keep contact information up to date
@@ -26683,7 +27465,7 @@ tags:
       Endpoint definitions for interacting with products.
   - name: invoices
     x-displayName: Invoices
-    
+  
     description: |
 
       ## Invoice Statuses
@@ -26706,6 +27488,11 @@ tags:
         - An invoice which is not yet due, but also, not paid
         
   - name: Recurring Invoices
+    x-displayName: Recurring Invoices
+    description: |
+      Endpoint definitions for interacting with recurring_invoices.
+
+  - name: Recurring-Invoices
     x-displayName: Recurring Invoices
     description: |
       Endpoint definitions for interacting with recurring_invoices.
@@ -26745,6 +27532,11 @@ tags:
     description: |
       Endpoint definitions for interacting with purchase orders.
 
+  - name: Purchase-Orders
+    x-displayName: Purchase Orders
+    description: |
+      Endpoint definitions for interacting with purchase orders.
+
   - name: expenses
     x-displayName: Expenses
     description: |
@@ -26764,6 +27556,261 @@ tags:
     x-displayName: Reports
     description: |
       Endpoint definitions for interacting with reports.
+
+  - name: activities
+    x-displayName: Activities
+    description: |
+      Endpoint definitions for interacting with activities.
+
+  - name: bank_integrations
+    x-displayName: Bank Integrations
+    description: |
+      Endpoint definitions for interacting with bank integrations.
+
+  - name: bank_transaction_rules
+    x-displayName: Bank Transaction Rules
+    description: |
+      Endpoint definitions for interacting with bank transaction rules.
+
+  - name: charts
+    x-displayName: Charts
+    description: |
+      Endpoint definitions for interacting with charts.
+
+  - name: claim_license
+    x-displayName: Claim License
+    description: |
+      Endpoint definitions for claiming licenses.
+
+  - name: client_gateway_tokens
+    x-displayName: Client Gateway Tokens
+    description: |
+      Endpoint definitions for interacting with client gateway tokens.
+
+  - name: companies
+    x-displayName: Companies
+    description: |
+      Endpoint definitions for interacting with companies.
+
+  - name: company_gateways
+    x-displayName: Company Gateways
+    description: |
+      Endpoint definitions for interacting with company gateways.
+
+  - name: company_ledger
+    x-displayName: Company Ledger
+    description: |
+      Endpoint definitions for interacting with company ledger.
+
+  - name: company_user
+    x-displayName: Company User
+    description: |
+      Endpoint definitions for interacting with company users.
+
+  - name: connected_account
+    x-displayName: Connected Account
+    description: |
+      Endpoint definitions for connecting accounts.
+
+  - name: Credits
+    x-displayName: Credits
+    description: |
+      Endpoint definitions for interacting with credits.
+
+  - name: designs
+    x-displayName: Designs
+    description: |
+      Endpoint definitions for interacting with designs.
+
+  - name: documents
+    x-displayName: Documents
+    description: |
+      Endpoint definitions for interacting with documents.
+
+  - name: emails
+    x-displayName: Emails
+    description: |
+      Endpoint definitions for sending emails.
+
+  - name: expense
+    x-displayName: Expense
+    description: |
+      Endpoint definitions for interacting with expense documents.
+
+  - name: expense_categories
+    x-displayName: Expense Categories
+    description: |
+      Endpoint definitions for interacting with expense categories.
+
+  - name: export
+    x-displayName: Export
+    description: |
+      Endpoint definitions for exporting data.
+
+  - name: group_settings
+    x-displayName: Group Settings
+    description: |
+      Endpoint definitions for interacting with group settings.
+
+  - name: health_check
+    x-displayName: Health Check
+    description: |
+      Endpoint definitions for health checks.
+
+  - name: import
+    x-displayName: Import
+    description: |
+      Endpoint definitions for importing data.
+
+  - name: imports
+    x-displayName: Imports
+    description: |
+      Endpoint definitions for pre-import operations.
+
+  - name: logout
+    x-displayName: Logout
+    description: |
+      Endpoint definitions for logging out.
+
+  - name: migration
+    x-displayName: Migration
+    description: |
+      Endpoint definitions for migration operations.
+
+  - name: one_time_token
+    x-displayName: One Time Token
+    description: |
+      Endpoint definitions for one-time tokens.
+
+  - name: payment_terms
+    x-displayName: Payment Terms
+    description: |
+      Endpoint definitions for interacting with payment terms.
+
+  - name: payment_termss
+    x-displayName: Payment Terms
+    description: |
+      Endpoint definitions for payment terms operations.
+
+  - name: ping
+    x-displayName: Ping
+    description: |
+      Endpoint definitions for ping operations.
+
+  - name: postmark
+    x-displayName: Postmark
+    description: |
+      Endpoint definitions for Postmark webhooks.
+
+  - name: preview
+    x-displayName: Preview
+    description: |
+      Endpoint definitions for PDF previews.
+
+  - name: recurring_expense
+    x-displayName: Recurring Expense
+    description: |
+      Endpoint definitions for recurring expense documents.
+
+  - name: recurring_quotes
+    x-displayName: Recurring Quotes
+    description: |
+      Endpoint definitions for interacting with recurring quotes.
+
+  - name: refresh
+    x-displayName: Refresh
+    description: |
+      Endpoint definitions for refreshing data.
+
+  - name: scheduler
+    x-displayName: Scheduler
+    description: |
+      Endpoint definitions for scheduler operations.
+
+  - name: search
+    x-displayName: Search
+    description: |
+      Endpoint definitions for search operations.
+
+  - name: statics
+    x-displayName: Statics
+    description: |
+      Endpoint definitions for static data.
+
+  - name: subscriptions
+    x-displayName: Subscriptions
+    description: |
+      Endpoint definitions for interacting with subscriptions.
+
+  - name: support
+    x-displayName: Support
+    description: |
+      Endpoint definitions for support operations.
+
+  - name: system_logs
+    x-displayName: System Logs
+    description: |
+      Endpoint definitions for system logs.
+
+  - name: task_schedulers
+    x-displayName: Task Schedulers
+    description: |
+      Endpoint definitions for interacting with task schedulers.
+
+  - name: task_status
+    x-displayName: Task Status
+    description: |
+      Endpoint definitions for interacting with task statuses.
+
+  - name: task_statuss
+    x-displayName: Task Status
+    description: |
+      Endpoint definitions for task status operations.
+
+  - name: tax_rates
+    x-displayName: Tax Rates
+    description: |
+      Endpoint definitions for interacting with tax rates.
+
+  - name: templates
+    x-displayName: Templates
+    description: |
+      Endpoint definitions for template operations.
+
+  - name: tokens
+    x-displayName: Tokens
+    description: |
+      Endpoint definitions for interacting with tokens.
+
+  - name: update
+    x-displayName: Update
+    description: |
+      Endpoint definitions for system updates.
+
+  - name: users
+    x-displayName: Users
+    description: |
+      Endpoint definitions for interacting with users.
+
+  - name: webcron
+    x-displayName: Webcron
+    description: |
+      Endpoint definitions for webcron operations.
+
+  - name: webhooks
+    x-displayName: Webhooks
+    description: |
+      Endpoint definitions for interacting with webhooks.
+
+  - name: Webhooks
+    x-displayName: Webhooks
+    description: |
+      Endpoint definitions for webhook operations.
+
+  - name: yodlee
+    x-displayName: Yodlee
+    description: |
+      Endpoint definitions for Yodlee webhooks.
 
 externalDocs:
   description: "Client Libraries"

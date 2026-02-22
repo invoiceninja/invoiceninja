@@ -133,7 +133,7 @@ class Purchase extends Component
 
     public function mount()
     {
-        $classes = collect(self::$dependencies)->mapWithKeys(fn ($dependency, $class) => [$dependency['id'] => $class])->toArray();
+        $classes = collect(self::$dependencies)->mapWithKeys(fn($dependency, $class) => [$dependency['id'] => $class])->toArray();
 
         MultiDB::setDb($this->db);
 
@@ -152,7 +152,7 @@ class Purchase extends Component
 
         if ($sub->steps) {
             $steps = collect(explode(',', $sub->steps))
-                ->map(fn ($step) => $classes[$step])
+                ->map(fn($step) => $classes[$step])
                 ->toArray();
             $this->steps = [
                 Setup::class,
