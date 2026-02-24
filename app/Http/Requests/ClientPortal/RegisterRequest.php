@@ -52,6 +52,10 @@ class RegisterRequest extends FormRequest
                 $rules[$field] = array_merge($rules[$field], ['email:rfc,dns', 'max:191', Rule::unique('client_contacts')->where('company_id', $this->company()->id)]);
             }
 
+	        if ($field === 'password') {
+           	$rules[$field] = array_merge($rules[$field], ['confirmed', 'min:8']);
+            }
+
             if ($field === 'current_password') {
                 $rules[$field] = array_merge($rules[$field], ['string', 'min:6', 'confirmed']);
             }
