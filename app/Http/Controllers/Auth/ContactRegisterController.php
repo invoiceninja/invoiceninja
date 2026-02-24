@@ -55,7 +55,7 @@ class ContactRegisterController extends Controller
 
         $data = [
             'formed_disabled' => $company->account->isFreeHostedClient(),
-            'register_company' => $company,
+            'company' => $company,
             'account' => $company->account,
             'submitsForm' => false,
             'show_turnstile' => $show_turnstile
