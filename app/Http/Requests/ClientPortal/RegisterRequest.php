@@ -53,7 +53,7 @@ class RegisterRequest extends FormRequest
             }
 
 	        if ($field === 'password') {
-           	$rules[$field] = array_merge($rules[$field], ['confirmed', 'min:8']);
+           	    $rules[$field] = array_merge($rules[$field], ['confirmed', 'min:8']);
             }
 
             if ($field === 'current_password') {
