@@ -151,6 +151,122 @@ paths:
         default:
           $ref: "#/components/responses/default"
 
+  /api/v1/passkeys/login/options:
+    post:
+      tags:
+        - auth
+      summary: "Passkey login options"
+      operationId: postPasskeyLoginOptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: "demo@invoiceninja.com"
+              required:
+                - email
+      responses:
+        200:
+          description: "Returns passkey authentication options and challenge token"
+        401:
+          $ref: "#/components/responses/401"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/settings/passkeys:
+    get:
+      tags:
+        - settings
+      summary: "List passkeys"
+      operationId: getSettingsPasskeys
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+      responses:
+        200:
+          description: "Returns passkeys for the current user"
+        401:
+          $ref: "#/components/responses/401"
+        default:
+          $ref: "#/components/responses/default"
+    post:
+      tags:
+        - settings
+      summary: "Create passkey"
+      operationId: postSettingsPasskeys
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challenge_token:
+                  type: string
+                credential:
+                  type: object
+                  additionalProperties: true
+                name:
+                  type: string
+              required:
+                - challenge_token
+                - credential
+      responses:
+        200:
+          description: "Passkey added"
+        401:
+          $ref: "#/components/responses/401"
+        422:
+          $ref: "#/components/responses/422"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/settings/passkeys/options:
+    post:
+      tags:
+        - settings
+      summary: "Passkey registration options"
+      operationId: postSettingsPasskeysOptions
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+      responses:
+        200:
+          description: "Returns passkey registration options and challenge token"
+        401:
+          $ref: "#/components/responses/401"
+        default:
+          $ref: "#/components/responses/default"
+
+  /api/v1/settings/passkeys/{passkey}:
+    delete:
+      tags:
+        - settings
+      summary: "Delete passkey"
+      operationId: deleteSettingsPasskey
+      parameters:
+        - $ref: "#/components/parameters/X-API-TOKEN"
+        - name: passkey
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: "Passkey removed"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        default:
+          $ref: "#/components/responses/default"
+
   /api/v1/login:
     post:
       x-codeSamples:
@@ -201,16 +317,23 @@ paths:
                   type: string
                   example: "demo@invoiceninja.com"
                 password:
-                  description: "The user password. Must meet minimum criteria ~ > 6 characters"
+                  description: "The user password. Optional when performing passkey passwordless login."
                   type: string
                   example: "Password0"
                 one_time_password:
                   description: "The one time password if 2FA is enabled"
                   type: string
                   example: "123456"
+                passkey_challenge_token:
+                  description: "Challenge token returned by passkey login options or second-factor challenge."
+                  type: string
+                  example: "f8f0cf1f4f6c4de5b6d6c5d4a0f8e5b2b89e1f1a"
+                passkey_authentication:
+                  description: "WebAuthn assertion payload."
+                  type: object
+                  additionalProperties: true
               required:
                 - email
-                - password
               type: object
       responses:
         200:

@@ -44,7 +44,9 @@ class LoginRequest extends Request
 
         return [
             'email' => $email_rules,
-            'password' => 'required|max:1000',
+            'password' => 'required_without:passkey_challenge_token|max:1000',
+            'passkey_challenge_token' => 'nullable|string|max:255',
+            'passkey_authentication' => 'nullable|array',
         ];
     }
 }

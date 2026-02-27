@@ -13,6 +13,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SNSController;
 use App\Http\Controllers\BaseController;
+use App\Http\Controllers\PasskeyController;
 use App\Http\Controllers\PingController;
 use App\Http\Controllers\SmtpController;
 use App\Http\Controllers\TaskController;
@@ -141,6 +142,7 @@ Route::group(['middleware' => ['throttle:api', 'api_secret_check']], function ()
 Route::group(['middleware' => ['throttle:login', 'api_secret_check', 'email_db']], function () {
     Route::post('api/v1/login', [LoginController::class, 'apiLogin'])->name('login.submit');
     Route::post('api/v1/reset_password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+    Route::post('api/v1/passkeys/login/options', [PasskeyController::class, 'loginOptions'])->name('passkeys.login.options');
 });
 
 Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','locale'], 'prefix' => 'api/v1', 'as' => 'api.'], function () {
@@ -420,6 +422,10 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::get('settings/enable_two_factor', [TwoFactorController::class, 'setupTwoFactor']);
     Route::post('settings/enable_two_factor', [TwoFactorController::class, 'enableTwoFactor']);
     Route::post('settings/disable_two_factor', [TwoFactorController::class, 'disableTwoFactor']);
+    Route::get('settings/passkeys', [PasskeyController::class, 'index'])->name('passkeys.index');
+    Route::post('settings/passkeys/options', [PasskeyController::class, 'registrationOptions'])->name('passkeys.options');
+    Route::post('settings/passkeys', [PasskeyController::class, 'store'])->name('passkeys.store');
+    Route::delete('settings/passkeys/{passkey}', [PasskeyController::class, 'destroy'])->name('passkeys.destroy');
 
     Route::post('verify', [TwilioController::class, 'generate'])->name('verify.generate')->middleware('throttle:daily-verify');
     Route::post('verify/confirm', [TwilioController::class, 'confirm'])->name('verify.confirm')->middleware('throttle:daily-verify');

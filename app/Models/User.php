@@ -541,6 +541,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Webhook::class)->withTrashed();
     }
 
+    public function passkey_credentials(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PasskeyCredential::class)->where('is_deleted', false);
+    }
+
     /**
      * Returns a comma separated list of user permissions.
      *
