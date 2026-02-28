@@ -153,9 +153,14 @@ class PasskeyService
             $this->decodeBase64Input($payload['signature'] ?? null),
             base64_decode($credential->credential_public_key),
             $challengeData['challenge'],
-            null,
+            (int) ($credential->signature_counter ?? 0),
             false
         );
+
+        $currentCounter = $webAuthn->getSignatureCounter();
+        if (!is_null($currentCounter)) {
+            $credential->signature_counter = $currentCounter;
+        }
 
         $credential->last_used_at = Carbon::now();
         $credential->save();
