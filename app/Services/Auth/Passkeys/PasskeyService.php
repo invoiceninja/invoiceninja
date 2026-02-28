@@ -127,9 +127,9 @@ class PasskeyService
         ];
     }
 
-    public function authenticate(?User $user, string $challengeToken, array $payload): User
+    public function authenticate(User $user, string $challengeToken, array $payload): User
     {
-        $challengeData = $this->getChallenge($challengeToken, 'authentication', $user?->id);
+        $challengeData = $this->getChallenge($challengeToken, 'authentication', $user->id);
         $credentialId = base64_encode($this->decodeBase64Input($payload['id'] ?? null));
 
         $credentialQuery = PasskeyCredential::query()
@@ -146,9 +146,6 @@ class PasskeyService
             throw new \RuntimeException('Passkey credential not found.');
         }
 
-        /** @var User $resolvedUser */
-        $resolvedUser = $user ?: User::query()->findOrFail($credential->user_id);
-
         $webAuthn = $this->makeWebAuthn();
         $webAuthn->processGet(
             $this->decodeBase64Input($payload['clientDataJSON'] ?? null),
@@ -163,7 +160,7 @@ class PasskeyService
         $credential->last_used_at = Carbon::now();
         $credential->save();
 
-        return $resolvedUser;
+        return $user;
     }
 
     private function makeWebAuthn(): WebAuthn
