@@ -85,7 +85,6 @@ class PasskeyService
         $credential->credential_public_key = base64_encode($result->credentialPublicKey);
         $credential->signature_counter = (int) ($result->signatureCounter ?? 0);
         $credential->transports = $payload['transports'] ?? null;
-        $credential->is_deleted = false;
         $credential->save();
 
         return $credential;
@@ -134,8 +133,7 @@ class PasskeyService
         $credentialId = base64_encode($this->decodeBase64Input($payload['id'] ?? null));
 
         $credentialQuery = PasskeyCredential::query()
-            ->where('credential_id', $credentialId)
-            ->where('is_deleted', false);
+            ->where('credential_id', $credentialId);
 
         if ($user) {
             $credentialQuery->where('user_id', $user->id);

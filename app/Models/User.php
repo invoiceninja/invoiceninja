@@ -543,7 +543,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function passkey_credentials(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(PasskeyCredential::class)->where('is_deleted', false);
+        return $this->hasMany(PasskeyCredential::class);
     }
 
     /**

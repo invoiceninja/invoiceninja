@@ -96,9 +96,7 @@ class PasskeyController extends BaseController
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $passkey->is_deleted = true;
-        $passkey->save();
-        $passkey->delete();
+        $passkey->forceDelete();
 
         return response()->json(['message' => 'Passkey removed']);
     }
