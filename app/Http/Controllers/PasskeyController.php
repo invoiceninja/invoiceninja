@@ -113,7 +113,7 @@ class PasskeyController extends BaseController
         $user = MultiDB::hasUser(['email' => $validated['email']]);
 
         if (!$user || $user->trashed() || $user->is_deleted) {
-            return response()->json(['message' => ctrans('texts.invalid_credentials')], 422);
+            return response()->json(['message' => ctrans('texts.invalid_credentials')], 400);
         }
 
         $data = $this->passkeyService->getAuthenticationOptions($user, true);
