@@ -109,13 +109,10 @@ class PasskeyController extends BaseController
             'email' => ['required', 'email:rfc'],
         ]);
 
-        if (!MultiDB::userFindAndSetDb($validated['email'])) {
-            return response()->json(['message' => ctrans('texts.invalid_credentials')], 422);
-        }
+        /** @var \App\Models\User|null $user */
+        $user = MultiDB::hasUser(['email' => $validated['email']]);
 
-        $user = \App\Models\User::query()->where('email', $validated['email'])->first();
-
-        if (!$user) {
+        if (!$user || $user->trashed() || $user->is_deleted) {
             return response()->json(['message' => ctrans('texts.invalid_credentials')], 422);
         }
 
