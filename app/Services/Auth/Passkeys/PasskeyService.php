@@ -67,20 +67,26 @@ class PasskeyService
             false
         );
 
-        $credential = PasskeyCredential::query()->updateOrCreate(
-            [
-                'account_id' => $user->account_id,
-                'user_id' => $user->id,
-                'credential_id' => base64_encode($result->credentialId),
-            ],
-            [
-                'name' => $name ?: ctrans('texts.passkey'),
-                'credential_public_key' => base64_encode($result->credentialPublicKey),
-                'signature_counter' => (int) ($result->signatureCounter ?? 0),
-                'transports' => $payload['transports'] ?? null,
-                'is_deleted' => false,
-            ]
-        );
+        $credentialId = base64_encode($result->credentialId);
+        $credential = PasskeyCredential::query()
+            ->where('account_id', $user->account_id)
+            ->where('user_id', $user->id)
+            ->where('credential_id', $credentialId)
+            ->first();
+
+        if (!$credential) {
+            $credential = new PasskeyCredential();
+            $credential->account_id = $user->account_id;
+            $credential->user_id = $user->id;
+            $credential->credential_id = $credentialId;
+        }
+
+        $credential->name = $name ?: ctrans('texts.passkey');
+        $credential->credential_public_key = base64_encode($result->credentialPublicKey);
+        $credential->signature_counter = (int) ($result->signatureCounter ?? 0);
+        $credential->transports = $payload['transports'] ?? null;
+        $credential->is_deleted = false;
+        $credential->save();
 
         return $credential;
     }
