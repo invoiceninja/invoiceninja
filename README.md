@@ -183,3 +183,25 @@ For further information on responsible disclosure please read [here](https://che
 ## License
 Invoice Ninja is released under the Elastic License.  
 See [LICENSE](LICENSE) for details.
+
+
+---
+
+## IE5042 – Software Security Assignment
+
+### Student Security Analysis Project
+
+This repository is used for conducting a structured security analysis
+of the Invoice Ninja web application.
+
+### Scope of Work
+- Local deployment and environment configuration
+- Threat modeling using STRIDE
+- OWASP Top 10 security testing
+- Automated and manual vulnerability analysis
+- Implementation of security improvements
+- Retesting and documentation
+
+### Ethical Statement
+All security testing will be conducted on a locally deployed instance.
+No testing will be performed against live production systems.
