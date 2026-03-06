@@ -96,7 +96,7 @@ class PasskeyController extends BaseController
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $passkey->forceDelete();
+        $passkey->delete();
 
         return response()->json(['message' => 'Passkey removed']);
     }
@@ -111,7 +111,11 @@ class PasskeyController extends BaseController
         $user = MultiDB::hasUser(['email' => $validated['email']]);
 
         if (!$user || $user->trashed() || $user->is_deleted) {
-            return response()->json(['message' => ctrans('texts.invalid_credentials')], 400);
+            return response()->json(['message' => ctrans('texts.invalid_credentials')], 404);
+        }
+
+        if (!$user->passkey_credentials()->exists()) {
+            return response()->json(['message' => ctrans('texts.no_passkeys_registered')], 404);
         }
 
         $data = $this->passkeyService->getAuthenticationOptions($user, true);

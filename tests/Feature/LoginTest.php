@@ -246,7 +246,6 @@ class LoginTest extends TestCase
             'credential_id' => base64_encode('test-credential'),
             'credential_public_key' => base64_encode('test-public-key'),
             'signature_counter' => 0,
-            'is_deleted' => false,
         ]);
 
         $passkeyService = Mockery::mock(PasskeyService::class);
@@ -266,5 +265,40 @@ class LoginTest extends TestCase
         $response->assertStatus(422);
         $response->assertJsonPath('requires_second_factor', true);
         $response->assertJsonPath('passkey_options.challenge_token', 'challenge-token');
+    }
+
+    public function testPasskeyLoginOptionsReturns404WhenUserHasNoPasskeys()
+    {
+        Account::all()->each(function ($account) {
+            $account->delete();
+        });
+
+        $account = Account::factory()->create();
+        $user = User::factory()->create([
+            'account_id' => $account->id,
+            'email' => 'nopasskey@example.com',
+            'password' => \Hash::make('123456'),
+        ]);
+
+        $company = Company::factory()->create([
+            'account_id' => $account->id,
+        ]);
+
+        $account->default_company_id = $company->id;
+        $account->save();
+
+        $user->companies()->attach($company->id, [
+            'account_id' => $account->id,
+            'is_owner' => 1,
+            'notifications' => CompanySettings::notificationDefaults(),
+            'is_admin' => 1,
+        ]);
+
+        $response = $this->postJson('/api/v1/passkeys/login/options', [
+            'email' => 'nopasskey@example.com',
+        ]);
+
+        $response->assertStatus(404);
+        $response->assertJsonPath('message', 'No passkeys registered for this account. Please use password login or register a passkey first.');
     }
 }

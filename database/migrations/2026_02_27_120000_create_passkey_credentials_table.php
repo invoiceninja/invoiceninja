@@ -22,10 +22,10 @@ return new class extends Migration
             $table->unsignedBigInteger('signature_counter')->default(0);
             $table->json('transports')->nullable();
             $table->timestamp('last_used_at')->nullable();
-            $table->boolean('is_deleted')->default(false);
             $table->timestamps();
-            $table->softDeletes();
-            $table->index(['user_id', 'is_deleted']);
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

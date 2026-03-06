@@ -172,6 +172,16 @@ paths:
       responses:
         200:
           description: "Returns passkey authentication options and challenge token"
+        404:
+          description: "No passkeys registered for this account"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No passkeys registered for this account. Please use password login or register a passkey first."
         401:
           $ref: "#/components/responses/401"
         422:

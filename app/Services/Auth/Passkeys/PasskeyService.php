@@ -133,11 +133,8 @@ class PasskeyService
         $credentialId = base64_encode($this->decodeBase64Input($payload['id'] ?? null));
 
         $credentialQuery = PasskeyCredential::query()
-            ->where('credential_id', $credentialId);
-
-        if ($user) {
-            $credentialQuery->where('user_id', $user->id);
-        }
+            ->where('credential_id', $credentialId)
+            ->where('user_id', $user->id);
 
         /** @var PasskeyCredential|null $credential */
         $credential = $credentialQuery->first();
