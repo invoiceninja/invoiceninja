@@ -14,8 +14,6 @@ namespace App\Models;
 
 class PasskeyCredential extends BaseModel
 {
-    use Filterable;
-
     protected $fillable = [
         'name',
         'transports',

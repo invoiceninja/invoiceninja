@@ -71,12 +71,18 @@ class PasskeyController extends BaseController
             'name' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $credential = $this->passkeyService->registerCredential(
-            $user,
-            $validated['challenge_token'],
-            $validated['credential'],
-            $validated['name'] ?? null
-        );
+        try {
+            $credential = $this->passkeyService->registerCredential(
+                $user,
+                $validated['challenge_token'],
+                $validated['credential'],
+                $validated['name'] ?? null
+            );
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => ctrans('texts.invalid_credentials'),
+            ], 422);
+        }
 
         return response()->json([
             'data' => [

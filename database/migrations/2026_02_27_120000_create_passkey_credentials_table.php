@@ -23,6 +23,7 @@ return new class extends Migration
             $table->json('transports')->nullable();
             $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
+            $table->index(['user_id', 'credential_id']);
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
